@@ -62,9 +62,9 @@ Future<bool> canManageAgents(Ref ref) async {
   );
 }
 
-/// Whether the current user can manage clients
+/// Whether the current user can manage borrowers
 @riverpod
-Future<bool> canManageClients(Ref ref) async {
+Future<bool> canManageBorrowers(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
     (r) => [
@@ -73,5 +73,14 @@ Future<bool> canManageClients(Ref ref) async {
       LenderRole.manager,
       LenderRole.agent,
     ].contains(r),
+  );
+}
+
+/// Whether the current user can manage investors
+@riverpod
+Future<bool> canManageInvestors(Ref ref) async {
+  final roles = await ref.watch(currentUserRolesProvider.future);
+  return roles.any(
+    (r) => [LenderRole.owner, LenderRole.admin].contains(r),
   );
 }

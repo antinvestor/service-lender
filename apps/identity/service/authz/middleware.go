@@ -15,10 +15,13 @@ type Middleware interface {
 	CanAgentCreate(ctx context.Context) error
 	CanAgentManage(ctx context.Context) error
 	CanAgentView(ctx context.Context) error
-	CanClientCreate(ctx context.Context) error
-	CanClientManage(ctx context.Context) error
-	CanClientView(ctx context.Context) error
-	CanClientReassign(ctx context.Context) error
+	CanBorrowerCreate(ctx context.Context) error
+	CanBorrowerManage(ctx context.Context) error
+	CanBorrowerView(ctx context.Context) error
+	CanBorrowerReassign(ctx context.Context) error
+	CanInvestorCreate(ctx context.Context) error
+	CanInvestorManage(ctx context.Context) error
+	CanInvestorView(ctx context.Context) error
 	CanSystemUserManage(ctx context.Context) error
 	CanSystemUserView(ctx context.Context) error
 }
@@ -61,20 +64,32 @@ func (m *middleware) CanAgentView(ctx context.Context) error {
 	return m.checker.Check(ctx, PermissionAgentView)
 }
 
-func (m *middleware) CanClientCreate(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionClientCreate)
+func (m *middleware) CanBorrowerCreate(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionBorrowerCreate)
 }
 
-func (m *middleware) CanClientManage(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionClientManage)
+func (m *middleware) CanBorrowerManage(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionBorrowerManage)
 }
 
-func (m *middleware) CanClientView(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionClientView)
+func (m *middleware) CanBorrowerView(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionBorrowerView)
 }
 
-func (m *middleware) CanClientReassign(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionClientReassign)
+func (m *middleware) CanBorrowerReassign(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionBorrowerReassign)
+}
+
+func (m *middleware) CanInvestorCreate(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionInvestorCreate)
+}
+
+func (m *middleware) CanInvestorManage(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionInvestorManage)
+}
+
+func (m *middleware) CanInvestorView(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionInvestorView)
 }
 
 func (m *middleware) CanSystemUserManage(ctx context.Context) error {

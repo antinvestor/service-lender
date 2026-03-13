@@ -168,20 +168,20 @@ func AgentFromAPI(ctx context.Context, obj *lenderv1.AgentObject) *Agent {
 	return model
 }
 
-// Client represents a loan recipient assigned to an agent.
-type Client struct {
+// Borrower represents a loan recipient assigned to an agent.
+type Borrower struct {
 	data.BaseModel
-	AgentID    string   `gorm:"type:varchar(50);index:idx_client_agent"`
-	ProfileID  string   `gorm:"type:varchar(50);uniqueIndex:uq_client_profile"`
+	AgentID    string   `gorm:"type:varchar(50);index:idx_borrower_agent"`
+	ProfileID  string   `gorm:"type:varchar(50);uniqueIndex:uq_borrower_profile"`
 	Name       string   `gorm:"type:varchar(255)"`
 	State      int32
 	Properties data.JSONMap
 }
 
-func (m *Client) TableName() string { return "clients" }
+func (m *Borrower) TableName() string { return "borrowers" }
 
-func (m *Client) ToAPI() *lenderv1.ClientObject {
-	return &lenderv1.ClientObject{
+func (m *Borrower) ToAPI() *lenderv1.BorrowerObject {
+	return &lenderv1.BorrowerObject{
 		Id:         m.GetID(),
 		AgentId:    m.AgentID,
 		ProfileId:  m.ProfileID,
@@ -191,12 +191,12 @@ func (m *Client) ToAPI() *lenderv1.ClientObject {
 	}
 }
 
-func ClientFromAPI(ctx context.Context, obj *lenderv1.ClientObject) *Client {
+func BorrowerFromAPI(ctx context.Context, obj *lenderv1.BorrowerObject) *Borrower {
 	if obj == nil {
 		return nil
 	}
 
-	model := &Client{
+	model := &Borrower{
 		AgentID:   obj.GetAgentId(),
 		ProfileID: obj.GetProfileId(),
 		Name:      obj.GetName(),
@@ -215,16 +215,60 @@ func ClientFromAPI(ctx context.Context, obj *lenderv1.ClientObject) *Client {
 	return model
 }
 
-// ClientAssignmentHistory records client reassignment events.
-type ClientAssignmentHistory struct {
+// BorrowerAssignmentHistory records borrower reassignment events.
+type BorrowerAssignmentHistory struct {
 	data.BaseModel
-	ClientID        string `gorm:"type:varchar(50);index:idx_cah_client"`
+	BorrowerID      string `gorm:"type:varchar(50);index:idx_bah_borrower"`
 	PreviousAgentID string `gorm:"type:varchar(50)"`
 	NewAgentID      string `gorm:"type:varchar(50)"`
 	Reason          string `gorm:"type:text"`
 }
 
-func (m *ClientAssignmentHistory) TableName() string { return "client_assignment_history" }
+func (m *BorrowerAssignmentHistory) TableName() string { return "borrower_assignment_history" }
+
+// Investor represents an independent investor linked to a profile.
+type Investor struct {
+	data.BaseModel
+	ProfileID  string   `gorm:"type:varchar(50);uniqueIndex:uq_investor_profile"`
+	Name       string   `gorm:"type:varchar(255)"`
+	State      int32
+	Properties data.JSONMap
+}
+
+func (m *Investor) TableName() string { return "investors" }
+
+func (m *Investor) ToAPI() *lenderv1.InvestorObject {
+	return &lenderv1.InvestorObject{
+		Id:         m.GetID(),
+		ProfileId:  m.ProfileID,
+		Name:       m.Name,
+		State:      commonv1.STATE(m.State),
+		Properties: m.Properties.ToProtoStruct(),
+	}
+}
+
+func InvestorFromAPI(ctx context.Context, obj *lenderv1.InvestorObject) *Investor {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Investor{
+		ProfileID: obj.GetProfileId(),
+		Name:      obj.GetName(),
+		State:     int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
 
 // SystemUser represents a user with a specific role in the lending workflow.
 type SystemUser struct {

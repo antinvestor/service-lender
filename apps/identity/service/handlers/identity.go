@@ -15,10 +15,11 @@ import (
 
 // IdentityServer implements the IdentityService RPC handler.
 type IdentityServer struct {
-	authz          authz.Middleware
-	bankBusiness   business.BankBusiness
-	branchBusiness business.BranchBusiness
-	suBusiness     business.SystemUserBusiness
+	authz            authz.Middleware
+	bankBusiness     business.BankBusiness
+	branchBusiness   business.BranchBusiness
+	investorBusiness business.InvestorBusiness
+	suBusiness       business.SystemUserBusiness
 
 	lenderv1connect.UnimplementedIdentityServiceHandler
 }
@@ -27,13 +28,15 @@ func NewIdentityServer(
 	authzMiddleware authz.Middleware,
 	bankBusiness business.BankBusiness,
 	branchBusiness business.BranchBusiness,
+	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) lenderv1connect.IdentityServiceHandler {
 	return &IdentityServer{
-		authz:          authzMiddleware,
-		bankBusiness:   bankBusiness,
-		branchBusiness: branchBusiness,
-		suBusiness:     suBusiness,
+		authz:            authzMiddleware,
+		bankBusiness:     bankBusiness,
+		branchBusiness:   branchBusiness,
+		investorBusiness: investorBusiness,
+		suBusiness:       suBusiness,
 	}
 }
 
@@ -112,6 +115,47 @@ func (s *IdentityServer) BranchSearch(ctx context.Context, req *connect.Request[
 	err := s.branchBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*lenderv1.BranchObject) error {
 			return stream.Send(&lenderv1.BranchSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- Investor RPCs ---
+
+func (s *IdentityServer) InvestorSave(ctx context.Context, req *connect.Request[lenderv1.InvestorSaveRequest]) (*connect.Response[lenderv1.InvestorSaveResponse], error) {
+	if err := s.authz.CanInvestorCreate(ctx); err != nil {
+		return nil, authorizer.ToConnectError(err)
+	}
+
+	result, err := s.investorBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&lenderv1.InvestorSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) InvestorGet(ctx context.Context, req *connect.Request[lenderv1.InvestorGetRequest]) (*connect.Response[lenderv1.InvestorGetResponse], error) {
+	if err := s.authz.CanInvestorView(ctx); err != nil {
+		return nil, authorizer.ToConnectError(err)
+	}
+
+	result, err := s.investorBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&lenderv1.InvestorGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) InvestorSearch(ctx context.Context, req *connect.Request[lenderv1.InvestorSearchRequest], stream *connect.ServerStream[lenderv1.InvestorSearchResponse]) error {
+	if err := s.authz.CanInvestorView(ctx); err != nil {
+		return authorizer.ToConnectError(err)
+	}
+
+	err := s.investorBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*lenderv1.InvestorObject) error {
+			return stream.Send(&lenderv1.InvestorSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)

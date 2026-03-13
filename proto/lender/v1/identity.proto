@@ -133,6 +133,24 @@ message BranchObject {
   google.protobuf.Struct properties = 8; // Additional metadata
 }
 
+// InvestorObject represents an independent investor with a profile link.
+// Investors are not assigned to agents — they exist independently.
+message InvestorObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string profile_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Profile service user ID
+  string name = 3 [(buf.validate.field).string.min_len = 1]; // Display name
+  common.v1.STATE state = 4; // Current state
+  google.protobuf.Struct properties = 5; // Additional metadata
+}
+
 // SystemUserObject represents a user with a specific role in the lending workflow.
 message SystemUserObject {
   string id = 1 [
@@ -220,6 +238,36 @@ message BranchSearchRequest {
 
 message BranchSearchResponse {
   repeated BranchObject data = 1;
+}
+
+// Investor messages
+message InvestorSaveRequest {
+  InvestorObject data = 1 [(buf.validate.field).required = true];
+}
+
+message InvestorSaveResponse {
+  InvestorObject data = 1;
+}
+
+message InvestorGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message InvestorGetResponse {
+  InvestorObject data = 1;
+}
+
+message InvestorSearchRequest {
+  string query = 1; // Free-text search
+  common.v1.PageCursor cursor = 2; // Pagination
+}
+
+message InvestorSearchResponse {
+  repeated InvestorObject data = 1;
 }
 
 // SystemUser messages
@@ -326,6 +374,38 @@ service IdentityService {
       summary: "Search branches"
       description: "Searches for branches matching specified criteria. Supports filtering by bank ID. Returns a stream of matching branch records."
       tags: "Branches"
+    };
+  }
+
+  // InvestorSave creates or updates an investor record.
+  rpc InvestorSave(InvestorSaveRequest) returns (InvestorSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorSave"
+      summary: "Create or update an investor"
+      description: "Creates a new investor or updates an existing one. Investors are independent entities linked to a profile."
+      tags: "Investors"
+    };
+  }
+
+  // InvestorGet retrieves an investor by their ID.
+  rpc InvestorGet(InvestorGetRequest) returns (InvestorGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorGet"
+      summary: "Get an investor by ID"
+      description: "Retrieves an investor record by their unique identifier."
+      tags: "Investors"
+    };
+  }
+
+  // InvestorSearch finds investors matching search criteria.
+  rpc InvestorSearch(InvestorSearchRequest) returns (stream InvestorSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorSearch"
+      summary: "Search investors"
+      description: "Searches for investors matching specified criteria. Returns a stream of matching investor records."
+      tags: "Investors"
     };
   }
 

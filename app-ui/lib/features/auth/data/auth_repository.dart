@@ -39,7 +39,7 @@ class AuthRepository {
 @riverpod
 AuthRepository authRepository(Ref ref) {
   // TODO: Configure these for your environment
-  const issuerUrl = 'https://oauth2.antinvestor.com';
+  const issuerUrl = 'https://oauth2.stawi.org';
   const clientId = 'lender-ui';
 
   const storage = FlutterSecureStorage();

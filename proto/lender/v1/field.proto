@@ -18,10 +18,10 @@ package lender.v1;
 
 // -----------------------------------------------------
 // Core notes (normative):
-// - Field Service manages agents and clients in the lending hierarchy
+// - Field Service manages agents and borrowers in the lending hierarchy
 // - Agents form a tree hierarchy within branches (configurable max depth)
-// - Clients are loan recipients assigned to agents
-// - Supports client reassignment with audit trail
+// - Borrowers are loan recipients assigned to agents
+// - Supports borrower reassignment with audit trail
 // - All timestamps are RFC3339 / google.protobuf.Timestamp
 // -----------------------------------------------------
 
@@ -82,8 +82,8 @@ message AgentObject {
   google.protobuf.Struct properties = 10; // Additional metadata
 }
 
-// ClientObject represents a loan recipient assigned to an agent.
-message ClientObject {
+// BorrowerObject represents a loan recipient assigned to an agent.
+message BorrowerObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
@@ -93,7 +93,7 @@ message ClientObject {
   string agent_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
-  ]; // Agent managing this client
+  ]; // Agent managing this borrower
   string profile_id = 3 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
@@ -161,16 +161,16 @@ message AgentHierarchyResponse {
   repeated AgentObject data = 1;
 }
 
-// Client messages
-message ClientSaveRequest {
-  ClientObject data = 1 [(buf.validate.field).required = true];
+// Borrower messages
+message BorrowerSaveRequest {
+  BorrowerObject data = 1 [(buf.validate.field).required = true];
 }
 
-message ClientSaveResponse {
-  ClientObject data = 1;
+message BorrowerSaveResponse {
+  BorrowerObject data = 1;
 }
 
-message ClientGetRequest {
+message BorrowerGetRequest {
   string id = 1 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40,
@@ -178,11 +178,11 @@ message ClientGetRequest {
   ];
 }
 
-message ClientGetResponse {
-  ClientObject data = 1;
+message BorrowerGetResponse {
+  BorrowerObject data = 1;
 }
 
-message ClientSearchRequest {
+message BorrowerSearchRequest {
   string query = 1; // Free-text search
   string agent_id = 2 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -192,17 +192,17 @@ message ClientSearchRequest {
   common.v1.PageCursor cursor = 3; // Pagination
 }
 
-message ClientSearchResponse {
-  repeated ClientObject data = 1;
+message BorrowerSearchResponse {
+  repeated BorrowerObject data = 1;
 }
 
-// ClientReassignRequest moves a client to a different agent.
-message ClientReassignRequest {
-  string client_id = 1 [
+// BorrowerReassignRequest moves a borrower to a different agent.
+message BorrowerReassignRequest {
+  string borrower_id = 1 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40,
     (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
-  ]; // Client to reassign
+  ]; // Borrower to reassign
   string new_agent_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40,
@@ -211,15 +211,15 @@ message ClientReassignRequest {
   string reason = 3; // Reason for reassignment
 }
 
-message ClientReassignResponse {
-  ClientObject data = 1;
+message BorrowerReassignResponse {
+  BorrowerObject data = 1;
 }
 
 // -----------------------------------------------------
 // Field Service
 // -----------------------------------------------------
 
-// FieldService manages agents and clients in the lending hierarchy.
+// FieldService manages agents and borrowers in the lending hierarchy.
 // All RPCs require authentication via Bearer token.
 service FieldService {
   // AgentSave creates or updates an agent record.
@@ -265,45 +265,45 @@ service FieldService {
     };
   }
 
-  // ClientSave onboards or updates a client record.
-  rpc ClientSave(ClientSaveRequest) returns (ClientSaveResponse) {
+  // BorrowerSave onboards or updates a borrower record.
+  rpc BorrowerSave(BorrowerSaveRequest) returns (BorrowerSaveResponse) {
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "clientSave"
-      summary: "Onboard or update a client"
-      description: "Onboards a new client or updates an existing one. Each client must have a unique profile ID and be assigned to an active agent."
-      tags: "Clients"
+      operation_id: "borrowerSave"
+      summary: "Onboard or update a borrower"
+      description: "Onboards a new borrower or updates an existing one. Each borrower must have a unique profile ID and be assigned to an active agent."
+      tags: "Borrowers"
     };
   }
 
-  // ClientGet retrieves a client by their ID.
-  rpc ClientGet(ClientGetRequest) returns (ClientGetResponse) {
+  // BorrowerGet retrieves a borrower by their ID.
+  rpc BorrowerGet(BorrowerGetRequest) returns (BorrowerGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "clientGet"
-      summary: "Get a client by ID"
-      description: "Retrieves a client record by their unique identifier."
-      tags: "Clients"
+      operation_id: "borrowerGet"
+      summary: "Get a borrower by ID"
+      description: "Retrieves a borrower record by their unique identifier."
+      tags: "Borrowers"
     };
   }
 
-  // ClientSearch finds clients matching search criteria.
-  rpc ClientSearch(ClientSearchRequest) returns (stream ClientSearchResponse) {
+  // BorrowerSearch finds borrowers matching search criteria.
+  rpc BorrowerSearch(BorrowerSearchRequest) returns (stream BorrowerSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "clientSearch"
-      summary: "Search clients"
-      description: "Searches for clients matching specified criteria. Supports filtering by agent. Returns a stream of matching client records."
-      tags: "Clients"
+      operation_id: "borrowerSearch"
+      summary: "Search borrowers"
+      description: "Searches for borrowers matching specified criteria. Supports filtering by agent. Returns a stream of matching borrower records."
+      tags: "Borrowers"
     };
   }
 
-  // ClientReassign moves a client from one agent to another.
-  rpc ClientReassign(ClientReassignRequest) returns (ClientReassignResponse) {
+  // BorrowerReassign moves a borrower from one agent to another.
+  rpc BorrowerReassign(BorrowerReassignRequest) returns (BorrowerReassignResponse) {
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "clientReassign"
-      summary: "Reassign a client"
-      description: "Moves a client from their current agent to a different agent. Both agents must be in the same bank. Creates an audit trail of the reassignment."
-      tags: "Clients"
+      operation_id: "borrowerReassign"
+      summary: "Reassign a borrower"
+      description: "Moves a borrower from their current agent to a different agent. Both agents must be in the same bank. Creates an audit trail of the reassignment."
+      tags: "Borrowers"
     };
   }
 }

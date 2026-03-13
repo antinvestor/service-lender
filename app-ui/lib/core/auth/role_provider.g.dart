@@ -202,30 +202,30 @@ final class CanManageAgentsProvider
 
 String _$canManageAgentsHash() => r'7d3d2dd5009d632ee4f89e3a2ed98ad23ed86743';
 
-/// Whether the current user can manage clients
+/// Whether the current user can manage borrowers
 
-@ProviderFor(canManageClients)
-final canManageClientsProvider = CanManageClientsProvider._();
+@ProviderFor(canManageBorrowers)
+final canManageBorrowersProvider = CanManageBorrowersProvider._();
 
-/// Whether the current user can manage clients
+/// Whether the current user can manage borrowers
 
-final class CanManageClientsProvider
+final class CanManageBorrowersProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether the current user can manage clients
-  CanManageClientsProvider._()
+  /// Whether the current user can manage borrowers
+  CanManageBorrowersProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'canManageClientsProvider',
+        name: r'canManageBorrowersProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$canManageClientsHash();
+  String debugGetCreateSourceHash() => _$canManageBorrowersHash();
 
   @$internal
   @override
@@ -234,8 +234,48 @@ final class CanManageClientsProvider
 
   @override
   FutureOr<bool> create(Ref ref) {
-    return canManageClients(ref);
+    return canManageBorrowers(ref);
   }
 }
 
-String _$canManageClientsHash() => r'44c453612d67b85a141349ccfab29235d6d770ae';
+String _$canManageBorrowersHash() =>
+    r'e3cf372def30f52baa46aa18fd1970b466c1b241';
+
+/// Whether the current user can manage investors
+
+@ProviderFor(canManageInvestors)
+final canManageInvestorsProvider = CanManageInvestorsProvider._();
+
+/// Whether the current user can manage investors
+
+final class CanManageInvestorsProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage investors
+  CanManageInvestorsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageInvestorsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageInvestorsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageInvestors(ref);
+  }
+}
+
+String _$canManageInvestorsHash() =>
+    r'af0984dc2d40afcb71e11f809c994e7897b380fa';

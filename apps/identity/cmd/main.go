@@ -80,15 +80,17 @@ func main() {
 	bankRepo := repository.NewBankRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
-	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
-	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
+	borrowerRepo := repository.NewBorrowerRepository(ctx, dbPool, workMan)
+	bahRepo := repository.NewBorrowerAssignmentHistoryRepository(ctx, dbPool, workMan)
+	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
 
 	// Create business logic with all dependencies
 	bankBusiness := business.NewBankBusiness(ctx, evtsMan, bankRepo)
 	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, bankRepo, branchRepo)
 	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo)
-	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, branchRepo)
+	borrowerBusiness := business.NewBorrowerBusiness(ctx, evtsMan, agentRepo, borrowerRepo, bahRepo, branchRepo)
+	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 
 	// Setup authorization middleware
@@ -96,7 +98,7 @@ func main() {
 
 	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(ctx, sm, authzMiddleware,
-		bankBusiness, branchBusiness, agentBusiness, clientBusiness, suBusiness)
+		bankBusiness, branchBusiness, agentBusiness, borrowerBusiness, investorBusiness, suBusiness)
 
 	// Initialise the service with all options
 	serviceOptions := []frame.Option{
@@ -105,7 +107,8 @@ func main() {
 			identityevents.NewBankSave(ctx, bankRepo),
 			identityevents.NewBranchSave(ctx, branchRepo),
 			identityevents.NewAgentSave(ctx, agentRepo),
-			identityevents.NewClientSave(ctx, clientRepo),
+			identityevents.NewBorrowerSave(ctx, borrowerRepo),
+			identityevents.NewInvestorSave(ctx, investorRepo),
 			identityevents.NewSystemUserSave(ctx, systemUserRepo),
 		),
 	}
@@ -162,13 +165,14 @@ func setupConnectServer(
 	bankBusiness business.BankBusiness,
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
-	clientBusiness business.ClientBusiness,
+	borrowerBusiness business.BorrowerBusiness,
+	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) http.Handler {
 
 	// Create handlers with injected dependencies
-	identityHandler := handlers.NewIdentityServer(authzMiddleware, bankBusiness, branchBusiness, suBusiness)
-	fieldHandler := handlers.NewFieldServer(authzMiddleware, agentBusiness, clientBusiness)
+	identityHandler := handlers.NewIdentityServer(authzMiddleware, bankBusiness, branchBusiness, investorBusiness, suBusiness)
+	fieldHandler := handlers.NewFieldServer(authzMiddleware, agentBusiness, borrowerBusiness)
 
 	// Layer 1: TenancyAccessChecker verifies caller can access the partition
 	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(

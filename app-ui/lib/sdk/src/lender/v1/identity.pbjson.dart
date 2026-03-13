@@ -83,6 +83,26 @@ final $typed_data.Uint8List branchObjectDescriptor = $convert.base64Decode(
     'F0ZRI3Cgpwcm9wZXJ0aWVzGAggASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJvcGVy'
     'dGllcw==');
 
+@$core.Deprecated('Use investorObjectDescriptor instead')
+const InvestorObject$json = {
+  '1': 'InvestorObject',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
+    {'1': 'profile_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'profileId'},
+    {'1': 'name', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'name'},
+    {'1': 'state', '3': 4, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
+    {'1': 'properties', '3': 5, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+  ],
+};
+
+/// Descriptor for `InvestorObject`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorObjectDescriptor = $convert.base64Decode(
+    'Cg5JbnZlc3Rvck9iamVjdBIuCgJpZBgBIAEoCUIeukgb2AEBchYQAxgoMhBbMC05YS16Xy1dez'
+    'MsNDB9UgJpZBIoCgpwcm9maWxlX2lkGAIgASgJQgm6SAZyBBADGChSCXByb2ZpbGVJZBIbCgRu'
+    'YW1lGAMgASgJQge6SARyAhABUgRuYW1lEiYKBXN0YXRlGAQgASgOMhAuY29tbW9uLnYxLlNUQV'
+    'RFUgVzdGF0ZRI3Cgpwcm9wZXJ0aWVzGAUgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIK'
+    'cHJvcGVydGllcw==');
+
 @$core.Deprecated('Use systemUserObjectDescriptor instead')
 const SystemUserObject$json = {
   '1': 'SystemUserObject',
@@ -253,6 +273,85 @@ final $typed_data.Uint8List branchSearchResponseDescriptor = $convert.base64Deco
     'ChRCcmFuY2hTZWFyY2hSZXNwb25zZRIrCgRkYXRhGAEgAygLMhcubGVuZGVyLnYxLkJyYW5jaE'
     '9iamVjdFIEZGF0YQ==');
 
+@$core.Deprecated('Use investorSaveRequestDescriptor instead')
+const InvestorSaveRequest$json = {
+  '1': 'InvestorSaveRequest',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.lender.v1.InvestorObject', '8': {}, '10': 'data'},
+  ],
+};
+
+/// Descriptor for `InvestorSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorSaveRequestDescriptor = $convert.base64Decode(
+    'ChNJbnZlc3RvclNhdmVSZXF1ZXN0EjUKBGRhdGEYASABKAsyGS5sZW5kZXIudjEuSW52ZXN0b3'
+    'JPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
+
+@$core.Deprecated('Use investorSaveResponseDescriptor instead')
+const InvestorSaveResponse$json = {
+  '1': 'InvestorSaveResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.lender.v1.InvestorObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `InvestorSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorSaveResponseDescriptor = $convert.base64Decode(
+    'ChRJbnZlc3RvclNhdmVSZXNwb25zZRItCgRkYXRhGAEgASgLMhkubGVuZGVyLnYxLkludmVzdG'
+    '9yT2JqZWN0UgRkYXRh');
+
+@$core.Deprecated('Use investorGetRequestDescriptor instead')
+const InvestorGetRequest$json = {
+  '1': 'InvestorGetRequest',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
+  ],
+};
+
+/// Descriptor for `InvestorGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorGetRequestDescriptor = $convert.base64Decode(
+    'ChJJbnZlc3RvckdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOWEtel8tXX'
+    'szLDQwfVICaWQ=');
+
+@$core.Deprecated('Use investorGetResponseDescriptor instead')
+const InvestorGetResponse$json = {
+  '1': 'InvestorGetResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.lender.v1.InvestorObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `InvestorGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorGetResponseDescriptor = $convert.base64Decode(
+    'ChNJbnZlc3RvckdldFJlc3BvbnNlEi0KBGRhdGEYASABKAsyGS5sZW5kZXIudjEuSW52ZXN0b3'
+    'JPYmplY3RSBGRhdGE=');
+
+@$core.Deprecated('Use investorSearchRequestDescriptor instead')
+const InvestorSearchRequest$json = {
+  '1': 'InvestorSearchRequest',
+  '2': [
+    {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
+    {'1': 'cursor', '3': 2, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+  ],
+};
+
+/// Descriptor for `InvestorSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorSearchRequestDescriptor = $convert.base64Decode(
+    'ChVJbnZlc3RvclNlYXJjaFJlcXVlc3QSFAoFcXVlcnkYASABKAlSBXF1ZXJ5Ei0KBmN1cnNvch'
+    'gCIAEoCzIVLmNvbW1vbi52MS5QYWdlQ3Vyc29yUgZjdXJzb3I=');
+
+@$core.Deprecated('Use investorSearchResponseDescriptor instead')
+const InvestorSearchResponse$json = {
+  '1': 'InvestorSearchResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.lender.v1.InvestorObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `InvestorSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List investorSearchResponseDescriptor = $convert.base64Decode(
+    'ChZJbnZlc3RvclNlYXJjaFJlc3BvbnNlEi0KBGRhdGEYASADKAsyGS5sZW5kZXIudjEuSW52ZX'
+    'N0b3JPYmplY3RSBGRhdGE=');
+
 @$core.Deprecated('Use systemUserSaveRequestDescriptor instead')
 const SystemUserSaveRequest$json = {
   '1': 'SystemUserSaveRequest',
@@ -367,6 +466,20 @@ const $core.Map<$core.String, $core.dynamic> IdentityServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
+    {'1': 'InvestorSave', '2': '.lender.v1.InvestorSaveRequest', '3': '.lender.v1.InvestorSaveResponse', '4': {}},
+    {
+      '1': 'InvestorGet',
+      '2': '.lender.v1.InvestorGetRequest',
+      '3': '.lender.v1.InvestorGetResponse',
+      '4': {'34': 1},
+    },
+    {
+      '1': 'InvestorSearch',
+      '2': '.lender.v1.InvestorSearchRequest',
+      '3': '.lender.v1.InvestorSearchResponse',
+      '4': {'34': 1},
+      '6': true,
+    },
     {'1': 'SystemUserSave', '2': '.lender.v1.SystemUserSaveRequest', '3': '.lender.v1.SystemUserSaveResponse', '4': {}},
     {
       '1': 'SystemUserGet',
@@ -405,6 +518,13 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> IdentitySe
   '.lender.v1.BranchGetResponse': BranchGetResponse$json,
   '.lender.v1.BranchSearchRequest': BranchSearchRequest$json,
   '.lender.v1.BranchSearchResponse': BranchSearchResponse$json,
+  '.lender.v1.InvestorSaveRequest': InvestorSaveRequest$json,
+  '.lender.v1.InvestorObject': InvestorObject$json,
+  '.lender.v1.InvestorSaveResponse': InvestorSaveResponse$json,
+  '.lender.v1.InvestorGetRequest': InvestorGetRequest$json,
+  '.lender.v1.InvestorGetResponse': InvestorGetResponse$json,
+  '.lender.v1.InvestorSearchRequest': InvestorSearchRequest$json,
+  '.lender.v1.InvestorSearchResponse': InvestorSearchResponse$json,
   '.lender.v1.SystemUserSaveRequest': SystemUserSaveRequest$json,
   '.lender.v1.SystemUserObject': SystemUserObject$json,
   '.lender.v1.SystemUserSaveResponse': SystemUserSaveResponse$json,
@@ -439,20 +559,32 @@ final $typed_data.Uint8List identityServiceDescriptor = $convert.base64Decode(
     'aFNlYXJjaFJlc3BvbnNlIrABkAIBukepAQoIQnJhbmNoZXMSD1NlYXJjaCBicmFuY2hlcxp+U2'
     'VhcmNoZXMgZm9yIGJyYW5jaGVzIG1hdGNoaW5nIHNwZWNpZmllZCBjcml0ZXJpYS4gU3VwcG9y'
     'dHMgZmlsdGVyaW5nIGJ5IGJhbmsgSUQuIFJldHVybnMgYSBzdHJlYW0gb2YgbWF0Y2hpbmcgYn'
-    'JhbmNoIHJlY29yZHMuKgxicmFuY2hTZWFyY2gwARK9AgoOU3lzdGVtVXNlclNhdmUSIC5sZW5k'
-    'ZXIudjEuU3lzdGVtVXNlclNhdmVSZXF1ZXN0GiEubGVuZGVyLnYxLlN5c3RlbVVzZXJTYXZlUm'
-    'VzcG9uc2Ui5QG6R+EBCgtTeXN0ZW1Vc2VycxIeQ3JlYXRlIG9yIHVwZGF0ZSBhIHN5c3RlbSB1'
-    'c2VyGqEBQ3JlYXRlcyBhIG5ldyBzeXN0ZW0gdXNlciBvciB1cGRhdGVzIGFuIGV4aXN0aW5nIG'
-    '9uZS4gU3lzdGVtIHVzZXJzIGFyZSBhc3NpZ25lZCByb2xlcyAodmVyaWZpZXIsIGFwcHJvdmVy'
-    'LCBhZG1pbmlzdHJhdG9yLCBhdWRpdG9yKSBmb3IgbG9hbiBwcm9jZXNzaW5nIHdvcmtmbG93cy'
-    '4qDnN5c3RlbVVzZXJTYXZlEssBCg1TeXN0ZW1Vc2VyR2V0Eh8ubGVuZGVyLnYxLlN5c3RlbVVz'
-    'ZXJHZXRSZXF1ZXN0GiAubGVuZGVyLnYxLlN5c3RlbVVzZXJHZXRSZXNwb25zZSJ3kAIBukdxCg'
-    'tTeXN0ZW1Vc2VycxIXR2V0IGEgc3lzdGVtIHVzZXIgYnkgSUQaOlJldHJpZXZlcyBhIHN5c3Rl'
-    'bSB1c2VyIHJlY29yZCBieSB0aGVpciB1bmlxdWUgaWRlbnRpZmllci4qDXN5c3RlbVVzZXJHZX'
-    'QSrQIKEFN5c3RlbVVzZXJTZWFyY2gSIi5sZW5kZXIudjEuU3lzdGVtVXNlclNlYXJjaFJlcXVl'
-    'c3QaIy5sZW5kZXIudjEuU3lzdGVtVXNlclNlYXJjaFJlc3BvbnNlIs0BkAIBukfGAQoLU3lzdG'
-    'VtVXNlcnMSE1NlYXJjaCBzeXN0ZW0gdXNlcnMajwFTZWFyY2hlcyBmb3Igc3lzdGVtIHVzZXJz'
-    'IG1hdGNoaW5nIHNwZWNpZmllZCBjcml0ZXJpYS4gU3VwcG9ydHMgZmlsdGVyaW5nIGJ5IHJvbG'
-    'UgYW5kIGJyYW5jaC4gUmV0dXJucyBhIHN0cmVhbSBvZiBtYXRjaGluZyBzeXN0ZW0gdXNlciBy'
-    'ZWNvcmRzLioQc3lzdGVtVXNlclNlYXJjaDAB');
+    'JhbmNoIHJlY29yZHMuKgxicmFuY2hTZWFyY2gwARL5AQoMSW52ZXN0b3JTYXZlEh4ubGVuZGVy'
+    'LnYxLkludmVzdG9yU2F2ZVJlcXVlc3QaHy5sZW5kZXIudjEuSW52ZXN0b3JTYXZlUmVzcG9uc2'
+    'UipwG6R6MBCglJbnZlc3RvcnMSHENyZWF0ZSBvciB1cGRhdGUgYW4gaW52ZXN0b3IaakNyZWF0'
+    'ZXMgYSBuZXcgaW52ZXN0b3Igb3IgdXBkYXRlcyBhbiBleGlzdGluZyBvbmUuIEludmVzdG9ycy'
+    'BhcmUgaW5kZXBlbmRlbnQgZW50aXRpZXMgbGlua2VkIHRvIGEgcHJvZmlsZS4qDGludmVzdG9y'
+    'U2F2ZRK9AQoLSW52ZXN0b3JHZXQSHS5sZW5kZXIudjEuSW52ZXN0b3JHZXRSZXF1ZXN0Gh4ubG'
+    'VuZGVyLnYxLkludmVzdG9yR2V0UmVzcG9uc2Uib5ACAbpHaQoJSW52ZXN0b3JzEhVHZXQgYW4g'
+    'aW52ZXN0b3IgYnkgSUQaOFJldHJpZXZlcyBhbiBpbnZlc3RvciByZWNvcmQgYnkgdGhlaXIgdW'
+    '5pcXVlIGlkZW50aWZpZXIuKgtpbnZlc3RvckdldBLyAQoOSW52ZXN0b3JTZWFyY2gSIC5sZW5k'
+    'ZXIudjEuSW52ZXN0b3JTZWFyY2hSZXF1ZXN0GiEubGVuZGVyLnYxLkludmVzdG9yU2VhcmNoUm'
+    'VzcG9uc2UimAGQAgG6R5EBCglJbnZlc3RvcnMSEFNlYXJjaCBpbnZlc3RvcnMaYlNlYXJjaGVz'
+    'IGZvciBpbnZlc3RvcnMgbWF0Y2hpbmcgc3BlY2lmaWVkIGNyaXRlcmlhLiBSZXR1cm5zIGEgc3'
+    'RyZWFtIG9mIG1hdGNoaW5nIGludmVzdG9yIHJlY29yZHMuKg5pbnZlc3RvclNlYXJjaDABEr0C'
+    'Cg5TeXN0ZW1Vc2VyU2F2ZRIgLmxlbmRlci52MS5TeXN0ZW1Vc2VyU2F2ZVJlcXVlc3QaIS5sZW'
+    '5kZXIudjEuU3lzdGVtVXNlclNhdmVSZXNwb25zZSLlAbpH4QEKC1N5c3RlbVVzZXJzEh5DcmVh'
+    'dGUgb3IgdXBkYXRlIGEgc3lzdGVtIHVzZXIaoQFDcmVhdGVzIGEgbmV3IHN5c3RlbSB1c2VyIG'
+    '9yIHVwZGF0ZXMgYW4gZXhpc3Rpbmcgb25lLiBTeXN0ZW0gdXNlcnMgYXJlIGFzc2lnbmVkIHJv'
+    'bGVzICh2ZXJpZmllciwgYXBwcm92ZXIsIGFkbWluaXN0cmF0b3IsIGF1ZGl0b3IpIGZvciBsb2'
+    'FuIHByb2Nlc3Npbmcgd29ya2Zsb3dzLioOc3lzdGVtVXNlclNhdmUSywEKDVN5c3RlbVVzZXJH'
+    'ZXQSHy5sZW5kZXIudjEuU3lzdGVtVXNlckdldFJlcXVlc3QaIC5sZW5kZXIudjEuU3lzdGVtVX'
+    'NlckdldFJlc3BvbnNlIneQAgG6R3EKC1N5c3RlbVVzZXJzEhdHZXQgYSBzeXN0ZW0gdXNlciBi'
+    'eSBJRBo6UmV0cmlldmVzIGEgc3lzdGVtIHVzZXIgcmVjb3JkIGJ5IHRoZWlyIHVuaXF1ZSBpZG'
+    'VudGlmaWVyLioNc3lzdGVtVXNlckdldBKtAgoQU3lzdGVtVXNlclNlYXJjaBIiLmxlbmRlci52'
+    'MS5TeXN0ZW1Vc2VyU2VhcmNoUmVxdWVzdBojLmxlbmRlci52MS5TeXN0ZW1Vc2VyU2VhcmNoUm'
+    'VzcG9uc2UizQGQAgG6R8YBCgtTeXN0ZW1Vc2VycxITU2VhcmNoIHN5c3RlbSB1c2VycxqPAVNl'
+    'YXJjaGVzIGZvciBzeXN0ZW0gdXNlcnMgbWF0Y2hpbmcgc3BlY2lmaWVkIGNyaXRlcmlhLiBTdX'
+    'Bwb3J0cyBmaWx0ZXJpbmcgYnkgcm9sZSBhbmQgYnJhbmNoLiBSZXR1cm5zIGEgc3RyZWFtIG9m'
+    'IG1hdGNoaW5nIHN5c3RlbSB1c2VyIHJlY29yZHMuKhBzeXN0ZW1Vc2VyU2VhcmNoMAE=');
 

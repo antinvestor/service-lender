@@ -201,9 +201,9 @@ class AgentObject extends $pb.GeneratedMessage {
   $6.Struct ensureProperties() => $_ensure(9);
 }
 
-/// ClientObject represents a loan recipient assigned to an agent.
-class ClientObject extends $pb.GeneratedMessage {
-  factory ClientObject({
+/// BorrowerObject represents a loan recipient assigned to an agent.
+class BorrowerObject extends $pb.GeneratedMessage {
+  factory BorrowerObject({
     $core.String? id,
     $core.String? agentId,
     $core.String? profileId,
@@ -232,11 +232,11 @@ class ClientObject extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientObject._() : super();
-  factory ClientObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerObject._() : super();
+  factory BorrowerObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'agentId')
     ..aOS(3, _omitFieldNames ? '' : 'profileId')
@@ -250,22 +250,22 @@ class ClientObject extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientObject clone() => ClientObject()..mergeFromMessage(this);
+  BorrowerObject clone() => BorrowerObject()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientObject copyWith(void Function(ClientObject) updates) => super.copyWith((message) => updates(message as ClientObject)) as ClientObject;
+  BorrowerObject copyWith(void Function(BorrowerObject) updates) => super.copyWith((message) => updates(message as BorrowerObject)) as BorrowerObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientObject create() => ClientObject._();
-  ClientObject createEmptyInstance() => create();
-  static $pb.PbList<ClientObject> createRepeated() => $pb.PbList<ClientObject>();
+  static BorrowerObject create() => BorrowerObject._();
+  BorrowerObject createEmptyInstance() => create();
+  static $pb.PbList<BorrowerObject> createRepeated() => $pb.PbList<BorrowerObject>();
   @$core.pragma('dart2js:noInline')
-  static ClientObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientObject>(create);
-  static ClientObject? _defaultInstance;
+  static BorrowerObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerObject>(create);
+  static BorrowerObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -778,10 +778,10 @@ class AgentHierarchyResponse extends $pb.GeneratedMessage {
   $core.List<AgentObject> get data => $_getList(0);
 }
 
-/// Client messages
-class ClientSaveRequest extends $pb.GeneratedMessage {
-  factory ClientSaveRequest({
-    ClientObject? data,
+/// Borrower messages
+class BorrowerSaveRequest extends $pb.GeneratedMessage {
+  factory BorrowerSaveRequest({
+    BorrowerObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -789,12 +789,12 @@ class ClientSaveRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientSaveRequest._() : super();
-  factory ClientSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerSaveRequest._() : super();
+  factory BorrowerSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
-    ..aOM<ClientObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+    ..aOM<BorrowerObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BorrowerObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -802,38 +802,38 @@ class ClientSaveRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientSaveRequest clone() => ClientSaveRequest()..mergeFromMessage(this);
+  BorrowerSaveRequest clone() => BorrowerSaveRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientSaveRequest copyWith(void Function(ClientSaveRequest) updates) => super.copyWith((message) => updates(message as ClientSaveRequest)) as ClientSaveRequest;
+  BorrowerSaveRequest copyWith(void Function(BorrowerSaveRequest) updates) => super.copyWith((message) => updates(message as BorrowerSaveRequest)) as BorrowerSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientSaveRequest create() => ClientSaveRequest._();
-  ClientSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<ClientSaveRequest> createRepeated() => $pb.PbList<ClientSaveRequest>();
+  static BorrowerSaveRequest create() => BorrowerSaveRequest._();
+  BorrowerSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<BorrowerSaveRequest> createRepeated() => $pb.PbList<BorrowerSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static ClientSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientSaveRequest>(create);
-  static ClientSaveRequest? _defaultInstance;
+  static BorrowerSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerSaveRequest>(create);
+  static BorrowerSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  ClientObject get data => $_getN(0);
+  BorrowerObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ClientObject v) { setField(1, v); }
+  set data(BorrowerObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  ClientObject ensureData() => $_ensure(0);
+  BorrowerObject ensureData() => $_ensure(0);
 }
 
-class ClientSaveResponse extends $pb.GeneratedMessage {
-  factory ClientSaveResponse({
-    ClientObject? data,
+class BorrowerSaveResponse extends $pb.GeneratedMessage {
+  factory BorrowerSaveResponse({
+    BorrowerObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -841,12 +841,12 @@ class ClientSaveResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientSaveResponse._() : super();
-  factory ClientSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerSaveResponse._() : super();
+  factory BorrowerSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
-    ..aOM<ClientObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+    ..aOM<BorrowerObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BorrowerObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -854,37 +854,37 @@ class ClientSaveResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientSaveResponse clone() => ClientSaveResponse()..mergeFromMessage(this);
+  BorrowerSaveResponse clone() => BorrowerSaveResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientSaveResponse copyWith(void Function(ClientSaveResponse) updates) => super.copyWith((message) => updates(message as ClientSaveResponse)) as ClientSaveResponse;
+  BorrowerSaveResponse copyWith(void Function(BorrowerSaveResponse) updates) => super.copyWith((message) => updates(message as BorrowerSaveResponse)) as BorrowerSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientSaveResponse create() => ClientSaveResponse._();
-  ClientSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<ClientSaveResponse> createRepeated() => $pb.PbList<ClientSaveResponse>();
+  static BorrowerSaveResponse create() => BorrowerSaveResponse._();
+  BorrowerSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<BorrowerSaveResponse> createRepeated() => $pb.PbList<BorrowerSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static ClientSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientSaveResponse>(create);
-  static ClientSaveResponse? _defaultInstance;
+  static BorrowerSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerSaveResponse>(create);
+  static BorrowerSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  ClientObject get data => $_getN(0);
+  BorrowerObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ClientObject v) { setField(1, v); }
+  set data(BorrowerObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  ClientObject ensureData() => $_ensure(0);
+  BorrowerObject ensureData() => $_ensure(0);
 }
 
-class ClientGetRequest extends $pb.GeneratedMessage {
-  factory ClientGetRequest({
+class BorrowerGetRequest extends $pb.GeneratedMessage {
+  factory BorrowerGetRequest({
     $core.String? id,
   }) {
     final $result = create();
@@ -893,11 +893,11 @@ class ClientGetRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientGetRequest._() : super();
-  factory ClientGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerGetRequest._() : super();
+  factory BorrowerGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..hasRequiredFields = false
   ;
@@ -906,22 +906,22 @@ class ClientGetRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientGetRequest clone() => ClientGetRequest()..mergeFromMessage(this);
+  BorrowerGetRequest clone() => BorrowerGetRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientGetRequest copyWith(void Function(ClientGetRequest) updates) => super.copyWith((message) => updates(message as ClientGetRequest)) as ClientGetRequest;
+  BorrowerGetRequest copyWith(void Function(BorrowerGetRequest) updates) => super.copyWith((message) => updates(message as BorrowerGetRequest)) as BorrowerGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientGetRequest create() => ClientGetRequest._();
-  ClientGetRequest createEmptyInstance() => create();
-  static $pb.PbList<ClientGetRequest> createRepeated() => $pb.PbList<ClientGetRequest>();
+  static BorrowerGetRequest create() => BorrowerGetRequest._();
+  BorrowerGetRequest createEmptyInstance() => create();
+  static $pb.PbList<BorrowerGetRequest> createRepeated() => $pb.PbList<BorrowerGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static ClientGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGetRequest>(create);
-  static ClientGetRequest? _defaultInstance;
+  static BorrowerGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerGetRequest>(create);
+  static BorrowerGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -933,9 +933,9 @@ class ClientGetRequest extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 }
 
-class ClientGetResponse extends $pb.GeneratedMessage {
-  factory ClientGetResponse({
-    ClientObject? data,
+class BorrowerGetResponse extends $pb.GeneratedMessage {
+  factory BorrowerGetResponse({
+    BorrowerObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -943,12 +943,12 @@ class ClientGetResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientGetResponse._() : super();
-  factory ClientGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerGetResponse._() : super();
+  factory BorrowerGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
-    ..aOM<ClientObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+    ..aOM<BorrowerObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BorrowerObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -956,37 +956,37 @@ class ClientGetResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientGetResponse clone() => ClientGetResponse()..mergeFromMessage(this);
+  BorrowerGetResponse clone() => BorrowerGetResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientGetResponse copyWith(void Function(ClientGetResponse) updates) => super.copyWith((message) => updates(message as ClientGetResponse)) as ClientGetResponse;
+  BorrowerGetResponse copyWith(void Function(BorrowerGetResponse) updates) => super.copyWith((message) => updates(message as BorrowerGetResponse)) as BorrowerGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientGetResponse create() => ClientGetResponse._();
-  ClientGetResponse createEmptyInstance() => create();
-  static $pb.PbList<ClientGetResponse> createRepeated() => $pb.PbList<ClientGetResponse>();
+  static BorrowerGetResponse create() => BorrowerGetResponse._();
+  BorrowerGetResponse createEmptyInstance() => create();
+  static $pb.PbList<BorrowerGetResponse> createRepeated() => $pb.PbList<BorrowerGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static ClientGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGetResponse>(create);
-  static ClientGetResponse? _defaultInstance;
+  static BorrowerGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerGetResponse>(create);
+  static BorrowerGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  ClientObject get data => $_getN(0);
+  BorrowerObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ClientObject v) { setField(1, v); }
+  set data(BorrowerObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  ClientObject ensureData() => $_ensure(0);
+  BorrowerObject ensureData() => $_ensure(0);
 }
 
-class ClientSearchRequest extends $pb.GeneratedMessage {
-  factory ClientSearchRequest({
+class BorrowerSearchRequest extends $pb.GeneratedMessage {
+  factory BorrowerSearchRequest({
     $core.String? query,
     $core.String? agentId,
     $7.PageCursor? cursor,
@@ -1003,11 +1003,11 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientSearchRequest._() : super();
-  factory ClientSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerSearchRequest._() : super();
+  factory BorrowerSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'agentId')
     ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
@@ -1018,22 +1018,22 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientSearchRequest clone() => ClientSearchRequest()..mergeFromMessage(this);
+  BorrowerSearchRequest clone() => BorrowerSearchRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientSearchRequest copyWith(void Function(ClientSearchRequest) updates) => super.copyWith((message) => updates(message as ClientSearchRequest)) as ClientSearchRequest;
+  BorrowerSearchRequest copyWith(void Function(BorrowerSearchRequest) updates) => super.copyWith((message) => updates(message as BorrowerSearchRequest)) as BorrowerSearchRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientSearchRequest create() => ClientSearchRequest._();
-  ClientSearchRequest createEmptyInstance() => create();
-  static $pb.PbList<ClientSearchRequest> createRepeated() => $pb.PbList<ClientSearchRequest>();
+  static BorrowerSearchRequest create() => BorrowerSearchRequest._();
+  BorrowerSearchRequest createEmptyInstance() => create();
+  static $pb.PbList<BorrowerSearchRequest> createRepeated() => $pb.PbList<BorrowerSearchRequest>();
   @$core.pragma('dart2js:noInline')
-  static ClientSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientSearchRequest>(create);
-  static ClientSearchRequest? _defaultInstance;
+  static BorrowerSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerSearchRequest>(create);
+  static BorrowerSearchRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get query => $_getSZ(0);
@@ -1065,9 +1065,9 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
   $7.PageCursor ensureCursor() => $_ensure(2);
 }
 
-class ClientSearchResponse extends $pb.GeneratedMessage {
-  factory ClientSearchResponse({
-    $core.Iterable<ClientObject>? data,
+class BorrowerSearchResponse extends $pb.GeneratedMessage {
+  factory BorrowerSearchResponse({
+    $core.Iterable<BorrowerObject>? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -1075,12 +1075,12 @@ class ClientSearchResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientSearchResponse._() : super();
-  factory ClientSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerSearchResponse._() : super();
+  factory BorrowerSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
-    ..pc<ClientObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: ClientObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+    ..pc<BorrowerObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: BorrowerObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -1088,37 +1088,37 @@ class ClientSearchResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientSearchResponse clone() => ClientSearchResponse()..mergeFromMessage(this);
+  BorrowerSearchResponse clone() => BorrowerSearchResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientSearchResponse copyWith(void Function(ClientSearchResponse) updates) => super.copyWith((message) => updates(message as ClientSearchResponse)) as ClientSearchResponse;
+  BorrowerSearchResponse copyWith(void Function(BorrowerSearchResponse) updates) => super.copyWith((message) => updates(message as BorrowerSearchResponse)) as BorrowerSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientSearchResponse create() => ClientSearchResponse._();
-  ClientSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<ClientSearchResponse> createRepeated() => $pb.PbList<ClientSearchResponse>();
+  static BorrowerSearchResponse create() => BorrowerSearchResponse._();
+  BorrowerSearchResponse createEmptyInstance() => create();
+  static $pb.PbList<BorrowerSearchResponse> createRepeated() => $pb.PbList<BorrowerSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static ClientSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientSearchResponse>(create);
-  static ClientSearchResponse? _defaultInstance;
+  static BorrowerSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerSearchResponse>(create);
+  static BorrowerSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<ClientObject> get data => $_getList(0);
+  $core.List<BorrowerObject> get data => $_getList(0);
 }
 
-/// ClientReassignRequest moves a client to a different agent.
-class ClientReassignRequest extends $pb.GeneratedMessage {
-  factory ClientReassignRequest({
-    $core.String? clientId,
+/// BorrowerReassignRequest moves a borrower to a different agent.
+class BorrowerReassignRequest extends $pb.GeneratedMessage {
+  factory BorrowerReassignRequest({
+    $core.String? borrowerId,
     $core.String? newAgentId,
     $core.String? reason,
   }) {
     final $result = create();
-    if (clientId != null) {
-      $result.clientId = clientId;
+    if (borrowerId != null) {
+      $result.borrowerId = borrowerId;
     }
     if (newAgentId != null) {
       $result.newAgentId = newAgentId;
@@ -1128,12 +1128,12 @@ class ClientReassignRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientReassignRequest._() : super();
-  factory ClientReassignRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientReassignRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerReassignRequest._() : super();
+  factory BorrowerReassignRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerReassignRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientReassignRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerReassignRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'borrowerId')
     ..aOS(2, _omitFieldNames ? '' : 'newAgentId')
     ..aOS(3, _omitFieldNames ? '' : 'reason')
     ..hasRequiredFields = false
@@ -1143,31 +1143,31 @@ class ClientReassignRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientReassignRequest clone() => ClientReassignRequest()..mergeFromMessage(this);
+  BorrowerReassignRequest clone() => BorrowerReassignRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientReassignRequest copyWith(void Function(ClientReassignRequest) updates) => super.copyWith((message) => updates(message as ClientReassignRequest)) as ClientReassignRequest;
+  BorrowerReassignRequest copyWith(void Function(BorrowerReassignRequest) updates) => super.copyWith((message) => updates(message as BorrowerReassignRequest)) as BorrowerReassignRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientReassignRequest create() => ClientReassignRequest._();
-  ClientReassignRequest createEmptyInstance() => create();
-  static $pb.PbList<ClientReassignRequest> createRepeated() => $pb.PbList<ClientReassignRequest>();
+  static BorrowerReassignRequest create() => BorrowerReassignRequest._();
+  BorrowerReassignRequest createEmptyInstance() => create();
+  static $pb.PbList<BorrowerReassignRequest> createRepeated() => $pb.PbList<BorrowerReassignRequest>();
   @$core.pragma('dart2js:noInline')
-  static ClientReassignRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientReassignRequest>(create);
-  static ClientReassignRequest? _defaultInstance;
+  static BorrowerReassignRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerReassignRequest>(create);
+  static BorrowerReassignRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get clientId => $_getSZ(0);
+  $core.String get borrowerId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set clientId($core.String v) { $_setString(0, v); }
+  set borrowerId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasClientId() => $_has(0);
+  $core.bool hasBorrowerId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearClientId() => clearField(1);
+  void clearBorrowerId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get newAgentId => $_getSZ(1);
@@ -1188,9 +1188,9 @@ class ClientReassignRequest extends $pb.GeneratedMessage {
   void clearReason() => clearField(3);
 }
 
-class ClientReassignResponse extends $pb.GeneratedMessage {
-  factory ClientReassignResponse({
-    ClientObject? data,
+class BorrowerReassignResponse extends $pb.GeneratedMessage {
+  factory BorrowerReassignResponse({
+    BorrowerObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -1198,12 +1198,12 @@ class ClientReassignResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  ClientReassignResponse._() : super();
-  factory ClientReassignResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ClientReassignResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  BorrowerReassignResponse._() : super();
+  factory BorrowerReassignResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BorrowerReassignResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientReassignResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
-    ..aOM<ClientObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BorrowerReassignResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'lender.v1'), createEmptyInstance: create)
+    ..aOM<BorrowerObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BorrowerObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -1211,33 +1211,33 @@ class ClientReassignResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ClientReassignResponse clone() => ClientReassignResponse()..mergeFromMessage(this);
+  BorrowerReassignResponse clone() => BorrowerReassignResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ClientReassignResponse copyWith(void Function(ClientReassignResponse) updates) => super.copyWith((message) => updates(message as ClientReassignResponse)) as ClientReassignResponse;
+  BorrowerReassignResponse copyWith(void Function(BorrowerReassignResponse) updates) => super.copyWith((message) => updates(message as BorrowerReassignResponse)) as BorrowerReassignResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ClientReassignResponse create() => ClientReassignResponse._();
-  ClientReassignResponse createEmptyInstance() => create();
-  static $pb.PbList<ClientReassignResponse> createRepeated() => $pb.PbList<ClientReassignResponse>();
+  static BorrowerReassignResponse create() => BorrowerReassignResponse._();
+  BorrowerReassignResponse createEmptyInstance() => create();
+  static $pb.PbList<BorrowerReassignResponse> createRepeated() => $pb.PbList<BorrowerReassignResponse>();
   @$core.pragma('dart2js:noInline')
-  static ClientReassignResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientReassignResponse>(create);
-  static ClientReassignResponse? _defaultInstance;
+  static BorrowerReassignResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BorrowerReassignResponse>(create);
+  static BorrowerReassignResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  ClientObject get data => $_getN(0);
+  BorrowerObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ClientObject v) { setField(1, v); }
+  set data(BorrowerObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  ClientObject ensureData() => $_ensure(0);
+  BorrowerObject ensureData() => $_ensure(0);
 }
 
 class FieldServiceApi {
@@ -1256,17 +1256,17 @@ class FieldServiceApi {
   $async.Future<AgentHierarchyResponse> agentHierarchy($pb.ClientContext? ctx, AgentHierarchyRequest request) =>
     _client.invoke<AgentHierarchyResponse>(ctx, 'FieldService', 'AgentHierarchy', request, AgentHierarchyResponse())
   ;
-  $async.Future<ClientSaveResponse> clientSave($pb.ClientContext? ctx, ClientSaveRequest request) =>
-    _client.invoke<ClientSaveResponse>(ctx, 'FieldService', 'ClientSave', request, ClientSaveResponse())
+  $async.Future<BorrowerSaveResponse> borrowerSave($pb.ClientContext? ctx, BorrowerSaveRequest request) =>
+    _client.invoke<BorrowerSaveResponse>(ctx, 'FieldService', 'BorrowerSave', request, BorrowerSaveResponse())
   ;
-  $async.Future<ClientGetResponse> clientGet($pb.ClientContext? ctx, ClientGetRequest request) =>
-    _client.invoke<ClientGetResponse>(ctx, 'FieldService', 'ClientGet', request, ClientGetResponse())
+  $async.Future<BorrowerGetResponse> borrowerGet($pb.ClientContext? ctx, BorrowerGetRequest request) =>
+    _client.invoke<BorrowerGetResponse>(ctx, 'FieldService', 'BorrowerGet', request, BorrowerGetResponse())
   ;
-  $async.Future<ClientSearchResponse> clientSearch($pb.ClientContext? ctx, ClientSearchRequest request) =>
-    _client.invoke<ClientSearchResponse>(ctx, 'FieldService', 'ClientSearch', request, ClientSearchResponse())
+  $async.Future<BorrowerSearchResponse> borrowerSearch($pb.ClientContext? ctx, BorrowerSearchRequest request) =>
+    _client.invoke<BorrowerSearchResponse>(ctx, 'FieldService', 'BorrowerSearch', request, BorrowerSearchResponse())
   ;
-  $async.Future<ClientReassignResponse> clientReassign($pb.ClientContext? ctx, ClientReassignRequest request) =>
-    _client.invoke<ClientReassignResponse>(ctx, 'FieldService', 'ClientReassign', request, ClientReassignResponse())
+  $async.Future<BorrowerReassignResponse> borrowerReassign($pb.ClientContext? ctx, BorrowerReassignRequest request) =>
+    _client.invoke<BorrowerReassignResponse>(ctx, 'FieldService', 'BorrowerReassign', request, BorrowerReassignResponse())
   ;
 }
 

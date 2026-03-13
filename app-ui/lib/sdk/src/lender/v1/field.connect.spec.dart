@@ -6,7 +6,7 @@
 import "package:connectrpc/connect.dart" as connect;
 import "field.pb.dart" as lenderv1field;
 
-/// FieldService manages agents and clients in the lending hierarchy.
+/// FieldService manages agents and borrowers in the lending hierarchy.
 /// All RPCs require authentication via Bearer token.
 abstract final class FieldService {
   /// Fully-qualified name of the FieldService service.
@@ -47,37 +47,37 @@ abstract final class FieldService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// ClientSave onboards or updates a client record.
-  static const clientSave = connect.Spec(
-    '/$name/ClientSave',
+  /// BorrowerSave onboards or updates a borrower record.
+  static const borrowerSave = connect.Spec(
+    '/$name/BorrowerSave',
     connect.StreamType.unary,
-    lenderv1field.ClientSaveRequest.new,
-    lenderv1field.ClientSaveResponse.new,
+    lenderv1field.BorrowerSaveRequest.new,
+    lenderv1field.BorrowerSaveResponse.new,
   );
 
-  /// ClientGet retrieves a client by their ID.
-  static const clientGet = connect.Spec(
-    '/$name/ClientGet',
+  /// BorrowerGet retrieves a borrower by their ID.
+  static const borrowerGet = connect.Spec(
+    '/$name/BorrowerGet',
     connect.StreamType.unary,
-    lenderv1field.ClientGetRequest.new,
-    lenderv1field.ClientGetResponse.new,
+    lenderv1field.BorrowerGetRequest.new,
+    lenderv1field.BorrowerGetResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// ClientSearch finds clients matching search criteria.
-  static const clientSearch = connect.Spec(
-    '/$name/ClientSearch',
+  /// BorrowerSearch finds borrowers matching search criteria.
+  static const borrowerSearch = connect.Spec(
+    '/$name/BorrowerSearch',
     connect.StreamType.server,
-    lenderv1field.ClientSearchRequest.new,
-    lenderv1field.ClientSearchResponse.new,
+    lenderv1field.BorrowerSearchRequest.new,
+    lenderv1field.BorrowerSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// ClientReassign moves a client from one agent to another.
-  static const clientReassign = connect.Spec(
-    '/$name/ClientReassign',
+  /// BorrowerReassign moves a borrower from one agent to another.
+  static const borrowerReassign = connect.Spec(
+    '/$name/BorrowerReassign',
     connect.StreamType.unary,
-    lenderv1field.ClientReassignRequest.new,
-    lenderv1field.ClientReassignResponse.new,
+    lenderv1field.BorrowerReassignRequest.new,
+    lenderv1field.BorrowerReassignResponse.new,
   );
 }

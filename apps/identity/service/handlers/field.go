@@ -14,9 +14,9 @@ import (
 
 // FieldServer implements the FieldService RPC handler.
 type FieldServer struct {
-	authz          authz.Middleware
-	agentBusiness  business.AgentBusiness
-	clientBusiness business.ClientBusiness
+	authz            authz.Middleware
+	agentBusiness    business.AgentBusiness
+	borrowerBusiness business.BorrowerBusiness
 
 	lenderv1connect.UnimplementedFieldServiceHandler
 }
@@ -24,12 +24,12 @@ type FieldServer struct {
 func NewFieldServer(
 	authzMiddleware authz.Middleware,
 	agentBusiness business.AgentBusiness,
-	clientBusiness business.ClientBusiness,
+	borrowerBusiness business.BorrowerBusiness,
 ) lenderv1connect.FieldServiceHandler {
 	return &FieldServer{
-		authz:          authzMiddleware,
-		agentBusiness:  agentBusiness,
-		clientBusiness: clientBusiness,
+		authz:            authzMiddleware,
+		agentBusiness:    agentBusiness,
+		borrowerBusiness: borrowerBusiness,
 	}
 }
 
@@ -89,40 +89,40 @@ func (s *FieldServer) AgentHierarchy(ctx context.Context, req *connect.Request[l
 	return nil
 }
 
-// --- Client RPCs ---
+// --- Borrower RPCs ---
 
-func (s *FieldServer) ClientSave(ctx context.Context, req *connect.Request[lenderv1.ClientSaveRequest]) (*connect.Response[lenderv1.ClientSaveResponse], error) {
-	if err := s.authz.CanClientCreate(ctx); err != nil {
+func (s *FieldServer) BorrowerSave(ctx context.Context, req *connect.Request[lenderv1.BorrowerSaveRequest]) (*connect.Response[lenderv1.BorrowerSaveResponse], error) {
+	if err := s.authz.CanBorrowerCreate(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
 
-	result, err := s.clientBusiness.Save(ctx, req.Msg.GetData())
+	result, err := s.borrowerBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.ClientSaveResponse{Data: result}), nil
+	return connect.NewResponse(&lenderv1.BorrowerSaveResponse{Data: result}), nil
 }
 
-func (s *FieldServer) ClientGet(ctx context.Context, req *connect.Request[lenderv1.ClientGetRequest]) (*connect.Response[lenderv1.ClientGetResponse], error) {
-	if err := s.authz.CanClientView(ctx); err != nil {
+func (s *FieldServer) BorrowerGet(ctx context.Context, req *connect.Request[lenderv1.BorrowerGetRequest]) (*connect.Response[lenderv1.BorrowerGetResponse], error) {
+	if err := s.authz.CanBorrowerView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
 
-	result, err := s.clientBusiness.Get(ctx, req.Msg.GetId())
+	result, err := s.borrowerBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.ClientGetResponse{Data: result}), nil
+	return connect.NewResponse(&lenderv1.BorrowerGetResponse{Data: result}), nil
 }
 
-func (s *FieldServer) ClientSearch(ctx context.Context, req *connect.Request[lenderv1.ClientSearchRequest], stream *connect.ServerStream[lenderv1.ClientSearchResponse]) error {
-	if err := s.authz.CanClientView(ctx); err != nil {
+func (s *FieldServer) BorrowerSearch(ctx context.Context, req *connect.Request[lenderv1.BorrowerSearchRequest], stream *connect.ServerStream[lenderv1.BorrowerSearchResponse]) error {
+	if err := s.authz.CanBorrowerView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
 
-	err := s.clientBusiness.Search(ctx, req.Msg,
-		func(_ context.Context, batch []*lenderv1.ClientObject) error {
-			return stream.Send(&lenderv1.ClientSearchResponse{Data: batch})
+	err := s.borrowerBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*lenderv1.BorrowerObject) error {
+			return stream.Send(&lenderv1.BorrowerSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)
@@ -130,14 +130,14 @@ func (s *FieldServer) ClientSearch(ctx context.Context, req *connect.Request[len
 	return nil
 }
 
-func (s *FieldServer) ClientReassign(ctx context.Context, req *connect.Request[lenderv1.ClientReassignRequest]) (*connect.Response[lenderv1.ClientReassignResponse], error) {
-	if err := s.authz.CanClientReassign(ctx); err != nil {
+func (s *FieldServer) BorrowerReassign(ctx context.Context, req *connect.Request[lenderv1.BorrowerReassignRequest]) (*connect.Response[lenderv1.BorrowerReassignResponse], error) {
+	if err := s.authz.CanBorrowerReassign(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
 
-	result, err := s.clientBusiness.Reassign(ctx, req.Msg)
+	result, err := s.borrowerBusiness.Reassign(ctx, req.Msg)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.ClientReassignResponse{Data: result}), nil
+	return connect.NewResponse(&lenderv1.BorrowerReassignResponse{Data: result}), nil
 }

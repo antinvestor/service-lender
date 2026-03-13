@@ -11,11 +11,12 @@ import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
 import '../features/field/ui/agents_screen.dart';
-import '../features/field/ui/clients_screen.dart';
+import '../features/field/ui/borrowers_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
 import '../features/organization/ui/banks_screen.dart';
 import '../features/organization/ui/branches_screen.dart';
+import '../features/organization/ui/investors_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
 part 'router.g.dart';
@@ -88,6 +89,14 @@ GoRouter router(Ref ref) {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/organization/investors',
+                builder: (context, state) => const InvestorsScreen(),
+              ),
+            ],
+          ),
 
           // Field Operations
           StatefulShellBranch(
@@ -109,8 +118,8 @@ GoRouter router(Ref ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/field/clients',
-                builder: (context, state) => const ClientsScreen(),
+                path: '/field/borrowers',
+                builder: (context, state) => const BorrowersScreen(),
               ),
             ],
           ),

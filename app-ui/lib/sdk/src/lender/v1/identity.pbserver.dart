@@ -28,6 +28,9 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
   $async.Future<$9.BranchSaveResponse> branchSave($pb.ServerContext ctx, $9.BranchSaveRequest request);
   $async.Future<$9.BranchGetResponse> branchGet($pb.ServerContext ctx, $9.BranchGetRequest request);
   $async.Future<$9.BranchSearchResponse> branchSearch($pb.ServerContext ctx, $9.BranchSearchRequest request);
+  $async.Future<$9.InvestorSaveResponse> investorSave($pb.ServerContext ctx, $9.InvestorSaveRequest request);
+  $async.Future<$9.InvestorGetResponse> investorGet($pb.ServerContext ctx, $9.InvestorGetRequest request);
+  $async.Future<$9.InvestorSearchResponse> investorSearch($pb.ServerContext ctx, $9.InvestorSearchRequest request);
   $async.Future<$9.SystemUserSaveResponse> systemUserSave($pb.ServerContext ctx, $9.SystemUserSaveRequest request);
   $async.Future<$9.SystemUserGetResponse> systemUserGet($pb.ServerContext ctx, $9.SystemUserGetRequest request);
   $async.Future<$9.SystemUserSearchResponse> systemUserSearch($pb.ServerContext ctx, $9.SystemUserSearchRequest request);
@@ -40,6 +43,9 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'BranchSave': return $9.BranchSaveRequest();
       case 'BranchGet': return $9.BranchGetRequest();
       case 'BranchSearch': return $9.BranchSearchRequest();
+      case 'InvestorSave': return $9.InvestorSaveRequest();
+      case 'InvestorGet': return $9.InvestorGetRequest();
+      case 'InvestorSearch': return $9.InvestorSearchRequest();
       case 'SystemUserSave': return $9.SystemUserSaveRequest();
       case 'SystemUserGet': return $9.SystemUserGetRequest();
       case 'SystemUserSearch': return $9.SystemUserSearchRequest();
@@ -55,6 +61,9 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'BranchSave': return this.branchSave(ctx, request as $9.BranchSaveRequest);
       case 'BranchGet': return this.branchGet(ctx, request as $9.BranchGetRequest);
       case 'BranchSearch': return this.branchSearch(ctx, request as $9.BranchSearchRequest);
+      case 'InvestorSave': return this.investorSave(ctx, request as $9.InvestorSaveRequest);
+      case 'InvestorGet': return this.investorGet(ctx, request as $9.InvestorGetRequest);
+      case 'InvestorSearch': return this.investorSearch(ctx, request as $9.InvestorSearchRequest);
       case 'SystemUserSave': return this.systemUserSave(ctx, request as $9.SystemUserSaveRequest);
       case 'SystemUserGet': return this.systemUserGet(ctx, request as $9.SystemUserGetRequest);
       case 'SystemUserSearch': return this.systemUserSearch(ctx, request as $9.SystemUserSearchRequest);

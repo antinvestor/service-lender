@@ -119,6 +119,60 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     );
   }
 
+  /// InvestorSave creates or updates an investor record.
+  Future<lenderv1identity.InvestorSaveResponse> investorSave(
+    lenderv1identity.InvestorSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.investorSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// InvestorGet retrieves an investor by their ID.
+  Future<lenderv1identity.InvestorGetResponse> investorGet(
+    lenderv1identity.InvestorGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.investorGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// InvestorSearch finds investors matching search criteria.
+  Stream<lenderv1identity.InvestorSearchResponse> investorSearch(
+    lenderv1identity.InvestorSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.investorSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
   /// SystemUserSave creates or updates a system user record.
   Future<lenderv1identity.SystemUserSaveResponse> systemUserSave(
     lenderv1identity.SystemUserSaveRequest input, {

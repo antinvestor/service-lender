@@ -65,6 +65,32 @@ abstract final class IdentityService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
+  /// InvestorSave creates or updates an investor record.
+  static const investorSave = connect.Spec(
+    '/$name/InvestorSave',
+    connect.StreamType.unary,
+    lenderv1identity.InvestorSaveRequest.new,
+    lenderv1identity.InvestorSaveResponse.new,
+  );
+
+  /// InvestorGet retrieves an investor by their ID.
+  static const investorGet = connect.Spec(
+    '/$name/InvestorGet',
+    connect.StreamType.unary,
+    lenderv1identity.InvestorGetRequest.new,
+    lenderv1identity.InvestorGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// InvestorSearch finds investors matching search criteria.
+  static const investorSearch = connect.Spec(
+    '/$name/InvestorSearch',
+    connect.StreamType.server,
+    lenderv1identity.InvestorSearchRequest.new,
+    lenderv1identity.InvestorSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
   /// SystemUserSave creates or updates a system user record.
   static const systemUserSave = connect.Spec(
     '/$name/SystemUserSave',

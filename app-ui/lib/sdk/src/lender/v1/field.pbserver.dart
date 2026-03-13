@@ -25,10 +25,10 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
   $async.Future<$8.AgentGetResponse> agentGet($pb.ServerContext ctx, $8.AgentGetRequest request);
   $async.Future<$8.AgentSearchResponse> agentSearch($pb.ServerContext ctx, $8.AgentSearchRequest request);
   $async.Future<$8.AgentHierarchyResponse> agentHierarchy($pb.ServerContext ctx, $8.AgentHierarchyRequest request);
-  $async.Future<$8.ClientSaveResponse> clientSave($pb.ServerContext ctx, $8.ClientSaveRequest request);
-  $async.Future<$8.ClientGetResponse> clientGet($pb.ServerContext ctx, $8.ClientGetRequest request);
-  $async.Future<$8.ClientSearchResponse> clientSearch($pb.ServerContext ctx, $8.ClientSearchRequest request);
-  $async.Future<$8.ClientReassignResponse> clientReassign($pb.ServerContext ctx, $8.ClientReassignRequest request);
+  $async.Future<$8.BorrowerSaveResponse> borrowerSave($pb.ServerContext ctx, $8.BorrowerSaveRequest request);
+  $async.Future<$8.BorrowerGetResponse> borrowerGet($pb.ServerContext ctx, $8.BorrowerGetRequest request);
+  $async.Future<$8.BorrowerSearchResponse> borrowerSearch($pb.ServerContext ctx, $8.BorrowerSearchRequest request);
+  $async.Future<$8.BorrowerReassignResponse> borrowerReassign($pb.ServerContext ctx, $8.BorrowerReassignRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -36,10 +36,10 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'AgentGet': return $8.AgentGetRequest();
       case 'AgentSearch': return $8.AgentSearchRequest();
       case 'AgentHierarchy': return $8.AgentHierarchyRequest();
-      case 'ClientSave': return $8.ClientSaveRequest();
-      case 'ClientGet': return $8.ClientGetRequest();
-      case 'ClientSearch': return $8.ClientSearchRequest();
-      case 'ClientReassign': return $8.ClientReassignRequest();
+      case 'BorrowerSave': return $8.BorrowerSaveRequest();
+      case 'BorrowerGet': return $8.BorrowerGetRequest();
+      case 'BorrowerSearch': return $8.BorrowerSearchRequest();
+      case 'BorrowerReassign': return $8.BorrowerReassignRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -50,10 +50,10 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'AgentGet': return this.agentGet(ctx, request as $8.AgentGetRequest);
       case 'AgentSearch': return this.agentSearch(ctx, request as $8.AgentSearchRequest);
       case 'AgentHierarchy': return this.agentHierarchy(ctx, request as $8.AgentHierarchyRequest);
-      case 'ClientSave': return this.clientSave(ctx, request as $8.ClientSaveRequest);
-      case 'ClientGet': return this.clientGet(ctx, request as $8.ClientGetRequest);
-      case 'ClientSearch': return this.clientSearch(ctx, request as $8.ClientSearchRequest);
-      case 'ClientReassign': return this.clientReassign(ctx, request as $8.ClientReassignRequest);
+      case 'BorrowerSave': return this.borrowerSave(ctx, request as $8.BorrowerSaveRequest);
+      case 'BorrowerGet': return this.borrowerGet(ctx, request as $8.BorrowerGetRequest);
+      case 'BorrowerSearch': return this.borrowerSearch(ctx, request as $8.BorrowerSearchRequest);
+      case 'BorrowerReassign': return this.borrowerReassign(ctx, request as $8.BorrowerReassignRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
