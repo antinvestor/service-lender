@@ -1,0 +1,100 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'nav_state.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Provides the filtered navigation items based on current user roles.
+
+@ProviderFor(filteredNavItems)
+final filteredNavItemsProvider = FilteredNavItemsProvider._();
+
+/// Provides the filtered navigation items based on current user roles.
+
+final class FilteredNavItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<NavItem>>,
+          List<NavItem>,
+          FutureOr<List<NavItem>>
+        >
+    with $FutureModifier<List<NavItem>>, $FutureProvider<List<NavItem>> {
+  /// Provides the filtered navigation items based on current user roles.
+  FilteredNavItemsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'filteredNavItemsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$filteredNavItemsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<NavItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<NavItem>> create(Ref ref) {
+    return filteredNavItems(ref);
+  }
+}
+
+String _$filteredNavItemsHash() => r'62de1be2ebbcd1c26d2e2586a52213807bb23caa';
+
+@ProviderFor(sidebarExpansion)
+final sidebarExpansionProvider = SidebarExpansionProvider._();
+
+final class SidebarExpansionProvider
+    extends
+        $FunctionalProvider<
+          SidebarExpansionState,
+          SidebarExpansionState,
+          SidebarExpansionState
+        >
+    with $Provider<SidebarExpansionState> {
+  SidebarExpansionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sidebarExpansionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sidebarExpansionHash();
+
+  @$internal
+  @override
+  $ProviderElement<SidebarExpansionState> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SidebarExpansionState create(Ref ref) {
+    return sidebarExpansion(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SidebarExpansionState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SidebarExpansionState>(value),
+    );
+  }
+}
+
+String _$sidebarExpansionHash() => r'9bcbb7801c7439b5b97cec3f0f19769582b8ff28';

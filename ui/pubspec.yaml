@@ -1,0 +1,35 @@
+name: lender_ui
+description: "AntInvestor Lender - Loan management platform for banks, agents, and field operations."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  app_links: ^7.0.0
+  connectivity_plus: ^7.0.0
+  drift: ^2.31.0
+  drift_flutter: ^0.2.8
+  flutter_riverpod: ^3.2.1
+  flutter_secure_storage: ^10.0.0
+  go_router: ^17.1.0
+  openid_client: ^0.4.9+1
+  riverpod_annotation: ^4.0.2
+  url_launcher: ^6.3.2
+  logger: ^2.5.0
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.11.1
+  drift_dev: ^2.31.0
+  riverpod_generator: ^4.0.3
+
+flutter:
+  uses-material-design: true
