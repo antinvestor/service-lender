@@ -40,7 +40,7 @@ class AuthRepository {
 AuthRepository authRepository(Ref ref) {
   // TODO: Configure these for your environment
   const issuerUrl = 'https://oauth2.stawi.org';
-  const clientId = 'lender-ui';
+  const clientId = 'd6q1aekpf2taeg5iovpg';
 
   const storage = FlutterSecureStorage();
   final authService = AuthService(

@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"github.com/pitabwire/frame"
-	"github.com/antinvestor/service-ant-lender/apps/loan-management/service"
+	"github.com/antinvestor/service-lender/apps/loan-management/service"
 )
 
 func main() {

@@ -1,6 +1,6 @@
 package business
 
-import "github.com/antinvestor/service-ant-lender/pkg/apperrors"
+import "github.com/antinvestor/service-lender/pkg/apperrors"
 
 var (
 	ErrBankNotFound       = apperrors.NewError(apperrors.NotFound, "bank not found")

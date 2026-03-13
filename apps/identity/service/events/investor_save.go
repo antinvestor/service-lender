@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/repository"
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
+	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 	"github.com/pitabwire/util"
 )
 

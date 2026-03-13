@@ -51,6 +51,9 @@ build-identity: tidy
 # UI
 # ------------------------------------------------------------------------------
 
+UI_WEB_PORT := 5170
+UI_CHROME_FLAGS := --web-browser-flag="--disable-web-security" --web-browser-flag="--user-data-dir=/tmp/chrome-cors-disabled"
+
 .PHONY: ui-sdk
 ui-sdk: proto-generate
 
@@ -68,11 +71,15 @@ ui-run: ui-codegen
 
 .PHONY: ui-run-web
 ui-run-web: ui-codegen
-	cd app-ui && flutter run -d chrome
+	cd app-ui && flutter run -d chrome --web-port=$(UI_WEB_PORT) $(UI_CHROME_FLAGS)
 
 .PHONY: ui-run-linux
 ui-run-linux: ui-codegen
 	cd app-ui && flutter run -d linux
+
+.PHONY: ui-build-web
+ui-build-web: ui-codegen
+	cd app-ui && flutter build web --release
 
 .PHONY: ui-test
 ui-test: ui-codegen

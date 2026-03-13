@@ -6,9 +6,9 @@ import (
 	"buf.build/gen/go/antinvestor/lender/connectrpc/go/lender/v1/lenderv1connect"
 	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
 	"connectrpc.com/connect"
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/authz"
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/business"
-	"github.com/antinvestor/service-ant-lender/pkg/apperrors"
+	"github.com/antinvestor/service-lender/apps/identity/service/authz"
+	"github.com/antinvestor/service-lender/apps/identity/service/business"
+	"github.com/antinvestor/service-lender/pkg/apperrors"
 	"github.com/pitabwire/frame/security/authorizer"
 )
 

@@ -6,9 +6,9 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/events"
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-ant-lender/apps/identity/service/repository"
+	"github.com/antinvestor/service-lender/apps/identity/service/events"
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
+	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -182,7 +182,7 @@ func (b *borrowerBusiness) Reassign(ctx context.Context, req *lenderv1.BorrowerR
 
 	// Update borrower's agent
 	borrower.AgentID = req.GetNewAgentId()
-	err = b.borrowerRepo.Update(ctx, borrower, "agent_id")
+	_, err = b.borrowerRepo.Update(ctx, borrower, "agent_id")
 	if err != nil {
 		logger.WithError(err).Error("could not update borrower agent")
 		return nil, err
