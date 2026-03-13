@@ -7,10 +7,11 @@ import (
 	"buf.build/gen/go/antinvestor/lender/connectrpc/go/lender/v1/lenderv1connect"
 	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/security/authorizer"
+
 	"github.com/antinvestor/service-lender/apps/identity/service/authz"
 	"github.com/antinvestor/service-lender/apps/identity/service/business"
 	"github.com/antinvestor/service-lender/pkg/apperrors"
-	"github.com/pitabwire/frame/security/authorizer"
 )
 
 // IdentityServer implements the IdentityService RPC handler.
@@ -42,7 +43,10 @@ func NewIdentityServer(
 
 // --- Bank RPCs ---
 
-func (s *IdentityServer) BankSave(ctx context.Context, req *connect.Request[lenderv1.BankSaveRequest]) (*connect.Response[lenderv1.BankSaveResponse], error) {
+func (s *IdentityServer) BankSave(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BankSaveRequest],
+) (*connect.Response[lenderv1.BankSaveResponse], error) {
 	if err := s.authz.CanBankManage(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -54,7 +58,10 @@ func (s *IdentityServer) BankSave(ctx context.Context, req *connect.Request[lend
 	return connect.NewResponse(&lenderv1.BankSaveResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) BankGet(ctx context.Context, req *connect.Request[lenderv1.BankGetRequest]) (*connect.Response[lenderv1.BankGetResponse], error) {
+func (s *IdentityServer) BankGet(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BankGetRequest],
+) (*connect.Response[lenderv1.BankGetResponse], error) {
 	if err := s.authz.CanBankView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -66,7 +73,11 @@ func (s *IdentityServer) BankGet(ctx context.Context, req *connect.Request[lende
 	return connect.NewResponse(&lenderv1.BankGetResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) BankSearch(ctx context.Context, req *connect.Request[commonv1.SearchRequest], stream *connect.ServerStream[lenderv1.BankSearchResponse]) error {
+func (s *IdentityServer) BankSearch(
+	ctx context.Context,
+	req *connect.Request[commonv1.SearchRequest],
+	stream *connect.ServerStream[lenderv1.BankSearchResponse],
+) error {
 	if err := s.authz.CanBankView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
@@ -83,7 +94,10 @@ func (s *IdentityServer) BankSearch(ctx context.Context, req *connect.Request[co
 
 // --- Branch RPCs ---
 
-func (s *IdentityServer) BranchSave(ctx context.Context, req *connect.Request[lenderv1.BranchSaveRequest]) (*connect.Response[lenderv1.BranchSaveResponse], error) {
+func (s *IdentityServer) BranchSave(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BranchSaveRequest],
+) (*connect.Response[lenderv1.BranchSaveResponse], error) {
 	if err := s.authz.CanBranchManage(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -95,7 +109,10 @@ func (s *IdentityServer) BranchSave(ctx context.Context, req *connect.Request[le
 	return connect.NewResponse(&lenderv1.BranchSaveResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) BranchGet(ctx context.Context, req *connect.Request[lenderv1.BranchGetRequest]) (*connect.Response[lenderv1.BranchGetResponse], error) {
+func (s *IdentityServer) BranchGet(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BranchGetRequest],
+) (*connect.Response[lenderv1.BranchGetResponse], error) {
 	if err := s.authz.CanBranchView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -107,7 +124,11 @@ func (s *IdentityServer) BranchGet(ctx context.Context, req *connect.Request[len
 	return connect.NewResponse(&lenderv1.BranchGetResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) BranchSearch(ctx context.Context, req *connect.Request[lenderv1.BranchSearchRequest], stream *connect.ServerStream[lenderv1.BranchSearchResponse]) error {
+func (s *IdentityServer) BranchSearch(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BranchSearchRequest],
+	stream *connect.ServerStream[lenderv1.BranchSearchResponse],
+) error {
 	if err := s.authz.CanBranchView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
@@ -124,7 +145,10 @@ func (s *IdentityServer) BranchSearch(ctx context.Context, req *connect.Request[
 
 // --- Investor RPCs ---
 
-func (s *IdentityServer) InvestorSave(ctx context.Context, req *connect.Request[lenderv1.InvestorSaveRequest]) (*connect.Response[lenderv1.InvestorSaveResponse], error) {
+func (s *IdentityServer) InvestorSave(
+	ctx context.Context,
+	req *connect.Request[lenderv1.InvestorSaveRequest],
+) (*connect.Response[lenderv1.InvestorSaveResponse], error) {
 	if err := s.authz.CanInvestorCreate(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -136,7 +160,10 @@ func (s *IdentityServer) InvestorSave(ctx context.Context, req *connect.Request[
 	return connect.NewResponse(&lenderv1.InvestorSaveResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) InvestorGet(ctx context.Context, req *connect.Request[lenderv1.InvestorGetRequest]) (*connect.Response[lenderv1.InvestorGetResponse], error) {
+func (s *IdentityServer) InvestorGet(
+	ctx context.Context,
+	req *connect.Request[lenderv1.InvestorGetRequest],
+) (*connect.Response[lenderv1.InvestorGetResponse], error) {
 	if err := s.authz.CanInvestorView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -148,7 +175,11 @@ func (s *IdentityServer) InvestorGet(ctx context.Context, req *connect.Request[l
 	return connect.NewResponse(&lenderv1.InvestorGetResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) InvestorSearch(ctx context.Context, req *connect.Request[lenderv1.InvestorSearchRequest], stream *connect.ServerStream[lenderv1.InvestorSearchResponse]) error {
+func (s *IdentityServer) InvestorSearch(
+	ctx context.Context,
+	req *connect.Request[lenderv1.InvestorSearchRequest],
+	stream *connect.ServerStream[lenderv1.InvestorSearchResponse],
+) error {
 	if err := s.authz.CanInvestorView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
@@ -165,7 +196,10 @@ func (s *IdentityServer) InvestorSearch(ctx context.Context, req *connect.Reques
 
 // --- SystemUser RPCs ---
 
-func (s *IdentityServer) SystemUserSave(ctx context.Context, req *connect.Request[lenderv1.SystemUserSaveRequest]) (*connect.Response[lenderv1.SystemUserSaveResponse], error) {
+func (s *IdentityServer) SystemUserSave(
+	ctx context.Context,
+	req *connect.Request[lenderv1.SystemUserSaveRequest],
+) (*connect.Response[lenderv1.SystemUserSaveResponse], error) {
 	if err := s.authz.CanSystemUserManage(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -177,7 +211,10 @@ func (s *IdentityServer) SystemUserSave(ctx context.Context, req *connect.Reques
 	return connect.NewResponse(&lenderv1.SystemUserSaveResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) SystemUserGet(ctx context.Context, req *connect.Request[lenderv1.SystemUserGetRequest]) (*connect.Response[lenderv1.SystemUserGetResponse], error) {
+func (s *IdentityServer) SystemUserGet(
+	ctx context.Context,
+	req *connect.Request[lenderv1.SystemUserGetRequest],
+) (*connect.Response[lenderv1.SystemUserGetResponse], error) {
 	if err := s.authz.CanSystemUserView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -189,7 +226,11 @@ func (s *IdentityServer) SystemUserGet(ctx context.Context, req *connect.Request
 	return connect.NewResponse(&lenderv1.SystemUserGetResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) SystemUserSearch(ctx context.Context, req *connect.Request[lenderv1.SystemUserSearchRequest], stream *connect.ServerStream[lenderv1.SystemUserSearchResponse]) error {
+func (s *IdentityServer) SystemUserSearch(
+	ctx context.Context,
+	req *connect.Request[lenderv1.SystemUserSearchRequest],
+	stream *connect.ServerStream[lenderv1.SystemUserSearchResponse],
+) error {
 	if err := s.authz.CanSystemUserView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}

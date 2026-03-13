@@ -11,12 +11,6 @@ import (
 	apis "github.com/antinvestor/apis/go/common"
 	"github.com/antinvestor/apis/go/partition"
 	"github.com/antinvestor/apis/go/profile"
-	aconfig "github.com/antinvestor/service-lender/apps/identity/config"
-	"github.com/antinvestor/service-lender/apps/identity/service/authz"
-	"github.com/antinvestor/service-lender/apps/identity/service/business"
-	identityevents "github.com/antinvestor/service-lender/apps/identity/service/events"
-	"github.com/antinvestor/service-lender/apps/identity/service/handlers"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -24,6 +18,13 @@ import (
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
 	"github.com/pitabwire/util"
+
+	aconfig "github.com/antinvestor/service-lender/apps/identity/config"
+	"github.com/antinvestor/service-lender/apps/identity/service/authz"
+	"github.com/antinvestor/service-lender/apps/identity/service/business"
+	identityevents "github.com/antinvestor/service-lender/apps/identity/service/events"
+	"github.com/antinvestor/service-lender/apps/identity/service/handlers"
+	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 )
 
 func main() {
@@ -73,7 +74,8 @@ func main() {
 	// Get database pool
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
-		log.Fatal("Database pool is nil - check DATABASE_PRIMARY_URL environment variable")
+		log.Error("Database pool is nil - check DATABASE_PRIMARY_URL environment variable")
+		return
 	}
 
 	// Initialise repositories
@@ -169,9 +171,14 @@ func setupConnectServer(
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) http.Handler {
-
 	// Create handlers with injected dependencies
-	identityHandler := handlers.NewIdentityServer(authzMiddleware, bankBusiness, branchBusiness, investorBusiness, suBusiness)
+	identityHandler := handlers.NewIdentityServer(
+		authzMiddleware,
+		bankBusiness,
+		branchBusiness,
+		investorBusiness,
+		suBusiness,
+	)
 	fieldHandler := handlers.NewFieldServer(authzMiddleware, agentBusiness, borrowerBusiness)
 
 	// Layer 1: TenancyAccessChecker verifies caller can access the partition

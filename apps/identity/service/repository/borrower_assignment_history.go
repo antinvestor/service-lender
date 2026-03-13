@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
 )
 
 type BorrowerAssignmentHistoryRepository interface {
@@ -18,15 +19,25 @@ type borrowerAssignmentHistoryRepository struct {
 	datastore.BaseRepository[*models.BorrowerAssignmentHistory]
 }
 
-func NewBorrowerAssignmentHistoryRepository(ctx context.Context, dbPool pool.Pool, workMan workerpool.Manager) BorrowerAssignmentHistoryRepository {
+func NewBorrowerAssignmentHistoryRepository(
+	ctx context.Context,
+	dbPool pool.Pool,
+	workMan workerpool.Manager,
+) BorrowerAssignmentHistoryRepository {
 	return &borrowerAssignmentHistoryRepository{
 		BaseRepository: datastore.NewBaseRepository[*models.BorrowerAssignmentHistory](
-			ctx, dbPool, workMan, func() *models.BorrowerAssignmentHistory { return &models.BorrowerAssignmentHistory{} },
+			ctx,
+			dbPool,
+			workMan,
+			func() *models.BorrowerAssignmentHistory { return &models.BorrowerAssignmentHistory{} },
 		),
 	}
 }
 
-func (repo *borrowerAssignmentHistoryRepository) GetByBorrowerID(ctx context.Context, borrowerID string) ([]*models.BorrowerAssignmentHistory, error) {
+func (repo *borrowerAssignmentHistoryRepository) GetByBorrowerID(
+	ctx context.Context,
+	borrowerID string,
+) ([]*models.BorrowerAssignmentHistory, error) {
 	var history []*models.BorrowerAssignmentHistory
 	err := repo.Pool().DB(ctx, true).
 		Where("borrower_id = ?", borrowerID).

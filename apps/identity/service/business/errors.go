@@ -14,5 +14,8 @@ var (
 	ErrAgentInactive         = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
 	ErrBorrowerAlreadyExists = apperrors.NewError(apperrors.Conflict, "borrower with this profile already exists")
 	ErrReassignSameAgent     = apperrors.NewError(apperrors.BadRequest, "borrower is already assigned to this agent")
-	ErrReassignCrossBank     = apperrors.NewError(apperrors.BadRequest, "cannot reassign borrower to agent in different bank")
+	ErrReassignCrossBank     = apperrors.NewError(
+		apperrors.BadRequest,
+		"cannot reassign borrower to agent in different bank",
+	)
 )

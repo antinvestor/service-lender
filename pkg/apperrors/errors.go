@@ -21,27 +21,27 @@ const (
 )
 
 var (
-	ErrInvalidInput = Error{
+	ErrInvalidInput = Error{ //nolint:gochecknoglobals // sentinel error
 		code:    BadRequest,
 		message: "Invalid input provided",
 	}
-	ErrMissingRequiredData = Error{
+	ErrMissingRequiredData = Error{ //nolint:gochecknoglobals // sentinel error
 		code:    BadRequest,
 		message: "Required data is missing",
 	}
-	ErrDataNotFound = Error{
+	ErrDataNotFound = Error{ //nolint:gochecknoglobals // sentinel error
 		code:    NotFound,
 		message: "Requested data not found",
 	}
-	ErrDataConflict = Error{
+	ErrDataConflict = Error{ //nolint:gochecknoglobals // sentinel error
 		code:    Conflict,
 		message: "Data conflict occurred",
 	}
-	ErrDataValidation = Error{
+	ErrDataValidation = Error{ //nolint:gochecknoglobals // sentinel error
 		code:    Unprocessable,
 		message: "Data validation failed",
 	}
-	ErrForbiddenAccess = Error{
+	ErrForbiddenAccess = Error{ //nolint:gochecknoglobals // sentinel error
 		code:    Forbidden,
 		message: "Access forbidden",
 	}
@@ -79,7 +79,7 @@ func (e *Error) Override(errs ...error) error {
 	for i, err := range errs {
 		extraInfo[i] = err.Error()
 	}
-	return fmt.Errorf("%s\nAdditional errors:\n%s", e, strings.Join(extraInfo, "\n"))
+	return fmt.Errorf("%w\nAdditional errors:\n%s", e, strings.Join(extraInfo, "\n"))
 }
 
 func (e *Error) IsRetriable() bool {

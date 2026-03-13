@@ -3,17 +3,23 @@ package repository
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
 )
 
 type SystemUserRepository interface {
 	datastore.BaseRepository[*models.SystemUser]
 	GetByProfileID(ctx context.Context, profileID string) (*models.SystemUser, error)
 	GetByRole(ctx context.Context, role int32, offset, limit int) ([]*models.SystemUser, error)
-	GetByBranchAndRole(ctx context.Context, branchID string, role int32, offset, limit int) ([]*models.SystemUser, error)
+	GetByBranchAndRole(
+		ctx context.Context,
+		branchID string,
+		role int32,
+		offset, limit int,
+	) ([]*models.SystemUser, error)
 }
 
 type systemUserRepository struct {
@@ -37,7 +43,11 @@ func (repo *systemUserRepository) GetByProfileID(ctx context.Context, profileID 
 	return &su, nil
 }
 
-func (repo *systemUserRepository) GetByRole(ctx context.Context, role int32, offset, limit int) ([]*models.SystemUser, error) {
+func (repo *systemUserRepository) GetByRole(
+	ctx context.Context,
+	role int32,
+	offset, limit int,
+) ([]*models.SystemUser, error) {
 	var users []*models.SystemUser
 	err := repo.Pool().DB(ctx, true).
 		Where("role = ?", role).
@@ -49,7 +59,12 @@ func (repo *systemUserRepository) GetByRole(ctx context.Context, role int32, off
 	return users, nil
 }
 
-func (repo *systemUserRepository) GetByBranchAndRole(ctx context.Context, branchID string, role int32, offset, limit int) ([]*models.SystemUser, error) {
+func (repo *systemUserRepository) GetByBranchAndRole(
+	ctx context.Context,
+	branchID string,
+	role int32,
+	offset, limit int,
+) ([]*models.SystemUser, error) {
 	var users []*models.SystemUser
 	err := repo.Pool().DB(ctx, true).
 		Where("branch_id = ? AND role = ?", branchID, role).

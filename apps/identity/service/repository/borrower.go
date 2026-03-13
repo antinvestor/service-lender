@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
 )
 
 type BorrowerRepository interface {
@@ -27,7 +28,11 @@ func NewBorrowerRepository(ctx context.Context, dbPool pool.Pool, workMan worker
 	}
 }
 
-func (repo *borrowerRepository) GetByAgentID(ctx context.Context, agentID string, offset, limit int) ([]*models.Borrower, error) {
+func (repo *borrowerRepository) GetByAgentID(
+	ctx context.Context,
+	agentID string,
+	offset, limit int,
+) ([]*models.Borrower, error) {
 	var borrowers []*models.Borrower
 	err := repo.Pool().DB(ctx, true).
 		Where("agent_id = ?", agentID).

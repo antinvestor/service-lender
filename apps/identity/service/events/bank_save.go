@@ -1,12 +1,13 @@
-package events
+package events //nolint:dupl // similar event handlers for different entity types
 
 import (
 	"context"
 	"errors"
 
+	"github.com/pitabwire/util"
+
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/antinvestor/service-lender/apps/identity/service/repository"
-	"github.com/pitabwire/util"
 )
 
 const BankSaveEvent = "bank.save"
@@ -19,8 +20,8 @@ func NewBankSave(_ context.Context, bankRepo repository.BankRepository) *BankSav
 	return &BankSave{bankRepo: bankRepo}
 }
 
-func (e *BankSave) Name() string         { return BankSaveEvent }
-func (e *BankSave) PayloadType() any     { return &models.Bank{} }
+func (e *BankSave) Name() string     { return BankSaveEvent }
+func (e *BankSave) PayloadType() any { return &models.Bank{} }
 
 func (e *BankSave) Validate(_ context.Context, payload any) error {
 	bank, ok := payload.(*models.Bank)
@@ -34,7 +35,10 @@ func (e *BankSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *BankSave) Execute(ctx context.Context, payload any) error {
-	bank := payload.(*models.Bank)
+	bank, ok := payload.(*models.Bank)
+	if !ok {
+		return errors.New("payload is not of type models.Bank")
+	}
 
 	logger := util.Log(ctx).WithField("type", e.Name()).WithField("bank_id", bank.GetID())
 	defer logger.Release()

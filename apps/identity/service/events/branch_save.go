@@ -1,12 +1,13 @@
-package events
+package events //nolint:dupl // similar event handlers for different entity types
 
 import (
 	"context"
 	"errors"
 
+	"github.com/pitabwire/util"
+
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/antinvestor/service-lender/apps/identity/service/repository"
-	"github.com/pitabwire/util"
 )
 
 const BranchSaveEvent = "branch.save"
@@ -19,8 +20,8 @@ func NewBranchSave(_ context.Context, branchRepo repository.BranchRepository) *B
 	return &BranchSave{branchRepo: branchRepo}
 }
 
-func (e *BranchSave) Name() string         { return BranchSaveEvent }
-func (e *BranchSave) PayloadType() any     { return &models.Branch{} }
+func (e *BranchSave) Name() string     { return BranchSaveEvent }
+func (e *BranchSave) PayloadType() any { return &models.Branch{} }
 
 func (e *BranchSave) Validate(_ context.Context, payload any) error {
 	branch, ok := payload.(*models.Branch)
@@ -34,7 +35,10 @@ func (e *BranchSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *BranchSave) Execute(ctx context.Context, payload any) error {
-	branch := payload.(*models.Branch)
+	branch, ok := payload.(*models.Branch)
+	if !ok {
+		return errors.New("payload is not of type models.Branch")
+	}
 
 	logger := util.Log(ctx).WithField("type", e.Name()).WithField("branch_id", branch.GetID())
 	defer logger.Release()

@@ -6,10 +6,11 @@ import (
 	"buf.build/gen/go/antinvestor/lender/connectrpc/go/lender/v1/lenderv1connect"
 	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/security/authorizer"
+
 	"github.com/antinvestor/service-lender/apps/identity/service/authz"
 	"github.com/antinvestor/service-lender/apps/identity/service/business"
 	"github.com/antinvestor/service-lender/pkg/apperrors"
-	"github.com/pitabwire/frame/security/authorizer"
 )
 
 // FieldServer implements the FieldService RPC handler.
@@ -35,7 +36,10 @@ func NewFieldServer(
 
 // --- Agent RPCs ---
 
-func (s *FieldServer) AgentSave(ctx context.Context, req *connect.Request[lenderv1.AgentSaveRequest]) (*connect.Response[lenderv1.AgentSaveResponse], error) {
+func (s *FieldServer) AgentSave(
+	ctx context.Context,
+	req *connect.Request[lenderv1.AgentSaveRequest],
+) (*connect.Response[lenderv1.AgentSaveResponse], error) {
 	if err := s.authz.CanAgentCreate(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -47,7 +51,10 @@ func (s *FieldServer) AgentSave(ctx context.Context, req *connect.Request[lender
 	return connect.NewResponse(&lenderv1.AgentSaveResponse{Data: result}), nil
 }
 
-func (s *FieldServer) AgentGet(ctx context.Context, req *connect.Request[lenderv1.AgentGetRequest]) (*connect.Response[lenderv1.AgentGetResponse], error) {
+func (s *FieldServer) AgentGet(
+	ctx context.Context,
+	req *connect.Request[lenderv1.AgentGetRequest],
+) (*connect.Response[lenderv1.AgentGetResponse], error) {
 	if err := s.authz.CanAgentView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -59,7 +66,11 @@ func (s *FieldServer) AgentGet(ctx context.Context, req *connect.Request[lenderv
 	return connect.NewResponse(&lenderv1.AgentGetResponse{Data: result}), nil
 }
 
-func (s *FieldServer) AgentSearch(ctx context.Context, req *connect.Request[lenderv1.AgentSearchRequest], stream *connect.ServerStream[lenderv1.AgentSearchResponse]) error {
+func (s *FieldServer) AgentSearch(
+	ctx context.Context,
+	req *connect.Request[lenderv1.AgentSearchRequest],
+	stream *connect.ServerStream[lenderv1.AgentSearchResponse],
+) error {
 	if err := s.authz.CanAgentView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
@@ -74,7 +85,11 @@ func (s *FieldServer) AgentSearch(ctx context.Context, req *connect.Request[lend
 	return nil
 }
 
-func (s *FieldServer) AgentHierarchy(ctx context.Context, req *connect.Request[lenderv1.AgentHierarchyRequest], stream *connect.ServerStream[lenderv1.AgentHierarchyResponse]) error {
+func (s *FieldServer) AgentHierarchy(
+	ctx context.Context,
+	req *connect.Request[lenderv1.AgentHierarchyRequest],
+	stream *connect.ServerStream[lenderv1.AgentHierarchyResponse],
+) error {
 	if err := s.authz.CanAgentView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
@@ -91,7 +106,10 @@ func (s *FieldServer) AgentHierarchy(ctx context.Context, req *connect.Request[l
 
 // --- Borrower RPCs ---
 
-func (s *FieldServer) BorrowerSave(ctx context.Context, req *connect.Request[lenderv1.BorrowerSaveRequest]) (*connect.Response[lenderv1.BorrowerSaveResponse], error) {
+func (s *FieldServer) BorrowerSave(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BorrowerSaveRequest],
+) (*connect.Response[lenderv1.BorrowerSaveResponse], error) {
 	if err := s.authz.CanBorrowerCreate(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -103,7 +121,10 @@ func (s *FieldServer) BorrowerSave(ctx context.Context, req *connect.Request[len
 	return connect.NewResponse(&lenderv1.BorrowerSaveResponse{Data: result}), nil
 }
 
-func (s *FieldServer) BorrowerGet(ctx context.Context, req *connect.Request[lenderv1.BorrowerGetRequest]) (*connect.Response[lenderv1.BorrowerGetResponse], error) {
+func (s *FieldServer) BorrowerGet(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BorrowerGetRequest],
+) (*connect.Response[lenderv1.BorrowerGetResponse], error) {
 	if err := s.authz.CanBorrowerView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -115,7 +136,11 @@ func (s *FieldServer) BorrowerGet(ctx context.Context, req *connect.Request[lend
 	return connect.NewResponse(&lenderv1.BorrowerGetResponse{Data: result}), nil
 }
 
-func (s *FieldServer) BorrowerSearch(ctx context.Context, req *connect.Request[lenderv1.BorrowerSearchRequest], stream *connect.ServerStream[lenderv1.BorrowerSearchResponse]) error {
+func (s *FieldServer) BorrowerSearch(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BorrowerSearchRequest],
+	stream *connect.ServerStream[lenderv1.BorrowerSearchResponse],
+) error {
 	if err := s.authz.CanBorrowerView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
@@ -130,7 +155,10 @@ func (s *FieldServer) BorrowerSearch(ctx context.Context, req *connect.Request[l
 	return nil
 }
 
-func (s *FieldServer) BorrowerReassign(ctx context.Context, req *connect.Request[lenderv1.BorrowerReassignRequest]) (*connect.Response[lenderv1.BorrowerReassignResponse], error) {
+func (s *FieldServer) BorrowerReassign(
+	ctx context.Context,
+	req *connect.Request[lenderv1.BorrowerReassignRequest],
+) (*connect.Response[lenderv1.BorrowerReassignResponse], error) {
 	if err := s.authz.CanBorrowerReassign(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}

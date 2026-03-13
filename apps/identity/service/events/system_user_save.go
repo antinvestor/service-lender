@@ -1,12 +1,13 @@
-package events
+package events //nolint:dupl // similar event handlers for different entity types
 
 import (
 	"context"
 	"errors"
 
+	"github.com/pitabwire/util"
+
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/antinvestor/service-lender/apps/identity/service/repository"
-	"github.com/pitabwire/util"
 )
 
 const SystemUserSaveEvent = "system_user.save"
@@ -19,8 +20,8 @@ func NewSystemUserSave(_ context.Context, systemUserRepo repository.SystemUserRe
 	return &SystemUserSave{systemUserRepo: systemUserRepo}
 }
 
-func (e *SystemUserSave) Name() string         { return SystemUserSaveEvent }
-func (e *SystemUserSave) PayloadType() any     { return &models.SystemUser{} }
+func (e *SystemUserSave) Name() string     { return SystemUserSaveEvent }
+func (e *SystemUserSave) PayloadType() any { return &models.SystemUser{} }
 
 func (e *SystemUserSave) Validate(_ context.Context, payload any) error {
 	su, ok := payload.(*models.SystemUser)
@@ -34,7 +35,10 @@ func (e *SystemUserSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *SystemUserSave) Execute(ctx context.Context, payload any) error {
-	su := payload.(*models.SystemUser)
+	su, ok := payload.(*models.SystemUser)
+	if !ok {
+		return errors.New("payload is not of type models.SystemUser")
+	}
 
 	logger := util.Log(ctx).WithField("type", e.Name()).WithField("system_user_id", su.GetID())
 	defer logger.Release()

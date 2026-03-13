@@ -4,21 +4,30 @@ import (
 	"context"
 	"strconv"
 
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	"github.com/antinvestor/service-lender/apps/identity/service/events"
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
+	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/events"
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
+	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 )
 
 type AgentBusiness interface {
 	Save(ctx context.Context, obj *lenderv1.AgentObject) (*lenderv1.AgentObject, error)
 	Get(ctx context.Context, id string) (*lenderv1.AgentObject, error)
-	Search(ctx context.Context, req *lenderv1.AgentSearchRequest, consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error) error
-	Hierarchy(ctx context.Context, req *lenderv1.AgentHierarchyRequest, consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error) error
+	Search(
+		ctx context.Context,
+		req *lenderv1.AgentSearchRequest,
+		consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error,
+	) error
+	Hierarchy(
+		ctx context.Context,
+		req *lenderv1.AgentHierarchyRequest,
+		consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error,
+	) error
 }
 
 type agentBusiness struct {
@@ -28,7 +37,13 @@ type agentBusiness struct {
 	agentRepo     repository.AgentRepository
 }
 
-func NewAgentBusiness(_ context.Context, eventsMan fevents.Manager, maxAgentDepth int, branchRepo repository.BranchRepository, agentRepo repository.AgentRepository) AgentBusiness {
+func NewAgentBusiness(
+	_ context.Context,
+	eventsMan fevents.Manager,
+	maxAgentDepth int,
+	branchRepo repository.BranchRepository,
+	agentRepo repository.AgentRepository,
+) AgentBusiness {
 	return &agentBusiness{
 		eventsMan:     eventsMan,
 		maxAgentDepth: maxAgentDepth,
@@ -88,7 +103,11 @@ func (b *agentBusiness) Get(ctx context.Context, id string) (*lenderv1.AgentObje
 	return agent.ToAPI(), nil
 }
 
-func (b *agentBusiness) Search(ctx context.Context, req *lenderv1.AgentSearchRequest, consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error) error {
+func (b *agentBusiness) Search(
+	ctx context.Context,
+	req *lenderv1.AgentSearchRequest,
+	consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error,
+) error {
 	logger := util.Log(ctx).WithField("method", "AgentBusiness.Search")
 
 	var searchOpts []data.SearchOption
@@ -138,7 +157,11 @@ func (b *agentBusiness) Search(ctx context.Context, req *lenderv1.AgentSearchReq
 	})
 }
 
-func (b *agentBusiness) Hierarchy(ctx context.Context, req *lenderv1.AgentHierarchyRequest, consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error) error {
+func (b *agentBusiness) Hierarchy(
+	ctx context.Context,
+	req *lenderv1.AgentHierarchyRequest,
+	consumer func(ctx context.Context, batch []*lenderv1.AgentObject) error,
+) error {
 	descendants, err := b.agentRepo.GetDescendants(ctx, req.GetAgentId(), int(req.GetMaxDepth()))
 	if err != nil {
 		return err

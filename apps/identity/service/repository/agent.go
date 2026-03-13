@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
 )
 
 type AgentRepository interface {
@@ -29,7 +30,11 @@ func NewAgentRepository(ctx context.Context, dbPool pool.Pool, workMan workerpoo
 	}
 }
 
-func (repo *agentRepository) GetByBranchID(ctx context.Context, branchID string, offset, limit int) ([]*models.Agent, error) {
+func (repo *agentRepository) GetByBranchID(
+	ctx context.Context,
+	branchID string,
+	offset, limit int,
+) ([]*models.Agent, error) {
 	var agents []*models.Agent
 	err := repo.Pool().DB(ctx, true).
 		Where("branch_id = ?", branchID).
@@ -41,7 +46,11 @@ func (repo *agentRepository) GetByBranchID(ctx context.Context, branchID string,
 	return agents, nil
 }
 
-func (repo *agentRepository) GetByParentAgentID(ctx context.Context, parentAgentID string, offset, limit int) ([]*models.Agent, error) {
+func (repo *agentRepository) GetByParentAgentID(
+	ctx context.Context,
+	parentAgentID string,
+	offset, limit int,
+) ([]*models.Agent, error) {
 	var agents []*models.Agent
 	err := repo.Pool().DB(ctx, true).
 		Where("parent_agent_id = ?", parentAgentID).
@@ -64,7 +73,11 @@ func (repo *agentRepository) GetByProfileID(ctx context.Context, profileID strin
 
 // GetDescendants returns all descendants of the given agent using a recursive CTE.
 // If maxDepth is 0, all descendants are returned regardless of depth.
-func (repo *agentRepository) GetDescendants(ctx context.Context, agentID string, maxDepth int) ([]*models.Agent, error) {
+func (repo *agentRepository) GetDescendants(
+	ctx context.Context,
+	agentID string,
+	maxDepth int,
+) ([]*models.Agent, error) {
 	var agents []*models.Agent
 
 	query := `

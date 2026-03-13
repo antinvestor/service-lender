@@ -11,9 +11,9 @@ import (
 // Bank represents a top-level lending institution mapped to a partition.
 type Bank struct {
 	data.BaseModel
-	Name       string   `gorm:"type:varchar(255)"`
-	Code       string   `gorm:"type:varchar(50);uniqueIndex:uq_bank_code"`
-	ProfileID  string   `gorm:"type:varchar(50)"`
+	Name       string `gorm:"type:varchar(255)"`
+	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_bank_code"`
+	ProfileID  string `gorm:"type:varchar(50)"`
 	State      int32
 	Properties data.JSONMap
 }
@@ -60,10 +60,10 @@ func BankFromAPI(ctx context.Context, obj *lenderv1.BankObject) *Bank {
 // Branch represents a branch within a bank, mapped to a child partition with a geographic area.
 type Branch struct {
 	data.BaseModel
-	BankID     string   `gorm:"type:varchar(50);index:idx_branch_bank"`
-	Name       string   `gorm:"type:varchar(255)"`
-	Code       string   `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
-	GeoID      string   `gorm:"type:varchar(50)"`
+	BankID     string `gorm:"type:varchar(50);index:idx_branch_bank"`
+	Name       string `gorm:"type:varchar(255)"`
+	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
+	GeoID      string `gorm:"type:varchar(50)"`
 	State      int32
 	Properties data.JSONMap
 }
@@ -112,12 +112,12 @@ func BranchFromAPI(ctx context.Context, obj *lenderv1.BranchObject) *Branch {
 // Agent represents a field agent in the lending hierarchy.
 type Agent struct {
 	data.BaseModel
-	BranchID      string   `gorm:"type:varchar(50);index:idx_agent_branch"`
-	ParentAgentID string   `gorm:"type:varchar(50);index:idx_agent_parent"`
-	ProfileID     string   `gorm:"type:varchar(50)"`
+	BranchID      string `gorm:"type:varchar(50);index:idx_agent_branch"`
+	ParentAgentID string `gorm:"type:varchar(50);index:idx_agent_parent"`
+	ProfileID     string `gorm:"type:varchar(50)"`
 	AgentType     int32
-	Name          string   `gorm:"type:varchar(255)"`
-	GeoID         string   `gorm:"type:varchar(50)"`
+	Name          string `gorm:"type:varchar(255)"`
+	GeoID         string `gorm:"type:varchar(50)"`
 	Depth         int32
 	State         int32
 	Properties    data.JSONMap
@@ -171,9 +171,9 @@ func AgentFromAPI(ctx context.Context, obj *lenderv1.AgentObject) *Agent {
 // Borrower represents a loan recipient assigned to an agent.
 type Borrower struct {
 	data.BaseModel
-	AgentID    string   `gorm:"type:varchar(50);index:idx_borrower_agent"`
-	ProfileID  string   `gorm:"type:varchar(50);uniqueIndex:uq_borrower_profile"`
-	Name       string   `gorm:"type:varchar(255)"`
+	AgentID    string `gorm:"type:varchar(50);index:idx_borrower_agent"`
+	ProfileID  string `gorm:"type:varchar(50);uniqueIndex:uq_borrower_profile"`
+	Name       string `gorm:"type:varchar(255)"`
 	State      int32
 	Properties data.JSONMap
 }
@@ -229,8 +229,8 @@ func (m *BorrowerAssignmentHistory) TableName() string { return "borrower_assign
 // Investor represents an independent investor linked to a profile.
 type Investor struct {
 	data.BaseModel
-	ProfileID  string   `gorm:"type:varchar(50);uniqueIndex:uq_investor_profile"`
-	Name       string   `gorm:"type:varchar(255)"`
+	ProfileID  string `gorm:"type:varchar(50);uniqueIndex:uq_investor_profile"`
+	Name       string `gorm:"type:varchar(255)"`
 	State      int32
 	Properties data.JSONMap
 }
@@ -273,10 +273,10 @@ func InvestorFromAPI(ctx context.Context, obj *lenderv1.InvestorObject) *Investo
 // SystemUser represents a user with a specific role in the lending workflow.
 type SystemUser struct {
 	data.BaseModel
-	ProfileID        string   `gorm:"type:varchar(50);index:idx_su_profile"`
-	BranchID         string   `gorm:"type:varchar(50);index:idx_su_branch"`
+	ProfileID        string `gorm:"type:varchar(50);index:idx_su_profile"`
+	BranchID         string `gorm:"type:varchar(50);index:idx_su_branch"`
 	Role             int32
-	ServiceAccountID string   `gorm:"type:varchar(50)"`
+	ServiceAccountID string `gorm:"type:varchar(50)"`
 	State            int32
 	Properties       data.JSONMap
 }

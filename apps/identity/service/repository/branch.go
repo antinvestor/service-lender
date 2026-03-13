@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
 )
 
 type BranchRepository interface {
@@ -36,7 +37,11 @@ func (repo *branchRepository) GetByCode(ctx context.Context, code string) (*mode
 	return &branch, nil
 }
 
-func (repo *branchRepository) GetByBankID(ctx context.Context, bankID string, offset, limit int) ([]*models.Branch, error) {
+func (repo *branchRepository) GetByBankID(
+	ctx context.Context,
+	bankID string,
+	offset, limit int,
+) ([]*models.Branch, error) {
 	var branches []*models.Branch
 	err := repo.Pool().DB(ctx, true).
 		Where("bank_id = ?", bankID).

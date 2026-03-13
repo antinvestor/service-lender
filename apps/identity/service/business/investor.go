@@ -6,18 +6,23 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
-	"github.com/antinvestor/service-lender/apps/identity/service/events"
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-lender/apps/identity/service/events"
+	"github.com/antinvestor/service-lender/apps/identity/service/models"
+	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 )
 
 type InvestorBusiness interface {
 	Save(ctx context.Context, obj *lenderv1.InvestorObject) (*lenderv1.InvestorObject, error)
 	Get(ctx context.Context, id string) (*lenderv1.InvestorObject, error)
-	Search(ctx context.Context, req *lenderv1.InvestorSearchRequest, consumer func(ctx context.Context, batch []*lenderv1.InvestorObject) error) error
+	Search(
+		ctx context.Context,
+		req *lenderv1.InvestorSearchRequest,
+		consumer func(ctx context.Context, batch []*lenderv1.InvestorObject) error,
+	) error
 }
 
 type investorBusiness struct {
@@ -60,7 +65,11 @@ func (b *investorBusiness) Get(ctx context.Context, id string) (*lenderv1.Invest
 	return investor.ToAPI(), nil
 }
 
-func (b *investorBusiness) Search(ctx context.Context, req *lenderv1.InvestorSearchRequest, consumer func(ctx context.Context, batch []*lenderv1.InvestorObject) error) error {
+func (b *investorBusiness) Search(
+	ctx context.Context,
+	req *lenderv1.InvestorSearchRequest,
+	consumer func(ctx context.Context, batch []*lenderv1.InvestorObject) error,
+) error {
 	logger := util.Log(ctx).WithField("method", "InvestorBusiness.Search")
 
 	var searchOpts []data.SearchOption
