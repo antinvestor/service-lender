@@ -1,0 +1,175 @@
+# Flutter UI CI Pipeline - Runs on Pull Requests
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'app-ui/**'
+      - '.github/workflows/ci.yml'
+      - '.github/actions/flutter-setup/**'
+
+env:
+  FLUTTER_VERSION: '3.38.7'
+
+# Cancel in-progress runs for the same PR
+concurrency:
+  group: ci-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # PHASE 1: Fast checks (run in parallel)
+  # ============================================
+
+  analyze:
+    name: Analyze & Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: ./.github/actions/flutter-setup
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+        working-directory: app-ui
+
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+        working-directory: app-ui
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: ./.github/actions/flutter-setup
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+        working-directory: app-ui
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          file: app-ui/coverage/lcov.info
+          flags: unittests
+        continue-on-error: true
+
+      - name: Check coverage threshold
+        working-directory: app-ui
+        run: |
+          if command -v lcov &> /dev/null; then
+            COVERAGE=$(lcov --summary coverage/lcov.info 2>/dev/null | grep "lines......:" | awk '{print $2}' | sed 's/%//' || echo "0")
+            echo "Current coverage: ${COVERAGE}%"
+            if (( $(echo "$COVERAGE < 80" | bc -l 2>/dev/null || echo "0") )); then
+              echo "::warning::Coverage ${COVERAGE}% is below target of 80%"
+            fi
+          fi
+        continue-on-error: true
+
+  # ============================================
+  # PHASE 2: Build verification (after phase 1)
+  # ============================================
+
+  build-web:
+    name: Build Web
+    needs: [analyze, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: ./.github/actions/flutter-setup
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Build Web
+        run: flutter build web
+        working-directory: app-ui
+
+      - name: Report Web build size
+        run: |
+          WEB_SIZE=$(du -sb build/web | cut -f1)
+          echo "Web build size: $(( WEB_SIZE / 1024 / 1024 )) MB"
+          echo "::notice::Web build size: $(( WEB_SIZE / 1024 / 1024 )) MB"
+        working-directory: app-ui
+
+  build-linux:
+    name: Build Linux
+    needs: [analyze, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build libgtk-3-dev libsecret-1-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev
+
+      - name: Setup Flutter
+        uses: ./.github/actions/flutter-setup
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Build Linux (debug)
+        run: flutter build linux --debug
+        working-directory: app-ui
+
+      - name: Report Linux build size
+        run: |
+          BUNDLE_SIZE=$(du -sb build/linux/x64/debug/bundle | cut -f1)
+          echo "Linux bundle size: $(( BUNDLE_SIZE / 1024 / 1024 )) MB"
+          echo "::notice::Linux bundle size: $(( BUNDLE_SIZE / 1024 / 1024 )) MB"
+        working-directory: app-ui
+
+  # ============================================
+  # Summary job - always runs
+  # ============================================
+
+  ci-summary:
+    name: CI Summary
+    needs: [analyze, test, build-web, build-linux]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Analyze & Format | ${{ needs.analyze.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Web Build | ${{ needs.build-web.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux Build | ${{ needs.build-linux.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          # Fail if any required job failed
+          if [ "${{ needs.analyze.result }}" == "failure" ] || \
+             [ "${{ needs.test.result }}" == "failure" ] || \
+             [ "${{ needs.build-web.result }}" == "failure" ] || \
+             [ "${{ needs.build-linux.result }}" == "failure" ]; then
+            echo ""
+            echo "::error::One or more required checks failed"
+            exit 1
+          fi
