@@ -44,10 +44,19 @@ func (e *BranchSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	err := e.branchRepo.Create(ctx, branch)
-	if err != nil {
-		logger.WithError(err).Error("could not save branch to db")
-		return err
+	_, getErr := e.branchRepo.GetByID(ctx, branch.GetID())
+	if getErr != nil {
+		err := e.branchRepo.Create(ctx, branch)
+		if err != nil {
+			logger.WithError(err).Error("could not create branch in db")
+			return err
+		}
+	} else {
+		_, err := e.branchRepo.Update(ctx, branch)
+		if err != nil {
+			logger.WithError(err).Error("could not update branch in db")
+			return err
+		}
 	}
 
 	logger.Debug("event handler completed successfully")

@@ -44,10 +44,19 @@ func (e *AgentSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	err := e.agentRepo.Create(ctx, agent)
-	if err != nil {
-		logger.WithError(err).Error("could not save agent to db")
-		return err
+	_, getErr := e.agentRepo.GetByID(ctx, agent.GetID())
+	if getErr != nil {
+		err := e.agentRepo.Create(ctx, agent)
+		if err != nil {
+			logger.WithError(err).Error("could not create agent in db")
+			return err
+		}
+	} else {
+		_, err := e.agentRepo.Update(ctx, agent)
+		if err != nil {
+			logger.WithError(err).Error("could not update agent in db")
+			return err
+		}
 	}
 
 	logger.Debug("event handler completed successfully")

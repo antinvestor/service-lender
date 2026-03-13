@@ -57,9 +57,10 @@ func (b *systemUserBusiness) Save(
 		return nil, ErrBranchNotFound
 	}
 
+	isNew := obj.GetId() == ""
 	su := models.SystemUserFromAPI(ctx, obj)
 
-	if su.State == 0 {
+	if isNew && su.State == 0 {
 		su.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
@@ -75,7 +76,7 @@ func (b *systemUserBusiness) Save(
 func (b *systemUserBusiness) Get(ctx context.Context, id string) (*lenderv1.SystemUserObject, error) {
 	su, err := b.systemUserRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, ErrSystemUserNotFound
 	}
 	return su.ToAPI(), nil
 }

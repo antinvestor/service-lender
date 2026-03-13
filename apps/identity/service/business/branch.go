@@ -54,9 +54,10 @@ func (b *branchBusiness) Save(ctx context.Context, obj *lenderv1.BranchObject) (
 		return nil, ErrBankNotFound
 	}
 
+	isNew := obj.GetId() == ""
 	branch := models.BranchFromAPI(ctx, obj)
 
-	if branch.State == 0 {
+	if isNew && branch.State == 0 {
 		branch.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
@@ -72,7 +73,7 @@ func (b *branchBusiness) Save(ctx context.Context, obj *lenderv1.BranchObject) (
 func (b *branchBusiness) Get(ctx context.Context, id string) (*lenderv1.BranchObject, error) {
 	branch, err := b.branchRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, ErrBranchNotFound
 	}
 	return branch.ToAPI(), nil
 }

@@ -44,10 +44,19 @@ func (e *InvestorSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	err := e.investorRepo.Create(ctx, investor)
-	if err != nil {
-		logger.WithError(err).Error("could not save investor to db")
-		return err
+	_, getErr := e.investorRepo.GetByID(ctx, investor.GetID())
+	if getErr != nil {
+		err := e.investorRepo.Create(ctx, investor)
+		if err != nil {
+			logger.WithError(err).Error("could not create investor in db")
+			return err
+		}
+	} else {
+		_, err := e.investorRepo.Update(ctx, investor)
+		if err != nil {
+			logger.WithError(err).Error("could not update investor in db")
+			return err
+		}
 	}
 
 	logger.Debug("event handler completed successfully")

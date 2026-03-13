@@ -44,10 +44,19 @@ func (e *BorrowerSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	err := e.borrowerRepo.Create(ctx, borrower)
-	if err != nil {
-		logger.WithError(err).Error("could not save borrower to db")
-		return err
+	_, getErr := e.borrowerRepo.GetByID(ctx, borrower.GetID())
+	if getErr != nil {
+		err := e.borrowerRepo.Create(ctx, borrower)
+		if err != nil {
+			logger.WithError(err).Error("could not create borrower in db")
+			return err
+		}
+	} else {
+		_, err := e.borrowerRepo.Update(ctx, borrower)
+		if err != nil {
+			logger.WithError(err).Error("could not update borrower in db")
+			return err
+		}
 	}
 
 	logger.Debug("event handler completed successfully")

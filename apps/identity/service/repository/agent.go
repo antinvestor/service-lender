@@ -82,11 +82,11 @@ func (repo *agentRepository) GetDescendants(
 
 	query := `
 		WITH RECURSIVE agent_tree AS (
-			SELECT * FROM agents WHERE id = ?
+			SELECT *, 0 AS level FROM agents WHERE id = ?
 			UNION ALL
-			SELECT a.* FROM agents a
+			SELECT a.*, t.level + 1 FROM agents a
 			JOIN agent_tree t ON a.parent_agent_id = t.id
-			WHERE (? = 0 OR a.depth <= ?)
+			WHERE (? = 0 OR t.level < ?)
 		)
 		SELECT * FROM agent_tree WHERE id != ?
 	`

@@ -41,9 +41,10 @@ func NewBankBusiness(_ context.Context, eventsMan fevents.Manager, bankRepo repo
 func (b *bankBusiness) Save(ctx context.Context, obj *lenderv1.BankObject) (*lenderv1.BankObject, error) {
 	logger := util.Log(ctx).WithField("method", "BankBusiness.Save")
 
+	isNew := obj.GetId() == ""
 	bank := models.BankFromAPI(ctx, obj)
 
-	if bank.State == 0 {
+	if isNew && bank.State == 0 {
 		bank.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
@@ -59,7 +60,7 @@ func (b *bankBusiness) Save(ctx context.Context, obj *lenderv1.BankObject) (*len
 func (b *bankBusiness) Get(ctx context.Context, id string) (*lenderv1.BankObject, error) {
 	bank, err := b.bankRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, ErrBankNotFound
 	}
 	return bank.ToAPI(), nil
 }
@@ -82,9 +83,17 @@ func (b *bankBusiness) Search(
 		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
 	}
 
+	allowedExtras := map[string]bool{
+		"partition_id": true,
+		"code":         true,
+		"profile_id":   true,
+	}
+
 	andQueryVal := map[string]any{}
 	for k, v := range searchQuery.GetExtras().AsMap() {
-		andQueryVal[fmt.Sprintf("%s = ?", k)] = v
+		if allowedExtras[k] {
+			andQueryVal[fmt.Sprintf("%s = ?", k)] = v
+		}
 	}
 
 	if searchQuery.GetIdQuery() != "" {
@@ -102,9 +111,14 @@ func (b *bankBusiness) Search(
 			),
 		)
 		for _, filter := range searchQuery.GetProperties() {
-			searchOpts = append(searchOpts,
-				data.WithSearchFiltersOrByValue(map[string]any{fmt.Sprintf(" %s = ?", filter): searchQuery.GetQuery()}),
-			)
+			if allowedExtras[filter] {
+				searchOpts = append(
+					searchOpts,
+					data.WithSearchFiltersOrByValue(
+						map[string]any{fmt.Sprintf("%s = ?", filter): searchQuery.GetQuery()},
+					),
+				)
+			}
 		}
 	}
 

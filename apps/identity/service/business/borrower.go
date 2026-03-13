@@ -9,6 +9,7 @@ import (
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-lender/apps/identity/service/events"
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
@@ -62,9 +63,10 @@ func (b *borrowerBusiness) Save(ctx context.Context, obj *lenderv1.BorrowerObjec
 		return nil, ErrAgentInactive
 	}
 
+	isNew := obj.GetId() == ""
 	borrower := models.BorrowerFromAPI(ctx, obj)
 
-	if borrower.State == 0 {
+	if isNew && borrower.State == 0 {
 		borrower.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
@@ -178,7 +180,7 @@ func (b *borrowerBusiness) Reassign(
 		return nil, ErrReassignCrossBank
 	}
 
-	// Create assignment history record
+	// Create assignment history and update borrower in a transaction
 	history := &models.BorrowerAssignmentHistory{
 		BorrowerID:      borrower.GetID(),
 		PreviousAgentID: borrower.AgentID,
@@ -187,17 +189,20 @@ func (b *borrowerBusiness) Reassign(
 	}
 	history.GenID(ctx)
 
-	err = b.bahRepo.Create(ctx, history)
-	if err != nil {
-		logger.WithError(err).Error("could not save assignment history")
-		return nil, err
-	}
+	err = b.borrowerRepo.Pool().DB(ctx, false).Transaction(func(tx *gorm.DB) error {
+		if txErr := tx.Create(history).Error; txErr != nil {
+			return txErr
+		}
 
-	// Update borrower's agent
-	borrower.AgentID = req.GetNewAgentId()
-	_, err = b.borrowerRepo.Update(ctx, borrower, "agent_id")
+		borrower.AgentID = req.GetNewAgentId()
+		if txErr := tx.Model(borrower).Update("agent_id", borrower.AgentID).Error; txErr != nil {
+			return txErr
+		}
+
+		return nil
+	})
 	if err != nil {
-		logger.WithError(err).Error("could not update borrower agent")
+		logger.WithError(err).Error("could not reassign borrower")
 		return nil, err
 	}
 

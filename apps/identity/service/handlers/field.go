@@ -40,8 +40,14 @@ func (s *FieldServer) AgentSave(
 	ctx context.Context,
 	req *connect.Request[lenderv1.AgentSaveRequest],
 ) (*connect.Response[lenderv1.AgentSaveResponse], error) {
-	if err := s.authz.CanAgentCreate(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
+	if req.Msg.GetData().GetId() != "" {
+		if err := s.authz.CanAgentManage(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	} else {
+		if err := s.authz.CanAgentCreate(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
 	}
 
 	result, err := s.agentBusiness.Save(ctx, req.Msg.GetData())
@@ -110,8 +116,14 @@ func (s *FieldServer) BorrowerSave(
 	ctx context.Context,
 	req *connect.Request[lenderv1.BorrowerSaveRequest],
 ) (*connect.Response[lenderv1.BorrowerSaveResponse], error) {
-	if err := s.authz.CanBorrowerCreate(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
+	if req.Msg.GetData().GetId() != "" {
+		if err := s.authz.CanBorrowerManage(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	} else {
+		if err := s.authz.CanBorrowerCreate(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
 	}
 
 	result, err := s.borrowerBusiness.Save(ctx, req.Msg.GetData())

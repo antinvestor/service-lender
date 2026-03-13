@@ -42,9 +42,10 @@ func NewInvestorBusiness(_ context.Context, eventsMan fevents.Manager,
 func (b *investorBusiness) Save(ctx context.Context, obj *lenderv1.InvestorObject) (*lenderv1.InvestorObject, error) {
 	logger := util.Log(ctx).WithField("method", "InvestorBusiness.Save")
 
+	isNew := obj.GetId() == ""
 	investor := models.InvestorFromAPI(ctx, obj)
 
-	if investor.State == 0 {
+	if isNew && investor.State == 0 {
 		investor.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
@@ -60,7 +61,7 @@ func (b *investorBusiness) Save(ctx context.Context, obj *lenderv1.InvestorObjec
 func (b *investorBusiness) Get(ctx context.Context, id string) (*lenderv1.InvestorObject, error) {
 	investor, err := b.investorRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvestorNotFound
 	}
 	return investor.ToAPI(), nil
 }

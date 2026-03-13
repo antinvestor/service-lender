@@ -44,10 +44,19 @@ func (e *SystemUserSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	err := e.systemUserRepo.Create(ctx, su)
-	if err != nil {
-		logger.WithError(err).Error("could not save system user to db")
-		return err
+	_, getErr := e.systemUserRepo.GetByID(ctx, su.GetID())
+	if getErr != nil {
+		err := e.systemUserRepo.Create(ctx, su)
+		if err != nil {
+			logger.WithError(err).Error("could not create system user in db")
+			return err
+		}
+	} else {
+		_, err := e.systemUserRepo.Update(ctx, su)
+		if err != nil {
+			logger.WithError(err).Error("could not update system user in db")
+			return err
+		}
 	}
 
 	logger.Debug("event handler completed successfully")

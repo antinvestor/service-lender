@@ -149,8 +149,14 @@ func (s *IdentityServer) InvestorSave(
 	ctx context.Context,
 	req *connect.Request[lenderv1.InvestorSaveRequest],
 ) (*connect.Response[lenderv1.InvestorSaveResponse], error) {
-	if err := s.authz.CanInvestorCreate(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
+	if req.Msg.GetData().GetId() != "" {
+		if err := s.authz.CanInvestorManage(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	} else {
+		if err := s.authz.CanInvestorCreate(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
 	}
 
 	result, err := s.investorBusiness.Save(ctx, req.Msg.GetData())

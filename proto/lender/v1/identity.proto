@@ -40,7 +40,7 @@ option (gnostic.openapi.v3.document) = {
     description: "The Lender Identity Service manages the organizational backbone of the lending system including banks, branches, and system users. Banks map to partitions, branches represent sub-divisions with geographic areas, and system users are assigned roles for loan processing workflows."
     contact: {
       name: "Ant Investor Ltd"
-      url: "https://github.com/antinvestor/service-ant-lender"
+      url: "https://github.com/antinvestor/service-lender"
       email: "info@antinvestor.com"
     }
     license: {

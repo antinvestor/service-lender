@@ -82,7 +82,7 @@ func (b *agentBusiness) Save(ctx context.Context, obj *lenderv1.AgentObject) (*l
 		agent.Depth = 0
 	}
 
-	if agent.State == 0 {
+	if obj.GetId() == "" && agent.State == 0 {
 		agent.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
@@ -98,7 +98,7 @@ func (b *agentBusiness) Save(ctx context.Context, obj *lenderv1.AgentObject) (*l
 func (b *agentBusiness) Get(ctx context.Context, id string) (*lenderv1.AgentObject, error) {
 	agent, err := b.agentRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, ErrAgentNotFound
 	}
 	return agent.ToAPI(), nil
 }
