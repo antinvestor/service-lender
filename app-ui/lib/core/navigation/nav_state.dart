@@ -51,7 +51,7 @@ class SidebarExpansionState extends ChangeNotifier {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 SidebarExpansionState sidebarExpansion(Ref ref) {
   return SidebarExpansionState();
 }

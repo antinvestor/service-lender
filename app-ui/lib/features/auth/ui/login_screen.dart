@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,8 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       var errorMessage = 'Authentication failed. Please try again.';
       final errorStr = e.toString().toLowerCase();
 
-      if (e is SocketException ||
-          errorStr.contains('socketexception') ||
+      if (errorStr.contains('socketexception') ||
           errorStr.contains('network is unreachable')) {
         errorMessage =
             'Cannot connect to server. Please check your internet connection.';

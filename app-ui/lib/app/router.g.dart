@@ -26,7 +26,7 @@ final class AuthChangeProvider
         argument: null,
         retry: null,
         name: r'authChangeProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -54,7 +54,7 @@ final class AuthChangeProvider
   }
 }
 
-String _$authChangeHash() => r'5237949869e1d00ef14324ebf41417219d42ab2c';
+String _$authChangeHash() => r'136ae107f858ad9f2ffc8931fa5a84cb7da6ec7e';
 
 @ProviderFor(router)
 final routerProvider = RouterProvider._();
@@ -68,7 +68,7 @@ final class RouterProvider
         argument: null,
         retry: null,
         name: r'routerProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -95,4 +95,4 @@ final class RouterProvider
   }
 }
 
-String _$routerHash() => r'1a5d8868935b6fa673577cc41c72137ce5446f79';
+String _$routerHash() => r'd7308141a3006259ce003f6643fbe01a51895ff1';

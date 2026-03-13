@@ -154,7 +154,7 @@ class _DashboardContent extends StatelessWidget {
         width: cardWidth,
       ));
       cards.add(_StatCard(
-        label: 'Total Clients',
+        label: 'Total Borrowers',
         value: '--',
         icon: Icons.people_outline,
         trend: null,
@@ -183,8 +183,8 @@ class _DashboardContent extends StatelessWidget {
     if (_canViewField(roles)) {
       actions.add(_QuickActionCard(
         icon: Icons.person_add_outlined,
-        label: 'Onboard Client',
-        subtitle: 'Register a new client',
+        label: 'Onboard Borrower',
+        subtitle: 'Register a new borrower',
         onTap: () {},
       ));
       actions.add(_QuickActionCard(

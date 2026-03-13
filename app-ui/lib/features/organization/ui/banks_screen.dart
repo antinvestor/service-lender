@@ -217,10 +217,15 @@ class _BankFormDialogState extends State<_BankFormDialog> {
       }
     }
 
-    await widget.onSave(bank);
-
-    if (mounted) {
-      Navigator.of(context).pop();
+    try {
+      await widget.onSave(bank);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
     }
   }
 

@@ -69,7 +69,7 @@ final class SidebarExpansionProvider
         argument: null,
         retry: null,
         name: r'sidebarExpansionProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -97,4 +97,4 @@ final class SidebarExpansionProvider
   }
 }
 
-String _$sidebarExpansionHash() => r'9bcbb7801c7439b5b97cec3f0f19769582b8ff28';
+String _$sidebarExpansionHash() => r'36edc02f6476be404f6ae11d76fe94f4bc00ebc4';

@@ -205,10 +205,15 @@ class _InvestorFormDialogState extends State<_InvestorFormDialog> {
       investor.properties = widget.investor!.properties;
     }
 
-    await widget.onSave(investor);
-
-    if (mounted) {
-      Navigator.of(context).pop();
+    try {
+      await widget.onSave(investor);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
     }
   }
 

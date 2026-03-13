@@ -7,7 +7,7 @@ part 'auth_state_provider.g.dart';
 
 enum AuthState { authenticated, unauthenticated, loading }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AuthStateNotifier extends _$AuthStateNotifier {
   @override
   Future<AuthState> build() async {

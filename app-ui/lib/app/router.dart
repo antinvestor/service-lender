@@ -30,10 +30,10 @@ class AuthChangeNotifier extends ChangeNotifier {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 AuthChangeNotifier authChange(Ref ref) => AuthChangeNotifier(ref);
 
-@riverpod
+@Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final authChangeNotifier = ref.watch(authChangeProvider);
