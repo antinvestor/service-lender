@@ -9,11 +9,12 @@ require (
 	buf.build/gen/go/antinvestor/partition/connectrpc/go v1.19.1-20260306034803-bec59545427a.2
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260219062039-499f582dea7e.2
 	connectrpc.com/connect v1.19.1
-	github.com/antinvestor/apis/go/common v1.55.13
-	github.com/antinvestor/apis/go/partition v1.55.13
-	github.com/antinvestor/apis/go/profile v1.55.13
+	github.com/antinvestor/apis/go/common v1.55.17
+	github.com/antinvestor/apis/go/partition v1.55.17
+	github.com/antinvestor/apis/go/profile v1.55.17
 	github.com/pitabwire/frame v1.79.0
 	github.com/pitabwire/util v0.6.1
+	gorm.io/gorm v1.31.1
 )
 
 require (
@@ -112,5 +113,4 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
-	gorm.io/gorm v1.31.1 // indirect
 )
