@@ -8,8 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'auth_platform.dart';
 
 /// Custom URL scheme for mobile OAuth (RFC 8252 compliant)
-const String _customScheme = 'com.antinvestor.lender';
-const String _customHost = 'sso';
+const String _customScheme = 'com.antinvestor.app';
+const String _customHost = 'auth';
 
 class _DesktopAuthenticator {
   _DesktopAuthenticator({required this.flow, required this.urlLauncher});
@@ -201,7 +201,7 @@ const String _successHtml = '''
 AuthPlatform getAuthPlatform() => AuthPlatformIO();
 
 class AuthPlatformIO implements AuthPlatform {
-  static const int _authPort = 5171;
+  static const int _authPort = 5174;
   static const Duration _authTimeout = Duration(minutes: 3);
 
   Issuer? _issuer;
@@ -216,9 +216,9 @@ class AuthPlatformIO implements AuthPlatform {
 
   Uri _getRedirectUri() {
     if (_isMobile) {
-      return Uri.parse('$_customScheme://$_customHost/redirect');
+      return Uri.parse('$_customScheme://$_customHost/callback');
     }
-    return Uri.parse('http://localhost:$_authPort');
+    return Uri.parse('http://localhost:$_authPort/auth/callback');
   }
 
   @override
@@ -316,6 +316,9 @@ class AuthPlatformIO implements AuthPlatform {
       _desktopAuthenticator = null;
     }
   }
+
+  @override
+  bool hasRedirectResult() => false;
 
   @override
   Future<TokenResponse?> getRedirectResult() async => null;

@@ -10,10 +10,9 @@ class AuthRepository {
   final AuthService _authService;
 
   Future<void> login() async {
-    final token = await _authService.authenticate();
-    if (token == null) {
-      throw Exception('Authentication did not return a token');
-    }
+    // On web, authenticate() initiates a redirect and returns null.
+    // The token exchange happens on redirect back via isLoggedIn() → _handleRedirectResult().
+    await _authService.authenticate();
   }
 
   Future<void> logout() async => _authService.logout();
@@ -40,7 +39,7 @@ class AuthRepository {
 AuthRepository authRepository(Ref ref) {
   // TODO: Configure these for your environment
   const issuerUrl = 'https://oauth2.stawi.org';
-  const clientId = 'd6q1aekpf2taeg5iovpg';
+  const clientId = 'd6qbqdkpf2t52mcunf60';
 
   const storage = FlutterSecureStorage();
   final authService = AuthService(

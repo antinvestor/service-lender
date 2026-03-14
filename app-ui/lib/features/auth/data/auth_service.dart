@@ -8,7 +8,7 @@ import '../../../core/logging/app_logger.dart';
 import 'platform/auth_platform.dart';
 import 'platform/auth_platform_stub.dart'
     if (dart.library.io) 'platform/auth_platform_io.dart'
-    if (dart.library.html) 'platform/auth_platform_web.dart';
+    if (dart.library.js_interop) 'platform/auth_platform_web.dart';
 
 class AuthService {
   AuthService(
@@ -36,7 +36,6 @@ class AuthService {
       final token = await _platform.authenticate([
         'openid',
         'profile',
-        'contact',
         'offline_access',
       ]);
 
@@ -201,7 +200,12 @@ class AuthService {
   }
 
   Future<bool> isAuthenticated() async {
-    await _handleRedirectResult();
+    // Only attempt redirect handling if callback params are present in the URL.
+    // This avoids blocking app startup with OIDC discovery on normal page loads.
+    if (_platform.hasRedirectResult()) {
+      await _handleRedirectResult();
+    }
+
     final accessToken = await getAccessToken();
     if (accessToken != null) return true;
     final refreshTokenValue = await getRefreshToken();

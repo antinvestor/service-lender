@@ -45,6 +45,13 @@ GoRouter router(Ref ref) {
       final isLoggedIn = await authRepository.isLoggedIn();
       final location = state.matchedLocation;
       final isLoginRoute = location == '/login';
+      final isAuthCallback = location == '/auth/callback';
+
+      // Auth callback is handled by isLoggedIn() which processes the redirect result.
+      // After processing, redirect based on auth state.
+      if (isAuthCallback) {
+        return isLoggedIn ? '/dashboard' : '/login';
+      }
 
       if (!isLoggedIn && !isLoginRoute) return '/login';
       if (isLoggedIn && isLoginRoute) return '/dashboard';
@@ -54,6 +61,11 @@ GoRouter router(Ref ref) {
     routes: [
       GoRoute(
         path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      // OAuth callback route — handled entirely by the redirect guard above
+      GoRoute(
+        path: '/auth/callback',
         builder: (context, state) => const LoginScreen(),
       ),
 

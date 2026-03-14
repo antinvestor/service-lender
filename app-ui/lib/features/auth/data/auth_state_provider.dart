@@ -31,10 +31,13 @@ class AuthStateNotifier extends _$AuthStateNotifier {
 
     try {
       final authRepo = ref.read(authRepositoryProvider);
+      // On web, this triggers a full-page redirect and never returns.
+      // On desktop/mobile, this blocks until the OAuth flow completes.
       await authRepo.login();
 
       if (!ref.mounted) return;
 
+      // Only reached on desktop/mobile (web redirects away).
       final isLoggedIn = await authRepo.isLoggedIn();
       if (!isLoggedIn) {
         state = const AsyncValue.data(AuthState.unauthenticated);

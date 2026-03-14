@@ -25,7 +25,8 @@ class AuthPlatformWeb implements AuthPlatform {
   @override
   Future<void> initialize(String issuerUrl, String clientId) async {
     if (_issuer == null || _client == null) {
-      _issuer = await Issuer.discover(Uri.parse(issuerUrl));
+      _issuer = await Issuer.discover(Uri.parse(issuerUrl))
+          .timeout(const Duration(seconds: 15));
       _client = Client(_issuer!, clientId);
     }
   }
@@ -43,7 +44,7 @@ class AuthPlatformWeb implements AuthPlatform {
       scheme: currentUri.scheme,
       host: currentUri.host,
       port: currentUri.port,
-      path: currentUri.path,
+      path: '/auth/callback',
     );
 
     final codeVerifier = _generateCodeVerifier();
@@ -59,7 +60,12 @@ class AuthPlatformWeb implements AuthPlatform {
       DateTime.now().millisecondsSinceEpoch.toString(),
     );
 
+    // Navigate to the OAuth authorization server.
+    // Await a never-completing future so callers don't continue executing
+    // (which could trigger GoRouter state changes that cancel this navigation).
+    // The page will unload when the browser navigates.
     web.window.location.href = flow.authenticationUri.toString();
+    await Completer<void>().future;
     return null;
   }
 
@@ -103,13 +109,11 @@ class AuthPlatformWeb implements AuthPlatform {
     }
 
     try {
-      _cleanUrl(uri);
-
       final redirectUri = Uri(
         scheme: uri.scheme,
         host: uri.host,
         port: uri.port,
-        path: uri.path,
+        path: '/auth/callback',
       );
 
       final flow = Flow.authorizationCodeWithPKCE(
@@ -127,9 +131,12 @@ class AuthPlatformWeb implements AuthPlatform {
           .timeout(_tokenExchangeTimeout);
 
       _clearAuthState();
+      // Clean the URL after successful token exchange so query params are removed
+      _cleanUrl(uri);
       return tokenResponse;
     } catch (e) {
       _clearAuthState();
+      _cleanUrl(uri);
       rethrow;
     }
   }
@@ -160,6 +167,14 @@ class AuthPlatformWeb implements AuthPlatform {
         _clearAuthState();
       }
     }
+  }
+
+  @override
+  bool hasRedirectResult() {
+    final uri = Uri.parse(web.window.location.href);
+    final code = uri.queryParameters['code'];
+    final state = uri.queryParameters['state'];
+    return code != null && state != null;
   }
 
   @override

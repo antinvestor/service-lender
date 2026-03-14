@@ -57,7 +57,7 @@ build-identity: tidy
 # UI
 # ------------------------------------------------------------------------------
 
-UI_WEB_PORT := 5170
+UI_WEB_PORT := 5174
 UI_CHROME_FLAGS := --web-browser-flag="--disable-web-security" --web-browser-flag="--user-data-dir=/tmp/chrome-cors-disabled"
 
 .PHONY: ui-sdk

@@ -7,4 +7,8 @@ abstract class AuthPlatform {
   Future<TokenResponse?> getRedirectResult();
   Future<void> cancelAuthentication() async {}
   Client? get client;
+
+  /// Returns true if the current URL contains OAuth callback parameters.
+  /// This is a fast, synchronous check that doesn't require network access.
+  bool hasRedirectResult() => false;
 }
