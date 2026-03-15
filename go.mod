@@ -12,7 +12,7 @@ require (
 	github.com/antinvestor/apis/go/common v1.55.17
 	github.com/antinvestor/apis/go/partition v1.55.17
 	github.com/antinvestor/apis/go/profile v1.55.17
-	github.com/pitabwire/frame v1.79.0
+	github.com/pitabwire/frame v1.80.0
 	github.com/pitabwire/util v0.6.1
 	gorm.io/gorm v1.31.1
 )
