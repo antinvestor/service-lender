@@ -24,7 +24,7 @@ dependencies:
   protobuf: ^4.2.0
   riverpod_annotation: ^4.0.2
   url_launcher: ^6.3.2
-  logger: ^2.5.0
+  logger: ^2.7.0
   web: ^1.1.1
 
 dev_dependencies:
