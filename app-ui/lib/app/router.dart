@@ -48,9 +48,14 @@ GoRouter router(Ref ref) {
       final isAuthCallback = location == '/auth/callback';
 
       // Auth callback is handled by isLoggedIn() which processes the redirect result.
-      // After processing, redirect based on auth state.
+      // After processing, redirect based on auth state and refresh the auth notifier.
       if (isAuthCallback) {
-        return isLoggedIn ? '/dashboard' : '/login';
+        if (isLoggedIn) {
+          // Invalidate auth state so the notifier re-evaluates with saved tokens.
+          ref.invalidate(authStateProvider);
+          return '/dashboard';
+        }
+        return '/login';
       }
 
       if (!isLoggedIn && !isLoginRoute) return '/login';

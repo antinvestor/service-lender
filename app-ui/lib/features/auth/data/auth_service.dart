@@ -24,6 +24,7 @@ class AuthService {
   final AuthPlatform _platform = getAuthPlatform();
 
   static const _defaultTokenLifetime = Duration(hours: 1);
+  Completer<bool>? _redirectCompleter;
 
   Future<void> _ensureInitialized() async {
     await _platform.initialize(_issuerUrl, _clientId);
@@ -199,6 +200,13 @@ class AuthService {
     return result?.accessToken ?? await getAccessToken();
   }
 
+  /// Force-refresh the access token regardless of expiry.
+  /// Used when the server rejects the current token (e.g., 401/unauthenticated).
+  Future<String?> forceRefreshAccessToken() async {
+    final result = await refreshToken();
+    return result?.accessToken ?? await getAccessToken();
+  }
+
   Future<bool> isAuthenticated() async {
     // Only attempt redirect handling if callback params are present in the URL.
     // This avoids blocking app startup with OIDC discovery on normal page loads.
@@ -212,17 +220,36 @@ class AuthService {
     return refreshTokenValue != null;
   }
 
+  /// Handles the OAuth redirect result, protected by a completer to prevent
+  /// concurrent code exchanges (OAuth codes are single-use).
   Future<bool> _handleRedirectResult() async {
+    // If a redirect is already being processed, wait for it instead of
+    // attempting a second code exchange that would fail.
+    if (_redirectCompleter != null && !_redirectCompleter!.isCompleted) {
+      return _redirectCompleter!.future;
+    }
+
+    _redirectCompleter = Completer<bool>();
+
     try {
       await _ensureInitialized();
       final token = await _platform.getRedirectResult();
       if (token != null) {
         await _saveTokens(token);
+        _redirectCompleter!.complete(true);
         return true;
       }
+      _redirectCompleter!.complete(false);
       return false;
-    } catch (_) {
+    } catch (e, stackTrace) {
+      AppLogger.error('Redirect result handling failed',
+          error: e, stackTrace: stackTrace);
+      _redirectCompleter!.complete(false);
       return false;
+    } finally {
+      if (_redirectCompleter != null && !_redirectCompleter!.isCompleted) {
+        _redirectCompleter!.complete(false);
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:connectrpc/protocol/connect.dart' as protocol;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/auth/data/auth_state_provider.dart';
 import '../../sdk/src/lender/v1/field.connect.client.dart';
 import '../../sdk/src/lender/v1/identity.connect.client.dart';
 import 'http_client_native.dart'
@@ -15,9 +16,12 @@ part 'api_provider.g.dart';
 const _defaultBaseUrl = 'https://lender.antinvestor.com';
 
 /// Interceptor that injects the Bearer token into every request.
+/// On unauthenticated (401) responses, it force-refreshes the token
+/// and retries once before propagating the error.
 class AuthInterceptor {
-  AuthInterceptor(this._authRepository);
+  AuthInterceptor(this._authRepository, this._onAuthFailure);
   final AuthRepository _authRepository;
+  final void Function() _onAuthFailure;
 
   AnyFn<I, O> call<I extends Object, O extends Object>(AnyFn<I, O> next) {
     return (req) async {
@@ -25,7 +29,20 @@ class AuthInterceptor {
       if (token != null) {
         req.headers['authorization'] = 'Bearer $token';
       }
-      return next(req);
+      try {
+        return await next(req);
+      } on ConnectException catch (e) {
+        if (e.code != Code.unauthenticated) rethrow;
+        // Token was rejected — force refresh and retry once.
+        final newToken = await _authRepository.forceRefreshAccessToken();
+        if (newToken == null) {
+          // Refresh failed — session is dead, trigger logout.
+          _onAuthFailure();
+          rethrow;
+        }
+        req.headers['authorization'] = 'Bearer $newToken';
+        return next(req);
+      }
     };
   }
 }
@@ -33,7 +50,12 @@ class AuthInterceptor {
 @riverpod
 Transport apiTransport(Ref ref) {
   final authRepo = ref.watch(authRepositoryProvider);
-  final authInterceptor = AuthInterceptor(authRepo);
+  final authInterceptor = AuthInterceptor(authRepo, () {
+    // On permanent auth failure, trigger logout and refresh auth state
+    // so the router redirects to login.
+    authRepo.logout();
+    ref.invalidate(authStateProvider);
+  });
 
   return protocol.Transport(
     baseUrl: _defaultBaseUrl,

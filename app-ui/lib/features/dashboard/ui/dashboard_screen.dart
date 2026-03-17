@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/responsive/breakpoints.dart';
@@ -143,6 +144,13 @@ class _DashboardContent extends StatelessWidget {
         trend: null,
         width: cardWidth,
       ));
+      cards.add(_StatCard(
+        label: 'Investors',
+        value: '--',
+        icon: Icons.trending_up_outlined,
+        trend: null,
+        width: cardWidth,
+      ));
     }
 
     if (_canViewField(roles)) {
@@ -176,22 +184,40 @@ class _DashboardContent extends StatelessWidget {
         icon: Icons.account_balance_outlined,
         label: 'Manage Banks',
         subtitle: 'View and configure banks',
-        onTap: () {},
+        onTap: () => context.go('/organization/banks'),
+      ));
+      actions.add(_QuickActionCard(
+        icon: Icons.store_outlined,
+        label: 'Manage Branches',
+        subtitle: 'View and configure branches',
+        onTap: () => context.go('/organization/branches'),
+      ));
+      actions.add(_QuickActionCard(
+        icon: Icons.trending_up_outlined,
+        label: 'Manage Investors',
+        subtitle: 'Add and manage investors',
+        onTap: () => context.go('/organization/investors'),
       ));
     }
 
     if (_canViewField(roles)) {
       actions.add(_QuickActionCard(
-        icon: Icons.person_add_outlined,
-        label: 'Onboard Borrower',
-        subtitle: 'Register a new borrower',
-        onTap: () {},
-      ));
-      actions.add(_QuickActionCard(
         icon: Icons.person_pin_outlined,
         label: 'Manage Agents',
         subtitle: 'Agent hierarchy & assignment',
-        onTap: () {},
+        onTap: () => context.go('/field/agents'),
+      ));
+      actions.add(_QuickActionCard(
+        icon: Icons.person_add_outlined,
+        label: 'Onboard Borrower',
+        subtitle: 'Register a new borrower',
+        onTap: () => context.go('/field/borrowers'),
+      ));
+      actions.add(_QuickActionCard(
+        icon: Icons.swap_horiz_outlined,
+        label: 'Reassign Borrower',
+        subtitle: 'Transfer borrower to another agent',
+        onTap: () => context.go('/field/reassignment'),
       ));
     }
 
@@ -200,16 +226,13 @@ class _DashboardContent extends StatelessWidget {
         icon: Icons.manage_accounts_outlined,
         label: 'System Users',
         subtitle: 'Manage roles & access',
-        onTap: () {},
+        onTap: () => context.go('/admin/users'),
       ));
-    }
-
-    if (actions.isEmpty) {
       actions.add(_QuickActionCard(
-        icon: Icons.info_outline,
-        label: 'Welcome',
-        subtitle: 'No actions available for your role',
-        onTap: () {},
+        icon: Icons.security_outlined,
+        label: 'Roles & Permissions',
+        subtitle: 'View permission matrix',
+        onTap: () => context.go('/admin/roles'),
       ));
     }
 

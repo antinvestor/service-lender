@@ -8,9 +8,26 @@ part of 'role_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Returns the current user's lender roles.
+///
+/// Lender-specific roles (owner, admin, etc.) are managed by the backend's
+/// relation-based authorization system, not embedded in the JWT. The JWT only
+/// contains generic roles (e.g. "user"). Since the backend enforces real
+/// permissions on every API call, the frontend grants full UI access to any
+/// authenticated user so all navigation and actions are visible. Unauthorized
+/// operations will be rejected server-side with a clear error.
 
 @ProviderFor(currentUserRoles)
 final currentUserRolesProvider = CurrentUserRolesProvider._();
+
+/// Returns the current user's lender roles.
+///
+/// Lender-specific roles (owner, admin, etc.) are managed by the backend's
+/// relation-based authorization system, not embedded in the JWT. The JWT only
+/// contains generic roles (e.g. "user"). Since the backend enforces real
+/// permissions on every API call, the frontend grants full UI access to any
+/// authenticated user so all navigation and actions are visible. Unauthorized
+/// operations will be rejected server-side with a clear error.
 
 final class CurrentUserRolesProvider
     extends
@@ -20,6 +37,14 @@ final class CurrentUserRolesProvider
           FutureOr<Set<LenderRole>>
         >
     with $FutureModifier<Set<LenderRole>>, $FutureProvider<Set<LenderRole>> {
+  /// Returns the current user's lender roles.
+  ///
+  /// Lender-specific roles (owner, admin, etc.) are managed by the backend's
+  /// relation-based authorization system, not embedded in the JWT. The JWT only
+  /// contains generic roles (e.g. "user"). Since the backend enforces real
+  /// permissions on every API call, the frontend grants full UI access to any
+  /// authenticated user so all navigation and actions are visible. Unauthorized
+  /// operations will be rejected server-side with a clear error.
   CurrentUserRolesProvider._()
     : super(
         from: null,
@@ -46,7 +71,7 @@ final class CurrentUserRolesProvider
   }
 }
 
-String _$currentUserRolesHash() => r'a5af15e840c5746ec0af16ced5b7d9b75a56810c';
+String _$currentUserRolesHash() => r'4b9ea4cb026cb7745245428065e8c765f9733d10';
 
 /// Check if user has any of the specified roles
 

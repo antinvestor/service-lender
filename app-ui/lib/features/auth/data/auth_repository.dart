@@ -24,6 +24,9 @@ class AuthRepository {
   Future<String?> ensureValidAccessToken() async =>
       _authService.ensureValidAccessToken();
 
+  Future<String?> forceRefreshAccessToken() async =>
+      _authService.forceRefreshAccessToken();
+
   Future<Map<String, dynamic>?> getUserInfo() async =>
       _authService.getUserInfo();
 

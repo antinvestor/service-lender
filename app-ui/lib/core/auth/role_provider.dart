@@ -26,6 +26,14 @@ LenderRole? parseLenderRole(String role) {
   return null;
 }
 
+/// Returns the current user's lender roles.
+///
+/// Lender-specific roles (owner, admin, etc.) are managed by the backend's
+/// relation-based authorization system, not embedded in the JWT. The JWT only
+/// contains generic roles (e.g. "user"). Since the backend enforces real
+/// permissions on every API call, the frontend grants full UI access to any
+/// authenticated user so all navigation and actions are visible. Unauthorized
+/// operations will be rejected server-side with a clear error.
 @riverpod
 Future<Set<LenderRole>> currentUserRoles(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
@@ -34,6 +42,13 @@ Future<Set<LenderRole>> currentUserRoles(Ref ref) async {
   for (final roleStr in roleStrings) {
     final role = parseLenderRole(roleStr);
     if (role != null) roles.add(role);
+  }
+
+  // If no lender-specific roles were found in the JWT, grant full UI access.
+  // The backend authorizer is the real enforcement layer — it checks relation
+  // tuples on every RPC call and will reject unauthorized operations.
+  if (roles.isEmpty) {
+    return LenderRole.values.toSet();
   }
   return roles;
 }
