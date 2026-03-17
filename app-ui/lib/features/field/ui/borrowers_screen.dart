@@ -279,9 +279,9 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
     required String agentId,
     required STATE state,
   }) async {
-    if (name.isEmpty) {
+    if (name.isEmpty || agentId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name is required')),
+        const SnackBar(content: Text('Name and Agent are required')),
       );
       return;
     }
@@ -293,6 +293,11 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
       agentId: agentId,
       state: state,
     );
+
+    // Preserve properties when editing.
+    if (existing != null && existing.hasProperties()) {
+      borrower.properties = existing.properties;
+    }
 
     Navigator.of(dialogContext).pop();
 

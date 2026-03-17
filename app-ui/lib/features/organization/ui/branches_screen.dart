@@ -393,6 +393,12 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
       geoId: _geoIdController.text.trim(),
       state: _selectedState,
     );
+
+    // Preserve properties when editing.
+    if (widget.branch != null && widget.branch!.hasProperties()) {
+      branch.properties = widget.branch!.properties;
+    }
+
     Navigator.of(context).pop(branch);
   }
 }
