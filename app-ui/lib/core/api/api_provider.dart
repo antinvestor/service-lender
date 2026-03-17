@@ -13,7 +13,7 @@ import 'http_client_native.dart'
 part 'api_provider.g.dart';
 
 // TODO: Configure for your environment
-const _defaultBaseUrl = 'https://lender.antinvestor.com';
+const _defaultBaseUrl = 'https://api.antinvestor.com/lender';
 
 /// Interceptor that injects the Bearer token into every request.
 /// On unauthenticated (401) responses, it force-refreshes the token
