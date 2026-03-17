@@ -182,15 +182,9 @@ class _DashboardContent extends StatelessWidget {
     if (_canViewOrg(roles)) {
       actions.add(_QuickActionCard(
         icon: Icons.account_balance_outlined,
-        label: 'Manage Banks',
-        subtitle: 'View and configure banks',
+        label: 'Banks & Branches',
+        subtitle: 'Manage banks and their branches',
         onTap: () => context.go('/organization/banks'),
-      ));
-      actions.add(_QuickActionCard(
-        icon: Icons.store_outlined,
-        label: 'Manage Branches',
-        subtitle: 'View and configure branches',
-        onTap: () => context.go('/organization/branches'),
       ));
       actions.add(_QuickActionCard(
         icon: Icons.trending_up_outlined,

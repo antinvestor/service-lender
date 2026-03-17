@@ -14,8 +14,8 @@ import '../features/field/ui/agents_screen.dart';
 import '../features/field/ui/borrowers_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
+import '../features/organization/ui/bank_detail_screen.dart';
 import '../features/organization/ui/banks_screen.dart';
-import '../features/organization/ui/branches_screen.dart';
 import '../features/organization/ui/investors_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
@@ -47,8 +47,6 @@ GoRouter router(Ref ref) {
       final isLoginRoute = location == '/login';
       final isAuthCallback = location == '/auth/callback';
 
-      // Auth callback is handled by isLoggedIn() which processes the redirect result.
-      // After processing, redirect to root and refresh the auth notifier.
       if (isAuthCallback) {
         if (isLoggedIn) {
           ref.invalidate(authStateProvider);
@@ -67,7 +65,6 @@ GoRouter router(Ref ref) {
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
-      // OAuth callback route — handled entirely by the redirect guard above
       GoRoute(
         path: '/auth/callback',
         builder: (context, state) => const LoginScreen(),
@@ -88,20 +85,20 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Organization
+          // Organization — Banks (list + detail with branches)
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/organization/banks',
                 builder: (context, state) => const BanksScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/organization/branches',
-                builder: (context, state) => const BranchesScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':bankId',
+                    builder: (context, state) => BankDetailScreen(
+                      bankId: state.pathParameters['bankId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

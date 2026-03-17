@@ -16,8 +16,12 @@ part 'api_provider.g.dart';
 const _defaultBaseUrl = 'https://api.antinvestor.com/lender';
 
 /// Interceptor that injects the Bearer token into every request.
-/// On unauthenticated (401) responses, it force-refreshes the token
-/// and retries once before propagating the error.
+///
+/// Strategy:
+/// 1. Before request: get a valid token (refresh proactively if near expiry).
+/// 2. If request fails with unauthenticated/permissionDenied: force-refresh
+///    and retry exactly once.
+/// 3. If retry also fails: trigger logout so user is redirected to login.
 class AuthInterceptor {
   AuthInterceptor(this._authRepository, this._onAuthFailure);
   final AuthRepository _authRepository;
@@ -25,23 +29,36 @@ class AuthInterceptor {
 
   AnyFn<I, O> call<I extends Object, O extends Object>(AnyFn<I, O> next) {
     return (req) async {
-      final token = await _authRepository.ensureValidAccessToken();
+      // Get a token, refreshing if expired.
+      var token = await _authRepository.ensureValidAccessToken();
       if (token != null) {
         req.headers['authorization'] = 'Bearer $token';
       }
       try {
         return await next(req);
       } on ConnectException catch (e) {
-        if (e.code != Code.unauthenticated) rethrow;
-        // Token was rejected — force refresh and retry once.
+        if (e.code != Code.unauthenticated &&
+            e.code != Code.permissionDenied) {
+          rethrow;
+        }
+        // Token was rejected by the server — force a fresh token from the
+        // OAuth server (ignores cached expiry) and retry once.
         final newToken = await _authRepository.forceRefreshAccessToken();
         if (newToken == null) {
-          // Refresh failed — session is dead, trigger logout.
           _onAuthFailure();
           rethrow;
         }
         req.headers['authorization'] = 'Bearer $newToken';
-        return next(req);
+        try {
+          return await next(req);
+        } on ConnectException catch (retryError) {
+          // Retry also failed — session is truly dead.
+          if (retryError.code == Code.unauthenticated ||
+              retryError.code == Code.permissionDenied) {
+            _onAuthFailure();
+          }
+          rethrow;
+        }
       }
     };
   }
@@ -51,8 +68,6 @@ class AuthInterceptor {
 Transport apiTransport(Ref ref) {
   final authRepo = ref.watch(authRepositoryProvider);
   final authInterceptor = AuthInterceptor(authRepo, () {
-    // On permanent auth failure, trigger logout and refresh auth state
-    // so the router redirects to login.
     authRepo.logout();
     ref.invalidate(authStateProvider);
   });

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
@@ -59,29 +60,21 @@ class _BanksScreenState extends ConsumerState<BanksScreen> {
       onAction: () => _showBankDialog(context),
       itemBuilder: (context, bank) => _BankCard(
         bank: bank,
-        canManage: canManage,
-        onTap: () => _showBankDialog(context, bank: bank),
+        onTap: () => context.go('/organization/banks/${bank.id}'),
       ),
     );
   }
 
-  void _showBankDialog(BuildContext context, {BankObject? bank}) {
+  void _showBankDialog(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => _BankFormDialog(
-        bank: bank,
+      builder: (dialogContext) => BankFormDialog(
         onSave: (updated) async {
           try {
             await ref.read(bankProvider.notifier).save(updated);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    bank == null
-                        ? 'Bank created successfully'
-                        : 'Bank updated successfully',
-                  ),
-                ),
+                const SnackBar(content: Text('Bank created successfully')),
               );
             }
           } catch (e) {
@@ -101,14 +94,9 @@ class _BanksScreenState extends ConsumerState<BanksScreen> {
 }
 
 class _BankCard extends StatelessWidget {
-  const _BankCard({
-    required this.bank,
-    required this.canManage,
-    required this.onTap,
-  });
+  const _BankCard({required this.bank, required this.onTap});
 
   final BankObject bank;
-  final bool canManage;
   final VoidCallback onTap;
 
   @override
@@ -140,37 +128,36 @@ class _BankCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          'Code: ${bank.code}  |  Partition: ${bank.partitionId}',
+          'Code: ${bank.code}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withAlpha(160),
           ),
         ),
         trailing: StateBadge(state: bank.state),
-        onTap: canManage ? onTap : null,
+        onTap: onTap,
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Bank create / edit dialog
+// Bank create / edit dialog (public so bank detail can reuse for editing)
 // ---------------------------------------------------------------------------
 
-class _BankFormDialog extends StatefulWidget {
-  const _BankFormDialog({this.bank, required this.onSave});
+class BankFormDialog extends StatefulWidget {
+  const BankFormDialog({super.key, this.bank, required this.onSave});
 
   final BankObject? bank;
   final Future<void> Function(BankObject bank) onSave;
 
   @override
-  State<_BankFormDialog> createState() => _BankFormDialogState();
+  State<BankFormDialog> createState() => _BankFormDialogState();
 }
 
-class _BankFormDialogState extends State<_BankFormDialog> {
+class _BankFormDialogState extends State<BankFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _codeCtrl;
-  late final TextEditingController _partitionCtrl;
   late STATE _selectedState;
   bool _saving = false;
 
@@ -181,8 +168,6 @@ class _BankFormDialogState extends State<_BankFormDialog> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.bank?.name ?? '');
     _codeCtrl = TextEditingController(text: widget.bank?.code ?? '');
-    _partitionCtrl =
-        TextEditingController(text: widget.bank?.partitionId ?? '');
     _selectedState = widget.bank?.state ?? STATE.CREATED;
   }
 
@@ -190,7 +175,6 @@ class _BankFormDialogState extends State<_BankFormDialog> {
   void dispose() {
     _nameCtrl.dispose();
     _codeCtrl.dispose();
-    _partitionCtrl.dispose();
     super.dispose();
   }
 
@@ -203,12 +187,14 @@ class _BankFormDialogState extends State<_BankFormDialog> {
       id: widget.bank?.id,
       name: _nameCtrl.text.trim(),
       code: _codeCtrl.text.trim(),
-      partitionId: _partitionCtrl.text.trim(),
       state: _selectedState,
     );
 
-    // Preserve profile_id and properties when editing.
+    // Preserve backend-managed fields when editing.
     if (widget.bank != null) {
+      if (widget.bank!.hasPartitionId()) {
+        bank.partitionId = widget.bank!.partitionId;
+      }
       if (widget.bank!.hasProfileId()) {
         bank.profileId = widget.bank!.profileId;
       }
@@ -259,15 +245,9 @@ class _BankFormDialogState extends State<_BankFormDialog> {
               TextFormField(
                 controller: _codeCtrl,
                 decoration: const InputDecoration(labelText: 'Code'),
-                textInputAction: TextInputAction.next,
+                textInputAction: TextInputAction.done,
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Code is required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _partitionCtrl,
-                decoration: const InputDecoration(labelText: 'Partition ID'),
-                textInputAction: TextInputAction.done,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<STATE>(

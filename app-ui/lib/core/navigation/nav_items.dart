@@ -126,18 +126,10 @@ List<NavItem> buildNavItems() => [
         children: [
           NavItem(
             id: 'banks',
-            label: 'Banks',
+            label: 'Banks & Branches',
             icon: Icons.account_balance_outlined,
             activeIcon: Icons.account_balance,
             route: '/organization/banks',
-            requiredRoles: _viewRoles,
-          ),
-          NavItem(
-            id: 'branches',
-            label: 'Branches',
-            icon: Icons.store_outlined,
-            activeIcon: Icons.store,
-            route: '/organization/branches',
             requiredRoles: _viewRoles,
           ),
           NavItem(

@@ -260,7 +260,10 @@ class AuthService {
   }
 
   /// Force-refresh the access token regardless of expiry.
+  /// Clears the in-memory cache so stale tokens are never reused.
   Future<String?> forceRefreshAccessToken() async {
+    _cachedAccessToken = null;
+    _cachedExpiresAt = null;
     final result = await refreshToken();
     return result?.accessToken ?? await getAccessToken();
   }
