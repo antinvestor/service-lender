@@ -24,11 +24,24 @@ class AuthService {
   final AuthPlatform _platform = getAuthPlatform();
 
   static const _defaultTokenLifetime = Duration(hours: 1);
+
+  // ── In-memory cache ──────────────────────────────────────────────────────
+  // Avoids async storage reads on every navigation redirect check.
+  bool? _cachedIsAuthenticated;
+  String? _cachedAccessToken;
+  DateTime? _cachedExpiresAt;
+  Timer? _refreshTimer;
+
   Completer<bool>? _redirectCompleter;
+  Completer<TokenResponse?>? _refreshCompleter;
+
+  // ── Initialization ───────────────────────────────────────────────────────
 
   Future<void> _ensureInitialized() async {
     await _platform.initialize(_issuerUrl, _clientId);
   }
+
+  // ── Authentication ───────────────────────────────────────────────────────
 
   Future<TokenResponse?> authenticate() async {
     try {
@@ -49,7 +62,8 @@ class AuthService {
       }
       return null;
     } catch (e, stackTrace) {
-      AppLogger.error('Authentication failed', error: e, stackTrace: stackTrace);
+      AppLogger.error('Authentication failed',
+          error: e, stackTrace: stackTrace);
       rethrow;
     }
   }
@@ -60,7 +74,18 @@ class AuthService {
     } catch (_) {}
   }
 
+  // ── Token storage ────────────────────────────────────────────────────────
+
   Future<void> _saveTokens(TokenResponse token) async {
+    final expiresAt =
+        token.expiresAt ?? DateTime.now().add(_defaultTokenLifetime);
+
+    // Update in-memory cache first (instant for subsequent reads).
+    _cachedAccessToken = token.accessToken;
+    _cachedExpiresAt = expiresAt;
+    _cachedIsAuthenticated = true;
+
+    // Persist to secure storage.
     await _storage.write(key: 'access_token', value: token.accessToken);
     await _storage.write(key: 'refresh_token', value: token.refreshToken);
     try {
@@ -69,17 +94,37 @@ class AuthService {
         value: token.idToken.toCompactSerialization(),
       );
     } catch (_) {}
-
-    final expiresAt =
-        token.expiresAt ?? DateTime.now().add(_defaultTokenLifetime);
     await _storage.write(
       key: 'token_expires_at',
       value: expiresAt.millisecondsSinceEpoch.toString(),
     );
+
+    // Schedule proactive refresh before the token expires.
+    _scheduleRefresh(expiresAt);
   }
 
+  /// Schedules a background refresh 2 minutes before the token expires.
+  void _scheduleRefresh(DateTime expiresAt) {
+    _refreshTimer?.cancel();
+    final refreshAt =
+        expiresAt.subtract(const Duration(minutes: 2)).difference(DateTime.now());
+    if (refreshAt.isNegative) {
+      // Already past the refresh window — refresh immediately.
+      refreshToken();
+      return;
+    }
+    _refreshTimer = Timer(refreshAt, () {
+      refreshToken();
+    });
+  }
+
+  // ── Token reads (cache-first) ────────────────────────────────────────────
+
   Future<String?> getAccessToken() async {
-    return _storage.read(key: 'access_token');
+    if (_cachedAccessToken != null) return _cachedAccessToken;
+    final token = await _storage.read(key: 'access_token');
+    _cachedAccessToken = token;
+    return token;
   }
 
   Future<String?> getRefreshToken() async =>
@@ -87,23 +132,33 @@ class AuthService {
 
   Future<String?> getIdToken() async => _storage.read(key: 'id_token');
 
+  bool _isTokenExpiredSync() {
+    if (_cachedExpiresAt == null) return true;
+    return DateTime.now()
+        .isAfter(_cachedExpiresAt!.subtract(const Duration(minutes: 2)));
+  }
+
   Future<bool> isTokenExpired({
     Duration buffer = const Duration(minutes: 2),
   }) async {
+    // Use cached expiry if available.
+    if (_cachedExpiresAt != null) {
+      return DateTime.now().isAfter(_cachedExpiresAt!.subtract(buffer));
+    }
     final expiresAtStr = await _storage.read(key: 'token_expires_at');
     if (expiresAtStr == null) return true;
-
     try {
       final expiresAt = DateTime.fromMillisecondsSinceEpoch(
         int.parse(expiresAtStr),
       );
+      _cachedExpiresAt = expiresAt;
       return DateTime.now().isAfter(expiresAt.subtract(buffer));
     } catch (_) {
       return true;
     }
   }
 
-  Completer<TokenResponse?>? _refreshCompleter;
+  // ── Token refresh ────────────────────────────────────────────────────────
 
   Future<TokenResponse?> refreshToken() async {
     if (_refreshCompleter != null && !_refreshCompleter!.isCompleted) {
@@ -145,7 +200,8 @@ class AuthService {
       _refreshCompleter!.complete(newCredential);
       return newCredential;
     } catch (e, stackTrace) {
-      AppLogger.error('Token refresh failed', error: e, stackTrace: stackTrace);
+      AppLogger.error('Token refresh failed',
+          error: e, stackTrace: stackTrace);
 
       final errorStr = e.toString().toLowerCase();
       final isPermanent = _isPermanentRefreshError(errorStr);
@@ -170,7 +226,6 @@ class AuthService {
       'network is unreachable', 'host not found', 'dns', 'socket',
       '500', '502', '503', '504', '429', 'service unavailable',
     ];
-
     for (final pattern in transientPatterns) {
       if (errorStr.contains(pattern)) return false;
     }
@@ -178,17 +233,21 @@ class AuthService {
     const permanentErrors = [
       'invalid_grant', 'invalid_client', 'unauthorized_client', 'access_denied',
     ];
-
     for (final error in permanentErrors) {
       if (errorStr.contains(error)) return true;
     }
-
     return false;
   }
 
+  /// Returns a valid access token, refreshing if expired.
   Future<String?> ensureValidAccessToken() async {
-    final accessToken = await getAccessToken();
-    if (accessToken != null) {
+    final accessToken = _cachedAccessToken ?? await getAccessToken();
+    if (accessToken != null && !_isTokenExpiredSync()) {
+      return accessToken;
+    }
+
+    // Cached expiry not available — fall back to storage check.
+    if (accessToken != null && _cachedExpiresAt == null) {
       final expired = await isTokenExpired();
       if (!expired) return accessToken;
     }
@@ -201,30 +260,52 @@ class AuthService {
   }
 
   /// Force-refresh the access token regardless of expiry.
-  /// Used when the server rejects the current token (e.g., 401/unauthenticated).
   Future<String?> forceRefreshAccessToken() async {
     final result = await refreshToken();
     return result?.accessToken ?? await getAccessToken();
   }
 
+  // ── Auth state check (cached) ────────────────────────────────────────────
+
+  /// Fast synchronous check when cache is warm. Returns null if cache is cold.
+  bool? get isAuthenticatedSync => _cachedIsAuthenticated;
+
   Future<bool> isAuthenticated() async {
-    // Only attempt redirect handling if callback params are present in the URL.
-    // This avoids blocking app startup with OIDC discovery on normal page loads.
+    // Return cached state instantly if available.
+    if (_cachedIsAuthenticated != null) return _cachedIsAuthenticated!;
+
+    // Handle OAuth redirect callback if present.
     if (_platform.hasRedirectResult()) {
       await _handleRedirectResult();
     }
 
     final accessToken = await getAccessToken();
-    if (accessToken != null) return true;
+    if (accessToken != null) {
+      _cachedIsAuthenticated = true;
+      // Warm expiry cache and schedule proactive refresh.
+      await isTokenExpired();
+      if (_cachedExpiresAt != null) {
+        _scheduleRefresh(_cachedExpiresAt!);
+      }
+      // Eagerly initialize OIDC client so refresh works when needed.
+      _ensureInitialized().ignore();
+      return true;
+    }
+
     final refreshTokenValue = await getRefreshToken();
-    return refreshTokenValue != null;
+    if (refreshTokenValue != null) {
+      _cachedIsAuthenticated = true;
+      // Have a refresh token — try to get an access token proactively.
+      _ensureInitialized().then((_) => refreshToken()).ignore();
+      return true;
+    }
+
+    _cachedIsAuthenticated = false;
+    return false;
   }
 
-  /// Handles the OAuth redirect result, protected by a completer to prevent
-  /// concurrent code exchanges (OAuth codes are single-use).
+  /// Handles the OAuth redirect result, protected by a completer.
   Future<bool> _handleRedirectResult() async {
-    // If a redirect is already being processed, wait for it instead of
-    // attempting a second code exchange that would fail.
     if (_redirectCompleter != null && !_redirectCompleter!.isCompleted) {
       return _redirectCompleter!.future;
     }
@@ -253,6 +334,8 @@ class AuthService {
     }
   }
 
+  // ── User info ────────────────────────────────────────────────────────────
+
   Future<Map<String, dynamic>?> getUserInfo() async {
     final idToken = await getIdToken();
     if (idToken == null) return null;
@@ -273,7 +356,6 @@ class AuthService {
     final claims = await getUserInfo();
     if (claims == null) return [];
 
-    // Try common role claim locations
     final roles = claims['roles'] ?? claims['realm_access']?['roles'];
     if (roles is List) {
       return roles.cast<String>();
@@ -281,7 +363,14 @@ class AuthService {
     return [];
   }
 
+  // ── Logout ───────────────────────────────────────────────────────────────
+
   Future<void> logout() async {
+    _refreshTimer?.cancel();
+    _cachedIsAuthenticated = null;
+    _cachedAccessToken = null;
+    _cachedExpiresAt = null;
+
     await _storage.delete(key: 'access_token');
     await _storage.delete(key: 'refresh_token');
     await _storage.delete(key: 'id_token');
