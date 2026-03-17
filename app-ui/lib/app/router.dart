@@ -39,7 +39,7 @@ GoRouter router(Ref ref) {
   final authChangeNotifier = ref.watch(authChangeProvider);
 
   return GoRouter(
-    initialLocation: '/dashboard',
+    initialLocation: '/',
     refreshListenable: authChangeNotifier,
     redirect: (context, state) async {
       final isLoggedIn = await authRepository.isLoggedIn();
@@ -48,18 +48,17 @@ GoRouter router(Ref ref) {
       final isAuthCallback = location == '/auth/callback';
 
       // Auth callback is handled by isLoggedIn() which processes the redirect result.
-      // After processing, redirect based on auth state and refresh the auth notifier.
+      // After processing, redirect to root and refresh the auth notifier.
       if (isAuthCallback) {
         if (isLoggedIn) {
-          // Invalidate auth state so the notifier re-evaluates with saved tokens.
           ref.invalidate(authStateProvider);
-          return '/dashboard';
+          return '/';
         }
         return '/login';
       }
 
       if (!isLoggedIn && !isLoginRoute) return '/login';
-      if (isLoggedIn && isLoginRoute) return '/dashboard';
+      if (isLoggedIn && isLoginRoute) return '/';
 
       return null;
     },
@@ -79,11 +78,11 @@ GoRouter router(Ref ref) {
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
         branches: [
-          // Dashboard
+          // Dashboard (root)
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/dashboard',
+                path: '/',
                 builder: (context, state) => const DashboardScreen(),
               ),
             ],

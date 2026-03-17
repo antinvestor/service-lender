@@ -115,7 +115,7 @@ List<NavItem> buildNavItems() => [
         label: 'Dashboard',
         icon: Icons.dashboard_outlined,
         activeIcon: Icons.dashboard,
-        route: '/dashboard',
+        route: '/',
       ),
       NavItem(
         id: 'organization',
