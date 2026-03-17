@@ -60,39 +60,41 @@ build-identity: tidy
 UI_WEB_PORT := 5174
 UI_CHROME_FLAGS := --web-browser-flag="--disable-web-security" --web-browser-flag="--user-data-dir=/tmp/chrome-cors-disabled"
 
-.PHONY: ui-sdk
-ui-sdk: proto-generate
+# Full setup: regenerate proto SDK, fetch deps, run codegen. Use after proto changes.
+.PHONY: ui-setup
+ui-setup: proto-generate
+	cd app-ui && flutter pub get && dart run build_runner build --delete-conflicting-outputs
 
 .PHONY: ui-get
-ui-get: ui-sdk
+ui-get:
 	cd app-ui && flutter pub get
 
 .PHONY: ui-codegen
-ui-codegen: ui-get
+ui-codegen:
 	cd app-ui && dart run build_runner build --delete-conflicting-outputs
 
 .PHONY: ui-run
-ui-run: ui-codegen
+ui-run:
 	cd app-ui && flutter run
 
 .PHONY: ui-run-web
-ui-run-web: ui-codegen
+ui-run-web:
 	cd app-ui && flutter run -d chrome --web-port=$(UI_WEB_PORT) $(UI_CHROME_FLAGS)
 
 .PHONY: ui-run-linux
-ui-run-linux: ui-codegen
+ui-run-linux:
 	cd app-ui && flutter run -d linux
 
 .PHONY: ui-build-web
-ui-build-web: ui-codegen
+ui-build-web:
 	cd app-ui && flutter build web --release
 
 .PHONY: ui-test
-ui-test: ui-codegen
+ui-test:
 	cd app-ui && flutter test
 
 .PHONY: ui-analyze
-ui-analyze: ui-get
+ui-analyze:
 	cd app-ui && flutter analyze --no-fatal-infos
 
 # ------------------------------------------------------------------------------
