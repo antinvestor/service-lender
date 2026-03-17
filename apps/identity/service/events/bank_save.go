@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util"
 
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
@@ -44,19 +45,19 @@ func (e *BankSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	_, getErr := e.bankRepo.GetByID(ctx, bank.GetID())
-	if getErr != nil {
-		err := e.bankRepo.Create(ctx, bank)
-		if err != nil {
-			logger.WithError(err).Error("could not create bank in db")
-			return err
-		}
-	} else {
-		_, err := e.bankRepo.Update(ctx, bank)
-		if err != nil {
+	existing, getErr := e.bankRepo.GetByID(ctx, bank.GetID())
+	if getErr == nil && existing != nil {
+		if _, err := e.bankRepo.Update(ctx, bank); err != nil {
 			logger.WithError(err).Error("could not update bank in db")
 			return err
 		}
+		logger.Debug("event handler completed successfully")
+		return nil
+	}
+
+	if err := e.bankRepo.Create(ctx, bank); err != nil && !data.ErrorIsDuplicateKey(err) {
+		logger.WithError(err).Error("could not create bank in db")
+		return err
 	}
 
 	logger.Debug("event handler completed successfully")

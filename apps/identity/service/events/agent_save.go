@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util"
 
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
@@ -44,19 +45,19 @@ func (e *AgentSave) Execute(ctx context.Context, payload any) error {
 	defer logger.Release()
 	logger.Debug("event handler started")
 
-	_, getErr := e.agentRepo.GetByID(ctx, agent.GetID())
-	if getErr != nil {
-		err := e.agentRepo.Create(ctx, agent)
-		if err != nil {
-			logger.WithError(err).Error("could not create agent in db")
-			return err
-		}
-	} else {
-		_, err := e.agentRepo.Update(ctx, agent)
-		if err != nil {
+	existing, getErr := e.agentRepo.GetByID(ctx, agent.GetID())
+	if getErr == nil && existing != nil {
+		if _, err := e.agentRepo.Update(ctx, agent); err != nil {
 			logger.WithError(err).Error("could not update agent in db")
 			return err
 		}
+		logger.Debug("event handler completed successfully")
+		return nil
+	}
+
+	if err := e.agentRepo.Create(ctx, agent); err != nil && !data.ErrorIsDuplicateKey(err) {
+		logger.WithError(err).Error("could not create agent in db")
+		return err
 	}
 
 	logger.Debug("event handler completed successfully")
