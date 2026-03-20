@@ -2,6 +2,8 @@ module github.com/antinvestor/service-lender
 
 go 1.26
 
+toolchain go1.26.1
+
 require (
 	buf.build/gen/go/antinvestor/common/protocolbuffers/go v1.36.11-20260219054105-fe125014d75c.1
 	buf.build/gen/go/antinvestor/lender/connectrpc/go v1.19.1-20260313160105-6b05360986ee.2
@@ -12,7 +14,7 @@ require (
 	github.com/antinvestor/apis/go/common v1.55.17
 	github.com/antinvestor/apis/go/partition v1.55.17
 	github.com/antinvestor/apis/go/profile v1.55.17
-	github.com/pitabwire/frame v1.80.0
+	github.com/pitabwire/frame v1.80.1
 	github.com/pitabwire/util v0.6.1
 	gorm.io/gorm v1.31.1
 )
