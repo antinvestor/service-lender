@@ -1,23 +1,182 @@
 package main
 
 import (
-	"log"
+	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
+	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
+	"connectrpc.com/connect"
+	apis "github.com/antinvestor/apis/go/common"
+	"github.com/antinvestor/apis/go/common/connection"
 	"github.com/pitabwire/frame"
+	"github.com/pitabwire/frame/config"
+	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/security"
+	"github.com/pitabwire/frame/security/authorizer"
+	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
+	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/origination/service"
+	aconfig "github.com/antinvestor/service-lender/apps/origination/config"
+	"github.com/antinvestor/service-lender/apps/origination/service/authz"
+	"github.com/antinvestor/service-lender/apps/origination/service/business"
+	originationevents "github.com/antinvestor/service-lender/apps/origination/service/events"
+	"github.com/antinvestor/service-lender/apps/origination/service/handlers"
+	"github.com/antinvestor/service-lender/apps/origination/service/repository"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	service.RegisterRoutes(mux)
+	tmpCtx := context.Background()
 
-	ctx, svc := frame.NewService(
-		frame.WithName("origination"),
-		frame.WithHTTPHandler(mux),
-	)
-	if err := svc.Run(ctx, ":8080"); err != nil {
-		log.Fatal(err)
+	cfg, err := config.LoadWithOIDC[aconfig.OriginationConfig](tmpCtx)
+	if err != nil {
+		util.Log(tmpCtx).With("err", err).Error("could not process configs")
+		return
 	}
+
+	if cfg.Name() == "" {
+		cfg.ServiceName = "service_lender_origination"
+	}
+
+	ctx, svc := frame.NewServiceWithContext(
+		tmpCtx,
+		frame.WithConfig(&cfg),
+		frame.WithDatastore(),
+	)
+	defer svc.Stop(ctx)
+	log := util.Log(ctx)
+
+	sm := svc.SecurityManager()
+	dbManager := svc.DatastoreManager()
+	workMan := svc.WorkManager()
+	evtsMan := svc.EventsManager()
+
+	if handleDatabaseMigration(ctx, dbManager, cfg) {
+		return
+	}
+
+	identityCli, err := setupIdentityClient(ctx, cfg)
+	if err != nil {
+		log.WithError(err).Warn("main -- Could not setup identity client, client/agent validation disabled")
+	}
+
+	loanMgmtCli, err := setupLoanManagementClient(ctx, cfg)
+	if err != nil {
+		log.WithError(err).Warn("main -- Could not setup loan management client, loan creation on offer acceptance disabled")
+	}
+
+	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
+	if dbPool == nil {
+		log.Error("Database pool is nil - check DATABASE_PRIMARY_URL environment variable")
+		return
+	}
+
+	appRepo := repository.NewApplicationRepository(ctx, dbPool, workMan)
+	docRepo := repository.NewApplicationDocumentRepository(ctx, dbPool, workMan)
+	vtRepo := repository.NewVerificationTaskRepository(ctx, dbPool, workMan)
+	udRepo := repository.NewUnderwritingDecisionRepository(ctx, dbPool, workMan)
+	ashRepo := repository.NewApplicationStatusHistoryRepository(ctx, dbPool, workMan)
+
+	appBusiness := business.NewApplicationBusiness(ctx, evtsMan, appRepo, identityCli, loanMgmtCli)
+	docBusiness := business.NewApplicationDocumentBusiness(ctx, evtsMan, docRepo)
+	vtBusiness := business.NewVerificationTaskBusiness(ctx, evtsMan, vtRepo, appBusiness)
+	udBusiness := business.NewUnderwritingDecisionBusiness(ctx, evtsMan, udRepo, appRepo, appBusiness, cfg.OfferExpiryDays)
+
+	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
+
+	connectHandler := setupConnectServer(ctx, sm, authzMiddleware, appBusiness, docBusiness, vtBusiness, udBusiness)
+
+	serviceOptions := []frame.Option{
+		frame.WithHTTPHandler(connectHandler),
+		frame.WithRegisterEvents(
+			originationevents.NewApplicationSave(ctx, appRepo),
+			originationevents.NewApplicationDocumentSave(ctx, docRepo),
+			originationevents.NewVerificationTaskSave(ctx, vtRepo),
+			originationevents.NewUnderwritingDecisionSave(ctx, udRepo),
+			originationevents.NewApplicationStatusHistorySave(ctx, ashRepo),
+		),
+		frame.WithBackgroundConsumer(business.ExpireOffersJob(appRepo, appBusiness)),
+		frame.WithBackgroundConsumer(business.CleanDraftApplicationsJob(appRepo, appBusiness, cfg.DraftExpiryDays)),
+	}
+
+	svc.Init(ctx, serviceOptions...)
+
+	err = svc.Run(ctx, "")
+	if err != nil {
+		log.WithError(err).Fatal("could not run Server")
+	}
+}
+
+func handleDatabaseMigration(
+	ctx context.Context,
+	dbManager datastore.Manager,
+	cfg aconfig.OriginationConfig,
+) bool {
+	if cfg.DoDatabaseMigrate() {
+		err := repository.Migrate(ctx, dbManager, cfg.GetDatabaseMigrationPath())
+		if err != nil {
+			util.Log(ctx).WithError(err).Fatal("main -- Could not migrate successfully")
+		}
+		return true
+	}
+	return false
+}
+
+func setupIdentityClient(
+	ctx context.Context,
+	cfg aconfig.OriginationConfig,
+) (identityv1connect.FieldServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+		Endpoint:              cfg.IdentityServiceURI,
+		WorkloadAPITargetPath: cfg.IdentityServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_lender_identity"},
+	}, identityv1connect.NewFieldServiceClient)
+}
+
+func setupLoanManagementClient(
+	ctx context.Context,
+	cfg aconfig.OriginationConfig,
+) (loansv1connect.LoanManagementServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+		Endpoint:              cfg.LoanMgmtServiceURI,
+		WorkloadAPITargetPath: cfg.LoanMgmtServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_lender_loan_management"},
+	}, loansv1connect.NewLoanManagementServiceClient)
+}
+
+func setupConnectServer(
+	ctx context.Context,
+	sm security.Manager,
+	authzMiddleware authz.Middleware,
+	appBusiness business.ApplicationBusiness,
+	docBusiness business.ApplicationDocumentBusiness,
+	vtBusiness business.VerificationTaskBusiness,
+	udBusiness business.UnderwritingDecisionBusiness,
+) http.Handler {
+	originationHandler := handlers.NewOriginationServer(
+		authzMiddleware,
+		appBusiness,
+		docBusiness,
+		vtBusiness,
+		udBusiness,
+	)
+
+	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(
+		sm.GetAuthorizer(ctx), authz.NamespaceTenancyAccess)
+	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
+
+	defaultInterceptorList, err := connectInterceptors.DefaultList(
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor)
+	if err != nil {
+		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
+	}
+
+	interceptorOption := connect.WithInterceptors(defaultInterceptorList...)
+	originationPath, originationServerHandler := originationv1connect.NewOriginationServiceHandler(originationHandler, interceptorOption)
+
+	mux := http.NewServeMux()
+	mux.Handle(originationPath, originationServerHandler)
+
+	return mux
 }
