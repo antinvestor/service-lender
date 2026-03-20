@@ -110,7 +110,7 @@ final class PenaltyNotifierProvider
   PenaltyNotifier create() => PenaltyNotifier();
 }
 
-String _$penaltyNotifierHash() => r'37ee151de6d4eed416d91d4cb76d9c8ca682fe50';
+String _$penaltyNotifierHash() => r'b4e330bcdc48f52452ab2aa8b5b5d9862b384043';
 
 abstract class _$PenaltyNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

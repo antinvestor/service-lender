@@ -40,11 +40,18 @@ class PenaltyNotifier extends _$PenaltyNotifier {
   Future<PenaltyObject> waive({
     required String id,
     required String reason,
+    String? waivedBy,
   }) async {
     final client = ref.read(loanManagementServiceClientProvider);
     final response = await client.penaltyWaive(
       PenaltyWaiveRequest(id: id, reason: reason),
     );
+    // Set waivedBy from audit context if provided, then save
+    if (waivedBy != null && waivedBy.isNotEmpty) {
+      final penalty = response.data;
+      penalty.waivedBy = waivedBy;
+      await client.penaltySave(PenaltySaveRequest(data: penalty));
+    }
     ref.invalidate(penaltyListProvider);
     return response.data;
   }

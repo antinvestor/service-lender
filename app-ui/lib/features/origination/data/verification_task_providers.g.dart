@@ -137,7 +137,7 @@ final class VerificationTaskNotifierProvider
 }
 
 String _$verificationTaskNotifierHash() =>
-    r'86486c902cbe2d55b446f7d02ffc59f7ac8b86ad';
+    r'5530b27936e43c2aa7d4dffa026ae5e2e6739642';
 
 abstract class _$VerificationTaskNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

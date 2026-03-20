@@ -191,6 +191,14 @@ List<NavItem> buildNavItems() => [
         requiredRoles: _allViewRoles,
         children: [
           NavItem(
+            id: 'pending_cases',
+            label: 'Pending Cases',
+            icon: Icons.assignment_late_outlined,
+            activeIcon: Icons.assignment_late,
+            route: '/origination/pending',
+            requiredRoles: _allViewRoles,
+          ),
+          NavItem(
             id: 'loan_products',
             label: 'Loan Products',
             icon: Icons.inventory_2_outlined,
@@ -222,6 +230,23 @@ List<NavItem> buildNavItems() => [
             activeIcon: Icons.credit_score,
             route: '/loans',
             requiredRoles: _allViewRoles,
+          ),
+        ],
+      ),
+      NavItem(
+        id: 'operations',
+        label: 'Operations',
+        icon: Icons.sync_alt_outlined,
+        activeIcon: Icons.sync_alt,
+        requiredRoles: _viewRoles,
+        children: [
+          NavItem(
+            id: 'transfer_orders',
+            label: 'Transfer Orders',
+            icon: Icons.swap_horiz_outlined,
+            activeIcon: Icons.swap_horiz,
+            route: '/operations/transfers',
+            requiredRoles: _viewRoles,
           ),
         ],
       ),

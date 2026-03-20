@@ -22,6 +22,8 @@ import '../features/loan_management/ui/loan_accounts_screen.dart';
 import '../features/origination/ui/application_detail_screen.dart';
 import '../features/origination/ui/applications_screen.dart';
 import '../features/origination/ui/loan_products_screen.dart';
+import '../features/origination/ui/pending_cases_screen.dart';
+import '../features/operations/ui/transfer_orders_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
 part 'router.g.dart';
@@ -159,6 +161,15 @@ GoRouter router(Ref ref) {
               ),
             ],
           ),
+          // Origination — Pending Cases
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/origination/pending',
+                builder: (context, state) => const PendingCasesScreen(),
+              ),
+            ],
+          ),
           // Origination — Applications (list + detail)
           StatefulShellBranch(
             routes: [
@@ -191,6 +202,16 @@ GoRouter router(Ref ref) {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+
+          // Operations — Transfer Orders
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/operations/transfers',
+                builder: (context, state) => const TransferOrdersScreen(),
               ),
             ],
           ),

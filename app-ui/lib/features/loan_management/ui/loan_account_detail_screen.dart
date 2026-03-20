@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/auth/audit_context.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
@@ -884,55 +885,84 @@ class _PenaltiesTab extends ConsumerWidget {
     final reasonCtrl = TextEditingController();
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Waive Penalty'),
-        content: SizedBox(
-          width: 420,
-          child: TextFormField(
-            controller: reasonCtrl,
-            decoration: const InputDecoration(labelText: 'Reason'),
-            maxLines: 2,
+      builder: (dialogContext) {
+        final auditAsync = ref.watch(auditContextProvider);
+        final auditLabel = auditAsync.whenOrNull(
+          data: (ac) => ac.displayLabel,
+        );
+
+        return AlertDialog(
+          title: const Text('Waive Penalty'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Show who is waiving
+                InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Waived By',
+                    suffixIcon: Icon(Icons.lock_outline, size: 18),
+                  ),
+                  child: Text(
+                    auditLabel ?? 'Loading...',
+                    style: Theme.of(dialogContext).textTheme.bodyMedium,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: reasonCtrl,
+                  decoration: const InputDecoration(labelText: 'Reason'),
+                  maxLines: 2,
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final reason = reasonCtrl.text.trim();
-              if (reason.isEmpty) return;
-              try {
-                await ref.read(penaltyProvider.notifier).waive(
-                      id: penalty.id,
-                      reason: reason,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final reason = reasonCtrl.text.trim();
+                if (reason.isEmpty) return;
+                try {
+                  // Get audit context for waivedBy
+                  final auditCtx =
+                      await ref.read(auditContextProvider.future);
+
+                  await ref.read(penaltyProvider.notifier).waive(
+                        id: penalty.id,
+                        reason: reason,
+                        waivedBy: auditCtx.displayLabel,
+                      );
+                  if (dialogContext.mounted) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Penalty waived successfully')),
                     );
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to waive penalty: $e'),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.error,
+                      ),
+                    );
+                  }
                 }
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Penalty waived successfully')),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to waive penalty: $e'),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('Waive'),
-          ),
-        ],
-      ),
+              },
+              child: const Text('Waive'),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -2,325 +2,329 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/auth/role_provider.dart';
 import '../../../core/responsive/breakpoints.dart';
+import '../data/dashboard_providers.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rolesAsync = ref.watch(currentUserRolesProvider);
-
-    return rolesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Error: $error')),
-      data: (roles) => _DashboardContent(roles: roles),
-    );
-  }
-}
-
-class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.roles});
-  final Set<LenderRole> roles;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = AppBreakpoints.isMobile(constraints.maxWidth);
-        final crossAxisCount = isMobile ? 1 : (constraints.maxWidth > 900 ? 3 : 2);
         final padding = isMobile ? 16.0 : 24.0;
+        final crossAxisCount =
+            isMobile ? 2 : (constraints.maxWidth > 900 ? 3 : 2);
 
-        return CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(padding, padding, padding, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome back',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(pendingVerificationCountProvider);
+            ref.invalidate(pendingUnderwritingCountProvider);
+            ref.invalidate(offerPendingCountProvider);
+            ref.invalidate(activeLoansCountProvider);
+            ref.invalidate(pendingDisbursementCountProvider);
+            ref.invalidate(delinquentLoansCountProvider);
+          },
+          child: CustomScrollView(
+            slivers: [
+              // Header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(padding, padding, padding, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome back',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Here\'s an overview of your lending operations.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withAlpha(140),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Here\'s an overview of your lending operations.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withAlpha(140),
+                            ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // Stats row
-            SliverToBoxAdapter(
-              child: Padding(
+              // Metric cards
+              SliverPadding(
                 padding: EdgeInsets.all(padding),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: _buildStatCards(context, roles, isMobile),
-                ),
-              ),
-            ),
-
-            // Section label
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(padding, 8, padding, 12),
-                child: Row(
-                  children: [
-                    Text(
-                      'Quick Actions',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface.withAlpha(160),
-                        letterSpacing: 0.3,
-                        fontSize: 12,
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    mainAxisExtent: 110,
+                  ),
+                  delegate: SliverChildListDelegate([
+                    _buildMetricCard(
+                      ref,
+                      label: 'Pending Verification',
+                      icon: Icons.verified_user_outlined,
+                      color: Colors.purple,
+                      countAsync: ref.watch(pendingVerificationCountProvider),
+                      onTap: () => context.go(
+                        '/origination/applications',
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Divider(
-                        color: theme.colorScheme.outlineVariant.withAlpha(80),
+                    _buildMetricCard(
+                      ref,
+                      label: 'Pending Underwriting',
+                      icon: Icons.gavel_outlined,
+                      color: Colors.indigo,
+                      countAsync: ref.watch(pendingUnderwritingCountProvider),
+                      onTap: () => context.go(
+                        '/origination/applications',
                       ),
                     ),
-                  ],
+                    _buildMetricCard(
+                      ref,
+                      label: 'Offer Pending',
+                      icon: Icons.local_offer_outlined,
+                      color: Colors.teal,
+                      countAsync: ref.watch(offerPendingCountProvider),
+                      onTap: () => context.go(
+                        '/origination/applications',
+                      ),
+                    ),
+                    _buildMetricCard(
+                      ref,
+                      label: 'Active Loans',
+                      icon: Icons.account_balance_wallet_outlined,
+                      color: Colors.green,
+                      countAsync: ref.watch(activeLoansCountProvider),
+                      onTap: () => context.go('/loans'),
+                    ),
+                    _buildMetricCard(
+                      ref,
+                      label: 'Pending Disbursement',
+                      icon: Icons.payments_outlined,
+                      color: Colors.orange,
+                      countAsync: ref.watch(pendingDisbursementCountProvider),
+                      onTap: () => context.go('/loans'),
+                    ),
+                    _buildMetricCard(
+                      ref,
+                      label: 'Delinquent Loans',
+                      icon: Icons.warning_amber_outlined,
+                      color: Colors.red,
+                      countAsync: ref.watch(delinquentLoansCountProvider),
+                      onTap: () => context.go('/loans'),
+                    ),
+                  ]),
                 ),
               ),
-            ),
 
-            // Quick action grid
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  mainAxisExtent: 100,
-                ),
-                delegate: SliverChildListDelegate(
-                  _buildQuickActions(context, roles),
+              // Quick Actions section label
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(padding, 8, padding, 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Quick Actions',
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withAlpha(160),
+                                  letterSpacing: 0.3,
+                                  fontSize: 12,
+                                ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Divider(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outlineVariant
+                              .withAlpha(80),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+
+              // Quick action grid
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isMobile ? 1 : crossAxisCount,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    mainAxisExtent: 100,
+                  ),
+                  delegate: SliverChildListDelegate([
+                    _QuickActionCard(
+                      icon: Icons.assignment_outlined,
+                      label: 'Pending Cases',
+                      subtitle: 'View all cases requiring action',
+                      onTap: () => context.go('/origination/pending'),
+                    ),
+                    _QuickActionCard(
+                      icon: Icons.description_outlined,
+                      label: 'All Applications',
+                      subtitle: 'Browse & manage applications',
+                      onTap: () => context.go('/origination/applications'),
+                    ),
+                    _QuickActionCard(
+                      icon: Icons.credit_score_outlined,
+                      label: 'Loan Accounts',
+                      subtitle: 'Manage active loan accounts',
+                      onTap: () => context.go('/loans'),
+                    ),
+                    _QuickActionCard(
+                      icon: Icons.history_outlined,
+                      label: 'Audit Log',
+                      subtitle: 'Review status change history',
+                      onTap: () => context.go('/admin/audit'),
+                    ),
+                    _QuickActionCard(
+                      icon: Icons.account_balance_outlined,
+                      label: 'Banks & Branches',
+                      subtitle: 'Manage organizational structure',
+                      onTap: () => context.go('/organization/banks'),
+                    ),
+                    _QuickActionCard(
+                      icon: Icons.person_pin_outlined,
+                      label: 'Manage Agents',
+                      subtitle: 'Agent hierarchy & assignment',
+                      onTap: () => context.go('/field/agents'),
+                    ),
+                  ]),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
-
-  List<Widget> _buildStatCards(
-    BuildContext context,
-    Set<LenderRole> roles,
-    bool isMobile,
-  ) {
-    final cards = <Widget>[];
-    final cardWidth = isMobile ? double.infinity : 200.0;
-
-    if (_canViewOrg(roles)) {
-      cards.add(_StatCard(
-        label: 'Active Banks',
-        value: '--',
-        icon: Icons.account_balance_outlined,
-        trend: null,
-        width: cardWidth,
-      ));
-      cards.add(_StatCard(
-        label: 'Branches',
-        value: '--',
-        icon: Icons.store_outlined,
-        trend: null,
-        width: cardWidth,
-      ));
-      cards.add(_StatCard(
-        label: 'Investors',
-        value: '--',
-        icon: Icons.trending_up_outlined,
-        trend: null,
-        width: cardWidth,
-      ));
-    }
-
-    if (_canViewField(roles)) {
-      cards.add(_StatCard(
-        label: 'Field Agents',
-        value: '--',
-        icon: Icons.person_pin_outlined,
-        trend: null,
-        width: cardWidth,
-      ));
-      cards.add(_StatCard(
-        label: 'Total Borrowers',
-        value: '--',
-        icon: Icons.people_outline,
-        trend: null,
-        width: cardWidth,
-      ));
-    }
-
-    return cards;
-  }
-
-  List<Widget> _buildQuickActions(
-    BuildContext context,
-    Set<LenderRole> roles,
-  ) {
-    final actions = <Widget>[];
-
-    if (_canViewOrg(roles)) {
-      actions.add(_QuickActionCard(
-        icon: Icons.account_balance_outlined,
-        label: 'Banks & Branches',
-        subtitle: 'Manage banks and their branches',
-        onTap: () => context.go('/organization/banks'),
-      ));
-      actions.add(_QuickActionCard(
-        icon: Icons.trending_up_outlined,
-        label: 'Manage Investors',
-        subtitle: 'Add and manage investors',
-        onTap: () => context.go('/organization/investors'),
-      ));
-    }
-
-    if (_canViewField(roles)) {
-      actions.add(_QuickActionCard(
-        icon: Icons.person_pin_outlined,
-        label: 'Manage Agents',
-        subtitle: 'Agent hierarchy & assignment',
-        onTap: () => context.go('/field/agents'),
-      ));
-      actions.add(_QuickActionCard(
-        icon: Icons.person_add_outlined,
-        label: 'Onboard Borrower',
-        subtitle: 'Register a new borrower',
-        onTap: () => context.go('/field/borrowers'),
-      ));
-      actions.add(_QuickActionCard(
-        icon: Icons.swap_horiz_outlined,
-        label: 'Reassign Borrower',
-        subtitle: 'Transfer borrower to another agent',
-        onTap: () => context.go('/field/reassignment'),
-      ));
-    }
-
-    if (_canViewAdmin(roles)) {
-      actions.add(_QuickActionCard(
-        icon: Icons.manage_accounts_outlined,
-        label: 'System Users',
-        subtitle: 'Manage roles & access',
-        onTap: () => context.go('/admin/users'),
-      ));
-      actions.add(_QuickActionCard(
-        icon: Icons.security_outlined,
-        label: 'Roles & Permissions',
-        subtitle: 'View permission matrix',
-        onTap: () => context.go('/admin/roles'),
-      ));
-    }
-
-    return actions;
-  }
-
-  bool _canViewOrg(Set<LenderRole> roles) => roles.any(
-        (r) => {
-          LenderRole.owner,
-          LenderRole.admin,
-          LenderRole.manager,
-          LenderRole.verifier,
-          LenderRole.approver,
-          LenderRole.auditor,
-          LenderRole.viewer,
-        }.contains(r),
-      );
-
-  bool _canViewField(Set<LenderRole> roles) => roles.any(
-        (r) => {
-          LenderRole.owner,
-          LenderRole.admin,
-          LenderRole.manager,
-          LenderRole.agent,
-          LenderRole.verifier,
-          LenderRole.approver,
-          LenderRole.auditor,
-          LenderRole.viewer,
-        }.contains(r),
-      );
-
-  bool _canViewAdmin(Set<LenderRole> roles) =>
-      roles.any((r) => {LenderRole.owner, LenderRole.admin}.contains(r));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Stat card
-// ─────────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Metric card builder
+// ---------------------------------------------------------------------------
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
+Widget _buildMetricCard(
+  WidgetRef ref, {
+  required String label,
+  required IconData icon,
+  required Color color,
+  required AsyncValue<int> countAsync,
+  required VoidCallback onTap,
+}) {
+  return _MetricCard(
+    label: label,
+    icon: icon,
+    color: color,
+    countAsync: countAsync,
+    onTap: onTap,
+  );
+}
+
+class _MetricCard extends StatelessWidget {
+  const _MetricCard({
     required this.label,
-    required this.value,
     required this.icon,
-    this.trend,
-    required this.width,
+    required this.color,
+    required this.countAsync,
+    required this.onTap,
   });
 
   final String label;
-  final String value;
   final IconData icon;
-  final String? trend;
-  final double width;
+  final Color color;
+  final AsyncValue<int> countAsync;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox(
-      width: width,
-      child: Card(
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withAlpha(80),
+                  color: color.withAlpha(20),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+                child: Icon(icon, size: 22, color: color),
               ),
               const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    value,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    countAsync.when(
+                      data: (count) => Text(
+                        '$count',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                          color: count > 0 ? color : null,
+                        ),
+                      ),
+                      loading: () => const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      error: (_, _) => Icon(
+                        Icons.error_outline,
+                        size: 20,
+                        color: theme.colorScheme.error,
+                      ),
                     ),
-                  ),
-                  Text(
-                    label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withAlpha(120),
-                      fontSize: 12,
+                    const SizedBox(height: 2),
+                    Text(
+                      label,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withAlpha(120),
+                        fontSize: 12,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: theme.colorScheme.onSurface.withAlpha(60),
               ),
             ],
           ),
@@ -330,9 +334,9 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
 // Quick action card
-// ─────────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
 
 class _QuickActionCard extends StatelessWidget {
   const _QuickActionCard({

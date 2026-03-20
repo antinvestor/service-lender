@@ -41,6 +41,18 @@ class AuthRepository {
     return claims?['sub'] as String?;
   }
 
+  /// Returns the current user's contact ID from JWT claims.
+  Future<String?> getCurrentContactId() async {
+    final claims = await getUserInfo();
+    return claims?['contact_id'] as String? ?? claims?['email'] as String?;
+  }
+
+  /// Returns the current session ID from JWT claims.
+  Future<String?> getCurrentSessionId() async {
+    final claims = await getUserInfo();
+    return claims?['sid'] as String? ?? claims?['session_state'] as String?;
+  }
+
   Future<List<String>> getUserRoles() async => _authService.getUserRoles();
 }
 

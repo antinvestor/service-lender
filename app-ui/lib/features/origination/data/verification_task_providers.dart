@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
+import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 
@@ -45,15 +46,20 @@ class VerificationTaskNotifier extends _$VerificationTaskNotifier {
   Future<VerificationTaskObject> complete(
     String id,
     VerificationStatus status,
-    String notes,
-  ) async {
+    String notes, {
+    struct_pb.Struct? results,
+  }) async {
     final client = ref.read(originationServiceClientProvider);
-    final response =
-        await client.verificationTaskComplete(VerificationTaskCompleteRequest(
+    final request = VerificationTaskCompleteRequest(
       id: id,
       status: status,
       notes: notes,
-    ));
+    );
+    if (results != null) {
+      request.results = results;
+    }
+    final response =
+        await client.verificationTaskComplete(request);
 
     ref.invalidate(verificationTaskListProvider);
 

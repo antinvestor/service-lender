@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/auth/audit_context.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
@@ -134,6 +136,9 @@ class _ApplicationDetailContentState
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           child: _buildInfoSection(context, theme),
         ),
+
+        // Risk flags
+        if (_app.hasProperties()) _buildRiskFlagsSection(context, theme),
 
         // Tabs
         Padding(
@@ -290,6 +295,83 @@ class _ApplicationDetailContentState
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRiskFlagsSection(BuildContext context, ThemeData theme) {
+    final props = _app.properties;
+    final fields = props.fields;
+
+    // Check for risk_assessment_passed
+    final riskPassed = fields.containsKey('risk_assessment_passed')
+        ? fields['risk_assessment_passed']!.boolValue
+        : null;
+
+    // Check for risk_flags (expected as a ListValue of Structs with 'label' and 'severity')
+    final riskFlagsValue = fields['risk_flags'];
+    final hasFlags = riskFlagsValue != null &&
+        riskFlagsValue.hasListValue() &&
+        riskFlagsValue.listValue.values.isNotEmpty;
+
+    if (!hasFlags && riskPassed == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+      child: Row(
+        children: [
+          if (riskPassed != null) ...[
+            Icon(
+              riskPassed ? Icons.verified : Icons.dangerous,
+              size: 20,
+              color: riskPassed ? Colors.green : Colors.red,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              riskPassed ? 'Risk Assessment Passed' : 'Risk Assessment Failed',
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: riskPassed ? Colors.green : Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 16),
+          ],
+          if (hasFlags)
+            ...riskFlagsValue!.listValue.values.map((flagVal) {
+              final flagStruct = flagVal.structValue;
+              final label = flagStruct.fields.containsKey('label')
+                  ? flagStruct.fields['label']!.stringValue
+                  : 'Unknown';
+              final severity = flagStruct.fields.containsKey('severity')
+                  ? flagStruct.fields['severity']!.stringValue
+                  : 'info';
+
+              final (chipColor, chipFg) = switch (severity) {
+                'block' => (Colors.red, Colors.white),
+                'review' => (Colors.orange, Colors.white),
+                _ => (Colors.blue, Colors.white),
+              };
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Chip(
+                  label: Text(
+                    label,
+                    style: TextStyle(
+                        color: chipFg,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  backgroundColor: chipColor,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  labelPadding:
+                      const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              );
+            }),
+        ],
       ),
     );
   }
@@ -984,89 +1066,124 @@ class _VerificationTab extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Complete Verification Task'),
-          content: SizedBox(
-            width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<VerificationStatus>(
-                  value: selectedStatus,
-                  decoration: const InputDecoration(labelText: 'Result'),
-                  items: [
-                    VerificationStatus.VERIFICATION_STATUS_PASSED,
-                    VerificationStatus.VERIFICATION_STATUS_FAILED,
-                    VerificationStatus.VERIFICATION_STATUS_NEEDS_REVIEW,
-                  ]
-                      .map((s) => DropdownMenuItem(
-                            value: s,
-                            child: Text(_verificationStatusLabel(s)),
-                          ))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) {
-                      setDialogState(() => selectedStatus = v);
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: notesCtrl,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                  maxLines: 3,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: saving ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: saving
-                  ? null
-                  : () async {
-                      setDialogState(() => saving = true);
-                      try {
-                        await ref
-                            .read(verificationTaskProvider.notifier)
-                            .complete(
-                              task.id,
-                              selectedStatus,
-                              notesCtrl.text.trim(),
-                            );
-                        if (ctx.mounted) Navigator.of(ctx).pop();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Task completed')),
-                          );
-                        }
-                      } catch (e) {
-                        setDialogState(() => saving = false);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to complete task: $e'),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                        }
+        builder: (ctx, setDialogState) {
+          final auditAsync = ref.watch(auditContextProvider);
+          final auditLabel = auditAsync.whenOrNull(
+            data: (ac) => ac.displayLabel,
+          );
+
+          return AlertDialog(
+            title: const Text('Complete Verification Task'),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Show who is completing this task
+                  InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Completed By',
+                      suffixIcon: Icon(Icons.lock_outline, size: 18),
+                    ),
+                    child: Text(
+                      auditLabel ?? 'Loading...',
+                      style: Theme.of(ctx).textTheme.bodyMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<VerificationStatus>(
+                    value: selectedStatus,
+                    decoration: const InputDecoration(labelText: 'Result'),
+                    items: [
+                      VerificationStatus.VERIFICATION_STATUS_PASSED,
+                      VerificationStatus.VERIFICATION_STATUS_FAILED,
+                      VerificationStatus.VERIFICATION_STATUS_NEEDS_REVIEW,
+                    ]
+                        .map((s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(_verificationStatusLabel(s)),
+                            ))
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        setDialogState(() => selectedStatus = v);
                       }
                     },
-              child: saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: notesCtrl,
+                    decoration: const InputDecoration(labelText: 'Notes'),
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        setDialogState(() => saving = true);
+                        try {
+                          // Get audit context and embed in results
+                          final auditCtx =
+                              await ref.read(auditContextProvider.future);
+                          final auditMap = auditCtx.toMap();
+                          final resultsStruct = struct_pb.Struct();
+                          resultsStruct.fields['completed_by'] =
+                              struct_pb.Value(
+                                  stringValue: auditCtx.displayLabel);
+                          for (final entry in auditMap.entries) {
+                            resultsStruct.fields[entry.key] =
+                                struct_pb.Value(
+                                    stringValue: entry.value);
+                          }
+
+                          await ref
+                              .read(verificationTaskProvider.notifier)
+                              .complete(
+                                task.id,
+                                selectedStatus,
+                                notesCtrl.text.trim(),
+                                results: resultsStruct,
+                              );
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Task completed')),
+                            );
+                          }
+                        } catch (e) {
+                          setDialogState(() => saving = false);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text('Failed to complete task: $e'),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Text('Complete'),
-            ),
-          ],
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -1156,7 +1273,6 @@ class _UnderwritingTab extends ConsumerWidget {
   }
 
   void _showAddDecisionDialog(BuildContext context, WidgetRef ref) {
-    final decidedByCtrl = TextEditingController();
     final creditScoreCtrl = TextEditingController();
     final riskGradeCtrl = TextEditingController();
     final approvedAmountCtrl = TextEditingController();
@@ -1169,155 +1285,190 @@ class _UnderwritingTab extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Add Underwriting Decision'),
-          content: SizedBox(
-            width: 480,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<UnderwritingOutcome>(
-                    value: outcome,
-                    decoration: const InputDecoration(labelText: 'Outcome'),
-                    items: UnderwritingOutcome.values
-                        .where((o) =>
-                            o !=
-                            UnderwritingOutcome
-                                .UNDERWRITING_OUTCOME_UNSPECIFIED)
-                        .map((o) => DropdownMenuItem(
-                              value: o,
-                              child: Text(_outcomeLabel(o)),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setDialogState(() => outcome = v);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: decidedByCtrl,
-                    decoration:
-                        const InputDecoration(labelText: 'Decided By'),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: creditScoreCtrl,
-                          decoration: const InputDecoration(
-                              labelText: 'Credit Score'),
-                          keyboardType: TextInputType.number,
-                        ),
+        builder: (ctx, setDialogState) {
+          final auditAsync = ref.watch(auditContextProvider);
+          final auditLabel = auditAsync.whenOrNull(
+            data: (ac) => ac.displayLabel,
+          );
+
+          return AlertDialog(
+            title: const Text('Add Underwriting Decision'),
+            content: SizedBox(
+              width: 480,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<UnderwritingOutcome>(
+                      value: outcome,
+                      decoration:
+                          const InputDecoration(labelText: 'Outcome'),
+                      items: UnderwritingOutcome.values
+                          .where((o) =>
+                              o !=
+                              UnderwritingOutcome
+                                  .UNDERWRITING_OUTCOME_UNSPECIFIED)
+                          .map((o) => DropdownMenuItem(
+                                value: o,
+                                child: Text(_outcomeLabel(o)),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setDialogState(() => outcome = v);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    // Read-only decided-by from audit context
+                    InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Decided By',
+                        suffixIcon:
+                            Icon(Icons.lock_outline, size: 18),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: riskGradeCtrl,
-                          decoration: const InputDecoration(
-                              labelText: 'Risk Grade'),
-                        ),
+                      child: Text(
+                        auditLabel ?? 'Loading...',
+                        style: Theme.of(ctx).textTheme.bodyMedium,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: approvedAmountCtrl,
-                          decoration: const InputDecoration(
-                              labelText: 'Approved Amount'),
-                          keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: creditScoreCtrl,
+                            decoration: const InputDecoration(
+                                labelText: 'Credit Score'),
+                            keyboardType: TextInputType.number,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: approvedTermCtrl,
-                          decoration: const InputDecoration(
-                              labelText: 'Approved Term (days)'),
-                          keyboardType: TextInputType.number,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: riskGradeCtrl,
+                            decoration: const InputDecoration(
+                                labelText: 'Risk Grade'),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: approvedRateCtrl,
-                    decoration: const InputDecoration(
-                        labelText: 'Approved Rate %'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: reasonCtrl,
-                    decoration: const InputDecoration(labelText: 'Reason'),
-                    maxLines: 2,
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: approvedAmountCtrl,
+                            decoration: const InputDecoration(
+                                labelText: 'Approved Amount'),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: approvedTermCtrl,
+                            decoration: const InputDecoration(
+                                labelText: 'Approved Term (days)'),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: approvedRateCtrl,
+                      decoration: const InputDecoration(
+                          labelText: 'Approved Rate %'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: reasonCtrl,
+                      decoration:
+                          const InputDecoration(labelText: 'Reason'),
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: saving ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: saving
-                  ? null
-                  : () async {
-                      setDialogState(() => saving = true);
-                      try {
-                        final decision = UnderwritingDecisionObject(
-                          applicationId: applicationId,
-                          outcome: outcome,
-                          decidedBy: decidedByCtrl.text.trim(),
-                          creditScore:
-                              int.tryParse(creditScoreCtrl.text.trim()) ?? 0,
-                          riskGrade: riskGradeCtrl.text.trim(),
-                          approvedAmount: moneyFromString(approvedAmountCtrl.text.trim(), ''),
-                          approvedTermDays:
-                              int.tryParse(approvedTermCtrl.text.trim()) ?? 0,
-                          approvedRate: approvedRateCtrl.text.trim(),
-                          reason: reasonCtrl.text.trim(),
-                        );
-                        await ref
-                            .read(
-                                underwritingDecisionProvider.notifier)
-                            .save(decision);
-                        if (ctx.mounted) Navigator.of(ctx).pop();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Decision added')),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        setDialogState(() => saving = true);
+                        try {
+                          // Get the audit context for decidedBy and properties
+                          final auditCtx =
+                              await ref.read(auditContextProvider.future);
+
+                          // Build properties Struct from audit context
+                          final auditMap = auditCtx.toMap();
+                          final propsStruct = struct_pb.Struct();
+                          for (final entry in auditMap.entries) {
+                            propsStruct.fields[entry.key] =
+                                struct_pb.Value(
+                                    stringValue: entry.value);
+                          }
+
+                          final decision = UnderwritingDecisionObject(
+                            applicationId: applicationId,
+                            outcome: outcome,
+                            decidedBy: auditCtx.displayLabel,
+                            creditScore:
+                                int.tryParse(creditScoreCtrl.text.trim()) ??
+                                    0,
+                            riskGrade: riskGradeCtrl.text.trim(),
+                            approvedAmount: moneyFromString(
+                                approvedAmountCtrl.text.trim(), ''),
+                            approvedTermDays:
+                                int.tryParse(approvedTermCtrl.text.trim()) ??
+                                    0,
+                            approvedRate: approvedRateCtrl.text.trim(),
+                            reason: reasonCtrl.text.trim(),
+                            properties: propsStruct,
                           );
+                          await ref
+                              .read(
+                                  underwritingDecisionProvider.notifier)
+                              .save(decision);
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Decision added')),
+                            );
+                          }
+                        } catch (e) {
+                          setDialogState(() => saving = false);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text('Failed to add decision: $e'),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
+                              ),
+                            );
+                          }
                         }
-                      } catch (e) {
-                        setDialogState(() => saving = false);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to add decision: $e'),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                        }
-                      }
-                    },
-              child: saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Add'),
-            ),
-          ],
-        ),
+                      },
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child:
+                            CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Add'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
