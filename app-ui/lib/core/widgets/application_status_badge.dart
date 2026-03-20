@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../sdk/src/lender/v1/origination.pbenum.dart';
+import '../../sdk/src/origination/v1/origination.pbenum.dart';
 
 /// Displays a colored badge for application status.
 class ApplicationStatusBadge extends StatelessWidget {

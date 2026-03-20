@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../sdk/src/lender/v1/loan_management.pbenum.dart';
+import '../../sdk/src/loans/v1/loans.pbenum.dart';
 
 /// Displays a colored badge for loan status.
 class LoanStatusBadge extends StatelessWidget {

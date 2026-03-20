@@ -1,8 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
-import '../../../sdk/src/lender/v1/loan_management.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
 
 part 'repayment_providers.g.dart';
 
@@ -40,7 +41,7 @@ class RepaymentNotifier extends _$RepaymentNotifier {
     final response = await client.repaymentRecord(
       RepaymentRecordRequest(
         loanAccountId: loanAccountId,
-        amount: amount,
+        amount: moneyFromString(amount, ''),
         paymentReference: paymentReference,
         channel: channel,
         payerReference: payerReference,

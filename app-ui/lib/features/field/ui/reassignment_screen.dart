@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_provider.dart';
-import '../../../sdk/src/lender/v1/field.pb.dart';
+import '../../../sdk/src/field/v1/field.pb.dart';
 import '../data/agent_providers.dart';
 import '../data/borrower_providers.dart';
 

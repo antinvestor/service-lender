@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/widgets/application_status_badge.dart';
-import '../../../sdk/src/lender/v1/origination.pb.dart';
-import '../../../sdk/src/lender/v1/origination.pbenum.dart';
+import '../../../core/widgets/money_helpers.dart';
+import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
 import '../data/underwriting_decision_providers.dart';
 import '../data/verification_task_providers.dart';
@@ -225,15 +226,14 @@ class _ApplicationDetailContentState
               children: [
                 _InfoTile(
                     label: 'Requested Amount',
-                    value:
-                        '${_app.currencyCode} ${_app.requestedAmount}'),
+                    value: formatMoney(_app.requestedAmount)),
                 _InfoTile(
                     label: 'Requested Term',
                     value: '${_app.requestedTermDays} days'),
                 _InfoTile(
                     label: 'Approved Amount',
-                    value: _app.approvedAmount.isNotEmpty
-                        ? '${_app.currencyCode} ${_app.approvedAmount}'
+                    value: _app.hasApprovedAmount()
+                        ? formatMoney(_app.approvedAmount)
                         : '-'),
                 _InfoTile(
                     label: 'Approved Term',
@@ -311,7 +311,7 @@ class _ApplicationDetailContentState
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
-                    .read(applicationNotifierProvider.notifier)
+                    .read(applicationProvider.notifier)
                     .submit(_app.id);
                 if (mounted) {
                   setState(() => _app = updated);
@@ -370,7 +370,7 @@ class _ApplicationDetailContentState
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
-                    .read(applicationNotifierProvider.notifier)
+                    .read(applicationProvider.notifier)
                     .cancel(_app.id, reasonCtrl.text.trim());
                 if (mounted) {
                   setState(() => _app = updated);
@@ -414,7 +414,7 @@ class _ApplicationDetailContentState
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
-                    .read(applicationNotifierProvider.notifier)
+                    .read(applicationProvider.notifier)
                     .acceptOffer(_app.id);
                 if (mounted) {
                   setState(() => _app = updated);
@@ -472,7 +472,7 @@ class _ApplicationDetailContentState
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
-                    .read(applicationNotifierProvider.notifier)
+                    .read(applicationProvider.notifier)
                     .declineOffer(_app.id, reasonCtrl.text.trim());
                 if (mounted) {
                   setState(() => _app = updated);
@@ -508,7 +508,7 @@ class _ApplicationDetailContentState
           updated.id = _app.id;
           try {
             final saved = await ref
-                .read(applicationNotifierProvider.notifier)
+                .read(applicationProvider.notifier)
                 .save(updated);
             if (mounted) {
               setState(() => _app = saved);
@@ -646,7 +646,7 @@ class _DocumentsTab extends ConsumerWidget {
   }
 
   Future<List<ApplicationDocumentObject>> _loadDocuments(
-      OriginationServiceClient client) async {
+      dynamic client) async {
     final results = <ApplicationDocumentObject>[];
     await for (final response in client.applicationDocumentSearch(
       ApplicationDocumentSearchRequest(applicationId: applicationId),
@@ -938,7 +938,7 @@ class _VerificationTab extends ConsumerWidget {
                               .VERIFICATION_STATUS_PENDING,
                         );
                         await ref
-                            .read(verificationTaskNotifierProvider.notifier)
+                            .read(verificationTaskProvider.notifier)
                             .save(task);
                         if (ctx.mounted) Navigator.of(ctx).pop();
                         if (context.mounted) {
@@ -994,7 +994,7 @@ class _VerificationTab extends ConsumerWidget {
                 DropdownButtonFormField<VerificationStatus>(
                   value: selectedStatus,
                   decoration: const InputDecoration(labelText: 'Result'),
-                  items: const [
+                  items: [
                     VerificationStatus.VERIFICATION_STATUS_PASSED,
                     VerificationStatus.VERIFICATION_STATUS_FAILED,
                     VerificationStatus.VERIFICATION_STATUS_NEEDS_REVIEW,
@@ -1031,7 +1031,7 @@ class _VerificationTab extends ConsumerWidget {
                       setDialogState(() => saving = true);
                       try {
                         await ref
-                            .read(verificationTaskNotifierProvider.notifier)
+                            .read(verificationTaskProvider.notifier)
                             .complete(
                               task.id,
                               selectedStatus,
@@ -1143,7 +1143,7 @@ class _UnderwritingTab extends ConsumerWidget {
                       title: Text(
                           '${_outcomeLabel(decision.outcome)} \u2022 Score: ${decision.creditScore}'),
                       subtitle: Text(
-                          'Risk: ${decision.riskGrade.isNotEmpty ? decision.riskGrade : "-"} \u2022 By: ${decision.decidedBy.isNotEmpty ? decision.decidedBy : "-"}${decision.approvedAmount.isNotEmpty ? " \u2022 Approved: ${decision.approvedAmount}" : ""}'),
+                          'Risk: ${decision.riskGrade.isNotEmpty ? decision.riskGrade : "-"} \u2022 By: ${decision.decidedBy.isNotEmpty ? decision.decidedBy : "-"}${decision.hasApprovedAmount() ? " \u2022 Approved: ${formatMoney(decision.approvedAmount)}" : ""}'),
                     ),
                   );
                 },
@@ -1278,7 +1278,7 @@ class _UnderwritingTab extends ConsumerWidget {
                           creditScore:
                               int.tryParse(creditScoreCtrl.text.trim()) ?? 0,
                           riskGrade: riskGradeCtrl.text.trim(),
-                          approvedAmount: approvedAmountCtrl.text.trim(),
+                          approvedAmount: moneyFromString(approvedAmountCtrl.text.trim(), ''),
                           approvedTermDays:
                               int.tryParse(approvedTermCtrl.text.trim()) ?? 0,
                           approvedRate: approvedRateCtrl.text.trim(),
@@ -1286,7 +1286,7 @@ class _UnderwritingTab extends ConsumerWidget {
                         );
                         await ref
                             .read(
-                                underwritingDecisionNotifierProvider.notifier)
+                                underwritingDecisionProvider.notifier)
                             .save(decision);
                         if (ctx.mounted) Navigator.of(ctx).pop();
                         if (context.mounted) {

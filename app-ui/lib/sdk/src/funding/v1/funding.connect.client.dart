@@ -1,25 +1,22 @@
 //
 //  Generated code. Do not modify.
-//  source: lender/v1/field.proto
+//  source: funding/v1/funding.proto
 //
 
 import "package:connectrpc/connect.dart" as connect;
-import "field.pb.dart" as lenderv1field;
-import "field.connect.spec.dart" as specs;
+import "funding.pb.dart" as fundingv1funding;
+import "funding.connect.spec.dart" as specs;
 
-/// FieldService manages agents and borrowers in the lending hierarchy.
-/// All RPCs require authentication via Bearer token.
-extension type FieldServiceClient (connect.Transport _transport) {
-  /// AgentSave creates or updates an agent record.
-  Future<lenderv1field.AgentSaveResponse> agentSave(
-    lenderv1field.AgentSaveRequest input, {
+extension type FundingServiceClient (connect.Transport _transport) {
+  Future<fundingv1funding.InvestorAccountSaveResponse> investorAccountSave(
+    fundingv1funding.InvestorAccountSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.agentSave,
+      specs.FundingService.investorAccountSave,
       input,
       signal: signal,
       headers: headers,
@@ -28,16 +25,15 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// AgentGet retrieves an agent by their ID.
-  Future<lenderv1field.AgentGetResponse> agentGet(
-    lenderv1field.AgentGetRequest input, {
+  Future<fundingv1funding.InvestorAccountGetResponse> investorAccountGet(
+    fundingv1funding.InvestorAccountGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.agentGet,
+      specs.FundingService.investorAccountGet,
       input,
       signal: signal,
       headers: headers,
@@ -46,16 +42,15 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// AgentSearch finds agents matching search criteria.
-  Stream<lenderv1field.AgentSearchResponse> agentSearch(
-    lenderv1field.AgentSearchRequest input, {
+  Stream<fundingv1funding.InvestorAccountSearchResponse> investorAccountSearch(
+    fundingv1funding.InvestorAccountSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).server(
-      specs.FieldService.agentSearch,
+      specs.FundingService.investorAccountSearch,
       input,
       signal: signal,
       headers: headers,
@@ -64,34 +59,15 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// AgentHierarchy retrieves the descendant tree of an agent.
-  Stream<lenderv1field.AgentHierarchyResponse> agentHierarchy(
-    lenderv1field.AgentHierarchyRequest input, {
-    connect.Headers? headers,
-    connect.AbortSignal? signal,
-    Function(connect.Headers)? onHeader,
-    Function(connect.Headers)? onTrailer,
-  }) {
-    return connect.Client(_transport).server(
-      specs.FieldService.agentHierarchy,
-      input,
-      signal: signal,
-      headers: headers,
-      onHeader: onHeader,
-      onTrailer: onTrailer,
-    );
-  }
-
-  /// BorrowerSave onboards or updates a borrower record.
-  Future<lenderv1field.BorrowerSaveResponse> borrowerSave(
-    lenderv1field.BorrowerSaveRequest input, {
+  Future<fundingv1funding.InvestorDepositResponse> investorDeposit(
+    fundingv1funding.InvestorDepositRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.borrowerSave,
+      specs.FundingService.investorDeposit,
       input,
       signal: signal,
       headers: headers,
@@ -100,16 +76,15 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BorrowerGet retrieves a borrower by their ID.
-  Future<lenderv1field.BorrowerGetResponse> borrowerGet(
-    lenderv1field.BorrowerGetRequest input, {
+  Future<fundingv1funding.InvestorWithdrawResponse> investorWithdraw(
+    fundingv1funding.InvestorWithdrawRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.borrowerGet,
+      specs.FundingService.investorWithdraw,
       input,
       signal: signal,
       headers: headers,
@@ -118,34 +93,32 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BorrowerSearch finds borrowers matching search criteria.
-  Stream<lenderv1field.BorrowerSearchResponse> borrowerSearch(
-    lenderv1field.BorrowerSearchRequest input, {
-    connect.Headers? headers,
-    connect.AbortSignal? signal,
-    Function(connect.Headers)? onHeader,
-    Function(connect.Headers)? onTrailer,
-  }) {
-    return connect.Client(_transport).server(
-      specs.FieldService.borrowerSearch,
-      input,
-      signal: signal,
-      headers: headers,
-      onHeader: onHeader,
-      onTrailer: onTrailer,
-    );
-  }
-
-  /// BorrowerReassign moves a borrower from one agent to another.
-  Future<lenderv1field.BorrowerReassignResponse> borrowerReassign(
-    lenderv1field.BorrowerReassignRequest input, {
+  Future<fundingv1funding.FundLoanResponse> fundLoan(
+    fundingv1funding.FundLoanRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.borrowerReassign,
+      specs.FundingService.fundLoan,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<fundingv1funding.AbsorbLossResponse> absorbLoss(
+    fundingv1funding.AbsorbLossRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FundingService.absorbLoss,
       input,
       signal: signal,
       headers: headers,

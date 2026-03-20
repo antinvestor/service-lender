@@ -7,8 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/entity_list_page.dart';
-import '../../../sdk/src/lender/v1/origination.pb.dart';
-import '../../../sdk/src/lender/v1/origination.pbenum.dart';
+import '../../../core/widgets/money_helpers.dart';
+import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
 
 class ApplicationsScreen extends ConsumerStatefulWidget {
@@ -101,7 +102,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
       builder: (dialogContext) => ApplicationCreateDialog(
         onSave: (app) async {
           try {
-            await ref.read(applicationNotifierProvider.notifier).save(app);
+            await ref.read(applicationProvider.notifier).save(app);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -159,7 +160,7 @@ class _ApplicationCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          'Product: ${app.productId} \u2022 ${app.currencyCode} ${app.requestedAmount}',
+          'Product: ${app.productId} \u2022 ${formatMoney(app.requestedAmount)}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withAlpha(160),
           ),
@@ -237,9 +238,9 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
       agentId: _agentIdCtrl.text.trim(),
       branchId: _branchIdCtrl.text.trim(),
       bankId: _bankIdCtrl.text.trim(),
-      requestedAmount: _amountCtrl.text.trim(),
+      requestedAmount: moneyFromString(
+          _amountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
       requestedTermDays: int.tryParse(_termCtrl.text.trim()) ?? 0,
-      currencyCode: _currencyCtrl.text.trim().toUpperCase(),
       purpose: _purposeCtrl.text.trim(),
       status: ApplicationStatus.APPLICATION_STATUS_DRAFT,
     );

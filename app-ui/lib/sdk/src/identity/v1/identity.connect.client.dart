@@ -1,10 +1,10 @@
 //
 //  Generated code. Do not modify.
-//  source: lender/v1/identity.proto
+//  source: identity/v1/identity.proto
 //
 
 import "package:connectrpc/connect.dart" as connect;
-import "identity.pb.dart" as lenderv1identity;
+import "identity.pb.dart" as identityv1identity;
 import "identity.connect.spec.dart" as specs;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
@@ -12,8 +12,8 @@ import "../../common/v1/common.pb.dart" as commonv1common;
 /// All RPCs require authentication via Bearer token.
 extension type IdentityServiceClient (connect.Transport _transport) {
   /// BankSave creates or updates a bank record.
-  Future<lenderv1identity.BankSaveResponse> bankSave(
-    lenderv1identity.BankSaveRequest input, {
+  Future<identityv1identity.BankSaveResponse> bankSave(
+    identityv1identity.BankSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -30,8 +30,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// BankGet retrieves a bank by its ID.
-  Future<lenderv1identity.BankGetResponse> bankGet(
-    lenderv1identity.BankGetRequest input, {
+  Future<identityv1identity.BankGetResponse> bankGet(
+    identityv1identity.BankGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -48,7 +48,7 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// BankSearch finds banks matching search criteria.
-  Stream<lenderv1identity.BankSearchResponse> bankSearch(
+  Stream<identityv1identity.BankSearchResponse> bankSearch(
     commonv1common.SearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -66,8 +66,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// BranchSave creates or updates a branch record.
-  Future<lenderv1identity.BranchSaveResponse> branchSave(
-    lenderv1identity.BranchSaveRequest input, {
+  Future<identityv1identity.BranchSaveResponse> branchSave(
+    identityv1identity.BranchSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -84,8 +84,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// BranchGet retrieves a branch by its ID.
-  Future<lenderv1identity.BranchGetResponse> branchGet(
-    lenderv1identity.BranchGetRequest input, {
+  Future<identityv1identity.BranchGetResponse> branchGet(
+    identityv1identity.BranchGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -102,8 +102,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// BranchSearch finds branches matching search criteria.
-  Stream<lenderv1identity.BranchSearchResponse> branchSearch(
-    lenderv1identity.BranchSearchRequest input, {
+  Stream<identityv1identity.BranchSearchResponse> branchSearch(
+    identityv1identity.BranchSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -120,8 +120,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// InvestorSave creates or updates an investor record.
-  Future<lenderv1identity.InvestorSaveResponse> investorSave(
-    lenderv1identity.InvestorSaveRequest input, {
+  Future<identityv1identity.InvestorSaveResponse> investorSave(
+    identityv1identity.InvestorSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -138,8 +138,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// InvestorGet retrieves an investor by their ID.
-  Future<lenderv1identity.InvestorGetResponse> investorGet(
-    lenderv1identity.InvestorGetRequest input, {
+  Future<identityv1identity.InvestorGetResponse> investorGet(
+    identityv1identity.InvestorGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -156,8 +156,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// InvestorSearch finds investors matching search criteria.
-  Stream<lenderv1identity.InvestorSearchResponse> investorSearch(
-    lenderv1identity.InvestorSearchRequest input, {
+  Stream<identityv1identity.InvestorSearchResponse> investorSearch(
+    identityv1identity.InvestorSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -174,8 +174,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// SystemUserSave creates or updates a system user record.
-  Future<lenderv1identity.SystemUserSaveResponse> systemUserSave(
-    lenderv1identity.SystemUserSaveRequest input, {
+  Future<identityv1identity.SystemUserSaveResponse> systemUserSave(
+    identityv1identity.SystemUserSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -192,8 +192,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// SystemUserGet retrieves a system user by their ID.
-  Future<lenderv1identity.SystemUserGetResponse> systemUserGet(
-    lenderv1identity.SystemUserGetRequest input, {
+  Future<identityv1identity.SystemUserGetResponse> systemUserGet(
+    identityv1identity.SystemUserGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
@@ -210,8 +210,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }
 
   /// SystemUserSearch finds system users matching search criteria.
-  Stream<lenderv1identity.SystemUserSearchResponse> systemUserSearch(
-    lenderv1identity.SystemUserSearchRequest input, {
+  Stream<identityv1identity.SystemUserSearchResponse> systemUserSearch(
+    identityv1identity.SystemUserSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,

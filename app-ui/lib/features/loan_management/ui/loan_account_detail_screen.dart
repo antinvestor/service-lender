@@ -6,9 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/loan_status_badge.dart';
+import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
-import '../../../sdk/src/lender/v1/loan_management.pb.dart';
-import '../../../sdk/src/lender/v1/loan_management.pbenum.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../data/disbursement_providers.dart';
 import '../data/loan_account_providers.dart';
 import '../data/penalty_providers.dart';
@@ -134,7 +135,7 @@ class _LoanAccountDetailScreenState
               ),
               data: (balance) => _BalanceCard(
                 balance: balance,
-                currencyCode: loan.currencyCode,
+                currencyCode: moneyCurrency(loan.principalAmount),
               ),
             ),
           ),
@@ -216,7 +217,7 @@ class _LoanAccountDetailScreenState
           try {
             final idempotencyKey =
                 DateTime.now().millisecondsSinceEpoch.toString();
-            await ref.read(disbursementNotifierProvider.notifier).create(
+            await ref.read(disbursementProvider.notifier).create(
                   loanAccountId: loan.id,
                   channel: channel,
                   recipientReference: recipientReference,
@@ -253,12 +254,12 @@ class _LoanAccountDetailScreenState
       context: context,
       builder: (dialogContext) => _RecordPaymentFormDialog(
         loanAccountId: loan.id,
-        currencyCode: loan.currencyCode,
+        currencyCode: moneyCurrency(loan.principalAmount),
         onSave: (amount, paymentReference, channel, payerReference) async {
           try {
             final idempotencyKey =
                 DateTime.now().millisecondsSinceEpoch.toString();
-            await ref.read(repaymentNotifierProvider.notifier).record(
+            await ref.read(repaymentProvider.notifier).record(
                   loanAccountId: loan.id,
                   amount: amount,
                   paymentReference: paymentReference,
@@ -297,7 +298,7 @@ class _LoanAccountDetailScreenState
       context: context,
       builder: (dialogContext) => _CollectPaymentFormDialog(
         loanAccountId: loan.id,
-        currencyCode: loan.currencyCode,
+        currencyCode: moneyCurrency(loan.principalAmount),
         onSave: (amount, phoneNumber) async {
           try {
             final client =
@@ -371,19 +372,19 @@ class _BalanceCard extends StatelessWidget {
                 Expanded(
                   child: _BalanceItem(
                     label: 'Principal Outstanding',
-                    value: '$currencyCode ${balance.principalOutstanding}',
+                    value: formatMoney(balance.principalOutstanding),
                   ),
                 ),
                 Expanded(
                   child: _BalanceItem(
                     label: 'Interest Accrued',
-                    value: '$currencyCode ${balance.interestAccrued}',
+                    value: formatMoney(balance.interestAccrued),
                   ),
                 ),
                 Expanded(
                   child: _BalanceItem(
                     label: 'Fees Outstanding',
-                    value: '$currencyCode ${balance.feesOutstanding}',
+                    value: formatMoney(balance.feesOutstanding),
                   ),
                 ),
               ],
@@ -394,21 +395,20 @@ class _BalanceCard extends StatelessWidget {
                 Expanded(
                   child: _BalanceItem(
                     label: 'Penalties Outstanding',
-                    value:
-                        '$currencyCode ${balance.penaltiesOutstanding}',
+                    value: formatMoney(balance.penaltiesOutstanding),
                   ),
                 ),
                 Expanded(
                   child: _BalanceItem(
                     label: 'Total Outstanding',
-                    value: '$currencyCode ${balance.totalOutstanding}',
+                    value: formatMoney(balance.totalOutstanding),
                     isBold: true,
                   ),
                 ),
                 Expanded(
                   child: _BalanceItem(
                     label: 'Total Paid',
-                    value: '$currencyCode ${balance.totalPaid}',
+                    value: formatMoney(balance.totalPaid),
                   ),
                 ),
               ],
@@ -516,11 +516,11 @@ class _ScheduleTab extends ConsumerWidget {
                 return DataRow(cells: [
                   DataCell(Text('${entry.installmentNumber}')),
                   DataCell(Text(entry.dueDate)),
-                  DataCell(Text(entry.principalDue)),
-                  DataCell(Text(entry.interestDue)),
-                  DataCell(Text(entry.totalDue)),
-                  DataCell(Text(entry.totalPaid)),
-                  DataCell(Text(entry.outstanding)),
+                  DataCell(Text(formatMoney(entry.principalDue))),
+                  DataCell(Text(formatMoney(entry.interestDue))),
+                  DataCell(Text(formatMoney(entry.totalDue))),
+                  DataCell(Text(formatMoney(entry.totalPaid))),
+                  DataCell(Text(formatMoney(entry.outstanding))),
                   DataCell(_ScheduleEntryStatusChip(status: entry.status)),
                 ]);
               }).toList(),
@@ -606,8 +606,8 @@ class _TransactionsTab extends ConsumerWidget {
       items.add(_TransactionItem(
         date: d.disbursedAt,
         type: 'Disbursement',
-        amount: d.amount,
-        currency: d.currencyCode,
+        amount: moneyToAmountString(d.amount),
+        currency: moneyCurrency(d.amount),
         reference: d.paymentReference,
         status: _disbursementStatusLabel(d.status),
         statusColor: _disbursementStatusColor(d.status),
@@ -619,8 +619,8 @@ class _TransactionsTab extends ConsumerWidget {
       items.add(_TransactionItem(
         date: r.receivedAt,
         type: 'Repayment',
-        amount: r.amount,
-        currency: r.currencyCode,
+        amount: moneyToAmountString(r.amount),
+        currency: moneyCurrency(r.amount),
         reference: r.paymentReference,
         status: _repaymentStatusLabel(r.status),
         statusColor: _repaymentStatusColor(r.status),
@@ -904,7 +904,7 @@ class _PenaltiesTab extends ConsumerWidget {
               final reason = reasonCtrl.text.trim();
               if (reason.isEmpty) return;
               try {
-                await ref.read(penaltyNotifierProvider.notifier).waive(
+                await ref.read(penaltyProvider.notifier).waive(
                       id: penalty.id,
                       reason: reason,
                     );

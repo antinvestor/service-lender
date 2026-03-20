@@ -10,24 +10,20 @@ part of 'role_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Returns the current user's lender roles.
 ///
-/// Lender-specific roles (owner, admin, etc.) are managed by the backend's
-/// relation-based authorization system, not embedded in the JWT. The JWT only
-/// contains generic roles (e.g. "user"). Since the backend enforces real
-/// permissions on every API call, the frontend grants full UI access to any
-/// authenticated user so all navigation and actions are visible. Unauthorized
-/// operations will be rejected server-side with a clear error.
+/// Lender-specific roles (owner, admin, etc.) are extracted from the JWT.
+/// If no recognized roles are found, the user gets an empty set — they can
+/// see the dashboard but no functional sections or action buttons. The
+/// backend enforces the same restrictions via OPL relation tuples.
 
 @ProviderFor(currentUserRoles)
 final currentUserRolesProvider = CurrentUserRolesProvider._();
 
 /// Returns the current user's lender roles.
 ///
-/// Lender-specific roles (owner, admin, etc.) are managed by the backend's
-/// relation-based authorization system, not embedded in the JWT. The JWT only
-/// contains generic roles (e.g. "user"). Since the backend enforces real
-/// permissions on every API call, the frontend grants full UI access to any
-/// authenticated user so all navigation and actions are visible. Unauthorized
-/// operations will be rejected server-side with a clear error.
+/// Lender-specific roles (owner, admin, etc.) are extracted from the JWT.
+/// If no recognized roles are found, the user gets an empty set — they can
+/// see the dashboard but no functional sections or action buttons. The
+/// backend enforces the same restrictions via OPL relation tuples.
 
 final class CurrentUserRolesProvider
     extends
@@ -39,12 +35,10 @@ final class CurrentUserRolesProvider
     with $FutureModifier<Set<LenderRole>>, $FutureProvider<Set<LenderRole>> {
   /// Returns the current user's lender roles.
   ///
-  /// Lender-specific roles (owner, admin, etc.) are managed by the backend's
-  /// relation-based authorization system, not embedded in the JWT. The JWT only
-  /// contains generic roles (e.g. "user"). Since the backend enforces real
-  /// permissions on every API call, the frontend grants full UI access to any
-  /// authenticated user so all navigation and actions are visible. Unauthorized
-  /// operations will be rejected server-side with a clear error.
+  /// Lender-specific roles (owner, admin, etc.) are extracted from the JWT.
+  /// If no recognized roles are found, the user gets an empty set — they can
+  /// see the dashboard but no functional sections or action buttons. The
+  /// backend enforces the same restrictions via OPL relation tuples.
   CurrentUserRolesProvider._()
     : super(
         from: null,
@@ -71,7 +65,7 @@ final class CurrentUserRolesProvider
   }
 }
 
-String _$currentUserRolesHash() => r'4b9ea4cb026cb7745245428065e8c765f9733d10';
+String _$currentUserRolesHash() => r'a5af15e840c5746ec0af16ced5b7d9b75a56810c';
 
 /// Check if user has any of the specified roles
 
@@ -304,3 +298,236 @@ final class CanManageInvestorsProvider
 
 String _$canManageInvestorsHash() =>
     r'af0984dc2d40afcb71e11f809c994e7897b380fa';
+
+/// Whether the current user can create loan applications
+
+@ProviderFor(canCreateApplications)
+final canCreateApplicationsProvider = CanCreateApplicationsProvider._();
+
+/// Whether the current user can create loan applications
+
+final class CanCreateApplicationsProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can create loan applications
+  CanCreateApplicationsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canCreateApplicationsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canCreateApplicationsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canCreateApplications(ref);
+  }
+}
+
+String _$canCreateApplicationsHash() =>
+    r'bd9185e97353b71d871f9a8b6b57f989e16318d0';
+
+/// Whether the current user can manage loan products
+
+@ProviderFor(canManageLoanProducts)
+final canManageLoanProductsProvider = CanManageLoanProductsProvider._();
+
+/// Whether the current user can manage loan products
+
+final class CanManageLoanProductsProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage loan products
+  CanManageLoanProductsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageLoanProductsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageLoanProductsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageLoanProducts(ref);
+  }
+}
+
+String _$canManageLoanProductsHash() =>
+    r'943648326905a635a18b0ea6dff4bff8fb61a64f';
+
+/// Whether the current user can manage verification tasks
+
+@ProviderFor(canManageVerification)
+final canManageVerificationProvider = CanManageVerificationProvider._();
+
+/// Whether the current user can manage verification tasks
+
+final class CanManageVerificationProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage verification tasks
+  CanManageVerificationProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageVerificationProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageVerificationHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageVerification(ref);
+  }
+}
+
+String _$canManageVerificationHash() =>
+    r'2b7191104f1587800eea520255b71656f9d957f4';
+
+/// Whether the current user can make underwriting decisions
+
+@ProviderFor(canManageUnderwriting)
+final canManageUnderwritingProvider = CanManageUnderwritingProvider._();
+
+/// Whether the current user can make underwriting decisions
+
+final class CanManageUnderwritingProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can make underwriting decisions
+  CanManageUnderwritingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageUnderwritingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageUnderwritingHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageUnderwriting(ref);
+  }
+}
+
+String _$canManageUnderwritingHash() =>
+    r'ce88e06b8d02fd5ed703008c477a2617506fb33b';
+
+/// Whether the current user can manage loans (disbursements, etc.)
+
+@ProviderFor(canManageLoans)
+final canManageLoansProvider = CanManageLoansProvider._();
+
+/// Whether the current user can manage loans (disbursements, etc.)
+
+final class CanManageLoansProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage loans (disbursements, etc.)
+  CanManageLoansProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageLoansProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageLoansHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageLoans(ref);
+  }
+}
+
+String _$canManageLoansHash() => r'81788cf22dba49c3b81637d1a677d6e5c442ed5c';
+
+/// Whether the current user can record repayments
+
+@ProviderFor(canRecordRepayments)
+final canRecordRepaymentsProvider = CanRecordRepaymentsProvider._();
+
+/// Whether the current user can record repayments
+
+final class CanRecordRepaymentsProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can record repayments
+  CanRecordRepaymentsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canRecordRepaymentsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canRecordRepaymentsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canRecordRepayments(ref);
+  }
+}
+
+String _$canRecordRepaymentsHash() =>
+    r'b58a273644d6525f2f0876f7b54748de5509ff3f';

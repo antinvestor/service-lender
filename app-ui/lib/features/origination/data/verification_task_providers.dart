@@ -2,8 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
-import '../../../sdk/src/lender/v1/origination.pb.dart';
-import '../../../sdk/src/lender/v1/origination.pbenum.dart';
+import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 
 part 'verification_task_providers.g.dart';
 

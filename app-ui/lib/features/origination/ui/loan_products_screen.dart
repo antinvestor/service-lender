@@ -5,10 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
-import '../../../sdk/src/lender/v1/origination.pb.dart';
-import '../../../sdk/src/lender/v1/origination.pbenum.dart';
+import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/loan_product_providers.dart';
 
 class LoanProductsScreen extends ConsumerStatefulWidget {
@@ -74,7 +75,7 @@ class _LoanProductsScreenState extends ConsumerState<LoanProductsScreen> {
         onSave: (updated) async {
           try {
             await ref
-                .read(loanProductNotifierProvider.notifier)
+                .read(loanProductProvider.notifier)
                 .save(updated);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -207,8 +208,8 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
     _codeCtrl = TextEditingController(text: p?.code ?? '');
     _descriptionCtrl = TextEditingController(text: p?.description ?? '');
     _currencyCtrl = TextEditingController(text: p?.currencyCode ?? '');
-    _minAmountCtrl = TextEditingController(text: p?.minAmount ?? '');
-    _maxAmountCtrl = TextEditingController(text: p?.maxAmount ?? '');
+    _minAmountCtrl = TextEditingController(text: p != null ? moneyToAmountString(p.minAmount) : '');
+    _maxAmountCtrl = TextEditingController(text: p != null ? moneyToAmountString(p.maxAmount) : '');
     _minTermCtrl =
         TextEditingController(text: p != null ? '${p.minTermDays}' : '');
     _maxTermCtrl =
@@ -263,8 +264,8 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
       currencyCode: _currencyCtrl.text.trim().toUpperCase(),
       interestMethod: _interestMethod,
       repaymentFrequency: _repaymentFrequency,
-      minAmount: _minAmountCtrl.text.trim(),
-      maxAmount: _maxAmountCtrl.text.trim(),
+      minAmount: moneyFromString(_minAmountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
+      maxAmount: moneyFromString(_maxAmountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
       minTermDays: int.tryParse(_minTermCtrl.text.trim()) ?? 0,
       maxTermDays: int.tryParse(_maxTermCtrl.text.trim()) ?? 0,
       annualInterestRate: _annualRateCtrl.text.trim(),

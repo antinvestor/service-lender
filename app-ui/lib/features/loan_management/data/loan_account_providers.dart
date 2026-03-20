@@ -2,8 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
-import '../../../sdk/src/lender/v1/loan_management.pb.dart';
-import '../../../sdk/src/lender/v1/loan_management.pbenum.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 
 part 'loan_account_providers.g.dart';
 

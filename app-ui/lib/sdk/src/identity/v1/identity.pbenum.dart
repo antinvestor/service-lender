@@ -1,6 +1,6 @@
 //
 //  Generated code. Do not modify.
-//  source: lender/v1/identity.proto
+//  source: identity/v1/identity.proto
 //
 // @dart = 2.12
 

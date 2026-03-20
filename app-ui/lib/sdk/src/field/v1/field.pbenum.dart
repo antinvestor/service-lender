@@ -1,6 +1,6 @@
 //
 //  Generated code. Do not modify.
-//  source: lender/v1/field.proto
+//  source: field/v1/field.proto
 //
 // @dart = 2.12
 

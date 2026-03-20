@@ -5,10 +5,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/auth_state_provider.dart';
-import '../../sdk/src/lender/v1/field.connect.client.dart';
-import '../../sdk/src/lender/v1/identity.connect.client.dart';
-import '../../sdk/src/lender/v1/origination.connect.client.dart';
-import '../../sdk/src/lender/v1/loan_management.connect.client.dart';
+import '../../sdk/src/identity/v1/identity.connect.client.dart';
+import '../../sdk/src/field/v1/field.connect.client.dart';
+import '../../sdk/src/origination/v1/origination.connect.client.dart';
+import '../../sdk/src/loans/v1/loans.connect.client.dart';
+import '../../sdk/src/savings/v1/savings.connect.client.dart';
+import '../../sdk/src/funding/v1/funding.connect.client.dart';
+import '../../sdk/src/operations/v1/operations.connect.client.dart';
 import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
 
@@ -105,4 +108,22 @@ OriginationServiceClient originationServiceClient(Ref ref) {
 LoanManagementServiceClient loanManagementServiceClient(Ref ref) {
   final transport = ref.watch(apiTransportProvider);
   return LoanManagementServiceClient(transport);
+}
+
+@riverpod
+SavingsServiceClient savingsServiceClient(Ref ref) {
+  final transport = ref.watch(apiTransportProvider);
+  return SavingsServiceClient(transport);
+}
+
+@riverpod
+FundingServiceClient fundingServiceClient(Ref ref) {
+  final transport = ref.watch(apiTransportProvider);
+  return FundingServiceClient(transport);
+}
+
+@riverpod
+OperationsServiceClient operationsServiceClient(Ref ref) {
+  final transport = ref.watch(apiTransportProvider);
+  return OperationsServiceClient(transport);
 }

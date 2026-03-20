@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/widgets/state_badge.dart';
-import '../../../sdk/src/lender/v1/field.pb.dart';
+import '../../../sdk/src/field/v1/field.pb.dart';
 import '../data/agent_providers.dart';
 
 class HierarchyScreen extends ConsumerStatefulWidget {

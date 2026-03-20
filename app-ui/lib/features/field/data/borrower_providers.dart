@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
-import '../../../sdk/src/lender/v1/field.pb.dart';
+import '../../../sdk/src/field/v1/field.pb.dart';
 
 part 'borrower_providers.g.dart';
 

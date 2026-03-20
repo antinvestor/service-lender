@@ -5,8 +5,8 @@ import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
-import '../../../sdk/src/lender/v1/field.pb.dart';
-import '../../../sdk/src/lender/v1/identity.pb.dart';
+import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../organization/data/branch_providers.dart';
 import '../data/agent_providers.dart';
 

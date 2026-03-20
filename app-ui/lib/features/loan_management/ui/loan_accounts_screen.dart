@@ -7,8 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/loan_status_badge.dart';
-import '../../../sdk/src/lender/v1/loan_management.pb.dart';
-import '../../../sdk/src/lender/v1/loan_management.pbenum.dart';
+import '../../../core/widgets/money_helpers.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../data/loan_account_providers.dart';
 
 class LoanAccountsScreen extends ConsumerStatefulWidget {
@@ -146,7 +147,7 @@ class _LoanAccountCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${loan.currencyCode} ${loan.principalAmount}  |  Borrower: ${_truncateId(loan.borrowerId)}',
+              '${formatMoney(loan.principalAmount)}  |  Borrower: ${_truncateId(loan.borrowerId)}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withAlpha(160),
               ),
