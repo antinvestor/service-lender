@@ -2,7 +2,7 @@ package business
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	fevents "github.com/pitabwire/frame/events"
 
@@ -27,7 +27,7 @@ func NewMembershipBusiness(
 }
 
 func (b *membershipBusiness) Create(ctx context.Context, membership *models.Membership) (*models.Membership, error) {
-	return nil, errors.New("not implemented")
+	return nil, fmt.Errorf("group membership operations are not yet available for this product")
 }
 
 func (b *membershipBusiness) Get(ctx context.Context, id string) (*models.Membership, error) {
@@ -39,12 +39,12 @@ func (b *membershipBusiness) GetByGroupID(ctx context.Context, groupID string) (
 }
 
 func (b *membershipBusiness) UpdateRole(ctx context.Context, membershipID string, role int32) error {
-	return errors.New("not implemented")
+	return fmt.Errorf("group membership operations are not yet available for this product")
 }
 
 func (b *membershipBusiness) CheckPeriodicPayment(
 	ctx context.Context,
 	membershipID string,
 ) (map[string]interface{}, error) {
-	return nil, errors.New("not implemented")
+	return nil, fmt.Errorf("group membership operations are not yet available for this product")
 }

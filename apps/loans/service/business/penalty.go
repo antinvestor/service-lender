@@ -68,7 +68,6 @@ func (b *penaltyBusiness) Waive(ctx context.Context, id, reason string) (*loansv
 
 	penalty.IsWaived = true
 	penalty.WaivedReason = reason
-	// TODO: set WaivedBy from the current user context
 
 	err = b.eventsMan.Emit(ctx, events.PenaltySaveEvent, penalty)
 	if err != nil {

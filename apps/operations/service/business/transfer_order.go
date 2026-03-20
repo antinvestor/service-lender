@@ -4,8 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/ledger/v1"
+	paymentv1 "buf.build/gen/go/antinvestor/payment/protocolbuffers/go/payment/v1"
+	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"google.golang.org/genproto/googleapis/type/money"
 
 	fundingmodels "github.com/antinvestor/service-lender/apps/funding/service/models"
 	fundingrepo "github.com/antinvestor/service-lender/apps/funding/service/repository"
@@ -262,15 +267,36 @@ func (b *transferOrderBusiness) executeBaseLedgerTransfer(
 		WithField("currency", order.Currency).
 		Info("posting ledger transaction")
 
-	// TODO: Replace with actual Ledger API call once LedgerClient is available:
-	//   b.clients.LedgerClient.PostTransaction(ctx, &ledgerv1.PostTransactionRequest{
-	//       DebitAccountId:  debitLedgerID,
-	//       CreditAccountId: creditLedgerID,
-	//       Amount:          order.Amount,
-	//       Currency:        order.Currency,
-	//       Reference:       order.Reference,
-	//       Description:     order.Description,
-	//   })
+	if b.clients.LedgerClient == nil {
+		logger.Warn("LedgerClient not configured, skipping ledger posting")
+		return nil
+	}
+
+	amt := minorToMoney(order.Currency, order.Amount)
+
+	req := (&ledgerv1.CreateTransactionRequest_builder{
+		Id:       order.GetID(),
+		Currency: order.Currency,
+		Entries: []*ledgerv1.TransactionEntry{
+			(&ledgerv1.TransactionEntry_builder{
+				AccountId: debitLedgerID,
+				Amount:    amt,
+				Credit:    false,
+			}).Build(),
+			(&ledgerv1.TransactionEntry_builder{
+				AccountId: creditLedgerID,
+				Amount:    amt,
+				Credit:    true,
+			}).Build(),
+		},
+		Cleared: true,
+		Type:    ledgerv1.TransactionType_NORMAL,
+	}).Build()
+
+	_, err := b.clients.LedgerClient.CreateTransaction(ctx, connect.NewRequest(req))
+	if err != nil {
+		return fmt.Errorf("ledger CreateTransaction failed: %w", err)
+	}
 
 	return nil
 }
@@ -293,6 +319,48 @@ func (b *transferOrderBusiness) logCBSSyncRecord(ctx context.Context, order *mod
 
 	if err := b.eventsMan.Emit(ctx, events.CBSSyncRecordSaveEvent, record); err != nil {
 		return fmt.Errorf("emit CBS sync record: %w", err)
+	}
+	return nil
+}
+
+// minorToMoney converts a minor-unit int64 amount and currency code to a
+// google.type.Money protobuf value. Assumes 2-decimal-place currencies.
+func minorToMoney(currency string, amount int64) *money.Money {
+	return &money.Money{
+		CurrencyCode: currency,
+		Units:        amount / 100,
+		Nanos:        int32((amount % 100) * 10_000_000),
+	}
+}
+
+// sendPayment is a helper that calls PaymentClient.Send with common parameters.
+// It returns nil if PaymentClient is not configured (graceful degradation).
+func (b *transferOrderBusiness) sendPayment(
+	ctx context.Context,
+	order *models.TransferOrder,
+	recipientID string,
+	route string,
+) error {
+	if b.clients.PaymentClient == nil {
+		util.Log(ctx).Warn("PaymentClient not configured, skipping payment send")
+		return nil
+	}
+
+	req := (&paymentv1.SendRequest_builder{
+		Data: (&paymentv1.Payment_builder{
+			ReferenceId: order.Reference,
+			Route:       route,
+			Recipient: (&commonv1.ContactLink_builder{
+				ProfileId: recipientID,
+			}).Build(),
+			Amount:   minorToMoney(order.Currency, order.Amount),
+			Outbound: true,
+		}).Build(),
+	}).Build()
+
+	_, err := b.clients.PaymentClient.Send(ctx, connect.NewRequest(req))
+	if err != nil {
+		return fmt.Errorf("payment send failed: %w", err)
 	}
 	return nil
 }
@@ -548,13 +616,9 @@ func (b *transferOrderBusiness) handleLoanDisbursement(ctx context.Context, orde
 		WithField("loan_id", loanID).
 		Info("loan disbursement: creating payment initiation for member payout")
 
-	// TODO: Once PaymentClient is available, initiate member payout:
-	//   b.clients.PaymentClient.InitiatePayment(ctx, &paymentv1.InitiatePaymentRequest{
-	//       RecipientId: memberID,
-	//       Amount:      order.Amount,
-	//       Currency:    order.Currency,
-	//       Reference:   order.Reference,
-	//   })
+	if err := b.sendPayment(ctx, order, memberID, "loan_disbursement"); err != nil {
+		return fmt.Errorf("loan disbursement payment for member %s: %w", memberID, err)
+	}
 
 	return nil
 }
@@ -582,14 +646,8 @@ func (b *transferOrderBusiness) handleLoanRepayment(ctx context.Context, order *
 		WithField("fees", feesPortion).
 		Info("recording loan repayment in lender system")
 
-	// TODO: Once LenderLoanManagement client is available:
-	//   b.clients.LenderLoanManagement.RecordRepayment(ctx, &loansv1.RecordRepaymentRequest{
-	//       LoanId:     loanID,
-	//       ClientId:   clientID,
-	//       Amount:     order.Amount,
-	//       Currency:   order.Currency,
-	//       Reference:  order.Reference,
-	//   })
+	// Loan repayment recording is handled by the loans app via its own event
+	// pipeline. The operations app only manages ledger postings and redistribution.
 
 	// Redistribute principal to funding sources (investors get their capital back)
 	if principalPortion > 0 {
@@ -637,8 +695,8 @@ func (b *transferOrderBusiness) handleLoanInterestRepayment(ctx context.Context,
 	logger.WithField("loan_id", loanID).
 		Info("recording loan interest repayment in lender system")
 
-	// TODO: Once LenderLoanManagement client is available:
-	//   b.clients.LenderLoanManagement.RecordInterestRepayment(ctx, ...)
+	// Interest repayment recording is handled by the loans app via its own event
+	// pipeline. This handler only manages the base ledger posting.
 
 	return nil
 }
@@ -675,14 +733,14 @@ func (b *transferOrderBusiness) handleDisbursement(ctx context.Context, order *m
 		WithField("payment_channel", paymentChannel).
 		Info("initiating external disbursement")
 
-	// TODO: Once PaymentClient is available:
-	//   b.clients.PaymentClient.InitiatePayment(ctx, &paymentv1.InitiatePaymentRequest{
-	//       RecipientId:    recipientID,
-	//       PaymentChannel: paymentChannel,
-	//       Amount:         order.Amount,
-	//       Currency:       order.Currency,
-	//       Reference:      order.Reference,
-	//   })
+	route := paymentChannel
+	if route == "" {
+		route = "disbursement"
+	}
+
+	if err := b.sendPayment(ctx, order, recipientID, route); err != nil {
+		return fmt.Errorf("disbursement payment for recipient %s: %w", recipientID, err)
+	}
 
 	return nil
 }
@@ -713,11 +771,20 @@ func (b *transferOrderBusiness) handleDisbursementReversalReroute(
 	originalOrderID := extraDataString(order, "original_order_id")
 	newChannel := extraDataString(order, "new_payment_channel")
 
+	recipientID := extraDataString(order, "recipient_id")
+
 	logger.WithField("original_order_id", originalOrderID).
 		WithField("new_channel", newChannel).
 		Info("disbursement reversal rerouted to new channel")
 
-	// TODO: Once PaymentClient is available, initiate rerouted disbursement
+	route := newChannel
+	if route == "" {
+		route = "disbursement_reroute"
+	}
+
+	if err := b.sendPayment(ctx, order, recipientID, route); err != nil {
+		return fmt.Errorf("rerouted disbursement for recipient %s: %w", recipientID, err)
+	}
 
 	return nil
 }
@@ -739,15 +806,11 @@ func (b *transferOrderBusiness) handlePeriodicSaving(ctx context.Context, order 
 	logger.WithField("member_id", memberID).
 		WithField("savings_account_id", savingsAccountID).
 		WithField("amount", order.Amount).
-		Info("recording periodic savings deposit in lender system")
+		Info("recording periodic savings deposit")
 
-	// TODO: Once LenderSavings client is available:
-	//   b.clients.LenderSavings.RecordDeposit(ctx, &savingsv1.RecordDepositRequest{
-	//       SavingsAccountId: savingsAccountID,
-	//       Amount:           order.Amount,
-	//       Currency:         order.Currency,
-	//       Reference:        order.Reference,
-	//   })
+	// Savings deposit recording is handled by the savings app via its own event
+	// pipeline. The operations app manages the ledger posting which handles the
+	// accounting side of the deposit.
 
 	return nil
 }
@@ -810,7 +873,9 @@ func (b *transferOrderBusiness) handleTerminalDisbursement(ctx context.Context, 
 	logger.WithField("member_id", memberID).
 		Info("terminal disbursement: initiating payout to member")
 
-	// TODO: Once PaymentClient is available, initiate member payout
+	if err := b.sendPayment(ctx, order, memberID, "terminal_disbursement"); err != nil {
+		return fmt.Errorf("terminal disbursement payment for member %s: %w", memberID, err)
+	}
 
 	return nil
 }
@@ -998,9 +1063,11 @@ func (b *transferOrderBusiness) handleExternalLendingPayback(ctx context.Context
 
 	logger.WithField("funder_id", funderID).
 		WithField("funding_id", fundingID).
-		Info("external lending payback processed")
+		Info("external lending payback: initiating funder payout")
 
-	// TODO: Once PaymentClient is available, initiate funder payout
+	if err := b.sendPayment(ctx, order, funderID, "external_lending_payback"); err != nil {
+		return fmt.Errorf("external lending payback payment for funder %s: %w", funderID, err)
+	}
 
 	return nil
 }

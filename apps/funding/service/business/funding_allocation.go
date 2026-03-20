@@ -282,7 +282,9 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 			SourceID:        request.GroupID,
 			SourceType:      int32(models.FundingSourceGroupSavings),
 			TrancheLevel:    1,
-			AvailableAmount: request.LoanAmount, // TODO: query actual group savings balance
+			// NOTE: Uses loan amount as proxy for group savings. In production,
+		// query actual balance from savings or ledger service when available.
+		AvailableAmount: request.LoanAmount,
 		})
 
 		// Tranche 2 (mezzanine): affiliated investors
@@ -318,7 +320,9 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 			SourceID:        "platform",
 			SourceType:      int32(models.FundingSourcePlatformReserve),
 			TrancheLevel:    1,
-			AvailableAmount: firstLossTarget, // TODO: query actual platform reserve balance
+			// NOTE: Uses loan amount as proxy for group savings. In production,
+		// query actual balance from savings or ledger service when available.
+		AvailableAmount: firstLossTarget,
 		})
 
 		// Tranche 2 (senior): all eligible investors

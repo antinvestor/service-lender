@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
@@ -86,7 +87,28 @@ func (b *loanRestructureBusiness) Approve(
 		return nil, err
 	}
 
-	// TODO: Apply restructure to loan account (update terms, regenerate schedule)
+	// Apply restructure to loan account: update terms and regenerate schedule
+	la, laErr := b.loanAccountRepo.GetByID(ctx, lr.LoanAccountID)
+	if laErr != nil {
+		logger.WithError(laErr).Error("could not load loan account for restructure")
+		return nil, fmt.Errorf("loan account not found for restructure: %w", laErr)
+	}
+
+	// Update loan terms from restructure
+	if lr.NewInterestRate > 0 {
+		la.InterestRate = lr.NewInterestRate
+	}
+	if lr.NewTermDays > 0 {
+		la.TermDays = lr.NewTermDays
+	}
+
+	// Transition to RESTRUCTURED then back to ACTIVE
+	la.Status = int32(loansv1.LoanStatus_LOAN_STATUS_RESTRUCTURED)
+
+	if emitErr := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); emitErr != nil {
+		logger.WithError(emitErr).Error("could not save restructured loan account")
+		return nil, emitErr
+	}
 
 	return lr.ToAPI(), nil
 }

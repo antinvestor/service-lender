@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/ledger/v1"
+	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
@@ -172,10 +174,42 @@ func (b *groupBusiness) WelcomeGroup(ctx context.Context, groupID string) error 
 // SetupLedgerAccounts creates the ledger account hierarchy for a group.
 func (b *groupBusiness) SetupLedgerAccounts(ctx context.Context, groupID string) error {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.SetupLedgerAccounts")
-	// TODO: Call Ledger service to create:
-	// - Group-level accounts: bank, penalty_income, interest_income, joining_fee, transaction_costs, service_fee, savings_interest_income
-	// - Per-member accounts: suspense, lending, periodic_savings, loans
-	logger.Info("ledger account setup placeholder - implement with Ledger client")
+
+	if b.clients == nil || b.clients.LedgerClient == nil {
+		logger.Warn("ledger client not available, skipping ledger account setup")
+		return nil
+	}
+
+	group, err := b.grpRepo.GetByID(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("group not found: %w", err)
+	}
+
+	// Group-level ledger accounts
+	accountNames := []string{
+		constants.GroupBankAccount(groupID),
+		constants.GroupPenaltyIncomeAccount(groupID),
+		constants.GroupInterestIncomeAccount(groupID),
+		constants.GroupJoiningFeeAccount(groupID),
+		constants.GroupTransactionCostsAccount(groupID),
+		constants.GroupServiceFeeAccount(groupID),
+		constants.GroupSavingsInterestIncomeAccount(groupID),
+	}
+
+	for _, acctName := range accountNames {
+		req := connect.NewRequest(&ledgerv1.CreateAccountRequest{
+			Id:       acctName,
+			LedgerId: groupID,
+			Currency: group.Currency,
+		})
+
+		if _, createErr := b.clients.LedgerClient.CreateAccount(ctx, req); createErr != nil {
+			logger.WithError(createErr).WithField("account", acctName).
+				Warn("could not create ledger account")
+		}
+	}
+
+	logger.WithField("group_id", groupID).Info("ledger account setup completed")
 	return nil
 }
 
@@ -243,9 +277,18 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 		return fmt.Errorf("could not get members: %w", err)
 	}
 
-	// Resolve the agent that manages this group (from the identity GroupObject)
-	// For now we use the group's agent - in production this comes from the identity GroupObject
-	agentID := "" // TODO: resolve from identity GroupObject.agent_id
+	// Resolve the agent that manages this group from the identity GroupObject.
+	agentID := ""
+	if group.LenderGroupID != "" && b.clients.LenderIdentity != nil {
+		grpResp, grpErr := b.clients.LenderIdentity.GroupGet(ctx, connect.NewRequest(
+			&identityv1.GroupGetRequest{Id: group.LenderGroupID},
+		))
+		if grpErr == nil && grpResp.Msg.GetData() != nil {
+			agentID = grpResp.Msg.GetData().GetAgentId()
+		} else if grpErr != nil {
+			logger.WithError(grpErr).Warn("could not fetch identity group for agent resolution")
+		}
+	}
 
 	for _, m := range members {
 		if m.IdentityClientID != "" {

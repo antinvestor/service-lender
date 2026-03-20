@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
+	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
+	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
@@ -181,25 +184,45 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 		"membership_id": offer.MembershipID,
 	}
 
-	// TODO: Once LenderOrigination and LenderLoanManagement clients are available:
-	//   1. Create loan application via origination
-	//   2. Create loan account via loans service
-	//   3. Store the loan_account_id and application_id on the offer
-	//
-	// if b.clients.LenderOrigination != nil {
-	//     app, err := b.clients.LenderOrigination.CreateApplication(ctx, ...)
-	//     if err == nil {
-	//         offer.ApplicationID = app.Id
-	//         result["application_id"] = app.Id
-	//     }
-	// }
-	// if b.clients.LenderLoanManagement != nil {
-	//     loan, err := b.clients.LenderLoanManagement.CreateLoanAccount(ctx, ...)
-	//     if err == nil {
-	//         offer.LoanAccountID = loan.Id
-	//         result["loan_account_id"] = loan.Id
-	//     }
-	// }
+	// Create loan application via origination service
+	if b.clients != nil && b.clients.LenderOrigination != nil {
+		whole := offer.Amount / 100
+		frac := offer.Amount % 100
+		if frac < 0 {
+			frac = -frac
+		}
+		amountStr := fmt.Sprintf("%d.%02d", whole, frac)
+		appObj := &originationv1.ApplicationObject{
+			RequestedAmount:  amountStr,
+			ApprovedAmount:   amountStr,
+			CurrencyCode:     offer.Currency,
+			Purpose:          fmt.Sprintf("Group loan offer %s", offerID),
+		}
+		appResp, appErr := b.clients.LenderOrigination.ApplicationSave(ctx, connect.NewRequest(
+			&originationv1.ApplicationSaveRequest{Data: appObj},
+		))
+		if appErr != nil {
+			logger.WithError(appErr).Warn("could not create loan application via origination")
+		} else if appResp.Msg.GetData() != nil {
+			offer.ApplicationID = appResp.Msg.GetData().GetId()
+			result["application_id"] = offer.ApplicationID
+
+			// Create loan account via loan management service
+			if b.clients.LenderLoanMgmt != nil && offer.ApplicationID != "" {
+				loanResp, loanErr := b.clients.LenderLoanMgmt.LoanAccountCreate(ctx, connect.NewRequest(
+					&loansv1.LoanAccountCreateRequest{ApplicationId: offer.ApplicationID},
+				))
+				if loanErr != nil {
+					logger.WithError(loanErr).Warn("could not create loan account via loan management")
+				} else if loanResp.Msg.GetData() != nil {
+					offer.LoanAccountID = loanResp.Msg.GetData().GetId()
+					result["loan_account_id"] = offer.LoanAccountID
+				}
+			}
+		}
+	} else {
+		logger.Warn("origination client not available, skipping loan account creation")
+	}
 
 	// Persist any updates to the offer
 	if emitErr := b.eventsMan.Emit(ctx, events.LoanOfferSaveEvent, offer); emitErr != nil {
