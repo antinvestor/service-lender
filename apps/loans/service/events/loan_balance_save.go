@@ -3,6 +3,7 @@ package events //nolint:dupl // similar event handlers for different entity type
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util"
@@ -47,9 +48,13 @@ func (e *LoanBalanceSave) Execute(ctx context.Context, payload any) error {
 
 	existing, getErr := e.loanBalanceRepo.GetByID(ctx, lb.GetID())
 	if getErr == nil && existing != nil {
-		if _, err := e.loanBalanceRepo.Update(ctx, lb); err != nil {
+		rowsAffected, err := e.loanBalanceRepo.Update(ctx, lb)
+		if err != nil {
 			logger.WithError(err).Error("could not update loan balance in db")
 			return err
+		}
+		if rowsAffected == 0 {
+			return fmt.Errorf("optimistic lock conflict: loan balance %s was modified concurrently (version %d)", lb.GetID(), lb.GetVersion())
 		}
 		logger.Debug("event handler completed successfully")
 		return nil

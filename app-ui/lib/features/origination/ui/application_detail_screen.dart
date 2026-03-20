@@ -1400,6 +1400,50 @@ class _UnderwritingTab extends ConsumerWidget {
                 onPressed: saving
                     ? null
                     : () async {
+                        // Validate inputs before saving
+                        final creditScore =
+                            int.tryParse(creditScoreCtrl.text.trim());
+                        if (creditScore != null &&
+                            (creditScore < 0 || creditScore > 999)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Credit score must be between 0 and 999')),
+                          );
+                          return;
+                        }
+
+                        final rate =
+                            double.tryParse(approvedRateCtrl.text.trim());
+                        if (rate != null && (rate < 0 || rate > 100)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Rate must be between 0 and 100')),
+                          );
+                          return;
+                        }
+
+                        if (outcome ==
+                                UnderwritingOutcome
+                                    .UNDERWRITING_OUTCOME_APPROVE ||
+                            outcome ==
+                                UnderwritingOutcome
+                                    .UNDERWRITING_OUTCOME_COUNTER_OFFER) {
+                          final amount = double.tryParse(
+                              approvedAmountCtrl.text.trim());
+                          final term =
+                              int.tryParse(approvedTermCtrl.text.trim());
+                          if (amount == null || amount <= 0 || term == null || term <= 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Approved amount and term are required for approval')),
+                            );
+                            return;
+                          }
+                        }
+
                         setDialogState(() => saving = true);
                         try {
                           // Get the audit context for decidedBy and properties

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
@@ -10,6 +11,18 @@ import (
 
 	"github.com/antinvestor/service-lender/apps/funding/service/models"
 )
+
+// sanitizeJSONKey removes any characters that could break JSON structure,
+// allowing only alphanumeric characters, hyphens, and underscores.
+func sanitizeJSONKey(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
 
 // InvestorAccountRepository provides data access for investor accounts.
 type InvestorAccountRepository interface {
@@ -78,10 +91,10 @@ func (r *investorAccountRepository) GetEligibleForLoan(
 		Where("max_exposure = 0 OR (reserved_balance + ?) <= max_exposure", amount)
 
 	if productType != "" {
-		db = db.Where("allowed_products IS NULL OR allowed_products @> ?", fmt.Sprintf(`{"%s": true}`, productType))
+		db = db.Where("allowed_products IS NULL OR allowed_products @> ?", fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(productType)))
 	}
 	if region != "" {
-		db = db.Where("allowed_regions IS NULL OR allowed_regions @> ?", fmt.Sprintf(`{"%s": true}`, region))
+		db = db.Where("allowed_regions IS NULL OR allowed_regions @> ?", fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(region)))
 	}
 
 	// Order by utilization ratio ASC: investors whose capital is least deployed
@@ -104,7 +117,7 @@ func (r *investorAccountRepository) GetAffiliatedForGroup(
 ) ([]*models.InvestorAccount, error) {
 	var accounts []*models.InvestorAccount
 	err := r.Pool().DB(ctx, true).
-		Where("group_affiliations @> ?", fmt.Sprintf(`{"%s": true}`, groupID)).
+		Where("group_affiliations @> ?", fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(groupID))).
 		Where("currency = ?", currency).
 		Where("state = ?", 3). // StateActive
 		Where("min_interest_rate = 0 OR min_interest_rate <= ?", interestRate).
