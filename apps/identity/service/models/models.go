@@ -2,11 +2,57 @@ package models
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 )
+
+// MinorUnitsToString converts an int64 minor-unit amount (e.g. cents) to a
+// decimal string with two fractional digits. 123456 -> "1234.56".
+func MinorUnitsToString(v int64) string {
+	whole := v / 100
+	frac := v % 100
+	if frac < 0 {
+		frac = -frac
+	}
+	return fmt.Sprintf("%d.%02d", whole, frac)
+}
+
+// StringToMinorUnits parses a decimal string (e.g. "1234.56") into int64 minor
+// units. Uses string splitting to avoid float precision issues. Returns 0 on
+// parse error.
+func StringToMinorUnits(s string) int64 {
+	if s == "" {
+		return 0
+	}
+	negative := false
+	if len(s) > 0 && s[0] == '-' {
+		negative = true
+		s = s[1:]
+	}
+	parts := strings.SplitN(s, ".", 2)
+	whole, _ := strconv.ParseInt(parts[0], 10, 64)
+	var frac int64
+	if len(parts) == 2 {
+		f := parts[1]
+		if len(f) > 2 {
+			f = f[:2]
+		}
+		for len(f) < 2 {
+			f += "0"
+		}
+		frac, _ = strconv.ParseInt(f, 10, 64)
+	}
+	result := whole*100 + frac
+	if negative {
+		return -result
+	}
+	return result
+}
 
 // Bank represents a top-level lending institution mapped to a partition.
 type Bank struct {
@@ -20,8 +66,8 @@ type Bank struct {
 
 func (m *Bank) TableName() string { return "banks" }
 
-func (m *Bank) ToAPI() *lenderv1.BankObject {
-	return &lenderv1.BankObject{
+func (m *Bank) ToAPI() *identityv1.BankObject {
+	return &identityv1.BankObject{
 		Id:          m.GetID(),
 		PartitionId: m.PartitionID,
 		Name:        m.Name,
@@ -32,7 +78,7 @@ func (m *Bank) ToAPI() *lenderv1.BankObject {
 	}
 }
 
-func BankFromAPI(ctx context.Context, obj *lenderv1.BankObject) *Bank {
+func BankFromAPI(ctx context.Context, obj *identityv1.BankObject) *Bank {
 	if obj == nil {
 		return nil
 	}
@@ -70,8 +116,8 @@ type Branch struct {
 
 func (m *Branch) TableName() string { return "branches" }
 
-func (m *Branch) ToAPI() *lenderv1.BranchObject {
-	return &lenderv1.BranchObject{
+func (m *Branch) ToAPI() *identityv1.BranchObject {
+	return &identityv1.BranchObject{
 		Id:          m.GetID(),
 		BankId:      m.BankID,
 		PartitionId: m.PartitionID,
@@ -83,7 +129,7 @@ func (m *Branch) ToAPI() *lenderv1.BranchObject {
 	}
 }
 
-func BranchFromAPI(ctx context.Context, obj *lenderv1.BranchObject) *Branch {
+func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
 	if obj == nil {
 		return nil
 	}
@@ -125,13 +171,13 @@ type Agent struct {
 
 func (m *Agent) TableName() string { return "agents" }
 
-func (m *Agent) ToAPI() *lenderv1.AgentObject {
-	return &lenderv1.AgentObject{
+func (m *Agent) ToAPI() *identityv1.AgentObject {
+	return &identityv1.AgentObject{
 		Id:            m.GetID(),
 		BranchId:      m.BranchID,
 		ParentAgentId: m.ParentAgentID,
 		ProfileId:     m.ProfileID,
-		AgentType:     lenderv1.AgentType(m.AgentType),
+		AgentType:     identityv1.AgentType(m.AgentType),
 		Name:          m.Name,
 		GeoId:         m.GeoID,
 		Depth:         m.Depth,
@@ -140,7 +186,7 @@ func (m *Agent) ToAPI() *lenderv1.AgentObject {
 	}
 }
 
-func AgentFromAPI(ctx context.Context, obj *lenderv1.AgentObject) *Agent {
+func AgentFromAPI(ctx context.Context, obj *identityv1.AgentObject) *Agent {
 	if obj == nil {
 		return nil
 	}
@@ -168,35 +214,74 @@ func AgentFromAPI(ctx context.Context, obj *lenderv1.AgentObject) *Agent {
 	return model
 }
 
-// Borrower represents a loan recipient assigned to an agent.
-type Borrower struct {
+// Client represents a loan recipient always assigned to an agent.
+// Clients exist independently of groups. Product-level code links
+// clients to memberships where needed.
+//
+// Credit limits:
+//   - SystemCreditLimit: hard maximum that evolves with client performance.
+//     Can only be changed through a verified CreditLimitChangeRequest.
+//   - AgentCreditLimit: set by the responsible agent, between 0 and SystemCreditLimit.
+//     Controls what the agent is willing to issue to this client.
+//   - Effective limit = min(SystemCreditLimit, AgentCreditLimit).
+type Client struct {
 	data.BaseModel
-	AgentID    string `gorm:"type:varchar(50);index:idx_borrower_agent"`
-	ProfileID  string `gorm:"type:varchar(50);uniqueIndex:uq_borrower_profile"`
-	Name       string `gorm:"type:varchar(255)"`
-	State      int32
-	Properties data.JSONMap
+	AgentID           string `gorm:"type:varchar(50);index:idx_client_agent;not null"`
+	ProfileID         string `gorm:"type:varchar(50);uniqueIndex:uq_client_profile"`
+	Name              string `gorm:"type:varchar(255)"`
+	CurrencyCode      string `gorm:"type:varchar(3)"`
+	SystemCreditLimit int64  // minor units — hard max, performance-based
+	AgentCreditLimit  int64  // minor units — agent-controlled, 0 to SystemCreditLimit
+	State             int32
+	Properties        data.JSONMap
 }
 
-func (m *Borrower) TableName() string { return "borrowers" }
+func (m *Client) TableName() string { return "clients" }
 
-func (m *Borrower) ToAPI() *lenderv1.BorrowerObject {
-	return &lenderv1.BorrowerObject{
+// EffectiveCreditLimit returns the lower of the two limits.
+// If either limit is zero, the other applies. If both are zero, no credit.
+func (m *Client) EffectiveCreditLimit() int64 {
+	sys := m.SystemCreditLimit
+	agent := m.AgentCreditLimit
+	if sys <= 0 {
+		return 0
+	}
+	if agent <= 0 {
+		return 0
+	}
+	if agent < sys {
+		return agent
+	}
+	return sys
+}
+
+func (m *Client) ToAPI() *identityv1.ClientObject {
+	// Copy properties so we don't mutate the model's map
+	props := make(data.JSONMap, len(m.Properties)+3)
+	for k, v := range m.Properties {
+		props[k] = v
+	}
+	// Ensure credit limits are visible in properties for downstream consumers
+	props["system_credit_limit"] = float64(m.SystemCreditLimit)
+	props["agent_credit_limit"] = float64(m.AgentCreditLimit)
+	props["currency_code"] = m.CurrencyCode
+
+	return &identityv1.ClientObject{
 		Id:         m.GetID(),
 		AgentId:    m.AgentID,
 		ProfileId:  m.ProfileID,
 		Name:       m.Name,
 		State:      commonv1.STATE(m.State),
-		Properties: m.Properties.ToProtoStruct(),
+		Properties: props.ToProtoStruct(),
 	}
 }
 
-func BorrowerFromAPI(ctx context.Context, obj *lenderv1.BorrowerObject) *Borrower {
+func ClientFromAPI(ctx context.Context, obj *identityv1.ClientObject) *Client {
 	if obj == nil {
 		return nil
 	}
 
-	model := &Borrower{
+	model := &Client{
 		AgentID:   obj.GetAgentId(),
 		ProfileID: obj.GetProfileId(),
 		Name:      obj.GetName(),
@@ -215,16 +300,161 @@ func BorrowerFromAPI(ctx context.Context, obj *lenderv1.BorrowerObject) *Borrowe
 	return model
 }
 
-// BorrowerAssignmentHistory records borrower reassignment events.
-type BorrowerAssignmentHistory struct {
+// CreditLimitChangeRequest records a request to change the system credit limit.
+// Changes to the hard limit must go through a verification and approval process.
+type CreditLimitChangeRequest struct {
 	data.BaseModel
-	BorrowerID      string `gorm:"type:varchar(50);index:idx_bah_borrower"`
+	ClientID       string `gorm:"type:varchar(50);index:idx_clcr_client;not null"`
+	CurrentLimit   int64  // minor units — limit at time of request
+	RequestedLimit int64  // minor units — proposed new limit
+	CurrencyCode   string `gorm:"type:varchar(3)"`
+	Reason         string `gorm:"type:text"`
+	RequestedBy    string `gorm:"type:varchar(50)"` // agent or system user who initiated
+	ReviewedBy     string `gorm:"type:varchar(50)"` // who approved/rejected
+	ReviewNotes    string `gorm:"type:text"`
+	Status         int32  // 1=pending, 3=approved, 5=rejected
+	Properties     data.JSONMap
+}
+
+func (m *CreditLimitChangeRequest) TableName() string { return "credit_limit_change_requests" }
+
+// Group represents a collective entity (e.g. SACCO group) in the lending hierarchy.
+type Group struct {
+	data.BaseModel
+	AgentID      string `gorm:"type:varchar(50);index:idx_group_agent"`
+	BranchID     string `gorm:"type:varchar(50);index:idx_group_branch"`
+	ProfileID    string `gorm:"type:varchar(50)"`
+	Name         string `gorm:"type:varchar(255)"`
+	GroupType    int32
+	CurrencyCode string `gorm:"type:varchar(10)"`
+	SavingAmount int64
+	TimeZone     string `gorm:"type:varchar(50)"`
+	MinMembers   int32
+	MaxMembers   int32
+	State        int32
+	Properties   data.JSONMap
+}
+
+func (m *Group) TableName() string { return "groups" }
+
+func (m *Group) ToAPI() *identityv1.GroupObject {
+	return &identityv1.GroupObject{
+		Id:           m.GetID(),
+		AgentId:      m.AgentID,
+		BranchId:     m.BranchID,
+		ProfileId:    m.ProfileID,
+		Name:         m.Name,
+		GroupType:    identityv1.GroupType(m.GroupType),
+		CurrencyCode: m.CurrencyCode,
+		SavingAmount: MinorUnitsToString(m.SavingAmount),
+		TimeZone:     m.TimeZone,
+		MinMembers:   m.MinMembers,
+		MaxMembers:   m.MaxMembers,
+		State:        commonv1.STATE(m.State),
+		Properties:   m.Properties.ToProtoStruct(),
+	}
+}
+
+func GroupFromAPI(ctx context.Context, obj *identityv1.GroupObject) *Group {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Group{
+		AgentID:      obj.GetAgentId(),
+		BranchID:     obj.GetBranchId(),
+		ProfileID:    obj.GetProfileId(),
+		Name:         obj.GetName(),
+		GroupType:    int32(obj.GetGroupType()),
+		CurrencyCode: obj.GetCurrencyCode(),
+		SavingAmount: StringToMinorUnits(obj.GetSavingAmount()),
+		TimeZone:     obj.GetTimeZone(),
+		MinMembers:   obj.GetMinMembers(),
+		MaxMembers:   obj.GetMaxMembers(),
+		State:        int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// Membership tracks a profile's affiliation with a group.
+type Membership struct {
+	data.BaseModel
+	GroupID        string `gorm:"type:varchar(50);index:idx_membership_group"`
+	ProfileID      string `gorm:"type:varchar(50);index:idx_membership_profile"`
+	Name           string `gorm:"type:varchar(255)"`
+	Role           int32
+	MembershipType int32
+	OrderNo        int32
+	ContactID      string `gorm:"type:varchar(50)"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *Membership) TableName() string { return "memberships" }
+
+func (m *Membership) ToAPI() *identityv1.MembershipObject {
+	return &identityv1.MembershipObject{
+		Id:             m.GetID(),
+		GroupId:        m.GroupID,
+		ProfileId:      m.ProfileID,
+		Name:           m.Name,
+		Role:           identityv1.MembershipRole(m.Role),
+		MembershipType: identityv1.MembershipType(m.MembershipType),
+		OrderNo:        m.OrderNo,
+		ContactId:      m.ContactID,
+		State:          commonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
+	}
+}
+
+func MembershipFromAPI(ctx context.Context, obj *identityv1.MembershipObject) *Membership {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Membership{
+		GroupID:        obj.GetGroupId(),
+		ProfileID:      obj.GetProfileId(),
+		Name:           obj.GetName(),
+		Role:           int32(obj.GetRole()),
+		MembershipType: int32(obj.GetMembershipType()),
+		OrderNo:        obj.GetOrderNo(),
+		ContactID:      obj.GetContactId(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ClientAssignmentHistory records client reassignment events.
+type ClientAssignmentHistory struct {
+	data.BaseModel
+	ClientID        string `gorm:"type:varchar(50);index:idx_cah_client"`
 	PreviousAgentID string `gorm:"type:varchar(50)"`
 	NewAgentID      string `gorm:"type:varchar(50)"`
 	Reason          string `gorm:"type:text"`
 }
 
-func (m *BorrowerAssignmentHistory) TableName() string { return "borrower_assignment_history" }
+func (m *ClientAssignmentHistory) TableName() string { return "client_assignment_history" }
 
 // Investor represents an independent investor linked to a profile.
 type Investor struct {
@@ -237,8 +467,8 @@ type Investor struct {
 
 func (m *Investor) TableName() string { return "investors" }
 
-func (m *Investor) ToAPI() *lenderv1.InvestorObject {
-	return &lenderv1.InvestorObject{
+func (m *Investor) ToAPI() *identityv1.InvestorObject {
+	return &identityv1.InvestorObject{
 		Id:         m.GetID(),
 		ProfileId:  m.ProfileID,
 		Name:       m.Name,
@@ -247,7 +477,7 @@ func (m *Investor) ToAPI() *lenderv1.InvestorObject {
 	}
 }
 
-func InvestorFromAPI(ctx context.Context, obj *lenderv1.InvestorObject) *Investor {
+func InvestorFromAPI(ctx context.Context, obj *identityv1.InvestorObject) *Investor {
 	if obj == nil {
 		return nil
 	}
@@ -283,19 +513,19 @@ type SystemUser struct {
 
 func (m *SystemUser) TableName() string { return "system_users" }
 
-func (m *SystemUser) ToAPI() *lenderv1.SystemUserObject {
-	return &lenderv1.SystemUserObject{
+func (m *SystemUser) ToAPI() *identityv1.SystemUserObject {
+	return &identityv1.SystemUserObject{
 		Id:               m.GetID(),
 		ProfileId:        m.ProfileID,
 		BranchId:         m.BranchID,
-		Role:             lenderv1.SystemUserRole(m.Role),
+		Role:             identityv1.SystemUserRole(m.Role),
 		ServiceAccountId: m.ServiceAccountID,
 		State:            commonv1.STATE(m.State),
 		Properties:       m.Properties.ToProtoStruct(),
 	}
 }
 
-func SystemUserFromAPI(ctx context.Context, obj *lenderv1.SystemUserObject) *SystemUser {
+func SystemUserFromAPI(ctx context.Context, obj *identityv1.SystemUserObject) *SystemUser {
 	if obj == nil {
 		return nil
 	}

@@ -23,7 +23,10 @@ type VerificationTaskBusiness interface {
 		req *originationv1.VerificationTaskSearchRequest,
 		consumer func(ctx context.Context, batch []*originationv1.VerificationTaskObject) error,
 	) error
-	Complete(ctx context.Context, req *originationv1.VerificationTaskCompleteRequest) (*originationv1.VerificationTaskObject, error)
+	Complete(
+		ctx context.Context,
+		req *originationv1.VerificationTaskCompleteRequest,
+	) (*originationv1.VerificationTaskObject, error)
 }
 
 type verificationTaskBusiness struct {
@@ -45,7 +48,10 @@ func NewVerificationTaskBusiness(
 	}
 }
 
-func (b *verificationTaskBusiness) Save(ctx context.Context, obj *originationv1.VerificationTaskObject) (*originationv1.VerificationTaskObject, error) {
+func (b *verificationTaskBusiness) Save(
+	ctx context.Context,
+	obj *originationv1.VerificationTaskObject,
+) (*originationv1.VerificationTaskObject, error) {
 	logger := util.Log(ctx).WithField("method", "VerificationTaskBusiness.Save")
 
 	isNew := obj.GetId() == ""
@@ -72,7 +78,6 @@ func (b *verificationTaskBusiness) Get(ctx context.Context, id string) (*origina
 	return vt.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *verificationTaskBusiness) Search(
 	ctx context.Context,
 	req *originationv1.VerificationTaskSearchRequest,

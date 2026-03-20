@@ -1,0 +1,46 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	"github.com/pitabwire/frame/workerpool"
+
+	"github.com/antinvestor/service-lender/apps/loans/service/models"
+)
+
+type RepaymentScheduleRepository interface {
+	datastore.BaseRepository[*models.RepaymentSchedule]
+	GetActivByLoanAccountID(ctx context.Context, loanAccountID string) (*models.RepaymentSchedule, error)
+}
+
+type repaymentScheduleRepository struct {
+	datastore.BaseRepository[*models.RepaymentSchedule]
+}
+
+func NewRepaymentScheduleRepository(
+	ctx context.Context,
+	dbPool pool.Pool,
+	workMan workerpool.Manager,
+) RepaymentScheduleRepository {
+	return &repaymentScheduleRepository{
+		BaseRepository: datastore.NewBaseRepository[*models.RepaymentSchedule](
+			ctx, dbPool, workMan, func() *models.RepaymentSchedule { return &models.RepaymentSchedule{} },
+		),
+	}
+}
+
+func (repo *repaymentScheduleRepository) GetActivByLoanAccountID(
+	ctx context.Context,
+	loanAccountID string,
+) (*models.RepaymentSchedule, error) {
+	schedule := models.RepaymentSchedule{}
+	err := repo.Pool().DB(ctx, true).
+		Where("loan_account_id = ? AND is_active = ?", loanAccountID, true).
+		First(&schedule).Error
+	if err != nil {
+		return nil, err
+	}
+	return &schedule, nil
+}

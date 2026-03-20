@@ -17,6 +17,11 @@ import '../features/field/ui/reassignment_screen.dart';
 import '../features/organization/ui/bank_detail_screen.dart';
 import '../features/organization/ui/banks_screen.dart';
 import '../features/organization/ui/investors_screen.dart';
+import '../features/loan_management/ui/loan_account_detail_screen.dart';
+import '../features/loan_management/ui/loan_accounts_screen.dart';
+import '../features/origination/ui/application_detail_screen.dart';
+import '../features/origination/ui/applications_screen.dart';
+import '../features/origination/ui/loan_products_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
 part 'router.g.dart';
@@ -141,6 +146,51 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/field/reassignment',
                 builder: (context, state) => const ReassignmentScreen(),
+              ),
+            ],
+          ),
+
+          // Origination — Loan Products
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/origination/products',
+                builder: (context, state) => const LoanProductsScreen(),
+              ),
+            ],
+          ),
+          // Origination — Applications (list + detail)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/origination/applications',
+                builder: (context, state) => const ApplicationsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':applicationId',
+                    builder: (context, state) => ApplicationDetailScreen(
+                      applicationId: state.pathParameters['applicationId']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Loan Management — Loan Accounts (list + detail)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/loans',
+                builder: (context, state) => const LoanAccountsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':loanId',
+                    builder: (context, state) => LoanAccountDetailScreen(
+                      loanId: state.pathParameters['loanId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -1,0 +1,68 @@
+package events //nolint:dupl // similar event handlers for different entity types
+
+import (
+	"context"
+	"errors"
+
+	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-lender/apps/loans/service/models"
+	"github.com/antinvestor/service-lender/apps/loans/service/repository"
+)
+
+const RepaymentScheduleSaveEvent = "repayment_schedule.save"
+
+type RepaymentScheduleSave struct {
+	repaymentScheduleRepo repository.RepaymentScheduleRepository
+}
+
+func NewRepaymentScheduleSave(
+	_ context.Context,
+	repaymentScheduleRepo repository.RepaymentScheduleRepository,
+) *RepaymentScheduleSave {
+	return &RepaymentScheduleSave{repaymentScheduleRepo: repaymentScheduleRepo}
+}
+
+func (e *RepaymentScheduleSave) Name() string     { return RepaymentScheduleSaveEvent }
+func (e *RepaymentScheduleSave) PayloadType() any { return &models.RepaymentSchedule{} }
+
+func (e *RepaymentScheduleSave) Validate(_ context.Context, payload any) error {
+	rs, ok := payload.(*models.RepaymentSchedule)
+	if !ok {
+		return errors.New("payload is not of type models.RepaymentSchedule")
+	}
+	if rs.GetID() == "" {
+		return errors.New("repayment schedule ID should already have been set")
+	}
+	return nil
+}
+
+func (e *RepaymentScheduleSave) Execute(ctx context.Context, payload any) error {
+	rs, ok := payload.(*models.RepaymentSchedule)
+	if !ok {
+		return errors.New("payload is not of type models.RepaymentSchedule")
+	}
+
+	logger := util.Log(ctx).WithField("type", e.Name()).WithField("repayment_schedule_id", rs.GetID())
+	defer logger.Release()
+	logger.Debug("event handler started")
+
+	existing, getErr := e.repaymentScheduleRepo.GetByID(ctx, rs.GetID())
+	if getErr == nil && existing != nil {
+		if _, err := e.repaymentScheduleRepo.Update(ctx, rs); err != nil {
+			logger.WithError(err).Error("could not update repayment schedule in db")
+			return err
+		}
+		logger.Debug("event handler completed successfully")
+		return nil
+	}
+
+	if err := e.repaymentScheduleRepo.Create(ctx, rs); err != nil && !data.ErrorIsDuplicateKey(err) {
+		logger.WithError(err).Error("could not create repayment schedule in db")
+		return err
+	}
+
+	logger.Debug("event handler completed successfully")
+	return nil
+}

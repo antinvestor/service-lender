@@ -1,0 +1,759 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package savings.v1;
+
+// -----------------------------------------------------
+// Core notes (normative):
+// - Savings Service manages savings products, accounts, deposits, withdrawals,
+//   and interest accruals
+// - Handles the full savings account lifecycle from creation through to closure
+// - Integrates with Identity, Ledger, Payment, and Notification services
+// - All timestamps are RFC3339 / google.protobuf.Timestamp
+// - All monetary amounts use google.type.Money for precision
+// - All rates are decimal percentage strings (e.g. "12.50" = 12.50%)
+// -----------------------------------------------------
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/type/money.proto";
+
+option go_package = "github.com/antinvestor/apis/go/savings/v1;savingsv1";
+option java_multiple_files = true;
+option java_package = "savingsv1";
+option (gnostic.openapi.v3.document) = {
+  info: {
+    title: "Lender Savings Service"
+    version: "v1.0.0"
+    description: "The Lender Savings Service manages savings products, accounts, deposits, withdrawals, and interest accruals. It supports individual and group savings accounts with configurable product terms."
+    contact: {
+      name: "Ant Investor Ltd"
+      url: "https://github.com/antinvestor/service-lender"
+      email: "info@antinvestor.com"
+    }
+    license: {
+      name: "Apache License"
+      url: "https://github.com/antinvestor/apis/blob/master/LICENSE"
+    }
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+
+// -----------------------------------------------------
+// Enumerations
+// -----------------------------------------------------
+
+// SavingsPeriodType defines the savings collection frequency.
+enum SavingsPeriodType {
+  SAVINGS_PERIOD_TYPE_UNSPECIFIED = 0;
+  SAVINGS_PERIOD_TYPE_DAILY = 1;
+  SAVINGS_PERIOD_TYPE_WEEKLY = 2;
+  SAVINGS_PERIOD_TYPE_BIWEEKLY = 3;
+  SAVINGS_PERIOD_TYPE_MONTHLY = 4;
+  SAVINGS_PERIOD_TYPE_QUARTERLY = 5;
+}
+
+// CompoundingFrequency defines how often interest is compounded.
+enum CompoundingFrequency {
+  COMPOUNDING_FREQUENCY_UNSPECIFIED = 0;
+  COMPOUNDING_FREQUENCY_DAILY = 1;
+  COMPOUNDING_FREQUENCY_WEEKLY = 2;
+  COMPOUNDING_FREQUENCY_MONTHLY = 3;
+  COMPOUNDING_FREQUENCY_QUARTERLY = 4;
+  COMPOUNDING_FREQUENCY_ANNUALLY = 5;
+}
+
+// SavingsAccountOwnerType defines the type of account owner.
+enum SavingsAccountOwnerType {
+  SAVINGS_ACCOUNT_OWNER_TYPE_UNSPECIFIED = 0;
+  SAVINGS_ACCOUNT_OWNER_TYPE_INDIVIDUAL = 1;
+  SAVINGS_ACCOUNT_OWNER_TYPE_GROUP = 2;
+}
+
+// SavingsAccountStatus defines the status of a savings account.
+enum SavingsAccountStatus {
+  SAVINGS_ACCOUNT_STATUS_UNSPECIFIED = 0;
+  SAVINGS_ACCOUNT_STATUS_ACTIVE = 1;
+  SAVINGS_ACCOUNT_STATUS_FROZEN = 2;
+  SAVINGS_ACCOUNT_STATUS_CLOSED = 3;
+}
+
+// DepositStatus defines the status of a deposit.
+enum DepositStatus {
+  DEPOSIT_STATUS_UNSPECIFIED = 0;
+  DEPOSIT_STATUS_PENDING = 1;
+  DEPOSIT_STATUS_COMPLETED = 2;
+  DEPOSIT_STATUS_REVERSED = 3;
+}
+
+// WithdrawalStatus defines the status of a withdrawal.
+enum WithdrawalStatus {
+  WITHDRAWAL_STATUS_UNSPECIFIED = 0;
+  WITHDRAWAL_STATUS_PENDING = 1;
+  WITHDRAWAL_STATUS_APPROVED = 2;
+  WITHDRAWAL_STATUS_COMPLETED = 3;
+  WITHDRAWAL_STATUS_REJECTED = 4;
+  WITHDRAWAL_STATUS_REVERSED = 5;
+}
+
+// -----------------------------------------------------
+// Entity Messages
+// -----------------------------------------------------
+
+// SavingsProductObject defines savings terms, rates, and rules for a bank.
+message SavingsProductObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string bank_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 3 [(buf.validate.field).string.min_len = 1];
+  string code = 4 [(buf.validate.field).string.min_len = 1];
+  string description = 5;
+  string currency_code = 6 [(buf.validate.field).string.len = 3]; // ISO 4217
+  string interest_rate = 7; // Annual interest rate as decimal percentage e.g. "5.50"
+  CompoundingFrequency compounding_frequency = 8;
+  SavingsPeriodType period_type = 9;
+  google.type.Money min_deposit = 10;
+  google.type.Money max_deposit = 11;
+  google.protobuf.Struct withdrawal_rules = 12;
+  common.v1.STATE state = 13;
+  google.protobuf.Struct properties = 14;
+}
+
+// SavingsAccountObject represents an individual or group savings account.
+message SavingsAccountObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string product_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string owner_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  SavingsAccountOwnerType owner_type = 4;
+  string bank_id = 5 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 6 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 7 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string currency_code = 8 [(buf.validate.field).string.len = 3];
+  SavingsAccountStatus status = 9;
+  string ledger_account_id = 10;
+  string payment_account_ref = 11;
+  google.protobuf.Struct properties = 12;
+}
+
+// DepositObject records a deposit into a savings account.
+message DepositObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string savings_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 3;
+  reserved 4;
+  DepositStatus status = 5;
+  string payment_reference = 6;
+  string ledger_transaction_id = 7;
+  string channel = 8;
+  string payer_reference = 9;
+  string idempotency_key = 10;
+  google.protobuf.Struct properties = 11;
+}
+
+// WithdrawalObject records a withdrawal from a savings account.
+message WithdrawalObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string savings_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 3;
+  reserved 4;
+  WithdrawalStatus status = 5;
+  string payment_reference = 6;
+  string ledger_transaction_id = 7;
+  string channel = 8;
+  string recipient_reference = 9;
+  string reason = 10;
+  string idempotency_key = 11;
+  google.protobuf.Struct properties = 12;
+}
+
+// InterestAccrualObject records periodic interest accrued on a savings account.
+message InterestAccrualObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string savings_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 3;
+  string period_start = 4; // RFC3339
+  string period_end = 5; // RFC3339
+  string rate_applied = 6; // Decimal percentage e.g. "5.50"
+  google.type.Money balance_used = 7; // Balance used for computation
+  string ledger_transaction_id = 8;
+  google.protobuf.Struct properties = 9;
+}
+
+// SavingsBalanceObject represents the current balance of a savings account.
+message SavingsBalanceObject {
+  string savings_account_id = 1;
+  google.type.Money available_balance = 2;
+  google.type.Money total_deposits = 3;
+  google.type.Money total_withdrawals = 4;
+  google.type.Money total_interest = 5;
+  string last_calculated_at = 6;
+}
+
+// SavingsStatementEntry represents a single line in a savings statement.
+message SavingsStatementEntry {
+  string date = 1;
+  string description = 2;
+  google.type.Money debit = 3;
+  google.type.Money credit = 4;
+  google.type.Money balance = 5;
+  string reference = 6;
+}
+
+// -----------------------------------------------------
+// Request/Response Messages
+// -----------------------------------------------------
+
+// --- SavingsProduct ---
+
+message SavingsProductSaveRequest {
+  SavingsProductObject data = 1 [(buf.validate.field).required = true];
+}
+
+message SavingsProductSaveResponse {
+  SavingsProductObject data = 1;
+}
+
+message SavingsProductGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message SavingsProductGetResponse {
+  SavingsProductObject data = 1;
+}
+
+message SavingsProductSearchRequest {
+  string query = 1;
+  string bank_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 3;
+}
+
+message SavingsProductSearchResponse {
+  repeated SavingsProductObject data = 1;
+}
+
+// --- SavingsAccount ---
+
+message SavingsAccountCreateRequest {
+  SavingsAccountObject data = 1 [(buf.validate.field).required = true];
+}
+
+message SavingsAccountCreateResponse {
+  SavingsAccountObject data = 1;
+}
+
+message SavingsAccountGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message SavingsAccountGetResponse {
+  SavingsAccountObject data = 1;
+}
+
+message SavingsAccountSearchRequest {
+  string query = 1;
+  string owner_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string product_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string bank_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  SavingsAccountStatus status = 5;
+  common.v1.PageCursor cursor = 6;
+}
+
+message SavingsAccountSearchResponse {
+  repeated SavingsAccountObject data = 1;
+}
+
+message SavingsAccountFreezeRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message SavingsAccountFreezeResponse {
+  SavingsAccountObject data = 1;
+}
+
+message SavingsAccountCloseRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message SavingsAccountCloseResponse {
+  SavingsAccountObject data = 1;
+}
+
+// --- Deposit ---
+
+message DepositRecordRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 2;
+  string payment_reference = 3;
+  string channel = 4;
+  string payer_reference = 5;
+  string idempotency_key = 6;
+}
+
+message DepositRecordResponse {
+  DepositObject data = 1;
+}
+
+message DepositGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message DepositGetResponse {
+  DepositObject data = 1;
+}
+
+message DepositSearchRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DepositStatus status = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message DepositSearchResponse {
+  repeated DepositObject data = 1;
+}
+
+// --- Withdrawal ---
+
+message WithdrawalRequestRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 2;
+  string channel = 3;
+  string recipient_reference = 4;
+  string reason = 5;
+  string idempotency_key = 6;
+}
+
+message WithdrawalRequestResponse {
+  WithdrawalObject data = 1;
+}
+
+message WithdrawalApproveRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message WithdrawalApproveResponse {
+  WithdrawalObject data = 1;
+}
+
+message WithdrawalGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message WithdrawalGetResponse {
+  WithdrawalObject data = 1;
+}
+
+message WithdrawalSearchRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  WithdrawalStatus status = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message WithdrawalSearchResponse {
+  repeated WithdrawalObject data = 1;
+}
+
+// --- Interest Accrual ---
+
+message InterestAccrualGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message InterestAccrualGetResponse {
+  InterestAccrualObject data = 1;
+}
+
+message InterestAccrualSearchRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 2;
+}
+
+message InterestAccrualSearchResponse {
+  repeated InterestAccrualObject data = 1;
+}
+
+// --- Balance & Statement ---
+
+message SavingsBalanceGetRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+}
+
+message SavingsBalanceGetResponse {
+  SavingsBalanceObject data = 1;
+}
+
+message SavingsStatementRequest {
+  string savings_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string from_date = 2;
+  string to_date = 3;
+}
+
+message SavingsStatementResponse {
+  SavingsAccountObject account = 1;
+  SavingsBalanceObject balance = 2;
+  repeated SavingsStatementEntry entries = 3;
+}
+
+// -----------------------------------------------------
+// Savings Service
+// -----------------------------------------------------
+
+// SavingsService manages savings products, accounts, deposits, withdrawals,
+// and interest accruals.
+// All RPCs require authentication via Bearer token.
+service SavingsService {
+  // SavingsProductSave creates or updates a savings product.
+  rpc SavingsProductSave(SavingsProductSaveRequest) returns (SavingsProductSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsProductSave"
+      summary: "Create or update a savings product"
+      description: "Creates a new savings product or updates an existing one. Savings products define terms, rates, and withdrawal rules."
+      tags: "SavingsProducts"
+    };
+  }
+
+  // SavingsProductGet retrieves a savings product by its ID.
+  rpc SavingsProductGet(SavingsProductGetRequest) returns (SavingsProductGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsProductGet"
+      summary: "Get a savings product by ID"
+      description: "Retrieves a savings product record by its unique identifier."
+      tags: "SavingsProducts"
+    };
+  }
+
+  // SavingsProductSearch finds savings products matching search criteria.
+  rpc SavingsProductSearch(SavingsProductSearchRequest) returns (stream SavingsProductSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsProductSearch"
+      summary: "Search savings products"
+      description: "Searches for savings products matching specified criteria."
+      tags: "SavingsProducts"
+    };
+  }
+
+  // SavingsAccountCreate creates a new savings account.
+  rpc SavingsAccountCreate(SavingsAccountCreateRequest) returns (SavingsAccountCreateResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsAccountCreate"
+      summary: "Create a savings account"
+      description: "Creates a new savings account for an individual or group."
+      tags: "SavingsAccounts"
+    };
+  }
+
+  // SavingsAccountGet retrieves a savings account by its ID.
+  rpc SavingsAccountGet(SavingsAccountGetRequest) returns (SavingsAccountGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsAccountGet"
+      summary: "Get a savings account by ID"
+      description: "Retrieves a savings account record by its unique identifier."
+      tags: "SavingsAccounts"
+    };
+  }
+
+  // SavingsAccountSearch finds savings accounts matching search criteria.
+  rpc SavingsAccountSearch(SavingsAccountSearchRequest) returns (stream SavingsAccountSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsAccountSearch"
+      summary: "Search savings accounts"
+      description: "Searches for savings accounts. Supports filtering by owner, product, bank, and status."
+      tags: "SavingsAccounts"
+    };
+  }
+
+  // SavingsAccountFreeze freezes a savings account.
+  rpc SavingsAccountFreeze(SavingsAccountFreezeRequest) returns (SavingsAccountFreezeResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsAccountFreeze"
+      summary: "Freeze a savings account"
+      description: "Freezes a savings account, preventing deposits and withdrawals."
+      tags: "SavingsAccounts"
+    };
+  }
+
+  // SavingsAccountClose closes a savings account.
+  rpc SavingsAccountClose(SavingsAccountCloseRequest) returns (SavingsAccountCloseResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsAccountClose"
+      summary: "Close a savings account"
+      description: "Closes a savings account permanently."
+      tags: "SavingsAccounts"
+    };
+  }
+
+  // DepositRecord records a deposit into a savings account.
+  rpc DepositRecord(DepositRecordRequest) returns (DepositRecordResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "depositRecord"
+      summary: "Record a deposit"
+      description: "Records a deposit into a savings account."
+      tags: "Deposits"
+    };
+  }
+
+  // DepositGet retrieves a deposit by its ID.
+  rpc DepositGet(DepositGetRequest) returns (DepositGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "depositGet"
+      summary: "Get a deposit by ID"
+      description: "Retrieves a deposit record by its unique identifier."
+      tags: "Deposits"
+    };
+  }
+
+  // DepositSearch finds deposits for a savings account.
+  rpc DepositSearch(DepositSearchRequest) returns (stream DepositSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "depositSearch"
+      summary: "Search deposits"
+      description: "Searches for deposits for a savings account."
+      tags: "Deposits"
+    };
+  }
+
+  // WithdrawalRequest requests a withdrawal from a savings account.
+  rpc WithdrawalRequest(WithdrawalRequestRequest) returns (WithdrawalRequestResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "withdrawalRequest"
+      summary: "Request a withdrawal"
+      description: "Requests a withdrawal from a savings account. May require approval based on withdrawal rules."
+      tags: "Withdrawals"
+    };
+  }
+
+  // WithdrawalApprove approves a pending withdrawal.
+  rpc WithdrawalApprove(WithdrawalApproveRequest) returns (WithdrawalApproveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "withdrawalApprove"
+      summary: "Approve a withdrawal"
+      description: "Approves a pending withdrawal request."
+      tags: "Withdrawals"
+    };
+  }
+
+  // WithdrawalGet retrieves a withdrawal by its ID.
+  rpc WithdrawalGet(WithdrawalGetRequest) returns (WithdrawalGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "withdrawalGet"
+      summary: "Get a withdrawal by ID"
+      description: "Retrieves a withdrawal record by its unique identifier."
+      tags: "Withdrawals"
+    };
+  }
+
+  // WithdrawalSearch finds withdrawals for a savings account.
+  rpc WithdrawalSearch(WithdrawalSearchRequest) returns (stream WithdrawalSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "withdrawalSearch"
+      summary: "Search withdrawals"
+      description: "Searches for withdrawals for a savings account."
+      tags: "Withdrawals"
+    };
+  }
+
+  // InterestAccrualGet retrieves an interest accrual by its ID.
+  rpc InterestAccrualGet(InterestAccrualGetRequest) returns (InterestAccrualGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "interestAccrualGet"
+      summary: "Get an interest accrual by ID"
+      description: "Retrieves an interest accrual record by its unique identifier."
+      tags: "InterestAccruals"
+    };
+  }
+
+  // InterestAccrualSearch finds interest accruals for a savings account.
+  rpc InterestAccrualSearch(InterestAccrualSearchRequest) returns (stream InterestAccrualSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "interestAccrualSearch"
+      summary: "Search interest accruals"
+      description: "Searches for interest accrual records for a savings account."
+      tags: "InterestAccruals"
+    };
+  }
+
+  // SavingsBalanceGet retrieves the current balance of a savings account.
+  rpc SavingsBalanceGet(SavingsBalanceGetRequest) returns (SavingsBalanceGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsBalanceGet"
+      summary: "Get savings balance"
+      description: "Retrieves the current balance for a savings account."
+      tags: "SavingsAccounts"
+    };
+  }
+
+  // SavingsStatement generates a savings statement for a date range.
+  rpc SavingsStatement(SavingsStatementRequest) returns (SavingsStatementResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "savingsStatement"
+      summary: "Get savings statement"
+      description: "Generates a savings statement with all transactions for the specified date range."
+      tags: "SavingsAccounts"
+    };
+  }
+}

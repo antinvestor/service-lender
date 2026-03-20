@@ -1,16 +1,32 @@
 version: v2
-name: buf.build/antinvestor/lender
+modules:
+  - path: identity
+    name: buf.build/antinvestor/identity
+  - path: field
+    name: buf.build/antinvestor/field
+  - path: origination
+    name: buf.build/antinvestor/origination
+  - path: loans
+    name: buf.build/antinvestor/loans
+  - path: savings
+    name: buf.build/antinvestor/savings
+  - path: funding
+    name: buf.build/antinvestor/funding
+  - path: operations
+    name: buf.build/antinvestor/operations
 deps:
   - buf.build/antinvestor/common
   - buf.build/bufbuild/protovalidate
   - buf.build/gnostic/gnostic
-
+  - buf.build/googleapis/googleapis
 lint:
   use:
     - STANDARD
   except:
     - FIELD_NOT_REQUIRED
     - PACKAGE_NO_IMPORT_CYCLE
+    - RPC_REQUEST_STANDARD_NAME
+    - RPC_RESPONSE_STANDARD_NAME
 breaking:
   use:
     - FILE

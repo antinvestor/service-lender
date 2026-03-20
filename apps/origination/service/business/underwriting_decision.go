@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -16,7 +17,10 @@ import (
 )
 
 type UnderwritingDecisionBusiness interface {
-	Save(ctx context.Context, obj *originationv1.UnderwritingDecisionObject) (*originationv1.UnderwritingDecisionObject, error)
+	Save(
+		ctx context.Context,
+		obj *originationv1.UnderwritingDecisionObject,
+	) (*originationv1.UnderwritingDecisionObject, error)
 	Get(ctx context.Context, id string) (*originationv1.UnderwritingDecisionObject, error)
 	Search(
 		ctx context.Context,
@@ -53,7 +57,10 @@ func NewUnderwritingDecisionBusiness(
 	}
 }
 
-func (b *underwritingDecisionBusiness) Save(ctx context.Context, obj *originationv1.UnderwritingDecisionObject) (*originationv1.UnderwritingDecisionObject, error) {
+func (b *underwritingDecisionBusiness) Save(
+	ctx context.Context,
+	obj *originationv1.UnderwritingDecisionObject,
+) (*originationv1.UnderwritingDecisionObject, error) {
 	logger := util.Log(ctx).WithField("method", "UnderwritingDecisionBusiness.Save")
 
 	ud := models.UnderwritingDecisionFromAPI(ctx, obj)
@@ -65,12 +72,18 @@ func (b *underwritingDecisionBusiness) Save(ctx context.Context, obj *originatio
 	}
 
 	// Drive application status based on the underwriting outcome
-	b.applyDecisionToApplication(ctx, logger, ud)
+	if err := b.applyDecisionToApplication(ctx, logger, ud); err != nil {
+		logger.WithError(err).Error("could not apply underwriting decision to application")
+		return nil, err
+	}
 
 	return ud.ToAPI(), nil
 }
 
-func (b *underwritingDecisionBusiness) Get(ctx context.Context, id string) (*originationv1.UnderwritingDecisionObject, error) {
+func (b *underwritingDecisionBusiness) Get(
+	ctx context.Context,
+	id string,
+) (*originationv1.UnderwritingDecisionObject, error) {
 	ud, err := b.udRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrUnderwritingDecisionNotFound
@@ -78,7 +91,6 @@ func (b *underwritingDecisionBusiness) Get(ctx context.Context, id string) (*ori
 	return ud.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *underwritingDecisionBusiness) Search(
 	ctx context.Context,
 	req *originationv1.UnderwritingDecisionSearchRequest,
@@ -127,9 +139,9 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 	ctx context.Context,
 	logger *util.LogEntry,
 	ud *models.UnderwritingDecision,
-) {
+) error {
 	if b.appBusiness == nil || ud.ApplicationID == "" {
-		return
+		return nil
 	}
 
 	outcome := originationv1.UnderwritingOutcome(ud.Outcome)
@@ -144,14 +156,16 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 			originationv1.ApplicationStatus_APPLICATION_STATUS_APPROVED,
 			"underwriting approved",
 		); transErr != nil {
-			logger.WithError(transErr).Warn("could not transition application to APPROVED")
-			return
+			return fmt.Errorf("could not transition application to APPROVED: %w", transErr)
 		}
 
 		// Update application with approved terms from decision.
 		// Re-fetch to get the APPROVED status written by TransitionStatus above.
 		app, getErr := b.appRepo.GetByID(ctx, ud.ApplicationID)
-		if getErr == nil {
+		if getErr != nil {
+			return fmt.Errorf("could not fetch application after approval: %w", getErr)
+		}
+		{
 			app.ApprovedAmount = ud.ApprovedAmount
 			app.ApprovedTermDays = ud.ApprovedTermDays
 			app.InterestRate = ud.ApprovedRate
@@ -163,7 +177,7 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 			app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_APPROVED)
 
 			if emitErr := b.eventsMan.Emit(ctx, events.ApplicationSaveEvent, app); emitErr != nil {
-				logger.WithError(emitErr).Warn("could not save approved terms on application")
+				return fmt.Errorf("could not save approved terms on application: %w", emitErr)
 			}
 		}
 
@@ -173,7 +187,7 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 			originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_GENERATED,
 			"offer generated from underwriting approval",
 		); transErr != nil {
-			logger.WithError(transErr).Warn("could not transition application to OFFER_GENERATED")
+			return fmt.Errorf("could not transition application to OFFER_GENERATED: %w", transErr)
 		}
 
 	case originationv1.UnderwritingOutcome_UNDERWRITING_OUTCOME_REJECT:
@@ -182,7 +196,7 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 			originationv1.ApplicationStatus_APPLICATION_STATUS_REJECTED,
 			ud.Reason,
 		); transErr != nil {
-			logger.WithError(transErr).Warn("could not transition application to REJECTED")
+			return fmt.Errorf("could not transition application to REJECTED: %w", transErr)
 		}
 
 	case originationv1.UnderwritingOutcome_UNDERWRITING_OUTCOME_REFER:
@@ -190,4 +204,6 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 		logger.WithField("application_id", ud.ApplicationID).
 			Info("underwriting decision is REFER, awaiting manual review")
 	}
+
+	return nil
 }

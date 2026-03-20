@@ -6,32 +6,33 @@ toolchain go1.26.1
 
 require (
 	buf.build/gen/go/antinvestor/common/protocolbuffers/go v1.36.11-20260219054105-fe125014d75c.1
-	buf.build/gen/go/antinvestor/lender/connectrpc/go v1.19.1-20260313160105-6b05360986ee.2
-	buf.build/gen/go/antinvestor/lender/protocolbuffers/go v1.36.11-20260313160105-6b05360986ee.1
+	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260320070057-6a2801e08f33.2
+	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260320070057-6a2801e08f33.1
+	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260320072854-75c878fc6cab.2
+	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260320072854-75c878fc6cab.1
+	buf.build/gen/go/antinvestor/notification/connectrpc/go v1.19.1-20260219061917-db3557eecaba.2
+	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260219061917-db3557eecaba.1
+	buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260320072853-f3a7fc59559b.2
+	buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260320072853-f3a7fc59559b.1
 	buf.build/gen/go/antinvestor/partition/connectrpc/go v1.19.1-20260306034803-bec59545427a.2
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260219062039-499f582dea7e.2
+	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260320040359-b2a0d7722dc4.2
+	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260320040359-b2a0d7722dc4.1
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/apis/go/common v1.55.17
 	github.com/antinvestor/apis/go/partition v1.55.17
 	github.com/antinvestor/apis/go/profile v1.55.17
+	github.com/cockroachdb/apd/v3 v3.2.2
 	github.com/pitabwire/frame v1.80.1
 	github.com/pitabwire/util v0.6.1
+	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7
+	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
 )
 
 require (
-	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260320070057-6a2801e08f33.2 // indirect
-	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260320070057-6a2801e08f33.1 // indirect
-	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260320072854-75c878fc6cab.2 // indirect
-	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260320072854-75c878fc6cab.1 // indirect
-	buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260320072901-626547abe3e7.2 // indirect
-	buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260320072901-626547abe3e7.1 // indirect
-	buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260320072853-f3a7fc59559b.2 // indirect
-	buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260320072853-f3a7fc59559b.1 // indirect
 	buf.build/gen/go/antinvestor/partition/protocolbuffers/go v1.36.11-20260306034803-bec59545427a.1 // indirect
 	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260219062039-499f582dea7e.1 // indirect
-	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260320040359-b2a0d7722dc4.2 // indirect
-	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260320040359-b2a0d7722dc4.1 // indirect
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
 	buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1 // indirect
 	buf.build/go/protovalidate v1.1.3 // indirect
@@ -119,10 +120,9 @@ require (
 	golang.org/x/text v0.35.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.271.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260226221140-a57be14db171 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260316172706-e463d84ca32d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260311181403-84a4fc48630c // indirect
 	google.golang.org/grpc v1.79.3 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )

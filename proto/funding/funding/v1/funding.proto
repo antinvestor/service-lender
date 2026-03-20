@@ -1,0 +1,109 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+package funding.v1;
+
+import "common/v1/common.proto";
+import "google/protobuf/struct.proto";
+import "google/type/money.proto";
+
+option go_package = "github.com/antinvestor/apis/go/funding/v1;fundingv1";
+option java_multiple_files = true;
+option java_package = "fundingv1";
+
+// InvestorAccountObject represents a pre-funded investor capital account.
+message InvestorAccountObject {
+  string id = 1;
+  string investor_id = 2;
+  string account_name = 3;
+  reserved 4;
+  google.type.Money available_balance = 5;
+  google.type.Money reserved_balance = 6;
+  google.type.Money total_deployed = 7;
+  google.type.Money total_returned = 8;
+  google.type.Money max_exposure = 9;
+  string min_interest_rate = 10;
+  google.protobuf.Struct allowed_products = 11;
+  google.protobuf.Struct allowed_regions = 12;
+  google.protobuf.Struct group_affiliations = 13;
+  common.v1.STATE state = 14;
+  google.protobuf.Struct properties = 15;
+}
+
+// FundingAllocationObject represents how a loan is funded across tranches.
+message FundingAllocationObject {
+  string id = 1;
+  string loan_offer_id = 2;
+  string source_id = 3;
+  string source_type = 4;
+  int32 tranche_level = 5;
+  google.type.Money amount = 6;
+  reserved 7;
+  string proportion = 8;
+  google.protobuf.Struct properties = 9;
+}
+
+message InvestorAccountSaveRequest { InvestorAccountObject data = 1; }
+message InvestorAccountSaveResponse { InvestorAccountObject data = 1; }
+message InvestorAccountGetRequest { string id = 1; }
+message InvestorAccountGetResponse { InvestorAccountObject data = 1; }
+message InvestorAccountSearchRequest {
+  string investor_id = 1;
+  string currency_code = 2;
+  common.v1.PageCursor cursor = 3;
+}
+message InvestorAccountSearchResponse { repeated InvestorAccountObject data = 1; }
+
+message InvestorDepositRequest {
+  string account_id = 1;
+  google.type.Money amount = 2;
+  reserved 3;
+}
+message InvestorDepositResponse { InvestorAccountObject data = 1; }
+
+message InvestorWithdrawRequest {
+  string account_id = 1;
+  google.type.Money amount = 2;
+}
+message InvestorWithdrawResponse { InvestorAccountObject data = 1; }
+
+message FundLoanRequest {
+  string loan_offer_id = 1;
+}
+message FundLoanResponse {
+  repeated FundingAllocationObject allocations = 1;
+  google.type.Money total_allocated = 2;
+  google.type.Money deficit = 3;
+  bool fully_funded = 4;
+}
+
+message AbsorbLossRequest {
+  string loan_offer_id = 1;
+  google.type.Money amount = 2;
+}
+message AbsorbLossResponse {
+  google.type.Money absorbed = 1;
+  google.type.Money unrecoverable = 2;
+}
+
+service FundingService {
+  rpc InvestorAccountSave(InvestorAccountSaveRequest) returns (InvestorAccountSaveResponse);
+  rpc InvestorAccountGet(InvestorAccountGetRequest) returns (InvestorAccountGetResponse);
+  rpc InvestorAccountSearch(InvestorAccountSearchRequest) returns (stream InvestorAccountSearchResponse);
+  rpc InvestorDeposit(InvestorDepositRequest) returns (InvestorDepositResponse);
+  rpc InvestorWithdraw(InvestorWithdrawRequest) returns (InvestorWithdrawResponse);
+  rpc FundLoan(FundLoanRequest) returns (FundLoanResponse);
+  rpc AbsorbLoss(AbsorbLossRequest) returns (AbsorbLossResponse);
+}

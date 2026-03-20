@@ -1,0 +1,65 @@
+package events //nolint:dupl // similar event handlers for different entity types
+
+import (
+	"context"
+	"errors"
+
+	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-lender/apps/savings/service/models"
+	"github.com/antinvestor/service-lender/apps/savings/service/repository"
+)
+
+const SavingsProductSaveEvent = "savings_product.save"
+
+type SavingsProductSave struct {
+	repo repository.SavingsProductRepository
+}
+
+func NewSavingsProductSave(_ context.Context, repo repository.SavingsProductRepository) *SavingsProductSave {
+	return &SavingsProductSave{repo: repo}
+}
+
+func (e *SavingsProductSave) Name() string     { return SavingsProductSaveEvent }
+func (e *SavingsProductSave) PayloadType() any { return &models.SavingsProduct{} }
+
+func (e *SavingsProductSave) Validate(_ context.Context, payload any) error {
+	sp, ok := payload.(*models.SavingsProduct)
+	if !ok {
+		return errors.New("payload is not of type models.SavingsProduct")
+	}
+	if sp.GetID() == "" {
+		return errors.New("savings product ID should already have been set")
+	}
+	return nil
+}
+
+func (e *SavingsProductSave) Execute(ctx context.Context, payload any) error {
+	sp, ok := payload.(*models.SavingsProduct)
+	if !ok {
+		return errors.New("payload is not of type models.SavingsProduct")
+	}
+
+	logger := util.Log(ctx).WithField("type", e.Name()).WithField("savings_product_id", sp.GetID())
+	defer logger.Release()
+	logger.Debug("event handler started")
+
+	existing, getErr := e.repo.GetByID(ctx, sp.GetID())
+	if getErr == nil && existing != nil {
+		if _, err := e.repo.Update(ctx, sp); err != nil {
+			logger.WithError(err).Error("could not update savings product in db")
+			return err
+		}
+		logger.Debug("event handler completed successfully")
+		return nil
+	}
+
+	if err := e.repo.Create(ctx, sp); err != nil && !data.ErrorIsDuplicateKey(err) {
+		logger.WithError(err).Error("could not create savings product in db")
+		return err
+	}
+
+	logger.Debug("event handler completed successfully")
+	return nil
+}

@@ -1,0 +1,22 @@
+package repository
+
+import (
+	"context"
+	"errors"
+
+	"github.com/pitabwire/frame/datastore"
+
+	"github.com/antinvestor/service-lender/apps/origination/service/models"
+)
+
+func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {
+	dbPool := dbManager.GetPool(ctx, datastore.DefaultMigrationPoolName)
+	if dbPool == nil {
+		return errors.New("datastore pool is not initialised")
+	}
+
+	return dbManager.Migrate(ctx, dbPool, migrationPath,
+		&models.Application{}, &models.ApplicationDocument{},
+		&models.VerificationTask{}, &models.UnderwritingDecision{},
+		&models.ApplicationStatusHistory{}, &models.ClientProductAccess{})
+}

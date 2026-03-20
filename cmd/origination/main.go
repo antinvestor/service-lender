@@ -63,7 +63,8 @@ func main() {
 
 	loanMgmtCli, err := setupLoanManagementClient(ctx, cfg)
 	if err != nil {
-		log.WithError(err).Warn("main -- Could not setup loan management client, loan creation on offer acceptance disabled")
+		log.WithError(err).
+			Warn("main -- Could not setup loan management client, loan creation on offer acceptance disabled")
 	}
 
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
@@ -77,11 +78,19 @@ func main() {
 	vtRepo := repository.NewVerificationTaskRepository(ctx, dbPool, workMan)
 	udRepo := repository.NewUnderwritingDecisionRepository(ctx, dbPool, workMan)
 	ashRepo := repository.NewApplicationStatusHistoryRepository(ctx, dbPool, workMan)
+	cpaRepo := repository.NewClientProductAccessRepository(ctx, dbPool, workMan)
 
-	appBusiness := business.NewApplicationBusiness(ctx, evtsMan, appRepo, identityCli, loanMgmtCli)
+	appBusiness := business.NewApplicationBusiness(ctx, evtsMan, appRepo, cpaRepo, identityCli, loanMgmtCli)
 	docBusiness := business.NewApplicationDocumentBusiness(ctx, evtsMan, docRepo)
 	vtBusiness := business.NewVerificationTaskBusiness(ctx, evtsMan, vtRepo, appBusiness)
-	udBusiness := business.NewUnderwritingDecisionBusiness(ctx, evtsMan, udRepo, appRepo, appBusiness, cfg.OfferExpiryDays)
+	udBusiness := business.NewUnderwritingDecisionBusiness(
+		ctx,
+		evtsMan,
+		udRepo,
+		appRepo,
+		appBusiness,
+		cfg.OfferExpiryDays,
+	)
 
 	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
 
@@ -173,7 +182,10 @@ func setupConnectServer(
 	}
 
 	interceptorOption := connect.WithInterceptors(defaultInterceptorList...)
-	originationPath, originationServerHandler := originationv1connect.NewOriginationServiceHandler(originationHandler, interceptorOption)
+	originationPath, originationServerHandler := originationv1connect.NewOriginationServiceHandler(
+		originationHandler,
+		interceptorOption,
+	)
 
 	mux := http.NewServeMux()
 	mux.Handle(originationPath, originationServerHandler)

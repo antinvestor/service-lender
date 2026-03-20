@@ -7,6 +7,8 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/auth_state_provider.dart';
 import '../../sdk/src/lender/v1/field.connect.client.dart';
 import '../../sdk/src/lender/v1/identity.connect.client.dart';
+import '../../sdk/src/lender/v1/origination.connect.client.dart';
+import '../../sdk/src/lender/v1/loan_management.connect.client.dart';
 import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
 
@@ -91,4 +93,16 @@ IdentityServiceClient identityServiceClient(Ref ref) {
 FieldServiceClient fieldServiceClient(Ref ref) {
   final transport = ref.watch(apiTransportProvider);
   return FieldServiceClient(transport);
+}
+
+@riverpod
+OriginationServiceClient originationServiceClient(Ref ref) {
+  final transport = ref.watch(apiTransportProvider);
+  return OriginationServiceClient(transport);
+}
+
+@riverpod
+LoanManagementServiceClient loanManagementServiceClient(Ref ref) {
+  final transport = ref.watch(apiTransportProvider);
+  return LoanManagementServiceClient(transport);
 }

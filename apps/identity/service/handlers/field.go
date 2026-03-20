@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 
-	"buf.build/gen/go/antinvestor/lender/connectrpc/go/lender/v1/lenderv1connect"
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/security/authorizer"
 
@@ -15,22 +15,28 @@ import (
 
 // FieldServer implements the FieldService RPC handler.
 type FieldServer struct {
-	authz            authz.Middleware
-	agentBusiness    business.AgentBusiness
-	borrowerBusiness business.BorrowerBusiness
+	authz              authz.Middleware
+	agentBusiness      business.AgentBusiness
+	clientBusiness     business.ClientBusiness
+	groupBusiness      business.GroupBusiness
+	membershipBusiness business.MembershipBusiness
 
-	lenderv1connect.UnimplementedFieldServiceHandler
+	identityv1connect.UnimplementedFieldServiceHandler
 }
 
 func NewFieldServer(
 	authzMiddleware authz.Middleware,
 	agentBusiness business.AgentBusiness,
-	borrowerBusiness business.BorrowerBusiness,
-) lenderv1connect.FieldServiceHandler {
+	clientBusiness business.ClientBusiness,
+	groupBusiness business.GroupBusiness,
+	membershipBusiness business.MembershipBusiness,
+) identityv1connect.FieldServiceHandler {
 	return &FieldServer{
-		authz:            authzMiddleware,
-		agentBusiness:    agentBusiness,
-		borrowerBusiness: borrowerBusiness,
+		authz:              authzMiddleware,
+		agentBusiness:      agentBusiness,
+		clientBusiness:     clientBusiness,
+		groupBusiness:      groupBusiness,
+		membershipBusiness: membershipBusiness,
 	}
 }
 
@@ -38,8 +44,8 @@ func NewFieldServer(
 
 func (s *FieldServer) AgentSave(
 	ctx context.Context,
-	req *connect.Request[lenderv1.AgentSaveRequest],
-) (*connect.Response[lenderv1.AgentSaveResponse], error) {
+	req *connect.Request[identityv1.AgentSaveRequest],
+) (*connect.Response[identityv1.AgentSaveResponse], error) {
 	if req.Msg.GetData().GetId() != "" {
 		if err := s.authz.CanAgentManage(ctx); err != nil {
 			return nil, authorizer.ToConnectError(err)
@@ -54,13 +60,13 @@ func (s *FieldServer) AgentSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.AgentSaveResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.AgentSaveResponse{Data: result}), nil
 }
 
 func (s *FieldServer) AgentGet(
 	ctx context.Context,
-	req *connect.Request[lenderv1.AgentGetRequest],
-) (*connect.Response[lenderv1.AgentGetResponse], error) {
+	req *connect.Request[identityv1.AgentGetRequest],
+) (*connect.Response[identityv1.AgentGetResponse], error) {
 	if err := s.authz.CanAgentView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
@@ -69,21 +75,21 @@ func (s *FieldServer) AgentGet(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.AgentGetResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.AgentGetResponse{Data: result}), nil
 }
 
 func (s *FieldServer) AgentSearch(
 	ctx context.Context,
-	req *connect.Request[lenderv1.AgentSearchRequest],
-	stream *connect.ServerStream[lenderv1.AgentSearchResponse],
+	req *connect.Request[identityv1.AgentSearchRequest],
+	stream *connect.ServerStream[identityv1.AgentSearchResponse],
 ) error {
 	if err := s.authz.CanAgentView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
 
 	err := s.agentBusiness.Search(ctx, req.Msg,
-		func(_ context.Context, batch []*lenderv1.AgentObject) error {
-			return stream.Send(&lenderv1.AgentSearchResponse{Data: batch})
+		func(_ context.Context, batch []*identityv1.AgentObject) error {
+			return stream.Send(&identityv1.AgentSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)
@@ -93,16 +99,16 @@ func (s *FieldServer) AgentSearch(
 
 func (s *FieldServer) AgentHierarchy(
 	ctx context.Context,
-	req *connect.Request[lenderv1.AgentHierarchyRequest],
-	stream *connect.ServerStream[lenderv1.AgentHierarchyResponse],
+	req *connect.Request[identityv1.AgentHierarchyRequest],
+	stream *connect.ServerStream[identityv1.AgentHierarchyResponse],
 ) error {
 	if err := s.authz.CanAgentView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
 
 	err := s.agentBusiness.Hierarchy(ctx, req.Msg,
-		func(_ context.Context, batch []*lenderv1.AgentObject) error {
-			return stream.Send(&lenderv1.AgentHierarchyResponse{Data: batch})
+		func(_ context.Context, batch []*identityv1.AgentObject) error {
+			return stream.Send(&identityv1.AgentHierarchyResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)
@@ -110,56 +116,56 @@ func (s *FieldServer) AgentHierarchy(
 	return nil
 }
 
-// --- Borrower RPCs ---
+// --- Client RPCs ---
 
-func (s *FieldServer) BorrowerSave(
+func (s *FieldServer) ClientSave(
 	ctx context.Context,
-	req *connect.Request[lenderv1.BorrowerSaveRequest],
-) (*connect.Response[lenderv1.BorrowerSaveResponse], error) {
+	req *connect.Request[identityv1.ClientSaveRequest],
+) (*connect.Response[identityv1.ClientSaveResponse], error) {
 	if req.Msg.GetData().GetId() != "" {
-		if err := s.authz.CanBorrowerManage(ctx); err != nil {
+		if err := s.authz.CanClientManage(ctx); err != nil {
 			return nil, authorizer.ToConnectError(err)
 		}
 	} else {
-		if err := s.authz.CanBorrowerCreate(ctx); err != nil {
+		if err := s.authz.CanClientCreate(ctx); err != nil {
 			return nil, authorizer.ToConnectError(err)
 		}
 	}
 
-	result, err := s.borrowerBusiness.Save(ctx, req.Msg.GetData())
+	result, err := s.clientBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.BorrowerSaveResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.ClientSaveResponse{Data: result}), nil
 }
 
-func (s *FieldServer) BorrowerGet(
+func (s *FieldServer) ClientGet(
 	ctx context.Context,
-	req *connect.Request[lenderv1.BorrowerGetRequest],
-) (*connect.Response[lenderv1.BorrowerGetResponse], error) {
-	if err := s.authz.CanBorrowerView(ctx); err != nil {
+	req *connect.Request[identityv1.ClientGetRequest],
+) (*connect.Response[identityv1.ClientGetResponse], error) {
+	if err := s.authz.CanClientView(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
 
-	result, err := s.borrowerBusiness.Get(ctx, req.Msg.GetId())
+	result, err := s.clientBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.BorrowerGetResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.ClientGetResponse{Data: result}), nil
 }
 
-func (s *FieldServer) BorrowerSearch(
+func (s *FieldServer) ClientSearch(
 	ctx context.Context,
-	req *connect.Request[lenderv1.BorrowerSearchRequest],
-	stream *connect.ServerStream[lenderv1.BorrowerSearchResponse],
+	req *connect.Request[identityv1.ClientSearchRequest],
+	stream *connect.ServerStream[identityv1.ClientSearchResponse],
 ) error {
-	if err := s.authz.CanBorrowerView(ctx); err != nil {
+	if err := s.authz.CanClientView(ctx); err != nil {
 		return authorizer.ToConnectError(err)
 	}
 
-	err := s.borrowerBusiness.Search(ctx, req.Msg,
-		func(_ context.Context, batch []*lenderv1.BorrowerObject) error {
-			return stream.Send(&lenderv1.BorrowerSearchResponse{Data: batch})
+	err := s.clientBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.ClientObject) error {
+			return stream.Send(&identityv1.ClientSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)
@@ -167,17 +173,131 @@ func (s *FieldServer) BorrowerSearch(
 	return nil
 }
 
-func (s *FieldServer) BorrowerReassign(
+func (s *FieldServer) ClientReassign(
 	ctx context.Context,
-	req *connect.Request[lenderv1.BorrowerReassignRequest],
-) (*connect.Response[lenderv1.BorrowerReassignResponse], error) {
-	if err := s.authz.CanBorrowerReassign(ctx); err != nil {
+	req *connect.Request[identityv1.ClientReassignRequest],
+) (*connect.Response[identityv1.ClientReassignResponse], error) {
+	if err := s.authz.CanClientReassign(ctx); err != nil {
 		return nil, authorizer.ToConnectError(err)
 	}
 
-	result, err := s.borrowerBusiness.Reassign(ctx, req.Msg)
+	result, err := s.clientBusiness.Reassign(ctx, req.Msg)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&lenderv1.BorrowerReassignResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.ClientReassignResponse{Data: result}), nil
+}
+
+// --- Group RPCs ---
+
+func (s *FieldServer) GroupSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.GroupSaveRequest],
+) (*connect.Response[identityv1.GroupSaveResponse], error) {
+	if req.Msg.GetData().GetId() != "" {
+		if err := s.authz.CanGroupManage(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	} else {
+		if err := s.authz.CanGroupCreate(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	}
+
+	result, err := s.groupBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.GroupSaveResponse{Data: result}), nil
+}
+
+func (s *FieldServer) GroupGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.GroupGetRequest],
+) (*connect.Response[identityv1.GroupGetResponse], error) {
+	if err := s.authz.CanGroupView(ctx); err != nil {
+		return nil, authorizer.ToConnectError(err)
+	}
+
+	result, err := s.groupBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.GroupGetResponse{Data: result}), nil
+}
+
+func (s *FieldServer) GroupSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.GroupSearchRequest],
+	stream *connect.ServerStream[identityv1.GroupSearchResponse],
+) error {
+	if err := s.authz.CanGroupView(ctx); err != nil {
+		return authorizer.ToConnectError(err)
+	}
+
+	err := s.groupBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.GroupObject) error {
+			return stream.Send(&identityv1.GroupSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- Membership RPCs ---
+
+func (s *FieldServer) MembershipSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.MembershipSaveRequest],
+) (*connect.Response[identityv1.MembershipSaveResponse], error) {
+	if req.Msg.GetData().GetId() != "" {
+		if err := s.authz.CanMembershipManage(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	} else {
+		if err := s.authz.CanMembershipCreate(ctx); err != nil {
+			return nil, authorizer.ToConnectError(err)
+		}
+	}
+
+	result, err := s.membershipBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.MembershipSaveResponse{Data: result}), nil
+}
+
+func (s *FieldServer) MembershipGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.MembershipGetRequest],
+) (*connect.Response[identityv1.MembershipGetResponse], error) {
+	if err := s.authz.CanMembershipView(ctx); err != nil {
+		return nil, authorizer.ToConnectError(err)
+	}
+
+	result, err := s.membershipBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.MembershipGetResponse{Data: result}), nil
+}
+
+func (s *FieldServer) MembershipSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.MembershipSearchRequest],
+	stream *connect.ServerStream[identityv1.MembershipSearchResponse],
+) error {
+	if err := s.authz.CanMembershipView(ctx); err != nil {
+		return authorizer.ToConnectError(err)
+	}
+
+	err := s.membershipBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.MembershipObject) error {
+			return stream.Send(&identityv1.MembershipSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
 }

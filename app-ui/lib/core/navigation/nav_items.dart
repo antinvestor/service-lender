@@ -184,6 +184,48 @@ List<NavItem> buildNavItems() => [
         ],
       ),
       NavItem(
+        id: 'origination',
+        label: 'Origination',
+        icon: Icons.description_outlined,
+        activeIcon: Icons.description,
+        requiredRoles: _allViewRoles,
+        children: [
+          NavItem(
+            id: 'loan_products',
+            label: 'Loan Products',
+            icon: Icons.inventory_2_outlined,
+            activeIcon: Icons.inventory_2,
+            route: '/origination/products',
+            requiredRoles: _allViewRoles,
+          ),
+          NavItem(
+            id: 'applications',
+            label: 'Applications',
+            icon: Icons.assignment_outlined,
+            activeIcon: Icons.assignment,
+            route: '/origination/applications',
+            requiredRoles: _allViewRoles,
+          ),
+        ],
+      ),
+      NavItem(
+        id: 'loan_management',
+        label: 'Loan Management',
+        icon: Icons.account_balance_wallet_outlined,
+        activeIcon: Icons.account_balance_wallet,
+        requiredRoles: _allViewRoles,
+        children: [
+          NavItem(
+            id: 'loan_accounts',
+            label: 'Loan Accounts',
+            icon: Icons.credit_score_outlined,
+            activeIcon: Icons.credit_score,
+            route: '/loans',
+            requiredRoles: _allViewRoles,
+          ),
+        ],
+      ),
+      NavItem(
         id: 'admin',
         label: 'Administration',
         icon: Icons.admin_panel_settings_outlined,

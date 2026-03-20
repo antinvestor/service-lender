@@ -49,3 +49,49 @@ Future<ConnectClientBase<FieldServiceClient>> newFieldClient({
 }
 
 typedef FieldClient = ConnectClientBase<FieldServiceClient>;
+
+/// Creates a new Origination service client.
+Future<ConnectClientBase<OriginationServiceClient>> newOriginationClient({
+  required TransportFactory createTransport,
+  String? endpoint,
+  TokenManager? tokenManager,
+  TokenRefreshCallback? onTokenRefresh,
+  List<Interceptor>? additionalInterceptors,
+  bool noAuth = false,
+}) {
+  return newClient<OriginationServiceClient>(
+    defaultEndpoint: defaultLenderEndpoint,
+    createServiceClient: OriginationServiceClient.new,
+    createTransport: createTransport,
+    endpoint: endpoint,
+    tokenManager: tokenManager,
+    onTokenRefresh: onTokenRefresh,
+    additionalInterceptors: additionalInterceptors,
+    noAuth: noAuth,
+  );
+}
+
+typedef OriginationClient = ConnectClientBase<OriginationServiceClient>;
+
+/// Creates a new Loan Management service client.
+Future<ConnectClientBase<LoanManagementServiceClient>> newLoanManagementClient({
+  required TransportFactory createTransport,
+  String? endpoint,
+  TokenManager? tokenManager,
+  TokenRefreshCallback? onTokenRefresh,
+  List<Interceptor>? additionalInterceptors,
+  bool noAuth = false,
+}) {
+  return newClient<LoanManagementServiceClient>(
+    defaultEndpoint: defaultLenderEndpoint,
+    createServiceClient: LoanManagementServiceClient.new,
+    createTransport: createTransport,
+    endpoint: endpoint,
+    tokenManager: tokenManager,
+    onTokenRefresh: onTokenRefresh,
+    additionalInterceptors: additionalInterceptors,
+    noAuth: noAuth,
+  );
+}
+
+typedef LoanManagementClient = ConnectClientBase<LoanManagementServiceClient>;

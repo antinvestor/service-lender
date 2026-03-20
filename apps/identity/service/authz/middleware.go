@@ -15,10 +15,16 @@ type Middleware interface {
 	CanAgentCreate(ctx context.Context) error
 	CanAgentManage(ctx context.Context) error
 	CanAgentView(ctx context.Context) error
-	CanBorrowerCreate(ctx context.Context) error
-	CanBorrowerManage(ctx context.Context) error
-	CanBorrowerView(ctx context.Context) error
-	CanBorrowerReassign(ctx context.Context) error
+	CanClientCreate(ctx context.Context) error
+	CanClientManage(ctx context.Context) error
+	CanClientView(ctx context.Context) error
+	CanClientReassign(ctx context.Context) error
+	CanGroupCreate(ctx context.Context) error
+	CanGroupManage(ctx context.Context) error
+	CanGroupView(ctx context.Context) error
+	CanMembershipCreate(ctx context.Context) error
+	CanMembershipManage(ctx context.Context) error
+	CanMembershipView(ctx context.Context) error
 	CanInvestorCreate(ctx context.Context) error
 	CanInvestorManage(ctx context.Context) error
 	CanInvestorView(ctx context.Context) error
@@ -64,20 +70,44 @@ func (m *middleware) CanAgentView(ctx context.Context) error {
 	return m.checker.Check(ctx, PermissionAgentView)
 }
 
-func (m *middleware) CanBorrowerCreate(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionBorrowerCreate)
+func (m *middleware) CanClientCreate(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionClientCreate)
 }
 
-func (m *middleware) CanBorrowerManage(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionBorrowerManage)
+func (m *middleware) CanClientManage(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionClientManage)
 }
 
-func (m *middleware) CanBorrowerView(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionBorrowerView)
+func (m *middleware) CanClientView(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionClientView)
 }
 
-func (m *middleware) CanBorrowerReassign(ctx context.Context) error {
-	return m.checker.Check(ctx, PermissionBorrowerReassign)
+func (m *middleware) CanClientReassign(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionClientReassign)
+}
+
+func (m *middleware) CanGroupCreate(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionGroupCreate)
+}
+
+func (m *middleware) CanGroupManage(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionGroupManage)
+}
+
+func (m *middleware) CanGroupView(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionGroupView)
+}
+
+func (m *middleware) CanMembershipCreate(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionMembershipCreate)
+}
+
+func (m *middleware) CanMembershipManage(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionMembershipManage)
+}
+
+func (m *middleware) CanMembershipView(ctx context.Context) error {
+	return m.checker.Check(ctx, PermissionMembershipView)
 }
 
 func (m *middleware) CanInvestorCreate(ctx context.Context) error {

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
+	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	"connectrpc.com/connect"
 	apis "github.com/antinvestor/apis/go/common"
@@ -57,8 +58,16 @@ func main() {
 
 	originationCli, err := setupOriginationClient(ctx, cfg)
 	if err != nil {
-		log.WithError(err).Warn("main -- Could not setup origination client, loan creation will use application ID only")
+		log.WithError(err).
+			Warn("main -- Could not setup origination client, loan creation will use application ID only")
 	}
+
+	notificationCli, notifErr := setupNotificationClient(ctx, cfg)
+	if notifErr != nil {
+		log.WithError(notifErr).
+			Warn("main -- Could not setup notification client, notifications will be disabled")
+	}
+	loanNotifier := business.NewLoanNotifier(notificationCli)
 
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
@@ -78,9 +87,19 @@ func main() {
 	reconRepo := repository.NewReconciliationRepository(ctx, dbPool, workMan)
 
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
-	laBusiness := business.NewLoanAccountBusiness(ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, originationCli)
-	repBusiness := business.NewRepaymentBusiness(ctx, evtsMan, laRepo, repRepo)
-	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, rsRepo, seRepo)
+	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
+	laBusiness := business.NewLoanAccountBusiness(
+		ctx,
+		evtsMan,
+		lpRepo,
+		laRepo,
+		lbRepo,
+		lscRepo,
+		repRepo,
+		originationCli,
+		scheduleBusiness,
+	)
+	repBusiness := business.NewRepaymentBusiness(ctx, evtsMan, laRepo, repRepo, rsRepo, seRepo, lbRepo, loanNotifier)
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
@@ -149,6 +168,17 @@ func setupOriginationClient(
 		WorkloadAPITargetPath: cfg.OriginationServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_lender_origination"},
 	}, originationv1connect.NewOriginationServiceClient)
+}
+
+func setupNotificationClient(
+	ctx context.Context,
+	cfg aconfig.LoanManagementConfig,
+) (notificationv1connect.NotificationServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+		Endpoint:              cfg.NotificationServiceURI,
+		WorkloadAPITargetPath: cfg.NotificationServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_lender_notification"},
+	}, notificationv1connect.NewNotificationServiceClient)
 }
 
 func setupConnectServer(

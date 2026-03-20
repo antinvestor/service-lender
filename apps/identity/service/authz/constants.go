@@ -14,10 +14,16 @@ const (
 	PermissionAgentCreate      = "agent_create"
 	PermissionAgentManage      = "agent_manage"
 	PermissionAgentView        = "agent_view"
-	PermissionBorrowerCreate   = "borrower_create"
-	PermissionBorrowerManage   = "borrower_manage"
-	PermissionBorrowerView     = "borrower_view"
-	PermissionBorrowerReassign = "borrower_reassign"
+	PermissionClientCreate     = "client_create"
+	PermissionClientManage     = "client_manage"
+	PermissionClientView       = "client_view"
+	PermissionClientReassign   = "client_reassign"
+	PermissionGroupCreate      = "group_create"
+	PermissionGroupManage      = "group_manage"
+	PermissionGroupView        = "group_view"
+	PermissionMembershipCreate = "membership_create"
+	PermissionMembershipManage = "membership_manage"
+	PermissionMembershipView   = "membership_view"
 	PermissionInvestorCreate   = "investor_create"
 	PermissionInvestorManage   = "investor_manage"
 	PermissionInvestorView     = "investor_view"
@@ -33,10 +39,16 @@ const (
 	GrantedAgentCreate      = "granted_agent_create"
 	GrantedAgentManage      = "granted_agent_manage"
 	GrantedAgentView        = "granted_agent_view"
-	GrantedBorrowerCreate   = "granted_borrower_create"
-	GrantedBorrowerManage   = "granted_borrower_manage"
-	GrantedBorrowerView     = "granted_borrower_view"
-	GrantedBorrowerReassign = "granted_borrower_reassign"
+	GrantedClientCreate     = "granted_client_create"
+	GrantedClientManage     = "granted_client_manage"
+	GrantedClientView       = "granted_client_view"
+	GrantedClientReassign   = "granted_client_reassign"
+	GrantedGroupCreate      = "granted_group_create"
+	GrantedGroupManage      = "granted_group_manage"
+	GrantedGroupView        = "granted_group_view"
+	GrantedMembershipCreate = "granted_membership_create"
+	GrantedMembershipManage = "granted_membership_manage"
+	GrantedMembershipView   = "granted_membership_view"
 	GrantedInvestorCreate   = "granted_investor_create"
 	GrantedInvestorManage   = "granted_investor_manage"
 	GrantedInvestorView     = "granted_investor_view"
@@ -61,7 +73,9 @@ var RolePermissions = map[string][]string{ //nolint:gochecknoglobals // permissi
 		PermissionBankManage, PermissionBankView,
 		PermissionBranchManage, PermissionBranchView,
 		PermissionAgentCreate, PermissionAgentManage, PermissionAgentView,
-		PermissionBorrowerCreate, PermissionBorrowerManage, PermissionBorrowerView, PermissionBorrowerReassign,
+		PermissionClientCreate, PermissionClientManage, PermissionClientView, PermissionClientReassign,
+		PermissionGroupCreate, PermissionGroupManage, PermissionGroupView,
+		PermissionMembershipCreate, PermissionMembershipManage, PermissionMembershipView,
 		PermissionInvestorCreate, PermissionInvestorManage, PermissionInvestorView,
 		PermissionSystemUserManage, PermissionSystemUserView,
 	},
@@ -69,41 +83,55 @@ var RolePermissions = map[string][]string{ //nolint:gochecknoglobals // permissi
 		PermissionBankManage, PermissionBankView,
 		PermissionBranchManage, PermissionBranchView,
 		PermissionAgentCreate, PermissionAgentManage, PermissionAgentView,
-		PermissionBorrowerCreate, PermissionBorrowerManage, PermissionBorrowerView, PermissionBorrowerReassign,
+		PermissionClientCreate, PermissionClientManage, PermissionClientView, PermissionClientReassign,
+		PermissionGroupCreate, PermissionGroupManage, PermissionGroupView,
+		PermissionMembershipCreate, PermissionMembershipManage, PermissionMembershipView,
 		PermissionInvestorCreate, PermissionInvestorManage, PermissionInvestorView,
 		PermissionSystemUserManage, PermissionSystemUserView,
 	},
 	RoleManager: {
 		PermissionBranchView,
 		PermissionAgentCreate, PermissionAgentManage, PermissionAgentView,
-		PermissionBorrowerCreate, PermissionBorrowerManage, PermissionBorrowerView, PermissionBorrowerReassign,
+		PermissionClientCreate, PermissionClientManage, PermissionClientView, PermissionClientReassign,
+		PermissionGroupCreate, PermissionGroupManage, PermissionGroupView,
+		PermissionMembershipCreate, PermissionMembershipManage, PermissionMembershipView,
 		PermissionSystemUserView,
 	},
 	RoleAgent: {
 		PermissionAgentView,
-		PermissionBorrowerCreate, PermissionBorrowerView,
+		PermissionClientCreate, PermissionClientView,
+		PermissionGroupCreate, PermissionGroupView,
+		PermissionMembershipCreate, PermissionMembershipView,
 	},
 	RoleVerifier: {
 		PermissionBranchView,
 		PermissionAgentView,
-		PermissionBorrowerView,
+		PermissionClientView,
+		PermissionGroupView,
+		PermissionMembershipView,
 		PermissionInvestorView,
 	},
 	RoleApprover: {
 		PermissionBranchView,
 		PermissionAgentView,
-		PermissionBorrowerView,
+		PermissionClientView,
+		PermissionGroupView,
+		PermissionMembershipView,
 		PermissionInvestorView,
 	},
 	RoleAuditor: {
 		PermissionBankView, PermissionBranchView,
-		PermissionAgentView, PermissionBorrowerView,
+		PermissionAgentView, PermissionClientView,
+		PermissionGroupView,
+		PermissionMembershipView,
 		PermissionInvestorView,
 		PermissionSystemUserView,
 	},
 	RoleViewer: {
 		PermissionBankView, PermissionBranchView,
-		PermissionAgentView, PermissionBorrowerView,
+		PermissionAgentView, PermissionClientView,
+		PermissionGroupView,
+		PermissionMembershipView,
 		PermissionInvestorView,
 		PermissionSystemUserView,
 	},
@@ -111,7 +139,9 @@ var RolePermissions = map[string][]string{ //nolint:gochecknoglobals // permissi
 		PermissionBankManage, PermissionBankView,
 		PermissionBranchManage, PermissionBranchView,
 		PermissionAgentCreate, PermissionAgentManage, PermissionAgentView,
-		PermissionBorrowerCreate, PermissionBorrowerManage, PermissionBorrowerView, PermissionBorrowerReassign,
+		PermissionClientCreate, PermissionClientManage, PermissionClientView, PermissionClientReassign,
+		PermissionGroupCreate, PermissionGroupManage, PermissionGroupView,
+		PermissionMembershipCreate, PermissionMembershipManage, PermissionMembershipView,
 		PermissionInvestorCreate, PermissionInvestorManage, PermissionInvestorView,
 		PermissionSystemUserManage, PermissionSystemUserView,
 	},

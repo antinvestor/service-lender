@@ -1,0 +1,726 @@
+package models
+
+import (
+	"context"
+	"time"
+
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
+	"github.com/pitabwire/frame/data"
+)
+
+// ---------------------------------------------------------------------------
+// LoanAccount
+// ---------------------------------------------------------------------------
+
+type LoanAccount struct {
+	data.BaseModel
+	ApplicationID                 string `gorm:"type:varchar(50);uniqueIndex:uq_loan_app"`
+	ProductID                     string `gorm:"type:varchar(50);index:idx_la_product"`
+	ClientID                      string `gorm:"type:varchar(50);index:idx_la_client"`
+	AgentID                       string `gorm:"type:varchar(50);index:idx_la_agent"`
+	BranchID                      string `gorm:"type:varchar(50);index:idx_la_branch"`
+	BankID                        string `gorm:"type:varchar(50);index:idx_la_bank"`
+	Status                        int32
+	CurrencyCode                  string `gorm:"type:varchar(3)"`
+	PrincipalAmount               int64
+	InterestRate                  int64 // basis points
+	TermDays                      int32
+	InterestMethod                int32
+	RepaymentFrequency            int32
+	DisbursedAt                   *time.Time
+	MaturityDate                  *time.Time
+	FirstRepaymentDate            *time.Time
+	LastRepaymentDate             *time.Time
+	DaysPastDue                   int32
+	LedgerAssetAccountID          string `gorm:"type:varchar(50)"`
+	LedgerInterestIncomeAccountID string `gorm:"type:varchar(50)"`
+	LedgerFeeIncomeAccountID      string `gorm:"type:varchar(50)"`
+	LedgerPenaltyIncomeAccountID  string `gorm:"type:varchar(50)"`
+	PaymentAccountRef             string `gorm:"type:varchar(100)"`
+	Properties                    data.JSONMap
+}
+
+func (m *LoanAccount) TableName() string { return "loan_accounts" }
+
+func (m *LoanAccount) ToAPI() *loansv1.LoanAccountObject {
+	return &loansv1.LoanAccountObject{
+		Id:                            m.GetID(),
+		ApplicationId:                 m.ApplicationID,
+		ProductId:                     m.ProductID,
+		ClientId:                      m.ClientID,
+		AgentId:                       m.AgentID,
+		BranchId:                      m.BranchID,
+		BankId:                        m.BankID,
+		Status:                        loansv1.LoanStatus(m.Status),
+		CurrencyCode:                  m.CurrencyCode,
+		PrincipalAmount:               MinorUnitsToString(m.PrincipalAmount),
+		InterestRate:                  BasisPointsToString(m.InterestRate),
+		TermDays:                      m.TermDays,
+		InterestMethod:                loansv1.InterestMethod(m.InterestMethod),
+		RepaymentFrequency:            loansv1.RepaymentFrequency(m.RepaymentFrequency),
+		DisbursedAt:                   TimeToString(m.DisbursedAt),
+		MaturityDate:                  TimeToString(m.MaturityDate),
+		FirstRepaymentDate:            TimeToString(m.FirstRepaymentDate),
+		LastRepaymentDate:             TimeToString(m.LastRepaymentDate),
+		DaysPastDue:                   m.DaysPastDue,
+		LedgerAssetAccountId:          m.LedgerAssetAccountID,
+		LedgerInterestIncomeAccountId: m.LedgerInterestIncomeAccountID,
+		LedgerFeeIncomeAccountId:      m.LedgerFeeIncomeAccountID,
+		LedgerPenaltyIncomeAccountId:  m.LedgerPenaltyIncomeAccountID,
+		PaymentAccountRef:             m.PaymentAccountRef,
+		Properties:                    m.Properties.ToProtoStruct(),
+	}
+}
+
+func LoanAccountFromAPI(ctx context.Context, obj *loansv1.LoanAccountObject) *LoanAccount {
+	if obj == nil {
+		return nil
+	}
+
+	model := &LoanAccount{
+		ApplicationID:                 obj.GetApplicationId(),
+		ProductID:                     obj.GetProductId(),
+		ClientID:                      obj.GetClientId(),
+		AgentID:                       obj.GetAgentId(),
+		BranchID:                      obj.GetBranchId(),
+		BankID:                        obj.GetBankId(),
+		Status:                        int32(obj.GetStatus()),
+		CurrencyCode:                  obj.GetCurrencyCode(),
+		PrincipalAmount:               StringToMinorUnits(obj.GetPrincipalAmount()),
+		InterestRate:                  StringToBasisPoints(obj.GetInterestRate()),
+		TermDays:                      obj.GetTermDays(),
+		InterestMethod:                int32(obj.GetInterestMethod()),
+		RepaymentFrequency:            int32(obj.GetRepaymentFrequency()),
+		DisbursedAt:                   StringToTime(obj.GetDisbursedAt()),
+		MaturityDate:                  StringToTime(obj.GetMaturityDate()),
+		FirstRepaymentDate:            StringToTime(obj.GetFirstRepaymentDate()),
+		LastRepaymentDate:             StringToTime(obj.GetLastRepaymentDate()),
+		DaysPastDue:                   obj.GetDaysPastDue(),
+		LedgerAssetAccountID:          obj.GetLedgerAssetAccountId(),
+		LedgerInterestIncomeAccountID: obj.GetLedgerInterestIncomeAccountId(),
+		LedgerFeeIncomeAccountID:      obj.GetLedgerFeeIncomeAccountId(),
+		LedgerPenaltyIncomeAccountID:  obj.GetLedgerPenaltyIncomeAccountId(),
+		PaymentAccountRef:             obj.GetPaymentAccountRef(),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// RepaymentSchedule
+// ---------------------------------------------------------------------------
+
+type RepaymentSchedule struct {
+	data.BaseModel
+	LoanAccountID string `gorm:"type:varchar(50);index:idx_rs_loan"`
+	Version       int32
+	IsActive      bool
+	GeneratedAt   *time.Time
+	Properties    data.JSONMap
+}
+
+func (m *RepaymentSchedule) TableName() string { return "repayment_schedules" }
+
+func (m *RepaymentSchedule) ToAPI(entries []*ScheduleEntry) *loansv1.RepaymentScheduleObject {
+	var apiEntries []*loansv1.ScheduleEntryObject
+	for _, e := range entries {
+		apiEntries = append(apiEntries, e.ToAPI())
+	}
+	return &loansv1.RepaymentScheduleObject{
+		Id:            m.GetID(),
+		LoanAccountId: m.LoanAccountID,
+		Version:       m.Version,
+		IsActive:      m.IsActive,
+		GeneratedAt:   TimeToString(m.GeneratedAt),
+		Entries:       apiEntries,
+		Properties:    m.Properties.ToProtoStruct(),
+	}
+}
+
+func RepaymentScheduleFromAPI(ctx context.Context, obj *loansv1.RepaymentScheduleObject) *RepaymentSchedule {
+	if obj == nil {
+		return nil
+	}
+
+	model := &RepaymentSchedule{
+		LoanAccountID: obj.GetLoanAccountId(),
+		Version:       obj.GetVersion(),
+		IsActive:      obj.GetIsActive(),
+		GeneratedAt:   StringToTime(obj.GetGeneratedAt()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// ScheduleEntry
+// ---------------------------------------------------------------------------
+
+type ScheduleEntry struct {
+	data.BaseModel
+	ScheduleID        string `gorm:"type:varchar(50);index:idx_se_schedule"`
+	LoanAccountID     string `gorm:"type:varchar(50);index:idx_se_loan"`
+	InstallmentNumber int32
+	DueDate           *time.Time
+	CurrencyCode      string `gorm:"type:varchar(3)"`
+	PrincipalDue      int64
+	InterestDue       int64
+	FeesDue           int64
+	TotalDue          int64
+	PrincipalPaid     int64
+	InterestPaid      int64
+	FeesPaid          int64
+	TotalPaid         int64
+	Outstanding       int64
+	Status            int32
+	PaidDate          *time.Time
+	Properties        data.JSONMap
+}
+
+func (m *ScheduleEntry) TableName() string { return "schedule_entries" }
+
+func (m *ScheduleEntry) ToAPI() *loansv1.ScheduleEntryObject {
+	return &loansv1.ScheduleEntryObject{
+		Id:                m.GetID(),
+		ScheduleId:        m.ScheduleID,
+		InstallmentNumber: m.InstallmentNumber,
+		DueDate:           TimeToString(m.DueDate),
+		PrincipalDue:      MinorUnitsToString(m.PrincipalDue),
+		InterestDue:       MinorUnitsToString(m.InterestDue),
+		FeesDue:           MinorUnitsToString(m.FeesDue),
+		TotalDue:          MinorUnitsToString(m.TotalDue),
+		PrincipalPaid:     MinorUnitsToString(m.PrincipalPaid),
+		InterestPaid:      MinorUnitsToString(m.InterestPaid),
+		FeesPaid:          MinorUnitsToString(m.FeesPaid),
+		TotalPaid:         MinorUnitsToString(m.TotalPaid),
+		Outstanding:       MinorUnitsToString(m.Outstanding),
+		Status:            loansv1.ScheduleEntryStatus(m.Status),
+		PaidDate:          TimeToString(m.PaidDate),
+		Properties:        m.Properties.ToProtoStruct(),
+	}
+}
+
+func ScheduleEntryFromAPI(ctx context.Context, obj *loansv1.ScheduleEntryObject) *ScheduleEntry {
+	if obj == nil {
+		return nil
+	}
+
+	model := &ScheduleEntry{
+		ScheduleID:        obj.GetScheduleId(),
+		InstallmentNumber: obj.GetInstallmentNumber(),
+		DueDate:           StringToTime(obj.GetDueDate()),
+		PrincipalDue:      StringToMinorUnits(obj.GetPrincipalDue()),
+		InterestDue:       StringToMinorUnits(obj.GetInterestDue()),
+		FeesDue:           StringToMinorUnits(obj.GetFeesDue()),
+		TotalDue:          StringToMinorUnits(obj.GetTotalDue()),
+		PrincipalPaid:     StringToMinorUnits(obj.GetPrincipalPaid()),
+		InterestPaid:      StringToMinorUnits(obj.GetInterestPaid()),
+		FeesPaid:          StringToMinorUnits(obj.GetFeesPaid()),
+		TotalPaid:         StringToMinorUnits(obj.GetTotalPaid()),
+		Outstanding:       StringToMinorUnits(obj.GetOutstanding()),
+		Status:            int32(obj.GetStatus()),
+		PaidDate:          StringToTime(obj.GetPaidDate()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// LoanBalance (internal snapshot)
+// ---------------------------------------------------------------------------
+
+type LoanBalance struct {
+	data.BaseModel
+	LoanAccountID        string `gorm:"type:varchar(50);uniqueIndex:uq_lb_loan"`
+	CurrencyCode         string `gorm:"type:varchar(3)"`
+	PrincipalOutstanding int64
+	InterestAccrued      int64
+	FeesOutstanding      int64
+	PenaltiesOutstanding int64
+	TotalOutstanding     int64
+	TotalPaid            int64
+	TotalDisbursed       int64
+	LastCalculatedAt     *time.Time
+}
+
+func (m *LoanBalance) TableName() string { return "loan_balances" }
+
+func (m *LoanBalance) ToAPI() *loansv1.LoanBalanceObject {
+	return &loansv1.LoanBalanceObject{
+		LoanAccountId:        m.LoanAccountID,
+		PrincipalOutstanding: MinorUnitsToString(m.PrincipalOutstanding),
+		InterestAccrued:      MinorUnitsToString(m.InterestAccrued),
+		FeesOutstanding:      MinorUnitsToString(m.FeesOutstanding),
+		PenaltiesOutstanding: MinorUnitsToString(m.PenaltiesOutstanding),
+		TotalOutstanding:     MinorUnitsToString(m.TotalOutstanding),
+		TotalPaid:            MinorUnitsToString(m.TotalPaid),
+		TotalDisbursed:       MinorUnitsToString(m.TotalDisbursed),
+		LastCalculatedAt:     TimeToString(m.LastCalculatedAt),
+	}
+}
+
+// ---------------------------------------------------------------------------
+// LoanProduct
+// ---------------------------------------------------------------------------
+
+type LoanProduct struct {
+	data.BaseModel
+	BankID               string `gorm:"type:varchar(50);index:idx_lp_bank"`
+	Name                 string `gorm:"type:varchar(255)"`
+	Code                 string `gorm:"type:varchar(50);uniqueIndex:uq_lp_code"`
+	Description          string `gorm:"type:text"`
+	ProductType          int32
+	CurrencyCode         string `gorm:"type:varchar(3)"`
+	InterestMethod       int32
+	RepaymentFrequency   int32
+	MinAmount            int64
+	MaxAmount            int64
+	MinTermDays          int32
+	MaxTermDays          int32
+	AnnualInterestRate   int64 // basis points
+	ProcessingFeePercent int64 // basis points
+	InsuranceFeePercent  int64 // basis points
+	LatePenaltyRate      int64 // basis points
+	GracePeriodDays      int32
+	KycSchema            data.JSONMap
+	FeeStructure         data.JSONMap
+	EligibilityCriteria  data.JSONMap
+	RequiredDocuments    data.JSONMap
+	State                int32
+	Properties           data.JSONMap
+}
+
+func (m *LoanProduct) TableName() string { return "loan_products" }
+
+func (m *LoanProduct) ToAPI() *loansv1.LoanProductObject {
+	return &loansv1.LoanProductObject{
+		Id:                   m.GetID(),
+		BankId:               m.BankID,
+		Name:                 m.Name,
+		Code:                 m.Code,
+		Description:          m.Description,
+		ProductType:          loansv1.LoanProductType(m.ProductType),
+		CurrencyCode:         m.CurrencyCode,
+		InterestMethod:       loansv1.InterestMethod(m.InterestMethod),
+		RepaymentFrequency:   loansv1.RepaymentFrequency(m.RepaymentFrequency),
+		MinAmount:            MinorUnitsToString(m.MinAmount),
+		MaxAmount:            MinorUnitsToString(m.MaxAmount),
+		MinTermDays:          m.MinTermDays,
+		MaxTermDays:          m.MaxTermDays,
+		AnnualInterestRate:   BasisPointsToString(m.AnnualInterestRate),
+		ProcessingFeePercent: BasisPointsToString(m.ProcessingFeePercent),
+		InsuranceFeePercent:  BasisPointsToString(m.InsuranceFeePercent),
+		LatePenaltyRate:      BasisPointsToString(m.LatePenaltyRate),
+		GracePeriodDays:      m.GracePeriodDays,
+		KycSchema:            m.KycSchema.ToProtoStruct(),
+		FeeStructure:         m.FeeStructure.ToProtoStruct(),
+		EligibilityCriteria:  m.EligibilityCriteria.ToProtoStruct(),
+		RequiredDocuments:    jsonMapToStringSlice(m.RequiredDocuments),
+		State:                commonv1.STATE(m.State),
+		Properties:           m.Properties.ToProtoStruct(),
+	}
+}
+
+func LoanProductFromAPI(ctx context.Context, obj *loansv1.LoanProductObject) *LoanProduct {
+	if obj == nil {
+		return nil
+	}
+
+	model := &LoanProduct{
+		BankID:               obj.GetBankId(),
+		Name:                 obj.GetName(),
+		Code:                 obj.GetCode(),
+		Description:          obj.GetDescription(),
+		ProductType:          int32(obj.GetProductType()),
+		CurrencyCode:         obj.GetCurrencyCode(),
+		InterestMethod:       int32(obj.GetInterestMethod()),
+		RepaymentFrequency:   int32(obj.GetRepaymentFrequency()),
+		MinAmount:            StringToMinorUnits(obj.GetMinAmount()),
+		MaxAmount:            StringToMinorUnits(obj.GetMaxAmount()),
+		MinTermDays:          obj.GetMinTermDays(),
+		MaxTermDays:          obj.GetMaxTermDays(),
+		AnnualInterestRate:   StringToBasisPoints(obj.GetAnnualInterestRate()),
+		ProcessingFeePercent: StringToBasisPoints(obj.GetProcessingFeePercent()),
+		InsuranceFeePercent:  StringToBasisPoints(obj.GetInsuranceFeePercent()),
+		LatePenaltyRate:      StringToBasisPoints(obj.GetLatePenaltyRate()),
+		GracePeriodDays:      obj.GetGracePeriodDays(),
+		State:                int32(obj.GetState()),
+	}
+
+	if obj.GetKycSchema() != nil {
+		model.KycSchema = (&data.JSONMap{}).FromProtoStruct(obj.GetKycSchema())
+	}
+	if obj.GetFeeStructure() != nil {
+		model.FeeStructure = (&data.JSONMap{}).FromProtoStruct(obj.GetFeeStructure())
+	}
+	if obj.GetEligibilityCriteria() != nil {
+		model.EligibilityCriteria = (&data.JSONMap{}).FromProtoStruct(obj.GetEligibilityCriteria())
+	}
+	if len(obj.GetRequiredDocuments()) > 0 {
+		model.RequiredDocuments = stringSliceToJSONMap(obj.GetRequiredDocuments())
+	}
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// Repayment
+// ---------------------------------------------------------------------------
+
+type Repayment struct {
+	data.BaseModel
+	LoanAccountID       string `gorm:"type:varchar(50);index:idx_rep_loan"`
+	Amount              int64
+	CurrencyCode        string `gorm:"type:varchar(3)"`
+	Status              int32
+	PaymentReference    string `gorm:"type:varchar(100)"`
+	LedgerTransactionID string `gorm:"type:varchar(50)"`
+	ReceivedAt          *time.Time
+	Channel             string `gorm:"type:varchar(50)"`
+	PayerReference      string `gorm:"type:varchar(100)"`
+	PrincipalApplied    int64
+	InterestApplied     int64
+	FeesApplied         int64
+	PenaltiesApplied    int64
+	ExcessAmount        int64
+	IdempotencyKey      string `gorm:"type:varchar(100);uniqueIndex:uq_rep_idem"`
+	Properties          data.JSONMap
+}
+
+func (m *Repayment) TableName() string { return "repayments" }
+
+func (m *Repayment) ToAPI() *loansv1.RepaymentObject {
+	return &loansv1.RepaymentObject{
+		Id:                  m.GetID(),
+		LoanAccountId:       m.LoanAccountID,
+		Amount:              MinorUnitsToString(m.Amount),
+		CurrencyCode:        m.CurrencyCode,
+		Status:              loansv1.RepaymentStatus(m.Status),
+		PaymentReference:    m.PaymentReference,
+		LedgerTransactionId: m.LedgerTransactionID,
+		ReceivedAt:          TimeToString(m.ReceivedAt),
+		Channel:             m.Channel,
+		PayerReference:      m.PayerReference,
+		PrincipalApplied:    MinorUnitsToString(m.PrincipalApplied),
+		InterestApplied:     MinorUnitsToString(m.InterestApplied),
+		FeesApplied:         MinorUnitsToString(m.FeesApplied),
+		PenaltiesApplied:    MinorUnitsToString(m.PenaltiesApplied),
+		ExcessAmount:        MinorUnitsToString(m.ExcessAmount),
+		IdempotencyKey:      m.IdempotencyKey,
+		Properties:          m.Properties.ToProtoStruct(),
+	}
+}
+
+func RepaymentFromAPI(ctx context.Context, obj *loansv1.RepaymentObject) *Repayment {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Repayment{
+		LoanAccountID:       obj.GetLoanAccountId(),
+		Amount:              StringToMinorUnits(obj.GetAmount()),
+		CurrencyCode:        obj.GetCurrencyCode(),
+		Status:              int32(obj.GetStatus()),
+		PaymentReference:    obj.GetPaymentReference(),
+		LedgerTransactionID: obj.GetLedgerTransactionId(),
+		ReceivedAt:          StringToTime(obj.GetReceivedAt()),
+		Channel:             obj.GetChannel(),
+		PayerReference:      obj.GetPayerReference(),
+		PrincipalApplied:    StringToMinorUnits(obj.GetPrincipalApplied()),
+		InterestApplied:     StringToMinorUnits(obj.GetInterestApplied()),
+		FeesApplied:         StringToMinorUnits(obj.GetFeesApplied()),
+		PenaltiesApplied:    StringToMinorUnits(obj.GetPenaltiesApplied()),
+		ExcessAmount:        StringToMinorUnits(obj.GetExcessAmount()),
+		IdempotencyKey:      obj.GetIdempotencyKey(),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// Penalty
+// ---------------------------------------------------------------------------
+
+type Penalty struct {
+	data.BaseModel
+	LoanAccountID       string `gorm:"type:varchar(50);index:idx_pen_loan"`
+	PenaltyType         int32
+	Amount              int64
+	CurrencyCode        string `gorm:"type:varchar(3)"`
+	Reason              string `gorm:"type:text"`
+	IsWaived            bool
+	WaivedBy            string `gorm:"type:varchar(50)"`
+	WaivedReason        string `gorm:"type:text"`
+	LedgerTransactionID string `gorm:"type:varchar(50)"`
+	AppliedAt           *time.Time
+	ScheduleEntryID     string `gorm:"type:varchar(50)"`
+	Properties          data.JSONMap
+}
+
+func (m *Penalty) TableName() string { return "penalties" }
+
+func (m *Penalty) ToAPI() *loansv1.PenaltyObject {
+	return &loansv1.PenaltyObject{
+		Id:                  m.GetID(),
+		LoanAccountId:       m.LoanAccountID,
+		PenaltyType:         loansv1.PenaltyType(m.PenaltyType),
+		Amount:              MinorUnitsToString(m.Amount),
+		Reason:              m.Reason,
+		IsWaived:            m.IsWaived,
+		WaivedBy:            m.WaivedBy,
+		WaivedReason:        m.WaivedReason,
+		LedgerTransactionId: m.LedgerTransactionID,
+		AppliedAt:           TimeToString(m.AppliedAt),
+		ScheduleEntryId:     m.ScheduleEntryID,
+		Properties:          m.Properties.ToProtoStruct(),
+	}
+}
+
+func PenaltyFromAPI(ctx context.Context, obj *loansv1.PenaltyObject) *Penalty {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Penalty{
+		LoanAccountID:       obj.GetLoanAccountId(),
+		PenaltyType:         int32(obj.GetPenaltyType()),
+		Amount:              StringToMinorUnits(obj.GetAmount()),
+		Reason:              obj.GetReason(),
+		IsWaived:            obj.GetIsWaived(),
+		WaivedBy:            obj.GetWaivedBy(),
+		WaivedReason:        obj.GetWaivedReason(),
+		LedgerTransactionID: obj.GetLedgerTransactionId(),
+		AppliedAt:           StringToTime(obj.GetAppliedAt()),
+		ScheduleEntryID:     obj.GetScheduleEntryId(),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// LoanRestructure
+// ---------------------------------------------------------------------------
+
+type LoanRestructure struct {
+	data.BaseModel
+	LoanAccountID   string `gorm:"type:varchar(50);index:idx_lr_loan"`
+	RestructureType int32
+	RequestedBy     string `gorm:"type:varchar(50)"`
+	ApprovedBy      string `gorm:"type:varchar(50)"`
+	Reason          string `gorm:"type:text"`
+	CurrencyCode    string `gorm:"type:varchar(3)"`
+	OldInterestRate int64
+	NewInterestRate int64
+	OldTermDays     int32
+	NewTermDays     int32
+	WaivedAmount    int64
+	OldScheduleID   string `gorm:"type:varchar(50)"`
+	NewScheduleID   string `gorm:"type:varchar(50)"`
+	State           int32
+	Properties      data.JSONMap
+}
+
+func (m *LoanRestructure) TableName() string { return "loan_restructures" }
+
+func (m *LoanRestructure) ToAPI() *loansv1.LoanRestructureObject {
+	return &loansv1.LoanRestructureObject{
+		Id:              m.GetID(),
+		LoanAccountId:   m.LoanAccountID,
+		RestructureType: loansv1.RestructureType(m.RestructureType),
+		RequestedBy:     m.RequestedBy,
+		ApprovedBy:      m.ApprovedBy,
+		Reason:          m.Reason,
+		OldInterestRate: BasisPointsToString(m.OldInterestRate),
+		NewInterestRate: BasisPointsToString(m.NewInterestRate),
+		OldTermDays:     m.OldTermDays,
+		NewTermDays:     m.NewTermDays,
+		WaivedAmount:    MinorUnitsToString(m.WaivedAmount),
+		OldScheduleId:   m.OldScheduleID,
+		NewScheduleId:   m.NewScheduleID,
+		State:           commonv1.STATE(m.State),
+		Properties:      m.Properties.ToProtoStruct(),
+	}
+}
+
+func LoanRestructureFromAPI(ctx context.Context, obj *loansv1.LoanRestructureObject) *LoanRestructure {
+	if obj == nil {
+		return nil
+	}
+
+	model := &LoanRestructure{
+		LoanAccountID:   obj.GetLoanAccountId(),
+		RestructureType: int32(obj.GetRestructureType()),
+		RequestedBy:     obj.GetRequestedBy(),
+		ApprovedBy:      obj.GetApprovedBy(),
+		Reason:          obj.GetReason(),
+		OldInterestRate: StringToBasisPoints(obj.GetOldInterestRate()),
+		NewInterestRate: StringToBasisPoints(obj.GetNewInterestRate()),
+		OldTermDays:     obj.GetOldTermDays(),
+		NewTermDays:     obj.GetNewTermDays(),
+		WaivedAmount:    StringToMinorUnits(obj.GetWaivedAmount()),
+		OldScheduleID:   obj.GetOldScheduleId(),
+		NewScheduleID:   obj.GetNewScheduleId(),
+		State:           int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
+// LoanStatusChange (internal audit)
+// ---------------------------------------------------------------------------
+
+type LoanStatusChange struct {
+	data.BaseModel
+	LoanAccountID string `gorm:"type:varchar(50);index:idx_lsc_loan"`
+	FromStatus    int32
+	ToStatus      int32
+	ChangedBy     string `gorm:"type:varchar(50)"`
+	Reason        string `gorm:"type:text"`
+	ChangedAt     *time.Time
+}
+
+func (m *LoanStatusChange) TableName() string { return "loan_status_changes" }
+
+func (m *LoanStatusChange) ToAPI() *loansv1.LoanStatusChangeObject {
+	return &loansv1.LoanStatusChangeObject{
+		Id:            m.GetID(),
+		LoanAccountId: m.LoanAccountID,
+		FromStatus:    m.FromStatus,
+		ToStatus:      m.ToStatus,
+		ChangedBy:     m.ChangedBy,
+		Reason:        m.Reason,
+		ChangedAt:     TimeToString(m.ChangedAt),
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Reconciliation
+// ---------------------------------------------------------------------------
+
+type Reconciliation struct {
+	data.BaseModel
+	LoanAccountID      string `gorm:"type:varchar(50);index:idx_rec_loan"`
+	PaymentReference   string `gorm:"type:varchar(100)"`
+	ExternalReference  string `gorm:"type:varchar(100)"`
+	Amount             int64
+	CurrencyCode       string `gorm:"type:varchar(3)"`
+	Status             int32
+	MatchedRepaymentID string `gorm:"type:varchar(50)"`
+	Notes              string `gorm:"type:text"`
+	ReconciledAt       *time.Time
+	ReconciledBy       string `gorm:"type:varchar(50)"`
+	Properties         data.JSONMap
+}
+
+func (m *Reconciliation) TableName() string { return "reconciliations" }
+
+func (m *Reconciliation) ToAPI() *loansv1.ReconciliationObject {
+	return &loansv1.ReconciliationObject{
+		Id:                 m.GetID(),
+		LoanAccountId:      m.LoanAccountID,
+		PaymentReference:   m.PaymentReference,
+		ExternalReference:  m.ExternalReference,
+		Amount:             MinorUnitsToString(m.Amount),
+		CurrencyCode:       m.CurrencyCode,
+		Status:             loansv1.ReconciliationStatus(m.Status),
+		MatchedRepaymentId: m.MatchedRepaymentID,
+		Notes:              m.Notes,
+		ReconciledAt:       TimeToString(m.ReconciledAt),
+		ReconciledBy:       m.ReconciledBy,
+		Properties:         m.Properties.ToProtoStruct(),
+	}
+}
+
+func ReconciliationFromAPI(ctx context.Context, obj *loansv1.ReconciliationObject) *Reconciliation {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Reconciliation{
+		LoanAccountID:      obj.GetLoanAccountId(),
+		PaymentReference:   obj.GetPaymentReference(),
+		ExternalReference:  obj.GetExternalReference(),
+		Amount:             StringToMinorUnits(obj.GetAmount()),
+		CurrencyCode:       obj.GetCurrencyCode(),
+		Status:             int32(obj.GetStatus()),
+		MatchedRepaymentID: obj.GetMatchedRepaymentId(),
+		Notes:              obj.GetNotes(),
+		ReconciledAt:       StringToTime(obj.GetReconciledAt()),
+		ReconciledBy:       obj.GetReconciledBy(),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}

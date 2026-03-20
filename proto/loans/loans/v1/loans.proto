@@ -1,0 +1,1009 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package loans.v1;
+
+// -----------------------------------------------------
+// Core notes (normative):
+// - Loan Management Service manages active loans, disbursements, repayments,
+//   schedules, penalties, restructures, and reconciliation
+// - Handles the full loan lifecycle from disbursement through to closure
+// - Integrates with Origination, Identity, Ledger, Payment, and Notification services
+// - All timestamps are RFC3339 / google.protobuf.Timestamp
+// - All monetary amounts use google.type.Money for precision
+// -----------------------------------------------------
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/type/money.proto";
+
+option go_package = "github.com/antinvestor/apis/go/loans/v1;loansv1";
+option java_multiple_files = true;
+option java_package = "loansv1";
+option (gnostic.openapi.v3.document) = {
+  info: {
+    title: "Lender Loan Management Service"
+    version: "v1.0.0"
+    description: "The Lender Loan Management Service manages active loans, disbursements, repayments, repayment schedules, penalties, restructures, and payment reconciliation. It handles the full loan lifecycle from disbursement through to closure."
+    contact: {
+      name: "Ant Investor Ltd"
+      url: "https://github.com/antinvestor/service-lender"
+      email: "info@antinvestor.com"
+    }
+    license: {
+      name: "Apache License"
+      url: "https://github.com/antinvestor/apis/blob/master/LICENSE"
+    }
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+
+// -----------------------------------------------------
+// Enumerations
+// -----------------------------------------------------
+
+// LoanStatus defines the current status of a loan account.
+enum LoanStatus {
+  LOAN_STATUS_UNSPECIFIED = 0;
+  LOAN_STATUS_PENDING_DISBURSEMENT = 1;
+  LOAN_STATUS_ACTIVE = 2;
+  LOAN_STATUS_DELINQUENT = 3;
+  LOAN_STATUS_DEFAULT = 4;
+  LOAN_STATUS_PAID_OFF = 5;
+  LOAN_STATUS_RESTRUCTURED = 6;
+  LOAN_STATUS_WRITTEN_OFF = 7;
+  LOAN_STATUS_CLOSED = 8;
+}
+
+// DisbursementStatus defines the status of a loan disbursement.
+enum DisbursementStatus {
+  DISBURSEMENT_STATUS_UNSPECIFIED = 0;
+  DISBURSEMENT_STATUS_PENDING = 1;
+  DISBURSEMENT_STATUS_PROCESSING = 2;
+  DISBURSEMENT_STATUS_COMPLETED = 3;
+  DISBURSEMENT_STATUS_FAILED = 4;
+  DISBURSEMENT_STATUS_REVERSED = 5;
+}
+
+// RepaymentStatus defines the status of a repayment record.
+enum RepaymentStatus {
+  REPAYMENT_STATUS_UNSPECIFIED = 0;
+  REPAYMENT_STATUS_PENDING = 1;
+  REPAYMENT_STATUS_MATCHED = 2;
+  REPAYMENT_STATUS_PARTIAL = 3;
+  REPAYMENT_STATUS_OVERPAYMENT = 4;
+  REPAYMENT_STATUS_REVERSED = 5;
+}
+
+// ScheduleEntryStatus defines the status of a repayment schedule entry.
+enum ScheduleEntryStatus {
+  SCHEDULE_ENTRY_STATUS_UNSPECIFIED = 0;
+  SCHEDULE_ENTRY_STATUS_UPCOMING = 1;
+  SCHEDULE_ENTRY_STATUS_DUE = 2;
+  SCHEDULE_ENTRY_STATUS_PAID = 3;
+  SCHEDULE_ENTRY_STATUS_PARTIAL = 4;
+  SCHEDULE_ENTRY_STATUS_OVERDUE = 5;
+  SCHEDULE_ENTRY_STATUS_WAIVED = 6;
+}
+
+// PenaltyType defines the type of penalty applied to a loan.
+enum PenaltyType {
+  PENALTY_TYPE_UNSPECIFIED = 0;
+  PENALTY_TYPE_LATE_PAYMENT = 1;
+  PENALTY_TYPE_DEFAULT = 2;
+  PENALTY_TYPE_EARLY_REPAYMENT = 3;
+  PENALTY_TYPE_BOUNCED_PAYMENT = 4;
+}
+
+// RestructureType defines the type of loan restructure.
+enum RestructureType {
+  RESTRUCTURE_TYPE_UNSPECIFIED = 0;
+  RESTRUCTURE_TYPE_RESCHEDULE = 1;
+  RESTRUCTURE_TYPE_REFINANCE = 2;
+  RESTRUCTURE_TYPE_RATE_CHANGE = 3;
+  RESTRUCTURE_TYPE_PARTIAL_WAIVER = 4;
+  RESTRUCTURE_TYPE_WRITE_OFF = 5;
+}
+
+// ReconciliationStatus defines the status of a payment reconciliation.
+enum ReconciliationStatus {
+  RECONCILIATION_STATUS_UNSPECIFIED = 0;
+  RECONCILIATION_STATUS_PENDING = 1;
+  RECONCILIATION_STATUS_MATCHED = 2;
+  RECONCILIATION_STATUS_UNMATCHED = 3;
+  RECONCILIATION_STATUS_DISPUTED = 4;
+}
+
+// InterestMethod defines how interest is calculated on a loan.
+// Duplicated from origination.v1 for module independence.
+enum InterestMethod {
+  INTEREST_METHOD_UNSPECIFIED = 0;
+  INTEREST_METHOD_FLAT = 1;
+  INTEREST_METHOD_REDUCING_BALANCE = 2;
+  INTEREST_METHOD_COMPOUND = 3;
+}
+
+// RepaymentFrequency defines the repayment schedule frequency.
+// Duplicated from origination.v1 for module independence.
+enum RepaymentFrequency {
+  REPAYMENT_FREQUENCY_UNSPECIFIED = 0;
+  REPAYMENT_FREQUENCY_DAILY = 1;
+  REPAYMENT_FREQUENCY_WEEKLY = 2;
+  REPAYMENT_FREQUENCY_BIWEEKLY = 3;
+  REPAYMENT_FREQUENCY_MONTHLY = 4;
+  REPAYMENT_FREQUENCY_QUARTERLY = 5;
+}
+
+// -----------------------------------------------------
+// Entity Messages
+// -----------------------------------------------------
+
+// LoanAccountObject represents an active loan linked to a borrower and origination application.
+message LoanAccountObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string application_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string product_id = 3;
+  string borrower_id = 4;
+  string agent_id = 5;
+  string branch_id = 6;
+  string bank_id = 7;
+  LoanStatus status = 8;
+  // Field 9 removed (currency_code now in Money).
+  google.type.Money principal_amount = 10;
+  string interest_rate = 11;
+  int32 term_days = 12;
+  InterestMethod interest_method = 13;
+  RepaymentFrequency repayment_frequency = 14;
+  string disbursed_at = 15;
+  string maturity_date = 16;
+  string first_repayment_date = 17;
+  string last_repayment_date = 18;
+  int32 days_past_due = 19;
+  string ledger_asset_account_id = 20;
+  string ledger_interest_income_account_id = 21;
+  string ledger_fee_income_account_id = 22;
+  string ledger_penalty_income_account_id = 23;
+  string payment_account_ref = 24;
+  google.protobuf.Struct properties = 25;
+}
+
+// RepaymentScheduleObject represents an amortization schedule for a loan.
+message RepaymentScheduleObject {
+  string id = 1;
+  string loan_account_id = 2;
+  int32 version = 3;
+  bool is_active = 4;
+  string generated_at = 5;
+  repeated ScheduleEntryObject entries = 6;
+  google.protobuf.Struct properties = 7;
+}
+
+// ScheduleEntryObject represents an individual installment in a repayment schedule.
+message ScheduleEntryObject {
+  string id = 1;
+  string schedule_id = 2;
+  int32 installment_number = 3;
+  string due_date = 4;
+  google.type.Money principal_due = 5;
+  google.type.Money interest_due = 6;
+  google.type.Money fees_due = 7;
+  google.type.Money total_due = 8;
+  google.type.Money principal_paid = 9;
+  google.type.Money interest_paid = 10;
+  google.type.Money fees_paid = 11;
+  google.type.Money total_paid = 12;
+  google.type.Money outstanding = 13;
+  ScheduleEntryStatus status = 14;
+  string paid_date = 15;
+  google.protobuf.Struct properties = 16;
+}
+
+// LoanBalanceObject represents the current balance snapshot of a loan.
+message LoanBalanceObject {
+  string loan_account_id = 1;
+  google.type.Money principal_outstanding = 2;
+  google.type.Money interest_accrued = 3;
+  google.type.Money fees_outstanding = 4;
+  google.type.Money penalties_outstanding = 5;
+  google.type.Money total_outstanding = 6;
+  google.type.Money total_paid = 7;
+  google.type.Money total_disbursed = 8;
+  string last_calculated_at = 9;
+}
+
+// DisbursementObject represents a loan amount paid out to the borrower.
+message DisbursementObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string loan_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 3;
+  // Field 4 removed (currency_code now in Money).
+  DisbursementStatus status = 5;
+  string payment_reference = 6;
+  string ledger_transaction_id = 7;
+  string disbursed_at = 8;
+  string channel = 9;
+  string recipient_reference = 10;
+  string failure_reason = 11;
+  string idempotency_key = 12;
+  google.protobuf.Struct properties = 13;
+}
+
+// RepaymentObject represents an incoming payment record for a loan.
+message RepaymentObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string loan_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 3;
+  // Field 4 removed (currency_code now in Money).
+  RepaymentStatus status = 5;
+  string payment_reference = 6;
+  string ledger_transaction_id = 7;
+  string received_at = 8;
+  string channel = 9;
+  string payer_reference = 10;
+  google.type.Money principal_applied = 11;
+  google.type.Money interest_applied = 12;
+  google.type.Money fees_applied = 13;
+  google.type.Money penalties_applied = 14;
+  google.type.Money excess_amount = 15;
+  string idempotency_key = 16;
+  google.protobuf.Struct properties = 17;
+}
+
+// PenaltyObject represents a penalty applied to a loan.
+message PenaltyObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string loan_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  PenaltyType penalty_type = 3;
+  google.type.Money amount = 4;
+  string reason = 5;
+  bool is_waived = 6;
+  string waived_by = 7;
+  string waived_reason = 8;
+  string ledger_transaction_id = 9;
+  string applied_at = 10;
+  string schedule_entry_id = 11;
+  google.protobuf.Struct properties = 12;
+}
+
+// LoanRestructureObject represents a loan terms modification.
+message LoanRestructureObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string loan_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  RestructureType restructure_type = 3;
+  string requested_by = 4;
+  string approved_by = 5;
+  string reason = 6;
+  string old_interest_rate = 7;
+  string new_interest_rate = 8;
+  int32 old_term_days = 9;
+  int32 new_term_days = 10;
+  google.type.Money waived_amount = 11;
+  string old_schedule_id = 12;
+  string new_schedule_id = 13;
+  common.v1.STATE state = 14;
+  google.protobuf.Struct properties = 15;
+}
+
+// LoanStatusChangeObject records a loan status transition for audit.
+message LoanStatusChangeObject {
+  string id = 1;
+  string loan_account_id = 2;
+  int32 from_status = 3;
+  int32 to_status = 4;
+  string changed_by = 5;
+  string reason = 6;
+  string changed_at = 7;
+}
+
+// ReconciliationObject represents a payment reconciliation record.
+message ReconciliationObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string loan_account_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string payment_reference = 3;
+  string external_reference = 4;
+  google.type.Money amount = 5;
+  // Field 6 removed (currency_code now in Money).
+  ReconciliationStatus status = 7;
+  string matched_repayment_id = 8;
+  string notes = 9;
+  string reconciled_at = 10;
+  string reconciled_by = 11;
+  google.protobuf.Struct properties = 12;
+}
+
+// LoanStatementEntry represents a single line in a loan statement.
+message LoanStatementEntry {
+  string date = 1;
+  string description = 2;
+  google.type.Money debit = 3;
+  google.type.Money credit = 4;
+  google.type.Money balance = 5;
+  string reference = 6;
+}
+
+// -----------------------------------------------------
+// Request/Response Messages
+// -----------------------------------------------------
+
+// --- LoanAccount ---
+
+message LoanAccountCreateRequest {
+  string application_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+}
+
+message LoanAccountCreateResponse {
+  LoanAccountObject data = 1;
+}
+
+message LoanAccountGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message LoanAccountGetResponse {
+  LoanAccountObject data = 1;
+}
+
+message LoanAccountSearchRequest {
+  string query = 1;
+  string borrower_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string bank_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  LoanStatus status = 6;
+  common.v1.PageCursor cursor = 7;
+}
+
+message LoanAccountSearchResponse {
+  repeated LoanAccountObject data = 1;
+}
+
+message LoanBalanceGetRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+}
+
+message LoanBalanceGetResponse {
+  LoanBalanceObject data = 1;
+}
+
+// --- Disbursement ---
+
+message DisbursementCreateRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string channel = 2;
+  string recipient_reference = 3;
+  string idempotency_key = 4;
+}
+
+message DisbursementCreateResponse {
+  DisbursementObject data = 1;
+}
+
+message DisbursementGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message DisbursementGetResponse {
+  DisbursementObject data = 1;
+}
+
+message DisbursementSearchRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DisbursementStatus status = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message DisbursementSearchResponse {
+  repeated DisbursementObject data = 1;
+}
+
+// --- Repayment ---
+
+message RepaymentRecordRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 2;
+  string payment_reference = 3;
+  string channel = 4;
+  string payer_reference = 5;
+  string received_at = 6;
+  string idempotency_key = 7;
+}
+
+message RepaymentRecordResponse {
+  RepaymentObject data = 1;
+}
+
+message RepaymentGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message RepaymentGetResponse {
+  RepaymentObject data = 1;
+}
+
+message RepaymentSearchRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  RepaymentStatus status = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message RepaymentSearchResponse {
+  repeated RepaymentObject data = 1;
+}
+
+// --- RepaymentSchedule ---
+
+message RepaymentScheduleGetRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+}
+
+message RepaymentScheduleGetResponse {
+  RepaymentScheduleObject data = 1;
+}
+
+// --- Penalty ---
+
+message PenaltySaveRequest {
+  PenaltyObject data = 1 [(buf.validate.field).required = true];
+}
+
+message PenaltySaveResponse {
+  PenaltyObject data = 1;
+}
+
+message PenaltyWaiveRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message PenaltyWaiveResponse {
+  PenaltyObject data = 1;
+}
+
+message PenaltySearchRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  PenaltyType penalty_type = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message PenaltySearchResponse {
+  repeated PenaltyObject data = 1;
+}
+
+// --- Restructure ---
+
+message LoanRestructureCreateRequest {
+  LoanRestructureObject data = 1 [(buf.validate.field).required = true];
+}
+
+message LoanRestructureCreateResponse {
+  LoanRestructureObject data = 1;
+}
+
+message LoanRestructureApproveRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message LoanRestructureApproveResponse {
+  LoanRestructureObject data = 1;
+}
+
+message LoanRestructureRejectRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message LoanRestructureRejectResponse {
+  LoanRestructureObject data = 1;
+}
+
+message LoanRestructureSearchRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 2;
+}
+
+message LoanRestructureSearchResponse {
+  repeated LoanRestructureObject data = 1;
+}
+
+// --- Statement ---
+
+message LoanStatementRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string from_date = 2;
+  string to_date = 3;
+}
+
+message LoanStatementResponse {
+  LoanAccountObject loan = 1;
+  LoanBalanceObject balance = 2;
+  repeated LoanStatementEntry entries = 3;
+}
+
+// --- Reconciliation ---
+
+message ReconciliationSaveRequest {
+  ReconciliationObject data = 1 [(buf.validate.field).required = true];
+}
+
+message ReconciliationSaveResponse {
+  ReconciliationObject data = 1;
+}
+
+message ReconciliationSearchRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  ReconciliationStatus status = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message ReconciliationSearchResponse {
+  repeated ReconciliationObject data = 1;
+}
+
+// --- Collection ---
+
+message InitiateCollectionRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string amount = 2;
+  string phone_number = 3;
+  string idempotency_key = 4;
+}
+
+message InitiateCollectionResponse {
+  string payment_prompt_id = 1;
+  string status = 2;
+}
+
+// --- LoanStatusChange (audit) ---
+
+message LoanStatusChangeSearchRequest {
+  string loan_account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 2;
+}
+
+message LoanStatusChangeSearchResponse {
+  repeated LoanStatusChangeObject data = 1;
+}
+
+// --- Loan Request (direct borrower) ---
+
+// LoanRequestRequest is the client-facing API for direct borrower loan requests.
+// Clients call this from app/USSD. The system validates eligibility, runs
+// automated risk checks, and routes to the responsible agent for approval.
+message LoanRequestRequest {
+  string client_id = 1 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 40];
+  string product_id = 2 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 40];
+  google.type.Money requested_amount = 3;
+  int32 requested_term_days = 4;
+  // Field 5 removed (currency_code now in Money).
+  string purpose = 6;
+  google.protobuf.Struct properties = 7;
+}
+
+message LoanRequestResponse {
+  string request_id = 1;           // application ID for tracking
+  string status = 2;               // current status e.g. "UNDERWRITING"
+  bool risk_assessment_passed = 3;
+  string message = 4;              // human-readable status message
+}
+
+// -----------------------------------------------------
+// Loan Management Service
+// -----------------------------------------------------
+
+// LoanManagementService manages active loans, disbursements, repayments,
+// schedules, penalties, restructures, and reconciliation.
+// All RPCs require authentication via Bearer token.
+service LoanManagementService {
+  // LoanAccountCreate creates a new loan account from an approved application.
+  rpc LoanAccountCreate(LoanAccountCreateRequest) returns (LoanAccountCreateResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanAccountCreate"
+      summary: "Create a loan account"
+      description: "Creates a new loan account from an approved origination application."
+      tags: "LoanAccounts"
+    };
+  }
+
+  // LoanAccountGet retrieves a loan account by its ID.
+  rpc LoanAccountGet(LoanAccountGetRequest) returns (LoanAccountGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanAccountGet"
+      summary: "Get a loan account by ID"
+      description: "Retrieves a loan account record by its unique identifier."
+      tags: "LoanAccounts"
+    };
+  }
+
+  // LoanAccountSearch finds loan accounts matching search criteria.
+  rpc LoanAccountSearch(LoanAccountSearchRequest) returns (stream LoanAccountSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanAccountSearch"
+      summary: "Search loan accounts"
+      description: "Searches for loan accounts. Supports filtering by borrower, agent, branch, bank, and status."
+      tags: "LoanAccounts"
+    };
+  }
+
+  // LoanBalanceGet retrieves the current balance of a loan.
+  rpc LoanBalanceGet(LoanBalanceGetRequest) returns (LoanBalanceGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanBalanceGet"
+      summary: "Get loan balance"
+      description: "Retrieves the current balance snapshot for a loan account."
+      tags: "LoanAccounts"
+    };
+  }
+
+  // LoanStatement generates a loan statement for a date range.
+  rpc LoanStatement(LoanStatementRequest) returns (LoanStatementResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanStatement"
+      summary: "Get loan statement"
+      description: "Generates a loan statement with all transactions for the specified date range."
+      tags: "LoanAccounts"
+    };
+  }
+
+  // DisbursementCreate initiates a loan disbursement.
+  rpc DisbursementCreate(DisbursementCreateRequest) returns (DisbursementCreateResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "disbursementCreate"
+      summary: "Create a disbursement"
+      description: "Initiates a loan disbursement to the borrower via the specified channel."
+      tags: "Disbursements"
+    };
+  }
+
+  // DisbursementGet retrieves a disbursement by its ID.
+  rpc DisbursementGet(DisbursementGetRequest) returns (DisbursementGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "disbursementGet"
+      summary: "Get a disbursement by ID"
+      description: "Retrieves a disbursement record by its unique identifier."
+      tags: "Disbursements"
+    };
+  }
+
+  // DisbursementSearch finds disbursements for a loan.
+  rpc DisbursementSearch(DisbursementSearchRequest) returns (stream DisbursementSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "disbursementSearch"
+      summary: "Search disbursements"
+      description: "Searches for disbursements for a loan account."
+      tags: "Disbursements"
+    };
+  }
+
+  // RepaymentRecord records an incoming payment for a loan.
+  rpc RepaymentRecord(RepaymentRecordRequest) returns (RepaymentRecordResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "repaymentRecord"
+      summary: "Record a repayment"
+      description: "Records an incoming payment and allocates it to outstanding schedule entries."
+      tags: "Repayments"
+    };
+  }
+
+  // RepaymentGet retrieves a repayment by its ID.
+  rpc RepaymentGet(RepaymentGetRequest) returns (RepaymentGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "repaymentGet"
+      summary: "Get a repayment by ID"
+      description: "Retrieves a repayment record by its unique identifier."
+      tags: "Repayments"
+    };
+  }
+
+  // RepaymentSearch finds repayments for a loan.
+  rpc RepaymentSearch(RepaymentSearchRequest) returns (stream RepaymentSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "repaymentSearch"
+      summary: "Search repayments"
+      description: "Searches for repayments for a loan account."
+      tags: "Repayments"
+    };
+  }
+
+  // RepaymentScheduleGet retrieves the active repayment schedule for a loan.
+  rpc RepaymentScheduleGet(RepaymentScheduleGetRequest) returns (RepaymentScheduleGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "repaymentScheduleGet"
+      summary: "Get repayment schedule"
+      description: "Retrieves the active amortization schedule for a loan account."
+      tags: "RepaymentSchedules"
+    };
+  }
+
+  // PenaltySave creates or updates a penalty on a loan.
+  rpc PenaltySave(PenaltySaveRequest) returns (PenaltySaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "penaltySave"
+      summary: "Create or update a penalty"
+      description: "Creates or updates a penalty record for a loan account."
+      tags: "Penalties"
+    };
+  }
+
+  // PenaltyWaive waives a penalty on a loan.
+  rpc PenaltyWaive(PenaltyWaiveRequest) returns (PenaltyWaiveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "penaltyWaive"
+      summary: "Waive a penalty"
+      description: "Waives a penalty with a reason."
+      tags: "Penalties"
+    };
+  }
+
+  // PenaltySearch finds penalties for a loan.
+  rpc PenaltySearch(PenaltySearchRequest) returns (stream PenaltySearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "penaltySearch"
+      summary: "Search penalties"
+      description: "Searches for penalties for a loan account."
+      tags: "Penalties"
+    };
+  }
+
+  // LoanRestructureCreate requests a loan restructure.
+  rpc LoanRestructureCreate(LoanRestructureCreateRequest) returns (LoanRestructureCreateResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRestructureCreate"
+      summary: "Create a restructure request"
+      description: "Creates a new loan restructure request."
+      tags: "Restructures"
+    };
+  }
+
+  // LoanRestructureApprove approves a loan restructure.
+  rpc LoanRestructureApprove(LoanRestructureApproveRequest) returns (LoanRestructureApproveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRestructureApprove"
+      summary: "Approve a restructure"
+      description: "Approves a pending loan restructure, modifying loan terms and regenerating the schedule."
+      tags: "Restructures"
+    };
+  }
+
+  // LoanRestructureReject rejects a loan restructure.
+  rpc LoanRestructureReject(LoanRestructureRejectRequest) returns (LoanRestructureRejectResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRestructureReject"
+      summary: "Reject a restructure"
+      description: "Rejects a pending loan restructure with a reason."
+      tags: "Restructures"
+    };
+  }
+
+  // LoanRestructureSearch finds restructures for a loan.
+  rpc LoanRestructureSearch(LoanRestructureSearchRequest) returns (stream LoanRestructureSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRestructureSearch"
+      summary: "Search restructures"
+      description: "Searches for restructure records for a loan account."
+      tags: "Restructures"
+    };
+  }
+
+  // ReconciliationSave creates or updates a reconciliation record.
+  rpc ReconciliationSave(ReconciliationSaveRequest) returns (ReconciliationSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "reconciliationSave"
+      summary: "Create or update a reconciliation"
+      description: "Creates or updates a payment reconciliation record."
+      tags: "Reconciliation"
+    };
+  }
+
+  // ReconciliationSearch finds reconciliation records.
+  rpc ReconciliationSearch(ReconciliationSearchRequest) returns (stream ReconciliationSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "reconciliationSearch"
+      summary: "Search reconciliations"
+      description: "Searches for reconciliation records. Supports filtering by loan and status."
+      tags: "Reconciliation"
+    };
+  }
+
+  // InitiateCollection sends a payment collection prompt to the borrower.
+  rpc InitiateCollection(InitiateCollectionRequest) returns (InitiateCollectionResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "initiateCollection"
+      summary: "Initiate payment collection"
+      description: "Sends an STK push or payment prompt to collect a payment from the borrower."
+      tags: "Collection"
+    };
+  }
+
+  // LoanStatusChangeSearch retrieves status change audit trail for a loan.
+  rpc LoanStatusChangeSearch(LoanStatusChangeSearchRequest) returns (stream LoanStatusChangeSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanStatusChangeSearch"
+      summary: "Search loan status changes"
+      description: "Retrieves the status change audit trail for a loan account."
+      tags: "Audit"
+    };
+  }
+
+  // LoanRequest is the client-facing API for direct borrower loan requests.
+  // Clients call this from app/USSD. The system validates eligibility,
+  // runs automated risk checks, and routes to the responsible agent.
+  rpc LoanRequest(LoanRequestRequest) returns (LoanRequestResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequest"
+      summary: "Request a loan (direct borrower)"
+      description: "A client-facing API for direct borrower loan requests. Validates eligibility, runs automated risk checks, and routes to the agent for approval. Returns the request status and reference for tracking."
+      tags: "LoanRequest"
+    };
+  }
+}
