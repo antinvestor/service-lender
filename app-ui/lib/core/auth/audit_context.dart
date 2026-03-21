@@ -16,15 +16,17 @@ class AuditContext {
     this.contactId,
     this.accessId,
     this.sessionId,
+    this.deviceId,
     this.displayName,
     this.location,
   });
 
-  // Who — authenticated user claims
-  final String profileId; // sub claim
-  final String? contactId; // contact_id or email claim
-  final String? accessId; // azp or client_id claim
-  final String? sessionId; // sid or session_state claim
+  // Who — authenticated user claims (from Frame AuthenticationClaims)
+  final String profileId; // sub / profile_id claim
+  final String? contactId; // contact_id claim
+  final String? accessId; // azp / access_id claim
+  final String? sessionId; // sid / session_id claim
+  final String? deviceId; // device_id claim
   final String? displayName; // name or preferred_username claim
 
   // Where — device location at time of action
@@ -38,6 +40,7 @@ class AuditContext {
       if (contactId != null) 'contact_id': contactId!,
       if (accessId != null) 'access_id': accessId!,
       if (sessionId != null) 'session_id': sessionId!,
+      if (deviceId != null) 'device_id': deviceId!,
       if (displayName != null) 'display_name': displayName!,
       'timestamp': DateTime.now().toUtc().toIso8601String(),
     };
@@ -94,6 +97,7 @@ Future<AuditContext> auditContext(Ref ref) async {
         claims['azp'] as String? ?? claims['client_id'] as String?,
     sessionId:
         claims['sid'] as String? ?? claims['session_state'] as String?,
+    deviceId: claims['device_id'] as String?,
     displayName: claims['name'] as String? ??
         claims['preferred_username'] as String?,
     location: location,
