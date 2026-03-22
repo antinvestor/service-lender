@@ -28,7 +28,7 @@ require (
 	github.com/antinvestor/apis/go/partition v1.55.17
 	github.com/antinvestor/apis/go/profile v1.55.17
 	github.com/cockroachdb/apd/v3 v3.2.2
-	github.com/pitabwire/frame v1.81.0
+	github.com/pitabwire/frame v1.81.1
 	github.com/pitabwire/util v0.6.1
 	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7
 	google.golang.org/protobuf v1.36.11
@@ -67,7 +67,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/compress v1.18.4 // indirect
+	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/lmittmann/tint v1.1.3 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nats-io/nats.go v1.49.0 // indirect
@@ -76,7 +76,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
 	github.com/ory/keto/proto v0.13.0-alpha.0 // indirect
 	github.com/panjf2000/ants/v2 v2.11.6 // indirect
-	github.com/pitabwire/natspubsub v0.7.13 // indirect
+	github.com/pitabwire/natspubsub v0.8.0 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.67.5 // indirect
@@ -127,7 +127,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.272.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260316180232-0b37fe3546d5 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260316180232-0b37fe3546d5 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260319201613-d00831a3d3e7 // indirect
 	google.golang.org/grpc v1.79.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
