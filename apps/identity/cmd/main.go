@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"buf.build/gen/go/antinvestor/lender/connectrpc/go/lender/v1/lenderv1connect"
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	"buf.build/gen/go/antinvestor/partition/connectrpc/go/partition/v1/partitionv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"connectrpc.com/connect"
@@ -82,8 +82,11 @@ func main() {
 	bankRepo := repository.NewBankRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
-	borrowerRepo := repository.NewBorrowerRepository(ctx, dbPool, workMan)
-	bahRepo := repository.NewBorrowerAssignmentHistoryRepository(ctx, dbPool, workMan)
+	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
+	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
+	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
+	groupRepo := repository.NewGroupRepository(ctx, dbPool, workMan)
+	membershipRepo := repository.NewMembershipRepository(ctx, dbPool, workMan)
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
 
@@ -91,7 +94,9 @@ func main() {
 	bankBusiness := business.NewBankBusiness(ctx, evtsMan, bankRepo)
 	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, bankRepo, branchRepo)
 	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo)
-	borrowerBusiness := business.NewBorrowerBusiness(ctx, evtsMan, agentRepo, borrowerRepo, bahRepo, branchRepo)
+	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, branchRepo, clcrRepo)
+	groupBusiness := business.NewGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
+	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 
@@ -99,8 +104,19 @@ func main() {
 	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
 
 	// Setup Connect RPC servers
-	connectHandler := setupConnectServer(ctx, sm, authzMiddleware,
-		bankBusiness, branchBusiness, agentBusiness, borrowerBusiness, investorBusiness, suBusiness)
+	connectHandler := setupConnectServer(
+		ctx,
+		sm,
+		authzMiddleware,
+		bankBusiness,
+		branchBusiness,
+		agentBusiness,
+		clientBusiness,
+		groupBusiness,
+		membershipBusiness,
+		investorBusiness,
+		suBusiness,
+	)
 
 	// Initialise the service with all options
 	serviceOptions := []frame.Option{
@@ -109,9 +125,12 @@ func main() {
 			identityevents.NewBankSave(ctx, bankRepo),
 			identityevents.NewBranchSave(ctx, branchRepo),
 			identityevents.NewAgentSave(ctx, agentRepo),
-			identityevents.NewBorrowerSave(ctx, borrowerRepo),
+			identityevents.NewClientSave(ctx, clientRepo),
+			identityevents.NewGroupSave(ctx, groupRepo),
+			identityevents.NewMembershipSave(ctx, membershipRepo),
 			identityevents.NewInvestorSave(ctx, investorRepo),
 			identityevents.NewSystemUserSave(ctx, systemUserRepo),
+			identityevents.NewCreditLimitChangeRequestSave(ctx, clcrRepo),
 		),
 	}
 
@@ -167,7 +186,9 @@ func setupConnectServer(
 	bankBusiness business.BankBusiness,
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
-	borrowerBusiness business.BorrowerBusiness,
+	clientBusiness business.ClientBusiness,
+	groupBusiness business.GroupBusiness,
+	membershipBusiness business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) http.Handler {
@@ -179,7 +200,13 @@ func setupConnectServer(
 		investorBusiness,
 		suBusiness,
 	)
-	fieldHandler := handlers.NewFieldServer(authzMiddleware, agentBusiness, borrowerBusiness)
+	fieldHandler := handlers.NewFieldServer(
+		authzMiddleware,
+		agentBusiness,
+		clientBusiness,
+		groupBusiness,
+		membershipBusiness,
+	)
 
 	// Layer 1: TenancyAccessChecker verifies caller can access the partition
 	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(
@@ -195,8 +222,11 @@ func setupConnectServer(
 	interceptorOption := connect.WithInterceptors(defaultInterceptorList...)
 
 	// Register both services on the same mux
-	identityPath, identityServerHandler := lenderv1connect.NewIdentityServiceHandler(identityHandler, interceptorOption)
-	fieldPath, fieldServerHandler := lenderv1connect.NewFieldServiceHandler(fieldHandler, interceptorOption)
+	identityPath, identityServerHandler := identityv1connect.NewIdentityServiceHandler(
+		identityHandler,
+		interceptorOption,
+	)
+	fieldPath, fieldServerHandler := identityv1connect.NewFieldServiceHandler(fieldHandler, interceptorOption)
 
 	mux := http.NewServeMux()
 	mux.Handle(identityPath, identityServerHandler)

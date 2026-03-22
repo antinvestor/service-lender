@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -16,12 +16,12 @@ import (
 )
 
 type InvestorBusiness interface {
-	Save(ctx context.Context, obj *lenderv1.InvestorObject) (*lenderv1.InvestorObject, error)
-	Get(ctx context.Context, id string) (*lenderv1.InvestorObject, error)
+	Save(ctx context.Context, obj *identityv1.InvestorObject) (*identityv1.InvestorObject, error)
+	Get(ctx context.Context, id string) (*identityv1.InvestorObject, error)
 	Search(
 		ctx context.Context,
-		req *lenderv1.InvestorSearchRequest,
-		consumer func(ctx context.Context, batch []*lenderv1.InvestorObject) error,
+		req *identityv1.InvestorSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.InvestorObject) error,
 	) error
 }
 
@@ -39,7 +39,10 @@ func NewInvestorBusiness(_ context.Context, eventsMan fevents.Manager,
 	}
 }
 
-func (b *investorBusiness) Save(ctx context.Context, obj *lenderv1.InvestorObject) (*lenderv1.InvestorObject, error) {
+func (b *investorBusiness) Save(
+	ctx context.Context,
+	obj *identityv1.InvestorObject,
+) (*identityv1.InvestorObject, error) {
 	logger := util.Log(ctx).WithField("method", "InvestorBusiness.Save")
 
 	isNew := obj.GetId() == ""
@@ -58,7 +61,7 @@ func (b *investorBusiness) Save(ctx context.Context, obj *lenderv1.InvestorObjec
 	return investor.ToAPI(), nil
 }
 
-func (b *investorBusiness) Get(ctx context.Context, id string) (*lenderv1.InvestorObject, error) {
+func (b *investorBusiness) Get(ctx context.Context, id string) (*identityv1.InvestorObject, error) {
 	investor, err := b.investorRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrInvestorNotFound
@@ -68,8 +71,8 @@ func (b *investorBusiness) Get(ctx context.Context, id string) (*lenderv1.Invest
 
 func (b *investorBusiness) Search(
 	ctx context.Context,
-	req *lenderv1.InvestorSearchRequest,
-	consumer func(ctx context.Context, batch []*lenderv1.InvestorObject) error,
+	req *identityv1.InvestorSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.InvestorObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "InvestorBusiness.Search")
 
@@ -100,7 +103,7 @@ func (b *investorBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Investor) error {
-		var apiResults []*lenderv1.InvestorObject
+		var apiResults []*identityv1.InvestorObject
 		for _, investor := range res {
 			apiResults = append(apiResults, investor.ToAPI())
 		}

@@ -1,0 +1,798 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package origination.v1;
+
+// -----------------------------------------------------
+// Core notes (normative):
+// - Origination Service manages loan products, applications, documents,
+//   verification tasks, and underwriting decisions
+// - Handles the full loan application lifecycle from draft to loan creation
+// - Integrates with Identity, Trustage, Files, Notification, and Profile services
+// - All timestamps are RFC3339 / google.protobuf.Timestamp
+// -----------------------------------------------------
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/type/money.proto";
+
+option go_package = "github.com/antinvestor/apis/go/origination/v1;originationv1";
+option java_multiple_files = true;
+option java_package = "originationv1";
+option (gnostic.openapi.v3.document) = {
+  info: {
+    title: "Lender Origination Service"
+    version: "v1.0.0"
+    description: "The Lender Origination Service manages loan products, applications, documents, verification tasks, and underwriting decisions. It handles the full loan application lifecycle from draft through to loan creation."
+    contact: {
+      name: "Ant Investor Ltd"
+      url: "https://github.com/antinvestor/service-lender"
+      email: "info@antinvestor.com"
+    }
+    license: {
+      name: "Apache License"
+      url: "https://github.com/antinvestor/apis/blob/master/LICENSE"
+    }
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+
+// -----------------------------------------------------
+// Enumerations
+// -----------------------------------------------------
+
+// LoanProductType defines the type of loan product.
+enum LoanProductType {
+  LOAN_PRODUCT_TYPE_UNSPECIFIED = 0;
+  LOAN_PRODUCT_TYPE_TERM = 1;
+  LOAN_PRODUCT_TYPE_REVOLVING = 2;
+  LOAN_PRODUCT_TYPE_BULLET = 3;
+  LOAN_PRODUCT_TYPE_GRADUATED = 4;
+}
+
+// InterestMethod defines how interest is calculated.
+enum InterestMethod {
+  INTEREST_METHOD_UNSPECIFIED = 0;
+  INTEREST_METHOD_FLAT = 1;
+  INTEREST_METHOD_REDUCING_BALANCE = 2;
+  INTEREST_METHOD_COMPOUND = 3;
+}
+
+// RepaymentFrequency defines the repayment schedule frequency.
+enum RepaymentFrequency {
+  REPAYMENT_FREQUENCY_UNSPECIFIED = 0;
+  REPAYMENT_FREQUENCY_DAILY = 1;
+  REPAYMENT_FREQUENCY_WEEKLY = 2;
+  REPAYMENT_FREQUENCY_BIWEEKLY = 3;
+  REPAYMENT_FREQUENCY_MONTHLY = 4;
+  REPAYMENT_FREQUENCY_QUARTERLY = 5;
+}
+
+// ApplicationStatus defines the current stage of a loan application.
+enum ApplicationStatus {
+  APPLICATION_STATUS_UNSPECIFIED = 0;
+  APPLICATION_STATUS_DRAFT = 1;
+  APPLICATION_STATUS_SUBMITTED = 2;
+  APPLICATION_STATUS_KYC_PENDING = 3;
+  APPLICATION_STATUS_DOCUMENTS_PENDING = 4;
+  APPLICATION_STATUS_VERIFICATION = 5;
+  APPLICATION_STATUS_UNDERWRITING = 6;
+  APPLICATION_STATUS_APPROVED = 7;
+  APPLICATION_STATUS_REJECTED = 8;
+  APPLICATION_STATUS_OFFER_GENERATED = 9;
+  APPLICATION_STATUS_OFFER_ACCEPTED = 10;
+  APPLICATION_STATUS_OFFER_DECLINED = 11;
+  APPLICATION_STATUS_LOAN_CREATED = 12;
+  APPLICATION_STATUS_CANCELLED = 13;
+  APPLICATION_STATUS_EXPIRED = 14;
+}
+
+// DocumentType defines the type of document attached to an application.
+enum DocumentType {
+  DOCUMENT_TYPE_UNSPECIFIED = 0;
+  DOCUMENT_TYPE_NATIONAL_ID = 1;
+  DOCUMENT_TYPE_PASSPORT = 2;
+  DOCUMENT_TYPE_BUSINESS_REGISTRATION = 3;
+  DOCUMENT_TYPE_BANK_STATEMENT = 4;
+  DOCUMENT_TYPE_TAX_CERTIFICATE = 5;
+  DOCUMENT_TYPE_PROOF_OF_ADDRESS = 6;
+  DOCUMENT_TYPE_INCOME_PROOF = 7;
+  DOCUMENT_TYPE_COLLATERAL_PHOTO = 8;
+  DOCUMENT_TYPE_OTHER = 99;
+}
+
+// VerificationStatus defines the status of a verification task or document.
+enum VerificationStatus {
+  VERIFICATION_STATUS_UNSPECIFIED = 0;
+  VERIFICATION_STATUS_PENDING = 1;
+  VERIFICATION_STATUS_IN_PROGRESS = 2;
+  VERIFICATION_STATUS_PASSED = 3;
+  VERIFICATION_STATUS_FAILED = 4;
+  VERIFICATION_STATUS_NEEDS_REVIEW = 5;
+}
+
+// UnderwritingOutcome defines the result of an underwriting decision.
+enum UnderwritingOutcome {
+  UNDERWRITING_OUTCOME_UNSPECIFIED = 0;
+  UNDERWRITING_OUTCOME_APPROVE = 1;
+  UNDERWRITING_OUTCOME_REJECT = 2;
+  UNDERWRITING_OUTCOME_REFER = 3;
+  UNDERWRITING_OUTCOME_COUNTER_OFFER = 4;
+}
+
+// -----------------------------------------------------
+// Entity Messages
+// -----------------------------------------------------
+
+// LoanProductObject defines loan terms, rates, fees, and limits for a bank.
+message LoanProductObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string bank_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 3 [(buf.validate.field).string.min_len = 1];
+  string code = 4 [(buf.validate.field).string.min_len = 1];
+  string description = 5;
+  LoanProductType product_type = 6;
+  string currency_code = 7 [(buf.validate.field).string.len = 3]; // ISO 4217
+  InterestMethod interest_method = 8;
+  RepaymentFrequency repayment_frequency = 9;
+  google.type.Money min_amount = 10;
+  google.type.Money max_amount = 11;
+  int32 min_term_days = 12;
+  int32 max_term_days = 13;
+  string annual_interest_rate = 14; // Decimal percentage e.g. "12.5"
+  string processing_fee_percent = 15;
+  string insurance_fee_percent = 16;
+  string late_penalty_rate = 17;
+  int32 grace_period_days = 18;
+  google.protobuf.Struct kyc_schema = 19;
+  google.protobuf.Struct fee_structure = 20;
+  google.protobuf.Struct eligibility_criteria = 21;
+  repeated string required_documents = 22;
+  common.v1.STATE state = 23;
+  google.protobuf.Struct properties = 24;
+}
+
+// ApplicationObject represents a borrower's loan application.
+message ApplicationObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string product_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string borrower_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string bank_id = 6 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  ApplicationStatus status = 7;
+  google.type.Money requested_amount = 8;
+  google.type.Money approved_amount = 9;
+  int32 requested_term_days = 10;
+  int32 approved_term_days = 11;
+  string interest_rate = 12;
+  google.protobuf.Struct kyc_data = 14;
+  string purpose = 15;
+  string rejection_reason = 16;
+  string workflow_instance_id = 17;
+  string offer_expires_at = 18; // RFC3339
+  string submitted_at = 19;
+  string decided_at = 20;
+  string loan_account_id = 21;
+  google.protobuf.Struct properties = 22;
+}
+
+// ApplicationDocumentObject represents a document attached to an application.
+message ApplicationDocumentObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string application_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DocumentType document_type = 3;
+  string file_id = 4;
+  string file_name = 5;
+  string mime_type = 6;
+  VerificationStatus verification_status = 7;
+  string verified_by = 8;
+  string verified_at = 9;
+  string rejection_reason = 10;
+  google.protobuf.Struct properties = 11;
+}
+
+// VerificationTaskObject represents a verification task assigned to a verifier.
+message VerificationTaskObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string application_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string assigned_to = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string verification_type = 4;
+  VerificationStatus status = 5;
+  string notes = 6;
+  google.protobuf.Struct checklist = 7;
+  google.protobuf.Struct results = 8;
+  string completed_at = 9;
+  google.protobuf.Struct properties = 10;
+}
+
+// UnderwritingDecisionObject represents a credit assessment decision.
+message UnderwritingDecisionObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string application_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string decided_by = 3;
+  UnderwritingOutcome outcome = 4;
+  int32 credit_score = 5;
+  string risk_grade = 6;
+  google.type.Money approved_amount = 7;
+  int32 approved_term_days = 8;
+  string approved_rate = 9;
+  string reason = 10;
+  google.protobuf.Struct scoring_details = 11;
+  google.protobuf.Struct conditions = 12;
+  google.protobuf.Struct properties = 13;
+}
+
+// -----------------------------------------------------
+// Request/Response Messages
+// -----------------------------------------------------
+
+// --- LoanProduct ---
+
+message LoanProductSaveRequest {
+  LoanProductObject data = 1 [(buf.validate.field).required = true];
+}
+
+message LoanProductSaveResponse {
+  LoanProductObject data = 1;
+}
+
+message LoanProductGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message LoanProductGetResponse {
+  LoanProductObject data = 1;
+}
+
+message LoanProductSearchRequest {
+  string query = 1;
+  string bank_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  LoanProductType product_type = 3;
+  common.v1.PageCursor cursor = 4;
+}
+
+message LoanProductSearchResponse {
+  repeated LoanProductObject data = 1;
+}
+
+// --- Application ---
+
+message ApplicationSaveRequest {
+  ApplicationObject data = 1 [(buf.validate.field).required = true];
+}
+
+message ApplicationSaveResponse {
+  ApplicationObject data = 1;
+}
+
+message ApplicationGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message ApplicationGetResponse {
+  ApplicationObject data = 1;
+}
+
+message ApplicationSearchRequest {
+  string query = 1;
+  string borrower_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string bank_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  ApplicationStatus status = 6;
+  common.v1.PageCursor cursor = 7;
+}
+
+message ApplicationSearchResponse {
+  repeated ApplicationObject data = 1;
+}
+
+message ApplicationSubmitRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message ApplicationSubmitResponse {
+  ApplicationObject data = 1;
+}
+
+message ApplicationCancelRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message ApplicationCancelResponse {
+  ApplicationObject data = 1;
+}
+
+message ApplicationAcceptOfferRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message ApplicationAcceptOfferResponse {
+  ApplicationObject data = 1;
+}
+
+message ApplicationDeclineOfferRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message ApplicationDeclineOfferResponse {
+  ApplicationObject data = 1;
+}
+
+// --- ApplicationDocument ---
+
+message ApplicationDocumentSaveRequest {
+  ApplicationDocumentObject data = 1 [(buf.validate.field).required = true];
+}
+
+message ApplicationDocumentSaveResponse {
+  ApplicationDocumentObject data = 1;
+}
+
+message ApplicationDocumentGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message ApplicationDocumentGetResponse {
+  ApplicationDocumentObject data = 1;
+}
+
+message ApplicationDocumentSearchRequest {
+  string application_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DocumentType document_type = 2;
+  common.v1.PageCursor cursor = 3;
+}
+
+message ApplicationDocumentSearchResponse {
+  repeated ApplicationDocumentObject data = 1;
+}
+
+// --- VerificationTask ---
+
+message VerificationTaskSaveRequest {
+  VerificationTaskObject data = 1 [(buf.validate.field).required = true];
+}
+
+message VerificationTaskSaveResponse {
+  VerificationTaskObject data = 1;
+}
+
+message VerificationTaskGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message VerificationTaskGetResponse {
+  VerificationTaskObject data = 1;
+}
+
+message VerificationTaskSearchRequest {
+  string application_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string assigned_to = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  VerificationStatus status = 3;
+  common.v1.PageCursor cursor = 4;
+}
+
+message VerificationTaskSearchResponse {
+  repeated VerificationTaskObject data = 1;
+}
+
+message VerificationTaskCompleteRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  VerificationStatus status = 2; // PASSED or FAILED
+  string notes = 3;
+  google.protobuf.Struct results = 4;
+}
+
+message VerificationTaskCompleteResponse {
+  VerificationTaskObject data = 1;
+}
+
+// --- UnderwritingDecision ---
+
+message UnderwritingDecisionSaveRequest {
+  UnderwritingDecisionObject data = 1 [(buf.validate.field).required = true];
+}
+
+message UnderwritingDecisionSaveResponse {
+  UnderwritingDecisionObject data = 1;
+}
+
+message UnderwritingDecisionGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message UnderwritingDecisionGetResponse {
+  UnderwritingDecisionObject data = 1;
+}
+
+message UnderwritingDecisionSearchRequest {
+  string application_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 2;
+}
+
+message UnderwritingDecisionSearchResponse {
+  repeated UnderwritingDecisionObject data = 1;
+}
+
+// -----------------------------------------------------
+// Origination Service
+// -----------------------------------------------------
+
+// OriginationService manages loan products, applications, documents,
+// verification tasks, and underwriting decisions.
+// All RPCs require authentication via Bearer token.
+service OriginationService {
+  // LoanProductSave creates or updates a loan product.
+  rpc LoanProductSave(LoanProductSaveRequest) returns (LoanProductSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanProductSave"
+      summary: "Create or update a loan product"
+      description: "Creates a new loan product or updates an existing one. Loan products define terms, rates, fees, and eligibility criteria."
+      tags: "LoanProducts"
+    };
+  }
+
+  // LoanProductGet retrieves a loan product by its ID.
+  rpc LoanProductGet(LoanProductGetRequest) returns (LoanProductGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanProductGet"
+      summary: "Get a loan product by ID"
+      description: "Retrieves a loan product record by its unique identifier."
+      tags: "LoanProducts"
+    };
+  }
+
+  // LoanProductSearch finds loan products matching search criteria.
+  rpc LoanProductSearch(LoanProductSearchRequest) returns (stream LoanProductSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanProductSearch"
+      summary: "Search loan products"
+      description: "Searches for loan products matching specified criteria. Supports filtering by bank and product type."
+      tags: "LoanProducts"
+    };
+  }
+
+  // ApplicationSave creates or updates a loan application.
+  rpc ApplicationSave(ApplicationSaveRequest) returns (ApplicationSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationSave"
+      summary: "Create or update a loan application"
+      description: "Creates a new loan application or updates an existing draft. Applications start in DRAFT status."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationGet retrieves an application by its ID.
+  rpc ApplicationGet(ApplicationGetRequest) returns (ApplicationGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationGet"
+      summary: "Get an application by ID"
+      description: "Retrieves a loan application record by its unique identifier."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationSearch finds applications matching search criteria.
+  rpc ApplicationSearch(ApplicationSearchRequest) returns (stream ApplicationSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationSearch"
+      summary: "Search applications"
+      description: "Searches for applications matching specified criteria. Supports filtering by borrower, agent, branch, bank, and status."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationSubmit transitions a draft application to submitted status.
+  rpc ApplicationSubmit(ApplicationSubmitRequest) returns (ApplicationSubmitResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationSubmit"
+      summary: "Submit a draft application"
+      description: "Transitions an application from DRAFT to SUBMITTED status, triggering the origination workflow."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationCancel cancels an application.
+  rpc ApplicationCancel(ApplicationCancelRequest) returns (ApplicationCancelResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationCancel"
+      summary: "Cancel an application"
+      description: "Cancels a non-terminal application with a reason."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationAcceptOffer accepts a generated loan offer.
+  rpc ApplicationAcceptOffer(ApplicationAcceptOfferRequest) returns (ApplicationAcceptOfferResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationAcceptOffer"
+      summary: "Accept a loan offer"
+      description: "Accepts a generated loan offer, triggering loan account creation."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationDeclineOffer declines a generated loan offer.
+  rpc ApplicationDeclineOffer(ApplicationDeclineOfferRequest) returns (ApplicationDeclineOfferResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationDeclineOffer"
+      summary: "Decline a loan offer"
+      description: "Declines a generated loan offer with a reason."
+      tags: "Applications"
+    };
+  }
+
+  // ApplicationDocumentSave creates or updates an application document.
+  rpc ApplicationDocumentSave(ApplicationDocumentSaveRequest) returns (ApplicationDocumentSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationDocumentSave"
+      summary: "Create or update an application document"
+      description: "Attaches or updates a document on a loan application."
+      tags: "ApplicationDocuments"
+    };
+  }
+
+  // ApplicationDocumentGet retrieves an application document by its ID.
+  rpc ApplicationDocumentGet(ApplicationDocumentGetRequest) returns (ApplicationDocumentGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationDocumentGet"
+      summary: "Get an application document by ID"
+      description: "Retrieves an application document record by its unique identifier."
+      tags: "ApplicationDocuments"
+    };
+  }
+
+  // ApplicationDocumentSearch finds application documents matching criteria.
+  rpc ApplicationDocumentSearch(ApplicationDocumentSearchRequest) returns (stream ApplicationDocumentSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "applicationDocumentSearch"
+      summary: "Search application documents"
+      description: "Searches for documents attached to an application. Supports filtering by document type."
+      tags: "ApplicationDocuments"
+    };
+  }
+
+  // VerificationTaskSave creates or updates a verification task.
+  rpc VerificationTaskSave(VerificationTaskSaveRequest) returns (VerificationTaskSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "verificationTaskSave"
+      summary: "Create or update a verification task"
+      description: "Creates a new verification task or updates an existing one for an application."
+      tags: "VerificationTasks"
+    };
+  }
+
+  // VerificationTaskGet retrieves a verification task by its ID.
+  rpc VerificationTaskGet(VerificationTaskGetRequest) returns (VerificationTaskGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "verificationTaskGet"
+      summary: "Get a verification task by ID"
+      description: "Retrieves a verification task record by its unique identifier."
+      tags: "VerificationTasks"
+    };
+  }
+
+  // VerificationTaskSearch finds verification tasks matching criteria.
+  rpc VerificationTaskSearch(VerificationTaskSearchRequest) returns (stream VerificationTaskSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "verificationTaskSearch"
+      summary: "Search verification tasks"
+      description: "Searches for verification tasks. Supports filtering by application, assignee, and status."
+      tags: "VerificationTasks"
+    };
+  }
+
+  // VerificationTaskComplete marks a verification task as complete.
+  rpc VerificationTaskComplete(VerificationTaskCompleteRequest) returns (VerificationTaskCompleteResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "verificationTaskComplete"
+      summary: "Complete a verification task"
+      description: "Marks a verification task as PASSED or FAILED with results."
+      tags: "VerificationTasks"
+    };
+  }
+
+  // UnderwritingDecisionSave creates or updates an underwriting decision.
+  rpc UnderwritingDecisionSave(UnderwritingDecisionSaveRequest) returns (UnderwritingDecisionSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "underwritingDecisionSave"
+      summary: "Create or update an underwriting decision"
+      description: "Records an underwriting decision for a loan application."
+      tags: "UnderwritingDecisions"
+    };
+  }
+
+  // UnderwritingDecisionGet retrieves an underwriting decision by its ID.
+  rpc UnderwritingDecisionGet(UnderwritingDecisionGetRequest) returns (UnderwritingDecisionGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "underwritingDecisionGet"
+      summary: "Get an underwriting decision by ID"
+      description: "Retrieves an underwriting decision record by its unique identifier."
+      tags: "UnderwritingDecisions"
+    };
+  }
+
+  // UnderwritingDecisionSearch finds underwriting decisions for an application.
+  rpc UnderwritingDecisionSearch(UnderwritingDecisionSearchRequest) returns (stream UnderwritingDecisionSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "underwritingDecisionSearch"
+      summary: "Search underwriting decisions"
+      description: "Searches for underwriting decisions for a given application."
+      tags: "UnderwritingDecisions"
+    };
+  }
+
+}

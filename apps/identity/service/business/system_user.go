@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -16,12 +16,12 @@ import (
 )
 
 type SystemUserBusiness interface {
-	Save(ctx context.Context, obj *lenderv1.SystemUserObject) (*lenderv1.SystemUserObject, error)
-	Get(ctx context.Context, id string) (*lenderv1.SystemUserObject, error)
+	Save(ctx context.Context, obj *identityv1.SystemUserObject) (*identityv1.SystemUserObject, error)
+	Get(ctx context.Context, id string) (*identityv1.SystemUserObject, error)
 	Search(
 		ctx context.Context,
-		req *lenderv1.SystemUserSearchRequest,
-		consumer func(ctx context.Context, batch []*lenderv1.SystemUserObject) error,
+		req *identityv1.SystemUserSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.SystemUserObject) error,
 	) error
 }
 
@@ -46,8 +46,8 @@ func NewSystemUserBusiness(
 
 func (b *systemUserBusiness) Save(
 	ctx context.Context,
-	obj *lenderv1.SystemUserObject,
-) (*lenderv1.SystemUserObject, error) {
+	obj *identityv1.SystemUserObject,
+) (*identityv1.SystemUserObject, error) {
 	logger := util.Log(ctx).WithField("method", "SystemUserBusiness.Save")
 
 	// Validate branch exists
@@ -73,7 +73,7 @@ func (b *systemUserBusiness) Save(
 	return su.ToAPI(), nil
 }
 
-func (b *systemUserBusiness) Get(ctx context.Context, id string) (*lenderv1.SystemUserObject, error) {
+func (b *systemUserBusiness) Get(ctx context.Context, id string) (*identityv1.SystemUserObject, error) {
 	su, err := b.systemUserRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrSystemUserNotFound
@@ -83,8 +83,8 @@ func (b *systemUserBusiness) Get(ctx context.Context, id string) (*lenderv1.Syst
 
 func (b *systemUserBusiness) Search(
 	ctx context.Context,
-	req *lenderv1.SystemUserSearchRequest,
-	consumer func(ctx context.Context, batch []*lenderv1.SystemUserObject) error,
+	req *identityv1.SystemUserSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.SystemUserObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "SystemUserBusiness.Search")
 
@@ -100,7 +100,7 @@ func (b *systemUserBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
-	if req.GetRole() != lenderv1.SystemUserRole_SYSTEM_USER_ROLE_UNSPECIFIED {
+	if req.GetRole() != identityv1.SystemUserRole_SYSTEM_USER_ROLE_UNSPECIFIED {
 		andQueryVal["role = ?"] = int32(req.GetRole())
 	}
 	if req.GetBranchId() != "" {
@@ -127,7 +127,7 @@ func (b *systemUserBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.SystemUser) error {
-		var apiResults []*lenderv1.SystemUserObject
+		var apiResults []*identityv1.SystemUserObject
 		for _, su := range res {
 			apiResults = append(apiResults, su.ToAPI())
 		}

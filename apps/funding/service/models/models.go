@@ -1,0 +1,160 @@
+package models
+
+import (
+	"time"
+
+	"github.com/pitabwire/frame/data"
+)
+
+// FundingSource defines the source of loan funding.
+type FundingSource int32
+
+const (
+	FundingSourceUnspecified        FundingSource = 0
+	FundingSourceGroupSavings       FundingSource = 1 // group member savings (first-loss for group loans)
+	FundingSourceGroupIncome        FundingSource = 2 // group retained earnings
+	FundingSourceInvestorAffiliated FundingSource = 3 // investors affiliated with the group
+	FundingSourceInvestorGeneral    FundingSource = 4 // general investor pool
+	FundingSourcePlatformReserve    FundingSource = 5 // platform first-loss reserve (for direct loans)
+)
+
+// TrancheLevel defines the loss absorption priority.
+type TrancheLevel int32
+
+const (
+	TrancheLevelFirstLoss TrancheLevel = 1
+	TrancheLevelMezzanine TrancheLevel = 2
+	TrancheLevelSenior    TrancheLevel = 3
+)
+
+// LoanOfferResponse defines a member's response to a loan offer.
+type LoanOfferResponse int32
+
+const (
+	LoanOfferResponseNone   LoanOfferResponse = 0
+	LoanOfferResponseAccept LoanOfferResponse = 1
+	LoanOfferResponseReject LoanOfferResponse = 2
+	LoanOfferResponseHalf   LoanOfferResponse = 3
+	LoanOfferResponseBlock  LoanOfferResponse = 4
+	LoanOfferResponseCustom LoanOfferResponse = 5
+)
+
+// LoanOfferType defines whether a loan was offered or self-initiated.
+type LoanOfferType int32
+
+const (
+	LoanOfferTypeUnspecified   LoanOfferType = 0
+	LoanOfferTypeOffered       LoanOfferType = 1
+	LoanOfferTypeSelfInitiated LoanOfferType = 2
+)
+
+// LoanWindow represents a lending window for a member within a group cycle.
+type LoanWindow struct {
+	data.BaseModel
+	GroupID        string `gorm:"type:varchar(50);index:idx_lw_group;not null"`
+	MembershipID   string `gorm:"type:varchar(50);index:idx_lw_member;not null"`
+	TenureID       string `gorm:"type:varchar(50);index:idx_lw_tenure;not null"`
+	PeriodID       string `gorm:"type:varchar(50);index:idx_lw_period;not null"`
+	GracePeriod    int32
+	LoanTenure     int32
+	Position       int32
+	PeriodicAmount int64  // minor units
+	Leverage       int64  // basis points (e.g. 190 = 1.90x)
+	Currency       string `gorm:"type:varchar(3)"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *LoanWindow) TableName() string { return "loan_windows" }
+
+// LoanOffer represents a loan offer to a member (maps from Java LoanRequest).
+type LoanOffer struct {
+	data.BaseModel
+	MembershipID   string `gorm:"type:varchar(50);index:idx_lo_member;not null"`
+	LoanWindowID   string `gorm:"type:varchar(50);index:idx_lo_window;not null"`
+	PeriodID       string `gorm:"type:varchar(50);index:idx_lo_period;not null"`
+	Amount         int64  // minor units - offered amount
+	Currency       string `gorm:"type:varchar(3)"`
+	OfferType      int32  `gorm:"column:offer_type"`
+	Response       int32  // LoanOfferResponse
+	ExpiryDate     *time.Time
+	NotificationID string `gorm:"type:varchar(50)"`
+	Description    string `gorm:"type:text"`
+	LoanAccountID  string `gorm:"type:varchar(50)"` // cross-ref to Lender LoanAccountObject
+	ApplicationID  string `gorm:"type:varchar(50)"` // cross-ref to Lender ApplicationObject
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *LoanOffer) TableName() string { return "loan_offers" }
+
+// LoanFunding represents a funding source for a loan.
+type LoanFunding struct {
+	data.BaseModel
+	OwnerID       string `gorm:"type:varchar(50);index:idx_lfund_owner"`
+	OwnerType     string `gorm:"type:varchar(50)"`
+	FundingType   int32  `gorm:"column:funding_type"` // FundingSource
+	LoanOfferID   string `gorm:"type:varchar(50);index:idx_lfund_offer;not null"`
+	LoanAccountID string `gorm:"type:varchar(50)"` // cross-ref to Lender
+	Proportion    int64  // basis points (e.g. 6500 = 65%)
+	Amount        int64  // minor units
+	Currency      string `gorm:"type:varchar(3)"`
+	Description   string `gorm:"type:text"`
+	State         int32
+	Properties    data.JSONMap
+}
+
+func (m *LoanFunding) TableName() string { return "loan_fundings" }
+
+// FundingAllocation represents a specific allocation from a savings account to a loan funding.
+type FundingAllocation struct {
+	data.BaseModel
+	LoanFundingID    string `gorm:"type:varchar(50);index:idx_fa_funding;not null"`
+	SavingsAccountID string `gorm:"type:varchar(50);index:idx_fa_savings"`
+	Amount           int64  // minor units - allocated amount
+	ReservedAmount   int64  // minor units - reserved (may differ from allocated)
+	Currency         string `gorm:"type:varchar(3)"`
+	State            int32
+	Properties       data.JSONMap
+}
+
+func (m *FundingAllocation) TableName() string { return "funding_allocations" }
+
+// InvestorAccount represents a pre-funded investor capital account.
+type InvestorAccount struct {
+	data.BaseModel
+	InvestorID        string       `gorm:"type:varchar(50);index:idx_ia_investor;not null"`
+	AccountName       string       `gorm:"type:varchar(255)"`
+	Currency          string       `gorm:"type:varchar(3);not null"`
+	AvailableBalance  int64        // minor units, pre-funded capital
+	ReservedBalance   int64        // committed to active loans, not yet repaid
+	TotalDeployed     int64        // lifetime deployed
+	TotalReturned     int64        // lifetime returned (principal + interest)
+	MaxExposure       int64        // max total outstanding at any time (0 = unlimited)
+	MinInterestRate   int64        // basis points, won't fund loans below this rate
+	LastDeployedAt    *time.Time   // when capital was last deployed to a loan
+	AllowedProducts   data.JSONMap `gorm:"type:jsonb"` // product type whitelist (empty = all)
+	AllowedRegions    data.JSONMap `gorm:"type:jsonb"` // geographic whitelist (empty = all)
+	GroupAffiliations data.JSONMap `gorm:"type:jsonb"` // group IDs this investor is affiliated with
+	State             int32
+	Properties        data.JSONMap
+}
+
+func (m *InvestorAccount) TableName() string { return "investor_accounts" }
+
+// FundingTranche represents a tranche within a loan's funding structure.
+type FundingTranche struct {
+	data.BaseModel
+	LoanFundingID     string `gorm:"type:varchar(50);index:idx_ft_funding;not null"`
+	InvestorAccountID string `gorm:"type:varchar(50);index:idx_ft_investor"` // empty for group/platform sources
+	TrancheLevel      int32  // 1=first-loss, 2=mezzanine, 3=senior
+	Amount            int64  // minor units committed
+	Currency          string `gorm:"type:varchar(3)"`
+	PrincipalRepaid   int64  // tracking repayment
+	InterestEarned    int64  // tracking earnings
+	LossAbsorbed      int64  // tracking losses taken
+	State             int32
+	Properties        data.JSONMap
+}
+
+func (m *FundingTranche) TableName() string { return "funding_tranches" }

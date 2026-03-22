@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -16,12 +16,12 @@ import (
 )
 
 type BranchBusiness interface {
-	Save(ctx context.Context, obj *lenderv1.BranchObject) (*lenderv1.BranchObject, error)
-	Get(ctx context.Context, id string) (*lenderv1.BranchObject, error)
+	Save(ctx context.Context, obj *identityv1.BranchObject) (*identityv1.BranchObject, error)
+	Get(ctx context.Context, id string) (*identityv1.BranchObject, error)
 	Search(
 		ctx context.Context,
-		req *lenderv1.BranchSearchRequest,
-		consumer func(ctx context.Context, batch []*lenderv1.BranchObject) error,
+		req *identityv1.BranchSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.BranchObject) error,
 	) error
 }
 
@@ -44,7 +44,7 @@ func NewBranchBusiness(
 	}
 }
 
-func (b *branchBusiness) Save(ctx context.Context, obj *lenderv1.BranchObject) (*lenderv1.BranchObject, error) {
+func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject) (*identityv1.BranchObject, error) {
 	logger := util.Log(ctx).WithField("method", "BranchBusiness.Save")
 
 	// Validate bank exists
@@ -70,7 +70,7 @@ func (b *branchBusiness) Save(ctx context.Context, obj *lenderv1.BranchObject) (
 	return branch.ToAPI(), nil
 }
 
-func (b *branchBusiness) Get(ctx context.Context, id string) (*lenderv1.BranchObject, error) {
+func (b *branchBusiness) Get(ctx context.Context, id string) (*identityv1.BranchObject, error) {
 	branch, err := b.branchRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrBranchNotFound
@@ -81,8 +81,8 @@ func (b *branchBusiness) Get(ctx context.Context, id string) (*lenderv1.BranchOb
 //nolint:dupl // similar search logic for different entity types
 func (b *branchBusiness) Search(
 	ctx context.Context,
-	req *lenderv1.BranchSearchRequest,
-	consumer func(ctx context.Context, batch []*lenderv1.BranchObject) error,
+	req *identityv1.BranchSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.BranchObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "BranchBusiness.Search")
 
@@ -122,7 +122,7 @@ func (b *branchBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Branch) error {
-		var apiResults []*lenderv1.BranchObject
+		var apiResults []*identityv1.BranchObject
 		for _, branch := range res {
 			apiResults = append(apiResults, branch.ToAPI())
 		}

@@ -1,0 +1,58 @@
+name: Proto lint and push
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'proto/**'
+      - '.github/workflows/proto.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'proto/**'
+      - '.github/workflows/proto.yml'
+
+concurrency:
+  group: proto-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & breaking check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Buf
+        uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+
+      - name: Lint proto files
+        run: cd proto && buf lint
+
+      - name: Check for breaking changes
+        if: github.event_name == 'pull_request'
+        run: cd proto && buf breaking --against 'buf.build/antinvestor/lender'
+
+  push:
+    name: Push to BSR
+    needs: lint
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Buf
+        uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+
+      - name: Push to Buf Schema Registry
+        run: cd proto && buf push
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}

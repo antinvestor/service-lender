@@ -1,0 +1,142 @@
+package business
+
+import (
+	"context"
+	"time"
+
+	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
+	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-lender/apps/origination/service/models"
+	"github.com/antinvestor/service-lender/apps/origination/service/repository"
+)
+
+// ExpireOffersJob finds applications with OFFER_GENERATED status whose offer has expired
+// and transitions them to EXPIRED. Intended to run periodically (e.g. every hour).
+func ExpireOffersJob(
+	appRepo repository.ApplicationRepository,
+	appBusiness ApplicationBusiness,
+) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		logger := util.Log(ctx).WithField("job", "ExpireOffers")
+
+		query := data.NewSearchQuery(
+			data.WithSearchFiltersAndByValue(map[string]any{
+				"status = ?": int32(originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_GENERATED),
+			}),
+		)
+
+		results, err := appRepo.Search(ctx, query)
+		if err != nil {
+			logger.WithError(err).Warn("could not search for expirable offers")
+			return nil // don't fail the background loop
+		}
+
+		now := time.Now()
+		expired := 0
+
+		consumeErr := workerpoolConsumeStream(ctx, results, func(batch []*models.Application) error {
+			for _, app := range batch {
+				// Guard against TOCTOU: re-check status hasn't changed since the query
+				if app.Status != int32(originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_GENERATED) {
+					continue
+				}
+				if app.OfferExpiresAt == nil || app.OfferExpiresAt.After(now) {
+					continue
+				}
+
+				transErr := appBusiness.TransitionStatus(
+					ctx, app.GetID(),
+					originationv1.ApplicationStatus_APPLICATION_STATUS_EXPIRED,
+					"offer expired",
+				)
+				if transErr != nil {
+					logger.WithError(transErr).
+						WithField("application_id", app.GetID()).
+						Warn("could not expire offer")
+					continue
+				}
+				expired++
+			}
+			return nil
+		})
+
+		if consumeErr != nil {
+			logger.WithError(consumeErr).Warn("error consuming expirable offers stream")
+		}
+
+		if expired > 0 {
+			logger.WithField("count", expired).Info("expired offers")
+		}
+
+		return nil
+	}
+}
+
+// CleanDraftApplicationsJob finds DRAFT applications older than draftExpiryDays
+// and cancels them. Intended to run daily.
+func CleanDraftApplicationsJob(
+	appRepo repository.ApplicationRepository,
+	appBusiness ApplicationBusiness,
+	draftExpiryDays int,
+) func(ctx context.Context) error {
+	if draftExpiryDays <= 0 {
+		draftExpiryDays = 30
+	}
+
+	return func(ctx context.Context) error {
+		logger := util.Log(ctx).WithField("job", "CleanDraftApplications")
+
+		query := data.NewSearchQuery(
+			data.WithSearchFiltersAndByValue(map[string]any{
+				"status = ?": int32(originationv1.ApplicationStatus_APPLICATION_STATUS_DRAFT),
+			}),
+		)
+
+		results, err := appRepo.Search(ctx, query)
+		if err != nil {
+			logger.WithError(err).Warn("could not search for stale drafts")
+			return nil
+		}
+
+		cutoff := time.Now().AddDate(0, 0, -draftExpiryDays)
+		cleaned := 0
+
+		consumeErr := workerpoolConsumeStream(ctx, results, func(batch []*models.Application) error {
+			for _, app := range batch {
+				// Guard against TOCTOU: re-check status hasn't changed since the query
+				if app.Status != int32(originationv1.ApplicationStatus_APPLICATION_STATUS_DRAFT) {
+					continue
+				}
+				if app.CreatedAt.After(cutoff) {
+					continue
+				}
+
+				transErr := appBusiness.TransitionStatus(
+					ctx, app.GetID(),
+					originationv1.ApplicationStatus_APPLICATION_STATUS_CANCELLED,
+					"draft expired after inactivity",
+				)
+				if transErr != nil {
+					logger.WithError(transErr).
+						WithField("application_id", app.GetID()).
+						Warn("could not cancel stale draft")
+					continue
+				}
+				cleaned++
+			}
+			return nil
+		})
+
+		if consumeErr != nil {
+			logger.WithError(consumeErr).Warn("error consuming stale drafts stream")
+		}
+
+		if cleaned > 0 {
+			logger.WithField("count", cleaned).Info("cleaned stale draft applications")
+		}
+
+		return nil
+	}
+}

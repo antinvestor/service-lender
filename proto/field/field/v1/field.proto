@@ -1,0 +1,309 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package field.v1;
+
+// -----------------------------------------------------
+// Core notes (normative):
+// - Field Service manages agents and borrowers in the lending hierarchy
+// - Agents form a tree hierarchy within branches (configurable max depth)
+// - Borrowers are loan recipients assigned to agents
+// - Supports borrower reassignment with audit trail
+// - All timestamps are RFC3339 / google.protobuf.Timestamp
+// -----------------------------------------------------
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/antinvestor/apis/go/field/v1;fieldv1";
+option java_multiple_files = true;
+option java_package = "fieldv1";
+
+// -----------------------------------------------------
+// Enumerations
+// -----------------------------------------------------
+
+// AgentType defines whether an agent is an individual or an organization.
+enum AgentType {
+  AGENT_TYPE_UNSPECIFIED = 0;
+  AGENT_TYPE_INDIVIDUAL = 1; // Individual field agent
+  AGENT_TYPE_ORGANIZATION = 2; // Organization acting as agent
+}
+
+// -----------------------------------------------------
+// Entity Messages
+// -----------------------------------------------------
+
+// AgentObject represents a field agent in the lending hierarchy.
+// Agents are organized in a tree structure within branches.
+message AgentObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string branch_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Branch this agent belongs to
+  string parent_agent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Parent agent in hierarchy (empty for top-level agents)
+  string profile_id = 4 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Profile service user ID
+  AgentType agent_type = 5; // Individual or organization
+  string name = 6 [(buf.validate.field).string.min_len = 1]; // Display name
+  string geo_id = 7 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Geographic area identifier
+  int32 depth = 8; // Depth in the hierarchy tree (0 = top-level)
+  common.v1.STATE state = 9; // Current state
+  google.protobuf.Struct properties = 10; // Additional metadata
+}
+
+// BorrowerObject represents a loan recipient assigned to an agent.
+message BorrowerObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string agent_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Agent managing this borrower
+  string profile_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Profile service user ID
+  string name = 4 [(buf.validate.field).string.min_len = 1]; // Display name
+  common.v1.STATE state = 5; // Current state
+  google.protobuf.Struct properties = 6; // Additional metadata
+}
+
+// -----------------------------------------------------
+// Request/Response Messages
+// -----------------------------------------------------
+
+// Agent messages
+message AgentSaveRequest {
+  AgentObject data = 1 [(buf.validate.field).required = true];
+}
+
+message AgentSaveResponse {
+  AgentObject data = 1;
+}
+
+message AgentGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message AgentGetResponse {
+  AgentObject data = 1;
+}
+
+message AgentSearchRequest {
+  string query = 1; // Free-text search
+  string branch_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by branch
+  string parent_agent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by parent agent
+  common.v1.PageCursor cursor = 4; // Pagination
+}
+
+message AgentSearchResponse {
+  repeated AgentObject data = 1;
+}
+
+// AgentHierarchyRequest retrieves an agent's descendant tree.
+message AgentHierarchyRequest {
+  string agent_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ]; // Root agent ID
+  int32 max_depth = 2; // Maximum depth to traverse (0 = unlimited)
+}
+
+message AgentHierarchyResponse {
+  repeated AgentObject data = 1;
+}
+
+// Borrower messages
+message BorrowerSaveRequest {
+  BorrowerObject data = 1 [(buf.validate.field).required = true];
+}
+
+message BorrowerSaveResponse {
+  BorrowerObject data = 1;
+}
+
+message BorrowerGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message BorrowerGetResponse {
+  BorrowerObject data = 1;
+}
+
+message BorrowerSearchRequest {
+  string query = 1; // Free-text search
+  string agent_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by agent
+  common.v1.PageCursor cursor = 3; // Pagination
+}
+
+message BorrowerSearchResponse {
+  repeated BorrowerObject data = 1;
+}
+
+// BorrowerReassignRequest moves a borrower to a different agent.
+message BorrowerReassignRequest {
+  string borrower_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ]; // Borrower to reassign
+  string new_agent_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ]; // Target agent
+  string reason = 3; // Reason for reassignment
+}
+
+message BorrowerReassignResponse {
+  BorrowerObject data = 1;
+}
+
+// -----------------------------------------------------
+// Field Service
+// -----------------------------------------------------
+
+// FieldService manages agents and borrowers in the lending hierarchy.
+// All RPCs require authentication via Bearer token.
+service FieldService {
+  // AgentSave creates or updates an agent record.
+  rpc AgentSave(AgentSaveRequest) returns (AgentSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "agentSave"
+      summary: "Create or update an agent"
+      description: "Creates a new agent or updates an existing one. When a parent_agent_id is set, the agent inherits the branch from the parent and depth is calculated automatically."
+      tags: "Agents"
+    };
+  }
+
+  // AgentGet retrieves an agent by their ID.
+  rpc AgentGet(AgentGetRequest) returns (AgentGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "agentGet"
+      summary: "Get an agent by ID"
+      description: "Retrieves an agent record by their unique identifier."
+      tags: "Agents"
+    };
+  }
+
+  // AgentSearch finds agents matching search criteria.
+  rpc AgentSearch(AgentSearchRequest) returns (stream AgentSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "agentSearch"
+      summary: "Search agents"
+      description: "Searches for agents matching specified criteria. Supports filtering by branch and parent agent. Returns a stream of matching agent records."
+      tags: "Agents"
+    };
+  }
+
+  // AgentHierarchy retrieves the descendant tree of an agent.
+  rpc AgentHierarchy(AgentHierarchyRequest) returns (stream AgentHierarchyResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "agentHierarchy"
+      summary: "Get agent hierarchy"
+      description: "Retrieves all descendants of the specified agent in the hierarchy tree. Supports limiting the traversal depth."
+      tags: "Agents"
+    };
+  }
+
+  // BorrowerSave onboards or updates a borrower record.
+  rpc BorrowerSave(BorrowerSaveRequest) returns (BorrowerSaveResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "borrowerSave"
+      summary: "Onboard or update a borrower"
+      description: "Onboards a new borrower or updates an existing one. Each borrower must have a unique profile ID and be assigned to an active agent."
+      tags: "Borrowers"
+    };
+  }
+
+  // BorrowerGet retrieves a borrower by their ID.
+  rpc BorrowerGet(BorrowerGetRequest) returns (BorrowerGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "borrowerGet"
+      summary: "Get a borrower by ID"
+      description: "Retrieves a borrower record by their unique identifier."
+      tags: "Borrowers"
+    };
+  }
+
+  // BorrowerSearch finds borrowers matching search criteria.
+  rpc BorrowerSearch(BorrowerSearchRequest) returns (stream BorrowerSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "borrowerSearch"
+      summary: "Search borrowers"
+      description: "Searches for borrowers matching specified criteria. Supports filtering by agent. Returns a stream of matching borrower records."
+      tags: "Borrowers"
+    };
+  }
+
+  // BorrowerReassign moves a borrower from one agent to another.
+  rpc BorrowerReassign(BorrowerReassignRequest) returns (BorrowerReassignResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "borrowerReassign"
+      summary: "Reassign a borrower"
+      description: "Moves a borrower from their current agent to a different agent. Both agents must be in the same bank. Creates an audit trail of the reassignment."
+      tags: "Borrowers"
+    };
+  }
+}

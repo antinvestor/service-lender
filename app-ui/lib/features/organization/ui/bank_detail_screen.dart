@@ -6,7 +6,7 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
-import '../../../sdk/src/lender/v1/identity.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../data/bank_providers.dart';
 import '../data/branch_providers.dart';
 import 'banks_screen.dart';

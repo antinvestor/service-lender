@@ -14,13 +14,17 @@ GO ?= go
 proto-lint:
 	cd proto && buf format -w && buf lint
 
+.PHONY: proto-breaking
+proto-breaking:
+	cd proto && buf breaking --against 'buf.build/antinvestor/lender'
+
 .PHONY: proto-generate
 proto-generate:
 	rm -rf app-ui/lib/sdk/src/lender app-ui/lib/sdk/src/google app-ui/lib/sdk/src/buf app-ui/lib/sdk/src/common app-ui/lib/sdk/src/gnostic
 	cd proto && buf dep update && buf generate
 
 .PHONY: proto-push
-proto-push:
+proto-push: proto-lint
 	cd proto && buf push
 
 # ------------------------------------------------------------------------------
@@ -49,9 +53,6 @@ vet:
 test:
 	$(GO) test -race -cover ./...
 
-.PHONY: build-identity
-build-identity: tidy
-	$(GO) build -o bin/identity ./apps/identity/cmd/main.go
 
 # ------------------------------------------------------------------------------
 # UI

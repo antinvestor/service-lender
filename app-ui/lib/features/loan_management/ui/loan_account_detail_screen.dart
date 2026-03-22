@@ -1,0 +1,1442 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/api/api_provider.dart';
+import '../../../core/auth/audit_context.dart';
+import '../../../core/auth/role_provider.dart';
+import '../../../core/widgets/loan_status_badge.dart';
+import '../../../core/widgets/money_helpers.dart';
+import '../../../sdk/src/common/v1/common.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pbenum.dart';
+import '../data/disbursement_providers.dart';
+import '../data/loan_account_providers.dart';
+import '../data/penalty_providers.dart';
+import '../data/repayment_providers.dart';
+import '../data/schedule_providers.dart';
+
+class LoanAccountDetailScreen extends ConsumerStatefulWidget {
+  const LoanAccountDetailScreen({super.key, required this.loanId});
+
+  final String loanId;
+
+  @override
+  ConsumerState<LoanAccountDetailScreen> createState() =>
+      _LoanAccountDetailScreenState();
+}
+
+class _LoanAccountDetailScreenState
+    extends ConsumerState<LoanAccountDetailScreen>
+    with TickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loanAsync =
+        ref.watch(loanAccountDetailProvider(id: widget.loanId));
+    final balanceAsync =
+        ref.watch(loanBalanceDetailProvider(loanAccountId: widget.loanId));
+    final canManage = ref.watch(canManageLoansProvider).value ?? false;
+    final canRecordPayment =
+        ref.watch(canRecordRepaymentsProvider).value ?? false;
+
+    return loanAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline,
+                size: 48, color: theme.colorScheme.error),
+            const SizedBox(height: 16),
+            Text('Failed to load loan: $error',
+                style: theme.textTheme.bodyLarge),
+            const SizedBox(height: 16),
+            FilledButton.tonal(
+              onPressed: () => ref.invalidate(
+                loanAccountDetailProvider(id: widget.loanId),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+      data: (loan) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Loan ${loan.id}',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'monospace',
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Borrower: ${loan.borrowerId}  |  Agent: ${loan.agentId}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withAlpha(160),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                LoanStatusBadge(status: loan.status),
+              ],
+            ),
+          ),
+
+          // Balance card
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            child: balanceAsync.when(
+              loading: () => const Card(
+                elevation: 0,
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+              error: (e, _) => Card(
+                elevation: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text('Failed to load balance: $e'),
+                ),
+              ),
+              data: (balance) => _BalanceCard(
+                balance: balance,
+                currencyCode: moneyCurrency(loan.principalAmount),
+              ),
+            ),
+          ),
+
+          // Action buttons
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (loan.status ==
+                        LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT &&
+                    canManage)
+                  FilledButton.icon(
+                    onPressed: () => _showDisbursementDialog(context, loan),
+                    icon: const Icon(Icons.send, size: 18),
+                    label: const Text('Disburse'),
+                  ),
+                if ((loan.status == LoanStatus.LOAN_STATUS_ACTIVE ||
+                        loan.status == LoanStatus.LOAN_STATUS_DELINQUENT) &&
+                    canRecordPayment) ...[
+                  FilledButton.icon(
+                    onPressed: () =>
+                        _showRecordPaymentDialog(context, loan),
+                    icon: const Icon(Icons.payments, size: 18),
+                    label: const Text('Record Payment'),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: () =>
+                        _showCollectPaymentDialog(context, loan),
+                    icon: const Icon(Icons.phone_android, size: 18),
+                    label: const Text('Collect Payment'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Tabs
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Schedule'),
+              Tab(text: 'Transactions'),
+              Tab(text: 'Penalties'),
+              Tab(text: 'History'),
+            ],
+          ),
+
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _ScheduleTab(loanAccountId: widget.loanId),
+                _TransactionsTab(loanAccountId: widget.loanId),
+                _PenaltiesTab(
+                  loanAccountId: widget.loanId,
+                  canManage: canManage,
+                ),
+                _HistoryTab(loanAccountId: widget.loanId),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDisbursementDialog(
+      BuildContext context, LoanAccountObject loan) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => _DisbursementFormDialog(
+        loanAccountId: loan.id,
+        onSave: (channel, recipientReference) async {
+          try {
+            final idempotencyKey =
+                DateTime.now().millisecondsSinceEpoch.toString();
+            await ref.read(disbursementProvider.notifier).create(
+                  loanAccountId: loan.id,
+                  channel: channel,
+                  recipientReference: recipientReference,
+                  idempotencyKey: idempotencyKey,
+                );
+            ref.invalidate(
+                loanAccountDetailProvider(id: widget.loanId));
+            ref.invalidate(
+                loanBalanceDetailProvider(loanAccountId: widget.loanId));
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Disbursement initiated successfully')),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to disburse: $e'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  void _showRecordPaymentDialog(
+      BuildContext context, LoanAccountObject loan) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => _RecordPaymentFormDialog(
+        loanAccountId: loan.id,
+        currencyCode: moneyCurrency(loan.principalAmount),
+        onSave: (amount, paymentReference, channel, payerReference) async {
+          try {
+            final idempotencyKey =
+                DateTime.now().millisecondsSinceEpoch.toString();
+            await ref.read(repaymentProvider.notifier).record(
+                  loanAccountId: loan.id,
+                  amount: amount,
+                  paymentReference: paymentReference,
+                  channel: channel,
+                  payerReference: payerReference,
+                  idempotencyKey: idempotencyKey,
+                );
+            ref.invalidate(
+                loanBalanceDetailProvider(loanAccountId: widget.loanId));
+            ref.invalidate(
+                repaymentListProvider(loanAccountId: widget.loanId));
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Payment recorded successfully')),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to record payment: $e'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  void _showCollectPaymentDialog(
+      BuildContext context, LoanAccountObject loan) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => _CollectPaymentFormDialog(
+        loanAccountId: loan.id,
+        currencyCode: moneyCurrency(loan.principalAmount),
+        onSave: (amount, phoneNumber) async {
+          try {
+            final client =
+                ref.read(loanManagementServiceClientProvider);
+            final idempotencyKey =
+                DateTime.now().millisecondsSinceEpoch.toString();
+            await client.initiateCollection(
+              InitiateCollectionRequest(
+                loanAccountId: loan.id,
+                amount: amount,
+                phoneNumber: phoneNumber,
+                idempotencyKey: idempotencyKey,
+              ),
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Collection prompt sent successfully')),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to initiate collection: $e'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Balance Card
+// ---------------------------------------------------------------------------
+
+class _BalanceCard extends StatelessWidget {
+  const _BalanceCard({required this.balance, required this.currencyCode});
+
+  final LoanBalanceObject balance;
+  final String currencyCode;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Balance Summary',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _BalanceItem(
+                    label: 'Principal Outstanding',
+                    value: formatMoney(balance.principalOutstanding),
+                  ),
+                ),
+                Expanded(
+                  child: _BalanceItem(
+                    label: 'Interest Accrued',
+                    value: formatMoney(balance.interestAccrued),
+                  ),
+                ),
+                Expanded(
+                  child: _BalanceItem(
+                    label: 'Fees Outstanding',
+                    value: formatMoney(balance.feesOutstanding),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _BalanceItem(
+                    label: 'Penalties Outstanding',
+                    value: formatMoney(balance.penaltiesOutstanding),
+                  ),
+                ),
+                Expanded(
+                  child: _BalanceItem(
+                    label: 'Total Outstanding',
+                    value: formatMoney(balance.totalOutstanding),
+                    isBold: true,
+                  ),
+                ),
+                Expanded(
+                  child: _BalanceItem(
+                    label: 'Total Paid',
+                    value: formatMoney(balance.totalPaid),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BalanceItem extends StatelessWidget {
+  const _BalanceItem({
+    required this.label,
+    required this.value,
+    this.isBold = false,
+  });
+
+  final String label;
+  final String value;
+  final bool isBold;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withAlpha(140),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Schedule Tab
+// ---------------------------------------------------------------------------
+
+class _ScheduleTab extends ConsumerWidget {
+  const _ScheduleTab({required this.loanAccountId});
+  final String loanAccountId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheduleAsync = ref.watch(
+      repaymentScheduleDetailProvider(loanAccountId: loanAccountId),
+    );
+
+    return scheduleAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Failed to load schedule: $e'),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: () => ref.invalidate(
+                repaymentScheduleDetailProvider(
+                    loanAccountId: loanAccountId),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+      data: (schedule) {
+        if (schedule.entries.isEmpty) {
+          return const Center(child: Text('No schedule entries'));
+        }
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            child: DataTable(
+              headingTextStyle: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              dataTextStyle: theme.textTheme.bodySmall,
+              columnSpacing: 16,
+              columns: const [
+                DataColumn(label: Text('#')),
+                DataColumn(label: Text('Due Date')),
+                DataColumn(label: Text('Principal Due'), numeric: true),
+                DataColumn(label: Text('Interest Due'), numeric: true),
+                DataColumn(label: Text('Total Due'), numeric: true),
+                DataColumn(label: Text('Total Paid'), numeric: true),
+                DataColumn(label: Text('Outstanding'), numeric: true),
+                DataColumn(label: Text('Status')),
+              ],
+              rows: schedule.entries.map((entry) {
+                return DataRow(cells: [
+                  DataCell(Text('${entry.installmentNumber}')),
+                  DataCell(Text(entry.dueDate)),
+                  DataCell(Text(formatMoney(entry.principalDue))),
+                  DataCell(Text(formatMoney(entry.interestDue))),
+                  DataCell(Text(formatMoney(entry.totalDue))),
+                  DataCell(Text(formatMoney(entry.totalPaid))),
+                  DataCell(Text(formatMoney(entry.outstanding))),
+                  DataCell(_ScheduleEntryStatusChip(status: entry.status)),
+                ]);
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ScheduleEntryStatusChip extends StatelessWidget {
+  const _ScheduleEntryStatusChip({required this.status});
+  final ScheduleEntryStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color) = switch (status) {
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_UPCOMING =>
+        ('Upcoming', Colors.blue),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_DUE =>
+        ('Due', Colors.orange),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PAID =>
+        ('Paid', Colors.green),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PARTIAL =>
+        ('Partial', Colors.amber),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_OVERDUE =>
+        ('Overdue', Colors.red),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_WAIVED =>
+        ('Waived', Colors.grey),
+      _ => ('Unknown', Colors.grey),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(20),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withAlpha(60)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Transactions Tab (Disbursements + Repayments)
+// ---------------------------------------------------------------------------
+
+class _TransactionsTab extends ConsumerWidget {
+  const _TransactionsTab({required this.loanAccountId});
+  final String loanAccountId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final disbursementsAsync = ref.watch(
+      disbursementListProvider(loanAccountId: loanAccountId),
+    );
+    final repaymentsAsync = ref.watch(
+      repaymentListProvider(loanAccountId: loanAccountId),
+    );
+
+    if (disbursementsAsync.isLoading || repaymentsAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (disbursementsAsync.hasError) {
+      return Center(child: Text('Error: ${disbursementsAsync.error}'));
+    }
+    if (repaymentsAsync.hasError) {
+      return Center(child: Text('Error: ${repaymentsAsync.error}'));
+    }
+
+    final disbursements = disbursementsAsync.value ?? [];
+    final repayments = repaymentsAsync.value ?? [];
+
+    // Build a combined list sorted by date
+    final items = <_TransactionItem>[];
+    for (final d in disbursements) {
+      items.add(_TransactionItem(
+        date: d.disbursedAt,
+        type: 'Disbursement',
+        amount: moneyToAmountString(d.amount),
+        currency: moneyCurrency(d.amount),
+        reference: d.paymentReference,
+        status: _disbursementStatusLabel(d.status),
+        statusColor: _disbursementStatusColor(d.status),
+        icon: Icons.arrow_upward,
+        iconColor: Colors.red,
+      ));
+    }
+    for (final r in repayments) {
+      items.add(_TransactionItem(
+        date: r.receivedAt,
+        type: 'Repayment',
+        amount: moneyToAmountString(r.amount),
+        currency: moneyCurrency(r.amount),
+        reference: r.paymentReference,
+        status: _repaymentStatusLabel(r.status),
+        statusColor: _repaymentStatusColor(r.status),
+        icon: Icons.arrow_downward,
+        iconColor: Colors.green,
+      ));
+    }
+    items.sort((a, b) => b.date.compareTo(a.date));
+
+    if (items.isEmpty) {
+      return const Center(child: Text('No transactions'));
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      itemCount: items.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 2),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: theme.colorScheme.outlineVariant),
+          ),
+          child: ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            leading: CircleAvatar(
+              backgroundColor: item.iconColor.withAlpha(20),
+              child: Icon(item.icon, color: item.iconColor, size: 20),
+            ),
+            title: Text(
+              '${item.type}: ${item.currency} ${item.amount}',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              'Ref: ${item.reference}  |  ${item.date}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withAlpha(160),
+              ),
+            ),
+            trailing: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: item.statusColor.withAlpha(20),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: item.statusColor.withAlpha(60)),
+              ),
+              child: Text(
+                item.status,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: item.statusColor,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static String _disbursementStatusLabel(DisbursementStatus s) {
+    return switch (s) {
+      DisbursementStatus.DISBURSEMENT_STATUS_PENDING => 'Pending',
+      DisbursementStatus.DISBURSEMENT_STATUS_PROCESSING => 'Processing',
+      DisbursementStatus.DISBURSEMENT_STATUS_COMPLETED => 'Completed',
+      DisbursementStatus.DISBURSEMENT_STATUS_FAILED => 'Failed',
+      DisbursementStatus.DISBURSEMENT_STATUS_REVERSED => 'Reversed',
+      _ => 'Unknown',
+    };
+  }
+
+  static Color _disbursementStatusColor(DisbursementStatus s) {
+    return switch (s) {
+      DisbursementStatus.DISBURSEMENT_STATUS_PENDING => Colors.orange,
+      DisbursementStatus.DISBURSEMENT_STATUS_PROCESSING => Colors.blue,
+      DisbursementStatus.DISBURSEMENT_STATUS_COMPLETED => Colors.green,
+      DisbursementStatus.DISBURSEMENT_STATUS_FAILED => Colors.red,
+      DisbursementStatus.DISBURSEMENT_STATUS_REVERSED => Colors.grey,
+      _ => Colors.grey,
+    };
+  }
+
+  static String _repaymentStatusLabel(RepaymentStatus s) {
+    return switch (s) {
+      RepaymentStatus.REPAYMENT_STATUS_PENDING => 'Pending',
+      RepaymentStatus.REPAYMENT_STATUS_MATCHED => 'Matched',
+      RepaymentStatus.REPAYMENT_STATUS_PARTIAL => 'Partial',
+      RepaymentStatus.REPAYMENT_STATUS_OVERPAYMENT => 'Overpayment',
+      RepaymentStatus.REPAYMENT_STATUS_REVERSED => 'Reversed',
+      _ => 'Unknown',
+    };
+  }
+
+  static Color _repaymentStatusColor(RepaymentStatus s) {
+    return switch (s) {
+      RepaymentStatus.REPAYMENT_STATUS_PENDING => Colors.orange,
+      RepaymentStatus.REPAYMENT_STATUS_MATCHED => Colors.green,
+      RepaymentStatus.REPAYMENT_STATUS_PARTIAL => Colors.amber,
+      RepaymentStatus.REPAYMENT_STATUS_OVERPAYMENT => Colors.blue,
+      RepaymentStatus.REPAYMENT_STATUS_REVERSED => Colors.grey,
+      _ => Colors.grey,
+    };
+  }
+}
+
+class _TransactionItem {
+  _TransactionItem({
+    required this.date,
+    required this.type,
+    required this.amount,
+    required this.currency,
+    required this.reference,
+    required this.status,
+    required this.statusColor,
+    required this.icon,
+    required this.iconColor,
+  });
+
+  final String date;
+  final String type;
+  final String amount;
+  final String currency;
+  final String reference;
+  final String status;
+  final Color statusColor;
+  final IconData icon;
+  final Color iconColor;
+}
+
+// ---------------------------------------------------------------------------
+// Penalties Tab
+// ---------------------------------------------------------------------------
+
+class _PenaltiesTab extends ConsumerWidget {
+  const _PenaltiesTab({
+    required this.loanAccountId,
+    required this.canManage,
+  });
+
+  final String loanAccountId;
+  final bool canManage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final penaltiesAsync = ref.watch(
+      penaltyListProvider(loanAccountId: loanAccountId),
+    );
+
+    return penaltiesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Error: $e'),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: () => ref.invalidate(
+                penaltyListProvider(loanAccountId: loanAccountId),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+      data: (penalties) {
+        if (penalties.isEmpty) {
+          return const Center(child: Text('No penalties'));
+        }
+        return ListView.separated(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          itemCount: penalties.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 2),
+          itemBuilder: (context, index) {
+            final penalty = penalties[index];
+            return Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(
+                    color: theme.colorScheme.outlineVariant),
+              ),
+              child: ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: penalty.isWaived
+                      ? Colors.grey.withAlpha(20)
+                      : Colors.red.withAlpha(20),
+                  child: Icon(
+                    Icons.warning_amber,
+                    color: penalty.isWaived ? Colors.grey : Colors.red,
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  '${_penaltyTypeLabel(penalty.penaltyType)}: ${penalty.amount}',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    decoration: penalty.isWaived
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
+                ),
+                subtitle: Text(
+                  penalty.isWaived
+                      ? 'Waived: ${penalty.waivedReason}'
+                      : penalty.reason,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color:
+                        theme.colorScheme.onSurface.withAlpha(160),
+                  ),
+                ),
+                trailing: (!penalty.isWaived && canManage)
+                    ? TextButton(
+                        onPressed: () => _showWaiveDialog(
+                            context, ref, penalty),
+                        child: const Text('Waive'),
+                      )
+                    : penalty.isWaived
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withAlpha(20),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                  color: Colors.grey.withAlpha(60)),
+                            ),
+                            child: const Text(
+                              'Waived',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : null,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showWaiveDialog(
+      BuildContext context, WidgetRef ref, PenaltyObject penalty) {
+    final reasonCtrl = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final auditAsync = ref.watch(auditContextProvider);
+        final auditLabel = auditAsync.whenOrNull(
+          data: (ac) => ac.displayLabel,
+        );
+
+        return AlertDialog(
+          title: const Text('Waive Penalty'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Show who is waiving
+                InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Waived By',
+                    suffixIcon: Icon(Icons.lock_outline, size: 18),
+                  ),
+                  child: Text(
+                    auditLabel ?? 'Loading...',
+                    style: Theme.of(dialogContext).textTheme.bodyMedium,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: reasonCtrl,
+                  decoration: const InputDecoration(labelText: 'Reason'),
+                  maxLines: 2,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final reason = reasonCtrl.text.trim();
+                if (reason.isEmpty) return;
+                try {
+                  // Get audit context for waivedBy
+                  final auditCtx =
+                      await ref.read(auditContextProvider.future);
+
+                  await ref.read(penaltyProvider.notifier).waive(
+                        id: penalty.id,
+                        reason: reason,
+                        waivedBy: auditCtx.displayLabel,
+                      );
+                  if (dialogContext.mounted) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Penalty waived successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to waive penalty: $e'),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.error,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Waive'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static String _penaltyTypeLabel(PenaltyType type) {
+    return switch (type) {
+      PenaltyType.PENALTY_TYPE_LATE_PAYMENT => 'Late Payment',
+      PenaltyType.PENALTY_TYPE_DEFAULT => 'Default',
+      PenaltyType.PENALTY_TYPE_EARLY_REPAYMENT => 'Early Repayment',
+      PenaltyType.PENALTY_TYPE_BOUNCED_PAYMENT => 'Bounced Payment',
+      _ => 'Unknown',
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// History Tab (Status Changes)
+// ---------------------------------------------------------------------------
+
+class _HistoryTab extends ConsumerWidget {
+  const _HistoryTab({required this.loanAccountId});
+  final String loanAccountId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final client = ref.watch(loanManagementServiceClientProvider);
+
+    return FutureBuilder<List<LoanStatusChangeObject>>(
+      future: _fetchStatusChanges(client, loanAccountId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        final changes = snapshot.data ?? [];
+        if (changes.isEmpty) {
+          return const Center(child: Text('No status changes'));
+        }
+        return ListView.separated(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          itemCount: changes.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 2),
+          itemBuilder: (context, index) {
+            final change = changes[index];
+            final fromLabel = _statusLabelFromInt(change.fromStatus);
+            final toLabel = _statusLabelFromInt(change.toStatus);
+            return Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(
+                    color: theme.colorScheme.outlineVariant),
+              ),
+              child: ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                leading: CircleAvatar(
+                  backgroundColor:
+                      theme.colorScheme.tertiaryContainer,
+                  child: Icon(
+                    Icons.swap_horiz,
+                    color: theme.colorScheme.onTertiaryContainer,
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  '$fromLabel  ->  $toLabel',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  '${change.changedAt}  |  By: ${change.changedBy}'
+                  '${change.reason.isNotEmpty ? '  |  ${change.reason}' : ''}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color:
+                        theme.colorScheme.onSurface.withAlpha(160),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  static Future<List<LoanStatusChangeObject>> _fetchStatusChanges(
+    dynamic client,
+    String loanAccountId,
+  ) async {
+    final results = <LoanStatusChangeObject>[];
+    await for (final response in client.loanStatusChangeSearch(
+      LoanStatusChangeSearchRequest(
+        loanAccountId: loanAccountId,
+        cursor: PageCursor(limit: 100),
+      ),
+    )) {
+      results.addAll(response.data);
+    }
+    return results;
+  }
+
+  static String _statusLabelFromInt(int status) {
+    return switch (status) {
+      1 => 'Pending Disbursement',
+      2 => 'Active',
+      3 => 'Delinquent',
+      4 => 'Default',
+      5 => 'Paid Off',
+      6 => 'Restructured',
+      7 => 'Written Off',
+      8 => 'Closed',
+      _ => 'Unknown',
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Disbursement Form Dialog
+// ---------------------------------------------------------------------------
+
+class _DisbursementFormDialog extends StatefulWidget {
+  const _DisbursementFormDialog({
+    required this.loanAccountId,
+    required this.onSave,
+  });
+
+  final String loanAccountId;
+  final Future<void> Function(String channel, String recipientReference)
+      onSave;
+
+  @override
+  State<_DisbursementFormDialog> createState() =>
+      _DisbursementFormDialogState();
+}
+
+class _DisbursementFormDialogState
+    extends State<_DisbursementFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _channelCtrl;
+  late final TextEditingController _recipientRefCtrl;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _channelCtrl = TextEditingController();
+    _recipientRefCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _channelCtrl.dispose();
+    _recipientRefCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(
+        _channelCtrl.text.trim(),
+        _recipientRefCtrl.text.trim(),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Initiate Disbursement'),
+      content: SizedBox(
+        width: 420,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _channelCtrl,
+                decoration:
+                    const InputDecoration(labelText: 'Channel'),
+                textInputAction: TextInputAction.next,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _recipientRefCtrl,
+                decoration: const InputDecoration(
+                    labelText: 'Recipient Reference'),
+                textInputAction: TextInputAction.done,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Disburse'),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Record Payment Form Dialog
+// ---------------------------------------------------------------------------
+
+class _RecordPaymentFormDialog extends StatefulWidget {
+  const _RecordPaymentFormDialog({
+    required this.loanAccountId,
+    required this.currencyCode,
+    required this.onSave,
+  });
+
+  final String loanAccountId;
+  final String currencyCode;
+  final Future<void> Function(
+    String amount,
+    String paymentReference,
+    String channel,
+    String payerReference,
+  ) onSave;
+
+  @override
+  State<_RecordPaymentFormDialog> createState() =>
+      _RecordPaymentFormDialogState();
+}
+
+class _RecordPaymentFormDialogState
+    extends State<_RecordPaymentFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _amountCtrl;
+  late final TextEditingController _paymentRefCtrl;
+  late final TextEditingController _channelCtrl;
+  late final TextEditingController _payerRefCtrl;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountCtrl = TextEditingController();
+    _paymentRefCtrl = TextEditingController();
+    _channelCtrl = TextEditingController();
+    _payerRefCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _amountCtrl.dispose();
+    _paymentRefCtrl.dispose();
+    _channelCtrl.dispose();
+    _payerRefCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(
+        _amountCtrl.text.trim(),
+        _paymentRefCtrl.text.trim(),
+        _channelCtrl.text.trim(),
+        _payerRefCtrl.text.trim(),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Record Payment (${widget.currencyCode})'),
+      content: SizedBox(
+        width: 420,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _amountCtrl,
+                decoration:
+                    const InputDecoration(labelText: 'Amount'),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                textInputAction: TextInputAction.next,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _paymentRefCtrl,
+                decoration: const InputDecoration(
+                    labelText: 'Payment Reference'),
+                textInputAction: TextInputAction.next,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _channelCtrl,
+                decoration:
+                    const InputDecoration(labelText: 'Channel'),
+                textInputAction: TextInputAction.next,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _payerRefCtrl,
+                decoration: const InputDecoration(
+                    labelText: 'Payer Reference'),
+                textInputAction: TextInputAction.done,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Record'),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Collect Payment Form Dialog
+// ---------------------------------------------------------------------------
+
+class _CollectPaymentFormDialog extends StatefulWidget {
+  const _CollectPaymentFormDialog({
+    required this.loanAccountId,
+    required this.currencyCode,
+    required this.onSave,
+  });
+
+  final String loanAccountId;
+  final String currencyCode;
+  final Future<void> Function(String amount, String phoneNumber) onSave;
+
+  @override
+  State<_CollectPaymentFormDialog> createState() =>
+      _CollectPaymentFormDialogState();
+}
+
+class _CollectPaymentFormDialogState
+    extends State<_CollectPaymentFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _amountCtrl;
+  late final TextEditingController _phoneCtrl;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountCtrl = TextEditingController();
+    _phoneCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _amountCtrl.dispose();
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(
+        _amountCtrl.text.trim(),
+        _phoneCtrl.text.trim(),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Collect Payment (${widget.currencyCode})'),
+      content: SizedBox(
+        width: 420,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _amountCtrl,
+                decoration:
+                    const InputDecoration(labelText: 'Amount'),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                textInputAction: TextInputAction.next,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _phoneCtrl,
+                decoration: const InputDecoration(
+                    labelText: 'Phone Number'),
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.done,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Send Prompt'),
+        ),
+      ],
+    );
+  }
+}

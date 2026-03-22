@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	lenderv1 "buf.build/gen/go/antinvestor/lender/protocolbuffers/go/lender/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -17,12 +17,12 @@ import (
 )
 
 type BankBusiness interface {
-	Save(ctx context.Context, obj *lenderv1.BankObject) (*lenderv1.BankObject, error)
-	Get(ctx context.Context, id string) (*lenderv1.BankObject, error)
+	Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error)
+	Get(ctx context.Context, id string) (*identityv1.BankObject, error)
 	Search(
 		ctx context.Context,
 		search *commonv1.SearchRequest,
-		consumer func(ctx context.Context, batch []*lenderv1.BankObject) error,
+		consumer func(ctx context.Context, batch []*identityv1.BankObject) error,
 	) error
 }
 
@@ -38,7 +38,7 @@ func NewBankBusiness(_ context.Context, eventsMan fevents.Manager, bankRepo repo
 	}
 }
 
-func (b *bankBusiness) Save(ctx context.Context, obj *lenderv1.BankObject) (*lenderv1.BankObject, error) {
+func (b *bankBusiness) Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error) {
 	logger := util.Log(ctx).WithField("method", "BankBusiness.Save")
 
 	isNew := obj.GetId() == ""
@@ -57,7 +57,7 @@ func (b *bankBusiness) Save(ctx context.Context, obj *lenderv1.BankObject) (*len
 	return bank.ToAPI(), nil
 }
 
-func (b *bankBusiness) Get(ctx context.Context, id string) (*lenderv1.BankObject, error) {
+func (b *bankBusiness) Get(ctx context.Context, id string) (*identityv1.BankObject, error) {
 	bank, err := b.bankRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrBankNotFound
@@ -68,7 +68,7 @@ func (b *bankBusiness) Get(ctx context.Context, id string) (*lenderv1.BankObject
 func (b *bankBusiness) Search(
 	ctx context.Context,
 	searchQuery *commonv1.SearchRequest,
-	consumer func(ctx context.Context, batch []*lenderv1.BankObject) error,
+	consumer func(ctx context.Context, batch []*identityv1.BankObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "BankBusiness.Search")
 
@@ -130,7 +130,7 @@ func (b *bankBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Bank) error {
-		var apiResults []*lenderv1.BankObject
+		var apiResults []*identityv1.BankObject
 		for _, bank := range res {
 			apiResults = append(apiResults, bank.ToAPI())
 		}
