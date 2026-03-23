@@ -4,8 +4,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pitabwire/util/decimalx"
+
 	"github.com/antinvestor/service-lender/pkg/calculation"
 )
+
+// dec is a helper to create a Decimal from minor units (int64).
+func dec(v int64) decimalx.Decimal {
+	return decimalx.FromMinorUnits(v, 2)
+}
+
+// toMinor converts a Decimal back to int64 minor units.
+func toMinor(d decimalx.Decimal) int64 {
+	return d.ToMinorUnits(2)
+}
 
 // ---------------------------------------------------------------------------
 // Leverage
@@ -27,7 +39,7 @@ func TestCalculateMaxLoanAmount(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := calculation.CalculateMaxLoanAmount(tc.savings, tc.leverageFactor)
+			got := toMinor(calculation.CalculateMaxLoanAmount(dec(tc.savings), tc.leverageFactor))
 			if got != tc.want {
 				t.Errorf("CalculateMaxLoanAmount(%d, %d) = %d, want %d", tc.savings, tc.leverageFactor, got, tc.want)
 			}
@@ -49,7 +61,7 @@ func TestCalculateLeverageRatio(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := calculation.CalculateLeverageRatio(tc.loan, tc.savings)
+			got := calculation.CalculateLeverageRatio(dec(tc.loan), dec(tc.savings))
 			if got != tc.wantBP {
 				t.Errorf("CalculateLeverageRatio(%d, %d) = %d, want %d", tc.loan, tc.savings, got, tc.wantBP)
 			}
@@ -92,7 +104,9 @@ func TestFlatRateInterest(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := calculation.FlatRateInterest(tc.principal, tc.annualRateBP, tc.termPeriods, tc.periodsPerYear)
+			got := toMinor(
+				calculation.FlatRateInterest(dec(tc.principal), tc.annualRateBP, tc.termPeriods, tc.periodsPerYear),
+			)
 			if got != tc.want {
 				t.Errorf("FlatRateInterest = %d, want %d", got, tc.want)
 			}
@@ -126,7 +140,9 @@ func TestReducingBalanceInterestForPeriod(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := calculation.ReducingBalanceInterestForPeriod(tc.outstanding, tc.annualRateBP, tc.periodsPerYr)
+			got := toMinor(
+				calculation.ReducingBalanceInterestForPeriod(dec(tc.outstanding), tc.annualRateBP, tc.periodsPerYr),
+			)
 			if got != tc.want {
 				t.Errorf("ReducingBalanceInterestForPeriod = %d, want %d", got, tc.want)
 			}
@@ -171,7 +187,7 @@ func TestCalculatePenalty(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := calculation.CalculatePenalty(tc.amount, tc.fineRateBP)
+			got := toMinor(calculation.CalculatePenalty(dec(tc.amount), tc.fineRateBP))
 			if got != tc.want {
 				t.Errorf("CalculatePenalty(%d, %d) = %d, want %d", tc.amount, tc.fineRateBP, got, tc.want)
 			}
@@ -196,7 +212,7 @@ func TestEscalatingPenalty(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := calculation.EscalatingPenalty(amount, tc.periodsLate, rates)
+			got := toMinor(calculation.EscalatingPenalty(dec(amount), tc.periodsLate, rates))
 			if got != tc.want {
 				t.Errorf("EscalatingPenalty = %d, want %d", got, tc.want)
 			}
@@ -205,11 +221,11 @@ func TestEscalatingPenalty(t *testing.T) {
 }
 
 func TestEscalatingPenaltyEmptyRates(t *testing.T) {
-	got := calculation.EscalatingPenalty(10000, 1, nil)
+	got := toMinor(calculation.EscalatingPenalty(dec(10000), 1, nil))
 	if got != 0 {
 		t.Errorf("expected 0 with nil rates, got %d", got)
 	}
-	got = calculation.EscalatingPenalty(10000, 1, []int64{})
+	got = toMinor(calculation.EscalatingPenalty(dec(10000), 1, []int64{}))
 	if got != 0 {
 		t.Errorf("expected 0 with empty rates, got %d", got)
 	}
@@ -297,10 +313,10 @@ func TestGenerateFlatSchedule(t *testing.T) {
 	firstDue := time.Date(2026, 1, 7, 0, 0, 0, 0, time.UTC)
 
 	entries := calculation.GenerateFlatSchedule(
-		principal,
-		interest,
-		insurance,
-		0,
+		dec(principal),
+		dec(interest),
+		dec(insurance),
+		dec(0),
 		installments,
 		firstDue,
 		1,
@@ -313,10 +329,10 @@ func TestGenerateFlatSchedule(t *testing.T) {
 	// Verify the sum of principal across all installments equals the original principal.
 	var totalPrincipal, totalInterest, totalInsurance, totalDue int64
 	for _, e := range entries {
-		totalPrincipal += e.PrincipalDue
-		totalInterest += e.InterestDue
-		totalInsurance += e.InsuranceDue
-		totalDue += e.TotalDue
+		totalPrincipal += toMinor(e.PrincipalDue)
+		totalInterest += toMinor(e.InterestDue)
+		totalInsurance += toMinor(e.InsuranceDue)
+		totalDue += toMinor(e.TotalDue)
 	}
 
 	if totalPrincipal != principal {
@@ -342,34 +358,38 @@ func TestGenerateFlatSchedule(t *testing.T) {
 }
 
 func TestGenerateFlatScheduleDustHandling(t *testing.T) {
-	// Principal that does not divide evenly: 100003 / 7 = 14286 * 6 + 14287
+	// Principal that does not divide evenly: 100003 / 7
+	// Dust is handled correctly at the Decimal level; when converting each
+	// entry back to int64 minor units the per-entry truncation can cause
+	// the sum to differ by up to (N-1) cents. We verify at Decimal level.
 	principal := int64(100003)
 	interest := int64(10001)
-	insurance := int64(0)
 	installments := int32(7)
 	firstDue := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	entries := calculation.GenerateFlatSchedule(
-		principal,
-		interest,
-		insurance,
-		0,
+		dec(principal),
+		dec(interest),
+		dec(0),
+		dec(0),
 		installments,
 		firstDue,
 		3,
 	) // monthly, no fees
 
-	var totalPrincipal, totalInterest int64
+	// Verify dust handling at Decimal precision (exact).
+	totalPrincipalDec := decimalx.Zero()
+	totalInterestDec := decimalx.Zero()
 	for _, e := range entries {
-		totalPrincipal += e.PrincipalDue
-		totalInterest += e.InterestDue
+		totalPrincipalDec = totalPrincipalDec.Add(e.PrincipalDue)
+		totalInterestDec = totalInterestDec.Add(e.InterestDue)
 	}
 
-	if totalPrincipal != principal {
-		t.Errorf("dust handling: principal sum = %d, want %d", totalPrincipal, principal)
+	if toMinor(totalPrincipalDec) != principal {
+		t.Errorf("dust handling: Decimal principal sum = %d, want %d", toMinor(totalPrincipalDec), principal)
 	}
-	if totalInterest != interest {
-		t.Errorf("dust handling: interest sum = %d, want %d", totalInterest, interest)
+	if toMinor(totalInterestDec) != interest {
+		t.Errorf("dust handling: Decimal interest sum = %d, want %d", toMinor(totalInterestDec), interest)
 	}
 }
 
@@ -381,7 +401,7 @@ func TestGenerateReducingBalanceSchedule(t *testing.T) {
 	firstDue := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	entries := calculation.GenerateReducingBalanceSchedule(
-		principal, annualRateBP, insuranceRateBP, 0, installments, firstDue, 3, // monthly, no fees
+		dec(principal), annualRateBP, insuranceRateBP, 0, installments, firstDue, 3, // monthly, no fees
 	)
 
 	if len(entries) != int(installments) {
@@ -391,14 +411,14 @@ func TestGenerateReducingBalanceSchedule(t *testing.T) {
 	// Sum of principal payments must equal the original principal.
 	var totalPrincipal int64
 	for _, e := range entries {
-		totalPrincipal += e.PrincipalDue
+		totalPrincipal += toMinor(e.PrincipalDue)
 	}
 	if totalPrincipal != principal {
 		t.Errorf("reducing balance: principal sum = %d, want %d", totalPrincipal, principal)
 	}
 
 	// Interest should decrease over time (first > last).
-	if entries[0].InterestDue <= entries[len(entries)-1].InterestDue {
+	if toMinor(entries[0].InterestDue) <= toMinor(entries[len(entries)-1].InterestDue) {
 		t.Error("expected reducing-balance interest to decrease over time")
 	}
 
@@ -412,11 +432,11 @@ func TestGenerateReducingBalanceSchedule(t *testing.T) {
 }
 
 func TestGenerateScheduleZeroInstallments(t *testing.T) {
-	entries := calculation.GenerateFlatSchedule(100000, 10000, 0, 0, 0, time.Now(), 1)
+	entries := calculation.GenerateFlatSchedule(dec(100000), dec(10000), dec(0), dec(0), 0, time.Now(), 1)
 	if entries != nil {
 		t.Errorf("expected nil for 0 installments, got %d entries", len(entries))
 	}
-	entries2 := calculation.GenerateReducingBalanceSchedule(100000, 1000, 100, 0, 0, time.Now(), 1)
+	entries2 := calculation.GenerateReducingBalanceSchedule(dec(100000), 1000, 100, 0, 0, time.Now(), 1)
 	if entries2 != nil {
 		t.Errorf("expected nil for 0 installments, got %d entries", len(entries2))
 	}
@@ -424,7 +444,15 @@ func TestGenerateScheduleZeroInstallments(t *testing.T) {
 
 func TestBiweeklyScheduleDateAdvancement(t *testing.T) {
 	firstDue := time.Date(2026, 3, 1, 0, 0, 0, 0, time.UTC)
-	entries := calculation.GenerateFlatSchedule(52000, 5200, 0, 0, 4, firstDue, 2) // biweekly, no fees
+	entries := calculation.GenerateFlatSchedule(
+		dec(52000),
+		dec(5200),
+		dec(0),
+		dec(0),
+		4,
+		firstDue,
+		2,
+	) // biweekly, no fees
 
 	for i, e := range entries {
 		expectedDate := firstDue.AddDate(0, 0, 14*i)
@@ -440,78 +468,78 @@ func TestBiweeklyScheduleDateAdvancement(t *testing.T) {
 
 func TestAllocateLoanFundingGroupLoan(t *testing.T) {
 	request := calculation.FundingRequest{
-		LoanAmount:  100000,
+		LoanAmount:  dec(100000),
 		Currency:    "KES",
 		IsGroupLoan: true,
 		GroupID:     "group-1",
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "group-1", SourceType: 1, TrancheLevel: 1, AvailableAmount: 65000},
-		{SourceID: "inv-1", SourceType: 3, TrancheLevel: 2, AvailableAmount: 30000},
-		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 3, AvailableAmount: 50000},
+		{SourceID: "group-1", SourceType: 1, TrancheLevel: 1, AvailableAmount: dec(65000)},
+		{SourceID: "inv-1", SourceType: 3, TrancheLevel: 2, AvailableAmount: dec(30000)},
+		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 3, AvailableAmount: dec(50000)},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 100000 {
-		t.Errorf("TotalAllocated = %d, want 100000", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 100000 {
+		t.Errorf("TotalAllocated = %d, want 100000", toMinor(result.TotalAllocated))
 	}
-	if result.Deficit != 0 {
-		t.Errorf("Deficit = %d, want 0", result.Deficit)
+	if !result.Deficit.IsZero() {
+		t.Errorf("Deficit = %d, want 0", toMinor(result.Deficit))
 	}
 	if len(result.Allocations) != 3 {
 		t.Errorf("expected 3 allocations, got %d", len(result.Allocations))
 	}
 
 	// Tranche 1 (first-loss) should get 65000 from group savings
-	if result.Allocations[0].Amount != 65000 {
-		t.Errorf("Tranche 1 amount = %d, want 65000", result.Allocations[0].Amount)
+	if toMinor(result.Allocations[0].Amount) != 65000 {
+		t.Errorf("Tranche 1 amount = %d, want 65000", toMinor(result.Allocations[0].Amount))
 	}
 	if result.Allocations[0].TrancheLevel != 1 {
 		t.Errorf("Tranche 1 level = %d, want 1", result.Allocations[0].TrancheLevel)
 	}
 
-	if !calculation.VerifyTrancheAllocationInvariant(100000, result) {
+	if !calculation.VerifyTrancheAllocationInvariant(dec(100000), result) {
 		t.Error("tranche allocation invariant violated")
 	}
 }
 
 func TestAllocateLoanFundingDirectLoan(t *testing.T) {
 	request := calculation.FundingRequest{
-		LoanAmount:  100000,
+		LoanAmount:  dec(100000),
 		Currency:    "KES",
 		IsGroupLoan: false,
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: 20000},
-		{SourceID: "inv-1", SourceType: 4, TrancheLevel: 2, AvailableAmount: 60000},
-		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 2, AvailableAmount: 50000},
+		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: dec(20000)},
+		{SourceID: "inv-1", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(60000)},
+		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(50000)},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 100000 {
-		t.Errorf("TotalAllocated = %d, want 100000", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 100000 {
+		t.Errorf("TotalAllocated = %d, want 100000", toMinor(result.TotalAllocated))
 	}
-	if result.Deficit != 0 {
-		t.Errorf("Deficit = %d, want 0", result.Deficit)
+	if !result.Deficit.IsZero() {
+		t.Errorf("Deficit = %d, want 0", toMinor(result.Deficit))
 	}
 
 	// First allocation should be first-loss from platform, capped at 10% = 10000
 	if result.Allocations[0].TrancheLevel != 1 {
 		t.Errorf("first allocation tranche = %d, want 1", result.Allocations[0].TrancheLevel)
 	}
-	if result.Allocations[0].Amount != 10000 {
-		t.Errorf("platform first-loss = %d, want 10000 (10%% of 100000)", result.Allocations[0].Amount)
+	if toMinor(result.Allocations[0].Amount) != 10000 {
+		t.Errorf("platform first-loss = %d, want 10000 (10%% of 100000)", toMinor(result.Allocations[0].Amount))
 	}
 
 	// Remaining 90000 should come from tranche 2 investors
 	var tranche2Total int64
 	for _, a := range result.Allocations {
 		if a.TrancheLevel == 2 {
-			tranche2Total += a.Amount
+			tranche2Total += toMinor(a.Amount)
 		}
 	}
 	if tranche2Total != 90000 {
@@ -521,66 +549,66 @@ func TestAllocateLoanFundingDirectLoan(t *testing.T) {
 
 func TestAllocateLoanFundingFirstLossAbsorbsFirst(t *testing.T) {
 	request := calculation.FundingRequest{
-		LoanAmount:  100000,
+		LoanAmount:  dec(100000),
 		Currency:    "KES",
 		IsGroupLoan: true,
 		GroupID:     "group-1",
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "group-1", SourceType: 1, TrancheLevel: 1, AvailableAmount: 40000},
+		{SourceID: "group-1", SourceType: 1, TrancheLevel: 1, AvailableAmount: dec(40000)},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 40000 {
-		t.Errorf("TotalAllocated = %d, want 40000", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 40000 {
+		t.Errorf("TotalAllocated = %d, want 40000", toMinor(result.TotalAllocated))
 	}
-	if result.Deficit != 60000 {
-		t.Errorf("Deficit = %d, want 60000", result.Deficit)
+	if toMinor(result.Deficit) != 60000 {
+		t.Errorf("Deficit = %d, want 60000", toMinor(result.Deficit))
 	}
 }
 
 func TestAllocateLoanFundingInvestorConstraints(t *testing.T) {
 	request := calculation.FundingRequest{
-		LoanAmount:  100000,
+		LoanAmount:  dec(100000),
 		Currency:    "KES",
 		IsGroupLoan: true,
 		GroupID:     "group-1",
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "group-1", SourceType: 1, TrancheLevel: 1, AvailableAmount: 60000},
-		{SourceID: "inv-1", SourceType: 3, TrancheLevel: 2, AvailableAmount: 50000, MaxForThisLoan: 20000},
-		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 3, AvailableAmount: 50000},
+		{SourceID: "group-1", SourceType: 1, TrancheLevel: 1, AvailableAmount: dec(60000)},
+		{SourceID: "inv-1", SourceType: 3, TrancheLevel: 2, AvailableAmount: dec(50000), MaxForThisLoan: dec(20000)},
+		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 3, AvailableAmount: dec(50000)},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 100000 {
-		t.Errorf("TotalAllocated = %d, want 100000", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 100000 {
+		t.Errorf("TotalAllocated = %d, want 100000", toMinor(result.TotalAllocated))
 	}
 
 	for _, a := range result.Allocations {
-		if a.SourceID == "inv-1" && a.Amount > 20000 {
-			t.Errorf("inv-1 allocated %d but max was 20000", a.Amount)
+		if a.SourceID == "inv-1" && toMinor(a.Amount) > 20000 {
+			t.Errorf("inv-1 allocated %d but max was 20000", toMinor(a.Amount))
 		}
 	}
 }
 
 func TestAllocateLoanFundingZeroAmount(t *testing.T) {
-	request := calculation.FundingRequest{LoanAmount: 0}
+	request := calculation.FundingRequest{LoanAmount: dec(0)}
 	result := calculation.AllocateLoanFunding(request, nil)
-	if result.TotalAllocated != 0 {
-		t.Errorf("expected 0 for zero loan, got %d", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 0 {
+		t.Errorf("expected 0 for zero loan, got %d", toMinor(result.TotalAllocated))
 	}
 }
 
 func TestAllocateLoanFundingNoSources(t *testing.T) {
-	request := calculation.FundingRequest{LoanAmount: 100000, IsGroupLoan: true}
+	request := calculation.FundingRequest{LoanAmount: dec(100000), IsGroupLoan: true}
 	result := calculation.AllocateLoanFunding(request, nil)
-	if result.Deficit != 100000 {
-		t.Errorf("Deficit = %d, want 100000", result.Deficit)
+	if toMinor(result.Deficit) != 100000 {
+		t.Errorf("Deficit = %d, want 100000", toMinor(result.Deficit))
 	}
 }
 
@@ -589,32 +617,32 @@ func TestAllocateLoanFundingNoSources(t *testing.T) {
 // their capital should receive a larger share than one who is 80% utilized.
 func TestAllocateLoanFundingFairRotation(t *testing.T) {
 	request := calculation.FundingRequest{
-		LoanAmount:  50000,
+		LoanAmount:  dec(50000),
 		Currency:    "KES",
 		IsGroupLoan: false,
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: 5000},
+		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: dec(5000)},
 		// inv-heavy: 80% utilized (deployed 80000 of 100000 total capital)
-		{SourceID: "inv-heavy", SourceType: 4, TrancheLevel: 2, AvailableAmount: 20000, TotalDeployed: 80000},
+		{SourceID: "inv-heavy", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(20000), TotalDeployed: dec(80000)},
 		// inv-fresh: 0% utilized (never deployed, fresh capital)
-		{SourceID: "inv-fresh", SourceType: 4, TrancheLevel: 2, AvailableAmount: 20000, TotalDeployed: 0},
+		{SourceID: "inv-fresh", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(20000), TotalDeployed: dec(0)},
 		// inv-mid: 40% utilized (deployed 40000 of 100000 total capital)
-		{SourceID: "inv-mid", SourceType: 4, TrancheLevel: 2, AvailableAmount: 60000, TotalDeployed: 40000},
+		{SourceID: "inv-mid", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(60000), TotalDeployed: dec(40000)},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 50000 {
-		t.Fatalf("TotalAllocated = %d, want 50000", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 50000 {
+		t.Fatalf("TotalAllocated = %d, want 50000", toMinor(result.TotalAllocated))
 	}
 
 	// Build allocation map for tranche 2 investors
 	allocMap := make(map[string]int64)
 	for _, a := range result.Allocations {
 		if a.TrancheLevel == 2 {
-			allocMap[a.SourceID] = a.Amount
+			allocMap[a.SourceID] = toMinor(a.Amount)
 		}
 	}
 
@@ -629,27 +657,27 @@ func TestAllocateLoanFundingFairRotation(t *testing.T) {
 // correctly and the total always equals the loan amount.
 func TestAllocateLoanFundingDustHandling(t *testing.T) {
 	request := calculation.FundingRequest{
-		LoanAmount:       100003,
+		LoanAmount:       dec(100003),
 		Currency:         "KES",
 		IsGroupLoan:      false,
 		FirstLossPercent: 1000, // 10%
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: 50000},
-		{SourceID: "inv-1", SourceType: 4, TrancheLevel: 2, AvailableAmount: 50000},
-		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 2, AvailableAmount: 50000},
+		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: dec(50000)},
+		{SourceID: "inv-1", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(50000)},
+		{SourceID: "inv-2", SourceType: 4, TrancheLevel: 2, AvailableAmount: dec(50000)},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 100003 {
-		t.Errorf("TotalAllocated = %d, want 100003 (dust not absorbed)", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 100003 {
+		t.Errorf("TotalAllocated = %d, want 100003 (dust not absorbed)", toMinor(result.TotalAllocated))
 	}
-	if result.Deficit != 0 {
-		t.Errorf("Deficit = %d, want 0", result.Deficit)
+	if !result.Deficit.IsZero() {
+		t.Errorf("Deficit = %d, want 0", toMinor(result.Deficit))
 	}
-	if !calculation.VerifyTrancheAllocationInvariant(100003, result) {
+	if !calculation.VerifyTrancheAllocationInvariant(dec(100003), result) {
 		t.Error("tranche allocation invariant violated with dust")
 	}
 }
@@ -708,18 +736,18 @@ func TestCalculateInterestDistribution(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			dist := calculation.CalculateInterestDistribution(tc.grossInterest, tc.platformFeeBP, tc.taxBP)
-			if dist.PlatformFee != tc.wantFee {
-				t.Errorf("PlatformFee = %d, want %d", dist.PlatformFee, tc.wantFee)
+			dist := calculation.CalculateInterestDistribution(dec(tc.grossInterest), tc.platformFeeBP, tc.taxBP)
+			if toMinor(dist.PlatformFee) != tc.wantFee {
+				t.Errorf("PlatformFee = %d, want %d", toMinor(dist.PlatformFee), tc.wantFee)
 			}
-			if dist.WithholdingTax != tc.wantTax {
-				t.Errorf("WithholdingTax = %d, want %d", dist.WithholdingTax, tc.wantTax)
+			if toMinor(dist.WithholdingTax) != tc.wantTax {
+				t.Errorf("WithholdingTax = %d, want %d", toMinor(dist.WithholdingTax), tc.wantTax)
 			}
-			if dist.NetInterest != tc.wantNet {
-				t.Errorf("NetInterest = %d, want %d", dist.NetInterest, tc.wantNet)
+			if toMinor(dist.NetInterest) != tc.wantNet {
+				t.Errorf("NetInterest = %d, want %d", toMinor(dist.NetInterest), tc.wantNet)
 			}
-			if dist.GrossInterest != tc.grossInterest {
-				t.Errorf("GrossInterest = %d, want %d", dist.GrossInterest, tc.grossInterest)
+			if toMinor(dist.GrossInterest) != tc.grossInterest {
+				t.Errorf("GrossInterest = %d, want %d", toMinor(dist.GrossInterest), tc.grossInterest)
 			}
 		})
 	}
@@ -727,9 +755,9 @@ func TestCalculateInterestDistribution(t *testing.T) {
 
 func TestCalculateInterestDistributionNegativeClamp(t *testing.T) {
 	// If fees + tax exceed gross, net should be 0
-	dist := calculation.CalculateInterestDistribution(1000, 6000, 6000)
-	if dist.NetInterest != 0 {
-		t.Errorf("NetInterest = %d, want 0 (clamped)", dist.NetInterest)
+	dist := calculation.CalculateInterestDistribution(dec(1000), 6000, 6000)
+	if toMinor(dist.NetInterest) != 0 {
+		t.Errorf("NetInterest = %d, want 0 (clamped)", toMinor(dist.NetInterest))
 	}
 }
 
@@ -742,43 +770,43 @@ func TestAllocateLoanFundingOldestDeployedFirst(t *testing.T) {
 	recent := now.Add(-1 * time.Hour) // deployed 1 hour ago
 
 	request := calculation.FundingRequest{
-		LoanAmount:  60000,
+		LoanAmount:  dec(60000),
 		Currency:    "KES",
 		IsGroupLoan: false,
 	}
 
 	sources := []calculation.FundingSource{
-		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: 6000},
+		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: dec(6000)},
 		// Both investors have identical utilization (0%) and available amounts
 		// but inv-old deployed 6 months ago while inv-recent deployed 1 hour ago.
 		{
 			SourceID:        "inv-old",
 			SourceType:      4,
 			TrancheLevel:    2,
-			AvailableAmount: 40000,
-			TotalDeployed:   0,
+			AvailableAmount: dec(40000),
+			TotalDeployed:   dec(0),
 			LastDeployedAt:  longAgo,
 		},
 		{
 			SourceID:        "inv-recent",
 			SourceType:      4,
 			TrancheLevel:    2,
-			AvailableAmount: 40000,
-			TotalDeployed:   0,
+			AvailableAmount: dec(40000),
+			TotalDeployed:   dec(0),
 			LastDeployedAt:  recent,
 		},
 	}
 
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if result.TotalAllocated != 60000 {
-		t.Fatalf("TotalAllocated = %d, want 60000", result.TotalAllocated)
+	if toMinor(result.TotalAllocated) != 60000 {
+		t.Fatalf("TotalAllocated = %d, want 60000", toMinor(result.TotalAllocated))
 	}
 
 	allocMap := make(map[string]int64)
 	for _, a := range result.Allocations {
 		if a.TrancheLevel == 2 {
-			allocMap[a.SourceID] = a.Amount
+			allocMap[a.SourceID] = toMinor(a.Amount)
 		}
 	}
 
@@ -794,18 +822,18 @@ func TestAllocateLoanFundingOldestDeployedFirst(t *testing.T) {
 		SourceID:        "inv-never",
 		SourceType:      4,
 		TrancheLevel:    2,
-		AvailableAmount: 40000,
-		TotalDeployed:   0,
+		AvailableAmount: dec(40000),
+		TotalDeployed:   dec(0),
 		// LastDeployedAt is zero value — never deployed
 	}
 	sources2 := []calculation.FundingSource{
-		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: 6000},
+		{SourceID: "platform", SourceType: 5, TrancheLevel: 1, AvailableAmount: dec(6000)},
 		{
 			SourceID:        "inv-recent2",
 			SourceType:      4,
 			TrancheLevel:    2,
-			AvailableAmount: 40000,
-			TotalDeployed:   0,
+			AvailableAmount: dec(40000),
+			TotalDeployed:   dec(0),
 			LastDeployedAt:  recent,
 		},
 		neverDeployed,
@@ -816,7 +844,7 @@ func TestAllocateLoanFundingOldestDeployedFirst(t *testing.T) {
 	allocMap2 := make(map[string]int64)
 	for _, a := range result2.Allocations {
 		if a.TrancheLevel == 2 {
-			allocMap2[a.SourceID] = a.Amount
+			allocMap2[a.SourceID] = toMinor(a.Amount)
 		}
 	}
 

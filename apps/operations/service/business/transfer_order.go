@@ -10,6 +10,8 @@ import (
 	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"github.com/pitabwire/util/decimalx"
+	utilmoney "github.com/pitabwire/util/money"
 	"google.golang.org/genproto/googleapis/type/money"
 
 	fundingmodels "github.com/antinvestor/service-lender/apps/funding/service/models"
@@ -326,11 +328,7 @@ func (b *transferOrderBusiness) logCBSSyncRecord(ctx context.Context, order *mod
 // minorToMoney converts a minor-unit int64 amount and currency code to a
 // google.type.Money protobuf value. Assumes 2-decimal-place currencies.
 func minorToMoney(currency string, amount int64) *money.Money {
-	return &money.Money{
-		CurrencyCode: currency,
-		Units:        amount / 100,
-		Nanos:        int32((amount % 100) * 10_000_000),
-	}
+	return utilmoney.FromInt64(currency, amount, 2)
 }
 
 // sendPayment is a helper that calls PaymentClient.Send with common parameters.
@@ -479,12 +477,13 @@ func (b *transferOrderBusiness) redistributeRepayment(
 			if isInterest {
 				actualTransferType = constants.TransferTypeInvestorIncomeDistribution
 				// Apply platform fees and withholding tax on investor interest
-				dist := calculation.CalculateInterestDistribution(share, platformFeeBP, taxBP)
-				actualAmount = dist.NetInterest
+				shareDec := decimalx.FromMinorUnits(share, 2)
+				dist := calculation.CalculateInterestDistribution(shareDec, platformFeeBP, taxBP)
+				actualAmount = dist.NetInterest.ToMinorUnits(2)
 
 				// Create platform fee transfer order
-				if dist.PlatformFee > 0 {
-					b.createRedistributionOrder(ctx, sourceOrder, dist.PlatformFee,
+				if dist.PlatformFee.IsPositive() {
+					b.createRedistributionOrder(ctx, sourceOrder, dist.PlatformFee.ToMinorUnits(2),
 						constants.ProductServiceFeePayableAccount("default"),
 						constants.TransferTypeServiceFee,
 						fmt.Sprintf("platform_fee:%s:%s", sourceOrder.GetID(), funding.GetID()),
@@ -492,8 +491,8 @@ func (b *transferOrderBusiness) redistributeRepayment(
 					)
 				}
 				// Create withholding tax transfer order
-				if dist.WithholdingTax > 0 {
-					b.createRedistributionOrder(ctx, sourceOrder, dist.WithholdingTax,
+				if dist.WithholdingTax.IsPositive() {
+					b.createRedistributionOrder(ctx, sourceOrder, dist.WithholdingTax.ToMinorUnits(2),
 						constants.ProductServiceFeePayableAccount("tax"),
 						constants.TransferTypeCost,
 						fmt.Sprintf("wht:%s:%s", sourceOrder.GetID(), funding.GetID()),

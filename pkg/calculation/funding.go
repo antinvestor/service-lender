@@ -3,6 +3,8 @@ package calculation
 import (
 	"sort"
 	"time"
+
+	"github.com/pitabwire/util/decimalx"
 )
 
 // DefaultFirstLossPercent is the default platform first-loss reserve as basis points
@@ -17,7 +19,7 @@ const DefaultWithholdingTaxPercent int64 = 1500
 
 // FundingRequest describes a loan that needs funding.
 type FundingRequest struct {
-	LoanAmount       int64
+	LoanAmount       decimalx.Decimal
 	Currency         string
 	InterestRate     int64 // basis points
 	ProductType      string
@@ -32,17 +34,17 @@ type FundingSource struct {
 	SourceID        string
 	SourceType      int32 // FundingSource enum value
 	TrancheLevel    int32 // 1=first-loss, 2=mezzanine, 3=senior
-	AvailableAmount int64
-	MaxForThisLoan  int64     // constrained by investor preferences (0 = no extra constraint)
-	TotalDeployed   int64     // lifetime deployed — used for fair rotation
-	LastDeployedAt  time.Time // when this source last had capital deployed
+	AvailableAmount decimalx.Decimal
+	MaxForThisLoan  decimalx.Decimal // constrained by investor preferences (zero = no extra constraint)
+	TotalDeployed   decimalx.Decimal // lifetime deployed — used for fair rotation
+	LastDeployedAt  time.Time        // when this source last had capital deployed
 }
 
 // FundingResult is the output of a tranche-based allocation.
 type FundingResult struct {
 	Allocations    []FundingAllocation
-	TotalAllocated int64
-	Deficit        int64
+	TotalAllocated decimalx.Decimal
+	Deficit        decimalx.Decimal
 }
 
 // FundingAllocation is a single allocation from a source.
@@ -50,32 +52,36 @@ type FundingAllocation struct {
 	SourceID     string
 	SourceType   int32
 	TrancheLevel int32
-	Amount       int64
+	Amount       decimalx.Decimal
 }
 
 // InterestDistribution breaks down interest earned into net, platform fee, and tax.
 type InterestDistribution struct {
-	GrossInterest  int64 // total interest before deductions
-	PlatformFee    int64 // platform service fee deducted
-	WithholdingTax int64 // withholding tax deducted
-	NetInterest    int64 // amount investor actually receives
+	GrossInterest  decimalx.Decimal // total interest before deductions
+	PlatformFee    decimalx.Decimal // platform service fee deducted
+	WithholdingTax decimalx.Decimal // withholding tax deducted
+	NetInterest    decimalx.Decimal // amount investor actually receives
 }
 
 // CalculateInterestDistribution computes the net interest an investor receives
 // after platform fees and withholding tax are deducted.
 // platformFeeBP and taxBP are in basis points (e.g. 500 = 5%, 1500 = 15%).
 // Tax is applied on gross interest (before platform fee deduction).
-func CalculateInterestDistribution(grossInterest int64, platformFeeBP int64, taxBP int64) InterestDistribution {
-	if grossInterest <= 0 {
+func CalculateInterestDistribution(
+	grossInterest decimalx.Decimal,
+	platformFeeBP int64,
+	taxBP int64,
+) InterestDistribution {
+	if !grossInterest.IsPositive() {
 		return InterestDistribution{}
 	}
 
-	platformFee := grossInterest * platformFeeBP / 10000
-	withholdingTax := grossInterest * taxBP / 10000
-	netInterest := grossInterest - platformFee - withholdingTax
+	platformFee := decimalx.ApplyBasisPoints(grossInterest, platformFeeBP)
+	withholdingTax := decimalx.ApplyBasisPoints(grossInterest, taxBP)
+	netInterest := grossInterest.Sub(platformFee).Sub(withholdingTax)
 
-	if netInterest < 0 {
-		netInterest = 0
+	if netInterest.IsNegative() {
+		netInterest = decimalx.Zero()
 	}
 
 	return InterestDistribution{
@@ -101,7 +107,7 @@ func CalculateInterestDistribution(grossInterest int64, platformFeeBP int64, tax
 // the lowest utilization ratio (TotalDeployed / AvailableBalance) are filled
 // first so that idle capital is put to work before heavily-deployed capital.
 func AllocateLoanFunding(request FundingRequest, sources []FundingSource) FundingResult {
-	if request.LoanAmount <= 0 || len(sources) == 0 {
+	if !request.LoanAmount.IsPositive() || len(sources) == 0 {
 		return FundingResult{Deficit: request.LoanAmount}
 	}
 
@@ -124,7 +130,7 @@ func AllocateLoanFunding(request FundingRequest, sources []FundingSource) Fundin
 		if !sorted[i].LastDeployedAt.Equal(sorted[j].LastDeployedAt) {
 			return sorted[i].LastDeployedAt.Before(sorted[j].LastDeployedAt)
 		}
-		return sorted[i].AvailableAmount > sorted[j].AvailableAmount
+		return sorted[i].AvailableAmount.GreaterThan(sorted[j].AvailableAmount)
 	})
 
 	remaining := request.LoanAmount
@@ -140,7 +146,7 @@ func AllocateLoanFunding(request FundingRequest, sources []FundingSource) Fundin
 		remaining = allocateDirectLoan(sorted, remaining, firstLossPct, request.LoanAmount, &allocations)
 	}
 
-	totalAllocated := request.LoanAmount - remaining
+	totalAllocated := request.LoanAmount.Sub(remaining)
 	return FundingResult{
 		Allocations:    allocations,
 		TotalAllocated: totalAllocated,
@@ -153,38 +159,42 @@ func AllocateLoanFunding(request FundingRequest, sources []FundingSource) Fundin
 // Non-investor sources (group, platform) always return 0 since fairness
 // only applies to investor selection.
 func utilizationRatio(s FundingSource) int64 {
-	total := s.AvailableAmount + s.TotalDeployed
-	if total <= 0 {
+	total := s.AvailableAmount.Add(s.TotalDeployed)
+	if !total.IsPositive() {
 		return 0
 	}
-	return s.TotalDeployed * 10000 / total
+	return s.TotalDeployed.Mul(decimalx.NewFromInt64(10000)).Div(total).Int64()
 }
 
 // allocateGroupLoan fills tranches for a group-cycling loan.
-func allocateGroupLoan(sources []FundingSource, remaining int64, allocations *[]FundingAllocation) int64 {
-	remaining = allocateFromTranche(sources, 1, remaining, 0, allocations)
-	remaining = allocateFromTranche(sources, 2, remaining, 0, allocations)
-	remaining = allocateFromTranche(sources, 3, remaining, 0, allocations)
+func allocateGroupLoan(
+	sources []FundingSource,
+	remaining decimalx.Decimal,
+	allocations *[]FundingAllocation,
+) decimalx.Decimal {
+	remaining = allocateFromTranche(sources, 1, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, 2, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, 3, remaining, decimalx.Zero(), allocations)
 	return remaining
 }
 
 // allocateDirectLoan fills tranches for a direct-to-borrower loan.
 func allocateDirectLoan(
 	sources []FundingSource,
-	remaining int64,
+	remaining decimalx.Decimal,
 	firstLossPct int64,
-	loanAmount int64,
+	loanAmount decimalx.Decimal,
 	allocations *[]FundingAllocation,
-) int64 {
-	firstLossCap := loanAmount * firstLossPct / 10000
+) decimalx.Decimal {
+	firstLossCap := decimalx.ApplyBasisPoints(loanAmount, firstLossPct)
 	remaining = allocateFromTranche(sources, 1, remaining, firstLossCap, allocations)
-	remaining = allocateFromTranche(sources, 2, remaining, 0, allocations)
-	remaining = allocateFromTranche(sources, 3, remaining, 0, allocations)
+	remaining = allocateFromTranche(sources, 2, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, 3, remaining, decimalx.Zero(), allocations)
 	return remaining
 }
 
 // allocateFromTranche allocates from sources at a given tranche level.
-// If cap > 0, the total allocation from this tranche is capped at that amount.
+// If cap is positive, the total allocation from this tranche is capped at that amount.
 //
 // The allocation spreads proportionally by each source's effective available
 // amount (respecting MaxForThisLoan constraints). Sources are already sorted
@@ -194,17 +204,17 @@ func allocateDirectLoan(
 func allocateFromTranche(
 	sources []FundingSource,
 	trancheLevel int32,
-	remaining int64,
-	cap int64,
+	remaining decimalx.Decimal,
+	cap decimalx.Decimal,
 	allocations *[]FundingAllocation,
-) int64 {
-	if remaining <= 0 {
-		return 0
+) decimalx.Decimal {
+	if !remaining.IsPositive() {
+		return decimalx.Zero()
 	}
 
 	var trancheSources []FundingSource
 	for _, s := range sources {
-		if s.TrancheLevel == trancheLevel && s.AvailableAmount > 0 {
+		if s.TrancheLevel == trancheLevel && s.AvailableAmount.IsPositive() {
 			trancheSources = append(trancheSources, s)
 		}
 	}
@@ -214,41 +224,46 @@ func allocateFromTranche(
 	}
 
 	trancheTarget := remaining
-	if cap > 0 && cap < trancheTarget {
+	if cap.IsPositive() && cap.LessThan(trancheTarget) {
 		trancheTarget = cap
 	}
 
 	// Compute effective available per source (respecting MaxForThisLoan)
-	effectiveAvail := make([]int64, len(trancheSources))
-	totalAvailable := int64(0)
+	effectiveAvail := make([]decimalx.Decimal, len(trancheSources))
+	totalAvailable := decimalx.Zero()
 	for i, s := range trancheSources {
 		avail := s.AvailableAmount
-		if s.MaxForThisLoan > 0 && s.MaxForThisLoan < avail {
+		if s.MaxForThisLoan.IsPositive() && s.MaxForThisLoan.LessThan(avail) {
 			avail = s.MaxForThisLoan
 		}
 		effectiveAvail[i] = avail
-		totalAvailable += avail
+		totalAvailable = totalAvailable.Add(avail)
 	}
 
-	if totalAvailable <= 0 {
+	if !totalAvailable.IsPositive() {
 		return remaining
 	}
 
-	toAllocate := min64(trancheTarget, totalAvailable)
+	toAllocate := trancheTarget
+	if totalAvailable.LessThan(toAllocate) {
+		toAllocate = totalAvailable
+	}
 
-	allocated := int64(0)
+	allocated := decimalx.Zero()
 	for i := range trancheSources {
-		var share int64
+		var share decimalx.Decimal
 		if i == len(trancheSources)-1 {
-			share = toAllocate - allocated
+			share = toAllocate.Sub(allocated)
 		} else {
-			share = toAllocate * effectiveAvail[i] / totalAvailable
+			share = toAllocate.Mul(effectiveAvail[i]).Div(totalAvailable)
 		}
 
-		if share <= 0 {
+		if !share.IsPositive() {
 			continue
 		}
-		share = min64(share, effectiveAvail[i])
+		if share.GreaterThan(effectiveAvail[i]) {
+			share = effectiveAvail[i]
+		}
 
 		*allocations = append(*allocations, FundingAllocation{
 			SourceID:     trancheSources[i].SourceID,
@@ -256,20 +271,13 @@ func allocateFromTranche(
 			TrancheLevel: trancheSources[i].TrancheLevel,
 			Amount:       share,
 		})
-		allocated += share
+		allocated = allocated.Add(share)
 	}
 
-	return remaining - allocated
+	return remaining.Sub(allocated)
 }
 
 // VerifyTrancheAllocationInvariant checks that the tranche allocation fully funds the loan.
-func VerifyTrancheAllocationInvariant(loanAmount int64, result FundingResult) bool {
-	return result.TotalAllocated == loanAmount && result.Deficit == 0
-}
-
-func min64(a, b int64) int64 {
-	if a < b {
-		return a
-	}
-	return b
+func VerifyTrancheAllocationInvariant(loanAmount decimalx.Decimal, result FundingResult) bool {
+	return result.TotalAllocated.Equal(loanAmount) && result.Deficit.IsZero()
 }

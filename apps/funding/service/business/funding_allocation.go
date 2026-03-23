@@ -6,6 +6,7 @@ import (
 
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"github.com/pitabwire/util/decimalx"
 
 	"github.com/antinvestor/service-lender/apps/funding/service/events"
 	"github.com/antinvestor/service-lender/apps/funding/service/models"
@@ -88,8 +89,9 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 	}
 
 	// Build the funding request
+	loanAmountDec := decimalx.FromMinorUnits(loanAmount, 2)
 	request := calculation.FundingRequest{
-		LoanAmount:   loanAmount,
+		LoanAmount:   loanAmountDec,
 		Currency:     offer.Currency,
 		InterestRate: interestRate,
 		ProductType:  productType,
@@ -107,7 +109,7 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 	// Run the tranche-based allocation
 	result := calculation.AllocateLoanFunding(request, sources)
 
-	if !calculation.VerifyTrancheAllocationInvariant(loanAmount, result) {
+	if !calculation.VerifyTrancheAllocationInvariant(loanAmountDec, result) {
 		logger.WithField("total_allocated", result.TotalAllocated).
 			WithField("deficit", result.Deficit).
 			Warn("loan not fully funded")
@@ -115,20 +117,21 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 
 	// Create LoanFunding + FundingTranche records for each allocation
 	for _, alloc := range result.Allocations {
-		if alloc.Amount <= 0 {
+		if !alloc.Amount.IsPositive() {
 			continue
 		}
 
 		proportion := int64(0)
-		if result.TotalAllocated > 0 {
-			proportion = alloc.Amount * 10000 / result.TotalAllocated
+		if result.TotalAllocated.IsPositive() {
+			proportion = alloc.Amount.Mul(decimalx.NewFromInt64(10000)).Div(result.TotalAllocated).Int64()
 		}
 
+		allocAmount := alloc.Amount.ToMinorUnits(2)
 		funding := &models.LoanFunding{
 			LoanOfferID: offerID,
 			FundingType: alloc.SourceType,
 			Proportion:  proportion,
-			Amount:      alloc.Amount,
+			Amount:      allocAmount,
 			Currency:    offer.Currency,
 			OwnerID:     alloc.SourceID,
 			OwnerType:   fundingSourceOwnerType(alloc.SourceType),
@@ -154,7 +157,7 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 			LoanFundingID:     funding.GetID(),
 			InvestorAccountID: investorAccountID,
 			TrancheLevel:      alloc.TrancheLevel,
-			Amount:            alloc.Amount,
+			Amount:            allocAmount,
 			Currency:          offer.Currency,
 			State:             int32(constants.StateActive),
 		}
@@ -167,7 +170,7 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 
 		// Reserve balance on investor accounts
 		if investorAccountID != "" {
-			if resErr := b.reserveInvestorBalance(ctx, investorAccountID, alloc.Amount); resErr != nil {
+			if resErr := b.reserveInvestorBalance(ctx, investorAccountID, allocAmount); resErr != nil {
 				logger.WithError(resErr).Error("could not reserve investor balance")
 			}
 		}
@@ -182,9 +185,9 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 	return map[string]interface{}{
 		"offer_id":        offerID,
 		"loan_amount":     loanAmount,
-		"total_allocated": result.TotalAllocated,
-		"deficit":         result.Deficit,
-		"fully_funded":    result.Deficit == 0,
+		"total_allocated": result.TotalAllocated.ToMinorUnits(2),
+		"deficit":         result.Deficit.ToMinorUnits(2),
+		"fully_funded":    result.Deficit.IsZero(),
 		"tranches":        len(result.Allocations),
 		"is_group_loan":   isGroupLoan,
 	}, nil
@@ -273,6 +276,8 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 ) ([]calculation.FundingSource, error) {
 	var sources []calculation.FundingSource
 
+	loanAmountMinor := request.LoanAmount.ToMinorUnits(2)
+
 	if request.IsGroupLoan {
 		// Tranche 1 (first-loss): group savings and income
 		// The group savings balance would come from the savings service.
@@ -298,7 +303,7 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 			ctx,
 			request.Currency,
 			request.InterestRate,
-			request.LoanAmount,
+			loanAmountMinor,
 			request.ProductType,
 			request.Region,
 		)
@@ -315,12 +320,12 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 		// Tranche 1 (first-loss): platform reserve
 		// The platform reserve balance would come from configuration or a dedicated account.
 		// We report the full reserve so the allocation algorithm can apply its own cap.
-		firstLossTarget := request.LoanAmount * calculation.DefaultFirstLossPercent / 10000
+		firstLossTarget := decimalx.ApplyBasisPoints(request.LoanAmount, calculation.DefaultFirstLossPercent)
 		sources = append(sources, calculation.FundingSource{
 			SourceID:     "platform",
 			SourceType:   int32(models.FundingSourcePlatformReserve),
 			TrancheLevel: 1,
-			// NOTE: Uses loan amount as proxy for group savings. In production,
+			// NOTE: Uses loan amount as proxy for platform reserve. In production,
 			// query actual balance from savings or ledger service when available.
 			AvailableAmount: firstLossTarget,
 		})
@@ -330,7 +335,7 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 			ctx,
 			request.Currency,
 			request.InterestRate,
-			request.LoanAmount,
+			loanAmountMinor,
 			request.ProductType,
 			request.Region,
 		)
@@ -375,9 +380,9 @@ func appendInvestorSources(
 			SourceID:        inv.GetID(),
 			SourceType:      sourceType,
 			TrancheLevel:    trancheLevel,
-			AvailableAmount: available,
-			MaxForThisLoan:  maxForLoan,
-			TotalDeployed:   inv.TotalDeployed,
+			AvailableAmount: decimalx.FromMinorUnits(available, 2),
+			MaxForThisLoan:  decimalx.FromMinorUnits(maxForLoan, 2),
+			TotalDeployed:   decimalx.FromMinorUnits(inv.TotalDeployed, 2),
 		}
 		if inv.LastDeployedAt != nil {
 			fs.LastDeployedAt = *inv.LastDeployedAt

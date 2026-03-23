@@ -9,6 +9,7 @@ import (
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"github.com/pitabwire/util/decimalx"
 
 	"github.com/antinvestor/service-lender/apps/loans/service/events"
 	"github.com/antinvestor/service-lender/apps/loans/service/models"
@@ -166,8 +167,9 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 	}
 
 	// Generate schedule using product parameters
+	principal := decimalx.FromMinorUnits(la.PrincipalAmount, 2)
 	entries := calculation.GenerateScheduleFromProduct(
-		la.PrincipalAmount,
+		principal,
 		interestRate,
 		lp.InsuranceFeePercent,
 		lp.ProcessingFeePercent,
@@ -180,15 +182,17 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 	// Convert calculation entries to model entries
 	var modelEntries []*models.ScheduleEntry
 	for _, e := range entries {
-		feesDue := e.FeesDue + e.InsuranceDue // combine into fees
-		totalDue := e.PrincipalDue + e.InterestDue + feesDue
+		feesDue := e.FeesDue.Add(e.InsuranceDue).ToMinorUnits(2) // combine into fees
+		principalDue := e.PrincipalDue.ToMinorUnits(2)
+		interestDue := e.InterestDue.ToMinorUnits(2)
+		totalDue := principalDue + interestDue + feesDue
 		entry := &models.ScheduleEntry{
 			ScheduleID:        schedule.GetID(),
 			LoanAccountID:     la.GetID(),
 			InstallmentNumber: e.InstallmentNumber,
 			DueDate:           &e.DueDate,
-			PrincipalDue:      e.PrincipalDue,
-			InterestDue:       e.InterestDue,
+			PrincipalDue:      principalDue,
+			InterestDue:       interestDue,
 			FeesDue:           feesDue,
 			TotalDue:          totalDue,
 			Outstanding:       totalDue,

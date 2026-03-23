@@ -13,6 +13,7 @@ import (
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"github.com/pitabwire/util/decimalx"
 
 	"github.com/antinvestor/service-lender/apps/loans/service/events"
 	"github.com/antinvestor/service-lender/apps/loans/service/models"
@@ -197,13 +198,15 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 		if numInstallments <= 0 {
 			numInstallments = 1
 		}
-		totalInterest = calculation.FlatRateInterest(la.PrincipalAmount, la.InterestRate, numInstallments, int32(ppy))
+		principal := decimalx.FromMinorUnits(la.PrincipalAmount, 2)
+		totalInterest = calculation.FlatRateInterest(principal, la.InterestRate, numInstallments, int32(ppy)).
+			ToMinorUnits(2)
 		totalFees = calculation.FlatRateInterest(
-			la.PrincipalAmount,
+			principal,
 			lp.InsuranceFeePercent+lp.ProcessingFeePercent,
 			numInstallments,
 			int32(ppy),
-		)
+		).ToMinorUnits(2)
 	}
 
 	// Create initial balance snapshot

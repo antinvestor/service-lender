@@ -1,28 +1,32 @@
 package calculation
 
-import "time"
+import (
+	"time"
+
+	"github.com/pitabwire/util/decimalx"
+)
 
 // ScheduleEntry represents a single installment in an amortization schedule.
 type ScheduleEntry struct {
 	InstallmentNumber int32
 	DueDate           time.Time
-	PrincipalDue      int64 // minor units
-	InterestDue       int64 // minor units
-	InsuranceDue      int64 // minor units
-	FeesDue           int64 // processing/origination fees in minor units
-	TotalDue          int64 // minor units
+	PrincipalDue      decimalx.Decimal
+	InterestDue       decimalx.Decimal
+	InsuranceDue      decimalx.Decimal
+	FeesDue           decimalx.Decimal // processing/origination fees
+	TotalDue          decimalx.Decimal
 }
 
 // GenerateFlatSchedule generates a flat-rate amortization schedule.
-// principal, totalInterest, totalInsurance, totalFees are in minor units.
+// principal, totalInterest, totalInsurance, totalFees are Decimal amounts.
 // installments is the number of payments.
 // firstDueDate is when the first payment is due.
 // periodType determines the interval (1=WEEKLY, 2=BIWEEKLY, 3=MONTHLY).
 func GenerateFlatSchedule(
-	principal int64,
-	totalInterest int64,
-	totalInsurance int64,
-	totalFees int64,
+	principal decimalx.Decimal,
+	totalInterest decimalx.Decimal,
+	totalInsurance decimalx.Decimal,
+	totalFees decimalx.Decimal,
 	installments int32,
 	firstDueDate time.Time,
 	periodType int32,
@@ -31,17 +35,18 @@ func GenerateFlatSchedule(
 		return nil
 	}
 
+	n := decimalx.NewFromInt64(int64(installments))
 	entries := make([]ScheduleEntry, installments)
-	principalPerPeriod := principal / int64(installments)
-	interestPerPeriod := totalInterest / int64(installments)
-	insurancePerPeriod := totalInsurance / int64(installments)
-	feesPerPeriod := totalFees / int64(installments)
+	principalPerPeriod := principal.Div(n)
+	interestPerPeriod := totalInterest.Div(n)
+	insurancePerPeriod := totalInsurance.Div(n)
+	feesPerPeriod := totalFees.Div(n)
 
 	// Dust handling: last installment absorbs rounding remainder
-	principalRemainder := principal - (principalPerPeriod * int64(installments))
-	interestRemainder := totalInterest - (interestPerPeriod * int64(installments))
-	insuranceRemainder := totalInsurance - (insurancePerPeriod * int64(installments))
-	feesRemainder := totalFees - (feesPerPeriod * int64(installments))
+	principalRemainder := principal.Sub(principalPerPeriod.Mul(n))
+	interestRemainder := totalInterest.Sub(interestPerPeriod.Mul(n))
+	insuranceRemainder := totalInsurance.Sub(insurancePerPeriod.Mul(n))
+	feesRemainder := totalFees.Sub(feesPerPeriod.Mul(n))
 
 	dueDate := firstDueDate
 	for i := range installments {
@@ -56,13 +61,13 @@ func GenerateFlatSchedule(
 
 		// Last installment absorbs remainder
 		if i == installments-1 {
-			entry.PrincipalDue += principalRemainder
-			entry.InterestDue += interestRemainder
-			entry.InsuranceDue += insuranceRemainder
-			entry.FeesDue += feesRemainder
+			entry.PrincipalDue = entry.PrincipalDue.Add(principalRemainder)
+			entry.InterestDue = entry.InterestDue.Add(interestRemainder)
+			entry.InsuranceDue = entry.InsuranceDue.Add(insuranceRemainder)
+			entry.FeesDue = entry.FeesDue.Add(feesRemainder)
 		}
 
-		entry.TotalDue = entry.PrincipalDue + entry.InterestDue + entry.InsuranceDue + entry.FeesDue
+		entry.TotalDue = entry.PrincipalDue.Add(entry.InterestDue).Add(entry.InsuranceDue).Add(entry.FeesDue)
 		entries[i] = entry
 
 		dueDate = advanceByPeriod(dueDate, periodType)
@@ -73,7 +78,7 @@ func GenerateFlatSchedule(
 
 // GenerateReducingBalanceSchedule generates a reducing-balance amortization schedule.
 func GenerateReducingBalanceSchedule(
-	principal int64,
+	principal decimalx.Decimal,
 	annualRateBP int64,
 	insuranceRateBP int64,
 	feeRateBP int64,
@@ -85,10 +90,11 @@ func GenerateReducingBalanceSchedule(
 		return nil
 	}
 
-	ppy := int64(PeriodsPerYear(periodType))
+	ppy := decimalx.NewFromInt64(int64(PeriodsPerYear(periodType)))
 	entries := make([]ScheduleEntry, installments)
 	remaining := principal
-	principalPerPeriod := principal / int64(installments)
+	n := decimalx.NewFromInt64(int64(installments))
+	principalPerPeriod := principal.Div(n)
 	dueDate := firstDueDate
 
 	for i := range installments {
@@ -97,9 +103,9 @@ func GenerateReducingBalanceSchedule(
 			pDue = remaining // last installment gets the remainder
 		}
 
-		iDue := remaining * annualRateBP / (10000 * ppy)
-		insDue := remaining * insuranceRateBP / (10000 * ppy)
-		fDue := remaining * feeRateBP / (10000 * ppy)
+		iDue := decimalx.ApplyBasisPoints(remaining, annualRateBP).Div(ppy)
+		insDue := decimalx.ApplyBasisPoints(remaining, insuranceRateBP).Div(ppy)
+		fDue := decimalx.ApplyBasisPoints(remaining, feeRateBP).Div(ppy)
 
 		entries[i] = ScheduleEntry{
 			InstallmentNumber: i + 1,
@@ -108,10 +114,10 @@ func GenerateReducingBalanceSchedule(
 			InterestDue:       iDue,
 			InsuranceDue:      insDue,
 			FeesDue:           fDue,
-			TotalDue:          pDue + iDue + insDue + fDue,
+			TotalDue:          pDue.Add(iDue).Add(insDue).Add(fDue),
 		}
 
-		remaining -= pDue
+		remaining = remaining.Sub(pDue)
 		dueDate = advanceByPeriod(dueDate, periodType)
 	}
 
@@ -120,7 +126,7 @@ func GenerateReducingBalanceSchedule(
 
 // GenerateScheduleFromProduct creates a schedule using loan product parameters.
 func GenerateScheduleFromProduct(
-	principal int64,
+	principal decimalx.Decimal,
 	annualInterestRateBP int64,
 	insuranceFeePercentBP int64,
 	processingFeePercentBP int64,

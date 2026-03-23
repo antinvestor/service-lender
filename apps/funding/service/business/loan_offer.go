@@ -10,6 +10,7 @@ import (
 	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"github.com/pitabwire/util/decimalx"
 
 	"github.com/antinvestor/service-lender/apps/funding/service/events"
 	"github.com/antinvestor/service-lender/apps/funding/service/models"
@@ -93,7 +94,9 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 
 		// Calculate max loan amount using the window's leverage and periodic amount
 		// The periodic amount represents the member's savings balance for the window
-		maxLoan := calculation.CalculateMaxLoanAmount(window.PeriodicAmount, window.Leverage)
+		periodicDec := decimalx.FromMinorUnits(window.PeriodicAmount, 2)
+		maxLoanDec := calculation.CalculateMaxLoanAmount(periodicDec, window.Leverage)
+		maxLoan := maxLoanDec.ToMinorUnits(2)
 		if maxLoan <= 0 {
 			logger.WithField("member_id", memberID).Debug("max loan is zero, skipping")
 			continue

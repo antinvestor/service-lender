@@ -27,9 +27,10 @@ require (
 	github.com/antinvestor/apis/go/common v1.55.17
 	github.com/antinvestor/apis/go/partition v1.55.17
 	github.com/antinvestor/apis/go/profile v1.55.17
-	github.com/cockroachdb/apd/v3 v3.2.2
 	github.com/pitabwire/frame v1.81.1
 	github.com/pitabwire/util v0.6.1
+	github.com/pitabwire/util/decimalx v0.7.0
+	github.com/pitabwire/util/money v0.7.0
 	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7
 	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
@@ -51,6 +52,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/cockroachdb/apd/v3 v3.2.2 // indirect
 	github.com/exaring/otelpgx v0.10.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.3 // indirect

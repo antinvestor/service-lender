@@ -2,56 +2,28 @@ package models
 
 import (
 	"context"
-	"fmt"
-	"strconv"
-	"strings"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/util/decimalx"
 )
 
 // MinorUnitsToString converts an int64 minor-unit amount (e.g. cents) to a
 // decimal string with two fractional digits. 123456 -> "1234.56".
 func MinorUnitsToString(v int64) string {
-	whole := v / 100
-	frac := v % 100
-	if frac < 0 {
-		frac = -frac
-	}
-	return fmt.Sprintf("%d.%02d", whole, frac)
+	return decimalx.FromMinorUnits(v, 2).String()
 }
 
 // StringToMinorUnits parses a decimal string (e.g. "1234.56") into int64 minor
 // units. Uses string splitting to avoid float precision issues. Returns 0 on
 // parse error.
 func StringToMinorUnits(s string) int64 {
-	if s == "" {
+	d, err := decimalx.NewFromString(s)
+	if err != nil {
 		return 0
 	}
-	negative := false
-	if len(s) > 0 && s[0] == '-' {
-		negative = true
-		s = s[1:]
-	}
-	parts := strings.SplitN(s, ".", 2)
-	whole, _ := strconv.ParseInt(parts[0], 10, 64)
-	var frac int64
-	if len(parts) == 2 {
-		f := parts[1]
-		if len(f) > 2 {
-			f = f[:2]
-		}
-		for len(f) < 2 {
-			f += "0"
-		}
-		frac, _ = strconv.ParseInt(f, 10, 64)
-	}
-	result := whole*100 + frac
-	if negative {
-		return -result
-	}
-	return result
+	return d.ToMinorUnits(2)
 }
 
 // Bank represents a top-level lending institution mapped to a partition.
