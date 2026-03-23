@@ -193,10 +193,10 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 		}
 		amountStr := fmt.Sprintf("%d.%02d", whole, frac)
 		appObj := &originationv1.ApplicationObject{
-			RequestedAmount:  amountStr,
-			ApprovedAmount:   amountStr,
-			CurrencyCode:     offer.Currency,
-			Purpose:          fmt.Sprintf("Group loan offer %s", offerID),
+			RequestedAmount: amountStr,
+			ApprovedAmount:  amountStr,
+			CurrencyCode:    offer.Currency,
+			Purpose:         fmt.Sprintf("Group loan offer %s", offerID),
 		}
 		appResp, appErr := b.clients.LenderOrigination.ApplicationSave(ctx, connect.NewRequest(
 			&originationv1.ApplicationSaveRequest{Data: appObj},

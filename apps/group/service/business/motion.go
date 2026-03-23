@@ -2,7 +2,7 @@ package business
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	fevents "github.com/pitabwire/frame/events"
 
@@ -24,9 +24,9 @@ func NewMotionBusiness(
 }
 
 func (b *motionBusiness) Create(ctx context.Context, motion *models.Motion) (*models.Motion, error) {
-	return nil, fmt.Errorf("group motion operations are not yet available for this product")
+	return nil, errors.New("group motion operations are not yet available for this product")
 }
 
 func (b *motionBusiness) Vote(ctx context.Context, motionID, membershipID string, choice int32) error {
-	return fmt.Errorf("group motion operations are not yet available for this product")
+	return errors.New("group motion operations are not yet available for this product")
 }

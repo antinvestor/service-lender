@@ -279,12 +279,12 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 		// During offer generation the member's savings were validated, so the
 		// loan amount is a safe proxy here.
 		sources = append(sources, calculation.FundingSource{
-			SourceID:        request.GroupID,
-			SourceType:      int32(models.FundingSourceGroupSavings),
-			TrancheLevel:    1,
+			SourceID:     request.GroupID,
+			SourceType:   int32(models.FundingSourceGroupSavings),
+			TrancheLevel: 1,
 			// NOTE: Uses loan amount as proxy for group savings. In production,
-		// query actual balance from savings or ledger service when available.
-		AvailableAmount: request.LoanAmount,
+			// query actual balance from savings or ledger service when available.
+			AvailableAmount: request.LoanAmount,
 		})
 
 		// Tranche 2 (mezzanine): affiliated investors
@@ -317,12 +317,12 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 		// We report the full reserve so the allocation algorithm can apply its own cap.
 		firstLossTarget := request.LoanAmount * calculation.DefaultFirstLossPercent / 10000
 		sources = append(sources, calculation.FundingSource{
-			SourceID:        "platform",
-			SourceType:      int32(models.FundingSourcePlatformReserve),
-			TrancheLevel:    1,
+			SourceID:     "platform",
+			SourceType:   int32(models.FundingSourcePlatformReserve),
+			TrancheLevel: 1,
 			// NOTE: Uses loan amount as proxy for group savings. In production,
-		// query actual balance from savings or ledger service when available.
-		AvailableAmount: firstLossTarget,
+			// query actual balance from savings or ledger service when available.
+			AvailableAmount: firstLossTarget,
 		})
 
 		// Tranche 2 (senior): all eligible investors

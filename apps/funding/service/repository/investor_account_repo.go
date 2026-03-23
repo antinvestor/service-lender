@@ -91,10 +91,16 @@ func (r *investorAccountRepository) GetEligibleForLoan(
 		Where("max_exposure = 0 OR (reserved_balance + ?) <= max_exposure", amount)
 
 	if productType != "" {
-		db = db.Where("allowed_products IS NULL OR allowed_products @> ?", fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(productType)))
+		db = db.Where(
+			"allowed_products IS NULL OR allowed_products @> ?",
+			fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(productType)),
+		)
 	}
 	if region != "" {
-		db = db.Where("allowed_regions IS NULL OR allowed_regions @> ?", fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(region)))
+		db = db.Where(
+			"allowed_regions IS NULL OR allowed_regions @> ?",
+			fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(region)),
+		)
 	}
 
 	// Order by utilization ratio ASC: investors whose capital is least deployed

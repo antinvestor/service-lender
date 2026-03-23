@@ -1,4 +1,4 @@
-package events //nolint:dupl // similar event handlers for different entity types
+package events
 
 import (
 	"context"
@@ -54,7 +54,11 @@ func (e *LoanBalanceSave) Execute(ctx context.Context, payload any) error {
 			return err
 		}
 		if rowsAffected == 0 {
-			return fmt.Errorf("optimistic lock conflict: loan balance %s was modified concurrently (version %d)", lb.GetID(), lb.GetVersion())
+			return fmt.Errorf(
+				"optimistic lock conflict: loan balance %s was modified concurrently (version %d)",
+				lb.GetID(),
+				lb.GetVersion(),
+			)
 		}
 		logger.Debug("event handler completed successfully")
 		return nil

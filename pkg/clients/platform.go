@@ -165,7 +165,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 	if endpoints.FilesURI != "" {
 		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
 			Endpoint:  endpoints.FilesURI,
-			Audiences: []string{"service_files"},
+			Audiences: []string{"service_file"},
 		}, filesv1connect.NewFilesServiceClient)
 		trackErr("files", err)
 		pc.FilesClient = cli
