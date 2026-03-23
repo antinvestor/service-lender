@@ -13,7 +13,7 @@ ARG BUILDTIME
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY ./apps/loan-management ./apps/loan-management
+COPY ./apps/loans ./apps/loans
 COPY ./pkg ./pkg
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
 	-X github.com/pitabwire/frame/version.Version=${VERSION} \
 	-X github.com/pitabwire/frame/version.Commit=${REVISION} \
 	-X github.com/pitabwire/frame/version.Date=${BUILDTIME}" \
-	-o /app/binary ./apps/loan-management/cmd/main.go
+	-o /app/binary ./apps/loans/cmd/main.go
 
 # ---------- Final ----------
 FROM cgr.dev/chainguard/static:latest
