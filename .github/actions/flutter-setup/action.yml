@@ -45,14 +45,14 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.pub-cache
-        key: pub-${{ runner.os }}-${{ hashFiles('app-ui/pubspec.lock') }}
+        key: pub-${{ runner.os }}-${{ hashFiles('ui/pubspec.lock') }}
         restore-keys: |
           pub-${{ runner.os }}-
 
     - name: Get dependencies
       shell: bash
       run: flutter pub get
-      working-directory: app-ui
+      working-directory: ui
 
     # Cache generated code
     - name: Cache generated code
@@ -61,10 +61,10 @@ runs:
       uses: actions/cache@v4
       with:
         path: |
-          app-ui/lib/**/*.g.dart
-          app-ui/lib/**/*.freezed.dart
-          app-ui/test/**/*.mocks.dart
-        key: codegen-${{ runner.os }}-${{ hashFiles('app-ui/lib/**/*.dart', 'app-ui/pubspec.lock') }}
+          ui/lib/**/*.g.dart
+          ui/lib/**/*.freezed.dart
+          ui/test/**/*.mocks.dart
+        key: codegen-${{ runner.os }}-${{ hashFiles('ui/lib/**/*.dart', 'ui/pubspec.lock') }}
         restore-keys: |
           codegen-${{ runner.os }}-
 
@@ -72,4 +72,4 @@ runs:
       if: inputs.run-codegen == 'true' && steps.cache-codegen.outputs.cache-hit != 'true'
       shell: bash
       run: dart run build_runner build --delete-conflicting-outputs
-      working-directory: app-ui
+      working-directory: ui

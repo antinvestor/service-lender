@@ -1,6 +1,8 @@
 # Service-specific configuration
 SERVICE_NAME := lender
 APP_DIRS     := apps/identity apps/origination apps/loans apps/savings
+HAS_UI       := true
+UI_DIR       := ui
 
 # Bootstrap: download shared Makefile.common if missing
 ifeq (,$(wildcard .tmp/Makefile.common))
