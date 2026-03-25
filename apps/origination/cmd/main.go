@@ -9,9 +9,9 @@ import (
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	originationpb "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
-	apis "github.com/antinvestor/apis/go/common"
-	"github.com/antinvestor/apis/go/common/connection"
-	"github.com/antinvestor/apis/go/common/permissions"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
+	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -145,7 +145,7 @@ func setupIdentityClient(
 	ctx context.Context,
 	cfg aconfig.OriginationConfig,
 ) (identityv1connect.FieldServiceClient, error) {
-	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.IdentityServiceURI,
 		WorkloadAPITargetPath: cfg.IdentityServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_lender_identity"},
@@ -156,7 +156,7 @@ func setupLoanManagementClient(
 	ctx context.Context,
 	cfg aconfig.OriginationConfig,
 ) (loansv1connect.LoanManagementServiceClient, error) {
-	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.LoanMgmtServiceURI,
 		WorkloadAPITargetPath: cfg.LoanMgmtServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_lender_loan_management"},

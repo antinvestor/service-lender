@@ -9,9 +9,9 @@ import (
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	"connectrpc.com/connect"
-	apis "github.com/antinvestor/apis/go/common"
-	"github.com/antinvestor/apis/go/common/connection"
-	"github.com/antinvestor/apis/go/common/permissions"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
+	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -161,7 +161,7 @@ func setupOriginationClient(
 	ctx context.Context,
 	cfg aconfig.LoanManagementConfig,
 ) (originationv1connect.OriginationServiceClient, error) {
-	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.OriginationServiceURI,
 		WorkloadAPITargetPath: cfg.OriginationServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_lender_origination"},
@@ -172,7 +172,7 @@ func setupNotificationClient(
 	ctx context.Context,
 	cfg aconfig.LoanManagementConfig,
 ) (notificationv1connect.NotificationServiceClient, error) {
-	return connection.NewServiceClient(ctx, &cfg, apis.ServiceTarget{
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.NotificationServiceURI,
 		WorkloadAPITargetPath: cfg.NotificationServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_lender_notification"},

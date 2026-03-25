@@ -14,8 +14,8 @@ import (
 	"buf.build/gen/go/antinvestor/payment/connectrpc/go/payment/v1/paymentv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
-	apis "github.com/antinvestor/apis/go/common"
-	"github.com/antinvestor/apis/go/common/connection"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
 	"github.com/pitabwire/util"
 )
 
@@ -72,14 +72,14 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Identity (Field + Registry) ---
 	if endpoints.IdentityURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.IdentityURI,
 			Audiences: []string{"service_lender_identity"},
 		}, identityv1connect.NewFieldServiceClient)
 		trackErr("lender-identity", err)
 		pc.LenderIdentity = cli
 
-		regCli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		regCli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.IdentityURI,
 			Audiences: []string{"service_lender_identity"},
 		}, identityv1connect.NewIdentityServiceClient)
@@ -91,7 +91,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Origination ---
 	if endpoints.OriginationURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.OriginationURI,
 			Audiences: []string{"service_lender_origination"},
 		}, originationv1connect.NewOriginationServiceClient)
@@ -103,7 +103,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Loan Management ---
 	if endpoints.LoanMgmtURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.LoanMgmtURI,
 			Audiences: []string{"service_lender_loans"},
 		}, loansv1connect.NewLoanManagementServiceClient)
@@ -115,7 +115,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Savings ---
 	if endpoints.SavingsURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.SavingsURI,
 			Audiences: []string{"service_lender_savings"},
 		}, savingsv1connect.NewSavingsServiceClient)
@@ -127,7 +127,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Ledger ---
 	if endpoints.LedgerURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.LedgerURI,
 			Audiences: []string{"service_ledger"},
 		}, ledgerv1connect.NewLedgerServiceClient)
@@ -139,7 +139,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Payment ---
 	if endpoints.PaymentURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.PaymentURI,
 			Audiences: []string{"service_payment"},
 		}, paymentv1connect.NewPaymentServiceClient)
@@ -151,7 +151,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Notification ---
 	if endpoints.NotificationURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.NotificationURI,
 			Audiences: []string{"service_notification"},
 		}, notificationv1connect.NewNotificationServiceClient)
@@ -163,7 +163,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Files ---
 	if endpoints.FilesURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.FilesURI,
 			Audiences: []string{"service_file"},
 		}, filesv1connect.NewFilesServiceClient)
@@ -175,7 +175,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Profile ---
 	if endpoints.ProfileURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.ProfileURI,
 			Audiences: []string{"service_profile"},
 		}, profilev1connect.NewProfileServiceClient)
@@ -187,7 +187,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 
 	// --- Partition ---
 	if endpoints.PartitionURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, apis.ServiceTarget{
+		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.PartitionURI,
 			Audiences: []string{"service_partition"},
 		}, partitionv1connect.NewPartitionServiceClient)

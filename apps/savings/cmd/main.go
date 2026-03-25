@@ -7,7 +7,7 @@ import (
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
 	savingspb "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
-	"github.com/antinvestor/apis/go/common/permissions"
+	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"

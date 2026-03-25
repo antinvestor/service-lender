@@ -9,10 +9,9 @@ import (
 	"buf.build/gen/go/antinvestor/partition/connectrpc/go/partition/v1/partitionv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"connectrpc.com/connect"
-	apis "github.com/antinvestor/apis/go/common"
-	"github.com/antinvestor/apis/go/common/permissions"
-	"github.com/antinvestor/apis/go/partition"
-	"github.com/antinvestor/apis/go/profile"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
+	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -159,22 +158,22 @@ func setupProfileClient(
 	ctx context.Context,
 	cfg aconfig.IdentityConfig,
 ) (profilev1connect.ProfileServiceClient, error) {
-	return profile.NewClient(ctx, &cfg, apis.ServiceTarget{
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.ProfileServiceURI,
 		WorkloadAPITargetPath: cfg.ProfileServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_profile"},
-	})
+	}, profilev1connect.NewProfileServiceClient)
 }
 
 func setupPartitionClient(
 	ctx context.Context,
 	cfg aconfig.IdentityConfig,
 ) (partitionv1connect.PartitionServiceClient, error) {
-	return partition.NewClient(ctx, &cfg, apis.ServiceTarget{
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.PartitionServiceURI,
 		WorkloadAPITargetPath: cfg.PartitionServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_tenancy"},
-	})
+	}, partitionv1connect.NewPartitionServiceClient)
 }
 
 func setupConnectServer(
