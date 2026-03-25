@@ -28,6 +28,7 @@ package loans.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/type/money.proto";
@@ -752,8 +753,114 @@ message LoanRequestResponse {
 // schedules, penalties, restructures, and reconciliation.
 // All RPCs require authentication via Bearer token.
 service LoanManagementService {
+  option (common.v1.service_permissions) = {
+    namespace: "service_loans"
+    permissions: [
+      "loan_view",
+      "loan_manage",
+      "disbursement_view",
+      "disbursement_manage",
+      "repayment_view",
+      "repayment_manage",
+      "penalty_view",
+      "penalty_manage",
+      "restructure_view",
+      "restructure_manage",
+      "reconciliation_manage",
+      "collection_manage"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "loan_view",
+          "loan_manage",
+          "disbursement_view",
+          "disbursement_manage",
+          "repayment_view",
+          "repayment_manage",
+          "penalty_view",
+          "penalty_manage",
+          "restructure_view",
+          "restructure_manage",
+          "reconciliation_manage",
+          "collection_manage"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "loan_view",
+          "loan_manage",
+          "disbursement_view",
+          "disbursement_manage",
+          "repayment_view",
+          "repayment_manage",
+          "penalty_view",
+          "penalty_manage",
+          "restructure_view",
+          "restructure_manage",
+          "reconciliation_manage",
+          "collection_manage"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "loan_view",
+          "disbursement_view",
+          "repayment_view",
+          "repayment_manage",
+          "penalty_view",
+          "restructure_view",
+          "reconciliation_manage"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "loan_view",
+          "disbursement_view",
+          "repayment_view",
+          "penalty_view",
+          "restructure_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "loan_view",
+          "disbursement_view",
+          "repayment_view",
+          "penalty_view",
+          "restructure_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "loan_view",
+          "loan_manage",
+          "disbursement_view",
+          "disbursement_manage",
+          "repayment_view",
+          "repayment_manage",
+          "penalty_view",
+          "penalty_manage",
+          "restructure_view",
+          "restructure_manage",
+          "reconciliation_manage",
+          "collection_manage"
+        ]
+      }
+    ]
+  };
+
   // LoanAccountCreate creates a new loan account from an approved application.
   rpc LoanAccountCreate(LoanAccountCreateRequest) returns (LoanAccountCreateResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanAccountCreate"
       summary: "Create a loan account"
@@ -765,6 +872,9 @@ service LoanManagementService {
   // LoanAccountGet retrieves a loan account by its ID.
   rpc LoanAccountGet(LoanAccountGetRequest) returns (LoanAccountGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanAccountGet"
       summary: "Get a loan account by ID"
@@ -776,6 +886,9 @@ service LoanManagementService {
   // LoanAccountSearch finds loan accounts matching search criteria.
   rpc LoanAccountSearch(LoanAccountSearchRequest) returns (stream LoanAccountSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanAccountSearch"
       summary: "Search loan accounts"
@@ -787,6 +900,9 @@ service LoanManagementService {
   // LoanBalanceGet retrieves the current balance of a loan.
   rpc LoanBalanceGet(LoanBalanceGetRequest) returns (LoanBalanceGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanBalanceGet"
       summary: "Get loan balance"
@@ -798,6 +914,9 @@ service LoanManagementService {
   // LoanStatement generates a loan statement for a date range.
   rpc LoanStatement(LoanStatementRequest) returns (LoanStatementResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanStatement"
       summary: "Get loan statement"
@@ -808,6 +927,9 @@ service LoanManagementService {
 
   // DisbursementCreate initiates a loan disbursement.
   rpc DisbursementCreate(DisbursementCreateRequest) returns (DisbursementCreateResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["disbursement_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "disbursementCreate"
       summary: "Create a disbursement"
@@ -819,6 +941,9 @@ service LoanManagementService {
   // DisbursementGet retrieves a disbursement by its ID.
   rpc DisbursementGet(DisbursementGetRequest) returns (DisbursementGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["disbursement_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "disbursementGet"
       summary: "Get a disbursement by ID"
@@ -830,6 +955,9 @@ service LoanManagementService {
   // DisbursementSearch finds disbursements for a loan.
   rpc DisbursementSearch(DisbursementSearchRequest) returns (stream DisbursementSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["disbursement_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "disbursementSearch"
       summary: "Search disbursements"
@@ -840,6 +968,9 @@ service LoanManagementService {
 
   // RepaymentRecord records an incoming payment for a loan.
   rpc RepaymentRecord(RepaymentRecordRequest) returns (RepaymentRecordResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["repayment_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "repaymentRecord"
       summary: "Record a repayment"
@@ -851,6 +982,9 @@ service LoanManagementService {
   // RepaymentGet retrieves a repayment by its ID.
   rpc RepaymentGet(RepaymentGetRequest) returns (RepaymentGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["repayment_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "repaymentGet"
       summary: "Get a repayment by ID"
@@ -862,6 +996,9 @@ service LoanManagementService {
   // RepaymentSearch finds repayments for a loan.
   rpc RepaymentSearch(RepaymentSearchRequest) returns (stream RepaymentSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["repayment_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "repaymentSearch"
       summary: "Search repayments"
@@ -873,6 +1010,9 @@ service LoanManagementService {
   // RepaymentScheduleGet retrieves the active repayment schedule for a loan.
   rpc RepaymentScheduleGet(RepaymentScheduleGetRequest) returns (RepaymentScheduleGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["repayment_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "repaymentScheduleGet"
       summary: "Get repayment schedule"
@@ -883,6 +1023,9 @@ service LoanManagementService {
 
   // PenaltySave creates or updates a penalty on a loan.
   rpc PenaltySave(PenaltySaveRequest) returns (PenaltySaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["penalty_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "penaltySave"
       summary: "Create or update a penalty"
@@ -893,6 +1036,9 @@ service LoanManagementService {
 
   // PenaltyWaive waives a penalty on a loan.
   rpc PenaltyWaive(PenaltyWaiveRequest) returns (PenaltyWaiveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["penalty_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "penaltyWaive"
       summary: "Waive a penalty"
@@ -904,6 +1050,9 @@ service LoanManagementService {
   // PenaltySearch finds penalties for a loan.
   rpc PenaltySearch(PenaltySearchRequest) returns (stream PenaltySearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["penalty_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "penaltySearch"
       summary: "Search penalties"
@@ -914,6 +1063,9 @@ service LoanManagementService {
 
   // LoanRestructureCreate requests a loan restructure.
   rpc LoanRestructureCreate(LoanRestructureCreateRequest) returns (LoanRestructureCreateResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["restructure_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanRestructureCreate"
       summary: "Create a restructure request"
@@ -924,6 +1076,9 @@ service LoanManagementService {
 
   // LoanRestructureApprove approves a loan restructure.
   rpc LoanRestructureApprove(LoanRestructureApproveRequest) returns (LoanRestructureApproveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["restructure_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanRestructureApprove"
       summary: "Approve a restructure"
@@ -934,6 +1089,9 @@ service LoanManagementService {
 
   // LoanRestructureReject rejects a loan restructure.
   rpc LoanRestructureReject(LoanRestructureRejectRequest) returns (LoanRestructureRejectResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["restructure_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanRestructureReject"
       summary: "Reject a restructure"
@@ -945,6 +1103,9 @@ service LoanManagementService {
   // LoanRestructureSearch finds restructures for a loan.
   rpc LoanRestructureSearch(LoanRestructureSearchRequest) returns (stream LoanRestructureSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["restructure_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanRestructureSearch"
       summary: "Search restructures"
@@ -955,6 +1116,9 @@ service LoanManagementService {
 
   // ReconciliationSave creates or updates a reconciliation record.
   rpc ReconciliationSave(ReconciliationSaveRequest) returns (ReconciliationSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["reconciliation_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "reconciliationSave"
       summary: "Create or update a reconciliation"
@@ -966,6 +1130,9 @@ service LoanManagementService {
   // ReconciliationSearch finds reconciliation records.
   rpc ReconciliationSearch(ReconciliationSearchRequest) returns (stream ReconciliationSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["reconciliation_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "reconciliationSearch"
       summary: "Search reconciliations"
@@ -976,6 +1143,9 @@ service LoanManagementService {
 
   // InitiateCollection sends a payment collection prompt to the borrower.
   rpc InitiateCollection(InitiateCollectionRequest) returns (InitiateCollectionResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["collection_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "initiateCollection"
       summary: "Initiate payment collection"
@@ -987,6 +1157,9 @@ service LoanManagementService {
   // LoanStatusChangeSearch retrieves status change audit trail for a loan.
   rpc LoanStatusChangeSearch(LoanStatusChangeSearchRequest) returns (stream LoanStatusChangeSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanStatusChangeSearch"
       summary: "Search loan status changes"
@@ -999,6 +1172,9 @@ service LoanManagementService {
   // Clients call this from app/USSD. The system validates eligibility,
   // runs automated risk checks, and routes to the responsible agent.
   rpc LoanRequest(LoanRequestRequest) returns (LoanRequestResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanRequest"
       summary: "Request a loan (direct borrower)"

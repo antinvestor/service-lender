@@ -7,16 +7,14 @@ import (
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
-	"github.com/pitabwire/frame/security/authorizer"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/authz"
 	"github.com/antinvestor/service-lender/apps/identity/service/business"
 	"github.com/antinvestor/service-lender/pkg/apperrors"
 )
 
 // IdentityServer implements the IdentityService RPC handler.
+// Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type IdentityServer struct {
-	authz            authz.Middleware
 	bankBusiness     business.BankBusiness
 	branchBusiness   business.BranchBusiness
 	investorBusiness business.InvestorBusiness
@@ -26,14 +24,12 @@ type IdentityServer struct {
 }
 
 func NewIdentityServer(
-	authzMiddleware authz.Middleware,
 	bankBusiness business.BankBusiness,
 	branchBusiness business.BranchBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) identityv1connect.IdentityServiceHandler {
 	return &IdentityServer{
-		authz:            authzMiddleware,
 		bankBusiness:     bankBusiness,
 		branchBusiness:   branchBusiness,
 		investorBusiness: investorBusiness,
@@ -47,10 +43,6 @@ func (s *IdentityServer) BankSave(
 	ctx context.Context,
 	req *connect.Request[identityv1.BankSaveRequest],
 ) (*connect.Response[identityv1.BankSaveResponse], error) {
-	if err := s.authz.CanBankManage(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.bankBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -62,10 +54,6 @@ func (s *IdentityServer) BankGet(
 	ctx context.Context,
 	req *connect.Request[identityv1.BankGetRequest],
 ) (*connect.Response[identityv1.BankGetResponse], error) {
-	if err := s.authz.CanBankView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.bankBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -78,10 +66,6 @@ func (s *IdentityServer) BankSearch(
 	req *connect.Request[commonv1.SearchRequest],
 	stream *connect.ServerStream[identityv1.BankSearchResponse],
 ) error {
-	if err := s.authz.CanBankView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.bankBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.BankObject) error {
 			return stream.Send(&identityv1.BankSearchResponse{Data: batch})
@@ -98,10 +82,6 @@ func (s *IdentityServer) BranchSave(
 	ctx context.Context,
 	req *connect.Request[identityv1.BranchSaveRequest],
 ) (*connect.Response[identityv1.BranchSaveResponse], error) {
-	if err := s.authz.CanBranchManage(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.branchBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -113,10 +93,6 @@ func (s *IdentityServer) BranchGet(
 	ctx context.Context,
 	req *connect.Request[identityv1.BranchGetRequest],
 ) (*connect.Response[identityv1.BranchGetResponse], error) {
-	if err := s.authz.CanBranchView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.branchBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -129,10 +105,6 @@ func (s *IdentityServer) BranchSearch(
 	req *connect.Request[identityv1.BranchSearchRequest],
 	stream *connect.ServerStream[identityv1.BranchSearchResponse],
 ) error {
-	if err := s.authz.CanBranchView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.branchBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.BranchObject) error {
 			return stream.Send(&identityv1.BranchSearchResponse{Data: batch})
@@ -149,16 +121,6 @@ func (s *IdentityServer) InvestorSave(
 	ctx context.Context,
 	req *connect.Request[identityv1.InvestorSaveRequest],
 ) (*connect.Response[identityv1.InvestorSaveResponse], error) {
-	if req.Msg.GetData().GetId() != "" {
-		if err := s.authz.CanInvestorManage(ctx); err != nil {
-			return nil, authorizer.ToConnectError(err)
-		}
-	} else {
-		if err := s.authz.CanInvestorCreate(ctx); err != nil {
-			return nil, authorizer.ToConnectError(err)
-		}
-	}
-
 	result, err := s.investorBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -170,10 +132,6 @@ func (s *IdentityServer) InvestorGet(
 	ctx context.Context,
 	req *connect.Request[identityv1.InvestorGetRequest],
 ) (*connect.Response[identityv1.InvestorGetResponse], error) {
-	if err := s.authz.CanInvestorView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.investorBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -186,10 +144,6 @@ func (s *IdentityServer) InvestorSearch(
 	req *connect.Request[identityv1.InvestorSearchRequest],
 	stream *connect.ServerStream[identityv1.InvestorSearchResponse],
 ) error {
-	if err := s.authz.CanInvestorView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.investorBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.InvestorObject) error {
 			return stream.Send(&identityv1.InvestorSearchResponse{Data: batch})
@@ -206,10 +160,6 @@ func (s *IdentityServer) SystemUserSave(
 	ctx context.Context,
 	req *connect.Request[identityv1.SystemUserSaveRequest],
 ) (*connect.Response[identityv1.SystemUserSaveResponse], error) {
-	if err := s.authz.CanSystemUserManage(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.suBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -221,10 +171,6 @@ func (s *IdentityServer) SystemUserGet(
 	ctx context.Context,
 	req *connect.Request[identityv1.SystemUserGetRequest],
 ) (*connect.Response[identityv1.SystemUserGetResponse], error) {
-	if err := s.authz.CanSystemUserView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.suBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -237,10 +183,6 @@ func (s *IdentityServer) SystemUserSearch(
 	req *connect.Request[identityv1.SystemUserSearchRequest],
 	stream *connect.ServerStream[identityv1.SystemUserSearchResponse],
 ) error {
-	if err := s.authz.CanSystemUserView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.suBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.SystemUserObject) error {
 			return stream.Send(&identityv1.SystemUserSearchResponse{Data: batch})

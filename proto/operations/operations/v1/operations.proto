@@ -16,6 +16,7 @@ syntax = "proto3";
 package operations.v1;
 
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "google/protobuf/struct.proto";
 import "google/type/money.proto";
 
@@ -47,6 +48,64 @@ message TransferOrderSearchRequest {
 message TransferOrderSearchResponse { repeated TransferOrderObject data = 1; }
 
 service OperationsService {
-  rpc TransferOrderExecute(TransferOrderExecuteRequest) returns (TransferOrderExecuteResponse);
-  rpc TransferOrderSearch(TransferOrderSearchRequest) returns (stream TransferOrderSearchResponse);
+  option (common.v1.service_permissions) = {
+    namespace: "service_operations"
+    permissions: [
+      "transfer_execute",
+      "transfer_view"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "transfer_execute",
+          "transfer_view"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "transfer_execute",
+          "transfer_view"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "transfer_execute",
+          "transfer_view"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "transfer_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "transfer_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "transfer_execute",
+          "transfer_view"
+        ]
+      }
+    ]
+  };
+
+  rpc TransferOrderExecute(TransferOrderExecuteRequest) returns (TransferOrderExecuteResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["transfer_execute"]
+    };
+  }
+  rpc TransferOrderSearch(TransferOrderSearchRequest) returns (stream TransferOrderSearchResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["transfer_view"]
+    };
+  }
 }

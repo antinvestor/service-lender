@@ -16,6 +16,7 @@ syntax = "proto3";
 package funding.v1;
 
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "google/protobuf/struct.proto";
 import "google/type/money.proto";
 
@@ -99,11 +100,93 @@ message AbsorbLossResponse {
 }
 
 service FundingService {
-  rpc InvestorAccountSave(InvestorAccountSaveRequest) returns (InvestorAccountSaveResponse);
-  rpc InvestorAccountGet(InvestorAccountGetRequest) returns (InvestorAccountGetResponse);
-  rpc InvestorAccountSearch(InvestorAccountSearchRequest) returns (stream InvestorAccountSearchResponse);
-  rpc InvestorDeposit(InvestorDepositRequest) returns (InvestorDepositResponse);
-  rpc InvestorWithdraw(InvestorWithdrawRequest) returns (InvestorWithdrawResponse);
-  rpc FundLoan(FundLoanRequest) returns (FundLoanResponse);
-  rpc AbsorbLoss(AbsorbLossRequest) returns (AbsorbLossResponse);
+  option (common.v1.service_permissions) = {
+    namespace: "service_funding"
+    permissions: [
+      "investor_account_view",
+      "investor_account_manage",
+      "fund_manage"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "investor_account_view",
+          "investor_account_manage",
+          "fund_manage"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "investor_account_view",
+          "investor_account_manage",
+          "fund_manage"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "investor_account_view",
+          "fund_manage"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "investor_account_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "investor_account_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "investor_account_view",
+          "investor_account_manage",
+          "fund_manage"
+        ]
+      }
+    ]
+  };
+
+  rpc InvestorAccountSave(InvestorAccountSaveRequest) returns (InvestorAccountSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_manage"]
+    };
+  }
+  rpc InvestorAccountGet(InvestorAccountGetRequest) returns (InvestorAccountGetResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_view"]
+    };
+  }
+  rpc InvestorAccountSearch(InvestorAccountSearchRequest) returns (stream InvestorAccountSearchResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_view"]
+    };
+  }
+  rpc InvestorDeposit(InvestorDepositRequest) returns (InvestorDepositResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_manage"]
+    };
+  }
+  rpc InvestorWithdraw(InvestorWithdrawRequest) returns (InvestorWithdrawResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_manage"]
+    };
+  }
+  rpc FundLoan(FundLoanRequest) returns (FundLoanResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["fund_manage"]
+    };
+  }
+  rpc AbsorbLoss(AbsorbLossRequest) returns (AbsorbLossResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["fund_manage"]
+    };
+  }
 }

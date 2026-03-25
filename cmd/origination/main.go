@@ -7,9 +7,11 @@ import (
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
+	originationpb "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	apis "github.com/antinvestor/apis/go/common"
 	"github.com/antinvestor/apis/go/common/connection"
+	"github.com/antinvestor/apis/go/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -92,9 +94,7 @@ func main() {
 		cfg.OfferExpiryDays,
 	)
 
-	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
-
-	connectHandler := setupConnectServer(ctx, sm, authzMiddleware, appBusiness, docBusiness, vtBusiness, udBusiness)
+	connectHandler := setupConnectServer(ctx, sm, appBusiness, docBusiness, vtBusiness, udBusiness)
 
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
@@ -157,26 +157,32 @@ func setupLoanManagementClient(
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
-	authzMiddleware authz.Middleware,
 	appBusiness business.ApplicationBusiness,
 	docBusiness business.ApplicationDocumentBusiness,
 	vtBusiness business.VerificationTaskBusiness,
 	udBusiness business.UnderwritingDecisionBusiness,
 ) http.Handler {
 	originationHandler := handlers.NewOriginationServer(
-		authzMiddleware,
 		appBusiness,
 		docBusiness,
 		vtBusiness,
 		udBusiness,
 	)
 
-	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(
-		sm.GetAuthorizer(ctx), authz.NamespaceTenancyAccess)
+	auth := sm.GetAuthorizer(ctx)
+
+	// Layer 1: TenancyAccessChecker verifies caller can access the partition
+	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, authz.NamespaceTenancyAccess)
 	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
 
+	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
+	sd := originationpb.File_origination_v1_origination_proto.Services().ByName("OriginationService")
+	procMap := permissions.BuildProcedureMap(sd)
+	functionChecker := authorizer.NewFunctionChecker(auth, "service_lender_origination")
+	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
+
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
 	}

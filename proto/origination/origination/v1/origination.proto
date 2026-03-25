@@ -27,6 +27,7 @@ package origination.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/type/money.proto";
@@ -585,8 +586,111 @@ message UnderwritingDecisionSearchResponse {
 // verification tasks, and underwriting decisions.
 // All RPCs require authentication via Bearer token.
 service OriginationService {
+  option (common.v1.service_permissions) = {
+    namespace: "service_origination"
+    permissions: [
+      "loan_product_view",
+      "loan_product_manage",
+      "application_view",
+      "application_manage",
+      "application_submit",
+      "application_document_view",
+      "application_document_manage",
+      "verification_view",
+      "verification_manage",
+      "underwriting_view",
+      "underwriting_manage"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "loan_product_view",
+          "loan_product_manage",
+          "application_view",
+          "application_manage",
+          "application_submit",
+          "application_document_view",
+          "application_document_manage",
+          "verification_view",
+          "verification_manage",
+          "underwriting_view",
+          "underwriting_manage"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "loan_product_view",
+          "loan_product_manage",
+          "application_view",
+          "application_manage",
+          "application_submit",
+          "application_document_view",
+          "application_document_manage",
+          "verification_view",
+          "verification_manage",
+          "underwriting_view",
+          "underwriting_manage"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "loan_product_view",
+          "application_view",
+          "application_manage",
+          "application_submit",
+          "application_document_view",
+          "verification_view",
+          "verification_manage",
+          "underwriting_view"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "loan_product_view",
+          "application_view",
+          "application_document_view",
+          "verification_view",
+          "underwriting_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "loan_product_view",
+          "application_view",
+          "application_document_view",
+          "verification_view",
+          "underwriting_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "loan_product_view",
+          "loan_product_manage",
+          "application_view",
+          "application_manage",
+          "application_submit",
+          "application_document_view",
+          "application_document_manage",
+          "verification_view",
+          "verification_manage",
+          "underwriting_view",
+          "underwriting_manage"
+        ]
+      }
+    ]
+  };
+
   // LoanProductSave creates or updates a loan product.
   rpc LoanProductSave(LoanProductSaveRequest) returns (LoanProductSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_product_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanProductSave"
       summary: "Create or update a loan product"
@@ -598,6 +702,9 @@ service OriginationService {
   // LoanProductGet retrieves a loan product by its ID.
   rpc LoanProductGet(LoanProductGetRequest) returns (LoanProductGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_product_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanProductGet"
       summary: "Get a loan product by ID"
@@ -609,6 +716,9 @@ service OriginationService {
   // LoanProductSearch finds loan products matching search criteria.
   rpc LoanProductSearch(LoanProductSearchRequest) returns (stream LoanProductSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_product_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanProductSearch"
       summary: "Search loan products"
@@ -619,6 +729,9 @@ service OriginationService {
 
   // ApplicationSave creates or updates a loan application.
   rpc ApplicationSave(ApplicationSaveRequest) returns (ApplicationSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["application_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationSave"
       summary: "Create or update a loan application"
@@ -630,6 +743,9 @@ service OriginationService {
   // ApplicationGet retrieves an application by its ID.
   rpc ApplicationGet(ApplicationGetRequest) returns (ApplicationGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["application_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationGet"
       summary: "Get an application by ID"
@@ -641,6 +757,9 @@ service OriginationService {
   // ApplicationSearch finds applications matching search criteria.
   rpc ApplicationSearch(ApplicationSearchRequest) returns (stream ApplicationSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["application_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationSearch"
       summary: "Search applications"
@@ -651,6 +770,9 @@ service OriginationService {
 
   // ApplicationSubmit transitions a draft application to submitted status.
   rpc ApplicationSubmit(ApplicationSubmitRequest) returns (ApplicationSubmitResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["application_submit"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationSubmit"
       summary: "Submit a draft application"
@@ -661,6 +783,9 @@ service OriginationService {
 
   // ApplicationCancel cancels an application.
   rpc ApplicationCancel(ApplicationCancelRequest) returns (ApplicationCancelResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["application_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationCancel"
       summary: "Cancel an application"
@@ -671,6 +796,9 @@ service OriginationService {
 
   // ApplicationAcceptOffer accepts a generated loan offer.
   rpc ApplicationAcceptOffer(ApplicationAcceptOfferRequest) returns (ApplicationAcceptOfferResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["application_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationAcceptOffer"
       summary: "Accept a loan offer"
@@ -681,6 +809,9 @@ service OriginationService {
 
   // ApplicationDeclineOffer declines a generated loan offer.
   rpc ApplicationDeclineOffer(ApplicationDeclineOfferRequest) returns (ApplicationDeclineOfferResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["application_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationDeclineOffer"
       summary: "Decline a loan offer"
@@ -691,6 +822,9 @@ service OriginationService {
 
   // ApplicationDocumentSave creates or updates an application document.
   rpc ApplicationDocumentSave(ApplicationDocumentSaveRequest) returns (ApplicationDocumentSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["application_document_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationDocumentSave"
       summary: "Create or update an application document"
@@ -702,6 +836,9 @@ service OriginationService {
   // ApplicationDocumentGet retrieves an application document by its ID.
   rpc ApplicationDocumentGet(ApplicationDocumentGetRequest) returns (ApplicationDocumentGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["application_document_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationDocumentGet"
       summary: "Get an application document by ID"
@@ -713,6 +850,9 @@ service OriginationService {
   // ApplicationDocumentSearch finds application documents matching criteria.
   rpc ApplicationDocumentSearch(ApplicationDocumentSearchRequest) returns (stream ApplicationDocumentSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["application_document_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationDocumentSearch"
       summary: "Search application documents"
@@ -723,6 +863,9 @@ service OriginationService {
 
   // VerificationTaskSave creates or updates a verification task.
   rpc VerificationTaskSave(VerificationTaskSaveRequest) returns (VerificationTaskSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["verification_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "verificationTaskSave"
       summary: "Create or update a verification task"
@@ -734,6 +877,9 @@ service OriginationService {
   // VerificationTaskGet retrieves a verification task by its ID.
   rpc VerificationTaskGet(VerificationTaskGetRequest) returns (VerificationTaskGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["verification_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "verificationTaskGet"
       summary: "Get a verification task by ID"
@@ -745,6 +891,9 @@ service OriginationService {
   // VerificationTaskSearch finds verification tasks matching criteria.
   rpc VerificationTaskSearch(VerificationTaskSearchRequest) returns (stream VerificationTaskSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["verification_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "verificationTaskSearch"
       summary: "Search verification tasks"
@@ -755,6 +904,9 @@ service OriginationService {
 
   // VerificationTaskComplete marks a verification task as complete.
   rpc VerificationTaskComplete(VerificationTaskCompleteRequest) returns (VerificationTaskCompleteResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["verification_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "verificationTaskComplete"
       summary: "Complete a verification task"
@@ -765,6 +917,9 @@ service OriginationService {
 
   // UnderwritingDecisionSave creates or updates an underwriting decision.
   rpc UnderwritingDecisionSave(UnderwritingDecisionSaveRequest) returns (UnderwritingDecisionSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["underwriting_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "underwritingDecisionSave"
       summary: "Create or update an underwriting decision"
@@ -776,6 +931,9 @@ service OriginationService {
   // UnderwritingDecisionGet retrieves an underwriting decision by its ID.
   rpc UnderwritingDecisionGet(UnderwritingDecisionGetRequest) returns (UnderwritingDecisionGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["underwriting_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "underwritingDecisionGet"
       summary: "Get an underwriting decision by ID"
@@ -787,6 +945,9 @@ service OriginationService {
   // UnderwritingDecisionSearch finds underwriting decisions for an application.
   rpc UnderwritingDecisionSearch(UnderwritingDecisionSearchRequest) returns (stream UnderwritingDecisionSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["underwriting_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "underwritingDecisionSearch"
       summary: "Search underwriting decisions"

@@ -29,6 +29,7 @@ package savings.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/type/money.proto";
@@ -555,8 +556,109 @@ message SavingsStatementResponse {
 // and interest accruals.
 // All RPCs require authentication via Bearer token.
 service SavingsService {
+  option (common.v1.service_permissions) = {
+    namespace: "service_savings"
+    permissions: [
+      "savings_product_view",
+      "savings_product_manage",
+      "savings_account_view",
+      "savings_account_manage",
+      "deposit_view",
+      "deposit_manage",
+      "withdrawal_view",
+      "withdrawal_manage",
+      "interest_view",
+      "savings_balance_view"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "savings_product_view",
+          "savings_product_manage",
+          "savings_account_view",
+          "savings_account_manage",
+          "deposit_view",
+          "deposit_manage",
+          "withdrawal_view",
+          "withdrawal_manage",
+          "interest_view",
+          "savings_balance_view"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "savings_product_view",
+          "savings_product_manage",
+          "savings_account_view",
+          "savings_account_manage",
+          "deposit_view",
+          "deposit_manage",
+          "withdrawal_view",
+          "withdrawal_manage",
+          "interest_view",
+          "savings_balance_view"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "savings_product_view",
+          "savings_account_view",
+          "deposit_view",
+          "deposit_manage",
+          "withdrawal_view",
+          "withdrawal_manage",
+          "interest_view",
+          "savings_balance_view"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "savings_product_view",
+          "savings_account_view",
+          "deposit_view",
+          "withdrawal_view",
+          "interest_view",
+          "savings_balance_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "savings_product_view",
+          "savings_account_view",
+          "deposit_view",
+          "withdrawal_view",
+          "interest_view",
+          "savings_balance_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "savings_product_view",
+          "savings_product_manage",
+          "savings_account_view",
+          "savings_account_manage",
+          "deposit_view",
+          "deposit_manage",
+          "withdrawal_view",
+          "withdrawal_manage",
+          "interest_view",
+          "savings_balance_view"
+        ]
+      }
+    ]
+  };
+
   // SavingsProductSave creates or updates a savings product.
   rpc SavingsProductSave(SavingsProductSaveRequest) returns (SavingsProductSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_product_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsProductSave"
       summary: "Create or update a savings product"
@@ -568,6 +670,9 @@ service SavingsService {
   // SavingsProductGet retrieves a savings product by its ID.
   rpc SavingsProductGet(SavingsProductGetRequest) returns (SavingsProductGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_product_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsProductGet"
       summary: "Get a savings product by ID"
@@ -579,6 +684,9 @@ service SavingsService {
   // SavingsProductSearch finds savings products matching search criteria.
   rpc SavingsProductSearch(SavingsProductSearchRequest) returns (stream SavingsProductSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_product_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsProductSearch"
       summary: "Search savings products"
@@ -589,6 +697,9 @@ service SavingsService {
 
   // SavingsAccountCreate creates a new savings account.
   rpc SavingsAccountCreate(SavingsAccountCreateRequest) returns (SavingsAccountCreateResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_account_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsAccountCreate"
       summary: "Create a savings account"
@@ -600,6 +711,9 @@ service SavingsService {
   // SavingsAccountGet retrieves a savings account by its ID.
   rpc SavingsAccountGet(SavingsAccountGetRequest) returns (SavingsAccountGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_account_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsAccountGet"
       summary: "Get a savings account by ID"
@@ -611,6 +725,9 @@ service SavingsService {
   // SavingsAccountSearch finds savings accounts matching search criteria.
   rpc SavingsAccountSearch(SavingsAccountSearchRequest) returns (stream SavingsAccountSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_account_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsAccountSearch"
       summary: "Search savings accounts"
@@ -621,6 +738,9 @@ service SavingsService {
 
   // SavingsAccountFreeze freezes a savings account.
   rpc SavingsAccountFreeze(SavingsAccountFreezeRequest) returns (SavingsAccountFreezeResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_account_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsAccountFreeze"
       summary: "Freeze a savings account"
@@ -631,6 +751,9 @@ service SavingsService {
 
   // SavingsAccountClose closes a savings account.
   rpc SavingsAccountClose(SavingsAccountCloseRequest) returns (SavingsAccountCloseResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_account_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsAccountClose"
       summary: "Close a savings account"
@@ -641,6 +764,9 @@ service SavingsService {
 
   // DepositRecord records a deposit into a savings account.
   rpc DepositRecord(DepositRecordRequest) returns (DepositRecordResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["deposit_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "depositRecord"
       summary: "Record a deposit"
@@ -652,6 +778,9 @@ service SavingsService {
   // DepositGet retrieves a deposit by its ID.
   rpc DepositGet(DepositGetRequest) returns (DepositGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["deposit_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "depositGet"
       summary: "Get a deposit by ID"
@@ -663,6 +792,9 @@ service SavingsService {
   // DepositSearch finds deposits for a savings account.
   rpc DepositSearch(DepositSearchRequest) returns (stream DepositSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["deposit_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "depositSearch"
       summary: "Search deposits"
@@ -673,6 +805,9 @@ service SavingsService {
 
   // WithdrawalRequest requests a withdrawal from a savings account.
   rpc WithdrawalRequest(WithdrawalRequestRequest) returns (WithdrawalRequestResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["withdrawal_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "withdrawalRequest"
       summary: "Request a withdrawal"
@@ -683,6 +818,9 @@ service SavingsService {
 
   // WithdrawalApprove approves a pending withdrawal.
   rpc WithdrawalApprove(WithdrawalApproveRequest) returns (WithdrawalApproveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["withdrawal_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "withdrawalApprove"
       summary: "Approve a withdrawal"
@@ -694,6 +832,9 @@ service SavingsService {
   // WithdrawalGet retrieves a withdrawal by its ID.
   rpc WithdrawalGet(WithdrawalGetRequest) returns (WithdrawalGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["withdrawal_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "withdrawalGet"
       summary: "Get a withdrawal by ID"
@@ -705,6 +846,9 @@ service SavingsService {
   // WithdrawalSearch finds withdrawals for a savings account.
   rpc WithdrawalSearch(WithdrawalSearchRequest) returns (stream WithdrawalSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["withdrawal_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "withdrawalSearch"
       summary: "Search withdrawals"
@@ -716,6 +860,9 @@ service SavingsService {
   // InterestAccrualGet retrieves an interest accrual by its ID.
   rpc InterestAccrualGet(InterestAccrualGetRequest) returns (InterestAccrualGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["interest_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "interestAccrualGet"
       summary: "Get an interest accrual by ID"
@@ -727,6 +874,9 @@ service SavingsService {
   // InterestAccrualSearch finds interest accruals for a savings account.
   rpc InterestAccrualSearch(InterestAccrualSearchRequest) returns (stream InterestAccrualSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["interest_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "interestAccrualSearch"
       summary: "Search interest accruals"
@@ -738,6 +888,9 @@ service SavingsService {
   // SavingsBalanceGet retrieves the current balance of a savings account.
   rpc SavingsBalanceGet(SavingsBalanceGetRequest) returns (SavingsBalanceGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_balance_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsBalanceGet"
       summary: "Get savings balance"
@@ -749,6 +902,9 @@ service SavingsService {
   // SavingsStatement generates a savings statement for a date range.
   rpc SavingsStatement(SavingsStatementRequest) returns (SavingsStatementResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["savings_balance_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "savingsStatement"
       summary: "Get savings statement"

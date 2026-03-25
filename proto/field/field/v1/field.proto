@@ -27,6 +27,7 @@ package field.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/struct.proto";
 
@@ -222,8 +223,73 @@ message BorrowerReassignResponse {
 // FieldService manages agents and borrowers in the lending hierarchy.
 // All RPCs require authentication via Bearer token.
 service FieldService {
+  option (common.v1.service_permissions) = {
+    namespace: "service_field"
+    permissions: [
+      "agent_view",
+      "agent_manage",
+      "borrower_view",
+      "borrower_manage"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "agent_view",
+          "agent_manage",
+          "borrower_view",
+          "borrower_manage"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "agent_view",
+          "agent_manage",
+          "borrower_view",
+          "borrower_manage"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "agent_view",
+          "agent_manage",
+          "borrower_view",
+          "borrower_manage"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "agent_view",
+          "borrower_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "agent_view",
+          "borrower_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "agent_view",
+          "agent_manage",
+          "borrower_view",
+          "borrower_manage"
+        ]
+      }
+    ]
+  };
+
   // AgentSave creates or updates an agent record.
   rpc AgentSave(AgentSaveRequest) returns (AgentSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["agent_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "agentSave"
       summary: "Create or update an agent"
@@ -235,6 +301,9 @@ service FieldService {
   // AgentGet retrieves an agent by their ID.
   rpc AgentGet(AgentGetRequest) returns (AgentGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["agent_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "agentGet"
       summary: "Get an agent by ID"
@@ -246,6 +315,9 @@ service FieldService {
   // AgentSearch finds agents matching search criteria.
   rpc AgentSearch(AgentSearchRequest) returns (stream AgentSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["agent_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "agentSearch"
       summary: "Search agents"
@@ -257,6 +329,9 @@ service FieldService {
   // AgentHierarchy retrieves the descendant tree of an agent.
   rpc AgentHierarchy(AgentHierarchyRequest) returns (stream AgentHierarchyResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["agent_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "agentHierarchy"
       summary: "Get agent hierarchy"
@@ -267,6 +342,9 @@ service FieldService {
 
   // BorrowerSave onboards or updates a borrower record.
   rpc BorrowerSave(BorrowerSaveRequest) returns (BorrowerSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["borrower_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "borrowerSave"
       summary: "Onboard or update a borrower"
@@ -278,6 +356,9 @@ service FieldService {
   // BorrowerGet retrieves a borrower by their ID.
   rpc BorrowerGet(BorrowerGetRequest) returns (BorrowerGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["borrower_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "borrowerGet"
       summary: "Get a borrower by ID"
@@ -289,6 +370,9 @@ service FieldService {
   // BorrowerSearch finds borrowers matching search criteria.
   rpc BorrowerSearch(BorrowerSearchRequest) returns (stream BorrowerSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["borrower_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "borrowerSearch"
       summary: "Search borrowers"
@@ -299,6 +383,9 @@ service FieldService {
 
   // BorrowerReassign moves a borrower from one agent to another.
   rpc BorrowerReassign(BorrowerReassignRequest) returns (BorrowerReassignResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["borrower_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "borrowerReassign"
       summary: "Reassign a borrower"

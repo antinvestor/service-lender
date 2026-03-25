@@ -27,6 +27,7 @@ package identity.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "common/v1/permissions.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/struct.proto";
 
@@ -313,8 +314,95 @@ message SystemUserSearchResponse {
 // IdentityService manages banks, branches, and system users for the lending platform.
 // All RPCs require authentication via Bearer token.
 service IdentityService {
+  option (common.v1.service_permissions) = {
+    namespace: "service_identity"
+    permissions: [
+      "bank_view",
+      "bank_manage",
+      "branch_view",
+      "branch_manage",
+      "investor_view",
+      "investor_manage",
+      "system_user_view",
+      "system_user_manage"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "bank_view",
+          "bank_manage",
+          "branch_view",
+          "branch_manage",
+          "investor_view",
+          "investor_manage",
+          "system_user_view",
+          "system_user_manage"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "bank_view",
+          "bank_manage",
+          "branch_view",
+          "branch_manage",
+          "investor_view",
+          "investor_manage",
+          "system_user_view",
+          "system_user_manage"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "bank_view",
+          "bank_manage",
+          "branch_view",
+          "branch_manage",
+          "investor_view",
+          "system_user_view"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "bank_view",
+          "branch_view",
+          "investor_view",
+          "system_user_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "bank_view",
+          "branch_view",
+          "investor_view",
+          "system_user_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "bank_view",
+          "bank_manage",
+          "branch_view",
+          "branch_manage",
+          "investor_view",
+          "investor_manage",
+          "system_user_view",
+          "system_user_manage"
+        ]
+      }
+    ]
+  };
+
   // BankSave creates or updates a bank record.
   rpc BankSave(BankSaveRequest) returns (BankSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["bank_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "bankSave"
       summary: "Create or update a bank"
@@ -326,6 +414,9 @@ service IdentityService {
   // BankGet retrieves a bank by its ID.
   rpc BankGet(BankGetRequest) returns (BankGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["bank_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "bankGet"
       summary: "Get a bank by ID"
@@ -337,6 +428,9 @@ service IdentityService {
   // BankSearch finds banks matching search criteria.
   rpc BankSearch(common.v1.SearchRequest) returns (stream BankSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["bank_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "bankSearch"
       summary: "Search banks"
@@ -347,6 +441,9 @@ service IdentityService {
 
   // BranchSave creates or updates a branch record.
   rpc BranchSave(BranchSaveRequest) returns (BranchSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["branch_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "branchSave"
       summary: "Create or update a branch"
@@ -358,6 +455,9 @@ service IdentityService {
   // BranchGet retrieves a branch by its ID.
   rpc BranchGet(BranchGetRequest) returns (BranchGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["branch_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "branchGet"
       summary: "Get a branch by ID"
@@ -369,6 +469,9 @@ service IdentityService {
   // BranchSearch finds branches matching search criteria.
   rpc BranchSearch(BranchSearchRequest) returns (stream BranchSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["branch_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "branchSearch"
       summary: "Search branches"
@@ -379,6 +482,9 @@ service IdentityService {
 
   // InvestorSave creates or updates an investor record.
   rpc InvestorSave(InvestorSaveRequest) returns (InvestorSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "investorSave"
       summary: "Create or update an investor"
@@ -390,6 +496,9 @@ service IdentityService {
   // InvestorGet retrieves an investor by their ID.
   rpc InvestorGet(InvestorGetRequest) returns (InvestorGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "investorGet"
       summary: "Get an investor by ID"
@@ -401,6 +510,9 @@ service IdentityService {
   // InvestorSearch finds investors matching search criteria.
   rpc InvestorSearch(InvestorSearchRequest) returns (stream InvestorSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "investorSearch"
       summary: "Search investors"
@@ -411,6 +523,9 @@ service IdentityService {
 
   // SystemUserSave creates or updates a system user record.
   rpc SystemUserSave(SystemUserSaveRequest) returns (SystemUserSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["system_user_manage"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "systemUserSave"
       summary: "Create or update a system user"
@@ -422,6 +537,9 @@ service IdentityService {
   // SystemUserGet retrieves a system user by their ID.
   rpc SystemUserGet(SystemUserGetRequest) returns (SystemUserGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["system_user_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "systemUserGet"
       summary: "Get a system user by ID"
@@ -433,6 +551,9 @@ service IdentityService {
   // SystemUserSearch finds system users matching search criteria.
   rpc SystemUserSearch(SystemUserSearchRequest) returns (stream SystemUserSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["system_user_view"]
+    };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "systemUserSearch"
       summary: "Search system users"

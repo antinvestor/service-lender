@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
+	savingspb "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
+	"github.com/antinvestor/apis/go/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -74,11 +76,8 @@ func main() {
 	wdBusiness := business.NewWithdrawalBusiness(ctx, evtsMan, wdRepo, saRepo, saBusiness)
 	iaBusiness := business.NewInterestAccrualBusiness(ctx, iaRepo)
 
-	// Setup authorization middleware
-	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
-
 	// Setup Connect RPC servers
-	connectHandler := setupConnectServer(ctx, sm, authzMiddleware,
+	connectHandler := setupConnectServer(ctx, sm,
 		spBusiness, saBusiness, depBusiness, wdBusiness, iaBusiness)
 
 	// Initialise the service with all options
@@ -119,7 +118,6 @@ func handleDatabaseMigration(
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
-	authzMiddleware authz.Middleware,
 	spBusiness business.SavingsProductBusiness,
 	saBusiness business.SavingsAccountBusiness,
 	depBusiness business.DepositBusiness,
@@ -128,7 +126,6 @@ func setupConnectServer(
 ) http.Handler {
 	// Create handler with injected dependencies
 	savingsHandler := handlers.NewSavingsServer(
-		authzMiddleware,
 		spBusiness,
 		saBusiness,
 		depBusiness,
@@ -136,13 +133,20 @@ func setupConnectServer(
 		iaBusiness,
 	)
 
+	auth := sm.GetAuthorizer(ctx)
+
 	// Layer 1: TenancyAccessChecker verifies caller can access the partition
-	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(
-		sm.GetAuthorizer(ctx), authz.NamespaceTenancyAccess)
+	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, authz.NamespaceTenancyAccess)
 	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
 
+	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
+	sd := savingspb.File_savings_v1_savings_proto.Services().ByName("SavingsService")
+	procMap := permissions.BuildProcedureMap(sd)
+	functionChecker := authorizer.NewFunctionChecker(auth, "service_lender_savings")
+	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
+
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
 	}

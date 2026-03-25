@@ -7,17 +7,15 @@ import (
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
-	"github.com/pitabwire/frame/security/authorizer"
 
-	"github.com/antinvestor/service-lender/apps/savings/service/authz"
 	"github.com/antinvestor/service-lender/apps/savings/service/business"
 	"github.com/antinvestor/service-lender/apps/savings/service/models"
 	"github.com/antinvestor/service-lender/pkg/apperrors"
 )
 
 // SavingsServer implements the SavingsService RPC handler.
+// Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type SavingsServer struct {
-	authz       authz.Middleware
 	spBusiness  business.SavingsProductBusiness
 	saBusiness  business.SavingsAccountBusiness
 	depBusiness business.DepositBusiness
@@ -28,7 +26,6 @@ type SavingsServer struct {
 }
 
 func NewSavingsServer(
-	authzMiddleware authz.Middleware,
 	spBusiness business.SavingsProductBusiness,
 	saBusiness business.SavingsAccountBusiness,
 	depBusiness business.DepositBusiness,
@@ -36,7 +33,6 @@ func NewSavingsServer(
 	iaBusiness business.InterestAccrualBusiness,
 ) savingsv1connect.SavingsServiceHandler {
 	return &SavingsServer{
-		authz:       authzMiddleware,
 		spBusiness:  spBusiness,
 		saBusiness:  saBusiness,
 		depBusiness: depBusiness,
@@ -51,10 +47,6 @@ func (s *SavingsServer) SavingsProductSave(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsProductSaveRequest],
 ) (*connect.Response[savingsv1.SavingsProductSaveResponse], error) {
-	if err := s.authz.CanSavingsProductManage(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.spBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -66,10 +58,6 @@ func (s *SavingsServer) SavingsProductGet(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsProductGetRequest],
 ) (*connect.Response[savingsv1.SavingsProductGetResponse], error) {
-	if err := s.authz.CanSavingsProductView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.spBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -82,10 +70,6 @@ func (s *SavingsServer) SavingsProductSearch(
 	req *connect.Request[savingsv1.SavingsProductSearchRequest],
 	stream *connect.ServerStream[savingsv1.SavingsProductSearchResponse],
 ) error {
-	if err := s.authz.CanSavingsProductView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.spBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*savingsv1.SavingsProductObject) error {
 			return stream.Send(&savingsv1.SavingsProductSearchResponse{Data: batch})
@@ -102,10 +86,6 @@ func (s *SavingsServer) SavingsAccountCreate(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsAccountCreateRequest],
 ) (*connect.Response[savingsv1.SavingsAccountCreateResponse], error) {
-	if err := s.authz.CanSavingsAccountCreate(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.saBusiness.Create(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -117,10 +97,6 @@ func (s *SavingsServer) SavingsAccountGet(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsAccountGetRequest],
 ) (*connect.Response[savingsv1.SavingsAccountGetResponse], error) {
-	if err := s.authz.CanSavingsAccountView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.saBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -133,10 +109,6 @@ func (s *SavingsServer) SavingsAccountSearch(
 	req *connect.Request[savingsv1.SavingsAccountSearchRequest],
 	stream *connect.ServerStream[savingsv1.SavingsAccountSearchResponse],
 ) error {
-	if err := s.authz.CanSavingsAccountView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.saBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*savingsv1.SavingsAccountObject) error {
 			return stream.Send(&savingsv1.SavingsAccountSearchResponse{Data: batch})
@@ -151,10 +123,6 @@ func (s *SavingsServer) SavingsAccountFreeze(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsAccountFreezeRequest],
 ) (*connect.Response[savingsv1.SavingsAccountFreezeResponse], error) {
-	if err := s.authz.CanSavingsAccountManage(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.saBusiness.Freeze(ctx, req.Msg.GetId(), req.Msg.GetReason())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -166,10 +134,6 @@ func (s *SavingsServer) SavingsAccountClose(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsAccountCloseRequest],
 ) (*connect.Response[savingsv1.SavingsAccountCloseResponse], error) {
-	if err := s.authz.CanSavingsAccountManage(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.saBusiness.Close(ctx, req.Msg.GetId(), req.Msg.GetReason())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -183,10 +147,6 @@ func (s *SavingsServer) DepositRecord(
 	ctx context.Context,
 	req *connect.Request[savingsv1.DepositRecordRequest],
 ) (*connect.Response[savingsv1.DepositRecordResponse], error) {
-	if err := s.authz.CanDepositRecord(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.depBusiness.Record(
 		ctx,
 		req.Msg.GetSavingsAccountId(),
@@ -206,10 +166,6 @@ func (s *SavingsServer) DepositGet(
 	ctx context.Context,
 	req *connect.Request[savingsv1.DepositGetRequest],
 ) (*connect.Response[savingsv1.DepositGetResponse], error) {
-	if err := s.authz.CanDepositView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.depBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -222,10 +178,6 @@ func (s *SavingsServer) DepositSearch(
 	req *connect.Request[savingsv1.DepositSearchRequest],
 	stream *connect.ServerStream[savingsv1.DepositSearchResponse],
 ) error {
-	if err := s.authz.CanDepositView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.depBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*savingsv1.DepositObject) error {
 			return stream.Send(&savingsv1.DepositSearchResponse{Data: batch})
@@ -242,10 +194,6 @@ func (s *SavingsServer) WithdrawalRequest(
 	ctx context.Context,
 	req *connect.Request[savingsv1.WithdrawalRequestRequest],
 ) (*connect.Response[savingsv1.WithdrawalRequestResponse], error) {
-	if err := s.authz.CanWithdrawalRequest(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.wdBusiness.Request(
 		ctx,
 		req.Msg.GetSavingsAccountId(),
@@ -265,10 +213,6 @@ func (s *SavingsServer) WithdrawalApprove(
 	ctx context.Context,
 	req *connect.Request[savingsv1.WithdrawalApproveRequest],
 ) (*connect.Response[savingsv1.WithdrawalApproveResponse], error) {
-	if err := s.authz.CanWithdrawalApprove(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.wdBusiness.Approve(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -280,10 +224,6 @@ func (s *SavingsServer) WithdrawalGet(
 	ctx context.Context,
 	req *connect.Request[savingsv1.WithdrawalGetRequest],
 ) (*connect.Response[savingsv1.WithdrawalGetResponse], error) {
-	if err := s.authz.CanWithdrawalView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.wdBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -296,10 +236,6 @@ func (s *SavingsServer) WithdrawalSearch(
 	req *connect.Request[savingsv1.WithdrawalSearchRequest],
 	stream *connect.ServerStream[savingsv1.WithdrawalSearchResponse],
 ) error {
-	if err := s.authz.CanWithdrawalView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.wdBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*savingsv1.WithdrawalObject) error {
 			return stream.Send(&savingsv1.WithdrawalSearchResponse{Data: batch})
@@ -316,10 +252,6 @@ func (s *SavingsServer) InterestAccrualGet(
 	ctx context.Context,
 	req *connect.Request[savingsv1.InterestAccrualGetRequest],
 ) (*connect.Response[savingsv1.InterestAccrualGetResponse], error) {
-	if err := s.authz.CanInterestAccrualView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.iaBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -332,10 +264,6 @@ func (s *SavingsServer) InterestAccrualSearch(
 	req *connect.Request[savingsv1.InterestAccrualSearchRequest],
 	stream *connect.ServerStream[savingsv1.InterestAccrualSearchResponse],
 ) error {
-	if err := s.authz.CanInterestAccrualView(ctx); err != nil {
-		return authorizer.ToConnectError(err)
-	}
-
 	err := s.iaBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*savingsv1.InterestAccrualObject) error {
 			return stream.Send(&savingsv1.InterestAccrualSearchResponse{Data: batch})
@@ -352,10 +280,6 @@ func (s *SavingsServer) SavingsBalanceGet(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsBalanceGetRequest],
 ) (*connect.Response[savingsv1.SavingsBalanceGetResponse], error) {
-	if err := s.authz.CanSavingsAccountView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	result, err := s.saBusiness.GetBalance(ctx, req.Msg.GetSavingsAccountId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -367,10 +291,6 @@ func (s *SavingsServer) SavingsStatement(
 	ctx context.Context,
 	req *connect.Request[savingsv1.SavingsStatementRequest],
 ) (*connect.Response[savingsv1.SavingsStatementResponse], error) {
-	if err := s.authz.CanSavingsAccountView(ctx); err != nil {
-		return nil, authorizer.ToConnectError(err)
-	}
-
 	from := models.StringToTime(req.Msg.GetFromDate())
 	to := models.StringToTime(req.Msg.GetToDate())
 	var fromTime, toTime time.Time

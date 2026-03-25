@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
+	loanspb "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	"connectrpc.com/connect"
 	apis "github.com/antinvestor/apis/go/common"
 	"github.com/antinvestor/apis/go/common/connection"
+	"github.com/antinvestor/apis/go/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -104,12 +106,9 @@ func main() {
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
 
-	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
-
 	connectHandler := setupConnectServer(
 		ctx,
 		sm,
-		authzMiddleware,
 		lpBusiness,
 		laBusiness,
 		repBusiness,
@@ -184,7 +183,6 @@ func setupNotificationClient(
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
-	authzMiddleware authz.Middleware,
 	lpBusiness business.LoanProductBusiness,
 	laBusiness business.LoanAccountBusiness,
 	repBusiness business.RepaymentBusiness,
@@ -195,7 +193,6 @@ func setupConnectServer(
 	statusChangeRepo repository.LoanStatusChangeRepository,
 ) http.Handler {
 	lmHandler := handlers.NewLoanManagementServer(
-		authzMiddleware,
 		lpBusiness,
 		laBusiness,
 		repBusiness,
@@ -206,12 +203,20 @@ func setupConnectServer(
 		statusChangeRepo,
 	)
 
-	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(
-		sm.GetAuthorizer(ctx), authz.NamespaceTenancyAccess)
+	auth := sm.GetAuthorizer(ctx)
+
+	// Layer 1: TenancyAccessChecker verifies caller can access the partition
+	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, authz.NamespaceTenancyAccess)
 	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
 
+	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
+	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
+	procMap := permissions.BuildProcedureMap(sd)
+	functionChecker := authorizer.NewFunctionChecker(auth, "service_lender_loan_management")
+	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
+
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
 	}

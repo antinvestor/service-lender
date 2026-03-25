@@ -5,10 +5,12 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identitypb "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"buf.build/gen/go/antinvestor/partition/connectrpc/go/partition/v1/partitionv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"connectrpc.com/connect"
 	apis "github.com/antinvestor/apis/go/common"
+	"github.com/antinvestor/apis/go/common/permissions"
 	"github.com/antinvestor/apis/go/partition"
 	"github.com/antinvestor/apis/go/profile"
 	"github.com/pitabwire/frame"
@@ -100,14 +102,10 @@ func main() {
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 
-	// Setup authorization middleware
-	authzMiddleware := authz.NewMiddleware(sm.GetAuthorizer(ctx))
-
 	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(
 		ctx,
 		sm,
-		authzMiddleware,
 		bankBusiness,
 		branchBusiness,
 		agentBusiness,
@@ -182,7 +180,6 @@ func setupPartitionClient(
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
-	authzMiddleware authz.Middleware,
 	bankBusiness business.BankBusiness,
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
@@ -194,27 +191,38 @@ func setupConnectServer(
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
-		authzMiddleware,
 		bankBusiness,
 		branchBusiness,
 		investorBusiness,
 		suBusiness,
 	)
 	fieldHandler := handlers.NewFieldServer(
-		authzMiddleware,
 		agentBusiness,
 		clientBusiness,
 		groupBusiness,
 		membershipBusiness,
 	)
 
+	auth := sm.GetAuthorizer(ctx)
+
 	// Layer 1: TenancyAccessChecker verifies caller can access the partition
-	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(
-		sm.GetAuthorizer(ctx), authz.NamespaceTenancyAccess)
+	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, authz.NamespaceTenancyAccess)
 	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
 
+	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
+	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
+	identityProcMap := permissions.BuildProcedureMap(identitySD)
+	fieldSD := identitypb.File_identity_v1_field_proto.Services().ByName("FieldService")
+	fieldProcMap := permissions.BuildProcedureMap(fieldSD)
+	// Merge both procedure maps
+	for k, v := range fieldProcMap {
+		identityProcMap[k] = v
+	}
+	functionChecker := authorizer.NewFunctionChecker(auth, "service_lender_identity")
+	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, identityProcMap)
+
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
 	}
