@@ -88,3 +88,6 @@ ios/Runner/GeneratedPluginRegistrant.*
 
 
 loan-management
+
+# Shared Makefile cache
+.tmp/
