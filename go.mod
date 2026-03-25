@@ -27,7 +27,7 @@ require (
 	github.com/antinvestor/apis/go/common v1.58.0
 	github.com/antinvestor/apis/go/partition v1.58.0
 	github.com/antinvestor/apis/go/profile v1.58.0
-	github.com/pitabwire/frame v1.82.0
+	github.com/pitabwire/frame v1.82.1
 	github.com/pitabwire/util v0.7.0
 	github.com/pitabwire/util/decimalx v0.7.1
 	github.com/pitabwire/util/money v0.7.1
