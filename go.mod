@@ -25,7 +25,7 @@ require (
 	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260320040359-b2a0d7722dc4.1
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.3.0
-	github.com/pitabwire/frame v1.87.0
+	github.com/pitabwire/frame v1.88.0
 	github.com/pitabwire/util v0.7.0
 	github.com/pitabwire/util/decimalx v0.7.1
 	github.com/pitabwire/util/money v0.7.1
