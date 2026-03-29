@@ -217,7 +217,8 @@ func setupConnectServer(
 	for k, v := range fieldProcMap {
 		identityProcMap[k] = v
 	}
-	functionChecker := authorizer.NewFunctionChecker(auth, "service_lender_identity")
+	svcPerms := permissions.ForService(identitySD)
+	functionChecker := authorizer.NewFunctionChecker(auth, svcPerms.Namespace)
 	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, identityProcMap)
 
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
