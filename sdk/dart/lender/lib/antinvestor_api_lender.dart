@@ -40,9 +40,9 @@ export 'src/operations/v1/operations.connect.client.dart';
 export 'src/operations/v1/operations.connect.spec.dart';
 
 // Origination service
-export 'src/origination/v1/origination.pb.dart';
-export 'src/origination/v1/origination.pbenum.dart' hide InterestMethod;
-export 'src/origination/v1/origination.pbjson.dart' hide InterestMethod$json;
+export 'src/origination/v1/origination.pb.dart' hide InterestMethod, RepaymentFrequency;
+export 'src/origination/v1/origination.pbenum.dart' hide InterestMethod, RepaymentFrequency;
+export 'src/origination/v1/origination.pbjson.dart' hide InterestMethod$json, interestMethodDescriptor, RepaymentFrequency$json, repaymentFrequencyDescriptor;
 export 'src/origination/v1/origination.connect.client.dart';
 export 'src/origination/v1/origination.connect.spec.dart';
 
