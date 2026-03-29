@@ -56,29 +56,43 @@ message FundingAllocationObject {
   google.protobuf.Struct properties = 9;
 }
 
-message InvestorAccountSaveRequest { InvestorAccountObject data = 1; }
-message InvestorAccountSaveResponse { InvestorAccountObject data = 1; }
-message InvestorAccountGetRequest { string id = 1; }
-message InvestorAccountGetResponse { InvestorAccountObject data = 1; }
+message InvestorAccountSaveRequest {
+  InvestorAccountObject data = 1;
+}
+message InvestorAccountSaveResponse {
+  InvestorAccountObject data = 1;
+}
+message InvestorAccountGetRequest {
+  string id = 1;
+}
+message InvestorAccountGetResponse {
+  InvestorAccountObject data = 1;
+}
 message InvestorAccountSearchRequest {
   string investor_id = 1;
   string currency_code = 2;
   common.v1.PageCursor cursor = 3;
 }
-message InvestorAccountSearchResponse { repeated InvestorAccountObject data = 1; }
+message InvestorAccountSearchResponse {
+  repeated InvestorAccountObject data = 1;
+}
 
 message InvestorDepositRequest {
   string account_id = 1;
   google.type.Money amount = 2;
   reserved 3;
 }
-message InvestorDepositResponse { InvestorAccountObject data = 1; }
+message InvestorDepositResponse {
+  InvestorAccountObject data = 1;
+}
 
 message InvestorWithdrawRequest {
   string account_id = 1;
   google.type.Money amount = 2;
 }
-message InvestorWithdrawResponse { InvestorAccountObject data = 1; }
+message InvestorWithdrawResponse {
+  InvestorAccountObject data = 1;
+}
 
 message FundLoanRequest {
   string loan_offer_id = 1;
@@ -133,15 +147,11 @@ service FundingService {
       },
       {
         role: ROLE_VIEWER
-        permissions: [
-          "investor_account_view"
-        ]
+        permissions: ["investor_account_view"]
       },
       {
         role: ROLE_MEMBER
-        permissions: [
-          "investor_account_view"
-        ]
+        permissions: ["investor_account_view"]
       },
       {
         role: ROLE_SERVICE

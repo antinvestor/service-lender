@@ -37,15 +37,21 @@ message TransferOrderObject {
   common.v1.STATE state = 10;
 }
 
-message TransferOrderExecuteRequest { string id = 1; }
-message TransferOrderExecuteResponse { TransferOrderObject data = 1; }
+message TransferOrderExecuteRequest {
+  string id = 1;
+}
+message TransferOrderExecuteResponse {
+  TransferOrderObject data = 1;
+}
 
 message TransferOrderSearchRequest {
   string query = 1;
   int32 order_type = 2;
   common.v1.PageCursor cursor = 3;
 }
-message TransferOrderSearchResponse { repeated TransferOrderObject data = 1; }
+message TransferOrderSearchResponse {
+  repeated TransferOrderObject data = 1;
+}
 
 service OperationsService {
   option (common.v1.service_permissions) = {
@@ -78,15 +84,11 @@ service OperationsService {
       },
       {
         role: ROLE_VIEWER
-        permissions: [
-          "transfer_view"
-        ]
+        permissions: ["transfer_view"]
       },
       {
         role: ROLE_MEMBER
-        permissions: [
-          "transfer_view"
-        ]
+        permissions: ["transfer_view"]
       },
       {
         role: ROLE_SERVICE

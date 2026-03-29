@@ -729,8 +729,14 @@ message LoanStatusChangeSearchResponse {
 // Clients call this from app/USSD. The system validates eligibility, runs
 // automated risk checks, and routes to the responsible agent for approval.
 message LoanRequestRequest {
-  string client_id = 1 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 40];
-  string product_id = 2 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 40];
+  string client_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string product_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
   google.type.Money requested_amount = 3;
   int32 requested_term_days = 4;
   // Field 5 removed (currency_code now in Money).
@@ -739,10 +745,10 @@ message LoanRequestRequest {
 }
 
 message LoanRequestResponse {
-  string request_id = 1;           // application ID for tracking
-  string status = 2;               // current status e.g. "UNDERWRITING"
+  string request_id = 1; // application ID for tracking
+  string status = 2; // current status e.g. "UNDERWRITING"
   bool risk_assessment_passed = 3;
-  string message = 4;              // human-readable status message
+  string message = 4; // human-readable status message
 }
 
 // -----------------------------------------------------

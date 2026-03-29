@@ -955,5 +955,4 @@ service OriginationService {
       tags: "UnderwritingDecisions"
     };
   }
-
 }
