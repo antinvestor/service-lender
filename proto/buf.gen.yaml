@@ -5,12 +5,12 @@ managed:
 plugins:
   # Dart protobuf generation
   - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../ui/lib/sdk/src
+    out: ../sdk/dart/lender/lib/src
     include_imports: true
     include_wkt: true
 
   # Dart Connect RPC client generation
   - remote: buf.build/connectrpc/dart
-    out: ../ui/lib/sdk/src
+    out: ../sdk/dart/lender/lib/src
     include_imports: true
     include_wkt: true
