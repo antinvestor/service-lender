@@ -209,32 +209,46 @@ func setupConnectServer(
 	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
 
 	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
+	// Each service gets its own FunctionChecker with the correct namespace.
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
 	identityProcMap := permissions.BuildProcedureMap(identitySD)
+	identitySvcPerms := permissions.ForService(identitySD)
+	identityFunctionChecker := authorizer.NewFunctionChecker(auth, identitySvcPerms.Namespace)
+	identityFunctionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(
+		identityFunctionChecker,
+		identityProcMap,
+	)
+
 	fieldSD := fieldpb.File_field_v1_field_proto.Services().ByName("FieldService")
 	fieldProcMap := permissions.BuildProcedureMap(fieldSD)
-	// Merge both procedure maps
-	for k, v := range fieldProcMap {
-		identityProcMap[k] = v
-	}
-	svcPerms := permissions.ForService(identitySD)
-	functionChecker := authorizer.NewFunctionChecker(auth, svcPerms.Namespace)
-	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, identityProcMap)
+	fieldSvcPerms := permissions.ForService(fieldSD)
+	fieldFunctionChecker := authorizer.NewFunctionChecker(auth, fieldSvcPerms.Namespace)
+	fieldFunctionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(
+		fieldFunctionChecker,
+		fieldProcMap,
+	)
 
-	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor)
+	identityInterceptorList, err := connectInterceptors.DefaultList(
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, identityFunctionAccessInterceptor)
 	if err != nil {
-		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
+		util.Log(ctx).WithError(err).Fatal("main -- Could not create identity interceptors")
 	}
 
-	interceptorOption := connect.WithInterceptors(defaultInterceptorList...)
+	fieldInterceptorList, err := connectInterceptors.DefaultList(
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, fieldFunctionAccessInterceptor)
+	if err != nil {
+		util.Log(ctx).WithError(err).Fatal("main -- Could not create field interceptors")
+	}
 
-	// Register both services on the same mux
+	identityInterceptorOption := connect.WithInterceptors(identityInterceptorList...)
+	fieldInterceptorOption := connect.WithInterceptors(fieldInterceptorList...)
+
+	// Register both services on the same mux with their own interceptors
 	identityPath, identityServerHandler := identityv1connect.NewIdentityServiceHandler(
 		identityHandler,
-		interceptorOption,
+		identityInterceptorOption,
 	)
-	fieldPath, fieldServerHandler := fieldv1connect.NewFieldServiceHandler(fieldHandler, interceptorOption)
+	fieldPath, fieldServerHandler := fieldv1connect.NewFieldServiceHandler(fieldHandler, fieldInterceptorOption)
 
 	mux := http.NewServeMux()
 	mux.Handle(identityPath, identityServerHandler)

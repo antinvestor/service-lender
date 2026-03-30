@@ -1,7 +1,8 @@
 package authz
 
 const (
-	NamespaceLenderIdentity = "service_lender_identity"
+	NamespaceLenderIdentity = "service_identity"
+	NamespaceField          = "service_field"
 	NamespaceTenancyAccess  = "tenancy_access"
 	NamespaceProfile        = "profile_user"
 )

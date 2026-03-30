@@ -6,7 +6,7 @@ import "github.com/pitabwire/frame/security"
 func BuildAccessTuple(tenancyPath, profileID string) security.RelationTuple {
 	return security.RelationTuple{
 		Object:   security.ObjectRef{Namespace: NamespaceTenancyAccess, ID: tenancyPath},
-		Relation: RoleViewer,
+		Relation: "member",
 		Subject:  security.SubjectRef{Namespace: NamespaceProfile, ID: profileID},
 	}
 }

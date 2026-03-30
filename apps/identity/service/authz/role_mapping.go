@@ -6,7 +6,7 @@ import "github.com/pitabwire/frame/security"
 func BuildAccessTuple(tenancyPath, profileID string) security.RelationTuple {
 	return security.RelationTuple{
 		Object:   security.ObjectRef{Namespace: NamespaceTenancyAccess, ID: tenancyPath},
-		Relation: RoleViewer,
+		Relation: "member",
 		Subject:  security.SubjectRef{Namespace: NamespaceProfile, ID: profileID},
 	}
 }
@@ -36,14 +36,27 @@ func BuildPermissionTuple(namespace, tenancyPath, permission, profileID string) 
 
 // BuildServiceInheritanceTuples creates bridge tuples that allow service bots
 // to inherit functional permissions via subject sets.
+// Writes tuples for both IdentityService and FieldService namespaces since
+// both are served by the identity app.
 func BuildServiceInheritanceTuples(tenancyPath string) []security.RelationTuple {
-	return []security.RelationTuple{{
-		Object:   security.ObjectRef{Namespace: NamespaceLenderIdentity, ID: tenancyPath},
-		Relation: RoleService,
-		Subject: security.SubjectRef{
-			Namespace: NamespaceTenancyAccess,
-			ID:        tenancyPath,
-			Relation:  RoleService,
+	return []security.RelationTuple{
+		{
+			Object:   security.ObjectRef{Namespace: NamespaceLenderIdentity, ID: tenancyPath},
+			Relation: RoleService,
+			Subject: security.SubjectRef{
+				Namespace: NamespaceTenancyAccess,
+				ID:        tenancyPath,
+				Relation:  RoleService,
+			},
 		},
-	}}
+		{
+			Object:   security.ObjectRef{Namespace: NamespaceField, ID: tenancyPath},
+			Relation: RoleService,
+			Subject: security.SubjectRef{
+				Namespace: NamespaceTenancyAccess,
+				ID:        tenancyPath,
+				Relation:  RoleService,
+			},
+		},
+	}
 }
