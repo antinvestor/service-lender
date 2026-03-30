@@ -114,45 +114,6 @@ func (s *LoanManagementServer) LoanStatement(
 	return connect.NewResponse(result), nil
 }
 
-// --- LoanProduct RPCs ---
-
-func (s *LoanManagementServer) LoanProductSave(
-	ctx context.Context,
-	req *connect.Request[loansv1.LoanProductSaveRequest],
-) (*connect.Response[loansv1.LoanProductSaveResponse], error) {
-	result, err := s.lpBusiness.Save(ctx, req.Msg.GetData())
-	if err != nil {
-		return nil, apperrors.CleanErr(err)
-	}
-	return connect.NewResponse(&loansv1.LoanProductSaveResponse{Data: result}), nil
-}
-
-func (s *LoanManagementServer) LoanProductGet(
-	ctx context.Context,
-	req *connect.Request[loansv1.LoanProductGetRequest],
-) (*connect.Response[loansv1.LoanProductGetResponse], error) {
-	result, err := s.lpBusiness.Get(ctx, req.Msg.GetId())
-	if err != nil {
-		return nil, apperrors.CleanErr(err)
-	}
-	return connect.NewResponse(&loansv1.LoanProductGetResponse{Data: result}), nil
-}
-
-func (s *LoanManagementServer) LoanProductSearch(
-	ctx context.Context,
-	req *connect.Request[loansv1.LoanProductSearchRequest],
-	stream *connect.ServerStream[loansv1.LoanProductSearchResponse],
-) error {
-	err := s.lpBusiness.Search(ctx, req.Msg,
-		func(_ context.Context, batch []*loansv1.LoanProductObject) error {
-			return stream.Send(&loansv1.LoanProductSearchResponse{Data: batch})
-		})
-	if err != nil {
-		return apperrors.CleanErr(err)
-	}
-	return nil
-}
-
 // --- Repayment RPCs ---
 
 func (s *LoanManagementServer) RepaymentRecord(

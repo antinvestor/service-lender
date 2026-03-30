@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
 	"buf.build/gen/go/antinvestor/files/connectrpc/go/files/v1/filesv1connect"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	"buf.build/gen/go/antinvestor/ledger/connectrpc/go/ledger/v1/ledgerv1connect"
@@ -36,7 +37,7 @@ type ServiceEndpoints struct {
 
 // PlatformClients holds all external service client connections.
 type PlatformClients struct {
-	LenderIdentity     identityv1connect.FieldServiceClient
+	LenderIdentity     fieldv1connect.FieldServiceClient
 	LenderRegistry     identityv1connect.IdentityServiceClient
 	LenderOrigination  originationv1connect.OriginationServiceClient
 	LenderLoanMgmt     loansv1connect.LoanManagementServiceClient
@@ -75,7 +76,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.IdentityURI,
 			Audiences: []string{"service_lender_identity"},
-		}, identityv1connect.NewFieldServiceClient)
+		}, fieldv1connect.NewFieldServiceClient)
 		trackErr("lender-identity", err)
 		pc.LenderIdentity = cli
 

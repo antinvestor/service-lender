@@ -2,10 +2,8 @@ package business
 
 import (
 	"context"
-	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -16,12 +14,14 @@ import (
 )
 
 type GroupBusiness interface {
-	Save(ctx context.Context, obj *identityv1.GroupObject) (*identityv1.GroupObject, error)
-	Get(ctx context.Context, id string) (*identityv1.GroupObject, error)
+	Save(ctx context.Context, group *models.Group) (*models.Group, error)
+	Get(ctx context.Context, id string) (*models.Group, error)
 	Search(
 		ctx context.Context,
-		req *identityv1.GroupSearchRequest,
-		consumer func(ctx context.Context, batch []*identityv1.GroupObject) error,
+		query, agentID, branchID string,
+		groupType int32,
+		cursor *data.SearchQuery,
+		consumer func(ctx context.Context, batch []*models.Group) error,
 	) error
 }
 
@@ -44,11 +44,11 @@ func NewGroupBusiness(
 	}
 }
 
-func (b *groupBusiness) Save(ctx context.Context, obj *identityv1.GroupObject) (*identityv1.GroupObject, error) {
+func (b *groupBusiness) Save(ctx context.Context, group *models.Group) (*models.Group, error) {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.Save")
 
 	// Validate agent exists and is active
-	agent, err := b.agentRepo.GetByID(ctx, obj.GetAgentId())
+	agent, err := b.agentRepo.GetByID(ctx, group.AgentID)
 	if err != nil {
 		logger.WithError(err).Warn("agent not found for group")
 		return nil, ErrAgentNotFound
@@ -59,11 +59,14 @@ func (b *groupBusiness) Save(ctx context.Context, obj *identityv1.GroupObject) (
 		return nil, ErrAgentInactive
 	}
 
-	isNew := obj.GetId() == ""
-	group := models.GroupFromAPI(ctx, obj)
+	isNew := group.GetID() == ""
 
 	if isNew && group.State == 0 {
 		group.State = int32(commonv1.STATE_CREATED.Number())
+	}
+
+	if isNew {
+		group.GenID(ctx)
 	}
 
 	err = b.eventsMan.Emit(ctx, events.GroupSaveEvent, group)
@@ -72,70 +75,59 @@ func (b *groupBusiness) Save(ctx context.Context, obj *identityv1.GroupObject) (
 		return nil, err
 	}
 
-	return group.ToAPI(), nil
+	return group, nil
 }
 
-func (b *groupBusiness) Get(ctx context.Context, id string) (*identityv1.GroupObject, error) {
+func (b *groupBusiness) Get(ctx context.Context, id string) (*models.Group, error) {
 	group, err := b.groupRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrGroupNotFound
 	}
-	return group.ToAPI(), nil
+	return group, nil
 }
 
 func (b *groupBusiness) Search(
 	ctx context.Context,
-	req *identityv1.GroupSearchRequest,
-	consumer func(ctx context.Context, batch []*identityv1.GroupObject) error,
+	query, agentID, branchID string,
+	groupType int32,
+	_ *data.SearchQuery,
+	consumer func(ctx context.Context, batch []*models.Group) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.Search")
 
 	var searchOpts []data.SearchOption
 
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
-
 	andQueryVal := map[string]any{}
-	if req.GetAgentId() != "" {
-		andQueryVal["agent_id = ?"] = req.GetAgentId()
+	if agentID != "" {
+		andQueryVal["agent_id = ?"] = agentID
 	}
-	if req.GetBranchId() != "" {
-		andQueryVal["branch_id = ?"] = req.GetBranchId()
+	if branchID != "" {
+		andQueryVal["branch_id = ?"] = branchID
 	}
-	if req.GetGroupType() != identityv1.GroupType_GROUP_TYPE_UNSPECIFIED {
-		andQueryVal["group_type = ?"] = int32(req.GetGroupType())
+	if groupType != 0 {
+		andQueryVal["group_type = ?"] = groupType
 	}
 
 	if len(andQueryVal) > 0 {
 		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
 	}
 
-	if req.GetQuery() != "" {
+	if query != "" {
 		searchOpts = append(searchOpts,
 			data.WithSearchFiltersOrByValue(
-				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
+				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": query},
 			),
 		)
 	}
 
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.groupRepo.Search(ctx, query)
+	sq := data.NewSearchQuery(searchOpts...)
+	results, err := b.groupRepo.Search(ctx, sq)
 	if err != nil {
 		logger.WithError(err).Error("failed to search groups")
 		return err
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Group) error {
-		var apiResults []*identityv1.GroupObject
-		for _, group := range res {
-			apiResults = append(apiResults, group.ToAPI())
-		}
-		return consumer(ctx, apiResults)
+		return consumer(ctx, res)
 	})
 }

@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -17,14 +17,14 @@ import (
 )
 
 type ClientBusiness interface {
-	Save(ctx context.Context, obj *identityv1.ClientObject) (*identityv1.ClientObject, error)
-	Get(ctx context.Context, id string) (*identityv1.ClientObject, error)
+	Save(ctx context.Context, obj *fieldv1.BorrowerObject) (*fieldv1.BorrowerObject, error)
+	Get(ctx context.Context, id string) (*fieldv1.BorrowerObject, error)
 	Search(
 		ctx context.Context,
-		req *identityv1.ClientSearchRequest,
-		consumer func(ctx context.Context, batch []*identityv1.ClientObject) error,
+		req *fieldv1.BorrowerSearchRequest,
+		consumer func(ctx context.Context, batch []*fieldv1.BorrowerObject) error,
 	) error
-	Reassign(ctx context.Context, req *identityv1.ClientReassignRequest) (*identityv1.ClientObject, error)
+	Reassign(ctx context.Context, req *fieldv1.BorrowerReassignRequest) (*fieldv1.BorrowerObject, error)
 	SetAgentCreditLimit(ctx context.Context, clientID string, amount int64) error
 	RequestSystemCreditLimitChange(
 		ctx context.Context,
@@ -61,7 +61,7 @@ func NewClientBusiness(_ context.Context, eventsMan fevents.Manager,
 	}
 }
 
-func (b *clientBusiness) Save(ctx context.Context, obj *identityv1.ClientObject) (*identityv1.ClientObject, error) {
+func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.BorrowerObject) (*fieldv1.BorrowerObject, error) {
 	logger := util.Log(ctx).WithField("method", "ClientBusiness.Save")
 
 	// Validate agent exists and is active (required for all clients)
@@ -93,7 +93,7 @@ func (b *clientBusiness) Save(ctx context.Context, obj *identityv1.ClientObject)
 	return client.ToAPI(), nil
 }
 
-func (b *clientBusiness) Get(ctx context.Context, id string) (*identityv1.ClientObject, error) {
+func (b *clientBusiness) Get(ctx context.Context, id string) (*fieldv1.BorrowerObject, error) {
 	client, err := b.clientRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -104,8 +104,8 @@ func (b *clientBusiness) Get(ctx context.Context, id string) (*identityv1.Client
 //nolint:dupl // similar search logic for different entity types
 func (b *clientBusiness) Search(
 	ctx context.Context,
-	req *identityv1.ClientSearchRequest,
-	consumer func(ctx context.Context, batch []*identityv1.ClientObject) error,
+	req *fieldv1.BorrowerSearchRequest,
+	consumer func(ctx context.Context, batch []*fieldv1.BorrowerObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "ClientBusiness.Search")
 
@@ -145,7 +145,7 @@ func (b *clientBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Client) error {
-		var apiResults []*identityv1.ClientObject
+		var apiResults []*fieldv1.BorrowerObject
 		for _, client := range res {
 			apiResults = append(apiResults, client.ToAPI())
 		}
@@ -155,11 +155,11 @@ func (b *clientBusiness) Search(
 
 func (b *clientBusiness) Reassign(
 	ctx context.Context,
-	req *identityv1.ClientReassignRequest,
-) (*identityv1.ClientObject, error) {
+	req *fieldv1.BorrowerReassignRequest,
+) (*fieldv1.BorrowerObject, error) {
 	logger := util.Log(ctx).WithField("method", "ClientBusiness.Reassign")
 
-	client, err := b.clientRepo.GetByID(ctx, req.GetClientId())
+	client, err := b.clientRepo.GetByID(ctx, req.GetBorrowerId())
 	if err != nil {
 		return nil, ErrClientNotFound
 	}

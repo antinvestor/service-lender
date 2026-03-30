@@ -2,10 +2,8 @@ package business
 
 import (
 	"context"
-	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -16,12 +14,13 @@ import (
 )
 
 type MembershipBusiness interface {
-	Save(ctx context.Context, obj *identityv1.MembershipObject) (*identityv1.MembershipObject, error)
-	Get(ctx context.Context, id string) (*identityv1.MembershipObject, error)
+	Save(ctx context.Context, membership *models.Membership) (*models.Membership, error)
+	Get(ctx context.Context, id string) (*models.Membership, error)
 	Search(
 		ctx context.Context,
-		req *identityv1.MembershipSearchRequest,
-		consumer func(ctx context.Context, batch []*identityv1.MembershipObject) error,
+		query, groupID, profileID string,
+		role, membershipType int32,
+		consumer func(ctx context.Context, batch []*models.Membership) error,
 	) error
 }
 
@@ -46,22 +45,25 @@ func NewMembershipBusiness(
 
 func (b *membershipBusiness) Save(
 	ctx context.Context,
-	obj *identityv1.MembershipObject,
-) (*identityv1.MembershipObject, error) {
+	membership *models.Membership,
+) (*models.Membership, error) {
 	logger := util.Log(ctx).WithField("method", "MembershipBusiness.Save")
 
 	// Validate group exists
-	_, err := b.groupRepo.GetByID(ctx, obj.GetGroupId())
+	_, err := b.groupRepo.GetByID(ctx, membership.GroupID)
 	if err != nil {
 		logger.WithError(err).Warn("group not found for membership")
 		return nil, ErrGroupNotFound
 	}
 
-	isNew := obj.GetId() == ""
-	membership := models.MembershipFromAPI(ctx, obj)
+	isNew := membership.GetID() == ""
 
 	if isNew && membership.State == 0 {
 		membership.State = int32(commonv1.STATE_CREATED.Number())
+	}
+
+	if isNew {
+		membership.GenID(ctx)
 	}
 
 	err = b.eventsMan.Emit(ctx, events.MembershipSaveEvent, membership)
@@ -70,73 +72,61 @@ func (b *membershipBusiness) Save(
 		return nil, err
 	}
 
-	return membership.ToAPI(), nil
+	return membership, nil
 }
 
-func (b *membershipBusiness) Get(ctx context.Context, id string) (*identityv1.MembershipObject, error) {
+func (b *membershipBusiness) Get(ctx context.Context, id string) (*models.Membership, error) {
 	membership, err := b.membershipRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrMembershipNotFound
 	}
-	return membership.ToAPI(), nil
+	return membership, nil
 }
 
 func (b *membershipBusiness) Search(
 	ctx context.Context,
-	req *identityv1.MembershipSearchRequest,
-	consumer func(ctx context.Context, batch []*identityv1.MembershipObject) error,
+	query, groupID, profileID string,
+	role, membershipType int32,
+	consumer func(ctx context.Context, batch []*models.Membership) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "MembershipBusiness.Search")
 
 	var searchOpts []data.SearchOption
 
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
-
 	andQueryVal := map[string]any{}
-	if req.GetGroupId() != "" {
-		andQueryVal["group_id = ?"] = req.GetGroupId()
+	if groupID != "" {
+		andQueryVal["group_id = ?"] = groupID
 	}
-	if req.GetProfileId() != "" {
-		andQueryVal["profile_id = ?"] = req.GetProfileId()
+	if profileID != "" {
+		andQueryVal["profile_id = ?"] = profileID
 	}
-	if req.GetRole() != identityv1.MembershipRole_MEMBERSHIP_ROLE_UNSPECIFIED {
-		andQueryVal["role = ?"] = int32(req.GetRole())
+	if role != 0 {
+		andQueryVal["role = ?"] = role
 	}
-	if req.GetMembershipType() != identityv1.MembershipType_MEMBERSHIP_TYPE_UNSPECIFIED {
-		andQueryVal["membership_type = ?"] = int32(req.GetMembershipType())
+	if membershipType != 0 {
+		andQueryVal["membership_type = ?"] = membershipType
 	}
 
 	if len(andQueryVal) > 0 {
 		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
 	}
 
-	if req.GetQuery() != "" {
+	if query != "" {
 		searchOpts = append(searchOpts,
 			data.WithSearchFiltersOrByValue(
-				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
+				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": query},
 			),
 		)
 	}
 
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.membershipRepo.Search(ctx, query)
+	sq := data.NewSearchQuery(searchOpts...)
+	results, err := b.membershipRepo.Search(ctx, sq)
 	if err != nil {
 		logger.WithError(err).Error("failed to search memberships")
 		return err
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Membership) error {
-		var apiResults []*identityv1.MembershipObject
-		for _, membership := range res {
-			apiResults = append(apiResults, membership.ToAPI())
-		}
-		return consumer(ctx, apiResults)
+		return consumer(ctx, res)
 	})
 }

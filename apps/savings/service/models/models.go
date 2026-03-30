@@ -40,8 +40,8 @@ func (m *SavingsProduct) ToAPI() *savingsv1.SavingsProductObject {
 		InterestRate:         BasisPointsToString(m.InterestRate),
 		CompoundingFrequency: savingsv1.CompoundingFrequency(m.CompoundingFrequency),
 		PeriodType:           savingsv1.SavingsPeriodType(m.PeriodType),
-		MinDeposit:           MinorUnitsToString(m.MinDeposit),
-		MaxDeposit:           MinorUnitsToString(m.MaxDeposit),
+		MinDeposit:           MinorUnitsToMoney(m.MinDeposit, m.CurrencyCode),
+		MaxDeposit:           MinorUnitsToMoney(m.MaxDeposit, m.CurrencyCode),
 		WithdrawalRules:      m.WithdrawalRules.ToProtoStruct(),
 		State:                commonv1.STATE(m.State),
 		Properties:           m.Properties.ToProtoStruct(),
@@ -53,6 +53,9 @@ func SavingsProductFromAPI(ctx context.Context, obj *savingsv1.SavingsProductObj
 		return nil
 	}
 
+	minDeposit, _ := MoneyToMinorUnits(obj.GetMinDeposit())
+	maxDeposit, _ := MoneyToMinorUnits(obj.GetMaxDeposit())
+
 	model := &SavingsProduct{
 		BankID:               obj.GetBankId(),
 		Name:                 obj.GetName(),
@@ -62,8 +65,8 @@ func SavingsProductFromAPI(ctx context.Context, obj *savingsv1.SavingsProductObj
 		InterestRate:         StringToBasisPoints(obj.GetInterestRate()),
 		CompoundingFrequency: int32(obj.GetCompoundingFrequency()),
 		PeriodType:           int32(obj.GetPeriodType()),
-		MinDeposit:           StringToMinorUnits(obj.GetMinDeposit()),
-		MaxDeposit:           StringToMinorUnits(obj.GetMaxDeposit()),
+		MinDeposit:           minDeposit,
+		MaxDeposit:           maxDeposit,
 		State:                int32(obj.GetState()),
 	}
 
@@ -168,8 +171,7 @@ func (m *Deposit) ToAPI() *savingsv1.DepositObject {
 	return &savingsv1.DepositObject{
 		Id:                  m.GetID(),
 		SavingsAccountId:    m.SavingsAccountID,
-		Amount:              MinorUnitsToString(m.Amount),
-		CurrencyCode:        m.CurrencyCode,
+		Amount:              MinorUnitsToMoney(m.Amount, m.CurrencyCode),
 		Status:              savingsv1.DepositStatus(m.Status),
 		PaymentReference:    m.PaymentReference,
 		LedgerTransactionId: m.LedgerTransactionID,
@@ -185,10 +187,12 @@ func DepositFromAPI(ctx context.Context, obj *savingsv1.DepositObject) *Deposit 
 		return nil
 	}
 
+	amount, currencyCode := MoneyToMinorUnits(obj.GetAmount())
+
 	model := &Deposit{
 		SavingsAccountID:    obj.GetSavingsAccountId(),
-		Amount:              StringToMinorUnits(obj.GetAmount()),
-		CurrencyCode:        obj.GetCurrencyCode(),
+		Amount:              amount,
+		CurrencyCode:        currencyCode,
 		Status:              int32(obj.GetStatus()),
 		PaymentReference:    obj.GetPaymentReference(),
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
@@ -231,8 +235,7 @@ func (m *Withdrawal) ToAPI() *savingsv1.WithdrawalObject {
 	return &savingsv1.WithdrawalObject{
 		Id:                  m.GetID(),
 		SavingsAccountId:    m.SavingsAccountID,
-		Amount:              MinorUnitsToString(m.Amount),
-		CurrencyCode:        m.CurrencyCode,
+		Amount:              MinorUnitsToMoney(m.Amount, m.CurrencyCode),
 		Status:              savingsv1.WithdrawalStatus(m.Status),
 		PaymentReference:    m.PaymentReference,
 		LedgerTransactionId: m.LedgerTransactionID,
@@ -249,10 +252,12 @@ func WithdrawalFromAPI(ctx context.Context, obj *savingsv1.WithdrawalObject) *Wi
 		return nil
 	}
 
+	wdAmount, wdCurrency := MoneyToMinorUnits(obj.GetAmount())
+
 	model := &Withdrawal{
 		SavingsAccountID:    obj.GetSavingsAccountId(),
-		Amount:              StringToMinorUnits(obj.GetAmount()),
-		CurrencyCode:        obj.GetCurrencyCode(),
+		Amount:              wdAmount,
+		CurrencyCode:        wdCurrency,
 		Status:              int32(obj.GetStatus()),
 		PaymentReference:    obj.GetPaymentReference(),
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
@@ -294,11 +299,11 @@ func (m *InterestAccrual) ToAPI() *savingsv1.InterestAccrualObject {
 	return &savingsv1.InterestAccrualObject{
 		Id:                  m.GetID(),
 		SavingsAccountId:    m.SavingsAccountID,
-		Amount:              MinorUnitsToString(m.Amount),
+		Amount:              MinorUnitsToMoney(m.Amount, m.CurrencyCode),
 		PeriodStart:         TimeToString(m.PeriodStart),
 		PeriodEnd:           TimeToString(m.PeriodEnd),
 		RateApplied:         BasisPointsToString(m.RateApplied),
-		BalanceUsed:         MinorUnitsToString(m.BalanceUsed),
+		BalanceUsed:         MinorUnitsToMoney(m.BalanceUsed, m.CurrencyCode),
 		LedgerTransactionId: m.LedgerTransactionID,
 		Properties:          m.Properties.ToProtoStruct(),
 	}
@@ -309,13 +314,17 @@ func InterestAccrualFromAPI(ctx context.Context, obj *savingsv1.InterestAccrualO
 		return nil
 	}
 
+	iaAmount, iaCurrency := MoneyToMinorUnits(obj.GetAmount())
+	iaBalance, _ := MoneyToMinorUnits(obj.GetBalanceUsed())
+
 	model := &InterestAccrual{
 		SavingsAccountID:    obj.GetSavingsAccountId(),
-		Amount:              StringToMinorUnits(obj.GetAmount()),
+		Amount:              iaAmount,
+		CurrencyCode:        iaCurrency,
 		PeriodStart:         StringToTime(obj.GetPeriodStart()),
 		PeriodEnd:           StringToTime(obj.GetPeriodEnd()),
 		RateApplied:         StringToBasisPoints(obj.GetRateApplied()),
-		BalanceUsed:         StringToMinorUnits(obj.GetBalanceUsed()),
+		BalanceUsed:         iaBalance,
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
 	}
 

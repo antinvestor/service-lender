@@ -4,9 +4,11 @@ import (
 	"context"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util/decimalx"
+	money "google.golang.org/genproto/googleapis/type/money"
 )
 
 // MinorUnitsToString converts an int64 minor-unit amount (e.g. cents) to a
@@ -24,6 +26,25 @@ func StringToMinorUnits(s string) int64 {
 		return 0
 	}
 	return d.ToMinorUnits(2)
+}
+
+// MinorUnitsToMoney converts minor units and a currency code to a *money.Money.
+func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
+	units := v / 100
+	nanos := (v % 100) * 10_000_000
+	return &money.Money{
+		CurrencyCode: currencyCode,
+		Units:        units,
+		Nanos:        int32(nanos),
+	}
+}
+
+// MoneyToMinorUnits converts a *money.Money to minor units and currency code.
+func MoneyToMinorUnits(m *money.Money) (int64, string) {
+	if m == nil {
+		return 0, ""
+	}
+	return m.GetUnits()*100 + int64(m.GetNanos())/10_000_000, m.GetCurrencyCode()
 }
 
 // Bank represents a top-level lending institution mapped to a partition.
@@ -143,13 +164,13 @@ type Agent struct {
 
 func (m *Agent) TableName() string { return "agents" }
 
-func (m *Agent) ToAPI() *identityv1.AgentObject {
-	return &identityv1.AgentObject{
+func (m *Agent) ToAPI() *fieldv1.AgentObject {
+	return &fieldv1.AgentObject{
 		Id:            m.GetID(),
 		BranchId:      m.BranchID,
 		ParentAgentId: m.ParentAgentID,
 		ProfileId:     m.ProfileID,
-		AgentType:     identityv1.AgentType(m.AgentType),
+		AgentType:     fieldv1.AgentType(m.AgentType),
 		Name:          m.Name,
 		GeoId:         m.GeoID,
 		Depth:         m.Depth,
@@ -158,7 +179,7 @@ func (m *Agent) ToAPI() *identityv1.AgentObject {
 	}
 }
 
-func AgentFromAPI(ctx context.Context, obj *identityv1.AgentObject) *Agent {
+func AgentFromAPI(ctx context.Context, obj *fieldv1.AgentObject) *Agent {
 	if obj == nil {
 		return nil
 	}
@@ -186,7 +207,7 @@ func AgentFromAPI(ctx context.Context, obj *identityv1.AgentObject) *Agent {
 	return model
 }
 
-// Client represents a loan recipient always assigned to an agent.
+// Client represents a loan recipient (borrower) always assigned to an agent.
 // Clients exist independently of groups. Product-level code links
 // clients to memberships where needed.
 //
@@ -227,7 +248,7 @@ func (m *Client) EffectiveCreditLimit() int64 {
 	return sys
 }
 
-func (m *Client) ToAPI() *identityv1.ClientObject {
+func (m *Client) ToAPI() *fieldv1.BorrowerObject {
 	// Copy properties so we don't mutate the model's map
 	props := make(data.JSONMap, len(m.Properties)+3)
 	for k, v := range m.Properties {
@@ -238,7 +259,7 @@ func (m *Client) ToAPI() *identityv1.ClientObject {
 	props["agent_credit_limit"] = float64(m.AgentCreditLimit)
 	props["currency_code"] = m.CurrencyCode
 
-	return &identityv1.ClientObject{
+	return &fieldv1.BorrowerObject{
 		Id:         m.GetID(),
 		AgentId:    m.AgentID,
 		ProfileId:  m.ProfileID,
@@ -248,7 +269,7 @@ func (m *Client) ToAPI() *identityv1.ClientObject {
 	}
 }
 
-func ClientFromAPI(ctx context.Context, obj *identityv1.ClientObject) *Client {
+func ClientFromAPI(ctx context.Context, obj *fieldv1.BorrowerObject) *Client {
 	if obj == nil {
 		return nil
 	}
@@ -309,55 +330,6 @@ type Group struct {
 
 func (m *Group) TableName() string { return "groups" }
 
-func (m *Group) ToAPI() *identityv1.GroupObject {
-	return &identityv1.GroupObject{
-		Id:           m.GetID(),
-		AgentId:      m.AgentID,
-		BranchId:     m.BranchID,
-		ProfileId:    m.ProfileID,
-		Name:         m.Name,
-		GroupType:    identityv1.GroupType(m.GroupType),
-		CurrencyCode: m.CurrencyCode,
-		SavingAmount: MinorUnitsToString(m.SavingAmount),
-		TimeZone:     m.TimeZone,
-		MinMembers:   m.MinMembers,
-		MaxMembers:   m.MaxMembers,
-		State:        commonv1.STATE(m.State),
-		Properties:   m.Properties.ToProtoStruct(),
-	}
-}
-
-func GroupFromAPI(ctx context.Context, obj *identityv1.GroupObject) *Group {
-	if obj == nil {
-		return nil
-	}
-
-	model := &Group{
-		AgentID:      obj.GetAgentId(),
-		BranchID:     obj.GetBranchId(),
-		ProfileID:    obj.GetProfileId(),
-		Name:         obj.GetName(),
-		GroupType:    int32(obj.GetGroupType()),
-		CurrencyCode: obj.GetCurrencyCode(),
-		SavingAmount: StringToMinorUnits(obj.GetSavingAmount()),
-		TimeZone:     obj.GetTimeZone(),
-		MinMembers:   obj.GetMinMembers(),
-		MaxMembers:   obj.GetMaxMembers(),
-		State:        int32(obj.GetState()),
-	}
-
-	if obj.GetProperties() != nil {
-		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
-	}
-
-	model.GenID(ctx)
-	if model.ValidXID(obj.GetId()) {
-		model.ID = obj.GetId()
-	}
-
-	return model
-}
-
 // Membership tracks a profile's affiliation with a group.
 type Membership struct {
 	data.BaseModel
@@ -373,49 +345,6 @@ type Membership struct {
 }
 
 func (m *Membership) TableName() string { return "memberships" }
-
-func (m *Membership) ToAPI() *identityv1.MembershipObject {
-	return &identityv1.MembershipObject{
-		Id:             m.GetID(),
-		GroupId:        m.GroupID,
-		ProfileId:      m.ProfileID,
-		Name:           m.Name,
-		Role:           identityv1.MembershipRole(m.Role),
-		MembershipType: identityv1.MembershipType(m.MembershipType),
-		OrderNo:        m.OrderNo,
-		ContactId:      m.ContactID,
-		State:          commonv1.STATE(m.State),
-		Properties:     m.Properties.ToProtoStruct(),
-	}
-}
-
-func MembershipFromAPI(ctx context.Context, obj *identityv1.MembershipObject) *Membership {
-	if obj == nil {
-		return nil
-	}
-
-	model := &Membership{
-		GroupID:        obj.GetGroupId(),
-		ProfileID:      obj.GetProfileId(),
-		Name:           obj.GetName(),
-		Role:           int32(obj.GetRole()),
-		MembershipType: int32(obj.GetMembershipType()),
-		OrderNo:        obj.GetOrderNo(),
-		ContactID:      obj.GetContactId(),
-		State:          int32(obj.GetState()),
-	}
-
-	if obj.GetProperties() != nil {
-		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
-	}
-
-	model.GenID(ctx)
-	if model.ValidXID(obj.GetId()) {
-		model.ID = obj.GetId()
-	}
-
-	return model
-}
 
 // ClientAssignmentHistory records client reassignment events.
 type ClientAssignmentHistory struct {

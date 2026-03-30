@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
+	fieldpb "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identitypb "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
@@ -198,8 +200,6 @@ func setupConnectServer(
 	fieldHandler := handlers.NewFieldServer(
 		agentBusiness,
 		clientBusiness,
-		groupBusiness,
-		membershipBusiness,
 	)
 
 	auth := sm.GetAuthorizer(ctx)
@@ -211,7 +211,7 @@ func setupConnectServer(
 	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
 	identityProcMap := permissions.BuildProcedureMap(identitySD)
-	fieldSD := identitypb.File_identity_v1_field_proto.Services().ByName("FieldService")
+	fieldSD := fieldpb.File_field_v1_field_proto.Services().ByName("FieldService")
 	fieldProcMap := permissions.BuildProcedureMap(fieldSD)
 	// Merge both procedure maps
 	for k, v := range fieldProcMap {
@@ -234,7 +234,7 @@ func setupConnectServer(
 		identityHandler,
 		interceptorOption,
 	)
-	fieldPath, fieldServerHandler := identityv1connect.NewFieldServiceHandler(fieldHandler, interceptorOption)
+	fieldPath, fieldServerHandler := fieldv1connect.NewFieldServiceHandler(fieldHandler, interceptorOption)
 
 	mux := http.NewServeMux()
 	mux.Handle(identityPath, identityServerHandler)

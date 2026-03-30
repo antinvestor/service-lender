@@ -6,6 +6,7 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
+	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"github.com/pitabwire/frame/data"
 )
 
@@ -48,13 +49,12 @@ func (m *LoanAccount) ToAPI() *loansv1.LoanAccountObject {
 		Id:                            m.GetID(),
 		ApplicationId:                 m.ApplicationID,
 		ProductId:                     m.ProductID,
-		ClientId:                      m.ClientID,
+		BorrowerId:                    m.ClientID,
 		AgentId:                       m.AgentID,
 		BranchId:                      m.BranchID,
 		BankId:                        m.BankID,
 		Status:                        loansv1.LoanStatus(m.Status),
-		CurrencyCode:                  m.CurrencyCode,
-		PrincipalAmount:               MinorUnitsToString(m.PrincipalAmount),
+		PrincipalAmount:               MinorUnitsToMoney(m.PrincipalAmount, m.CurrencyCode),
 		InterestRate:                  BasisPointsToString(m.InterestRate),
 		TermDays:                      m.TermDays,
 		InterestMethod:                loansv1.InterestMethod(m.InterestMethod),
@@ -78,16 +78,18 @@ func LoanAccountFromAPI(ctx context.Context, obj *loansv1.LoanAccountObject) *Lo
 		return nil
 	}
 
+	principalAmount, principalCurrency := MoneyToMinorUnits(obj.GetPrincipalAmount())
+
 	model := &LoanAccount{
 		ApplicationID:                 obj.GetApplicationId(),
 		ProductID:                     obj.GetProductId(),
-		ClientID:                      obj.GetClientId(),
+		ClientID:                      obj.GetBorrowerId(),
 		AgentID:                       obj.GetAgentId(),
 		BranchID:                      obj.GetBranchId(),
 		BankID:                        obj.GetBankId(),
 		Status:                        int32(obj.GetStatus()),
-		CurrencyCode:                  obj.GetCurrencyCode(),
-		PrincipalAmount:               StringToMinorUnits(obj.GetPrincipalAmount()),
+		CurrencyCode:                  principalCurrency,
+		PrincipalAmount:               principalAmount,
 		InterestRate:                  StringToBasisPoints(obj.GetInterestRate()),
 		TermDays:                      obj.GetTermDays(),
 		InterestMethod:                int32(obj.GetInterestMethod()),
@@ -199,20 +201,21 @@ type ScheduleEntry struct {
 func (m *ScheduleEntry) TableName() string { return "schedule_entries" }
 
 func (m *ScheduleEntry) ToAPI() *loansv1.ScheduleEntryObject {
+	cc := m.CurrencyCode
 	return &loansv1.ScheduleEntryObject{
 		Id:                m.GetID(),
 		ScheduleId:        m.ScheduleID,
 		InstallmentNumber: m.InstallmentNumber,
 		DueDate:           TimeToString(m.DueDate),
-		PrincipalDue:      MinorUnitsToString(m.PrincipalDue),
-		InterestDue:       MinorUnitsToString(m.InterestDue),
-		FeesDue:           MinorUnitsToString(m.FeesDue),
-		TotalDue:          MinorUnitsToString(m.TotalDue),
-		PrincipalPaid:     MinorUnitsToString(m.PrincipalPaid),
-		InterestPaid:      MinorUnitsToString(m.InterestPaid),
-		FeesPaid:          MinorUnitsToString(m.FeesPaid),
-		TotalPaid:         MinorUnitsToString(m.TotalPaid),
-		Outstanding:       MinorUnitsToString(m.Outstanding),
+		PrincipalDue:      MinorUnitsToMoney(m.PrincipalDue, cc),
+		InterestDue:       MinorUnitsToMoney(m.InterestDue, cc),
+		FeesDue:           MinorUnitsToMoney(m.FeesDue, cc),
+		TotalDue:          MinorUnitsToMoney(m.TotalDue, cc),
+		PrincipalPaid:     MinorUnitsToMoney(m.PrincipalPaid, cc),
+		InterestPaid:      MinorUnitsToMoney(m.InterestPaid, cc),
+		FeesPaid:          MinorUnitsToMoney(m.FeesPaid, cc),
+		TotalPaid:         MinorUnitsToMoney(m.TotalPaid, cc),
+		Outstanding:       MinorUnitsToMoney(m.Outstanding, cc),
 		Status:            loansv1.ScheduleEntryStatus(m.Status),
 		PaidDate:          TimeToString(m.PaidDate),
 		Properties:        m.Properties.ToProtoStruct(),
@@ -224,19 +227,30 @@ func ScheduleEntryFromAPI(ctx context.Context, obj *loansv1.ScheduleEntryObject)
 		return nil
 	}
 
+	sePrincipalDue, seCurrency := MoneyToMinorUnits(obj.GetPrincipalDue())
+	seInterestDue, _ := MoneyToMinorUnits(obj.GetInterestDue())
+	seFeesDue, _ := MoneyToMinorUnits(obj.GetFeesDue())
+	seTotalDue, _ := MoneyToMinorUnits(obj.GetTotalDue())
+	sePrincipalPaid, _ := MoneyToMinorUnits(obj.GetPrincipalPaid())
+	seInterestPaid, _ := MoneyToMinorUnits(obj.GetInterestPaid())
+	seFeesPaid, _ := MoneyToMinorUnits(obj.GetFeesPaid())
+	seTotalPaid, _ := MoneyToMinorUnits(obj.GetTotalPaid())
+	seOutstanding, _ := MoneyToMinorUnits(obj.GetOutstanding())
+
 	model := &ScheduleEntry{
 		ScheduleID:        obj.GetScheduleId(),
 		InstallmentNumber: obj.GetInstallmentNumber(),
 		DueDate:           StringToTime(obj.GetDueDate()),
-		PrincipalDue:      StringToMinorUnits(obj.GetPrincipalDue()),
-		InterestDue:       StringToMinorUnits(obj.GetInterestDue()),
-		FeesDue:           StringToMinorUnits(obj.GetFeesDue()),
-		TotalDue:          StringToMinorUnits(obj.GetTotalDue()),
-		PrincipalPaid:     StringToMinorUnits(obj.GetPrincipalPaid()),
-		InterestPaid:      StringToMinorUnits(obj.GetInterestPaid()),
-		FeesPaid:          StringToMinorUnits(obj.GetFeesPaid()),
-		TotalPaid:         StringToMinorUnits(obj.GetTotalPaid()),
-		Outstanding:       StringToMinorUnits(obj.GetOutstanding()),
+		CurrencyCode:      seCurrency,
+		PrincipalDue:      sePrincipalDue,
+		InterestDue:       seInterestDue,
+		FeesDue:           seFeesDue,
+		TotalDue:          seTotalDue,
+		PrincipalPaid:     sePrincipalPaid,
+		InterestPaid:      seInterestPaid,
+		FeesPaid:          seFeesPaid,
+		TotalPaid:         seTotalPaid,
+		Outstanding:       seOutstanding,
 		Status:            int32(obj.GetStatus()),
 		PaidDate:          StringToTime(obj.GetPaidDate()),
 	}
@@ -274,15 +288,16 @@ type LoanBalance struct {
 func (m *LoanBalance) TableName() string { return "loan_balances" }
 
 func (m *LoanBalance) ToAPI() *loansv1.LoanBalanceObject {
+	cc := m.CurrencyCode
 	return &loansv1.LoanBalanceObject{
 		LoanAccountId:        m.LoanAccountID,
-		PrincipalOutstanding: MinorUnitsToString(m.PrincipalOutstanding),
-		InterestAccrued:      MinorUnitsToString(m.InterestAccrued),
-		FeesOutstanding:      MinorUnitsToString(m.FeesOutstanding),
-		PenaltiesOutstanding: MinorUnitsToString(m.PenaltiesOutstanding),
-		TotalOutstanding:     MinorUnitsToString(m.TotalOutstanding),
-		TotalPaid:            MinorUnitsToString(m.TotalPaid),
-		TotalDisbursed:       MinorUnitsToString(m.TotalDisbursed),
+		PrincipalOutstanding: MinorUnitsToMoney(m.PrincipalOutstanding, cc),
+		InterestAccrued:      MinorUnitsToMoney(m.InterestAccrued, cc),
+		FeesOutstanding:      MinorUnitsToMoney(m.FeesOutstanding, cc),
+		PenaltiesOutstanding: MinorUnitsToMoney(m.PenaltiesOutstanding, cc),
+		TotalOutstanding:     MinorUnitsToMoney(m.TotalOutstanding, cc),
+		TotalPaid:            MinorUnitsToMoney(m.TotalPaid, cc),
+		TotalDisbursed:       MinorUnitsToMoney(m.TotalDisbursed, cc),
 		LastCalculatedAt:     TimeToString(m.LastCalculatedAt),
 	}
 }
@@ -320,19 +335,19 @@ type LoanProduct struct {
 
 func (m *LoanProduct) TableName() string { return "loan_products" }
 
-func (m *LoanProduct) ToAPI() *loansv1.LoanProductObject {
-	return &loansv1.LoanProductObject{
+func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
+	return &originationv1.LoanProductObject{
 		Id:                   m.GetID(),
 		BankId:               m.BankID,
 		Name:                 m.Name,
 		Code:                 m.Code,
 		Description:          m.Description,
-		ProductType:          loansv1.LoanProductType(m.ProductType),
+		ProductType:          originationv1.LoanProductType(m.ProductType),
 		CurrencyCode:         m.CurrencyCode,
-		InterestMethod:       loansv1.InterestMethod(m.InterestMethod),
-		RepaymentFrequency:   loansv1.RepaymentFrequency(m.RepaymentFrequency),
-		MinAmount:            MinorUnitsToString(m.MinAmount),
-		MaxAmount:            MinorUnitsToString(m.MaxAmount),
+		InterestMethod:       originationv1.InterestMethod(m.InterestMethod),
+		RepaymentFrequency:   originationv1.RepaymentFrequency(m.RepaymentFrequency),
+		MinAmount:            MinorUnitsToMoney(m.MinAmount, m.CurrencyCode),
+		MaxAmount:            MinorUnitsToMoney(m.MaxAmount, m.CurrencyCode),
 		MinTermDays:          m.MinTermDays,
 		MaxTermDays:          m.MaxTermDays,
 		AnnualInterestRate:   BasisPointsToString(m.AnnualInterestRate),
@@ -349,10 +364,13 @@ func (m *LoanProduct) ToAPI() *loansv1.LoanProductObject {
 	}
 }
 
-func LoanProductFromAPI(ctx context.Context, obj *loansv1.LoanProductObject) *LoanProduct {
+func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObject) *LoanProduct {
 	if obj == nil {
 		return nil
 	}
+
+	lpMin, _ := MoneyToMinorUnits(obj.GetMinAmount())
+	lpMax, _ := MoneyToMinorUnits(obj.GetMaxAmount())
 
 	model := &LoanProduct{
 		BankID:               obj.GetBankId(),
@@ -363,8 +381,8 @@ func LoanProductFromAPI(ctx context.Context, obj *loansv1.LoanProductObject) *Lo
 		CurrencyCode:         obj.GetCurrencyCode(),
 		InterestMethod:       int32(obj.GetInterestMethod()),
 		RepaymentFrequency:   int32(obj.GetRepaymentFrequency()),
-		MinAmount:            StringToMinorUnits(obj.GetMinAmount()),
-		MaxAmount:            StringToMinorUnits(obj.GetMaxAmount()),
+		MinAmount:            lpMin,
+		MaxAmount:            lpMax,
 		MinTermDays:          obj.GetMinTermDays(),
 		MaxTermDays:          obj.GetMaxTermDays(),
 		AnnualInterestRate:   StringToBasisPoints(obj.GetAnnualInterestRate()),
@@ -426,22 +444,22 @@ type Repayment struct {
 func (m *Repayment) TableName() string { return "repayments" }
 
 func (m *Repayment) ToAPI() *loansv1.RepaymentObject {
+	cc := m.CurrencyCode
 	return &loansv1.RepaymentObject{
 		Id:                  m.GetID(),
 		LoanAccountId:       m.LoanAccountID,
-		Amount:              MinorUnitsToString(m.Amount),
-		CurrencyCode:        m.CurrencyCode,
+		Amount:              MinorUnitsToMoney(m.Amount, cc),
 		Status:              loansv1.RepaymentStatus(m.Status),
 		PaymentReference:    m.PaymentReference,
 		LedgerTransactionId: m.LedgerTransactionID,
 		ReceivedAt:          TimeToString(m.ReceivedAt),
 		Channel:             m.Channel,
 		PayerReference:      m.PayerReference,
-		PrincipalApplied:    MinorUnitsToString(m.PrincipalApplied),
-		InterestApplied:     MinorUnitsToString(m.InterestApplied),
-		FeesApplied:         MinorUnitsToString(m.FeesApplied),
-		PenaltiesApplied:    MinorUnitsToString(m.PenaltiesApplied),
-		ExcessAmount:        MinorUnitsToString(m.ExcessAmount),
+		PrincipalApplied:    MinorUnitsToMoney(m.PrincipalApplied, cc),
+		InterestApplied:     MinorUnitsToMoney(m.InterestApplied, cc),
+		FeesApplied:         MinorUnitsToMoney(m.FeesApplied, cc),
+		PenaltiesApplied:    MinorUnitsToMoney(m.PenaltiesApplied, cc),
+		ExcessAmount:        MinorUnitsToMoney(m.ExcessAmount, cc),
 		IdempotencyKey:      m.IdempotencyKey,
 		Properties:          m.Properties.ToProtoStruct(),
 	}
@@ -452,21 +470,28 @@ func RepaymentFromAPI(ctx context.Context, obj *loansv1.RepaymentObject) *Repaym
 		return nil
 	}
 
+	repAmount, repCurrency := MoneyToMinorUnits(obj.GetAmount())
+	repPrincipal, _ := MoneyToMinorUnits(obj.GetPrincipalApplied())
+	repInterest, _ := MoneyToMinorUnits(obj.GetInterestApplied())
+	repFees, _ := MoneyToMinorUnits(obj.GetFeesApplied())
+	repPenalties, _ := MoneyToMinorUnits(obj.GetPenaltiesApplied())
+	repExcess, _ := MoneyToMinorUnits(obj.GetExcessAmount())
+
 	model := &Repayment{
 		LoanAccountID:       obj.GetLoanAccountId(),
-		Amount:              StringToMinorUnits(obj.GetAmount()),
-		CurrencyCode:        obj.GetCurrencyCode(),
+		Amount:              repAmount,
+		CurrencyCode:        repCurrency,
 		Status:              int32(obj.GetStatus()),
 		PaymentReference:    obj.GetPaymentReference(),
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
 		ReceivedAt:          StringToTime(obj.GetReceivedAt()),
 		Channel:             obj.GetChannel(),
 		PayerReference:      obj.GetPayerReference(),
-		PrincipalApplied:    StringToMinorUnits(obj.GetPrincipalApplied()),
-		InterestApplied:     StringToMinorUnits(obj.GetInterestApplied()),
-		FeesApplied:         StringToMinorUnits(obj.GetFeesApplied()),
-		PenaltiesApplied:    StringToMinorUnits(obj.GetPenaltiesApplied()),
-		ExcessAmount:        StringToMinorUnits(obj.GetExcessAmount()),
+		PrincipalApplied:    repPrincipal,
+		InterestApplied:     repInterest,
+		FeesApplied:         repFees,
+		PenaltiesApplied:    repPenalties,
+		ExcessAmount:        repExcess,
 		IdempotencyKey:      obj.GetIdempotencyKey(),
 	}
 
@@ -509,7 +534,7 @@ func (m *Penalty) ToAPI() *loansv1.PenaltyObject {
 		Id:                  m.GetID(),
 		LoanAccountId:       m.LoanAccountID,
 		PenaltyType:         loansv1.PenaltyType(m.PenaltyType),
-		Amount:              MinorUnitsToString(m.Amount),
+		Amount:              MinorUnitsToMoney(m.Amount, m.CurrencyCode),
 		Reason:              m.Reason,
 		IsWaived:            m.IsWaived,
 		WaivedBy:            m.WaivedBy,
@@ -526,10 +551,13 @@ func PenaltyFromAPI(ctx context.Context, obj *loansv1.PenaltyObject) *Penalty {
 		return nil
 	}
 
+	penAmount, penCurrency := MoneyToMinorUnits(obj.GetAmount())
+
 	model := &Penalty{
 		LoanAccountID:       obj.GetLoanAccountId(),
 		PenaltyType:         int32(obj.GetPenaltyType()),
-		Amount:              StringToMinorUnits(obj.GetAmount()),
+		Amount:              penAmount,
+		CurrencyCode:        penCurrency,
 		Reason:              obj.GetReason(),
 		IsWaived:            obj.GetIsWaived(),
 		WaivedBy:            obj.GetWaivedBy(),
@@ -588,7 +616,7 @@ func (m *LoanRestructure) ToAPI() *loansv1.LoanRestructureObject {
 		NewInterestRate: BasisPointsToString(m.NewInterestRate),
 		OldTermDays:     m.OldTermDays,
 		NewTermDays:     m.NewTermDays,
-		WaivedAmount:    MinorUnitsToString(m.WaivedAmount),
+		WaivedAmount:    MinorUnitsToMoney(m.WaivedAmount, m.CurrencyCode),
 		OldScheduleId:   m.OldScheduleID,
 		NewScheduleId:   m.NewScheduleID,
 		State:           commonv1.STATE(m.State),
@@ -611,7 +639,7 @@ func LoanRestructureFromAPI(ctx context.Context, obj *loansv1.LoanRestructureObj
 		NewInterestRate: StringToBasisPoints(obj.GetNewInterestRate()),
 		OldTermDays:     obj.GetOldTermDays(),
 		NewTermDays:     obj.GetNewTermDays(),
-		WaivedAmount:    StringToMinorUnits(obj.GetWaivedAmount()),
+		WaivedAmount:    func() int64 { v, _ := MoneyToMinorUnits(obj.GetWaivedAmount()); return v }(),
 		OldScheduleID:   obj.GetOldScheduleId(),
 		NewScheduleID:   obj.GetNewScheduleId(),
 		State:           int32(obj.GetState()),
@@ -684,8 +712,7 @@ func (m *Reconciliation) ToAPI() *loansv1.ReconciliationObject {
 		LoanAccountId:      m.LoanAccountID,
 		PaymentReference:   m.PaymentReference,
 		ExternalReference:  m.ExternalReference,
-		Amount:             MinorUnitsToString(m.Amount),
-		CurrencyCode:       m.CurrencyCode,
+		Amount:             MinorUnitsToMoney(m.Amount, m.CurrencyCode),
 		Status:             loansv1.ReconciliationStatus(m.Status),
 		MatchedRepaymentId: m.MatchedRepaymentID,
 		Notes:              m.Notes,
@@ -700,12 +727,14 @@ func ReconciliationFromAPI(ctx context.Context, obj *loansv1.ReconciliationObjec
 		return nil
 	}
 
+	recAmount, recCurrency := MoneyToMinorUnits(obj.GetAmount())
+
 	model := &Reconciliation{
 		LoanAccountID:      obj.GetLoanAccountId(),
 		PaymentReference:   obj.GetPaymentReference(),
 		ExternalReference:  obj.GetExternalReference(),
-		Amount:             StringToMinorUnits(obj.GetAmount()),
-		CurrencyCode:       obj.GetCurrencyCode(),
+		Amount:             recAmount,
+		CurrencyCode:       recCurrency,
 		Status:             int32(obj.GetStatus()),
 		MatchedRepaymentID: obj.GetMatchedRepaymentId(),
 		Notes:              obj.GetNotes(),

@@ -6,6 +6,7 @@ import (
 
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util/decimalx"
+	money "google.golang.org/genproto/googleapis/type/money"
 )
 
 const timeLayout = time.RFC3339
@@ -81,6 +82,26 @@ func jsonMapToStringSlice(m data.JSONMap) []string {
 		}
 	}
 	return result
+}
+
+// MinorUnitsToMoney converts minor units (e.g. cents) and a currency code to a
+// *money.Money proto message.
+func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
+	units := v / 100
+	nanos := (v % 100) * 10_000_000
+	return &money.Money{
+		CurrencyCode: currencyCode,
+		Units:        units,
+		Nanos:        int32(nanos),
+	}
+}
+
+// MoneyToMinorUnits converts a *money.Money to minor units (int64) and currency code.
+func MoneyToMinorUnits(m *money.Money) (int64, string) {
+	if m == nil {
+		return 0, ""
+	}
+	return m.GetUnits()*100 + int64(m.GetNanos())/10_000_000, m.GetCurrencyCode()
 }
 
 // stringSliceToJSONMap converts a []string into a JSONMap keyed by index.

@@ -4,7 +4,19 @@ import (
 	"time"
 
 	"github.com/pitabwire/frame/data"
+	money "google.golang.org/genproto/googleapis/type/money"
 )
+
+// MinorUnitsToMoney converts minor units and a currency code to a *money.Money.
+func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
+	units := v / 100
+	nanos := (v % 100) * 10_000_000
+	return &money.Money{
+		CurrencyCode: currencyCode,
+		Units:        units,
+		Nanos:        int32(nanos),
+	}
+}
 
 // FundingSource defines the source of loan funding.
 type FundingSource int32

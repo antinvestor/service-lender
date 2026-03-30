@@ -189,16 +189,10 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 
 	// Create loan application via origination service
 	if b.clients != nil && b.clients.LenderOrigination != nil {
-		whole := offer.Amount / 100
-		frac := offer.Amount % 100
-		if frac < 0 {
-			frac = -frac
-		}
-		amountStr := fmt.Sprintf("%d.%02d", whole, frac)
+		offerMoney := models.MinorUnitsToMoney(offer.Amount, offer.Currency)
 		appObj := &originationv1.ApplicationObject{
-			RequestedAmount: amountStr,
-			ApprovedAmount:  amountStr,
-			CurrencyCode:    offer.Currency,
+			RequestedAmount: offerMoney,
+			ApprovedAmount:  offerMoney,
 			Purpose:         fmt.Sprintf("Group loan offer %s", offerID),
 		}
 		appResp, appErr := b.clients.LenderOrigination.ApplicationSave(ctx, connect.NewRequest(

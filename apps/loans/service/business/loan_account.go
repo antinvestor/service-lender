@@ -131,12 +131,13 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 
 		app := appResp.Msg.GetData()
 		la.ProductID = app.GetProductId()
-		la.ClientID = app.GetClientId()
+		la.ClientID = app.GetBorrowerId()
 		la.AgentID = app.GetAgentId()
 		la.BranchID = app.GetBranchId()
 		la.BankID = app.GetBankId()
-		la.CurrencyCode = app.GetCurrencyCode()
-		la.PrincipalAmount = models.StringToMinorUnits(app.GetApprovedAmount())
+		approvedAmount, approvedCurrency := models.MoneyToMinorUnits(app.GetApprovedAmount())
+		la.CurrencyCode = approvedCurrency
+		la.PrincipalAmount = approvedAmount
 		la.InterestRate = models.StringToBasisPoints(app.GetInterestRate())
 		la.TermDays = app.GetApprovedTermDays()
 
@@ -162,7 +163,11 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 
 		// Use requested amounts as fallback if approved amounts are zero
 		if la.PrincipalAmount == 0 {
-			la.PrincipalAmount = models.StringToMinorUnits(app.GetRequestedAmount())
+			reqAmt, reqCur := models.MoneyToMinorUnits(app.GetRequestedAmount())
+			la.PrincipalAmount = reqAmt
+			if la.CurrencyCode == "" {
+				la.CurrencyCode = reqCur
+			}
 		}
 		if la.TermDays == 0 {
 			la.TermDays = app.GetRequestedTermDays()
@@ -265,8 +270,8 @@ func (b *loanAccountBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
-	if req.GetClientId() != "" {
-		andQueryVal["client_id = ?"] = req.GetClientId()
+	if req.GetBorrowerId() != "" {
+		andQueryVal["client_id = ?"] = req.GetBorrowerId()
 	}
 	if req.GetAgentId() != "" {
 		andQueryVal["agent_id = ?"] = req.GetAgentId()
@@ -369,7 +374,7 @@ func (b *loanAccountBusiness) GetStatement(
 				statementEntries = append(statementEntries, &loansv1.LoanStatementEntry{
 					Date:        models.TimeToString(r.ReceivedAt),
 					Description: "Repayment via " + r.Channel,
-					Credit:      models.MinorUnitsToString(r.Amount),
+					Credit:      models.MinorUnitsToMoney(r.Amount, r.CurrencyCode),
 					Reference:   r.PaymentReference,
 				})
 			}

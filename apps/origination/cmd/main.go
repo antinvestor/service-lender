@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	originationpb "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
@@ -144,12 +144,12 @@ func handleDatabaseMigration(
 func setupIdentityClient(
 	ctx context.Context,
 	cfg aconfig.OriginationConfig,
-) (identityv1connect.FieldServiceClient, error) {
+) (fieldv1connect.FieldServiceClient, error) {
 	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.IdentityServiceURI,
 		WorkloadAPITargetPath: cfg.IdentityServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_lender_identity"},
-	}, identityv1connect.NewFieldServiceClient)
+	}, fieldv1connect.NewFieldServiceClient)
 }
 
 func setupLoanManagementClient(

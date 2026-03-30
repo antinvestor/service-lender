@@ -147,10 +147,11 @@ func (s *SavingsServer) DepositRecord(
 	ctx context.Context,
 	req *connect.Request[savingsv1.DepositRecordRequest],
 ) (*connect.Response[savingsv1.DepositRecordResponse], error) {
+	depAmount, _ := models.MoneyToMinorUnits(req.Msg.GetAmount())
 	result, err := s.depBusiness.Record(
 		ctx,
 		req.Msg.GetSavingsAccountId(),
-		req.Msg.GetAmount(),
+		models.MinorUnitsToString(depAmount),
 		req.Msg.GetPaymentReference(),
 		req.Msg.GetChannel(),
 		req.Msg.GetPayerReference(),
@@ -194,10 +195,11 @@ func (s *SavingsServer) WithdrawalRequest(
 	ctx context.Context,
 	req *connect.Request[savingsv1.WithdrawalRequestRequest],
 ) (*connect.Response[savingsv1.WithdrawalRequestResponse], error) {
+	wdAmount, _ := models.MoneyToMinorUnits(req.Msg.GetAmount())
 	result, err := s.wdBusiness.Request(
 		ctx,
 		req.Msg.GetSavingsAccountId(),
-		req.Msg.GetAmount(),
+		models.MinorUnitsToString(wdAmount),
 		req.Msg.GetChannel(),
 		req.Msg.GetRecipientReference(),
 		req.Msg.GetReason(),

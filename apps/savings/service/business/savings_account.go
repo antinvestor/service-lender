@@ -201,10 +201,11 @@ func (b *savingsAccountBusiness) GetBalance(
 ) (*savingsv1.SavingsBalanceObject, error) {
 	logger := util.Log(ctx).WithField("method", "SavingsAccountBusiness.GetBalance")
 
-	_, err := b.saRepo.GetByID(ctx, accountID)
+	sa, err := b.saRepo.GetByID(ctx, accountID)
 	if err != nil {
 		return nil, ErrSavingsAccountNotFound
 	}
+	cc := sa.CurrencyCode
 
 	// Sum deposits
 	var totalDeposits int64
@@ -269,10 +270,10 @@ func (b *savingsAccountBusiness) GetBalance(
 
 	return &savingsv1.SavingsBalanceObject{
 		SavingsAccountId: accountID,
-		TotalDeposits:    models.MinorUnitsToString(totalDeposits),
-		TotalWithdrawals: models.MinorUnitsToString(totalWithdrawals),
-		TotalInterest:    models.MinorUnitsToString(totalInterest),
-		AvailableBalance: models.MinorUnitsToString(availableBalance),
+		TotalDeposits:    models.MinorUnitsToMoney(totalDeposits, cc),
+		TotalWithdrawals: models.MinorUnitsToMoney(totalWithdrawals, cc),
+		TotalInterest:    models.MinorUnitsToMoney(totalInterest, cc),
+		AvailableBalance: models.MinorUnitsToMoney(availableBalance, cc),
 	}, nil
 }
 
@@ -283,10 +284,11 @@ func (b *savingsAccountBusiness) GetStatement(
 ) (*savingsv1.SavingsStatementResponse, error) {
 	logger := util.Log(ctx).WithField("method", "SavingsAccountBusiness.GetStatement")
 
-	_, err := b.saRepo.GetByID(ctx, accountID)
+	stmtSa, err := b.saRepo.GetByID(ctx, accountID)
 	if err != nil {
 		return nil, ErrSavingsAccountNotFound
 	}
+	stmtCC := stmtSa.CurrencyCode
 
 	var statementEntries []*savingsv1.SavingsStatementEntry
 
@@ -309,7 +311,7 @@ func (b *savingsAccountBusiness) GetStatement(
 			statementEntries = append(statementEntries, &savingsv1.SavingsStatementEntry{
 				Date:        models.TimeToString(&d.CreatedAt),
 				Description: "Deposit",
-				Credit:      models.MinorUnitsToString(d.Amount),
+				Credit:      models.MinorUnitsToMoney(d.Amount, stmtCC),
 				Reference:   d.PaymentReference,
 			})
 		}
@@ -335,7 +337,7 @@ func (b *savingsAccountBusiness) GetStatement(
 			statementEntries = append(statementEntries, &savingsv1.SavingsStatementEntry{
 				Date:        models.TimeToString(&w.CreatedAt),
 				Description: "Withdrawal",
-				Debit:       models.MinorUnitsToString(w.Amount),
+				Debit:       models.MinorUnitsToMoney(w.Amount, stmtCC),
 				Reference:   w.PaymentReference,
 			})
 		}
@@ -360,7 +362,7 @@ func (b *savingsAccountBusiness) GetStatement(
 			statementEntries = append(statementEntries, &savingsv1.SavingsStatementEntry{
 				Date:        models.TimeToString(&ia.CreatedAt),
 				Description: "Interest Accrual",
-				Credit:      models.MinorUnitsToString(ia.Amount),
+				Credit:      models.MinorUnitsToMoney(ia.Amount, stmtCC),
 				Reference:   ia.LedgerTransactionID,
 			})
 		}

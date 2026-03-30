@@ -76,8 +76,7 @@ func (b *depositBusiness) Record(
 
 	dep := models.DepositFromAPI(ctx, &savingsv1.DepositObject{
 		SavingsAccountId: accountID,
-		Amount:           amount,
-		CurrencyCode:     sa.CurrencyCode,
+		Amount:           models.MinorUnitsToMoney(models.StringToMinorUnits(amount), sa.CurrencyCode),
 		PaymentReference: paymentRef,
 		Channel:          channel,
 		PayerReference:   payerRef,

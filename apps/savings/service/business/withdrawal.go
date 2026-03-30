@@ -86,7 +86,7 @@ func (b *withdrawalBusiness) Request(
 			return nil, balErr
 		}
 		requestedAmount := models.StringToMinorUnits(amount)
-		availableAmount := models.StringToMinorUnits(balance.GetAvailableBalance())
+		availableAmount, _ := models.MoneyToMinorUnits(balance.GetAvailableBalance())
 		if requestedAmount > availableAmount {
 			return nil, ErrInsufficientBalance
 		}
@@ -94,8 +94,7 @@ func (b *withdrawalBusiness) Request(
 
 	wdr := models.WithdrawalFromAPI(ctx, &savingsv1.WithdrawalObject{
 		SavingsAccountId:   accountID,
-		Amount:             amount,
-		CurrencyCode:       sa.CurrencyCode,
+		Amount:             models.MinorUnitsToMoney(models.StringToMinorUnits(amount), sa.CurrencyCode),
 		Channel:            channel,
 		RecipientReference: recipientRef,
 		Reason:             reason,

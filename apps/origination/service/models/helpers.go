@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/pitabwire/util/decimalx"
+	money "google.golang.org/genproto/googleapis/type/money"
 )
 
 // MinorUnitsToString converts minor units (e.g. cents) stored as int64 to a decimal string.
@@ -65,4 +66,25 @@ func padLeft(s string, length int) string {
 		s = "0" + s
 	}
 	return s
+}
+
+// MinorUnitsToMoney converts minor units (e.g. cents) and a currency code to a
+// *money.Money proto message. 123456 with "KES" becomes {CurrencyCode:"KES", Units:1234, Nanos:560000000}.
+func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
+	units := v / 100
+	nanos := (v % 100) * 10_000_000
+	return &money.Money{
+		CurrencyCode: currencyCode,
+		Units:        units,
+		Nanos:        int32(nanos),
+	}
+}
+
+// MoneyToMinorUnits converts a *money.Money to minor units (int64) and currency code.
+// Returns (0, "") for nil input.
+func MoneyToMinorUnits(m *money.Money) (int64, string) {
+	if m == nil {
+		return 0, ""
+	}
+	return m.GetUnits()*100 + int64(m.GetNanos())/10_000_000, m.GetCurrencyCode()
 }

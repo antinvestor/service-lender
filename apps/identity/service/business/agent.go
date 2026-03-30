@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
-	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -16,17 +16,17 @@ import (
 )
 
 type AgentBusiness interface {
-	Save(ctx context.Context, obj *identityv1.AgentObject) (*identityv1.AgentObject, error)
-	Get(ctx context.Context, id string) (*identityv1.AgentObject, error)
+	Save(ctx context.Context, obj *fieldv1.AgentObject) (*fieldv1.AgentObject, error)
+	Get(ctx context.Context, id string) (*fieldv1.AgentObject, error)
 	Search(
 		ctx context.Context,
-		req *identityv1.AgentSearchRequest,
-		consumer func(ctx context.Context, batch []*identityv1.AgentObject) error,
+		req *fieldv1.AgentSearchRequest,
+		consumer func(ctx context.Context, batch []*fieldv1.AgentObject) error,
 	) error
 	Hierarchy(
 		ctx context.Context,
-		req *identityv1.AgentHierarchyRequest,
-		consumer func(ctx context.Context, batch []*identityv1.AgentObject) error,
+		req *fieldv1.AgentHierarchyRequest,
+		consumer func(ctx context.Context, batch []*fieldv1.AgentObject) error,
 	) error
 }
 
@@ -52,7 +52,7 @@ func NewAgentBusiness(
 	}
 }
 
-func (b *agentBusiness) Save(ctx context.Context, obj *identityv1.AgentObject) (*identityv1.AgentObject, error) {
+func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fieldv1.AgentObject, error) {
 	logger := util.Log(ctx).WithField("method", "AgentBusiness.Save")
 
 	agent := models.AgentFromAPI(ctx, obj)
@@ -95,7 +95,7 @@ func (b *agentBusiness) Save(ctx context.Context, obj *identityv1.AgentObject) (
 	return agent.ToAPI(), nil
 }
 
-func (b *agentBusiness) Get(ctx context.Context, id string) (*identityv1.AgentObject, error) {
+func (b *agentBusiness) Get(ctx context.Context, id string) (*fieldv1.AgentObject, error) {
 	agent, err := b.agentRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrAgentNotFound
@@ -105,8 +105,8 @@ func (b *agentBusiness) Get(ctx context.Context, id string) (*identityv1.AgentOb
 
 func (b *agentBusiness) Search(
 	ctx context.Context,
-	req *identityv1.AgentSearchRequest,
-	consumer func(ctx context.Context, batch []*identityv1.AgentObject) error,
+	req *fieldv1.AgentSearchRequest,
+	consumer func(ctx context.Context, batch []*fieldv1.AgentObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "AgentBusiness.Search")
 
@@ -149,7 +149,7 @@ func (b *agentBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Agent) error {
-		var apiResults []*identityv1.AgentObject
+		var apiResults []*fieldv1.AgentObject
 		for _, agent := range res {
 			apiResults = append(apiResults, agent.ToAPI())
 		}
@@ -159,15 +159,15 @@ func (b *agentBusiness) Search(
 
 func (b *agentBusiness) Hierarchy(
 	ctx context.Context,
-	req *identityv1.AgentHierarchyRequest,
-	consumer func(ctx context.Context, batch []*identityv1.AgentObject) error,
+	req *fieldv1.AgentHierarchyRequest,
+	consumer func(ctx context.Context, batch []*fieldv1.AgentObject) error,
 ) error {
 	descendants, err := b.agentRepo.GetDescendants(ctx, req.GetAgentId(), int(req.GetMaxDepth()))
 	if err != nil {
 		return err
 	}
 
-	var apiResults []*identityv1.AgentObject
+	var apiResults []*fieldv1.AgentObject
 	for _, agent := range descendants {
 		apiResults = append(apiResults, agent.ToAPI())
 	}

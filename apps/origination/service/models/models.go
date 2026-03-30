@@ -40,17 +40,16 @@ func (m *Application) ToAPI() *originationv1.ApplicationObject {
 	obj := &originationv1.ApplicationObject{
 		Id:                 m.GetID(),
 		ProductId:          m.ProductID,
-		ClientId:           m.ClientID,
+		BorrowerId:         m.ClientID,
 		AgentId:            m.AgentID,
 		BranchId:           m.BranchID,
 		BankId:             m.BankID,
 		Status:             originationv1.ApplicationStatus(m.Status),
-		RequestedAmount:    MinorUnitsToString(m.RequestedAmount),
-		ApprovedAmount:     MinorUnitsToString(m.ApprovedAmount),
+		RequestedAmount:    MinorUnitsToMoney(m.RequestedAmount, m.CurrencyCode),
+		ApprovedAmount:     MinorUnitsToMoney(m.ApprovedAmount, m.CurrencyCode),
 		RequestedTermDays:  m.RequestedTermDays,
 		ApprovedTermDays:   m.ApprovedTermDays,
 		InterestRate:       BasisPointsToString(m.InterestRate),
-		CurrencyCode:       m.CurrencyCode,
 		KycData:            m.KycData.ToProtoStruct(),
 		Purpose:            m.Purpose,
 		RejectionReason:    m.RejectionReason,
@@ -70,19 +69,23 @@ func ApplicationFromAPI(ctx context.Context, obj *originationv1.ApplicationObjec
 		return nil
 	}
 
+	reqAmount, reqCurrency := MoneyToMinorUnits(obj.GetRequestedAmount())
+	appAmount, _ := MoneyToMinorUnits(obj.GetApprovedAmount())
+	currencyCode := reqCurrency
+
 	model := &Application{
 		ProductID:          obj.GetProductId(),
-		ClientID:           obj.GetClientId(),
+		ClientID:           obj.GetBorrowerId(),
 		AgentID:            obj.GetAgentId(),
 		BranchID:           obj.GetBranchId(),
 		BankID:             obj.GetBankId(),
 		Status:             int32(obj.GetStatus()),
-		RequestedAmount:    StringToMinorUnits(obj.GetRequestedAmount()),
-		ApprovedAmount:     StringToMinorUnits(obj.GetApprovedAmount()),
+		RequestedAmount:    reqAmount,
+		ApprovedAmount:     appAmount,
 		RequestedTermDays:  obj.GetRequestedTermDays(),
 		ApprovedTermDays:   obj.GetApprovedTermDays(),
 		InterestRate:       StringToBasisPoints(obj.GetInterestRate()),
-		CurrencyCode:       obj.GetCurrencyCode(),
+		CurrencyCode:       currencyCode,
 		Purpose:            obj.GetPurpose(),
 		RejectionReason:    obj.GetRejectionReason(),
 		WorkflowInstanceID: obj.GetWorkflowInstanceId(),
@@ -263,7 +266,7 @@ func (m *UnderwritingDecision) ToAPI() *originationv1.UnderwritingDecisionObject
 		Outcome:          originationv1.UnderwritingOutcome(m.Outcome),
 		CreditScore:      m.CreditScore,
 		RiskGrade:        m.RiskGrade,
-		ApprovedAmount:   MinorUnitsToString(m.ApprovedAmount),
+		ApprovedAmount:   MinorUnitsToMoney(m.ApprovedAmount, m.CurrencyCode),
 		ApprovedTermDays: m.ApprovedTermDays,
 		ApprovedRate:     BasisPointsToString(m.ApprovedRate),
 		Reason:           m.Reason,
@@ -281,13 +284,16 @@ func UnderwritingDecisionFromAPI(
 		return nil
 	}
 
+	approvedAmount, approvedCurrency := MoneyToMinorUnits(obj.GetApprovedAmount())
+
 	model := &UnderwritingDecision{
 		ApplicationID:    obj.GetApplicationId(),
 		DecidedBy:        obj.GetDecidedBy(),
 		Outcome:          int32(obj.GetOutcome()),
 		CreditScore:      obj.GetCreditScore(),
 		RiskGrade:        obj.GetRiskGrade(),
-		ApprovedAmount:   StringToMinorUnits(obj.GetApprovedAmount()),
+		CurrencyCode:     approvedCurrency,
+		ApprovedAmount:   approvedAmount,
 		ApprovedTermDays: obj.GetApprovedTermDays(),
 		ApprovedRate:     StringToBasisPoints(obj.GetApprovedRate()),
 		Reason:           obj.GetReason(),

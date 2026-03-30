@@ -6,22 +6,24 @@ toolchain go1.26.1
 
 require (
 	buf.build/gen/go/antinvestor/common/protocolbuffers/go v1.36.11-20260325040325-9771112f2289.1
-	buf.build/gen/go/antinvestor/files/connectrpc/go v1.19.1-20260324160942-6ee4269665d4.2
-	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260320070057-6a2801e08f33.2
-	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260320070057-6a2801e08f33.1
+	buf.build/gen/go/antinvestor/field/connectrpc/go v1.19.1-20260330080453-5fe85d45ba70.2
+	buf.build/gen/go/antinvestor/field/protocolbuffers/go v1.36.11-20260330080453-5fe85d45ba70.1
+	buf.build/gen/go/antinvestor/files/connectrpc/go v1.19.1-20260328115041-0585dfdeba0b.2
+	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260330080453-2ea80d0b1c8d.2
+	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260330080453-2ea80d0b1c8d.1
 	buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260324161003-ddbe06cec7a0.2
 	buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260324161003-ddbe06cec7a0.1
-	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260320072854-75c878fc6cab.2
-	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260320072854-75c878fc6cab.1
-	buf.build/gen/go/antinvestor/notification/connectrpc/go v1.19.1-20260324161035-bd2eeca8a8ca.2
-	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260324161035-bd2eeca8a8ca.1
-	buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260320072853-f3a7fc59559b.2
-	buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260320072853-f3a7fc59559b.1
+	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260330080453-21c546fb13cf.2
+	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260330080453-21c546fb13cf.1
+	buf.build/gen/go/antinvestor/notification/connectrpc/go v1.19.1-20260328115053-88b513b68855.2
+	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260328115053-88b513b68855.1
+	buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260330080453-87aa2a1dab7d.2
+	buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260330080453-87aa2a1dab7d.1
 	buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.1-20260324161144-47104ea3f3d7.2
 	buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260324161144-47104ea3f3d7.1
-	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260324161209-9468cfa0f32b.2
-	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260320040359-b2a0d7722dc4.2
-	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260320040359-b2a0d7722dc4.1
+	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260330075109-319b4e3fd9dd.2
+	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260330080453-87e747c157cb.2
+	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260330080453-87e747c157cb.1
 	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260330064539-b81b51773e97.2
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.3.1
@@ -35,8 +37,8 @@ require (
 )
 
 require (
-	buf.build/gen/go/antinvestor/files/protocolbuffers/go v1.36.11-20260324160942-6ee4269665d4.1 // indirect
-	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260324161209-9468cfa0f32b.1 // indirect
+	buf.build/gen/go/antinvestor/files/protocolbuffers/go v1.36.11-20260328115041-0585dfdeba0b.1 // indirect
+	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260330075109-319b4e3fd9dd.1 // indirect
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260330064539-b81b51773e97.1 // indirect
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
 	buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1 // indirect
@@ -118,7 +120,7 @@ require (
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	gocloud.dev v0.45.0 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
-	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
+	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
 	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect

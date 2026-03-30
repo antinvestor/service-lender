@@ -3,9 +3,7 @@ package business
 import (
 	"context"
 	"fmt"
-	"strconv"
 
-	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/ledger/v1"
 	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
@@ -224,69 +222,25 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 	}
 
 	if b.clients == nil || b.clients.LenderIdentity == nil {
-		logger.Warn("lender identity client not available, skipping registration")
+		logger.Warn("lender field client not available, skipping registration")
 		return nil
 	}
 
-	// Register group as first-class GroupObject in Identity
-	if group.LenderGroupID == "" {
-		// Map local group type to identity group type
-		groupType := identityv1.GroupType(group.GroupType)
-		// Convert minor units to decimal string (e.g. 12345 -> "123.45")
-		whole := group.SavingAmount / 100
-		frac := group.SavingAmount % 100
-		if frac < 0 {
-			frac = -frac
-		}
-		savingAmount := strconv.FormatInt(whole, 10) + "." + fmt.Sprintf("%02d", frac)
-
-		// Derive min/max members from group properties if set
-		var minMembers, maxMembers int32
-		if group.Properties != nil {
-			if v, ok := group.Properties["min_members"]; ok {
-				if min, ok := v.(float64); ok {
-					minMembers = int32(min)
-				}
-			}
-			if v, ok := group.Properties["max_members"]; ok {
-				if max, ok := v.(float64); ok {
-					maxMembers = int32(max)
-				}
-			}
-		}
-
-		identityGroupID, regErr := b.clients.RegisterGroup(
-			ctx, "", "", "", group.Name, group.Currency, groupType, savingAmount, minMembers, maxMembers,
-		)
-		if regErr != nil {
-			return fmt.Errorf("could not register group in identity: %w", regErr)
-		}
-		group.LenderGroupID = identityGroupID
-		if emitErr := b.eventsMan.Emit(ctx, events.CustomerGroupSaveEvent, group); emitErr != nil {
-			logger.WithError(emitErr).Error("could not save identity group ID on group")
-		}
-		logger.WithField("identity_group_id", identityGroupID).Info("group registered in identity")
-	}
-
-	// Register members in Identity:
-	// 1. Create Membership (profile ↔ group affiliation)
-	// 2. Create Client (profile → agent, independent of group)
-	// 3. Store both IDs on the local membership model (product-level linking)
+	// Register members as borrowers in the Field service.
+	// Group and membership registration is handled locally — the Field service
+	// only manages agents and borrowers.
 	members, err := b.memRepo.GetByGroupID(ctx, groupID)
 	if err != nil {
 		return fmt.Errorf("could not get members: %w", err)
 	}
 
-	// Resolve the agent that manages this group from the identity GroupObject.
+	// Resolve the agent from group properties if available.
 	agentID := ""
-	if group.LenderGroupID != "" && b.clients.LenderIdentity != nil {
-		grpResp, grpErr := b.clients.LenderIdentity.GroupGet(ctx, connect.NewRequest(
-			&identityv1.GroupGetRequest{Id: group.LenderGroupID},
-		))
-		if grpErr == nil && grpResp.Msg.GetData() != nil {
-			agentID = grpResp.Msg.GetData().GetAgentId()
-		} else if grpErr != nil {
-			logger.WithError(grpErr).Warn("could not fetch identity group for agent resolution")
+	if group.Properties != nil {
+		if v, ok := group.Properties["agent_id"]; ok {
+			if s, ok := v.(string); ok {
+				agentID = s
+			}
 		}
 	}
 
@@ -295,27 +249,11 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 			continue // already registered
 		}
 
-		// Create membership in Identity (profile ↔ group)
-		if m.IdentityMembershipID == "" {
-			role := identityv1.MembershipRole(m.Role)
-			memberType := identityv1.MembershipType(m.MembershipType)
-			membershipID, memErr := b.clients.CreateMembership(
-				ctx, group.LenderGroupID, m.ProfileID, m.Name, role, memberType,
-			)
-			if memErr != nil {
-				logger.WithError(memErr).
-					WithField("local_membership_id", m.GetID()).
-					Warn("could not create identity membership")
-				continue
-			}
-			m.IdentityMembershipID = membershipID
-		}
-
-		// Create client in Identity (profile → agent, independent of group)
+		// Register borrower in the Field service (profile → agent)
 		if agentID != "" {
 			clientID, cliErr := b.clients.RegisterClient(ctx, agentID, m.ProfileID, m.Name)
 			if cliErr != nil {
-				logger.WithError(cliErr).WithField("local_membership_id", m.GetID()).Warn("could not register client")
+				logger.WithError(cliErr).WithField("local_membership_id", m.GetID()).Warn("could not register borrower")
 			} else {
 				m.IdentityClientID = clientID
 			}

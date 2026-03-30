@@ -90,7 +90,8 @@ func (b *repaymentBusiness) Record(
 		receivedAt = &now
 	}
 
-	amount := models.StringToMinorUnits(req.GetAmount())
+	amount, repCurrencyCode := models.MoneyToMinorUnits(req.GetAmount())
+	_ = repCurrencyCode
 
 	// Waterfall allocation against schedule entries
 	var principalApplied, interestApplied, feesApplied int64

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
-	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
+	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
@@ -34,12 +34,12 @@ type RiskAssessmentResult struct {
 // verification workflow — the client was onboarded by an agent, but the
 // system still validates factual consistency and fraud signals.
 type RiskAssessor struct {
-	identityCli identityv1connect.FieldServiceClient
+	identityCli fieldv1connect.FieldServiceClient
 	appRepo     repository.ApplicationRepository
 }
 
 func NewRiskAssessor(
-	identityCli identityv1connect.FieldServiceClient,
+	identityCli fieldv1connect.FieldServiceClient,
 	appRepo repository.ApplicationRepository,
 ) *RiskAssessor {
 	return &RiskAssessor{identityCli: identityCli, appRepo: appRepo}
@@ -94,7 +94,7 @@ func (r *RiskAssessor) checkClientDataConsistency(ctx context.Context, app *mode
 		return nil
 	}
 
-	resp, err := r.identityCli.ClientGet(ctx, connect.NewRequest(&identityv1.ClientGetRequest{
+	resp, err := r.identityCli.BorrowerGet(ctx, connect.NewRequest(&fieldv1.BorrowerGetRequest{
 		Id: app.ClientID,
 	}))
 	if err != nil {
@@ -164,8 +164,8 @@ func (r *RiskAssessor) checkAgentOnboardingVelocity(ctx context.Context, app *mo
 	}
 
 	// Search for clients onboarded by this agent
-	stream, err := r.identityCli.ClientSearch(ctx, connect.NewRequest(
-		(&identityv1.ClientSearchRequest_builder{
+	stream, err := r.identityCli.BorrowerSearch(ctx, connect.NewRequest(
+		(&fieldv1.BorrowerSearchRequest_builder{
 			AgentId: app.AgentID,
 		}).Build(),
 	))
