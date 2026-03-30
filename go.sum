@@ -28,8 +28,6 @@ buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260330080453-87
 buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260330080453-87aa2a1dab7d.2/go.mod h1:pN54CaE4dlFgLD8ECtNT+Oko69qXz3jyUSEq0t8TM3A=
 buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260330080453-87aa2a1dab7d.1 h1:KYNY6WGVcteYiauAfeA3gPV0sMK5YnAXf8h2LRmCOnE=
 buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260330080453-87aa2a1dab7d.1/go.mod h1:BEKn9Tf0nM1QZpUe9LfYSiL3GLmIi38B/+U8wy3g940=
-buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.1-20260324161144-47104ea3f3d7.2 h1:xhMPdRX7nNxHJ7xE+mIYhh9T/4T3yoh5ER3fvyZMN34=
-buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.1-20260324161144-47104ea3f3d7.2/go.mod h1:kr4PR+1N0E1Cw0bqEF7RfT8NkSSwJ1vnPLlr7Yd5IQQ=
 buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260324161144-47104ea3f3d7.1 h1:92c9KbWn0INQa/OwOXz5e2bsFOmIriy2xr7BL9jUyE4=
 buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260324161144-47104ea3f3d7.1/go.mod h1:UISskJw+P9Qwb5oMNrO3lDnl3YMnEdQAvSmyY8Gv0cA=
 buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260330075109-319b4e3fd9dd.2 h1:x+e0fDDIYK5mOTnCUP1/sYxP6xNcLsne8+2E1Qcn5vg=
