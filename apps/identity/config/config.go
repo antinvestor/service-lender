@@ -6,10 +6,10 @@ import (
 
 type IdentityConfig struct {
 	config.ConfigurationDefault
-	ProfileServiceURI                     string `envDefault:"127.0.0.1:7005"                 env:"PROFILE_SERVICE_URI"`
-	PartitionServiceURI                   string `envDefault:"127.0.0.1:7003"                 env:"PARTITION_SERVICE_URI"`
-	ProfileServiceWorkloadAPITargetPath   string `envDefault:"/ns/profile/sa/service-profile" env:"PROFILE_SERVICE_WORKLOAD_API_TARGET_PATH"`
-	PartitionServiceWorkloadAPITargetPath string `envDefault:"/ns/auth/sa/service-tenancy"    env:"PARTITION_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	ProfileServiceURI                   string `envDefault:"127.0.0.1:7005"                 env:"PROFILE_SERVICE_URI"`
+	TenancyServiceURI                   string `envDefault:"127.0.0.1:7003"                 env:"TENANCY_SERVICE_URI"`
+	ProfileServiceWorkloadAPITargetPath string `envDefault:"/ns/profile/sa/service-profile" env:"PROFILE_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	TenancyServiceWorkloadAPITargetPath string `envDefault:"/ns/auth/sa/service-tenancy"    env:"TENANCY_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
 	MaxAgentDepth int `envDefault:"5" env:"MAX_AGENT_DEPTH"`
 }

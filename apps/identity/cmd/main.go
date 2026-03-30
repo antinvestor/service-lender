@@ -6,8 +6,8 @@ import (
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identitypb "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
-	"buf.build/gen/go/antinvestor/partition/connectrpc/go/partition/v1/partitionv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
+	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
@@ -66,7 +66,7 @@ func main() {
 	}
 	_ = profileCli // Used for profile validation in future
 
-	partitionCli, err := setupPartitionClient(ctx, cfg)
+	partitionCli, err := setupTenancyClient(ctx, cfg)
 	if err != nil {
 		log.WithError(err).Fatal("main -- Could not setup partition client")
 	}
@@ -165,15 +165,15 @@ func setupProfileClient(
 	}, profilev1connect.NewProfileServiceClient)
 }
 
-func setupPartitionClient(
+func setupTenancyClient(
 	ctx context.Context,
 	cfg aconfig.IdentityConfig,
-) (partitionv1connect.PartitionServiceClient, error) {
+) (tenancyv1connect.TenancyServiceClient, error) {
 	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
-		Endpoint:              cfg.PartitionServiceURI,
-		WorkloadAPITargetPath: cfg.PartitionServiceWorkloadAPITargetPath,
+		Endpoint:              cfg.TenancyServiceURI,
+		WorkloadAPITargetPath: cfg.TenancyServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_tenancy"},
-	}, partitionv1connect.NewPartitionServiceClient)
+	}, tenancyv1connect.NewTenancyServiceClient)
 }
 
 func setupConnectServer(

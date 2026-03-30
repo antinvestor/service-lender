@@ -17,12 +17,12 @@ require (
 	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260324161035-bd2eeca8a8ca.1
 	buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260320072853-f3a7fc59559b.2
 	buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260320072853-f3a7fc59559b.1
-	buf.build/gen/go/antinvestor/partition/connectrpc/go v1.19.1-20260324161119-1d8321d2c242.2
 	buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.1-20260324161144-47104ea3f3d7.2
 	buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260324161144-47104ea3f3d7.1
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260324161209-9468cfa0f32b.2
 	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260320040359-b2a0d7722dc4.2
 	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260320040359-b2a0d7722dc4.1
+	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260330064539-b81b51773e97.2
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.3.0
 	github.com/pitabwire/frame v1.91.0
@@ -36,8 +36,8 @@ require (
 
 require (
 	buf.build/gen/go/antinvestor/files/protocolbuffers/go v1.36.11-20260324160942-6ee4269665d4.1 // indirect
-	buf.build/gen/go/antinvestor/partition/protocolbuffers/go v1.36.11-20260324161119-1d8321d2c242.1 // indirect
 	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260324161209-9468cfa0f32b.1 // indirect
+	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260330064539-b81b51773e97.1 // indirect
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
 	buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1 // indirect
 	buf.build/go/protovalidate v1.1.3 // indirect

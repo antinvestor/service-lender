@@ -10,10 +10,10 @@ import (
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
-	"buf.build/gen/go/antinvestor/partition/connectrpc/go/partition/v1/partitionv1connect"
 	"buf.build/gen/go/antinvestor/payment/connectrpc/go/payment/v1/paymentv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
+	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
 	"github.com/pitabwire/util"
@@ -46,7 +46,7 @@ type PlatformClients struct {
 	NotificationClient notificationv1connect.NotificationServiceClient
 	FilesClient        filesv1connect.FilesServiceClient
 	ProfileClient      profilev1connect.ProfileServiceClient
-	PartitionClient    partitionv1connect.PartitionServiceClient
+	TenancyClient      tenancyv1connect.TenancyServiceClient
 }
 
 // NewPlatformClients creates all platform service clients using the given
@@ -190,9 +190,9 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.PartitionURI,
 			Audiences: []string{"service_partition"},
-		}, partitionv1connect.NewPartitionServiceClient)
+		}, tenancyv1connect.NewTenancyServiceClient)
 		trackErr("partition", err)
-		pc.PartitionClient = cli
+		pc.TenancyClient = cli
 	} else {
 		warnSkip("partition")
 	}
