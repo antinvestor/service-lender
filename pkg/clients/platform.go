@@ -190,7 +190,7 @@ func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints
 	if endpoints.PartitionURI != "" {
 		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
 			Endpoint:  endpoints.PartitionURI,
-			Audiences: []string{"service_partition"},
+			Audiences: []string{"service_tenancy"},
 		}, tenancyv1connect.NewTenancyServiceClient)
 		trackErr("partition", err)
 		pc.TenancyClient = cli
