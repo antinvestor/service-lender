@@ -267,9 +267,8 @@ func (b *applicationBusiness) submitDirectBorrower(
 	logger *util.LogEntry,
 	app *models.Application,
 ) (*originationv1.ApplicationObject, error) {
-	logger.WithField("client_id", app.ClientID).
-		WithField("product_id", app.ProductID).
-		Info("direct borrower product — running automated risk checks before agent review")
+	logger.WithFields(map[string]any{"client_id": app.ClientID, "product_id": app.ProductID}).
+		Debug("direct borrower product — running automated risk checks before agent review")
 
 	// Run automated risk checks (name/ID consistency, fraud signals, etc.)
 	riskResult := b.riskAssessor.Assess(ctx, app)
@@ -477,8 +476,9 @@ func (b *applicationBusiness) CheckEligibility(
 	clientID, productID string,
 	requestedAmount int64,
 ) error {
-	logger := util.Log(ctx).WithField("method", "ApplicationBusiness.CheckEligibility").
-		WithField("client_id", clientID).WithField("product_id", productID)
+	logger := util.Log(ctx).WithFields(map[string]any{
+		"method": "ApplicationBusiness.CheckEligibility", "client_id": clientID, "product_id": productID,
+	})
 
 	// 1. Check product access
 	if b.cpaRepo != nil {
@@ -514,8 +514,7 @@ func (b *applicationBusiness) CheckEligibility(
 			}
 
 			if effectiveLimit > 0 && requestedAmount > effectiveLimit {
-				logger.WithField("requested", requestedAmount).
-					WithField("effective_limit", effectiveLimit).
+				logger.WithFields(map[string]any{"requested": requestedAmount, "effective_limit": effectiveLimit}).
 					Warn("requested amount exceeds credit limit")
 				return ErrAmountExceedsCreditLimit
 			}

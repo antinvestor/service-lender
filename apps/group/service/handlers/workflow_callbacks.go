@@ -93,7 +93,7 @@ func handleCheckFormation(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "check-formation").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "check-formation", "group_id": groupID})
 
 		result, err := grpBusiness.CheckFormation(ctx, groupID)
 		if err != nil {
@@ -116,7 +116,7 @@ func handleWelcomeGroup(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "welcome-group").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "welcome-group", "group_id": groupID})
 
 		err := grpBusiness.WelcomeGroup(ctx, groupID)
 		if err != nil {
@@ -137,7 +137,7 @@ func handleSetupLedger(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "setup-ledger").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "setup-ledger", "group_id": groupID})
 
 		err := grpBusiness.SetupLedgerAccounts(ctx, groupID)
 		if err != nil {
@@ -154,7 +154,7 @@ func handleCreateTenure(tenBusiness groupbusiness.TenureBusiness) http.HandlerFu
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "create-tenure").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "create-tenure", "group_id": groupID})
 
 		tenure, err := tenBusiness.Open(ctx, groupID)
 		if err != nil {
@@ -175,7 +175,7 @@ func handleRegisterLender(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "register-lender").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "register-lender", "group_id": groupID})
 
 		err := grpBusiness.RegisterWithLender(ctx, groupID)
 		if err != nil {
@@ -192,7 +192,7 @@ func handleOpenPeriod(perBusiness groupbusiness.PeriodBusiness) http.HandlerFunc
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "open-period").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "open-period", "group_id": groupID})
 
 		period, err := perBusiness.Open(ctx, groupID)
 		if err != nil {
@@ -212,7 +212,7 @@ func handleEvaluateLoanWindow(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "evaluate-loan-window").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "evaluate-loan-window", "group_id": groupID})
 
 		result, err := lwBusiness.Evaluate(ctx, groupID)
 		if err != nil {
@@ -232,7 +232,7 @@ func handleCalculateObligations(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "calculate-obligations").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "calculate-obligations", "group_id": groupID})
 
 		err := obBusiness.CalculateForGroup(ctx, groupID)
 		if err != nil {
@@ -253,7 +253,7 @@ func handleGroupTransition(grpBusiness groupbusiness.GroupBusiness) http.Handler
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		groupID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "group-transition").WithField("group_id", groupID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "group-transition", "group_id": groupID})
 
 		var req transitionReq
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -280,7 +280,7 @@ func handleClosePeriod(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		periodID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "close-period").WithField("period_id", periodID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "close-period", "period_id": periodID})
 
 		err := perBusiness.Close(ctx, periodID)
 		if err != nil {
@@ -300,7 +300,7 @@ func handleCheckPeriodicPayment(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		membershipID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "check-periodic-payment").WithField("membership_id", membershipID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "check-periodic-payment", "membership_id": membershipID})
 
 		result, err := memBusiness.CheckPeriodicPayment(ctx, membershipID)
 		if err != nil {
@@ -320,7 +320,7 @@ func handleGenerateOffers(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		windowID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "generate-offers").WithField("window_id", windowID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "generate-offers", "window_id": windowID})
 
 		offers, err := loBusiness.GenerateForWindow(ctx, windowID)
 		if err != nil {
@@ -340,7 +340,7 @@ func handleSourceFunding(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		offerID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "source-funding").WithField("offer_id", offerID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "source-funding", "offer_id": offerID})
 
 		result, err := lfBusiness.SourceForOffer(ctx, offerID)
 		if err != nil {
@@ -360,7 +360,7 @@ func handleCreateLoanAccount(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		offerID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "create-loan-account").WithField("offer_id", offerID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "create-loan-account", "offer_id": offerID})
 
 		result, err := loBusiness.CreateLoanAccount(ctx, offerID)
 		if err != nil {
@@ -419,7 +419,7 @@ func handleAllocatePayment(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		paymentID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "allocate-payment").WithField("payment_id", paymentID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "allocate-payment", "payment_id": paymentID})
 
 		result, err := prBusiness.AllocatePayment(ctx, paymentID)
 		if err != nil {
@@ -436,7 +436,7 @@ func handleExecuteTransferOrder(toBusiness opsbusiness.TransferOrderBusiness) ht
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		orderID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "execute-transfer-order").WithField("order_id", orderID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "execute-transfer-order", "order_id": orderID})
 
 		err := toBusiness.Execute(ctx, orderID)
 		if err != nil {
@@ -453,7 +453,7 @@ func handleObligationStatus(obBusiness opsbusiness.ObligationBusiness) http.Hand
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		obligationID := r.PathValue("id")
-		log := util.Log(ctx).WithField("handler", "obligation-status").WithField("obligation_id", obligationID)
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "obligation-status", "obligation_id": obligationID})
 
 		status, err := obBusiness.GetStatus(ctx, obligationID)
 		if err != nil {

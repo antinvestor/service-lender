@@ -44,9 +44,8 @@ func (e *ReconciliationSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Reconciliation")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("reconciliation_id", r.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "reconciliation_id": r.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.reconciliationRepo.GetByID(ctx, r.GetID())
 	if getErr == nil && existing != nil {
@@ -54,7 +53,6 @@ func (e *ReconciliationSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update reconciliation in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -63,6 +61,5 @@ func (e *ReconciliationSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

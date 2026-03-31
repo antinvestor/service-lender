@@ -537,8 +537,7 @@ func (b *transferOrderBusiness) redistributeRepayment(
 		distributed += share
 	}
 
-	logger.WithField("amount", amount).WithField("distributed", distributed).
-		WithField("funding_sources", len(fundings)).
+	logger.WithFields(map[string]any{"amount": amount, "distributed": distributed, "funding_sources": len(fundings)}).
 		Info("repayment redistribution completed")
 }
 

@@ -42,9 +42,8 @@ func (e *LoanBalanceSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.LoanBalance")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("loan_balance_id", lb.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "loan_balance_id": lb.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.loanBalanceRepo.GetByID(ctx, lb.GetID())
 	if getErr == nil && existing != nil {
@@ -60,7 +59,6 @@ func (e *LoanBalanceSave) Execute(ctx context.Context, payload any) error {
 				lb.GetVersion(),
 			)
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -69,6 +67,5 @@ func (e *LoanBalanceSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

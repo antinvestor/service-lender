@@ -45,18 +45,18 @@ func (e *creditLimitChangeRequestSave) Validate(_ context.Context, payload any) 
 
 func (e *creditLimitChangeRequestSave) Execute(ctx context.Context, payload any) error {
 	req := payload.(*models.CreditLimitChangeRequest)
-	log := util.Log(ctx)
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "client_id": req.ClientID})
 
 	existing, err := e.repo.GetByID(ctx, req.ID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.WithError(err).Error("credit_limit_change_request.save -- failed to check existing record")
+		logger.WithError(err).Error("failed to check existing record")
 		return err
 	}
 
 	if existing != nil && existing.GetID() != "" {
 		_, err = e.repo.Update(ctx, req)
 		if err != nil {
-			log.WithError(err).Error("credit_limit_change_request.save -- failed to update record")
+			logger.WithError(err).Error("failed to update record")
 			return err
 		}
 		return nil
@@ -64,7 +64,7 @@ func (e *creditLimitChangeRequestSave) Execute(ctx context.Context, payload any)
 
 	err = e.repo.Create(ctx, req)
 	if err != nil {
-		log.WithError(err).Error("credit_limit_change_request.save -- failed to create record")
+		logger.WithError(err).Error("failed to create record")
 		return err
 	}
 	return nil

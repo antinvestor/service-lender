@@ -64,7 +64,7 @@ func (n *LoanNotifier) send(
 	data map[string]string,
 	priority notificationv1.PRIORITY,
 ) {
-	logger := util.Log(ctx).WithField("component", "LoanNotifier").WithField("template", template)
+	logger := util.Log(ctx).WithFields(map[string]any{"component": "LoanNotifier", "template": template})
 
 	if n == nil || n.client == nil {
 		logger.Warn("notification client is nil, skipping notification")

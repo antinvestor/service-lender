@@ -41,9 +41,8 @@ func (e *LoanAccountSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.LoanAccount")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("loan_account_id", la.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "loan_account_id": la.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.loanAccountRepo.GetByID(ctx, la.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *LoanAccountSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update loan account in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *LoanAccountSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

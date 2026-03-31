@@ -41,9 +41,8 @@ func (e *RepaymentSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Repayment")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("repayment_id", r.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "repayment_id": r.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.repaymentRepo.GetByID(ctx, r.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *RepaymentSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update repayment in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *RepaymentSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

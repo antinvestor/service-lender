@@ -82,7 +82,7 @@ func (b *investorAccountBusiness) Deposit(
 		return fmt.Errorf("deposit: %w", err)
 	}
 
-	logger.WithField("account_id", accountID).WithField("amount", amount).Info("deposit processed")
+	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).Info("deposit processed")
 	return nil
 }
 
@@ -114,7 +114,7 @@ func (b *investorAccountBusiness) Withdraw(
 		return fmt.Errorf("withdraw: %w", err)
 	}
 
-	logger.WithField("account_id", accountID).WithField("amount", amount).Info("withdrawal processed")
+	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).Info("withdrawal processed")
 	return nil
 }
 

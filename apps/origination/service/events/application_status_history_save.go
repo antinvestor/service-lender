@@ -44,15 +44,13 @@ func (e *ApplicationStatusHistorySave) Execute(ctx context.Context, payload any)
 		return errors.New("payload is not of type models.ApplicationStatusHistory")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("application_status_history_id", ash.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "application_status_history_id": ash.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	if err := e.repo.Create(ctx, ash); err != nil && !data.ErrorIsDuplicateKey(err) {
 		logger.WithError(err).Error("could not create application status history in db")
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

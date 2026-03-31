@@ -41,9 +41,8 @@ func (e *GroupSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Group")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("group_id", group.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "group_id": group.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.groupRepo.GetByID(ctx, group.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *GroupSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update group in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *GroupSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

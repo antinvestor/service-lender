@@ -41,9 +41,8 @@ func (e *DepositSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Deposit")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("deposit_id", d.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "deposit_id": d.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.repo.GetByID(ctx, d.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *DepositSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update deposit in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *DepositSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

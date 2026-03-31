@@ -158,7 +158,7 @@ func (b *savingsAccountBusiness) Freeze(
 		return nil, err
 	}
 
-	logger.WithField("savings_account_id", id).WithField("reason", reason).
+	logger.WithFields(map[string]any{"savings_account_id": id, "reason": reason}).
 		Info("savings account frozen")
 
 	return sa.ToAPI(), nil
@@ -189,7 +189,7 @@ func (b *savingsAccountBusiness) Close(
 		return nil, err
 	}
 
-	logger.WithField("savings_account_id", id).WithField("reason", reason).
+	logger.WithFields(map[string]any{"savings_account_id": id, "reason": reason}).
 		Info("savings account closed")
 
 	return sa.ToAPI(), nil

@@ -40,9 +40,8 @@ func (e *BranchSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Branch")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("branch_id", branch.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "branch_id": branch.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	_, getErr := e.branchRepo.GetByID(ctx, branch.GetID())
 	if getErr != nil {
@@ -59,6 +58,5 @@ func (e *BranchSave) Execute(ctx context.Context, payload any) error {
 		}
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

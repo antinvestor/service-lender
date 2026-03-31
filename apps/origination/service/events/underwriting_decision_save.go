@@ -44,9 +44,8 @@ func (e *UnderwritingDecisionSave) Execute(ctx context.Context, payload any) err
 		return errors.New("payload is not of type models.UnderwritingDecision")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("underwriting_decision_id", ud.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "underwriting_decision_id": ud.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.repo.GetByID(ctx, ud.GetID())
 	if getErr == nil && existing != nil {
@@ -54,7 +53,6 @@ func (e *UnderwritingDecisionSave) Execute(ctx context.Context, payload any) err
 			logger.WithError(err).Error("could not update underwriting decision in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -63,6 +61,5 @@ func (e *UnderwritingDecisionSave) Execute(ctx context.Context, payload any) err
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

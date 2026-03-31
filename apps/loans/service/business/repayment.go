@@ -153,8 +153,8 @@ func (b *repaymentBusiness) Record(
 
 				// Emit entry update
 				if emitErr := b.eventsMan.Emit(ctx, events.ScheduleEntrySaveEvent, entry); emitErr != nil {
-					logger.WithError(emitErr).
-						WithField("entry_id", entry.GetID()).
+					logger.WithField("entry_id", entry.GetID()).
+						WithError(emitErr).
 						Warn("could not emit schedule entry update")
 				}
 			}

@@ -52,8 +52,8 @@ func ExpireOffersJob(
 					"offer expired",
 				)
 				if transErr != nil {
-					logger.WithError(transErr).
-						WithField("application_id", app.GetID()).
+					logger.WithField("application_id", app.GetID()).
+						WithError(transErr).
 						Warn("could not expire offer")
 					continue
 				}
@@ -119,8 +119,8 @@ func CleanDraftApplicationsJob(
 					"draft expired after inactivity",
 				)
 				if transErr != nil {
-					logger.WithError(transErr).
-						WithField("application_id", app.GetID()).
+					logger.WithField("application_id", app.GetID()).
+						WithError(transErr).
 						Warn("could not cancel stale draft")
 					continue
 				}

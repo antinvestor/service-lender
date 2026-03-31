@@ -55,8 +55,9 @@ func (b *groupBusiness) Get(ctx context.Context, id string) (*models.CustomerGro
 }
 
 func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState int32, reason string) error {
-	logger := util.Log(ctx).WithField("method", "GroupBusiness.Transition").
-		WithField("group_id", groupID).WithField("new_state", newState)
+	logger := util.Log(ctx).WithFields(map[string]any{
+		"method": "GroupBusiness.Transition", "group_id": groupID, "new_state": newState,
+	})
 
 	group, err := b.grpRepo.GetByID(ctx, groupID)
 	if err != nil {

@@ -44,9 +44,8 @@ func (e *ApplicationDocumentSave) Execute(ctx context.Context, payload any) erro
 		return errors.New("payload is not of type models.ApplicationDocument")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("application_document_id", doc.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "application_document_id": doc.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.repo.GetByID(ctx, doc.GetID())
 	if getErr == nil && existing != nil {
@@ -54,7 +53,6 @@ func (e *ApplicationDocumentSave) Execute(ctx context.Context, payload any) erro
 			logger.WithError(err).Error("could not update application document in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -63,6 +61,5 @@ func (e *ApplicationDocumentSave) Execute(ctx context.Context, payload any) erro
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

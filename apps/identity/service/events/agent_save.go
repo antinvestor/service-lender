@@ -41,9 +41,8 @@ func (e *AgentSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Agent")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("agent_id", agent.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "agent_id": agent.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.agentRepo.GetByID(ctx, agent.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *AgentSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update agent in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *AgentSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

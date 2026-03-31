@@ -41,9 +41,8 @@ func (e *ScheduleEntrySave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.ScheduleEntry")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("schedule_entry_id", se.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "schedule_entry_id": se.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.scheduleEntryRepo.GetByID(ctx, se.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *ScheduleEntrySave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update schedule entry in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *ScheduleEntrySave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }

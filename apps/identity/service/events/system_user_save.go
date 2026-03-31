@@ -41,9 +41,8 @@ func (e *SystemUserSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.SystemUser")
 	}
 
-	logger := util.Log(ctx).WithField("type", e.Name()).WithField("system_user_id", su.GetID())
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "system_user_id": su.GetID()})
 	defer logger.Release()
-	logger.Debug("event handler started")
 
 	existing, getErr := e.systemUserRepo.GetByID(ctx, su.GetID())
 	if getErr == nil && existing != nil {
@@ -51,7 +50,6 @@ func (e *SystemUserSave) Execute(ctx context.Context, payload any) error {
 			logger.WithError(err).Error("could not update system user in db")
 			return err
 		}
-		logger.Debug("event handler completed successfully")
 		return nil
 	}
 
@@ -60,6 +58,5 @@ func (e *SystemUserSave) Execute(ctx context.Context, payload any) error {
 		return err
 	}
 
-	logger.Debug("event handler completed successfully")
 	return nil
 }
