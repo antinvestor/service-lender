@@ -11,6 +11,7 @@ require (
 	buf.build/gen/go/antinvestor/files/connectrpc/go v1.19.1-20260402081919-eb61e2edf446.2
 	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260330080453-2ea80d0b1c8d.2
 	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260330080453-2ea80d0b1c8d.1
+	buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260324161003-ddbe06cec7a0.2
 	buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260324161003-ddbe06cec7a0.1
 	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260330080453-21c546fb13cf.2
 	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260330080453-21c546fb13cf.1
@@ -26,7 +27,7 @@ require (
 	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260330064539-b81b51773e97.2
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.2
-	github.com/pitabwire/frame v1.93.3
+	github.com/pitabwire/frame v1.93.4
 	github.com/pitabwire/util v0.8.0
 	github.com/pitabwire/util/decimalx v0.7.1
 	github.com/pitabwire/util/money v0.7.1
@@ -77,7 +78,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
 	github.com/ory/keto/proto v0.13.0-alpha.0.0.20260327085200-c0e5fcbbbce1 // indirect
 	github.com/panjf2000/ants/v2 v2.12.0 // indirect
-	github.com/pitabwire/natspubsub v0.8.0 // indirect
+	github.com/pitabwire/natspubsub v0.8.1 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.67.5 // indirect
