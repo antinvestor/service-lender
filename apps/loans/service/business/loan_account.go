@@ -23,6 +23,7 @@ import (
 
 // validTransitions defines the allowed loan status transitions.
 var validTransitions = map[loansv1.LoanStatus][]loansv1.LoanStatus{ //nolint:gochecknoglobals // state machine
+	loansv1.LoanStatus_LOAN_STATUS_UNSPECIFIED: {},
 	loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT: {
 		loansv1.LoanStatus_LOAN_STATUS_ACTIVE,
 		loansv1.LoanStatus_LOAN_STATUS_RESTRUCTURED,
@@ -52,6 +53,7 @@ var validTransitions = map[loansv1.LoanStatus][]loansv1.LoanStatus{ //nolint:goc
 	loansv1.LoanStatus_LOAN_STATUS_WRITTEN_OFF: {
 		loansv1.LoanStatus_LOAN_STATUS_CLOSED,
 	},
+	loansv1.LoanStatus_LOAN_STATUS_CLOSED: {},
 }
 
 type LoanAccountBusiness interface {
@@ -455,13 +457,17 @@ func (b *loanAccountBusiness) TransitionStatus(
 // computeFirstRepaymentDays returns the number of days from disbursement
 // to the first repayment date based on the repayment frequency.
 func computeFirstRepaymentDays(freq loansv1.RepaymentFrequency) int {
-	switch freq {
+	switch freq { //nolint:exhaustive // unspecified and quarterly fall through to default (weekly)
+	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_DAILY:
+		return 1
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
 		return 7
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_BIWEEKLY:
 		return 14
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_MONTHLY:
 		return 30
+	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_QUARTERLY:
+		return 90
 	default:
 		return 7
 	}

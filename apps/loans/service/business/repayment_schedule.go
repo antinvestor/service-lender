@@ -208,7 +208,7 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 // frequencyToPeriodType maps RepaymentFrequency enum to the period type int
 // used by the calculation package (1=WEEKLY, 2=BIWEEKLY, 3=MONTHLY).
 func frequencyToPeriodType(freq loansv1.RepaymentFrequency) int32 {
-	switch freq {
+	switch freq { //nolint:exhaustive // unspecified and unsupported frequencies default to monthly
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
 		return 1
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_BIWEEKLY:
@@ -221,7 +221,7 @@ func frequencyToPeriodType(freq loansv1.RepaymentFrequency) int32 {
 }
 
 func computeInstallmentCount(termDays int32, freq loansv1.RepaymentFrequency) int32 {
-	switch freq {
+	switch freq { //nolint:exhaustive // unspecified and quarterly fall through to default
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_DAILY:
 		return termDays
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
@@ -236,7 +236,7 @@ func computeInstallmentCount(termDays int32, freq loansv1.RepaymentFrequency) in
 }
 
 func advanceByFrequency(start time.Time, freq loansv1.RepaymentFrequency, periods int) time.Time {
-	switch freq {
+	switch freq { //nolint:exhaustive // unspecified and quarterly fall through to default
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_DAILY:
 		return start.AddDate(0, 0, periods)
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:

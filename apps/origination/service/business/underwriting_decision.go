@@ -146,7 +146,7 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 
 	outcome := originationv1.UnderwritingOutcome(ud.Outcome)
 
-	switch outcome {
+	switch outcome { //nolint:exhaustive // unspecified outcome is a no-op
 	case originationv1.UnderwritingOutcome_UNDERWRITING_OUTCOME_APPROVE,
 		originationv1.UnderwritingOutcome_UNDERWRITING_OUTCOME_COUNTER_OFFER:
 

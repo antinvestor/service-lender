@@ -162,7 +162,9 @@ func calculateTenureEndDate(start time.Time, periodType models.PeriodType, durat
 		return start.AddDate(0, 0, int(duration)*14)
 	case models.PeriodTypeMonthly:
 		return start.AddDate(0, int(duration), 0)
-	default: // WEEKLY
+	case models.PeriodTypeUnspecified, models.PeriodTypeWeekly:
+		return start.AddDate(0, 0, int(duration)*7)
+	default:
 		return start.AddDate(0, 0, int(duration)*7)
 	}
 }

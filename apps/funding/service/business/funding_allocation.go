@@ -417,6 +417,8 @@ func fundingSourceOwnerType(sourceType int32) string {
 		return "investor"
 	case models.FundingSourcePlatformReserve:
 		return "platform"
+	case models.FundingSourceUnspecified:
+		return "unknown"
 	default:
 		return "unknown"
 	}

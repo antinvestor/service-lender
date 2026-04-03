@@ -168,7 +168,9 @@ func calculatePeriodEndDate(start time.Time, periodType models.PeriodType) time.
 		return start.AddDate(0, 0, 14)
 	case models.PeriodTypeMonthly:
 		return start.AddDate(0, 1, 0)
-	default: // WEEKLY
+	case models.PeriodTypeUnspecified, models.PeriodTypeWeekly:
+		return start.AddDate(0, 0, 7)
+	default:
 		return start.AddDate(0, 0, 7)
 	}
 }
