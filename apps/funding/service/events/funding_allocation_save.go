@@ -42,7 +42,10 @@ func (e *fundingAllocationSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *fundingAllocationSave) Execute(ctx context.Context, payload any) error {
-	fa := payload.(*models.FundingAllocation)
+	fa, ok := payload.(*models.FundingAllocation)
+	if !ok {
+		return errors.New("invalid payload type for funding_allocation.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, fa.ID)

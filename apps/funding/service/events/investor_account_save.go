@@ -45,7 +45,10 @@ func (e *investorAccountSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *investorAccountSave) Execute(ctx context.Context, payload any) error {
-	ia := payload.(*models.InvestorAccount)
+	ia, ok := payload.(*models.InvestorAccount)
+	if !ok {
+		return errors.New("invalid payload type for investor_account.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, ia.ID)

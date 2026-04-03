@@ -42,7 +42,10 @@ func (e *accountRefSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *accountRefSave) Execute(ctx context.Context, payload any) error {
-	ar := payload.(*models.AccountRef)
+	ar, ok := payload.(*models.AccountRef)
+	if !ok {
+		return errors.New("invalid payload type for account_ref.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, ar.ID)

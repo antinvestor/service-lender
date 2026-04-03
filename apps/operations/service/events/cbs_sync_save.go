@@ -42,7 +42,10 @@ func (e *cbsSyncRecordSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *cbsSyncRecordSave) Execute(ctx context.Context, payload any) error {
-	cs := payload.(*models.CBSSyncRecord)
+	cs, ok := payload.(*models.CBSSyncRecord)
+	if !ok {
+		return errors.New("invalid payload type for cbs_sync_record.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, cs.ID)

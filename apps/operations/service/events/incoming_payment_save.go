@@ -42,7 +42,10 @@ func (e *incomingPaymentSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *incomingPaymentSave) Execute(ctx context.Context, payload any) error {
-	ip := payload.(*models.IncomingPayment)
+	ip, ok := payload.(*models.IncomingPayment)
+	if !ok {
+		return errors.New("invalid payload type for incoming_payment.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, ip.ID)

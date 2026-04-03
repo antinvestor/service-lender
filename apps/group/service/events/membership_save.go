@@ -43,7 +43,10 @@ func (e *membershipSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *membershipSave) Execute(ctx context.Context, payload any) error {
-	membership := payload.(*models.Membership)
+	membership, ok := payload.(*models.Membership)
+	if !ok {
+		return errors.New("invalid payload type for membership.save")
+	}
 	log := util.Log(ctx)
 
 	if membership.GetVersion() > 0 {

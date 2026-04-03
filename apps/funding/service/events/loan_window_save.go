@@ -42,7 +42,10 @@ func (e *loanWindowSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *loanWindowSave) Execute(ctx context.Context, payload any) error {
-	lw := payload.(*models.LoanWindow)
+	lw, ok := payload.(*models.LoanWindow)
+	if !ok {
+		return errors.New("invalid payload type for loan_window.save")
+	}
 	log := util.Log(ctx)
 
 	// Upsert: try to find existing, then create or update

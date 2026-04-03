@@ -337,7 +337,7 @@ class _ApplicationDetailContentState
             const SizedBox(width: 16),
           ],
           if (hasFlags)
-            ...riskFlagsValue!.listValue.values.map((flagVal) {
+            ...riskFlagsValue.listValue.values.map((flagVal) {
               final flagStruct = flagVal.structValue;
               final label = flagStruct.fields.containsKey('label')
                   ? flagStruct.fields['label']!.stringValue

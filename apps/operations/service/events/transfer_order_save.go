@@ -45,7 +45,10 @@ func (e *transferOrderSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *transferOrderSave) Execute(ctx context.Context, payload any) error {
-	to := payload.(*models.TransferOrder)
+	to, ok := payload.(*models.TransferOrder)
+	if !ok {
+		return errors.New("invalid payload type for transfer_order.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, to.ID)

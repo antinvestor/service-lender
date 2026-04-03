@@ -43,7 +43,10 @@ func (e *customerGroupSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *customerGroupSave) Execute(ctx context.Context, payload any) error {
-	group := payload.(*models.CustomerGroup)
+	group, ok := payload.(*models.CustomerGroup)
+	if !ok {
+		return errors.New("invalid payload type for customer_group.save")
+	}
 	log := util.Log(ctx)
 
 	if group.GetVersion() > 0 {

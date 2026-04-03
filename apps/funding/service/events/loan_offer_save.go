@@ -42,7 +42,10 @@ func (e *loanOfferSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *loanOfferSave) Execute(ctx context.Context, payload any) error {
-	lo := payload.(*models.LoanOffer)
+	lo, ok := payload.(*models.LoanOffer)
+	if !ok {
+		return errors.New("invalid payload type for loan_offer.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, lo.ID)

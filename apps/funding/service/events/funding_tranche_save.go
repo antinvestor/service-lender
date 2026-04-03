@@ -42,7 +42,10 @@ func (e *fundingTrancheSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *fundingTrancheSave) Execute(ctx context.Context, payload any) error {
-	ft := payload.(*models.FundingTranche)
+	ft, ok := payload.(*models.FundingTranche)
+	if !ok {
+		return errors.New("invalid payload type for funding_tranche.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, ft.ID)

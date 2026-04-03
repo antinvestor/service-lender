@@ -42,7 +42,10 @@ func (e *obligationSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *obligationSave) Execute(ctx context.Context, payload any) error {
-	ob := payload.(*models.Obligation)
+	ob, ok := payload.(*models.Obligation)
+	if !ok {
+		return errors.New("invalid payload type for obligation.save")
+	}
 	log := util.Log(ctx)
 
 	existing, err := e.repo.GetByID(ctx, ob.ID)

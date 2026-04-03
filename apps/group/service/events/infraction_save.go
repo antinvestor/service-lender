@@ -40,7 +40,10 @@ func (e *infractionSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *infractionSave) Execute(ctx context.Context, payload any) error {
-	infraction := payload.(*models.Infraction)
+	infraction, ok := payload.(*models.Infraction)
+	if !ok {
+		return errors.New("invalid payload type for infraction.save")
+	}
 	log := util.Log(ctx)
 
 	if infraction.GetVersion() > 0 {

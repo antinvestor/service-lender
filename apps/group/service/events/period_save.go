@@ -43,7 +43,10 @@ func (e *periodSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *periodSave) Execute(ctx context.Context, payload any) error {
-	period := payload.(*models.Period)
+	period, ok := payload.(*models.Period)
+	if !ok {
+		return errors.New("invalid payload type for period.save")
+	}
 	log := util.Log(ctx)
 
 	if period.GetVersion() > 0 {

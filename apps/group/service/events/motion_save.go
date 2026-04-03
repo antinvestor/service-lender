@@ -43,7 +43,10 @@ func (e *motionSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *motionSave) Execute(ctx context.Context, payload any) error {
-	motion := payload.(*models.Motion)
+	motion, ok := payload.(*models.Motion)
+	if !ok {
+		return errors.New("invalid payload type for motion.save")
+	}
 	log := util.Log(ctx)
 
 	if motion.GetVersion() > 0 {

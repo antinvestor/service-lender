@@ -43,7 +43,10 @@ func (e *tenureSave) Validate(_ context.Context, payload any) error {
 }
 
 func (e *tenureSave) Execute(ctx context.Context, payload any) error {
-	tenure := payload.(*models.Tenure)
+	tenure, ok := payload.(*models.Tenure)
+	if !ok {
+		return errors.New("invalid payload type for tenure.save")
+	}
 	log := util.Log(ctx)
 
 	if tenure.GetVersion() > 0 {

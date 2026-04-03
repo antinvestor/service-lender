@@ -44,7 +44,10 @@ func (e *creditLimitChangeRequestSave) Validate(_ context.Context, payload any) 
 }
 
 func (e *creditLimitChangeRequestSave) Execute(ctx context.Context, payload any) error {
-	req := payload.(*models.CreditLimitChangeRequest)
+	req, ok := payload.(*models.CreditLimitChangeRequest)
+	if !ok {
+		return errors.New("invalid payload type for credit_limit_change_request.save")
+	}
 	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "client_id": req.ClientID})
 
 	existing, err := e.repo.GetByID(ctx, req.ID)
