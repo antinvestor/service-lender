@@ -1,5 +1,16 @@
 /// Helpers for consuming paginated gRPC streams safely.
 
+/// Default max items returned by collectStream (pageSize 50 * maxPages 10).
+/// Used by UI screens to determine if "Load More" / "hasMore" should be shown.
+const kDefaultPagedResultLimit = 500;
+
+/// Result of a paginated stream collection.
+class PagedResult<T> {
+  const PagedResult({required this.items, required this.hasMore});
+  final List<T> items;
+  final bool hasMore;
+}
+
 /// Collects items from a paginated server stream with a maximum page cap
 /// to prevent unbounded memory growth.
 ///
@@ -11,14 +22,34 @@ Future<List<T>> collectStream<R, T>(
   required List<T> Function(R response) extract,
   int maxPages = 10,
 }) async {
+  final result = await collectStreamPaged(
+    stream,
+    extract: extract,
+    maxPages: maxPages,
+  );
+  return result.items;
+}
+
+/// Like [collectStream] but also returns whether more pages are available.
+Future<PagedResult<T>> collectStreamPaged<R, T>(
+  Stream<R> stream, {
+  required List<T> Function(R response) extract,
+  int maxPages = 10,
+}) async {
   final results = <T>[];
   var pages = 0;
+  var hitPageCap = false;
   await for (final response in stream) {
     final items = extract(response);
     results.addAll(items);
-    if (++pages >= maxPages || items.isEmpty) break;
+    pages++;
+    if (items.isEmpty) break;
+    if (pages >= maxPages) {
+      hitPageCap = true;
+      break;
+    }
   }
-  return results;
+  return PagedResult(items: results, hasMore: hitPageCap);
 }
 
 /// Counts items from a paginated server stream with a maximum page cap.

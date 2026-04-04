@@ -64,6 +64,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         title: 'Clients',
         icon: Icons.people_outline,
         items: clients,
+        hasMore: clients.length >= 500,
         itemBuilder: (context, client) => _buildClientCard(
           context,
           client,

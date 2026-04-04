@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
@@ -61,11 +62,13 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
     );
     final canManage = ref.watch(canManageLoansProvider).value ?? false;
 
+    final items = loansAsync.value ?? [];
     return EntityListPage<LoanAccountObject>(
       title: 'Loan Accounts',
       icon: Icons.account_balance_wallet_outlined,
-      items: loansAsync.value ?? [],
+      items: items,
       isLoading: loansAsync.isLoading,
+      hasMore: items.length >= kDefaultPagedResultLimit,
       error: loansAsync.hasError ? loansAsync.error.toString() : null,
       onRetry: () => ref.invalidate(
         loanAccountListProvider(query: _query, status: _statusFilter),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Reusable entity list page with search bar, action button, and item list.
+/// Reusable entity list page with search bar, action button, item count,
+/// and paginated item list with optional "Load More".
 class EntityListPage<T> extends StatelessWidget {
   const EntityListPage({
     super.key,
@@ -17,6 +18,10 @@ class EntityListPage<T> extends StatelessWidget {
     this.onAction,
     this.canAction = true,
     this.filterWidget,
+    this.hasMore = false,
+    this.isLoadingMore = false,
+    this.onLoadMore,
+    this.totalHint,
   });
 
   final String title;
@@ -33,6 +38,18 @@ class EntityListPage<T> extends StatelessWidget {
   final bool canAction;
   final Widget? filterWidget;
 
+  /// Whether more pages are available to load.
+  final bool hasMore;
+
+  /// Whether a "load more" request is in progress.
+  final bool isLoadingMore;
+
+  /// Called when the user scrolls near the bottom or taps "Load More".
+  final VoidCallback? onLoadMore;
+
+  /// Optional hint like "Showing 50 of 200+".
+  final String? totalHint;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -48,12 +65,24 @@ class EntityListPage<T> extends StatelessWidget {
               Icon(icon, size: 28, color: theme.colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.3,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    if (items.isNotEmpty)
+                      Text(
+                        totalHint ?? '${items.length} items${hasMore ? '+' : ''}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
                 ),
               ),
               if (actionLabel != null && canAction)
@@ -143,7 +172,7 @@ class EntityListPage<T> extends StatelessWidget {
             Text(
               'No $title found',
               style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withAlpha(140),
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             if (actionLabel != null && canAction) ...[
@@ -159,11 +188,49 @@ class EntityListPage<T> extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      itemCount: items.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, index) => itemBuilder(context, items[index]),
+    // Item count includes a "Load More" footer when hasMore is true
+    final itemCount = items.length + (hasMore ? 1 : 0);
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        // Auto-load more when user scrolls near the bottom
+        if (notification is ScrollEndNotification &&
+            hasMore &&
+            !isLoadingMore &&
+            onLoadMore != null) {
+          final metrics = notification.metrics;
+          if (metrics.pixels >= metrics.maxScrollExtent - 200) {
+            onLoadMore!();
+          }
+        }
+        return false;
+      },
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        itemCount: itemCount,
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          if (index < items.length) {
+            return itemBuilder(context, items[index]);
+          }
+          // Footer: "Load More" or loading indicator
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: isLoadingMore
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : TextButton(
+                      onPressed: onLoadMore,
+                      child: const Text('Load More'),
+                    ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -230,7 +230,7 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
                     horizontal: 24, vertical: 8),
                 itemCount: apps.length,
                 separatorBuilder: (_, _) =>
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final app = apps[index];
                   return _PendingCaseCard(

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/application_status_badge.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
@@ -76,11 +77,13 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
         applicationListProvider(_query, statusFilter: _statusFilter));
     final canCreate = ref.watch(canManageAgentsProvider).value ?? false;
 
+    final items = appsAsync.value ?? [];
     return EntityListPage<ApplicationObject>(
       title: 'Loan Applications',
       icon: Icons.description_outlined,
-      items: appsAsync.value ?? [],
+      items: items,
       isLoading: appsAsync.isLoading,
+      hasMore: items.length >= kDefaultPagedResultLimit,
       error: appsAsync.hasError ? appsAsync.error.toString() : null,
       onRetry: () => ref.invalidate(
           applicationListProvider(_query, statusFilter: _statusFilter)),
