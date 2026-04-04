@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/config/app_config.dart';
 import 'auth_service.dart';
 
 part 'auth_repository.g.dart';
@@ -58,9 +59,8 @@ class AuthRepository {
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  // TODO: Configure these for your environment
-  const issuerUrl = 'https://oauth2.stawi.org';
-  const clientId = 'd6qbqdkpf2t52mcunf60';
+  const issuerUrl = AppConfig.oauthIssuerUrl;
+  const clientId = AppConfig.oauthClientId;
 
   const storage = FlutterSecureStorage();
   final authService = AuthService(

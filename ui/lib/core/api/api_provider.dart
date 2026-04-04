@@ -14,11 +14,9 @@ import '../../sdk/src/funding/v1/funding.connect.client.dart';
 import '../../sdk/src/operations/v1/operations.connect.client.dart';
 import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
+import '../config/app_config.dart';
 
 part 'api_provider.g.dart';
-
-// TODO: Configure for your environment
-const _defaultBaseUrl = 'https://api.antinvestor.com/lender';
 
 /// Interceptor that injects the Bearer token into every request.
 ///
@@ -78,7 +76,7 @@ Transport apiTransport(Ref ref) {
   });
 
   return protocol.Transport(
-    baseUrl: _defaultBaseUrl,
+    baseUrl: AppConfig.apiBaseUrl,
     codec: const ProtoCodec(),
     httpClient: createPlatformHttpClient(),
     interceptors: [authInterceptor.call],
