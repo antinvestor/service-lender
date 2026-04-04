@@ -1339,8 +1339,7 @@ class _RecordPaymentFormDialogState
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: validateAmount,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -1349,7 +1348,7 @@ class _RecordPaymentFormDialogState
                     labelText: 'Payment Reference'),
                 textInputAction: TextInputAction.next,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    validateRequired(v, 'Payment reference'),
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -1358,7 +1357,7 @@ class _RecordPaymentFormDialogState
                     const InputDecoration(labelText: 'Channel'),
                 textInputAction: TextInputAction.next,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    validateRequired(v, 'Channel'),
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -1367,7 +1366,7 @@ class _RecordPaymentFormDialogState
                     labelText: 'Payer Reference'),
                 textInputAction: TextInputAction.done,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    validateRequired(v, 'Payer reference'),
               ),
             ],
           ),
@@ -1466,8 +1465,7 @@ class _CollectPaymentFormDialogState
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: validateAmount,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -1476,8 +1474,7 @@ class _CollectPaymentFormDialogState
                     labelText: 'Phone Number'),
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.done,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: validatePhone,
               ),
             ],
           ),

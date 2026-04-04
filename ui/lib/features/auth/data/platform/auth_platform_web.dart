@@ -40,6 +40,10 @@ class AuthPlatformWeb implements AuthPlatform {
     _cleanupStaleState();
 
     final currentUri = Uri.parse(web.window.location.href);
+    if (currentUri.scheme.isEmpty || currentUri.host.isEmpty) {
+      throw StateError(
+          'Cannot determine redirect URI: invalid page location');
+    }
     final redirectUri = Uri(
       scheme: currentUri.scheme,
       host: currentUri.host,
@@ -109,6 +113,10 @@ class AuthPlatformWeb implements AuthPlatform {
     }
 
     try {
+      if (uri.scheme.isEmpty || uri.host.isEmpty) {
+        _clearAuthState();
+        return null;
+      }
       final redirectUri = Uri(
         scheme: uri.scheme,
         host: uri.host,

@@ -330,10 +330,9 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                         decoration: const InputDecoration(
                             labelText: 'Requested Amount'),
                         textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Amount is required'
-                            : null,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        validator: validateAmount,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -343,9 +342,8 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                         decoration:
                             const InputDecoration(labelText: 'Currency Code'),
                         textInputAction: TextInputAction.next,
-                        validator: (v) => (v == null || v.trim().length != 3)
-                            ? '3-letter code'
-                            : null,
+                        textCapitalization: TextCapitalization.characters,
+                        validator: validateCurrency,
                       ),
                     ),
                   ],
@@ -357,6 +355,16 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                       labelText: 'Requested Term (days)'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
+                  validator: (v) {
+                    if (v != null && v.trim().isNotEmpty) {
+                      final days = int.tryParse(v.trim());
+                      if (days == null || days <= 0) {
+                        return 'Enter a positive number of days';
+                      }
+                      if (days > 36500) return 'Term exceeds 100 years';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(

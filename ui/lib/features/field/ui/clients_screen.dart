@@ -219,6 +219,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     ClientObject? existing,
   }) {
     final isEdit = existing != null;
+    final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: existing?.name ?? '');
     final profileIdController =
         TextEditingController(text: existing?.profileId ?? '');
@@ -234,62 +235,93 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               title: Text(isEdit ? 'Edit Client' : 'Onboard Client'),
               content: SizedBox(
                 width: 400,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Name is required';
+                          }
+                          if (v.trim().length < 2) {
+                            return 'Name must be at least 2 characters';
+                          }
+                          if (v.trim().length > 200) {
+                            return 'Name is too long';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: profileIdController,
-                      decoration: const InputDecoration(
-                        labelText: 'Profile ID',
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: profileIdController,
+                        decoration: const InputDecoration(
+                          labelText: 'Profile ID',
+                          hintText: 'Optional — links to a profile',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: (v) {
+                          if (v != null && v.trim().isNotEmpty) {
+                            if (v.trim().length > 100) {
+                              return 'Profile ID is too long';
+                            }
+                            if (v.trim().contains(' ')) {
+                              return 'Profile ID cannot contain spaces';
+                            }
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: selectedAgentId.isNotEmpty
-                          ? selectedAgentId
-                          : null,
-                      decoration: const InputDecoration(
-                        labelText: 'Agent',
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedAgentId.isNotEmpty
+                            ? selectedAgentId
+                            : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Agent',
+                        ),
+                        items: agents.map((a) {
+                          return DropdownMenuItem(
+                            value: a.id,
+                            child:
+                                Text(a.name.isNotEmpty ? a.name : a.id),
+                          );
+                        }).toList(),
+                        validator: (v) =>
+                            (v == null || v.isEmpty) ? 'Agent is required' : null,
+                        onChanged: (value) {
+                          setDialogState(
+                            () => selectedAgentId = value ?? '',
+                          );
+                        },
                       ),
-                      items: agents.map((a) {
-                        return DropdownMenuItem(
-                          value: a.id,
-                          child:
-                              Text(a.name.isNotEmpty ? a.name : a.id),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(
-                          () => selectedAgentId = value ?? '',
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<STATE>(
-                      initialValue: selectedState,
-                      decoration: const InputDecoration(
-                        labelText: 'State',
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<STATE>(
+                        initialValue: selectedState,
+                        decoration: const InputDecoration(
+                          labelText: 'State',
+                        ),
+                        items: STATE.values.map((s) {
+                          return DropdownMenuItem(
+                            value: s,
+                            child: Text(stateLabel(s)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setDialogState(
+                            () => selectedState = value ?? STATE.CREATED,
+                          );
+                        },
                       ),
-                      items: STATE.values.map((s) {
-                        return DropdownMenuItem(
-                          value: s,
-                          child: Text(stateLabel(s)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(
-                          () => selectedState = value ?? STATE.CREATED,
-                        );
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -298,14 +330,17 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () => _saveClient(
-                    dialogContext,
-                    existing: existing,
-                    name: nameController.text.trim(),
-                    profileId: profileIdController.text.trim(),
-                    agentId: selectedAgentId,
-                    state: selectedState,
-                  ),
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) return;
+                    _saveClient(
+                      dialogContext,
+                      existing: existing,
+                      name: nameController.text.trim(),
+                      profileId: profileIdController.text.trim(),
+                      agentId: selectedAgentId,
+                      state: selectedState,
+                    );
+                  },
                   child: Text(isEdit ? 'Save' : 'Onboard'),
                 ),
               ],
@@ -327,7 +362,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     required String agentId,
     required STATE state,
   }) async {
-    if (name.isEmpty || agentId.isEmpty) {
+    // Safety net — form validation should catch these before reaching here
+    if (name.isEmpty || name.length < 2 || agentId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Name and Agent are required')),
       );

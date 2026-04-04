@@ -26,11 +26,22 @@ class ClientSyncService {
 
   /// Push all pending local clients to the backend.
   /// Returns the number of successfully synced records.
+  ///
+  /// Validates each record before pushing — records with invalid data
+  /// are marked as failed immediately without hitting the server.
   Future<int> pushPendingClients() async {
     final pending = await db.getPendingSyncClients();
     var synced = 0;
 
     for (final local in pending) {
+      // Validate required fields before attempting API call
+      final validationError = _validateLocal(local);
+      if (validationError != null) {
+        await db.markClientSyncFailed(
+            local.rowId, 'Validation: $validationError');
+        continue;
+      }
+
       try {
         final clientObj = _localToClient(local);
         final response = await apiClient.clientSave(
@@ -46,6 +57,22 @@ class ClientSyncService {
     return synced;
   }
 
+  /// Validates a local client record has the minimum required data.
+  /// Returns an error string or null if valid.
+  static String? _validateLocal(LocalClient local) {
+    if (local.name.trim().isEmpty) return 'Name is empty';
+    if (local.name.trim().length < 2) return 'Name too short';
+    if (local.agentId.trim().isEmpty) return 'Agent ID is empty';
+    if (local.propertiesJson.isNotEmpty && local.propertiesJson != '{}') {
+      try {
+        jsonDecode(local.propertiesJson);
+      } catch (_) {
+        return 'Malformed properties JSON';
+      }
+    }
+    return null;
+  }
+
   /// Pull clients from the backend and store locally.
   /// Preserves any pending (unsynced) local records.
   Future<int> pullClients({String query = '', String agentId = ''}) async {
@@ -59,10 +86,12 @@ class ClientSyncService {
       ),
     );
 
+    var pages = 0;
     await for (final response in stream) {
       for (final item in response.data) {
         companions.add(_clientToCompanion(item));
       }
+      if (++pages >= 10 || response.data.isEmpty) break;
     }
 
     await db.replaceAllClientsFromBackend(companions);
