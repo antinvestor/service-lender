@@ -37,6 +37,8 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
     final expansionState = ref.watch(sidebarExpansionProvider);
     final theme = Theme.of(context);
     final userInfoAsync = ref.watch(currentProfileIdProvider);
+    final displayNameAsync = ref.watch(currentDisplayNameProvider);
+    final partitionIdAsync = ref.watch(currentPartitionIdProvider);
 
     return navItemsAsync.when(
       loading: () => const SizedBox(width: 260),
@@ -57,6 +59,20 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
             children: [
               // Brand header
               const _BrandHeader(),
+
+              // Active partition indicator
+              _PartitionIndicator(
+                partitionId: partitionIdAsync.when(
+                  data: (id) => id,
+                  loading: () => null,
+                  error: (_, _) => null,
+                ),
+                onTap: () {
+                  context.go('/organization/banks');
+                  widget.onNavigate?.call();
+                },
+              ),
+
               // Subtle separator
               Container(
                 height: 1,
@@ -89,6 +105,11 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
               ),
               // User section
               _UserFooter(
+                displayName: displayNameAsync.when(
+                  data: (name) => name,
+                  loading: () => null,
+                  error: (_, _) => null,
+                ),
                 profileId: userInfoAsync.when(
                   data: (id) => id,
                   loading: () => null,
@@ -206,6 +227,58 @@ class _BrandHeader extends StatelessWidget {
 // ────────────────────────────────��────────────────────────────────────────────
 // Section tile (expandable parent)
 // ───��──────────────────���────────────────────────────────���─────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Partition indicator — shows active partition, taps to Organization view
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PartitionIndicator extends StatelessWidget {
+  const _PartitionIndicator({this.partitionId, required this.onTap});
+  final String? partitionId;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        color: Colors.white.withAlpha(8),
+        child: Row(
+          children: [
+            Icon(
+              Icons.domain_outlined,
+              size: 16,
+              color: Colors.white.withAlpha(130),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                partitionId != null && partitionId!.isNotEmpty
+                    ? _shortId(partitionId!)
+                    : 'No partition',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withAlpha(130),
+                      fontSize: 11,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: 14,
+              color: Colors.white.withAlpha(80),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _shortId(String id) =>
+      id.length > 16 ? '${id.substring(0, 16)}...' : id;
+}
 
 class _SectionTile extends StatelessWidget {
   const _SectionTile({
@@ -416,12 +489,23 @@ class _LeafTile extends StatelessWidget {
 // ─────────��─────────────────────��─────────────────────────────────────────────
 
 class _UserFooter extends StatelessWidget {
-  const _UserFooter({this.profileId, required this.onLogout});
+  const _UserFooter({
+    this.displayName,
+    this.profileId,
+    required this.onLogout,
+  });
+  final String? displayName;
   final String? profileId;
   final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
+    final label = displayName != null && displayName!.isNotEmpty
+        ? displayName!
+        : profileId != null
+            ? '${profileId!.substring(0, profileId!.length.clamp(0, 8))}...'
+            : 'User';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
@@ -429,10 +513,13 @@ class _UserFooter extends StatelessWidget {
           CircleAvatar(
             radius: 16,
             backgroundColor: Colors.white.withAlpha(20),
-            child: const Icon(
-              Icons.person,
-              size: 18,
-              color: Colors.white,
+            child: Text(
+              label.isNotEmpty ? label[0].toUpperCase() : '?',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -441,9 +528,7 @@ class _UserFooter extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profileId != null
-                      ? '${profileId!.substring(0, profileId!.length.clamp(0, 8))}...'
-                      : 'User',
+                  label,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 12,

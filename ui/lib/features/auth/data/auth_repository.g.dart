@@ -48,7 +48,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'823604d8175cb01d350dcdd7a6492143a1d01aad';
+String _$authRepositoryHash() => r'd26038c840ed68416a6c6c1e180cb83944f94c33';
 
 @ProviderFor(currentProfileId)
 final currentProfileIdProvider = CurrentProfileIdProvider._();
@@ -121,3 +121,104 @@ final class UserRolesProvider
 }
 
 String _$userRolesHash() => r'ef6f26b437642590bed3086dc456579e2b0bb0bb';
+
+@ProviderFor(currentTenantId)
+final currentTenantIdProvider = CurrentTenantIdProvider._();
+
+final class CurrentTenantIdProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  CurrentTenantIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentTenantIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentTenantIdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return currentTenantId(ref);
+  }
+}
+
+String _$currentTenantIdHash() => r'81dce1e5c7ddafce8263aa46689bab80a1b949e5';
+
+@ProviderFor(currentPartitionId)
+final currentPartitionIdProvider = CurrentPartitionIdProvider._();
+
+final class CurrentPartitionIdProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  CurrentPartitionIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentPartitionIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentPartitionIdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return currentPartitionId(ref);
+  }
+}
+
+String _$currentPartitionIdHash() =>
+    r'6a0f0d1b2e465ce8684882f75e77716b390e30ec';
+
+@ProviderFor(currentDisplayName)
+final currentDisplayNameProvider = CurrentDisplayNameProvider._();
+
+final class CurrentDisplayNameProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  CurrentDisplayNameProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentDisplayNameProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentDisplayNameHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return currentDisplayName(ref);
+  }
+}
+
+String _$currentDisplayNameHash() =>
+    r'3212f34ee7e519e91e80cdbe966ecc830d9abb71';

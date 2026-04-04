@@ -55,6 +55,25 @@ class AuthRepository {
   }
 
   Future<List<String>> getUserRoles() async => _authService.getUserRoles();
+
+  /// Returns the current tenant ID from JWT claims.
+  Future<String?> getCurrentTenantId() async {
+    final claims = await getUserInfo();
+    return claims?['tenant_id'] as String?;
+  }
+
+  /// Returns the current partition ID from JWT claims.
+  Future<String?> getCurrentPartitionId() async {
+    final claims = await getUserInfo();
+    return claims?['partition_id'] as String?;
+  }
+
+  /// Returns the display name from JWT claims.
+  Future<String?> getDisplayName() async {
+    final claims = await getUserInfo();
+    return claims?['name'] as String? ??
+        claims?['preferred_username'] as String?;
+  }
 }
 
 @riverpod
@@ -82,4 +101,22 @@ Future<String?> currentProfileId(Ref ref) async {
 Future<List<String>> userRoles(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.getUserRoles();
+}
+
+@riverpod
+Future<String?> currentTenantId(Ref ref) async {
+  final authRepo = ref.watch(authRepositoryProvider);
+  return authRepo.getCurrentTenantId();
+}
+
+@riverpod
+Future<String?> currentPartitionId(Ref ref) async {
+  final authRepo = ref.watch(authRepositoryProvider);
+  return authRepo.getCurrentPartitionId();
+}
+
+@riverpod
+Future<String?> currentDisplayName(Ref ref) async {
+  final authRepo = ref.watch(authRepositoryProvider);
+  return authRepo.getDisplayName();
 }

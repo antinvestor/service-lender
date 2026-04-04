@@ -48,7 +48,7 @@ final class ApiTransportProvider
   }
 }
 
-String _$apiTransportHash() => r'171186a336d35563804ff5ef92adfb22fb1dfe22';
+String _$apiTransportHash() => r'ff291759dc6536e97cc7532005985b8c7436ba14';
 
 @ProviderFor(identityServiceClient)
 final identityServiceClientProvider = IdentityServiceClientProvider._();
