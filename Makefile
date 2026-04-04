@@ -2,7 +2,7 @@
 SERVICE_NAME := lender
 APP_DIRS     := apps/identity apps/origination apps/loans apps/savings
 
-# Disable common Makefile's Flutter targets — we override them all below
+# Disable common Makefile's Flutter targets — we override them below
 HAS_UI       := false
 UI_DIR       := ui
 
@@ -23,7 +23,7 @@ endif
 include .tmp/Makefile.common
 
 # ==============================================================================
-# Flutter UI targets — auto-install SDK, build, deploy
+# Flutter UI targets
 # ==============================================================================
 
 .PHONY: flutter-install
@@ -58,10 +58,6 @@ ui-analyze: ui-deps ## Analyze Flutter code
 ui-test: ui-generate ## Run Flutter tests
 	cd $(UI_DIR) && "$(FLUTTER)" test
 
-# ------------------------------------------------------------------------------
-# Web builds
-# ------------------------------------------------------------------------------
-
 .PHONY: ui-build-dev
 ui-build-dev: ui-generate ## Build Flutter web (development — dev client ID)
 	cd $(UI_DIR) && "$(FLUTTER)" build web \
@@ -82,39 +78,6 @@ ui-build-prod: ui-generate ## Build Flutter web (production — prod client ID)
 
 .PHONY: ui-build
 ui-build: ui-build-dev ## Default UI build (development)
-
-# ------------------------------------------------------------------------------
-# Cloudflare Pages deployment
-# ------------------------------------------------------------------------------
-
-.PHONY: ui-cf-prepare
-ui-cf-prepare: ## Generate Cloudflare Pages _headers and _redirects for SPA
-	@printf '%s\n' \
-		'/*' \
-		'  X-Frame-Options: DENY' \
-		'  X-Content-Type-Options: nosniff' \
-		'  Referrer-Policy: strict-origin-when-cross-origin' \
-		'  Permissions-Policy: camera=(), microphone=(), geolocation=(self)' \
-		"  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://oauth2.stawi.org https://api.antinvestor.com https://api-dev.antinvestor.com https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors 'none'" \
-		> $(UI_DIR)/build/web/_headers
-	@printf '%s\n' \
-		'# SPA fallback — all non-file routes serve index.html' \
-		'/*  /index.html  200' \
-		> $(UI_DIR)/build/web/_redirects
-
-.PHONY: ui-deploy-dev
-ui-deploy-dev: ui-build-dev ui-cf-prepare ## Build dev + deploy to Cloudflare Pages (preview)
-	@command -v wrangler >/dev/null 2>&1 || { echo "wrangler not found — install: npm i -g wrangler"; exit 1; }
-	wrangler pages deploy $(UI_DIR)/build/web \
-		--project-name=antinvestor-lender \
-		--branch=dev
-
-.PHONY: ui-deploy-prod
-ui-deploy-prod: ui-build-prod ui-cf-prepare ## Build prod + deploy to Cloudflare Pages (production)
-	@command -v wrangler >/dev/null 2>&1 || { echo "wrangler not found — install: npm i -g wrangler"; exit 1; }
-	wrangler pages deploy $(UI_DIR)/build/web \
-		--project-name=antinvestor-lender \
-		--branch=main
 
 .PHONY: ui-clean
 ui-clean: ## Clean Flutter build artifacts
