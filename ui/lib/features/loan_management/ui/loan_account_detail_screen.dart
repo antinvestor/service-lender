@@ -103,7 +103,7 @@ class _LoanAccountDetailScreenState
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Borrower: ${loan.borrowerId}  |  Agent: ${loan.agentId}',
+                        'Client: ${loan.clientId}  |  Agent: ${loan.agentId}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withAlpha(160),
                         ),

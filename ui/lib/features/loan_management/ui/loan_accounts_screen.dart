@@ -147,7 +147,7 @@ class _LoanAccountCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${formatMoney(loan.principalAmount)}  |  Borrower: ${_truncateId(loan.borrowerId)}',
+              '${formatMoney(loan.principalAmount)}  |  Client: ${_truncateId(loan.clientId)}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withAlpha(160),
               ),

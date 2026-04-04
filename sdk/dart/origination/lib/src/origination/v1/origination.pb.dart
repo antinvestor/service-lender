@@ -401,12 +401,12 @@ class LoanProductObject extends $pb.GeneratedMessage {
   $6.Struct ensureProperties() => $_ensure(23);
 }
 
-/// ApplicationObject represents a borrower's loan application.
+/// ApplicationObject represents a client's loan application.
 class ApplicationObject extends $pb.GeneratedMessage {
   factory ApplicationObject({
     $core.String? id,
     $core.String? productId,
-    $core.String? borrowerId,
+    $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
     $core.String? bankId,
@@ -433,8 +433,8 @@ class ApplicationObject extends $pb.GeneratedMessage {
     if (productId != null) {
       $result.productId = productId;
     }
-    if (borrowerId != null) {
-      $result.borrowerId = borrowerId;
+    if (clientId != null) {
+      $result.clientId = clientId;
     }
     if (agentId != null) {
       $result.agentId = agentId;
@@ -499,7 +499,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'productId')
-    ..aOS(3, _omitFieldNames ? '' : 'borrowerId')
+    ..aOS(3, _omitFieldNames ? '' : 'clientId')
     ..aOS(4, _omitFieldNames ? '' : 'agentId')
     ..aOS(5, _omitFieldNames ? '' : 'branchId')
     ..aOS(6, _omitFieldNames ? '' : 'bankId')
@@ -561,13 +561,13 @@ class ApplicationObject extends $pb.GeneratedMessage {
   void clearProductId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get borrowerId => $_getSZ(2);
+  $core.String get clientId => $_getSZ(2);
   @$pb.TagNumber(3)
-  set borrowerId($core.String v) { $_setString(2, v); }
+  set clientId($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasBorrowerId() => $_has(2);
+  $core.bool hasClientId() => $_has(2);
   @$pb.TagNumber(3)
-  void clearBorrowerId() => clearField(3);
+  void clearClientId() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.String get agentId => $_getSZ(3);
@@ -1896,7 +1896,7 @@ class ApplicationGetResponse extends $pb.GeneratedMessage {
 class ApplicationSearchRequest extends $pb.GeneratedMessage {
   factory ApplicationSearchRequest({
     $core.String? query,
-    $core.String? borrowerId,
+    $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
     $core.String? bankId,
@@ -1907,8 +1907,8 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
     if (query != null) {
       $result.query = query;
     }
-    if (borrowerId != null) {
-      $result.borrowerId = borrowerId;
+    if (clientId != null) {
+      $result.clientId = clientId;
     }
     if (agentId != null) {
       $result.agentId = agentId;
@@ -1933,7 +1933,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
-    ..aOS(2, _omitFieldNames ? '' : 'borrowerId')
+    ..aOS(2, _omitFieldNames ? '' : 'clientId')
     ..aOS(3, _omitFieldNames ? '' : 'agentId')
     ..aOS(4, _omitFieldNames ? '' : 'branchId')
     ..aOS(5, _omitFieldNames ? '' : 'bankId')
@@ -1973,13 +1973,13 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   void clearQuery() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get borrowerId => $_getSZ(1);
+  $core.String get clientId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set borrowerId($core.String v) { $_setString(1, v); }
+  set clientId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBorrowerId() => $_has(1);
+  $core.bool hasClientId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBorrowerId() => clearField(2);
+  void clearClientId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get agentId => $_getSZ(2);

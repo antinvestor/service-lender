@@ -7,75 +7,127 @@ import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../data/agent_providers.dart';
-import '../data/borrower_providers.dart';
+import '../data/client_providers.dart';
 
-class BorrowersScreen extends ConsumerStatefulWidget {
-  const BorrowersScreen({super.key});
+class ClientsScreen extends ConsumerStatefulWidget {
+  const ClientsScreen({super.key});
 
   @override
-  ConsumerState<BorrowersScreen> createState() => _BorrowersScreenState();
+  ConsumerState<ClientsScreen> createState() => _ClientsScreenState();
 }
 
-class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
+class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   String _searchQuery = '';
   String _selectedAgentId = '';
+  bool _isSyncing = false;
 
   @override
   Widget build(BuildContext context) {
-    final borrowersAsync = ref.watch(
-      borrowerListProvider(query: _searchQuery, agentId: _selectedAgentId),
+    final clientsAsync = ref.watch(
+      clientListProvider(query: _searchQuery, agentId: _selectedAgentId),
     );
-    final canManage = ref.watch(canManageBorrowersProvider);
+    final canManage = ref.watch(canManageClientsProvider);
     final agentsAsync = ref.watch(
       agentListProvider(query: '', branchId: ''),
     );
+    final pendingCount = ref.watch(pendingSyncCountProvider).value ?? 0;
 
-    return borrowersAsync.when(
-      loading: () => EntityListPage<BorrowerObject>(
-        title: 'Borrowers',
+    return clientsAsync.when(
+      loading: () => EntityListPage<ClientObject>(
+        title: 'Clients',
         icon: Icons.people_outline,
         items: const [],
         isLoading: true,
         itemBuilder: (_, _) => const SizedBox.shrink(),
-        searchHint: 'Search borrowers...',
+        searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
-        filterWidget: _buildAgentFilter(agentsAsync),
+        filterWidget: _buildFilters(agentsAsync, pendingCount),
       ),
-      error: (error, _) => EntityListPage<BorrowerObject>(
-        title: 'Borrowers',
+      error: (error, _) => EntityListPage<ClientObject>(
+        title: 'Clients',
         icon: Icons.people_outline,
         items: const [],
         error: error.toString(),
         onRetry: () => ref.invalidate(
-          borrowerListProvider(
+          clientListProvider(
             query: _searchQuery,
             agentId: _selectedAgentId,
           ),
         ),
         itemBuilder: (_, _) => const SizedBox.shrink(),
-        searchHint: 'Search borrowers...',
+        searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
-        filterWidget: _buildAgentFilter(agentsAsync),
+        filterWidget: _buildFilters(agentsAsync, pendingCount),
       ),
-      data: (borrowers) => EntityListPage<BorrowerObject>(
-        title: 'Borrowers',
+      data: (clients) => EntityListPage<ClientObject>(
+        title: 'Clients',
         icon: Icons.people_outline,
-        items: borrowers,
-        itemBuilder: (context, borrower) => _buildBorrowerCard(
+        items: clients,
+        itemBuilder: (context, client) => _buildClientCard(
           context,
-          borrower,
+          client,
           agentsAsync.value ?? [],
         ),
-        searchHint: 'Search borrowers...',
+        searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
-        actionLabel: 'Onboard Borrower',
+        actionLabel: 'Onboard Client',
         canAction: canManage.value ?? false,
-        onAction: () => _showBorrowerDialog(
+        onAction: () => _showClientDialog(
           context,
           agentsAsync.value ?? [],
         ),
-        filterWidget: _buildAgentFilter(agentsAsync),
+        filterWidget: _buildFilters(agentsAsync, pendingCount),
       ),
+    );
+  }
+
+  Future<void> _syncPending() async {
+    setState(() => _isSyncing = true);
+    try {
+      final count =
+          await ref.read(clientProvider.notifier).syncPending();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Synced $count client(s) to server')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sync failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSyncing = false);
+    }
+  }
+
+  Widget _buildFilters(
+    AsyncValue<List<AgentObject>> agentsAsync,
+    int pendingCount,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildAgentFilter(agentsAsync),
+        if (pendingCount > 0) ...[
+          const SizedBox(width: 8),
+          Badge(
+            label: Text('$pendingCount'),
+            child: IconButton(
+              icon: _isSyncing
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.cloud_upload_outlined),
+              tooltip: '$pendingCount pending sync',
+              onPressed: _isSyncing ? null : _syncPending,
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -102,16 +154,16 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
     );
   }
 
-  Widget _buildBorrowerCard(
+  Widget _buildClientCard(
     BuildContext context,
-    BorrowerObject borrower,
+    ClientObject client,
     List<AgentObject> agents,
   ) {
     final theme = Theme.of(context);
-    final agent = agents.where((a) => a.id == borrower.agentId).firstOrNull;
+    final agent = agents.where((a) => a.id == client.agentId).firstOrNull;
     final agentLabel = agent != null
         ? (agent.name.isNotEmpty ? agent.name : agent.id)
-        : borrower.agentId;
+        : client.agentId;
 
     return Card(
       elevation: 0,
@@ -123,7 +175,7 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Text(
-            borrower.name.isNotEmpty ? borrower.name[0].toUpperCase() : '?',
+            client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
             style: TextStyle(
               color: theme.colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w600,
@@ -131,7 +183,7 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
           ),
         ),
         title: Text(
-          borrower.name.isNotEmpty ? borrower.name : 'Unnamed Borrower',
+          client.name.isNotEmpty ? client.name : 'Unnamed Client',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Column(
@@ -139,7 +191,7 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
           children: [
             const SizedBox(height: 2),
             Text(
-              'Profile: ${borrower.profileId}',
+              'Profile: ${client.profileId}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withAlpha(160),
               ),
@@ -153,21 +205,21 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
               ),
           ],
         ),
-        trailing: StateBadge(state: borrower.state),
+        trailing: StateBadge(state: client.state),
         isThreeLine: true,
-        onTap: () => _showBorrowerDialog(
+        onTap: () => _showClientDialog(
           context,
           ref.read(agentListProvider(query: '', branchId: '')).value ?? [],
-          existing: borrower,
+          existing: client,
         ),
       ),
     );
   }
 
-  void _showBorrowerDialog(
+  void _showClientDialog(
     BuildContext context,
     List<AgentObject> agents, {
-    BorrowerObject? existing,
+    ClientObject? existing,
   }) {
     final isEdit = existing != null;
     final nameController = TextEditingController(text: existing?.name ?? '');
@@ -182,7 +234,7 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text(isEdit ? 'Edit Borrower' : 'Onboard Borrower'),
+              title: Text(isEdit ? 'Edit Client' : 'Onboard Client'),
               content: SizedBox(
                 width: 400,
                 child: Column(
@@ -253,7 +305,7 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () => _saveBorrower(
+                  onPressed: () => _saveClient(
                     dialogContext,
                     existing: existing,
                     name: nameController.text.trim(),
@@ -271,9 +323,9 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
     );
   }
 
-  Future<void> _saveBorrower(
+  Future<void> _saveClient(
     BuildContext dialogContext, {
-    BorrowerObject? existing,
+    ClientObject? existing,
     required String name,
     required String profileId,
     required String agentId,
@@ -286,7 +338,7 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
       return;
     }
 
-    final borrower = BorrowerObject(
+    final clientObj = ClientObject(
       id: existing?.id ?? '',
       name: name,
       profileId: profileId,
@@ -296,20 +348,20 @@ class _BorrowersScreenState extends ConsumerState<BorrowersScreen> {
 
     // Preserve properties when editing.
     if (existing != null && existing.hasProperties()) {
-      borrower.properties = existing.properties;
+      clientObj.properties = existing.properties;
     }
 
     Navigator.of(dialogContext).pop();
 
     try {
-      await ref.read(borrowerProvider.notifier).save(borrower);
+      await ref.read(clientProvider.notifier).save(clientObj);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               existing != null
-                  ? 'Borrower updated successfully'
-                  : 'Borrower onboarded successfully',
+                  ? 'Client updated successfully'
+                  : 'Client onboarded successfully',
             ),
           ),
         );

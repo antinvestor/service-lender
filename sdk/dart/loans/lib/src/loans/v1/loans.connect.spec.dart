@@ -193,7 +193,7 @@ abstract final class LoanManagementService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// InitiateCollection sends a payment collection prompt to the borrower.
+  /// InitiateCollection sends a payment collection prompt to the client.
   static const initiateCollection = connect.Spec(
     '/$name/InitiateCollection',
     connect.StreamType.unary,
@@ -210,7 +210,7 @@ abstract final class LoanManagementService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// LoanRequest is the client-facing API for direct borrower loan requests.
+  /// LoanRequest is the client-facing API for direct client loan requests.
   /// Clients call this from app/USSD. The system validates eligibility,
   /// runs automated risk checks, and routes to the responsible agent.
   static const loanRequest = connect.Spec(

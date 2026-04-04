@@ -9,25 +9,20 @@ import (
 	"connectrpc.com/connect"
 )
 
-// RegisterBorrower registers a borrower under an agent via the Field service.
-func (pc *PlatformClients) RegisterBorrower(ctx context.Context, agentID, profileID, name string) (string, error) {
+// RegisterClient registers a client under an agent via the Field service.
+func (pc *PlatformClients) RegisterClient(ctx context.Context, agentID, profileID, name string) (string, error) {
 	if pc.LenderIdentity == nil {
 		return "", errors.New("lender field client not available")
 	}
-	resp, err := pc.LenderIdentity.BorrowerSave(ctx, connect.NewRequest(&fieldv1.BorrowerSaveRequest{
-		Data: &fieldv1.BorrowerObject{
+	resp, err := pc.LenderIdentity.ClientSave(ctx, connect.NewRequest(&fieldv1.ClientSaveRequest{
+		Data: &fieldv1.ClientObject{
 			AgentId:   agentID,
 			ProfileId: profileID,
 			Name:      name,
 		},
 	}))
 	if err != nil {
-		return "", fmt.Errorf("could not register borrower: %w", err)
+		return "", fmt.Errorf("could not register client: %w", err)
 	}
 	return resp.Msg.GetData().GetId(), nil
-}
-
-// RegisterClient is an alias for RegisterBorrower to maintain backward compatibility.
-func (pc *PlatformClients) RegisterClient(ctx context.Context, agentID, profileID, name string) (string, error) {
-	return pc.RegisterBorrower(ctx, agentID, profileID, name)
 }

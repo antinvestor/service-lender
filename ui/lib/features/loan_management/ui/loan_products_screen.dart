@@ -46,7 +46,7 @@ class _LoanProductsScreenState extends ConsumerState<LoanProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(loanProductListProvider(_query));
-    final canManage = ref.watch(canManageBanksProvider).value ?? false;
+    final canManage = ref.watch(canManageLoanProductsProvider).value ?? false;
 
     return EntityListPage<LoanProductObject>(
       title: 'Loan Products',

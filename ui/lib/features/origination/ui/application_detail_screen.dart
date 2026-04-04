@@ -110,7 +110,7 @@ class _ApplicationDetailContentState
                       ),
                     ),
                     Text(
-                      'Borrower: ${_app.borrowerId} \u2022 Product: ${_app.productId}',
+                      'Client: ${_app.clientId} \u2022 Product: ${_app.productId}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withAlpha(140),
                       ),

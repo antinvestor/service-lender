@@ -49,7 +49,7 @@ func (m *LoanAccount) ToAPI() *loansv1.LoanAccountObject {
 		Id:                            m.GetID(),
 		ApplicationId:                 m.ApplicationID,
 		ProductId:                     m.ProductID,
-		BorrowerId:                    m.ClientID,
+		ClientId:                      m.ClientID,
 		AgentId:                       m.AgentID,
 		BranchId:                      m.BranchID,
 		BankId:                        m.BankID,
@@ -83,7 +83,7 @@ func LoanAccountFromAPI(ctx context.Context, obj *loansv1.LoanAccountObject) *Lo
 	model := &LoanAccount{
 		ApplicationID:                 obj.GetApplicationId(),
 		ProductID:                     obj.GetProductId(),
-		ClientID:                      obj.GetBorrowerId(),
+		ClientID:                      obj.GetClientId(),
 		AgentID:                       obj.GetAgentId(),
 		BranchID:                      obj.GetBranchId(),
 		BankID:                        obj.GetBankId(),

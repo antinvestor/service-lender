@@ -7,7 +7,7 @@ import "package:connectrpc/connect.dart" as connect;
 import "field.pb.dart" as fieldv1field;
 import "field.connect.spec.dart" as specs;
 
-/// FieldService manages agents and borrowers in the lending hierarchy.
+/// FieldService manages agents and clients in the lending hierarchy.
 /// All RPCs require authentication via Bearer token.
 extension type FieldServiceClient (connect.Transport _transport) {
   /// AgentSave creates or updates an agent record.
@@ -82,16 +82,16 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BorrowerSave onboards or updates a borrower record.
-  Future<fieldv1field.BorrowerSaveResponse> borrowerSave(
-    fieldv1field.BorrowerSaveRequest input, {
+  /// ClientSave onboards or updates a client record.
+  Future<fieldv1field.ClientSaveResponse> clientSave(
+    fieldv1field.ClientSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.borrowerSave,
+      specs.FieldService.clientSave,
       input,
       signal: signal,
       headers: headers,
@@ -100,16 +100,16 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BorrowerGet retrieves a borrower by their ID.
-  Future<fieldv1field.BorrowerGetResponse> borrowerGet(
-    fieldv1field.BorrowerGetRequest input, {
+  /// ClientGet retrieves a client by their ID.
+  Future<fieldv1field.ClientGetResponse> clientGet(
+    fieldv1field.ClientGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.borrowerGet,
+      specs.FieldService.clientGet,
       input,
       signal: signal,
       headers: headers,
@@ -118,16 +118,16 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BorrowerSearch finds borrowers matching search criteria.
-  Stream<fieldv1field.BorrowerSearchResponse> borrowerSearch(
-    fieldv1field.BorrowerSearchRequest input, {
+  /// ClientSearch finds clients matching search criteria.
+  Stream<fieldv1field.ClientSearchResponse> clientSearch(
+    fieldv1field.ClientSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).server(
-      specs.FieldService.borrowerSearch,
+      specs.FieldService.clientSearch,
       input,
       signal: signal,
       headers: headers,
@@ -136,16 +136,16 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BorrowerReassign moves a borrower from one agent to another.
-  Future<fieldv1field.BorrowerReassignResponse> borrowerReassign(
-    fieldv1field.BorrowerReassignRequest input, {
+  /// ClientReassign moves a client from one agent to another.
+  Future<fieldv1field.ClientReassignResponse> clientReassign(
+    fieldv1field.ClientReassignRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.borrowerReassign,
+      specs.FieldService.clientReassign,
       input,
       signal: signal,
       headers: headers,

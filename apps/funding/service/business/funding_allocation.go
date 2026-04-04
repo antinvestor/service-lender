@@ -315,7 +315,7 @@ func (b *fundingAllocationBusiness) gatherFundingSources(
 			sources = appendInvestorSources(sources, general, int32(models.FundingSourceInvestorGeneral), 3, excludeIDs)
 		}
 	} else {
-		// Direct-to-borrower loan
+		// Direct-to-client loan
 
 		// Tranche 1 (first-loss): platform reserve
 		// The platform reserve balance would come from configuration or a dedicated account.

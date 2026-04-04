@@ -68,9 +68,9 @@ Future<bool> canManageAgents(Ref ref) async {
   );
 }
 
-/// Whether the current user can manage borrowers
+/// Whether the current user can manage clients
 @riverpod
-Future<bool> canManageBorrowers(Ref ref) async {
+Future<bool> canManageClients(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
     (r) => [

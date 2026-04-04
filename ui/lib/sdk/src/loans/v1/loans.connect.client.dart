@@ -389,7 +389,7 @@ extension type LoanManagementServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// InitiateCollection sends a payment collection prompt to the borrower.
+  /// InitiateCollection sends a payment collection prompt to the client.
   Future<loansv1loans.InitiateCollectionResponse> initiateCollection(
     loansv1loans.InitiateCollectionRequest input, {
     connect.Headers? headers,
@@ -425,7 +425,7 @@ extension type LoanManagementServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// LoanRequest is the client-facing API for direct borrower loan requests.
+  /// LoanRequest is the client-facing API for direct client loan requests.
   /// Clients call this from app/USSD. The system validates eligibility,
   /// runs automated risk checks, and routes to the responsible agent.
   Future<loansv1loans.LoanRequestResponse> loanRequest(

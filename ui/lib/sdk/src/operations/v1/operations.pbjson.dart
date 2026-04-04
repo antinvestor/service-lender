@@ -103,9 +103,10 @@ final $typed_data.Uint8List transferOrderSearchResponseDescriptor = $convert.bas
 const $core.Map<$core.String, $core.dynamic> OperationsServiceBase$json = {
   '1': 'OperationsService',
   '2': [
-    {'1': 'TransferOrderExecute', '2': '.operations.v1.TransferOrderExecuteRequest', '3': '.operations.v1.TransferOrderExecuteResponse'},
-    {'1': 'TransferOrderSearch', '2': '.operations.v1.TransferOrderSearchRequest', '3': '.operations.v1.TransferOrderSearchResponse', '6': true},
+    {'1': 'TransferOrderExecute', '2': '.operations.v1.TransferOrderExecuteRequest', '3': '.operations.v1.TransferOrderExecuteResponse', '4': {}},
+    {'1': 'TransferOrderSearch', '2': '.operations.v1.TransferOrderSearchRequest', '3': '.operations.v1.TransferOrderSearchResponse', '4': {}, '6': true},
   ],
+  '3': {},
 };
 
 @$core.Deprecated('Use operationsServiceDescriptor instead')
@@ -125,9 +126,14 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> Operations
 
 /// Descriptor for `OperationsService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
 final $typed_data.Uint8List operationsServiceDescriptor = $convert.base64Decode(
-    'ChFPcGVyYXRpb25zU2VydmljZRJvChRUcmFuc2Zlck9yZGVyRXhlY3V0ZRIqLm9wZXJhdGlvbn'
-    'MudjEuVHJhbnNmZXJPcmRlckV4ZWN1dGVSZXF1ZXN0Gisub3BlcmF0aW9ucy52MS5UcmFuc2Zl'
-    'ck9yZGVyRXhlY3V0ZVJlc3BvbnNlEm4KE1RyYW5zZmVyT3JkZXJTZWFyY2gSKS5vcGVyYXRpb2'
-    '5zLnYxLlRyYW5zZmVyT3JkZXJTZWFyY2hSZXF1ZXN0Gioub3BlcmF0aW9ucy52MS5UcmFuc2Zl'
-    'ck9yZGVyU2VhcmNoUmVzcG9uc2UwAQ==');
+    'ChFPcGVyYXRpb25zU2VydmljZRKHAQoUVHJhbnNmZXJPcmRlckV4ZWN1dGUSKi5vcGVyYXRpb2'
+    '5zLnYxLlRyYW5zZmVyT3JkZXJFeGVjdXRlUmVxdWVzdBorLm9wZXJhdGlvbnMudjEuVHJhbnNm'
+    'ZXJPcmRlckV4ZWN1dGVSZXNwb25zZSIWgrUYEgoQdHJhbnNmZXJfZXhlY3V0ZRKDAQoTVHJhbn'
+    'NmZXJPcmRlclNlYXJjaBIpLm9wZXJhdGlvbnMudjEuVHJhbnNmZXJPcmRlclNlYXJjaFJlcXVl'
+    'c3QaKi5vcGVyYXRpb25zLnYxLlRyYW5zZmVyT3JkZXJTZWFyY2hSZXNwb25zZSITgrUYDwoNdH'
+    'JhbnNmZXJfdmlldzABGvQBgrUY7wEKEnNlcnZpY2Vfb3BlcmF0aW9ucxIQdHJhbnNmZXJfZXhl'
+    'Y3V0ZRINdHJhbnNmZXJfdmlldxojCAESEHRyYW5zZmVyX2V4ZWN1dGUSDXRyYW5zZmVyX3ZpZX'
+    'caIwgCEhB0cmFuc2Zlcl9leGVjdXRlEg10cmFuc2Zlcl92aWV3GiMIAxIQdHJhbnNmZXJfZXhl'
+    'Y3V0ZRINdHJhbnNmZXJfdmlldxoRCAQSDXRyYW5zZmVyX3ZpZXcaEQgFEg10cmFuc2Zlcl92aW'
+    'V3GiMIBhIQdHJhbnNmZXJfZXhlY3V0ZRINdHJhbnNmZXJfdmlldw==');
 

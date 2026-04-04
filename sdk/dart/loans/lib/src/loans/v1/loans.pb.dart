@@ -22,13 +22,13 @@ import 'loans.pbenum.dart';
 
 export 'loans.pbenum.dart';
 
-/// LoanAccountObject represents an active loan linked to a borrower and origination application.
+/// LoanAccountObject represents an active loan linked to a client and origination application.
 class LoanAccountObject extends $pb.GeneratedMessage {
   factory LoanAccountObject({
     $core.String? id,
     $core.String? applicationId,
     $core.String? productId,
-    $core.String? borrowerId,
+    $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
     $core.String? bankId,
@@ -60,8 +60,8 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     if (productId != null) {
       $result.productId = productId;
     }
-    if (borrowerId != null) {
-      $result.borrowerId = borrowerId;
+    if (clientId != null) {
+      $result.clientId = clientId;
     }
     if (agentId != null) {
       $result.agentId = agentId;
@@ -133,7 +133,7 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'applicationId')
     ..aOS(3, _omitFieldNames ? '' : 'productId')
-    ..aOS(4, _omitFieldNames ? '' : 'borrowerId')
+    ..aOS(4, _omitFieldNames ? '' : 'clientId')
     ..aOS(5, _omitFieldNames ? '' : 'agentId')
     ..aOS(6, _omitFieldNames ? '' : 'branchId')
     ..aOS(7, _omitFieldNames ? '' : 'bankId')
@@ -206,13 +206,13 @@ class LoanAccountObject extends $pb.GeneratedMessage {
   void clearProductId() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get borrowerId => $_getSZ(3);
+  $core.String get clientId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set borrowerId($core.String v) { $_setString(3, v); }
+  set clientId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasBorrowerId() => $_has(3);
+  $core.bool hasClientId() => $_has(3);
   @$pb.TagNumber(4)
-  void clearBorrowerId() => clearField(4);
+  void clearClientId() => clearField(4);
 
   @$pb.TagNumber(5)
   $core.String get agentId => $_getSZ(4);
@@ -989,7 +989,7 @@ class LoanBalanceObject extends $pb.GeneratedMessage {
   void clearLastCalculatedAt() => clearField(9);
 }
 
-/// DisbursementObject represents a loan amount paid out to the borrower.
+/// DisbursementObject represents a loan amount paid out to the client.
 class DisbursementObject extends $pb.GeneratedMessage {
   factory DisbursementObject({
     $core.String? id,
@@ -2600,7 +2600,7 @@ class LoanAccountGetResponse extends $pb.GeneratedMessage {
 class LoanAccountSearchRequest extends $pb.GeneratedMessage {
   factory LoanAccountSearchRequest({
     $core.String? query,
-    $core.String? borrowerId,
+    $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
     $core.String? bankId,
@@ -2611,8 +2611,8 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
     if (query != null) {
       $result.query = query;
     }
-    if (borrowerId != null) {
-      $result.borrowerId = borrowerId;
+    if (clientId != null) {
+      $result.clientId = clientId;
     }
     if (agentId != null) {
       $result.agentId = agentId;
@@ -2637,7 +2637,7 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanAccountSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
-    ..aOS(2, _omitFieldNames ? '' : 'borrowerId')
+    ..aOS(2, _omitFieldNames ? '' : 'clientId')
     ..aOS(3, _omitFieldNames ? '' : 'agentId')
     ..aOS(4, _omitFieldNames ? '' : 'branchId')
     ..aOS(5, _omitFieldNames ? '' : 'bankId')
@@ -2677,13 +2677,13 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
   void clearQuery() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get borrowerId => $_getSZ(1);
+  $core.String get clientId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set borrowerId($core.String v) { $_setString(1, v); }
+  set clientId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBorrowerId() => $_has(1);
+  $core.bool hasClientId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBorrowerId() => clearField(2);
+  void clearClientId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get agentId => $_getSZ(2);
@@ -5189,7 +5189,7 @@ class LoanStatusChangeSearchResponse extends $pb.GeneratedMessage {
   $core.List<LoanStatusChangeObject> get data => $_getList(0);
 }
 
-/// LoanRequestRequest is the client-facing API for direct borrower loan requests.
+/// LoanRequestRequest is the client-facing API for direct client loan requests.
 /// Clients call this from app/USSD. The system validates eligibility, runs
 /// automated risk checks, and routes to the responsible agent for approval.
 class LoanRequestRequest extends $pb.GeneratedMessage {

@@ -8,7 +8,7 @@ import (
 )
 
 // DefaultFirstLossPercent is the default platform first-loss reserve as basis points
-// of loan amount for direct-to-borrower loans (e.g. 1000 = 10%).
+// of loan amount for direct-to-client loans (e.g. 1000 = 10%).
 const DefaultFirstLossPercent int64 = 1000
 
 // DefaultPlatformFeePercent is the platform fee on investor interest income in basis points (e.g. 500 = 5%).
@@ -24,7 +24,7 @@ type FundingRequest struct {
 	InterestRate     int64 // basis points
 	ProductType      string
 	Region           string
-	GroupID          string // empty for direct-to-borrower
+	GroupID          string // empty for direct-to-client
 	IsGroupLoan      bool
 	FirstLossPercent int64 // basis points for platform first-loss (0 = use default)
 }
@@ -178,7 +178,7 @@ func allocateGroupLoan(
 	return remaining
 }
 
-// allocateDirectLoan fills tranches for a direct-to-borrower loan.
+// allocateDirectLoan fills tranches for a direct-to-client loan.
 func allocateDirectLoan(
 	sources []FundingSource,
 	remaining decimalx.Decimal,

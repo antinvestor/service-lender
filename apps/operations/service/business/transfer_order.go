@@ -467,7 +467,9 @@ func (b *transferOrderBusiness) redistributeRepayment(
 		actualTransferType := transferType
 		actualAmount := share
 
-		switch fundingmodels.FundingSource(funding.FundingType) { //nolint:exhaustive // unspecified falls through to default
+		switch fundingmodels.FundingSource(
+			funding.FundingType,
+		) {
 		case fundingmodels.FundingSourceGroupSavings:
 			creditAccount = constants.MemberPeriodicSavingsAccount(funding.OwnerID)
 		case fundingmodels.FundingSourceGroupIncome:
@@ -504,7 +506,7 @@ func (b *transferOrderBusiness) redistributeRepayment(
 			}
 		case fundingmodels.FundingSourcePlatformReserve:
 			creditAccount = constants.PlatformFirstLossAccount("default")
-		default:
+		case fundingmodels.FundingSourceUnspecified:
 			creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
 		}
 

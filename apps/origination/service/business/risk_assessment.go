@@ -30,7 +30,7 @@ type RiskAssessmentResult struct {
 }
 
 // RiskAssessor runs automated fraud and data-quality checks on direct
-// borrower loan applications. These checks replace the manual KYC and
+// client loan applications. These checks replace the manual KYC and
 // verification workflow — the client was onboarded by an agent, but the
 // system still validates factual consistency and fraud signals.
 type RiskAssessor struct {
@@ -94,7 +94,7 @@ func (r *RiskAssessor) checkClientDataConsistency(ctx context.Context, app *mode
 		return nil
 	}
 
-	resp, err := r.identityCli.BorrowerGet(ctx, connect.NewRequest(&fieldv1.BorrowerGetRequest{
+	resp, err := r.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
 		Id: app.ClientID,
 	}))
 	if err != nil {
@@ -164,8 +164,8 @@ func (r *RiskAssessor) checkAgentOnboardingVelocity(ctx context.Context, app *mo
 	}
 
 	// Search for clients onboarded by this agent
-	stream, err := r.identityCli.BorrowerSearch(ctx, connect.NewRequest(
-		(&fieldv1.BorrowerSearchRequest_builder{
+	stream, err := r.identityCli.ClientSearch(ctx, connect.NewRequest(
+		(&fieldv1.ClientSearchRequest_builder{
 			AgentId: app.AgentID,
 		}).Build(),
 	))

@@ -325,7 +325,7 @@ class _PendingCaseCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Borrower: ${app.borrowerId}',
+                      'Client: ${app.clientId}',
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

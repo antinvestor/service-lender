@@ -221,30 +221,30 @@ final class CanManageAgentsProvider
 
 String _$canManageAgentsHash() => r'7d3d2dd5009d632ee4f89e3a2ed98ad23ed86743';
 
-/// Whether the current user can manage borrowers
+/// Whether the current user can manage clients
 
-@ProviderFor(canManageBorrowers)
-final canManageBorrowersProvider = CanManageBorrowersProvider._();
+@ProviderFor(canManageClients)
+final canManageClientsProvider = CanManageClientsProvider._();
 
-/// Whether the current user can manage borrowers
+/// Whether the current user can manage clients
 
-final class CanManageBorrowersProvider
+final class CanManageClientsProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether the current user can manage borrowers
-  CanManageBorrowersProvider._()
+  /// Whether the current user can manage clients
+  CanManageClientsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'canManageBorrowersProvider',
+        name: r'canManageClientsProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$canManageBorrowersHash();
+  String debugGetCreateSourceHash() => _$canManageClientsHash();
 
   @$internal
   @override
@@ -253,12 +253,11 @@ final class CanManageBorrowersProvider
 
   @override
   FutureOr<bool> create(Ref ref) {
-    return canManageBorrowers(ref);
+    return canManageClients(ref);
   }
 }
 
-String _$canManageBorrowersHash() =>
-    r'e3cf372def30f52baa46aa18fd1970b466c1b241';
+String _$canManageClientsHash() => r'44c453612d67b85a141349ccfab29235d6d770ae';
 
 /// Whether the current user can manage investors
 

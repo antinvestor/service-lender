@@ -11,7 +11,7 @@ import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
 import '../features/field/ui/agents_screen.dart';
-import '../features/field/ui/borrowers_screen.dart';
+import '../features/field/ui/clients_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
 import '../features/organization/ui/bank_detail_screen.dart';
@@ -21,7 +21,7 @@ import '../features/loan_management/ui/loan_account_detail_screen.dart';
 import '../features/loan_management/ui/loan_accounts_screen.dart';
 import '../features/origination/ui/application_detail_screen.dart';
 import '../features/origination/ui/applications_screen.dart';
-import '../features/origination/ui/loan_products_screen.dart';
+import '../features/loan_management/ui/loan_products_screen.dart';
 import '../features/origination/ui/pending_cases_screen.dart';
 import '../features/operations/ui/transfer_orders_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
@@ -138,8 +138,8 @@ GoRouter router(Ref ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/field/borrowers',
-                builder: (context, state) => const BorrowersScreen(),
+                path: '/field/clients',
+                builder: (context, state) => const ClientsScreen(),
               ),
             ],
           ),
@@ -152,15 +152,6 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Origination — Loan Products
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/origination/products',
-                builder: (context, state) => const LoanProductsScreen(),
-              ),
-            ],
-          ),
           // Origination — Pending Cases
           StatefulShellBranch(
             routes: [
@@ -188,6 +179,15 @@ GoRouter router(Ref ref) {
             ],
           ),
 
+          // Loan Management — Loan Products
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/loans/products',
+                builder: (context, state) => const LoanProductsScreen(),
+              ),
+            ],
+          ),
           // Loan Management — Loan Accounts (list + detail)
           StatefulShellBranch(
             routes: [

@@ -285,14 +285,15 @@ final $typed_data.Uint8List absorbLossResponseDescriptor = $convert.base64Decode
 const $core.Map<$core.String, $core.dynamic> FundingServiceBase$json = {
   '1': 'FundingService',
   '2': [
-    {'1': 'InvestorAccountSave', '2': '.funding.v1.InvestorAccountSaveRequest', '3': '.funding.v1.InvestorAccountSaveResponse'},
-    {'1': 'InvestorAccountGet', '2': '.funding.v1.InvestorAccountGetRequest', '3': '.funding.v1.InvestorAccountGetResponse'},
-    {'1': 'InvestorAccountSearch', '2': '.funding.v1.InvestorAccountSearchRequest', '3': '.funding.v1.InvestorAccountSearchResponse', '6': true},
-    {'1': 'InvestorDeposit', '2': '.funding.v1.InvestorDepositRequest', '3': '.funding.v1.InvestorDepositResponse'},
-    {'1': 'InvestorWithdraw', '2': '.funding.v1.InvestorWithdrawRequest', '3': '.funding.v1.InvestorWithdrawResponse'},
-    {'1': 'FundLoan', '2': '.funding.v1.FundLoanRequest', '3': '.funding.v1.FundLoanResponse'},
-    {'1': 'AbsorbLoss', '2': '.funding.v1.AbsorbLossRequest', '3': '.funding.v1.AbsorbLossResponse'},
+    {'1': 'InvestorAccountSave', '2': '.funding.v1.InvestorAccountSaveRequest', '3': '.funding.v1.InvestorAccountSaveResponse', '4': {}},
+    {'1': 'InvestorAccountGet', '2': '.funding.v1.InvestorAccountGetRequest', '3': '.funding.v1.InvestorAccountGetResponse', '4': {}},
+    {'1': 'InvestorAccountSearch', '2': '.funding.v1.InvestorAccountSearchRequest', '3': '.funding.v1.InvestorAccountSearchResponse', '4': {}, '6': true},
+    {'1': 'InvestorDeposit', '2': '.funding.v1.InvestorDepositRequest', '3': '.funding.v1.InvestorDepositResponse', '4': {}},
+    {'1': 'InvestorWithdraw', '2': '.funding.v1.InvestorWithdrawRequest', '3': '.funding.v1.InvestorWithdrawResponse', '4': {}},
+    {'1': 'FundLoan', '2': '.funding.v1.FundLoanRequest', '3': '.funding.v1.FundLoanResponse', '4': {}},
+    {'1': 'AbsorbLoss', '2': '.funding.v1.AbsorbLossRequest', '3': '.funding.v1.AbsorbLossResponse', '4': {}},
   ],
+  '3': {},
 };
 
 @$core.Deprecated('Use fundingServiceDescriptor instead')
@@ -323,17 +324,27 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FundingSer
 
 /// Descriptor for `FundingService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
 final $typed_data.Uint8List fundingServiceDescriptor = $convert.base64Decode(
-    'Cg5GdW5kaW5nU2VydmljZRJmChNJbnZlc3RvckFjY291bnRTYXZlEiYuZnVuZGluZy52MS5Jbn'
-    'Zlc3RvckFjY291bnRTYXZlUmVxdWVzdBonLmZ1bmRpbmcudjEuSW52ZXN0b3JBY2NvdW50U2F2'
-    'ZVJlc3BvbnNlEmMKEkludmVzdG9yQWNjb3VudEdldBIlLmZ1bmRpbmcudjEuSW52ZXN0b3JBY2'
-    'NvdW50R2V0UmVxdWVzdBomLmZ1bmRpbmcudjEuSW52ZXN0b3JBY2NvdW50R2V0UmVzcG9uc2US'
-    'bgoVSW52ZXN0b3JBY2NvdW50U2VhcmNoEiguZnVuZGluZy52MS5JbnZlc3RvckFjY291bnRTZW'
-    'FyY2hSZXF1ZXN0GikuZnVuZGluZy52MS5JbnZlc3RvckFjY291bnRTZWFyY2hSZXNwb25zZTAB'
-    'EloKD0ludmVzdG9yRGVwb3NpdBIiLmZ1bmRpbmcudjEuSW52ZXN0b3JEZXBvc2l0UmVxdWVzdB'
-    'ojLmZ1bmRpbmcudjEuSW52ZXN0b3JEZXBvc2l0UmVzcG9uc2USXQoQSW52ZXN0b3JXaXRoZHJh'
-    'dxIjLmZ1bmRpbmcudjEuSW52ZXN0b3JXaXRoZHJhd1JlcXVlc3QaJC5mdW5kaW5nLnYxLkludm'
-    'VzdG9yV2l0aGRyYXdSZXNwb25zZRJFCghGdW5kTG9hbhIbLmZ1bmRpbmcudjEuRnVuZExvYW5S'
-    'ZXF1ZXN0GhwuZnVuZGluZy52MS5GdW5kTG9hblJlc3BvbnNlEksKCkFic29yYkxvc3MSHS5mdW'
-    '5kaW5nLnYxLkFic29yYkxvc3NSZXF1ZXN0Gh4uZnVuZGluZy52MS5BYnNvcmJMb3NzUmVzcG9u'
-    'c2U=');
+    'Cg5GdW5kaW5nU2VydmljZRKFAQoTSW52ZXN0b3JBY2NvdW50U2F2ZRImLmZ1bmRpbmcudjEuSW'
+    '52ZXN0b3JBY2NvdW50U2F2ZVJlcXVlc3QaJy5mdW5kaW5nLnYxLkludmVzdG9yQWNjb3VudFNh'
+    'dmVSZXNwb25zZSIdgrUYGQoXaW52ZXN0b3JfYWNjb3VudF9tYW5hZ2USgAEKEkludmVzdG9yQW'
+    'Njb3VudEdldBIlLmZ1bmRpbmcudjEuSW52ZXN0b3JBY2NvdW50R2V0UmVxdWVzdBomLmZ1bmRp'
+    'bmcudjEuSW52ZXN0b3JBY2NvdW50R2V0UmVzcG9uc2UiG4K1GBcKFWludmVzdG9yX2FjY291bn'
+    'RfdmlldxKLAQoVSW52ZXN0b3JBY2NvdW50U2VhcmNoEiguZnVuZGluZy52MS5JbnZlc3RvckFj'
+    'Y291bnRTZWFyY2hSZXF1ZXN0GikuZnVuZGluZy52MS5JbnZlc3RvckFjY291bnRTZWFyY2hSZX'
+    'Nwb25zZSIbgrUYFwoVaW52ZXN0b3JfYWNjb3VudF92aWV3MAESeQoPSW52ZXN0b3JEZXBvc2l0'
+    'EiIuZnVuZGluZy52MS5JbnZlc3RvckRlcG9zaXRSZXF1ZXN0GiMuZnVuZGluZy52MS5JbnZlc3'
+    'RvckRlcG9zaXRSZXNwb25zZSIdgrUYGQoXaW52ZXN0b3JfYWNjb3VudF9tYW5hZ2USfAoQSW52'
+    'ZXN0b3JXaXRoZHJhdxIjLmZ1bmRpbmcudjEuSW52ZXN0b3JXaXRoZHJhd1JlcXVlc3QaJC5mdW'
+    '5kaW5nLnYxLkludmVzdG9yV2l0aGRyYXdSZXNwb25zZSIdgrUYGQoXaW52ZXN0b3JfYWNjb3Vu'
+    'dF9tYW5hZ2USWAoIRnVuZExvYW4SGy5mdW5kaW5nLnYxLkZ1bmRMb2FuUmVxdWVzdBocLmZ1bm'
+    'RpbmcudjEuRnVuZExvYW5SZXNwb25zZSIRgrUYDQoLZnVuZF9tYW5hZ2USXgoKQWJzb3JiTG9z'
+    'cxIdLmZ1bmRpbmcudjEuQWJzb3JiTG9zc1JlcXVlc3QaHi5mdW5kaW5nLnYxLkFic29yYkxvc3'
+    'NSZXNwb25zZSIRgrUYDQoLZnVuZF9tYW5hZ2Ua9AKCtRjvAgoPc2VydmljZV9mdW5kaW5nEhVp'
+    'bnZlc3Rvcl9hY2NvdW50X3ZpZXcSF2ludmVzdG9yX2FjY291bnRfbWFuYWdlEgtmdW5kX21hbm'
+    'FnZRo/CAESFWludmVzdG9yX2FjY291bnRfdmlldxIXaW52ZXN0b3JfYWNjb3VudF9tYW5hZ2US'
+    'C2Z1bmRfbWFuYWdlGj8IAhIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhdpbnZlc3Rvcl9hY2NvdW'
+    '50X21hbmFnZRILZnVuZF9tYW5hZ2UaJggDEhVpbnZlc3Rvcl9hY2NvdW50X3ZpZXcSC2Z1bmRf'
+    'bWFuYWdlGhkIBBIVaW52ZXN0b3JfYWNjb3VudF92aWV3GhkIBRIVaW52ZXN0b3JfYWNjb3VudF'
+    '92aWV3Gj8IBhIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhdpbnZlc3Rvcl9hY2NvdW50X21hbmFn'
+    'ZRILZnVuZF9tYW5hZ2U=');
 

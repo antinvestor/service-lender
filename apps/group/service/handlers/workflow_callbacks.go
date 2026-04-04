@@ -300,7 +300,8 @@ func handleCheckPeriodicPayment(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		membershipID := r.PathValue("id")
-		log := util.Log(ctx).WithFields(map[string]any{"handler": "check-periodic-payment", "membership_id": membershipID})
+		log := util.Log(ctx).
+			WithFields(map[string]any{"handler": "check-periodic-payment", "membership_id": membershipID})
 
 		result, err := memBusiness.CheckPeriodicPayment(ctx, membershipID)
 		if err != nil {

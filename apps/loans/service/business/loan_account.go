@@ -133,7 +133,7 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 
 		app := appResp.Msg.GetData()
 		la.ProductID = app.GetProductId()
-		la.ClientID = app.GetBorrowerId()
+		la.ClientID = app.GetClientId()
 		la.AgentID = app.GetAgentId()
 		la.BranchID = app.GetBranchId()
 		la.BankID = app.GetBankId()
@@ -183,7 +183,7 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 	la.GenID(ctx)
 
 	// Set disbursement date and first repayment date so the schedule can be generated.
-	// For direct borrower products, disbursement happens immediately upon loan creation.
+	// For direct client products, disbursement happens immediately upon loan creation.
 	now := time.Now().UTC()
 	la.DisbursedAt = &now
 	firstRepayment := now.AddDate(0, 0, computeFirstRepaymentDays(loansv1.RepaymentFrequency(la.RepaymentFrequency)))
@@ -272,8 +272,8 @@ func (b *loanAccountBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
-	if req.GetBorrowerId() != "" {
-		andQueryVal["client_id = ?"] = req.GetBorrowerId()
+	if req.GetClientId() != "" {
+		andQueryVal["client_id = ?"] = req.GetClientId()
 	}
 	if req.GetAgentId() != "" {
 		andQueryVal["agent_id = ?"] = req.GetAgentId()

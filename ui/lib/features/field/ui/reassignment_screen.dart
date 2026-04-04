@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_provider.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../data/agent_providers.dart';
-import '../data/borrower_providers.dart';
+import '../data/client_providers.dart';
 
 class ReassignmentScreen extends ConsumerStatefulWidget {
   const ReassignmentScreen({super.key});
@@ -17,9 +17,9 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reasonController = TextEditingController();
 
-  BorrowerObject? _selectedBorrower;
+  ClientObject? _selectedClient;
   AgentObject? _selectedAgent;
-  String _borrowerSearchQuery = '';
+  String _clientSearchQuery = '';
   String _agentSearchQuery = '';
   bool _isSubmitting = false;
 
@@ -31,35 +31,35 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedBorrower == null || _selectedAgent == null) return;
+    if (_selectedClient == null || _selectedAgent == null) return;
 
     setState(() => _isSubmitting = true);
 
     try {
       final client = ref.read(fieldServiceClientProvider);
-      await client.borrowerReassign(
-        BorrowerReassignRequest(
-          borrowerId: _selectedBorrower!.id,
+      await client.clientReassign(
+        ClientReassignRequest(
+          clientId: _selectedClient!.id,
           newAgentId: _selectedAgent!.id,
           reason: _reasonController.text.trim(),
         ),
       );
 
-      // Invalidate borrower list providers so they refresh
-      ref.invalidate(borrowerListProvider);
+      // Invalidate client list providers so they refresh
+      ref.invalidate(clientListProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Borrower "${_selectedBorrower!.name}" reassigned to "${_selectedAgent!.name}" successfully.',
+              'Client "${_selectedClient!.name}" reassigned to "${_selectedAgent!.name}" successfully.',
             ),
             backgroundColor: Colors.green,
           ),
         );
         // Reset form
         setState(() {
-          _selectedBorrower = null;
+          _selectedClient = null;
           _selectedAgent = null;
           _reasonController.clear();
         });
@@ -83,8 +83,8 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borrowersAsync = ref.watch(
-      borrowerListProvider(query: _borrowerSearchQuery, agentId: ''),
+    final clientsAsync = ref.watch(
+      clientListProvider(query: _clientSearchQuery, agentId: ''),
     );
     final agentsAsync = ref.watch(
       agentListProvider(query: _agentSearchQuery, branchId: ''),
@@ -92,7 +92,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Borrower Reassignment'),
+        title: const Text('Client Reassignment'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -105,50 +105,50 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Transfer a Borrower',
+                    'Transfer a Client',
                     style: theme.textTheme.titleLarge,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Move a borrower from their current agent to a new agent.',
+                    'Move a client from their current agent to a new agent.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 24),
 
-                  // Borrower selector
+                  // Client selector
                   Text(
-                    'Borrower',
+                    'Client',
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
-                  Autocomplete<BorrowerObject>(
-                    displayStringForOption: (borrower) => borrower.name,
+                  Autocomplete<ClientObject>(
+                    displayStringForOption: (client) => client.name,
                     optionsBuilder: (textEditingValue) {
                       final query = textEditingValue.text.trim();
-                      if (query != _borrowerSearchQuery) {
+                      if (query != _clientSearchQuery) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (mounted) {
-                            setState(() => _borrowerSearchQuery = query);
+                            setState(() => _clientSearchQuery = query);
                           }
                         });
                       }
-                      return borrowersAsync.when(
-                        data: (borrowers) {
-                          if (query.isEmpty) return borrowers;
-                          return borrowers.where(
+                      return clientsAsync.when(
+                        data: (clients) {
+                          if (query.isEmpty) return clients;
+                          return clients.where(
                             (b) => b.name
                                 .toLowerCase()
                                 .contains(query.toLowerCase()),
                           );
                         },
-                        loading: () => <BorrowerObject>[],
-                        error: (_, _) => <BorrowerObject>[],
+                        loading: () => <ClientObject>[],
+                        error: (_, _) => <ClientObject>[],
                       );
                     },
-                    onSelected: (borrower) {
-                      setState(() => _selectedBorrower = borrower);
+                    onSelected: (client) {
+                      setState(() => _selectedClient = client);
                     },
                     fieldViewBuilder: (
                       context,
@@ -160,10 +160,10 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                         controller: controller,
                         focusNode: focusNode,
                         decoration: InputDecoration(
-                          hintText: 'Search borrowers...',
+                          hintText: 'Search clients...',
                           prefixIcon: const Icon(Icons.person_search),
                           border: const OutlineInputBorder(),
-                          suffixIcon: borrowersAsync.isLoading
+                          suffixIcon: clientsAsync.isLoading
                               ? const Padding(
                                   padding: EdgeInsets.all(12),
                                   child: SizedBox(
@@ -177,8 +177,8 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                               : null,
                         ),
                         validator: (_) {
-                          if (_selectedBorrower == null) {
-                            return 'Please select a borrower';
+                          if (_selectedClient == null) {
+                            return 'Please select a client';
                           }
                           return null;
                         },
@@ -200,12 +200,12 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                               shrinkWrap: true,
                               itemCount: options.length,
                               itemBuilder: (context, index) {
-                                final borrower = options.elementAt(index);
+                                final client = options.elementAt(index);
                                 return ListTile(
                                   leading: const Icon(Icons.person_outline),
-                                  title: Text(borrower.name),
-                                  subtitle: Text('Agent: ${borrower.agentId}'),
-                                  onTap: () => onSelected(borrower),
+                                  title: Text(client.name),
+                                  subtitle: Text('Agent: ${client.agentId}'),
+                                  onTap: () => onSelected(client),
                                 );
                               },
                             ),
@@ -214,13 +214,13 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                       );
                     },
                   ),
-                  if (_selectedBorrower != null) ...[
+                  if (_selectedClient != null) ...[
                     const SizedBox(height: 8),
                     _SelectionChip(
-                      label: _selectedBorrower!.name,
-                      detail: 'Current agent: ${_selectedBorrower!.agentId}',
+                      label: _selectedClient!.name,
+                      detail: 'Current agent: ${_selectedClient!.agentId}',
                       icon: Icons.person,
-                      onClear: () => setState(() => _selectedBorrower = null),
+                      onClear: () => setState(() => _selectedClient = null),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -370,7 +370,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                           )
                         : const Icon(Icons.swap_horiz),
                     label: Text(
-                      _isSubmitting ? 'Reassigning...' : 'Reassign Borrower',
+                      _isSubmitting ? 'Reassigning...' : 'Reassign Client',
                     ),
                   ),
                 ],

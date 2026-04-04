@@ -84,38 +84,38 @@ func (s *FieldServer) AgentHierarchy(
 	return nil
 }
 
-// --- Borrower RPCs ---
+// --- Client RPCs ---
 
-func (s *FieldServer) BorrowerSave(
+func (s *FieldServer) ClientSave(
 	ctx context.Context,
-	req *connect.Request[fieldv1.BorrowerSaveRequest],
-) (*connect.Response[fieldv1.BorrowerSaveResponse], error) {
+	req *connect.Request[fieldv1.ClientSaveRequest],
+) (*connect.Response[fieldv1.ClientSaveResponse], error) {
 	result, err := s.clientBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&fieldv1.BorrowerSaveResponse{Data: result}), nil
+	return connect.NewResponse(&fieldv1.ClientSaveResponse{Data: result}), nil
 }
 
-func (s *FieldServer) BorrowerGet(
+func (s *FieldServer) ClientGet(
 	ctx context.Context,
-	req *connect.Request[fieldv1.BorrowerGetRequest],
-) (*connect.Response[fieldv1.BorrowerGetResponse], error) {
+	req *connect.Request[fieldv1.ClientGetRequest],
+) (*connect.Response[fieldv1.ClientGetResponse], error) {
 	result, err := s.clientBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&fieldv1.BorrowerGetResponse{Data: result}), nil
+	return connect.NewResponse(&fieldv1.ClientGetResponse{Data: result}), nil
 }
 
-func (s *FieldServer) BorrowerSearch(
+func (s *FieldServer) ClientSearch(
 	ctx context.Context,
-	req *connect.Request[fieldv1.BorrowerSearchRequest],
-	stream *connect.ServerStream[fieldv1.BorrowerSearchResponse],
+	req *connect.Request[fieldv1.ClientSearchRequest],
+	stream *connect.ServerStream[fieldv1.ClientSearchResponse],
 ) error {
 	err := s.clientBusiness.Search(ctx, req.Msg,
-		func(_ context.Context, batch []*fieldv1.BorrowerObject) error {
-			return stream.Send(&fieldv1.BorrowerSearchResponse{Data: batch})
+		func(_ context.Context, batch []*fieldv1.ClientObject) error {
+			return stream.Send(&fieldv1.ClientSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)
@@ -123,13 +123,13 @@ func (s *FieldServer) BorrowerSearch(
 	return nil
 }
 
-func (s *FieldServer) BorrowerReassign(
+func (s *FieldServer) ClientReassign(
 	ctx context.Context,
-	req *connect.Request[fieldv1.BorrowerReassignRequest],
-) (*connect.Response[fieldv1.BorrowerReassignResponse], error) {
+	req *connect.Request[fieldv1.ClientReassignRequest],
+) (*connect.Response[fieldv1.ClientReassignResponse], error) {
 	result, err := s.clientBusiness.Reassign(ctx, req.Msg)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&fieldv1.BorrowerReassignResponse{Data: result}), nil
+	return connect.NewResponse(&fieldv1.ClientReassignResponse{Data: result}), nil
 }

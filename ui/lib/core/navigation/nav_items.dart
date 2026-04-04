@@ -166,15 +166,15 @@ List<NavItem> buildNavItems() => [
             requiredRoles: _allViewRoles,
           ),
           NavItem(
-            id: 'borrowers',
-            label: 'Borrowers',
+            id: 'clients',
+            label: 'Clients',
             icon: Icons.people_outline,
             activeIcon: Icons.people,
-            route: '/field/borrowers',
+            route: '/field/clients',
             requiredRoles: _allViewRoles,
           ),
           NavItem(
-            id: 'borrower_reassignment',
+            id: 'client_reassignment',
             label: 'Reassignment',
             icon: Icons.swap_horiz_outlined,
             activeIcon: Icons.swap_horiz,
@@ -199,14 +199,6 @@ List<NavItem> buildNavItems() => [
             requiredRoles: _allViewRoles,
           ),
           NavItem(
-            id: 'loan_products',
-            label: 'Loan Products',
-            icon: Icons.inventory_2_outlined,
-            activeIcon: Icons.inventory_2,
-            route: '/origination/products',
-            requiredRoles: _allViewRoles,
-          ),
-          NavItem(
             id: 'applications',
             label: 'Applications',
             icon: Icons.assignment_outlined,
@@ -223,6 +215,14 @@ List<NavItem> buildNavItems() => [
         activeIcon: Icons.account_balance_wallet,
         requiredRoles: _allViewRoles,
         children: [
+          NavItem(
+            id: 'loan_products',
+            label: 'Loan Products',
+            icon: Icons.inventory_2_outlined,
+            activeIcon: Icons.inventory_2,
+            route: '/loans/products',
+            requiredRoles: _allViewRoles,
+          ),
           NavItem(
             id: 'loan_accounts',
             label: 'Loan Accounts',

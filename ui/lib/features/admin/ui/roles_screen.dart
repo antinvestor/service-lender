@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // Data model
 // ─────────────────────────────────────────────────────────────────────────────
 
-enum _Entity { bank, branch, agent, borrower, investor, systemUser }
+enum _Entity { bank, branch, agent, client, investor, systemUser }
 
 enum _Action { create, manage, view, reassign }
 
@@ -35,10 +35,10 @@ const _allPermissions = [
   _Permission(_Entity.agent, _Action.create),
   _Permission(_Entity.agent, _Action.manage),
   _Permission(_Entity.agent, _Action.view),
-  _Permission(_Entity.borrower, _Action.create),
-  _Permission(_Entity.borrower, _Action.manage),
-  _Permission(_Entity.borrower, _Action.view),
-  _Permission(_Entity.borrower, _Action.reassign),
+  _Permission(_Entity.client, _Action.create),
+  _Permission(_Entity.client, _Action.manage),
+  _Permission(_Entity.client, _Action.view),
+  _Permission(_Entity.client, _Action.reassign),
   _Permission(_Entity.investor, _Action.create),
   _Permission(_Entity.investor, _Action.manage),
   _Permission(_Entity.investor, _Action.view),
@@ -56,34 +56,34 @@ final Map<String, Set<_Permission>> _rolePermissions = {
     const _Permission(_Entity.agent, _Action.create),
     const _Permission(_Entity.agent, _Action.manage),
     const _Permission(_Entity.agent, _Action.view),
-    const _Permission(_Entity.borrower, _Action.create),
-    const _Permission(_Entity.borrower, _Action.manage),
-    const _Permission(_Entity.borrower, _Action.view),
-    const _Permission(_Entity.borrower, _Action.reassign),
+    const _Permission(_Entity.client, _Action.create),
+    const _Permission(_Entity.client, _Action.manage),
+    const _Permission(_Entity.client, _Action.view),
+    const _Permission(_Entity.client, _Action.reassign),
     const _Permission(_Entity.systemUser, _Action.view),
   },
   'Agent': {
     const _Permission(_Entity.agent, _Action.view),
-    const _Permission(_Entity.borrower, _Action.create),
-    const _Permission(_Entity.borrower, _Action.view),
+    const _Permission(_Entity.client, _Action.create),
+    const _Permission(_Entity.client, _Action.view),
   },
   'Verifier': {
     const _Permission(_Entity.branch, _Action.view),
     const _Permission(_Entity.agent, _Action.view),
-    const _Permission(_Entity.borrower, _Action.view),
+    const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
   },
   'Approver': {
     const _Permission(_Entity.branch, _Action.view),
     const _Permission(_Entity.agent, _Action.view),
-    const _Permission(_Entity.borrower, _Action.view),
+    const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
   },
   'Auditor': {
     const _Permission(_Entity.bank, _Action.view),
     const _Permission(_Entity.branch, _Action.view),
     const _Permission(_Entity.agent, _Action.view),
-    const _Permission(_Entity.borrower, _Action.view),
+    const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
     const _Permission(_Entity.systemUser, _Action.view),
   },
@@ -91,7 +91,7 @@ final Map<String, Set<_Permission>> _rolePermissions = {
     const _Permission(_Entity.bank, _Action.view),
     const _Permission(_Entity.branch, _Action.view),
     const _Permission(_Entity.agent, _Action.view),
-    const _Permission(_Entity.borrower, _Action.view),
+    const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
     const _Permission(_Entity.systemUser, _Action.view),
   },
@@ -103,7 +103,7 @@ const _entityColumns = <(_Entity, List<_Action>)>[
   (_Entity.bank, [_Action.manage, _Action.view]),
   (_Entity.branch, [_Action.manage, _Action.view]),
   (_Entity.agent, [_Action.create, _Action.manage, _Action.view]),
-  (_Entity.borrower, [_Action.create, _Action.manage, _Action.view, _Action.reassign]),
+  (_Entity.client, [_Action.create, _Action.manage, _Action.view, _Action.reassign]),
   (_Entity.investor, [_Action.create, _Action.manage, _Action.view]),
   (_Entity.systemUser, [_Action.manage, _Action.view]),
 ];
@@ -116,7 +116,7 @@ String _entityLabel(_Entity e) => switch (e) {
       _Entity.bank => 'Bank',
       _Entity.branch => 'Branch',
       _Entity.agent => 'Agent',
-      _Entity.borrower => 'Borrower',
+      _Entity.client => 'Client',
       _Entity.investor => 'Investor',
       _Entity.systemUser => 'System User',
     };

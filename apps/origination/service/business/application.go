@@ -91,7 +91,7 @@ func (b *applicationBusiness) Save(
 
 		// Validate client exists via identity service
 		if b.identityCli != nil && app.ClientID != "" {
-			_, err := b.identityCli.BorrowerGet(ctx, connect.NewRequest(&fieldv1.BorrowerGetRequest{
+			_, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
 				Id: app.ClientID,
 			}))
 			if err != nil {
@@ -155,8 +155,8 @@ func (b *applicationBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
-	if req.GetBorrowerId() != "" {
-		andQueryVal["client_id = ?"] = req.GetBorrowerId()
+	if req.GetClientId() != "" {
+		andQueryVal["client_id = ?"] = req.GetClientId()
 	}
 	if req.GetAgentId() != "" {
 		andQueryVal["agent_id = ?"] = req.GetAgentId()
@@ -220,26 +220,26 @@ func (b *applicationBusiness) Submit(ctx context.Context, id string) (*originati
 		return nil, err
 	}
 
-	// Direct borrower products skip the origination workflow entirely.
+	// Direct client products skip the origination workflow entirely.
 	// These clients were onboarded and verified by agents before they ever
 	// reach a loan request portal (app, USSD, etc). The product-level flag
 	// "direct_borrower" controls this — it is set on the application
-	// properties when the loan request originates from a direct borrower
+	// properties when the loan request originates from a direct client
 	// product channel.
-	if isDirectBorrowerProduct(app) {
-		return b.submitDirectBorrower(ctx, logger, app)
+	if isDirectClientProduct(app) {
+		return b.submitDirectClient(ctx, logger, app)
 	}
 
 	// Standard product: go through the full verification workflow.
 	return b.submitWithVerificationWorkflow(ctx, logger, app)
 }
 
-// isDirectBorrowerProduct returns true if the application is for a direct
-// borrower product. Direct borrower products are pre-verified at onboarding
+// isDirectClientProduct returns true if the application is for a direct
+// client product. Direct client products are pre-verified at onboarding
 // time by agents, so no origination workflow (KYC, documents, verification,
 // underwriting) is needed. The flag is set in Properties by the originating
 // channel (app, USSD) based on the loan product configuration.
-func isDirectBorrowerProduct(app *models.Application) bool {
+func isDirectClientProduct(app *models.Application) bool {
 	if app.Properties == nil {
 		return false
 	}
@@ -251,24 +251,24 @@ func isDirectBorrowerProduct(app *models.Application) bool {
 	return isBool && b
 }
 
-// submitDirectBorrower handles submission for direct borrower products.
+// submitDirectClient handles submission for direct client products.
 // The client was onboarded and verified by an agent (full KYC, documents,
 // verification, and underwriting happened during onboarding).
 //
-// For all direct borrower loan requests the system:
+// For all direct client loan requests the system:
 //  1. Runs automated risk checks (data consistency, fraud signals)
 //  2. Records the findings on the application
 //  3. Routes to UNDERWRITING for the responsible agent to approve/reject
 //
 // The agent is always in the loop — they are responsible for the customer.
 // Risk check results are available to the agent to inform their decision.
-func (b *applicationBusiness) submitDirectBorrower(
+func (b *applicationBusiness) submitDirectClient(
 	ctx context.Context,
 	logger *util.LogEntry,
 	app *models.Application,
 ) (*originationv1.ApplicationObject, error) {
 	logger.WithFields(map[string]any{"client_id": app.ClientID, "product_id": app.ProductID}).
-		Debug("direct borrower product — running automated risk checks before agent review")
+		Debug("direct client product — running automated risk checks before agent review")
 
 	// Run automated risk checks (name/ID consistency, fraud signals, etc.)
 	riskResult := b.riskAssessor.Assess(ctx, app)
@@ -290,9 +290,9 @@ func (b *applicationBusiness) submitDirectBorrower(
 
 	// Route to UNDERWRITING — the responsible agent reviews the request
 	// along with the automated risk findings and makes the final decision.
-	reason := "direct borrower: automated risk checks complete, awaiting agent approval"
+	reason := "direct client: automated risk checks complete, awaiting agent approval"
 	if !riskResult.Passed {
-		reason = "direct borrower: automated risk checks flagged issues, requires agent review"
+		reason = "direct client: automated risk checks flagged issues, requires agent review"
 		logger.WithField("flags", len(riskResult.Flags)).
 			Warn("risk assessment flagged issues for agent review")
 	}
@@ -492,7 +492,7 @@ func (b *applicationBusiness) CheckEligibility(
 
 	// 2. Check credit limit via identity service
 	if b.identityCli != nil && requestedAmount > 0 {
-		resp, err := b.identityCli.BorrowerGet(ctx, connect.NewRequest(&fieldv1.BorrowerGetRequest{
+		resp, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
 			Id: clientID,
 		}))
 		if err != nil {
@@ -566,8 +566,8 @@ func (b *applicationBusiness) checkNoActiveLoans(ctx context.Context, clientID s
 
 	for _, status := range outstandingStatuses {
 		req := (&loansv1.LoanAccountSearchRequest_builder{
-			BorrowerId: clientID,
-			Status:     status,
+			ClientId: clientID,
+			Status:   status,
 		}).Build()
 
 		stream, err := b.loanMgmtCli.LoanAccountSearch(ctx, connect.NewRequest(req))

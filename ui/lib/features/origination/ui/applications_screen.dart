@@ -154,7 +154,7 @@ class _ApplicationCard extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Borrower: ${app.borrowerId}',
+          'Client: ${app.clientId}',
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -189,7 +189,7 @@ class ApplicationCreateDialog extends StatefulWidget {
 class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _productIdCtrl;
-  late final TextEditingController _borrowerIdCtrl;
+  late final TextEditingController _clientIdCtrl;
   late final TextEditingController _agentIdCtrl;
   late final TextEditingController _branchIdCtrl;
   late final TextEditingController _bankIdCtrl;
@@ -203,7 +203,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
   void initState() {
     super.initState();
     _productIdCtrl = TextEditingController();
-    _borrowerIdCtrl = TextEditingController();
+    _clientIdCtrl = TextEditingController();
     _agentIdCtrl = TextEditingController();
     _branchIdCtrl = TextEditingController();
     _bankIdCtrl = TextEditingController();
@@ -216,7 +216,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
   @override
   void dispose() {
     _productIdCtrl.dispose();
-    _borrowerIdCtrl.dispose();
+    _clientIdCtrl.dispose();
     _agentIdCtrl.dispose();
     _branchIdCtrl.dispose();
     _bankIdCtrl.dispose();
@@ -234,7 +234,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
 
     final app = ApplicationObject(
       productId: _productIdCtrl.text.trim(),
-      borrowerId: _borrowerIdCtrl.text.trim(),
+      clientId: _clientIdCtrl.text.trim(),
       agentId: _agentIdCtrl.text.trim(),
       branchId: _branchIdCtrl.text.trim(),
       bankId: _bankIdCtrl.text.trim(),
@@ -279,11 +279,11 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _borrowerIdCtrl,
-                  decoration: const InputDecoration(labelText: 'Borrower ID'),
+                  controller: _clientIdCtrl,
+                  decoration: const InputDecoration(labelText: 'Client ID'),
                   textInputAction: TextInputAction.next,
                   validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Borrower ID is required'
+                      ? 'Client ID is required'
                       : null,
                 ),
                 const SizedBox(height: 12),

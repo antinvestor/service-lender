@@ -227,9 +227,9 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 		return nil
 	}
 
-	// Register members as borrowers in the Field service.
+	// Register members as clients in the Field service.
 	// Group and membership registration is handled locally — the Field service
-	// only manages agents and borrowers.
+	// only manages agents and clients.
 	members, err := b.memRepo.GetByGroupID(ctx, groupID)
 	if err != nil {
 		return fmt.Errorf("could not get members: %w", err)
@@ -250,11 +250,11 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 			continue // already registered
 		}
 
-		// Register borrower in the Field service (profile → agent)
+		// Register client in the Field service (profile → agent)
 		if agentID != "" {
 			clientID, cliErr := b.clients.RegisterClient(ctx, agentID, m.ProfileID, m.Name)
 			if cliErr != nil {
-				logger.WithError(cliErr).WithField("local_membership_id", m.GetID()).Warn("could not register borrower")
+				logger.WithError(cliErr).WithField("local_membership_id", m.GetID()).Warn("could not register client")
 			} else {
 				m.IdentityClientID = clientID
 			}

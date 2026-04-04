@@ -40,7 +40,7 @@ func (m *Application) ToAPI() *originationv1.ApplicationObject {
 	obj := &originationv1.ApplicationObject{
 		Id:                 m.GetID(),
 		ProductId:          m.ProductID,
-		BorrowerId:         m.ClientID,
+		ClientId:           m.ClientID,
 		AgentId:            m.AgentID,
 		BranchId:           m.BranchID,
 		BankId:             m.BankID,
@@ -75,7 +75,7 @@ func ApplicationFromAPI(ctx context.Context, obj *originationv1.ApplicationObjec
 
 	model := &Application{
 		ProductID:          obj.GetProductId(),
-		ClientID:           obj.GetBorrowerId(),
+		ClientID:           obj.GetClientId(),
 		AgentID:            obj.GetAgentId(),
 		BranchID:           obj.GetBranchId(),
 		BankID:             obj.GetBankId(),

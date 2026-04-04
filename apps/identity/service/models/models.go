@@ -207,7 +207,7 @@ func AgentFromAPI(ctx context.Context, obj *fieldv1.AgentObject) *Agent {
 	return model
 }
 
-// Client represents a loan recipient (borrower) always assigned to an agent.
+// Client represents a loan recipient always assigned to an agent.
 // Clients exist independently of groups. Product-level code links
 // clients to memberships where needed.
 //
@@ -248,7 +248,7 @@ func (m *Client) EffectiveCreditLimit() int64 {
 	return sys
 }
 
-func (m *Client) ToAPI() *fieldv1.BorrowerObject {
+func (m *Client) ToAPI() *fieldv1.ClientObject {
 	// Copy properties so we don't mutate the model's map
 	props := make(data.JSONMap, len(m.Properties)+3)
 	for k, v := range m.Properties {
@@ -259,7 +259,7 @@ func (m *Client) ToAPI() *fieldv1.BorrowerObject {
 	props["agent_credit_limit"] = float64(m.AgentCreditLimit)
 	props["currency_code"] = m.CurrencyCode
 
-	return &fieldv1.BorrowerObject{
+	return &fieldv1.ClientObject{
 		Id:         m.GetID(),
 		AgentId:    m.AgentID,
 		ProfileId:  m.ProfileID,
@@ -269,7 +269,7 @@ func (m *Client) ToAPI() *fieldv1.BorrowerObject {
 	}
 }
 
-func ClientFromAPI(ctx context.Context, obj *fieldv1.BorrowerObject) *Client {
+func ClientFromAPI(ctx context.Context, obj *fieldv1.ClientObject) *Client {
 	if obj == nil {
 		return nil
 	}
