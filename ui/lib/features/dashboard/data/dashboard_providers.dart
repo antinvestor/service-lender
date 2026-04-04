@@ -4,9 +4,7 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
-import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
-import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 
 part 'dashboard_providers.g.dart';
 

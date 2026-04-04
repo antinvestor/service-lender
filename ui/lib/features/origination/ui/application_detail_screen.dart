@@ -10,7 +10,6 @@ import '../../../core/widgets/workflow_stepper.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../sdk/src/origination/v1/origination.pb.dart';
-import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
 import '../data/underwriting_decision_providers.dart';
 import '../data/verification_task_providers.dart';
@@ -420,6 +419,8 @@ class _ApplicationDetailContentState
           ),
           FilledButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final errorColor = Theme.of(context).colorScheme.error;
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
@@ -427,20 +428,18 @@ class _ApplicationDetailContentState
                     .submit(_app.id);
                 if (mounted) {
                   setState(() => _app = updated);
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(
                         content: Text('Application submitted successfully')),
                   );
                 }
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to submit: $e'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to submit: $e'),
+                    backgroundColor: errorColor,
+                  ),
+                );
               }
             },
             child: const Text('Submit'),
@@ -479,6 +478,8 @@ class _ApplicationDetailContentState
           ),
           FilledButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final errorColor = Theme.of(context).colorScheme.error;
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
@@ -486,20 +487,18 @@ class _ApplicationDetailContentState
                     .cancel(_app.id, reasonCtrl.text.trim());
                 if (mounted) {
                   setState(() => _app = updated);
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(
                         content: Text('Application cancelled')),
                   );
                 }
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to cancel: $e'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to cancel: $e'),
+                    backgroundColor: errorColor,
+                  ),
+                );
               }
             },
             child: const Text('Cancel Application'),
@@ -523,6 +522,8 @@ class _ApplicationDetailContentState
           ),
           FilledButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final errorColor = Theme.of(context).colorScheme.error;
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
@@ -530,19 +531,17 @@ class _ApplicationDetailContentState
                     .acceptOffer(_app.id);
                 if (mounted) {
                   setState(() => _app = updated);
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(content: Text('Offer accepted')),
                   );
                 }
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to accept offer: $e'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to accept offer: $e'),
+                    backgroundColor: errorColor,
+                  ),
+                );
               }
             },
             child: const Text('Accept'),
@@ -581,6 +580,8 @@ class _ApplicationDetailContentState
           ),
           FilledButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final errorColor = Theme.of(context).colorScheme.error;
               Navigator.of(ctx).pop();
               try {
                 final updated = await ref
@@ -588,19 +589,17 @@ class _ApplicationDetailContentState
                     .declineOffer(_app.id, reasonCtrl.text.trim());
                 if (mounted) {
                   setState(() => _app = updated);
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(content: Text('Offer declined')),
                   );
                 }
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to decline offer: $e'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to decline offer: $e'),
+                    backgroundColor: errorColor,
+                  ),
+                );
               }
             },
             child: const Text('Decline'),
@@ -616,6 +615,8 @@ class _ApplicationDetailContentState
       builder: (dialogContext) =>
           ApplicationCreateDialog(
         onSave: (updated) async {
+          final messenger = ScaffoldMessenger.of(context);
+          final errorColor = Theme.of(context).colorScheme.error;
           // Preserve the ID for editing.
           updated.id = _app.id;
           try {
@@ -624,20 +625,18 @@ class _ApplicationDetailContentState
                 .save(updated);
             if (mounted) {
               setState(() => _app = saved);
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 const SnackBar(
                     content: Text('Application updated successfully')),
               );
             }
           } catch (e) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Failed to update application: $e'),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
-              );
-            }
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text('Failed to update application: $e'),
+                backgroundColor: errorColor,
+              ),
+            );
           }
         },
       ),
@@ -787,7 +786,7 @@ class _DocumentsTab extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<DocumentType>(
-                  value: docType,
+                  initialValue: docType,
                   decoration:
                       const InputDecoration(labelText: 'Document Type'),
                   items: DocumentType.values
@@ -1124,7 +1123,7 @@ class _VerificationTab extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<VerificationStatus>(
-                    value: selectedStatus,
+                    initialValue: selectedStatus,
                     decoration: const InputDecoration(labelText: 'Result'),
                     items: [
                       VerificationStatus.VERIFICATION_STATUS_PASSED,
@@ -1332,7 +1331,7 @@ class _UnderwritingTab extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DropdownButtonFormField<UnderwritingOutcome>(
-                      value: outcome,
+                      initialValue: outcome,
                       decoration:
                           const InputDecoration(labelText: 'Outcome'),
                       items: UnderwritingOutcome.values

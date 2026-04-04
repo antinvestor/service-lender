@@ -11,7 +11,6 @@ import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
-import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
 
 class ApplicationsScreen extends ConsumerStatefulWidget {

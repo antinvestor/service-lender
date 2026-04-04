@@ -1,4 +1,4 @@
-/// Helpers for consuming paginated gRPC streams safely.
+// Helpers for consuming paginated gRPC streams safely.
 
 /// Default max items returned by collectStream (pageSize 50 * maxPages 10).
 /// Used by UI screens to determine if "Load More" / "hasMore" should be shown.

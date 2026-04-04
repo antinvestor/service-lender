@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
-import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
 
 class PendingCasesScreen extends ConsumerStatefulWidget {

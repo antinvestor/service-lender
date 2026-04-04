@@ -11,7 +11,6 @@ import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
-import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../data/loan_account_providers.dart';
 
 class LoanAccountsScreen extends ConsumerStatefulWidget {
@@ -113,10 +112,7 @@ class _LoanAccountCard extends ConsumerWidget {
   final LoanAccountObject loan;
   final VoidCallback onTap;
 
-  String _truncateId(String id) {
-    if (id.length <= 12) return id;
-    return '${id.substring(0, 8)}...${id.substring(id.length - 4)}';
-  }
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

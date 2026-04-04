@@ -12,7 +12,6 @@ import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
-import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../data/disbursement_providers.dart';
 import '../data/loan_account_providers.dart';
 import '../data/penalty_providers.dart';
@@ -683,7 +682,7 @@ class _TransactionsTab extends ConsumerWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final item = items[index];
         return Card(
@@ -848,7 +847,7 @@ class _PenaltiesTab extends ConsumerWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           itemCount: penalties.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final penalty = penalties[index];
             return Card(
@@ -1051,7 +1050,7 @@ class _HistoryTab extends ConsumerWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           itemCount: changes.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final change = changes[index];
             final fromLabel = _statusLabelFromInt(change.fromStatus);

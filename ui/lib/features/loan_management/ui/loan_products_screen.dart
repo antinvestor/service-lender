@@ -9,7 +9,6 @@ import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
-import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/loan_product_providers.dart';
 
 class LoanProductsScreen extends ConsumerStatefulWidget {
@@ -394,7 +393,7 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<LoanProductType>(
-                  value: _productType,
+                  initialValue: _productType,
                   decoration: const InputDecoration(labelText: 'Product Type'),
                   items: _productTypes
                       .map((t) => DropdownMenuItem(
@@ -418,7 +417,7 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<InterestMethod>(
-                  value: _interestMethod,
+                  initialValue: _interestMethod,
                   decoration:
                       const InputDecoration(labelText: 'Interest Method'),
                   items: _interestMethods
@@ -433,7 +432,7 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<RepaymentFrequency>(
-                  value: _repaymentFrequency,
+                  initialValue: _repaymentFrequency,
                   decoration:
                       const InputDecoration(labelText: 'Repayment Frequency'),
                   items: _repaymentFrequencies
@@ -552,7 +551,7 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<STATE>(
-                  value: _selectedState,
+                  initialValue: _selectedState,
                   decoration: const InputDecoration(labelText: 'State'),
                   items: _editableStates
                       .map(

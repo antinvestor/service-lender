@@ -37,11 +37,11 @@ class AuditContext {
   Map<String, String> toMap() {
     final map = <String, String>{
       'profile_id': profileId,
-      if (contactId != null) 'contact_id': contactId!,
-      if (accessId != null) 'access_id': accessId!,
-      if (sessionId != null) 'session_id': sessionId!,
-      if (deviceId != null) 'device_id': deviceId!,
-      if (displayName != null) 'display_name': displayName!,
+      'contact_id': ?contactId,
+      'access_id': ?accessId,
+      'session_id': ?sessionId,
+      'device_id': ?deviceId,
+      'display_name': ?displayName,
       'timestamp': DateTime.now().toUtc().toIso8601String(),
     };
 

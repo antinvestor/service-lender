@@ -4,7 +4,6 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
-import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 
 part 'loan_account_providers.g.dart';
 
