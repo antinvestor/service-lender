@@ -8,6 +8,7 @@ import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../data/application_providers.dart';
@@ -125,25 +126,24 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
   }
 }
 
-class _ApplicationCard extends StatelessWidget {
+class _ApplicationCard extends ConsumerWidget {
   const _ApplicationCard({required this.app, required this.onTap});
 
   final ApplicationObject app;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
@@ -153,17 +153,27 @@ class _ApplicationCard extends StatelessWidget {
             size: 20,
           ),
         ),
-        title: Text(
-          'Client: ${app.clientId}',
+        title: ClientNameText(
+          clientId: app.clientId,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: Text(
-          'Product: ${app.productId} \u2022 ${formatMoney(app.requestedAmount)}',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withAlpha(160),
-          ),
+        subtitle: Row(
+          children: [
+            ProductNameText(
+              productId: app.productId,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Text(
+              ' \u2022 ${formatMoney(app.requestedAmount)}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
         trailing: ApplicationStatusBadge(status: app.status),
         onTap: onTap,

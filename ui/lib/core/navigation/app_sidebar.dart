@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/auth_state_provider.dart';
+import '../theme/design_tokens.dart';
 import 'nav_items.dart';
 import 'nav_state.dart';
 
@@ -35,7 +36,6 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
     final navItemsAsync = ref.watch(filteredNavItemsProvider);
     final expansionState = ref.watch(sidebarExpansionProvider);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final userInfoAsync = ref.watch(currentProfileIdProvider);
 
     return navItemsAsync.when(
@@ -52,22 +52,16 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
 
         return Container(
           width: 260,
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1A1C23) : Colors.white,
-            border: widget.isDrawer
-                ? null
-                : Border(
-                    right: BorderSide(
-                      color: theme.dividerTheme.color ??
-                          theme.colorScheme.outlineVariant.withAlpha(60),
-                    ),
-                  ),
-          ),
+          color: theme.colorScheme.primary,
           child: Column(
             children: [
               // Brand header
-              _BrandHeader(isDark: isDark),
-              const Divider(height: 1),
+              const _BrandHeader(),
+              // Subtle separator
+              Container(
+                height: 1,
+                color: Colors.white.withAlpha(15),
+              ),
 
               // Navigation items
               Expanded(
@@ -88,8 +82,12 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
                 ),
               ),
 
+              // Subtle separator
+              Container(
+                height: 1,
+                color: Colors.white.withAlpha(15),
+              ),
               // User section
-              const Divider(height: 1),
               _UserFooter(
                 profileId: userInfoAsync.when(
                   data: (id) => id,
@@ -113,8 +111,8 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
     SidebarExpansionState expansion, {
     required int depth,
   }) {
-    final isActive = item.route != null &&
-        widget.currentRoute.startsWith(item.route!);
+    final isActive =
+        item.route != null && widget.currentRoute.startsWith(item.route!);
     final isExpanded = expansion.isExpanded(item.id);
 
     if (item.hasChildren) {
@@ -145,17 +143,15 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Brand header
-// ─────────────────────────────────────────────────────────────────────────────
+// ��───────────────────────────────────────────────────────────��────────────────
+// Brand header — white on navy with gradient logo
+// ───────────────────��──────────────────────────────────���──────────────────────
 
 class _BrandHeader extends StatelessWidget {
-  const _BrandHeader({required this.isDark});
-  final bool isDark;
+  const _BrandHeader();
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -165,8 +161,9 @@ class _BrandHeader extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
+              gradient: DesignTokens.primaryGradient,
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white.withAlpha(30)),
             ),
             child: const Icon(
               Icons.account_balance,
@@ -182,19 +179,20 @@ class _BrandHeader extends StatelessWidget {
               children: [
                 Text(
                   'AntInvestor',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
-                    height: 1.2,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                        height: 1.2,
+                        color: Colors.white,
+                      ),
                 ),
                 Text(
                   'Lender Platform',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withAlpha(120),
-                    fontSize: 11,
-                    height: 1.3,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withAlpha(130),
+                        fontSize: 11,
+                        height: 1.3,
+                      ),
                 ),
               ],
             ),
@@ -205,9 +203,9 @@ class _BrandHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────��────────────────────────────────────────────
 // Section tile (expandable parent)
-// ─────────────────────────────────────────────────────────────────────────────
+// ───��──────────────────���────────────────────────────────���─────────────────────
 
 class _SectionTile extends StatelessWidget {
   const _SectionTile({
@@ -228,7 +226,6 @@ class _SectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final leftPad = 8.0 + (depth * 16.0);
 
     return Column(
@@ -238,6 +235,8 @@ class _SectionTile extends StatelessWidget {
         InkWell(
           onTap: onToggle,
           borderRadius: BorderRadius.circular(8),
+          hoverColor: Colors.white.withAlpha(12),
+          splashColor: Colors.white.withAlpha(20),
           child: Container(
             padding: EdgeInsets.only(
               left: leftPad,
@@ -247,9 +246,8 @@ class _SectionTile extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: isActive
-                  ? theme.colorScheme.primary.withAlpha(12)
-                  : Colors.transparent,
+              color:
+                  isActive ? Colors.white.withAlpha(18) : Colors.transparent,
             ),
             child: Row(
               children: [
@@ -257,20 +255,21 @@ class _SectionTile extends StatelessWidget {
                   isActive ? (item.activeIcon ?? item.icon) : item.icon,
                   size: 20,
                   color: isActive
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withAlpha(160),
+                      ? Colors.white
+                      : Colors.white.withAlpha(180),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     item.label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                      color: isActive
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface.withAlpha(200),
-                      fontSize: 13,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight:
+                              isActive ? FontWeight.w600 : FontWeight.w500,
+                          color: isActive
+                              ? Colors.white
+                              : Colors.white.withAlpha(180),
+                          fontSize: 13,
+                        ),
                   ),
                 ),
                 AnimatedRotation(
@@ -279,7 +278,7 @@ class _SectionTile extends StatelessWidget {
                   child: Icon(
                     Icons.chevron_right,
                     size: 18,
-                    color: theme.colorScheme.onSurface.withAlpha(100),
+                    color: Colors.white.withAlpha(100),
                   ),
                 ),
               ],
@@ -307,8 +306,8 @@ class _SectionTile extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Leaf tile (navigatable item)
-// ─────────────────────────────────────────────────────────────────────────────
+// Leaf tile (navigatable item) with left accent bar
+// ─���──────────────────────��────────────────────────────────────────────────────
 
 class _LeafTile extends StatelessWidget {
   const _LeafTile({
@@ -335,6 +334,8 @@ class _LeafTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(8),
+          hoverColor: Colors.white.withAlpha(12),
+          splashColor: Colors.white.withAlpha(20),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             padding: EdgeInsets.only(
@@ -345,30 +346,41 @@ class _LeafTile extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: isActive
-                  ? theme.colorScheme.primary.withAlpha(20)
-                  : Colors.transparent,
+              color:
+                  isActive ? Colors.white.withAlpha(20) : Colors.transparent,
             ),
             child: Row(
               children: [
+                // Left accent bar for active item
+                if (isActive)
+                  Container(
+                    width: DesignTokens.accentBarWidth,
+                    height: 20,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 Icon(
                   isActive ? (item.activeIcon ?? item.icon) : item.icon,
                   size: 18,
                   color: isActive
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withAlpha(140),
+                      ? Colors.white
+                      : Colors.white.withAlpha(140),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     item.label,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      color: isActive
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface.withAlpha(200),
-                      fontSize: 13,
-                    ),
+                          fontWeight:
+                              isActive ? FontWeight.w600 : FontWeight.w400,
+                          color: isActive
+                              ? Colors.white
+                              : Colors.white.withAlpha(180),
+                          fontSize: 13,
+                        ),
                   ),
                 ),
                 if (item.badge != null)
@@ -378,26 +390,16 @@ class _LeafTile extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withAlpha(20),
+                      color: theme.colorScheme.secondary.withAlpha(50),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       item.badge!,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
+                        color: Colors.white,
                       ),
-                    ),
-                  ),
-                if (isActive)
-                  Container(
-                    width: 4,
-                    height: 20,
-                    margin: const EdgeInsets.only(left: 4),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
               ],
@@ -409,9 +411,9 @@ class _LeafTile extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// User footer
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────���──────────────────────────────────────────────────────
+// User footer — white on navy
+// ─────────��─────────────────────��─────────────────────────────────────────────
 
 class _UserFooter extends StatelessWidget {
   const _UserFooter({this.profileId, required this.onLogout});
@@ -420,19 +422,17 @@ class _UserFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: theme.colorScheme.primaryContainer,
-            child: Icon(
+            backgroundColor: Colors.white.withAlpha(20),
+            child: const Icon(
               Icons.person,
               size: 18,
-              color: theme.colorScheme.primary,
+              color: Colors.white,
             ),
           ),
           const SizedBox(width: 10),
@@ -444,18 +444,19 @@ class _UserFooter extends StatelessWidget {
                   profileId != null
                       ? '${profileId!.substring(0, profileId!.length.clamp(0, 8))}...'
                       : 'User',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        color: Colors.white,
+                      ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   'Signed in',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withAlpha(100),
-                    fontSize: 11,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withAlpha(100),
+                        fontSize: 11,
+                      ),
                 ),
               ],
             ),
@@ -464,7 +465,7 @@ class _UserFooter extends StatelessWidget {
             icon: Icon(
               Icons.logout,
               size: 18,
-              color: theme.colorScheme.onSurface.withAlpha(140),
+              color: Colors.white.withAlpha(140),
             ),
             tooltip: 'Sign out',
             onPressed: onLogout,

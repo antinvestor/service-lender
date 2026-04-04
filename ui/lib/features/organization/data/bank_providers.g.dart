@@ -50,7 +50,7 @@ final class BankListProvider
   }
 }
 
-String _$bankListHash() => r'ca7edd8a6c87df18a9ca22163befdf16159754e0';
+String _$bankListHash() => r'21d1a8bd1e839c45f258284112f392b46e2faf90';
 
 final class BankListFamily extends $Family
     with

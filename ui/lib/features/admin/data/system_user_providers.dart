@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 
@@ -21,11 +22,10 @@ Future<List<SystemUserObject>> systemUserList(
     cursor: PageCursor(limit: 50),
   );
 
-  final results = <SystemUserObject>[];
-  await for (final response in client.systemUserSearch(request)) {
-    results.addAll(response.data);
-  }
-  return results;
+  return collectStream(
+    client.systemUserSearch(request),
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod

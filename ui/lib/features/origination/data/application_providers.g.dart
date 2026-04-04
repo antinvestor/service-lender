@@ -50,7 +50,7 @@ final class ApplicationListProvider
   }
 }
 
-String _$applicationListHash() => r'abe33272fdd30f6e0b062a8604dd66d0d8d6070f';
+String _$applicationListHash() => r'b1f682d95be4cddee06352beb36707a3c74c4491';
 
 final class ApplicationListFamily extends $Family
     with

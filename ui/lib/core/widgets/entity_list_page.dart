@@ -77,23 +77,6 @@ class EntityListPage<T> extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: searchHint ?? 'Search...',
                     prefixIcon: const Icon(Icons.search, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: theme.colorScheme.outlineVariant,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: theme.colorScheme.outlineVariant,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    isDense: true,
                   ),
                 ),
               ),
@@ -147,7 +130,7 @@ class EntityListPage<T> extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withAlpha(60),
+                color: theme.colorScheme.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -179,7 +162,7 @@ class EntityListPage<T> extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       itemCount: items.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 2),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) => itemBuilder(context, items[index]),
     );
   }

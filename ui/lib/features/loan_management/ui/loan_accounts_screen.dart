@@ -8,6 +8,7 @@ import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../data/loan_account_providers.dart';
@@ -100,7 +101,7 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
   }
 }
 
-class _LoanAccountCard extends StatelessWidget {
+class _LoanAccountCard extends ConsumerWidget {
   const _LoanAccountCard({
     required this.loan,
     required this.onTap,
@@ -115,18 +116,17 @@ class _LoanAccountCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
@@ -136,20 +136,19 @@ class _LoanAccountCard extends StatelessWidget {
             size: 20,
           ),
         ),
-        title: Text(
-          _truncateId(loan.id),
+        title: ClientNameText(
+          clientId: loan.clientId,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
-            fontFamily: 'monospace',
           ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${formatMoney(loan.principalAmount)}  |  Client: ${_truncateId(loan.clientId)}',
+              formatMoney(loan.principalAmount),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withAlpha(160),
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             if (loan.daysPastDue > 0)

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,13 +18,22 @@ class TransferOrdersScreen extends ConsumerStatefulWidget {
 
 class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
   final _searchCtrl = TextEditingController();
+  Timer? _debounce;
   String _query = '';
   int? _orderTypeFilter;
 
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _query = value.trim());
+    });
   }
 
   @override
@@ -58,23 +69,17 @@ class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search by reference, account...',
                     prefixIcon: const Icon(Icons.search, size: 20),
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                     suffixIcon: _query.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear, size: 18),
                             onPressed: () {
                               _searchCtrl.clear();
-                              setState(() => _query = '');
+                              _onSearchChanged('');
                             },
                           )
                         : null,
                   ),
-                  onSubmitted: (value) {
-                    setState(() => _query = value.trim());
-                  },
+                  onChanged: _onSearchChanged,
                 ),
               ),
               const SizedBox(width: 12),
@@ -82,12 +87,8 @@ class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
                 width: 180,
                 child: DropdownButtonFormField<int?>(
                   value: _orderTypeFilter,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Order Type',
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                   ),
                   items: const [
                     DropdownMenuItem(value: null, child: Text('All')),
@@ -184,8 +185,7 @@ class _TransferOrderCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),

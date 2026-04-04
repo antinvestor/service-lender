@@ -106,8 +106,7 @@ class _BankCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
         shape: RoundedRectangleBorder(

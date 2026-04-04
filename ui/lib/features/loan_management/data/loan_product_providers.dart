@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 
@@ -16,11 +17,10 @@ class LoanProductList extends _$LoanProductList {
       cursor: PageCursor(limit: 50),
     );
 
-    final results = <LoanProductObject>[];
-    await for (final response in client.loanProductSearch(request)) {
-      results.addAll(response.data);
-    }
-    return results;
+    return collectStream(
+      client.loanProductSearch(request),
+      extract: (response) => response.data,
+    );
   }
 }
 

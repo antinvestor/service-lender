@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 
@@ -20,11 +21,10 @@ Future<List<AgentObject>> agentList(
       cursor: PageCursor(limit: 50),
     ),
   );
-  final agents = <AgentObject>[];
-  await for (final response in stream) {
-    agents.addAll(response.data);
-  }
-  return agents;
+  return collectStream(
+    stream,
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod

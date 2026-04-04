@@ -124,14 +124,7 @@ class _MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.menu),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {},
-          tooltip: 'Search',
-        ),
-        const SizedBox(width: 4),
-      ],
+      actions: const [SizedBox(width: 4)],
     );
   }
 }

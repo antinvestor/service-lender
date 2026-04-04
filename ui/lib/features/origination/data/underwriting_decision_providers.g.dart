@@ -56,7 +56,7 @@ final class UnderwritingDecisionListProvider
 }
 
 String _$underwritingDecisionListHash() =>
-    r'5fadfc172f7c8cd9e9cbd3737c50800c8b22d6af';
+    r'52e925bad3b59894de3416691e4934a08065630c';
 
 final class UnderwritingDecisionListFamily extends $Family
     with

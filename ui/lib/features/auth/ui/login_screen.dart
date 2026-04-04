@@ -1,7 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/theme/design_tokens.dart';
 import '../data/auth_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -85,24 +87,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.account_balance,
-                    size: 80,
-                    color: theme.colorScheme.primary,
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      gradient: DesignTokens.primaryGradient,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance,
+                      size: 40,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Ant Investor',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.manrope(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                      color: theme.colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'MSMB platform',
+                    'Lender Platform',
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -136,24 +149,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 24),
                   ],
 
-                  FilledButton.icon(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    icon: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.login),
-                    label: Text(_isLoading ? 'Signing in...' : 'Sign In'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                  SizedBox(
+                    height: 52,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: _isLoading
+                            ? null
+                            : DesignTokens.primaryGradient,
+                        color: _isLoading
+                            ? theme.colorScheme.outlineVariant
+                            : null,
+                        borderRadius: DesignTokens.borderRadiusAll,
+                        boxShadow: _isLoading
+                            ? null
+                            : const [DesignTokens.cardShadow],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _isLoading ? null : _handleLogin,
+                          borderRadius: DesignTokens.borderRadiusAll,
+                          child: Center(
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.login,
+                                          size: 20, color: Colors.white),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Sign In',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -161,7 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Text(
                     'By signing in, you agree to our terms of service and privacy policy',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),

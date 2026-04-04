@@ -55,7 +55,7 @@ final class VerificationTaskListProvider
 }
 
 String _$verificationTaskListHash() =>
-    r'557d0328b728e2bfe6da7185a7f6e145173f0e2d';
+    r'2328c743011ae4d8905659b8fe5c64065c34e65b';
 
 final class VerificationTaskListFamily extends $Family
     with

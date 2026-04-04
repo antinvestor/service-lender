@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/audit_context.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
@@ -86,7 +88,7 @@ class _LoanAccountDetailScreenState
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: () => context.go('/loans'),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -102,10 +104,11 @@ class _LoanAccountDetailScreenState
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Client: ${loan.clientId}  |  Agent: ${loan.agentId}',
+                      ClientNameText(
+                        clientId: loan.clientId,
+                        prefix: 'Client: ',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withAlpha(160),
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -115,6 +118,43 @@ class _LoanAccountDetailScreenState
               ],
             ),
           ),
+
+          // Days past due banner
+          if (loan.daysPastDue > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.errorContainer.withAlpha(60),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber_outlined,
+                        color: theme.colorScheme.error, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${loan.daysPastDue} days past due',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (loan.maturityDate.isNotEmpty) ...[
+                      const Spacer(),
+                      Text(
+                        'Maturity: ${loan.maturityDate}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
 
           // Balance card
           Padding(
@@ -160,8 +200,8 @@ class _LoanAccountDetailScreenState
                         loan.status == LoanStatus.LOAN_STATUS_DELINQUENT) &&
                     canRecordPayment) ...[
                   FilledButton.icon(
-                    onPressed: () =>
-                        _showRecordPaymentDialog(context, loan),
+                    onPressed: () => _showRecordPaymentDialog(
+                        context, loan, balanceAsync.value),
                     icon: const Icon(Icons.payments, size: 18),
                     label: const Text('Record Payment'),
                   ),
@@ -250,12 +290,17 @@ class _LoanAccountDetailScreenState
   }
 
   void _showRecordPaymentDialog(
-      BuildContext context, LoanAccountObject loan) {
+      BuildContext context, LoanAccountObject loan, dynamic balance) {
+    String? outstanding;
+    if (balance != null) {
+      outstanding = moneyToAmountString(balance.totalOutstanding);
+    }
     showDialog<void>(
       context: context,
       builder: (dialogContext) => _RecordPaymentFormDialog(
         loanAccountId: loan.id,
         currencyCode: moneyCurrency(loan.principalAmount),
+        totalOutstanding: outstanding,
         onSave: (amount, paymentReference, channel, payerReference) async {
           try {
             final idempotencyKey =
@@ -263,6 +308,7 @@ class _LoanAccountDetailScreenState
             await ref.read(repaymentProvider.notifier).record(
                   loanAccountId: loan.id,
                   amount: amount,
+                  currencyCode: moneyCurrency(loan.principalAmount),
                   paymentReference: paymentReference,
                   channel: channel,
                   payerReference: payerReference,
@@ -353,8 +399,7 @@ class _BalanceCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -638,14 +683,13 @@ class _TransactionsTab extends ConsumerWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 2),
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final item = items[index];
         return Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: theme.colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: ListTile(
             shape: RoundedRectangleBorder(
@@ -804,7 +848,7 @@ class _PenaltiesTab extends ConsumerWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           itemCount: penalties.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 2),
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final penalty = penalties[index];
             return Card(
@@ -1007,7 +1051,7 @@ class _HistoryTab extends ConsumerWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           itemCount: changes.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 2),
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final change = changes[index];
             final fromLabel = _statusLabelFromInt(change.fromStatus);
@@ -1059,6 +1103,7 @@ class _HistoryTab extends ConsumerWidget {
     String loanAccountId,
   ) async {
     final results = <LoanStatusChangeObject>[];
+    var pages = 0;
     await for (final response in client.loanStatusChangeSearch(
       LoanStatusChangeSearchRequest(
         loanAccountId: loanAccountId,
@@ -1066,6 +1111,7 @@ class _HistoryTab extends ConsumerWidget {
       ),
     )) {
       results.addAll(response.data);
+      if (++pages >= 10 || response.data.isEmpty) break;
     }
     return results;
   }
@@ -1200,10 +1246,12 @@ class _RecordPaymentFormDialog extends StatefulWidget {
     required this.loanAccountId,
     required this.currencyCode,
     required this.onSave,
+    this.totalOutstanding,
   });
 
   final String loanAccountId;
   final String currencyCode;
+  final String? totalOutstanding;
   final Future<void> Function(
     String amount,
     String paymentReference,
@@ -1270,10 +1318,25 @@ class _RecordPaymentFormDialogState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.totalOutstanding != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'Outstanding: ${widget.currencyCode} ${widget.totalOutstanding}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
               TextFormField(
                 controller: _amountCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Amount'),
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                  hintText: widget.totalOutstanding,
+                ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 textInputAction: TextInputAction.next,

@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 
@@ -20,11 +21,10 @@ Future<List<BranchObject>> branchList(
       cursor: PageCursor(limit: 50),
     ),
   );
-  final results = <BranchObject>[];
-  await for (final response in stream) {
-    results.addAll(response.data);
-  }
-  return results;
+  return collectStream(
+    stream,
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod

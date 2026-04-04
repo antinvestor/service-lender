@@ -11,6 +11,7 @@ import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
 import '../features/field/ui/agents_screen.dart';
+import '../features/field/ui/client_detail_screen.dart';
 import '../features/field/ui/clients_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
@@ -23,6 +24,7 @@ import '../features/origination/ui/application_detail_screen.dart';
 import '../features/origination/ui/applications_screen.dart';
 import '../features/loan_management/ui/loan_products_screen.dart';
 import '../features/origination/ui/pending_cases_screen.dart';
+import '../features/operations/ui/disbursement_queue_screen.dart';
 import '../features/operations/ui/transfer_orders_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
@@ -140,6 +142,14 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/field/clients',
                 builder: (context, state) => const ClientsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':clientId',
+                    builder: (context, state) => ClientDetailScreen(
+                      clientId: state.pathParameters['clientId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -206,6 +216,16 @@ GoRouter router(Ref ref) {
             ],
           ),
 
+          // Operations — Disbursement Queue
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/operations/disbursements',
+                builder: (context, state) =>
+                    const DisbursementQueueScreen(),
+              ),
+            ],
+          ),
           // Operations — Transfer Orders
           StatefulShellBranch(
             routes: [

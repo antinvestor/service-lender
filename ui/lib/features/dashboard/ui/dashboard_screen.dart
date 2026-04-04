@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/responsive/breakpoints.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../data/dashboard_providers.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -40,10 +42,7 @@ class DashboardScreen extends ConsumerWidget {
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                            ),
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -51,8 +50,7 @@ class DashboardScreen extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme
-                                  .onSurface
-                                  .withAlpha(140),
+                                  .onSurfaceVariant,
                             ),
                       ),
                     ],
@@ -71,57 +69,45 @@ class DashboardScreen extends ConsumerWidget {
                     mainAxisExtent: 110,
                   ),
                   delegate: SliverChildListDelegate([
-                    _buildMetricCard(
-                      ref,
+                    _MetricCard(
                       label: 'Pending Verification',
                       icon: Icons.verified_user_outlined,
-                      color: Colors.purple,
+                      accentColor: Colors.purple,
                       countAsync: ref.watch(pendingVerificationCountProvider),
-                      onTap: () => context.go(
-                        '/origination/applications',
-                      ),
+                      onTap: () => context.go('/origination/applications'),
                     ),
-                    _buildMetricCard(
-                      ref,
+                    _MetricCard(
                       label: 'Pending Underwriting',
                       icon: Icons.gavel_outlined,
-                      color: Colors.indigo,
+                      accentColor: Colors.indigo,
                       countAsync: ref.watch(pendingUnderwritingCountProvider),
-                      onTap: () => context.go(
-                        '/origination/applications',
-                      ),
+                      onTap: () => context.go('/origination/applications'),
                     ),
-                    _buildMetricCard(
-                      ref,
+                    _MetricCard(
                       label: 'Offer Pending',
                       icon: Icons.local_offer_outlined,
-                      color: Colors.teal,
+                      accentColor: Colors.teal,
                       countAsync: ref.watch(offerPendingCountProvider),
-                      onTap: () => context.go(
-                        '/origination/applications',
-                      ),
+                      onTap: () => context.go('/origination/applications'),
                     ),
-                    _buildMetricCard(
-                      ref,
+                    _MetricCard(
                       label: 'Active Loans',
                       icon: Icons.account_balance_wallet_outlined,
-                      color: Colors.green,
+                      accentColor: Colors.green,
                       countAsync: ref.watch(activeLoansCountProvider),
                       onTap: () => context.go('/loans'),
                     ),
-                    _buildMetricCard(
-                      ref,
+                    _MetricCard(
                       label: 'Pending Disbursement',
                       icon: Icons.payments_outlined,
-                      color: Colors.orange,
+                      accentColor: Colors.orange,
                       countAsync: ref.watch(pendingDisbursementCountProvider),
                       onTap: () => context.go('/loans'),
                     ),
-                    _buildMetricCard(
-                      ref,
+                    _MetricCard(
                       label: 'Delinquent Loans',
                       icon: Icons.warning_amber_outlined,
-                      color: Colors.red,
+                      accentColor: Colors.red,
                       countAsync: ref.watch(delinquentLoansCountProvider),
                       onTap: () => context.go('/loans'),
                     ),
@@ -132,32 +118,16 @@ class DashboardScreen extends ConsumerWidget {
               // Quick Actions section label
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(padding, 8, padding, 12),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Quick Actions',
-                        style:
-                            Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withAlpha(160),
-                                  letterSpacing: 0.3,
-                                  fontSize: 12,
-                                ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Divider(
+                  padding: EdgeInsets.fromLTRB(padding, 8, padding, 16),
+                  child: Text(
+                    'QUICK ACTIONS',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
                           color: Theme.of(context)
                               .colorScheme
-                              .outlineVariant
-                              .withAlpha(80),
+                              .onSurfaceVariant,
+                          letterSpacing: 0.8,
                         ),
-                      ),
-                    ],
                   ),
                 ),
               ),
@@ -221,38 +191,21 @@ class DashboardScreen extends ConsumerWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Metric card builder
+// Metric card — tonal surface with left accent bar
 // ---------------------------------------------------------------------------
-
-Widget _buildMetricCard(
-  WidgetRef ref, {
-  required String label,
-  required IconData icon,
-  required Color color,
-  required AsyncValue<int> countAsync,
-  required VoidCallback onTap,
-}) {
-  return _MetricCard(
-    label: label,
-    icon: icon,
-    color: color,
-    countAsync: countAsync,
-    onTap: onTap,
-  );
-}
 
 class _MetricCard extends StatelessWidget {
   const _MetricCard({
     required this.label,
     required this.icon,
-    required this.color,
+    required this.accentColor,
     required this.countAsync,
     required this.onTap,
   });
 
   final String label;
   final IconData icon;
-  final Color color;
+  final Color accentColor;
   final AsyncValue<int> countAsync;
   final VoidCallback onTap;
 
@@ -261,73 +214,87 @@ class _MetricCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color.withAlpha(20),
-                  borderRadius: BorderRadius.circular(10),
+        borderRadius: DesignTokens.borderRadiusAll,
+        child: Row(
+          children: [
+            // Left accent bar
+            Container(
+              width: DesignTokens.accentBarWidth,
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
                 ),
-                child: Icon(icon, size: 22, color: color),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    countAsync.when(
-                      data: (count) => Text(
-                        '$count',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
-                          color: count > 0 ? color : null,
-                        ),
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: accentColor.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      loading: () => const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      error: (_, _) => Icon(
-                        Icons.error_outline,
-                        size: 20,
-                        color: theme.colorScheme.error,
+                      child: Icon(icon, size: 22, color: accentColor),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          countAsync.when(
+                            data: (count) => Text(
+                              '$count',
+                              style: GoogleFonts.manrope(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.5,
+                                color: count > 0 ? accentColor : null,
+                              ),
+                            ),
+                            loading: () => const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            error: (_, _) => Icon(
+                              Icons.error_outline,
+                              size: 20,
+                              color: theme.colorScheme.error,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            label,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      label,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withAlpha(120),
-                        fontSize: 12,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: theme.colorScheme.onSurface.withAlpha(60),
                     ),
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: theme.colorScheme.onSurface.withAlpha(60),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -335,7 +302,7 @@ class _MetricCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Quick action card
+// Quick action card — tonal surface
 // ---------------------------------------------------------------------------
 
 class _QuickActionCard extends StatelessWidget {
@@ -358,7 +325,7 @@ class _QuickActionCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: DesignTokens.borderRadiusAll,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -366,7 +333,7 @@ class _QuickActionCard extends StatelessWidget {
               Icon(
                 icon,
                 size: 24,
-                color: theme.colorScheme.primary,
+                color: theme.colorScheme.secondary,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -384,7 +351,7 @@ class _QuickActionCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withAlpha(120),
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

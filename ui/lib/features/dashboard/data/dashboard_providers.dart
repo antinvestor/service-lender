@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
@@ -10,6 +11,7 @@ import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 part 'dashboard_providers.g.dart';
 
 /// Fetches count of applications in a given status.
+/// Uses countStream to avoid loading full records into memory.
 @riverpod
 Future<int> applicationCountByStatus(
   Ref ref,
@@ -21,14 +23,15 @@ Future<int> applicationCountByStatus(
   );
   request.status = status;
 
-  var count = 0;
-  await for (final response in client.applicationSearch(request)) {
-    count += response.data.length;
-  }
-  return count;
+  return countStream(
+    client.applicationSearch(request),
+    count: (response) => response.data.length,
+    maxPages: 20,
+  );
 }
 
 /// Fetches count of loan accounts in a given status.
+/// Uses countStream to avoid loading full records into memory.
 @riverpod
 Future<int> loanCountByStatus(
   Ref ref,
@@ -40,11 +43,11 @@ Future<int> loanCountByStatus(
   );
   request.status = status;
 
-  var count = 0;
-  await for (final response in client.loanAccountSearch(request)) {
-    count += response.data.length;
-  }
-  return count;
+  return countStream(
+    client.loanAccountSearch(request),
+    count: (response) => response.data.length,
+    maxPages: 20,
+  );
 }
 
 /// Convenience providers for specific dashboard metrics.

@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 
@@ -16,11 +17,10 @@ class BankList extends _$BankList {
       cursor: PageCursor(limit: 50),
     );
 
-    final results = <BankObject>[];
-    await for (final response in client.bankSearch(request)) {
-      results.addAll(response.data);
-    }
-    return results;
+    return collectStream(
+      client.bankSearch(request),
+      extract: (response) => response.data,
+    );
   }
 }
 

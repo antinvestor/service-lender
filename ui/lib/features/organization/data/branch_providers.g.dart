@@ -66,7 +66,7 @@ final class BranchListProvider
   }
 }
 
-String _$branchListHash() => r'f498f9c28d02eecd497c27a14625a23dc7d47b1e';
+String _$branchListHash() => r'c0cc331ce4c748b4ab9999d30604651b59e1b937';
 
 final class BranchListFamily extends $Family
     with

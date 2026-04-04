@@ -39,8 +39,10 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
       );
 
       final nodes = <AgentObject>[];
+      var pages = 0;
       await for (final response in client.agentHierarchy(request)) {
         nodes.addAll(response.data);
+        if (++pages >= 10 || response.data.isEmpty) break;
       }
 
       if (mounted) {

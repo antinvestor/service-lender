@@ -66,7 +66,7 @@ final class PenaltyListProvider
   }
 }
 
-String _$penaltyListHash() => r'673b702dd9e612f46520da37e5aa0b76fcbf66bd';
+String _$penaltyListHash() => r'08025ab1220df12f2f3d50a35d1c65a00b7d6eb4';
 
 final class PenaltyListFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<PenaltyObject>>, String> {

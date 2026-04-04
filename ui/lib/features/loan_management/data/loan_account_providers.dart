@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
@@ -21,11 +22,10 @@ Future<List<LoanAccountObject>> loanAccountList(
   if (status != null) {
     request.status = status;
   }
-  final results = <LoanAccountObject>[];
-  await for (final response in client.loanAccountSearch(request)) {
-    results.addAll(response.data);
-  }
-  return results;
+  return collectStream(
+    client.loanAccountSearch(request),
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod

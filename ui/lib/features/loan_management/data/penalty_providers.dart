@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
 
@@ -16,11 +17,10 @@ Future<List<PenaltyObject>> penaltyList(
     loanAccountId: loanAccountId,
     cursor: PageCursor(limit: 50),
   );
-  final results = <PenaltyObject>[];
-  await for (final response in client.penaltySearch(request)) {
-    results.addAll(response.data);
-  }
-  return results;
+  return collectStream(
+    client.penaltySearch(request),
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod

@@ -11,6 +11,7 @@ part of 'audit_log_providers.dart';
 /// Fetches loan status change audit trail entries.
 ///
 /// When [loanAccountId] is empty, returns all status changes across all loans.
+/// Results are capped at 10 pages (1000 records) to prevent unbounded memory.
 
 @ProviderFor(loanStatusChangeList)
 final loanStatusChangeListProvider = LoanStatusChangeListFamily._();
@@ -18,6 +19,7 @@ final loanStatusChangeListProvider = LoanStatusChangeListFamily._();
 /// Fetches loan status change audit trail entries.
 ///
 /// When [loanAccountId] is empty, returns all status changes across all loans.
+/// Results are capped at 10 pages (1000 records) to prevent unbounded memory.
 
 final class LoanStatusChangeListProvider
     extends
@@ -32,6 +34,7 @@ final class LoanStatusChangeListProvider
   /// Fetches loan status change audit trail entries.
   ///
   /// When [loanAccountId] is empty, returns all status changes across all loans.
+  /// Results are capped at 10 pages (1000 records) to prevent unbounded memory.
   LoanStatusChangeListProvider._({
     required LoanStatusChangeListFamily super.from,
     required String super.argument,
@@ -77,11 +80,12 @@ final class LoanStatusChangeListProvider
 }
 
 String _$loanStatusChangeListHash() =>
-    r'7ca957d24e0885b9d216a45c8be014696d2b2ef6';
+    r'4a212de36ed7fd90efb5634394c8ce9bcf6a007b';
 
 /// Fetches loan status change audit trail entries.
 ///
 /// When [loanAccountId] is empty, returns all status changes across all loans.
+/// Results are capped at 10 pages (1000 records) to prevent unbounded memory.
 
 final class LoanStatusChangeListFamily extends $Family
     with
@@ -101,6 +105,7 @@ final class LoanStatusChangeListFamily extends $Family
   /// Fetches loan status change audit trail entries.
   ///
   /// When [loanAccountId] is empty, returns all status changes across all loans.
+  /// Results are capped at 10 pages (1000 records) to prevent unbounded memory.
 
   LoanStatusChangeListProvider call({String loanAccountId = ''}) =>
       LoanStatusChangeListProvider._(argument: loanAccountId, from: this);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
@@ -168,8 +169,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
         leading: CircleAvatar(
@@ -207,11 +207,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         ),
         trailing: StateBadge(state: client.state),
         isThreeLine: true,
-        onTap: () => _showClientDialog(
-          context,
-          ref.read(agentListProvider(query: '', branchId: '')).value ?? [],
-          existing: client,
-        ),
+        onTap: () => context.go('/field/clients/${client.id}'),
       ),
     );
   }
@@ -232,7 +228,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (context, setDialogState) {
+          builder: (dialogCtx, setDialogState) {
             return AlertDialog(
               title: Text(isEdit ? 'Edit Client' : 'Onboard Client'),
               content: SizedBox(
@@ -244,7 +240,6 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: 'Name',
-                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -252,7 +247,6 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                       controller: profileIdController,
                       decoration: const InputDecoration(
                         labelText: 'Profile ID',
-                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -262,7 +256,6 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                           : null,
                       decoration: const InputDecoration(
                         labelText: 'Agent',
-                        border: OutlineInputBorder(),
                       ),
                       items: agents.map((a) {
                         return DropdownMenuItem(
@@ -282,7 +275,6 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                       initialValue: selectedState,
                       decoration: const InputDecoration(
                         labelText: 'State',
-                        border: OutlineInputBorder(),
                       ),
                       items: STATE.values.map((s) {
                         return DropdownMenuItem(
@@ -320,7 +312,10 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           },
         );
       },
-    );
+    ).then((_) {
+      nameController.dispose();
+      profileIdController.dispose();
+    });
   }
 
   Future<void> _saveClient(
@@ -353,25 +348,22 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
 
     Navigator.of(dialogContext).pop();
 
+    final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(clientProvider.notifier).save(clientObj);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              existing != null
-                  ? 'Client updated successfully'
-                  : 'Client onboarded successfully',
-            ),
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            existing != null
+                ? 'Client updated successfully'
+                : 'Client onboarded successfully',
           ),
-        );
-      }
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 }

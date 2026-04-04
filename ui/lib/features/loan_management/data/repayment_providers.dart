@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
@@ -17,11 +18,10 @@ Future<List<RepaymentObject>> repaymentList(
     loanAccountId: loanAccountId,
     cursor: PageCursor(limit: 50),
   );
-  final results = <RepaymentObject>[];
-  await for (final response in client.repaymentSearch(request)) {
-    results.addAll(response.data);
-  }
-  return results;
+  return collectStream(
+    client.repaymentSearch(request),
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod
@@ -32,6 +32,7 @@ class RepaymentNotifier extends _$RepaymentNotifier {
   Future<RepaymentObject> record({
     required String loanAccountId,
     required String amount,
+    required String currencyCode,
     required String paymentReference,
     required String channel,
     required String payerReference,
@@ -41,7 +42,7 @@ class RepaymentNotifier extends _$RepaymentNotifier {
     final response = await client.repaymentRecord(
       RepaymentRecordRequest(
         loanAccountId: loanAccountId,
-        amount: moneyFromString(amount, ''),
+        amount: moneyFromString(amount, currencyCode),
         paymentReference: paymentReference,
         channel: channel,
         payerReference: payerReference,

@@ -158,24 +158,9 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Search cases...',
-              prefixIcon: const Icon(Icons.search, size: 20),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: theme.colorScheme.outlineVariant),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: theme.colorScheme.outlineVariant),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              isDense: true,
+              prefixIcon: Icon(Icons.search, size: 20),
             ),
           ),
         ),
@@ -301,8 +286,7 @@ class _PendingCaseCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: InkWell(
         onTap: onTap,

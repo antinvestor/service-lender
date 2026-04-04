@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/audit_context.dart';
 import '../../../core/widgets/application_status_badge.dart';
+import '../../../core/widgets/resolved_name.dart';
+import '../../../core/widgets/workflow_stepper.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../sdk/src/origination/v1/origination.pb.dart';
@@ -68,6 +70,14 @@ class _ApplicationDetailContentState
   }
 
   @override
+  void didUpdateWidget(covariant _ApplicationDetailContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.app != widget.app) {
+      setState(() => _app = widget.app);
+    }
+  }
+
+  @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
@@ -109,11 +119,26 @@ class _ApplicationDetailContentState
                         letterSpacing: -0.5,
                       ),
                     ),
-                    Text(
-                      'Client: ${_app.clientId} \u2022 Product: ${_app.productId}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withAlpha(140),
-                      ),
+                    Row(
+                      children: [
+                        ClientNameText(
+                          clientId: _app.clientId,
+                          prefix: 'Client: ',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        Text(' \u2022 ',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant)),
+                        ProductNameText(
+                          productId: _app.productId,
+                          prefix: 'Product: ',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -121,6 +146,12 @@ class _ApplicationDetailContentState
               ApplicationStatusBadge(status: _app.status),
             ],
           ),
+        ),
+
+        // Workflow stepper
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          child: ApplicationWorkflowStepper(status: _app.status),
         ),
 
         // Action buttons
@@ -220,8 +251,7 @@ class _ApplicationDetailContentState
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -730,10 +760,12 @@ class _DocumentsTab extends ConsumerWidget {
   Future<List<ApplicationDocumentObject>> _loadDocuments(
       dynamic client) async {
     final results = <ApplicationDocumentObject>[];
+    var pages = 0;
     await for (final response in client.applicationDocumentSearch(
       ApplicationDocumentSearchRequest(applicationId: applicationId),
     )) {
       results.addAll(response.data);
+      if (++pages >= 10 || response.data.isEmpty) break;
     }
     return results;
   }

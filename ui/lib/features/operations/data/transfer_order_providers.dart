@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/operations/v1/operations.pb.dart';
 
@@ -23,9 +24,8 @@ Future<List<TransferOrderObject>> transferOrderList(
     request.orderType = orderType;
   }
 
-  final results = <TransferOrderObject>[];
-  await for (final response in client.transferOrderSearch(request)) {
-    results.addAll(response.data);
-  }
-  return results;
+  return collectStream(
+    client.transferOrderSearch(request),
+    extract: (response) => response.data,
+  );
 }

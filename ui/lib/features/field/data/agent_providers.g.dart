@@ -66,7 +66,7 @@ final class AgentListProvider
   }
 }
 
-String _$agentListHash() => r'229c86d017866e8917f371c7b0119ce21e4000a8';
+String _$agentListHash() => r'89eff667c4f0afefd25c4fc72bba3c0a6cf7bb3e';
 
 final class AgentListFamily extends $Family
     with

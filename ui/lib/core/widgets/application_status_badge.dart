@@ -12,11 +12,10 @@ class ApplicationStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (label, color) = _statusInfo(status);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withAlpha(20),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withAlpha(60)),
+        color: color.withAlpha(25),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,

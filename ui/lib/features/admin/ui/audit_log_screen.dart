@@ -54,22 +54,11 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
     };
   }
 
-  List<LoanStatusChangeObject> _filterEntries(
-    List<LoanStatusChangeObject> entries,
-  ) {
-    if (_searchQuery.isEmpty) return entries;
-    final q = _searchQuery.toLowerCase();
-    return entries.where((e) {
-      return e.loanAccountId.toLowerCase().contains(q) ||
-          e.id.toLowerCase().contains(q) ||
-          e.changedBy.toLowerCase().contains(q) ||
-          e.reason.toLowerCase().contains(q);
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // LoanStatusChangeSearchRequest doesn't support server-side query
+    // filtering, so we filter client-side over the page-capped result set.
     final entriesAsync = ref.watch(loanStatusChangeListProvider());
 
     return Column(
@@ -102,30 +91,15 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
           ),
         ),
 
-        // Search bar
+        // Search bar (client-side filter)
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Search by loan ID, user, or reason...',
-              prefixIcon: const Icon(Icons.search, size: 20),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: theme.colorScheme.outlineVariant),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: theme.colorScheme.outlineVariant),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              isDense: true,
+              prefixIcon: Icon(Icons.search, size: 20),
             ),
           ),
         ),
@@ -153,10 +127,18 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                 ],
               ),
             ),
-            data: (entries) {
-              final filtered = _filterEntries(entries);
+            data: (allEntries) {
+              final entries = _searchQuery.isEmpty
+                  ? allEntries
+                  : allEntries.where((e) {
+                      final q = _searchQuery.toLowerCase();
+                      return e.loanAccountId.toLowerCase().contains(q) ||
+                          e.id.toLowerCase().contains(q) ||
+                          e.changedBy.toLowerCase().contains(q) ||
+                          e.reason.toLowerCase().contains(q);
+                    }).toList();
 
-              if (filtered.isEmpty) {
+              if (entries.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -194,9 +176,9 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 24, vertical: 8),
-                itemCount: filtered.length,
+                itemCount: entries.length,
                 itemBuilder: (context, index) {
-                  final entry = filtered[index];
+                  final entry = entries[index];
                   final fromLabel =
                       _loanStatusName(entry.fromStatus);
                   final toLabel = _loanStatusName(entry.toStatus);

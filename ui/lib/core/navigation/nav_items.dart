@@ -241,6 +241,14 @@ List<NavItem> buildNavItems() => [
         requiredRoles: _viewRoles,
         children: [
           NavItem(
+            id: 'disbursement_queue',
+            label: 'Disbursement Queue',
+            icon: Icons.send_outlined,
+            activeIcon: Icons.send,
+            route: '/operations/disbursements',
+            requiredRoles: _viewRoles,
+          ),
+          NavItem(
             id: 'transfer_orders',
             label: 'Transfer Orders',
             icon: Icons.swap_horiz_outlined,

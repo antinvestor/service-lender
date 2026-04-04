@@ -66,7 +66,7 @@ final class InvestorListProvider
   }
 }
 
-String _$investorListHash() => r'947823d601237cfd4571fea664c41f0c6620c5b9';
+String _$investorListHash() => r'3094b9e5e52a9c45788b79ea2f4f5e50605420bd';
 
 final class InvestorListFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<InvestorObject>>, String> {

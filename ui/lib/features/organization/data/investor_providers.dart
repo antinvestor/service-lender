@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 
@@ -18,11 +19,10 @@ Future<List<InvestorObject>> investorList(
       cursor: PageCursor(limit: 50),
     ),
   );
-  final investors = <InvestorObject>[];
-  await for (final response in stream) {
-    investors.addAll(response.data);
-  }
-  return investors;
+  return collectStream(
+    stream,
+    extract: (response) => response.data,
+  );
 }
 
 @riverpod

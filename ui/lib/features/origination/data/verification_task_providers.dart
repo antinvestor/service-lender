@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../sdk/src/origination/v1/origination.pb.dart';
@@ -18,11 +19,10 @@ class VerificationTaskList extends _$VerificationTaskList {
       cursor: PageCursor(limit: 50),
     );
 
-    final results = <VerificationTaskObject>[];
-    await for (final response in client.verificationTaskSearch(request)) {
-      results.addAll(response.data);
-    }
-    return results;
+    return collectStream(
+      client.verificationTaskSearch(request),
+      extract: (response) => response.data,
+    );
   }
 }
 

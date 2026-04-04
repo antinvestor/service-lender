@@ -50,7 +50,7 @@ final class LoanProductListProvider
   }
 }
 
-String _$loanProductListHash() => r'c4ed136934289c2f880c3b79b2ce2e4b63d67368';
+String _$loanProductListHash() => r'df3959bd44f01656855c7457246db3795aadb279';
 
 final class LoanProductListFamily extends $Family
     with

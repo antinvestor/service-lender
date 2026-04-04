@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pbenum.dart';
@@ -30,11 +31,10 @@ class ApplicationList extends _$ApplicationList {
       }
     }
 
-    final results = <ApplicationObject>[];
-    await for (final response in client.applicationSearch(request)) {
-      results.addAll(response.data);
-    }
-    return results;
+    return collectStream(
+      client.applicationSearch(request),
+      extract: (response) => response.data,
+    );
   }
 }
 
