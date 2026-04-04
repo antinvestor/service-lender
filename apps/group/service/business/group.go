@@ -116,8 +116,8 @@ func (b *groupBusiness) CheckFormation(ctx context.Context, groupID string) (map
 	minMembers := 5
 	if group.Properties != nil {
 		if v, ok := group.Properties["min_members"]; ok {
-			if min, ok := v.(float64); ok {
-				minMembers = int(min)
+			if minVal, isFloat := v.(float64); isFloat {
+				minMembers = int(minVal)
 			}
 		}
 	}
@@ -227,30 +227,42 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 		return nil
 	}
 
-	// Register members as clients in the Field service.
-	// Group and membership registration is handled locally — the Field service
-	// only manages agents and clients.
 	members, err := b.memRepo.GetByGroupID(ctx, groupID)
 	if err != nil {
 		return fmt.Errorf("could not get members: %w", err)
 	}
 
-	// Resolve the agent from group properties if available.
-	agentID := ""
-	if group.Properties != nil {
-		if v, ok := group.Properties["agent_id"]; ok {
-			if s, ok := v.(string); ok {
-				agentID = s
-			}
-		}
-	}
+	agentID := groupAgentID(group)
+	b.registerMembers(ctx, logger, members, agentID)
 
+	return nil
+}
+
+// groupAgentID extracts the agent ID from a group's properties.
+func groupAgentID(group *models.CustomerGroup) string {
+	if group.Properties == nil {
+		return ""
+	}
+	v, ok := group.Properties["agent_id"]
+	if !ok {
+		return ""
+	}
+	s, _ := v.(string)
+	return s
+}
+
+// registerMembers registers unregistered members as clients in the Field service.
+func (b *groupBusiness) registerMembers(
+	ctx context.Context,
+	logger *util.LogEntry,
+	members []*models.Membership,
+	agentID string,
+) {
 	for _, m := range members {
 		if m.IdentityClientID != "" {
-			continue // already registered
+			continue
 		}
 
-		// Register client in the Field service (profile → agent)
 		if agentID != "" {
 			clientID, cliErr := b.clients.RegisterClient(ctx, agentID, m.ProfileID, m.Name)
 			if cliErr != nil {
@@ -264,6 +276,4 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 			logger.WithError(emitErr).Error("could not save identity IDs on membership")
 		}
 	}
-
-	return nil
 }

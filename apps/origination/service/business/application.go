@@ -88,34 +88,8 @@ func (b *applicationBusiness) Save(
 		if app.Status == 0 {
 			app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_DRAFT)
 		}
-
-		// Validate client exists via identity service
-		if b.identityCli != nil && app.ClientID != "" {
-			_, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
-				Id: app.ClientID,
-			}))
-			if err != nil {
-				logger.WithError(err).Warn("client validation failed")
-				return nil, ErrClientNotFound
-			}
-		}
-
-		// Validate agent exists via identity service
-		if b.identityCli != nil && app.AgentID != "" {
-			_, err := b.identityCli.AgentGet(ctx, connect.NewRequest(&fieldv1.AgentGetRequest{
-				Id: app.AgentID,
-			}))
-			if err != nil {
-				logger.WithError(err).Warn("agent validation failed")
-				return nil, ErrAgentNotFound
-			}
-		}
-
-		// Check eligibility: product access + credit limit + no active loans + no pending applications
-		if app.ClientID != "" && app.ProductID != "" {
-			if eligErr := b.CheckEligibility(ctx, app.ClientID, app.ProductID, app.RequestedAmount); eligErr != nil {
-				return nil, eligErr
-			}
+		if err := b.validateNewApplication(ctx, logger, app); err != nil {
+			return nil, err
 		}
 	}
 
@@ -126,6 +100,39 @@ func (b *applicationBusiness) Save(
 	}
 
 	return app.ToAPI(), nil
+}
+
+// validateNewApplication runs identity and eligibility checks for a new application.
+func (b *applicationBusiness) validateNewApplication(
+	ctx context.Context,
+	logger *util.LogEntry,
+	app *models.Application,
+) error {
+	if b.identityCli != nil && app.ClientID != "" {
+		_, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
+			Id: app.ClientID,
+		}))
+		if err != nil {
+			logger.WithError(err).Warn("client validation failed")
+			return ErrClientNotFound
+		}
+	}
+
+	if b.identityCli != nil && app.AgentID != "" {
+		_, err := b.identityCli.AgentGet(ctx, connect.NewRequest(&fieldv1.AgentGetRequest{
+			Id: app.AgentID,
+		}))
+		if err != nil {
+			logger.WithError(err).Warn("agent validation failed")
+			return ErrAgentNotFound
+		}
+	}
+
+	if app.ClientID != "" && app.ProductID != "" {
+		return b.CheckEligibility(ctx, app.ClientID, app.ProductID, app.RequestedAmount)
+	}
+
+	return nil
 }
 
 func (b *applicationBusiness) Get(ctx context.Context, id string) (*originationv1.ApplicationObject, error) {
@@ -216,7 +223,7 @@ func (b *applicationBusiness) Submit(ctx context.Context, id string) (*originati
 	now := time.Now()
 	app.SubmittedAt = &now
 
-	if err := b.emitTransition(ctx, logger, app, previousStatus, ""); err != nil {
+	if err = b.emitTransition(ctx, logger, app, previousStatus, ""); err != nil {
 		return nil, err
 	}
 
@@ -360,7 +367,7 @@ func (b *applicationBusiness) Cancel(ctx context.Context, id, reason string) (*o
 	app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_CANCELLED)
 	app.RejectionReason = reason
 
-	if err := b.emitTransition(ctx, logger, app, previousStatus, reason); err != nil {
+	if err = b.emitTransition(ctx, logger, app, previousStatus, reason); err != nil {
 		return nil, err
 	}
 
@@ -387,7 +394,7 @@ func (b *applicationBusiness) AcceptOffer(ctx context.Context, id string) (*orig
 	previousStatus := app.Status
 	app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_ACCEPTED)
 
-	if err := b.emitTransition(ctx, logger, app, previousStatus, ""); err != nil {
+	if err = b.emitTransition(ctx, logger, app, previousStatus, ""); err != nil {
 		return nil, err
 	}
 
@@ -435,7 +442,7 @@ func (b *applicationBusiness) DeclineOffer(
 	app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_DECLINED)
 	app.RejectionReason = reason
 
-	if err := b.emitTransition(ctx, logger, app, previousStatus, reason); err != nil {
+	if err = b.emitTransition(ctx, logger, app, previousStatus, reason); err != nil {
 		return nil, err
 	}
 
@@ -491,34 +498,8 @@ func (b *applicationBusiness) CheckEligibility(
 	}
 
 	// 2. Check credit limit via identity service
-	if b.identityCli != nil && requestedAmount > 0 {
-		resp, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
-			Id: clientID,
-		}))
-		if err != nil {
-			logger.WithError(err).Error("could not verify credit limit")
-			return ErrCreditLimitCheckFailed
-		}
-
-		client := resp.Msg.GetData()
-		// Read credit limits from the client's properties
-		// (the identity service stores these as structured fields)
-		if props := client.GetProperties(); props != nil {
-			fields := props.GetFields()
-			systemLimit := protoFieldInt64(fields, "system_credit_limit")
-			agentLimit := protoFieldInt64(fields, "agent_credit_limit")
-
-			effectiveLimit := systemLimit
-			if agentLimit > 0 && agentLimit < effectiveLimit {
-				effectiveLimit = agentLimit
-			}
-
-			if effectiveLimit > 0 && requestedAmount > effectiveLimit {
-				logger.WithFields(map[string]any{"requested": requestedAmount, "effective_limit": effectiveLimit}).
-					Warn("requested amount exceeds credit limit")
-				return ErrAmountExceedsCreditLimit
-			}
-		}
+	if err := b.checkCreditLimit(ctx, logger, clientID, requestedAmount); err != nil {
+		return err
 	}
 
 	// 3. Check for active loans via loan management service
@@ -531,6 +512,49 @@ func (b *applicationBusiness) CheckEligibility(
 	// 4. Check for in-progress applications in origination
 	if err := b.checkNoPendingApplications(ctx, clientID); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// checkCreditLimit verifies the requested amount is within the client's effective credit limit.
+func (b *applicationBusiness) checkCreditLimit(
+	ctx context.Context,
+	logger *util.LogEntry,
+	clientID string,
+	requestedAmount int64,
+) error {
+	if b.identityCli == nil || requestedAmount <= 0 {
+		return nil
+	}
+
+	resp, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
+		Id: clientID,
+	}))
+	if err != nil {
+		logger.WithError(err).Error("could not verify credit limit")
+		return ErrCreditLimitCheckFailed
+	}
+
+	client := resp.Msg.GetData()
+	props := client.GetProperties()
+	if props == nil {
+		return nil
+	}
+
+	fields := props.GetFields()
+	systemLimit := protoFieldInt64(fields, "system_credit_limit")
+	agentLimit := protoFieldInt64(fields, "agent_credit_limit")
+
+	effectiveLimit := systemLimit
+	if agentLimit > 0 && agentLimit < effectiveLimit {
+		effectiveLimit = agentLimit
+	}
+
+	if effectiveLimit > 0 && requestedAmount > effectiveLimit {
+		logger.WithFields(map[string]any{"requested": requestedAmount, "effective_limit": effectiveLimit}).
+			Warn("requested amount exceeds credit limit")
+		return ErrAmountExceedsCreditLimit
 	}
 
 	return nil

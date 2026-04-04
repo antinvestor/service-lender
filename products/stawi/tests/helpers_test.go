@@ -77,7 +77,7 @@ func setupTestEnv(t *testing.T) *testEnv {
 
 // createActiveGroup is a helper that creates a group with 5 members and
 // transitions it through formation check to ACTIVE.
-func createActiveGroup(t *testing.T, ctx context.Context, env *testEnv) *models.CustomerGroup {
+func createActiveGroup(ctx context.Context, t *testing.T, env *testEnv) *models.CustomerGroup {
 	t.Helper()
 
 	group := &models.CustomerGroup{
@@ -143,7 +143,7 @@ func (f *fakeEventsManager) Handler() queue.SubscribeWorker { return nil }
 
 // Emit intercepts event payloads and stores them in the corresponding fake
 // repository, mimicking what the real event handlers do (persist to DB).
-func (f *fakeEventsManager) Emit(_ context.Context, name string, payload any) error {
+func (f *fakeEventsManager) Emit(_ context.Context, _ string, payload any) error {
 	switch p := payload.(type) {
 	case *models.CustomerGroup:
 		f.repos.grp.store(p)
@@ -216,7 +216,7 @@ func (r *fakeGroupRepo) Count(_ context.Context) (int64, error) {
 	defer r.mu.RUnlock()
 	return int64(len(r.data)), nil
 }
-func (r *fakeGroupRepo) CountBy(_ context.Context, props map[string]any) (int64, error) {
+func (r *fakeGroupRepo) CountBy(_ context.Context, _ map[string]any) (int64, error) {
 	return 0, nil
 }
 
@@ -261,8 +261,8 @@ func (r *fakeGroupRepo) GetLastestBy(_ context.Context, props map[string]any) (*
 
 func (r *fakeGroupRepo) GetAllBy(
 	_ context.Context,
-	props map[string]any,
-	offset, limit int,
+	_ map[string]any,
+	_, _ int,
 ) ([]*models.CustomerGroup, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -356,7 +356,7 @@ func (r *fakeMembershipRepo) GetByID(_ context.Context, id string) (*models.Memb
 	}
 	return nil, fmt.Errorf("membership not found: %s", id)
 }
-func (r *fakeMembershipRepo) GetLastestBy(_ context.Context, props map[string]any) (*models.Membership, error) {
+func (r *fakeMembershipRepo) GetLastestBy(_ context.Context, _ map[string]any) (*models.Membership, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var latest *models.Membership
@@ -675,8 +675,7 @@ func matchProps(props map[string]any, key, value string) bool {
 
 func matchPropsForTenure(t *models.Tenure, props map[string]any) bool {
 	for k, v := range props {
-		switch k {
-		case "group_id":
+		if k == "group_id" {
 			if fmt.Sprintf("%v", v) != t.GroupID {
 				return false
 			}

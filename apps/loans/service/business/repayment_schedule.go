@@ -17,6 +17,17 @@ import (
 	"github.com/antinvestor/service-lender/pkg/calculation"
 )
 
+const (
+	// decimalPrecisionRS is the number of decimal places for minor unit conversions (cents).
+	decimalPrecisionRS = 2
+	// daysPerWeekRS is the number of days in a weekly period.
+	daysPerWeekRS = 7
+	// daysPerBiweekRS is the number of days in a biweekly period.
+	daysPerBiweekRS = 14
+	// daysPerMonthRS is the approximate number of days in a monthly period.
+	daysPerMonthRS = 30
+)
+
 type RepaymentScheduleBusiness interface {
 	Generate(ctx context.Context, loanAccountID string) (*loansv1.RepaymentScheduleObject, error)
 	GetActive(ctx context.Context, loanAccountID string) (*loansv1.RepaymentScheduleObject, error)
@@ -149,11 +160,12 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 
 	// Calculate first due date
 	var firstDueDate time.Time
-	if la.FirstRepaymentDate != nil {
+	switch {
+	case la.FirstRepaymentDate != nil:
 		firstDueDate = *la.FirstRepaymentDate
-	} else if la.DisbursedAt != nil {
+	case la.DisbursedAt != nil:
 		firstDueDate = advanceByFrequency(*la.DisbursedAt, loansv1.RepaymentFrequency(la.RepaymentFrequency), 1)
-	} else {
+	default:
 		return nil, errors.New("cannot generate schedule: loan has no disbursement date or first repayment date")
 	}
 
@@ -167,7 +179,7 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 	}
 
 	// Generate schedule using product parameters
-	principal := decimalx.FromMinorUnits(la.PrincipalAmount, 2)
+	principal := decimalx.FromMinorUnits(la.PrincipalAmount, decimalPrecisionRS)
 	entries := calculation.GenerateScheduleFromProduct(
 		principal,
 		interestRate,
@@ -182,9 +194,9 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 	// Convert calculation entries to model entries
 	var modelEntries []*models.ScheduleEntry
 	for _, e := range entries {
-		feesDue := e.FeesDue.Add(e.InsuranceDue).ToMinorUnits(2) // combine into fees
-		principalDue := e.PrincipalDue.ToMinorUnits(2)
-		interestDue := e.InterestDue.ToMinorUnits(2)
+		feesDue := e.FeesDue.Add(e.InsuranceDue).ToMinorUnits(decimalPrecisionRS) // combine into fees
+		principalDue := e.PrincipalDue.ToMinorUnits(decimalPrecisionRS)
+		interestDue := e.InterestDue.ToMinorUnits(decimalPrecisionRS)
 		totalDue := principalDue + interestDue + feesDue
 		entry := &models.ScheduleEntry{
 			ScheduleID:        schedule.GetID(),
@@ -205,18 +217,24 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 	return modelEntries, nil
 }
 
+const (
+	periodTypeWeeklyRS   = 1
+	periodTypeBiweeklyRS = 2
+	periodTypeMonthlyRS  = 3
+)
+
 // frequencyToPeriodType maps RepaymentFrequency enum to the period type int
 // used by the calculation package (1=WEEKLY, 2=BIWEEKLY, 3=MONTHLY).
 func frequencyToPeriodType(freq loansv1.RepaymentFrequency) int32 {
 	switch freq { //nolint:exhaustive // unspecified and unsupported frequencies default to monthly
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
-		return 1
+		return periodTypeWeeklyRS
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_BIWEEKLY:
-		return 2
+		return periodTypeBiweeklyRS
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_MONTHLY:
-		return 3
+		return periodTypeMonthlyRS
 	default:
-		return 3 // default to monthly
+		return periodTypeMonthlyRS
 	}
 }
 
@@ -225,11 +243,11 @@ func computeInstallmentCount(termDays int32, freq loansv1.RepaymentFrequency) in
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_DAILY:
 		return termDays
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
-		return termDays / 7
+		return termDays / daysPerWeekRS
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_BIWEEKLY:
-		return termDays / 14
+		return termDays / daysPerBiweekRS
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_MONTHLY:
-		return termDays / 30
+		return termDays / daysPerMonthRS
 	default:
 		return 1
 	}
@@ -240,12 +258,12 @@ func advanceByFrequency(start time.Time, freq loansv1.RepaymentFrequency, period
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_DAILY:
 		return start.AddDate(0, 0, periods)
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
-		return start.AddDate(0, 0, periods*7)
+		return start.AddDate(0, 0, periods*daysPerWeekRS)
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_BIWEEKLY:
-		return start.AddDate(0, 0, periods*14)
+		return start.AddDate(0, 0, periods*daysPerBiweekRS)
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_MONTHLY:
 		return start.AddDate(0, periods, 0)
 	default:
-		return start.AddDate(0, 0, periods*30)
+		return start.AddDate(0, 0, periods*daysPerMonthRS)
 	}
 }

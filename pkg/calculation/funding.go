@@ -7,6 +7,15 @@ import (
 	"github.com/pitabwire/util/decimalx"
 )
 
+const (
+	// basisPointsDenominator is the multiplier used to convert proportions to basis points.
+	basisPointsDenominator = 10000
+	// trancheMezzanine is the tranche level for mezzanine (affiliated/general investor) sources.
+	trancheMezzanine int32 = 2
+	// trancheSenior is the tranche level for senior (general investor) sources.
+	trancheSenior int32 = 3
+)
+
 // DefaultFirstLossPercent is the default platform first-loss reserve as basis points
 // of loan amount for direct-to-client loans (e.g. 1000 = 10%).
 const DefaultFirstLossPercent int64 = 1000
@@ -163,7 +172,7 @@ func utilizationRatio(s FundingSource) int64 {
 	if !total.IsPositive() {
 		return 0
 	}
-	return s.TotalDeployed.Mul(decimalx.NewFromInt64(10000)).Div(total).Int64()
+	return s.TotalDeployed.Mul(decimalx.NewFromInt64(basisPointsDenominator)).Div(total).Int64()
 }
 
 // allocateGroupLoan fills tranches for a group-cycling loan.
@@ -173,8 +182,8 @@ func allocateGroupLoan(
 	allocations *[]FundingAllocation,
 ) decimalx.Decimal {
 	remaining = allocateFromTranche(sources, 1, remaining, decimalx.Zero(), allocations)
-	remaining = allocateFromTranche(sources, 2, remaining, decimalx.Zero(), allocations)
-	remaining = allocateFromTranche(sources, 3, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, trancheMezzanine, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, trancheSenior, remaining, decimalx.Zero(), allocations)
 	return remaining
 }
 
@@ -188,8 +197,8 @@ func allocateDirectLoan(
 ) decimalx.Decimal {
 	firstLossCap := decimalx.ApplyBasisPoints(loanAmount, firstLossPct)
 	remaining = allocateFromTranche(sources, 1, remaining, firstLossCap, allocations)
-	remaining = allocateFromTranche(sources, 2, remaining, decimalx.Zero(), allocations)
-	remaining = allocateFromTranche(sources, 3, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, trancheMezzanine, remaining, decimalx.Zero(), allocations)
+	remaining = allocateFromTranche(sources, trancheSenior, remaining, decimalx.Zero(), allocations)
 	return remaining
 }
 
@@ -205,7 +214,7 @@ func allocateFromTranche(
 	sources []FundingSource,
 	trancheLevel int32,
 	remaining decimalx.Decimal,
-	cap decimalx.Decimal,
+	capVal decimalx.Decimal,
 	allocations *[]FundingAllocation,
 ) decimalx.Decimal {
 	if !remaining.IsPositive() {
@@ -224,22 +233,11 @@ func allocateFromTranche(
 	}
 
 	trancheTarget := remaining
-	if cap.IsPositive() && cap.LessThan(trancheTarget) {
-		trancheTarget = cap
+	if capVal.IsPositive() && capVal.LessThan(trancheTarget) {
+		trancheTarget = capVal
 	}
 
-	// Compute effective available per source (respecting MaxForThisLoan)
-	effectiveAvail := make([]decimalx.Decimal, len(trancheSources))
-	totalAvailable := decimalx.Zero()
-	for i, s := range trancheSources {
-		avail := s.AvailableAmount
-		if s.MaxForThisLoan.IsPositive() && s.MaxForThisLoan.LessThan(avail) {
-			avail = s.MaxForThisLoan
-		}
-		effectiveAvail[i] = avail
-		totalAvailable = totalAvailable.Add(avail)
-	}
-
+	effectiveAvail, totalAvailable := computeEffectiveAvailability(trancheSources)
 	if !totalAvailable.IsPositive() {
 		return remaining
 	}
@@ -249,10 +247,38 @@ func allocateFromTranche(
 		toAllocate = totalAvailable
 	}
 
+	allocated := spreadProportionally(trancheSources, effectiveAvail, totalAvailable, toAllocate, allocations)
+	return remaining.Sub(allocated)
+}
+
+// computeEffectiveAvailability returns each source's capped available amount and
+// the total across all sources.
+func computeEffectiveAvailability(sources []FundingSource) ([]decimalx.Decimal, decimalx.Decimal) {
+	avail := make([]decimalx.Decimal, len(sources))
+	total := decimalx.Zero()
+	for i, s := range sources {
+		a := s.AvailableAmount
+		if s.MaxForThisLoan.IsPositive() && s.MaxForThisLoan.LessThan(a) {
+			a = s.MaxForThisLoan
+		}
+		avail[i] = a
+		total = total.Add(a)
+	}
+	return avail, total
+}
+
+// spreadProportionally distributes toAllocate across sources proportionally by
+// their effective availability, with rounding dust going to the last source.
+func spreadProportionally(
+	sources []FundingSource,
+	effectiveAvail []decimalx.Decimal,
+	totalAvailable, toAllocate decimalx.Decimal,
+	allocations *[]FundingAllocation,
+) decimalx.Decimal {
 	allocated := decimalx.Zero()
-	for i := range trancheSources {
+	for i := range sources {
 		var share decimalx.Decimal
-		if i == len(trancheSources)-1 {
+		if i == len(sources)-1 {
 			share = toAllocate.Sub(allocated)
 		} else {
 			share = toAllocate.Mul(effectiveAvail[i]).Div(totalAvailable)
@@ -266,15 +292,14 @@ func allocateFromTranche(
 		}
 
 		*allocations = append(*allocations, FundingAllocation{
-			SourceID:     trancheSources[i].SourceID,
-			SourceType:   trancheSources[i].SourceType,
-			TrancheLevel: trancheSources[i].TrancheLevel,
+			SourceID:     sources[i].SourceID,
+			SourceType:   sources[i].SourceType,
+			TrancheLevel: sources[i].TrancheLevel,
 			Amount:       share,
 		})
 		allocated = allocated.Add(share)
 	}
-
-	return remaining.Sub(allocated)
+	return allocated
 }
 
 // VerifyTrancheAllocationInvariant checks that the tranche allocation fully funds the loan.

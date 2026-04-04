@@ -6,6 +6,21 @@ import (
 	"github.com/pitabwire/util/decimalx"
 )
 
+const (
+	// periodTypeWeekly is the period type code for weekly periods.
+	periodTypeWeekly = 1
+	// periodTypeBiweekly is the period type code for biweekly periods.
+	periodTypeBiweekly = 2
+	// periodTypeMonthly is the period type code for monthly periods.
+	periodTypeMonthly = 3
+	// daysPerWeek is the number of days in a weekly period.
+	daysPerWeek = 7
+	// daysPerBiweek is the number of days in a biweekly period.
+	daysPerBiweek = 14
+	// interestMethodReducingBalance is the code for reducing-balance interest calculation.
+	interestMethodReducingBalance = 2
+)
+
 // ScheduleEntry represents a single installment in an amortization schedule.
 type ScheduleEntry struct {
 	InstallmentNumber int32
@@ -135,9 +150,9 @@ func GenerateScheduleFromProduct(
 	firstDueDate time.Time,
 	periodType int32,
 ) []ScheduleEntry {
-	periodsPerYear := int32(PeriodsPerYear(periodType))
+	periodsPerYear := PeriodsPerYear(periodType)
 
-	if interestMethod == 2 { // REDUCING_BALANCE
+	if interestMethod == interestMethodReducingBalance {
 		return GenerateReducingBalanceSchedule(
 			principal, annualInterestRateBP, insuranceFeePercentBP, processingFeePercentBP,
 			installments, firstDueDate, periodType,
@@ -162,13 +177,13 @@ func GenerateScheduleFromProduct(
 // advanceByPeriod advances a date by one period.
 func advanceByPeriod(t time.Time, periodType int32) time.Time {
 	switch periodType {
-	case 1: // WEEKLY
-		return t.AddDate(0, 0, 7)
-	case 2: // BIWEEKLY
-		return t.AddDate(0, 0, 14)
-	case 3: // MONTHLY
+	case periodTypeWeekly:
+		return t.AddDate(0, 0, daysPerWeek)
+	case periodTypeBiweekly:
+		return t.AddDate(0, 0, daysPerBiweek)
+	case periodTypeMonthly:
 		return t.AddDate(0, 1, 0)
 	default:
-		return t.AddDate(0, 0, 7)
+		return t.AddDate(0, 0, daysPerWeek)
 	}
 }

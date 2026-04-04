@@ -2,9 +2,11 @@ package calculation
 
 import "github.com/pitabwire/util/decimalx"
 
-// DefaultFineRates are the escalating late fine percentages (in basis points).
+// DefaultFineRates returns the escalating late fine percentages (in basis points).
 // 10% = 1000bp, 20% = 2000bp, 30% = 3000bp.
-var DefaultFineRates = []int64{1000, 2000, 3000}
+func DefaultFineRates() []int64 {
+	return []int64{1000, 2000, 3000}
+}
 
 // CalculatePenalty computes a late payment penalty.
 // outstandingAmount is a Decimal, fineRateBP is in basis points.

@@ -12,6 +12,9 @@ import (
 	"github.com/antinvestor/service-lender/apps/funding/service/models"
 )
 
+// stateActive is the numeric value for the active state used in database queries.
+const stateActive = 3
+
 // sanitizeJSONKey removes any characters that could break JSON structure,
 // allowing only alphanumeric characters, hyphens, and underscores.
 func sanitizeJSONKey(s string) string {
@@ -86,7 +89,7 @@ func (r *investorAccountRepository) GetEligibleForLoan(
 
 	db := r.Pool().DB(ctx, true).
 		Where("currency = ?", currency).
-		Where("state = ?", 3). // StateActive
+		Where("state = ?", stateActive).
 		Where("min_interest_rate = 0 OR min_interest_rate <= ?", interestRate).
 		Where("max_exposure = 0 OR (reserved_balance + ?) <= max_exposure", amount)
 
@@ -125,7 +128,7 @@ func (r *investorAccountRepository) GetAffiliatedForGroup(
 	err := r.Pool().DB(ctx, true).
 		Where("group_affiliations @> ?", fmt.Sprintf(`{"%s": true}`, sanitizeJSONKey(groupID))).
 		Where("currency = ?", currency).
-		Where("state = ?", 3). // StateActive
+		Where("state = ?", stateActive).
 		Where("min_interest_rate = 0 OR min_interest_rate <= ?", interestRate).
 		Order("COALESCE(total_deployed * 1.0 / NULLIF(available_balance + total_deployed, 0), 0) ASC, last_deployed_at ASC NULLS FIRST, available_balance DESC").
 		Find(&accounts).Error

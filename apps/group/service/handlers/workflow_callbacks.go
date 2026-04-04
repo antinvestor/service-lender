@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -88,7 +89,7 @@ func RegisterWorkflowCallbacks(
 
 func handleCheckFormation(
 	grpBusiness groupbusiness.GroupBusiness,
-	memBusiness groupbusiness.MembershipBusiness,
+	_ groupbusiness.MembershipBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -102,16 +103,16 @@ func handleCheckFormation(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
 func handleWelcomeGroup(
 	grpBusiness groupbusiness.GroupBusiness,
-	memBusiness groupbusiness.MembershipBusiness,
-	tenBusiness groupbusiness.TenureBusiness,
-	perBusiness groupbusiness.PeriodBusiness,
-	pc *clients.PlatformClients,
+	_ groupbusiness.MembershipBusiness,
+	_ groupbusiness.TenureBusiness,
+	_ groupbusiness.PeriodBusiness,
+	_ *clients.PlatformClients,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -125,14 +126,14 @@ func handleWelcomeGroup(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
 func handleSetupLedger(
 	grpBusiness groupbusiness.GroupBusiness,
-	memBusiness groupbusiness.MembershipBusiness,
-	pc *clients.PlatformClients,
+	_ groupbusiness.MembershipBusiness,
+	_ *clients.PlatformClients,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -146,7 +147,7 @@ func handleSetupLedger(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
@@ -163,14 +164,14 @@ func handleCreateTenure(tenBusiness groupbusiness.TenureBusiness) http.HandlerFu
 			return
 		}
 
-		writeJSON(w, http.StatusOK, tenure)
+		writeJSON(w, tenure)
 	}
 }
 
 func handleRegisterLender(
 	grpBusiness groupbusiness.GroupBusiness,
-	memBusiness groupbusiness.MembershipBusiness,
-	pc *clients.PlatformClients,
+	_ groupbusiness.MembershipBusiness,
+	_ *clients.PlatformClients,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -184,7 +185,7 @@ func handleRegisterLender(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
@@ -201,13 +202,13 @@ func handleOpenPeriod(perBusiness groupbusiness.PeriodBusiness) http.HandlerFunc
 			return
 		}
 
-		writeJSON(w, http.StatusOK, period)
+		writeJSON(w, period)
 	}
 }
 
 func handleEvaluateLoanWindow(
 	lwBusiness fundingbusiness.LoanWindowBusiness,
-	perBusiness groupbusiness.PeriodBusiness,
+	_ groupbusiness.PeriodBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -221,13 +222,13 @@ func handleEvaluateLoanWindow(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
 func handleCalculateObligations(
 	obBusiness opsbusiness.ObligationBusiness,
-	memBusiness groupbusiness.MembershipBusiness,
+	_ groupbusiness.MembershipBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -241,7 +242,7 @@ func handleCalculateObligations(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
@@ -268,14 +269,14 @@ func handleGroupTransition(grpBusiness groupbusiness.GroupBusiness) http.Handler
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
 func handleClosePeriod(
 	perBusiness groupbusiness.PeriodBusiness,
-	memBusiness groupbusiness.MembershipBusiness,
-	obBusiness opsbusiness.ObligationBusiness,
+	_ groupbusiness.MembershipBusiness,
+	_ opsbusiness.ObligationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -289,13 +290,13 @@ func handleClosePeriod(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
 func handleCheckPeriodicPayment(
 	memBusiness groupbusiness.MembershipBusiness,
-	obBusiness opsbusiness.ObligationBusiness,
+	_ opsbusiness.ObligationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -310,12 +311,12 @@ func handleCheckPeriodicPayment(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
 func handleGenerateOffers(
-	lwBusiness fundingbusiness.LoanWindowBusiness,
+	_ fundingbusiness.LoanWindowBusiness,
 	loBusiness fundingbusiness.LoanOfferBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -330,12 +331,12 @@ func handleGenerateOffers(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, offers)
+		writeJSON(w, offers)
 	}
 }
 
 func handleSourceFunding(
-	loBusiness fundingbusiness.LoanOfferBusiness,
+	_ fundingbusiness.LoanOfferBusiness,
 	lfBusiness fundingbusiness.FundingAllocationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -350,13 +351,13 @@ func handleSourceFunding(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
 func handleCreateLoanAccount(
 	loBusiness fundingbusiness.LoanOfferBusiness,
-	pc *clients.PlatformClients,
+	_ *clients.PlatformClients,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -370,18 +371,18 @@ func handleCreateLoanAccount(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
-func handleGenerateSchedule(pc *clients.PlatformClients) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func handleGenerateSchedule(_ *clients.PlatformClients) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, "schedule generation must be triggered via loans service", http.StatusNotImplemented)
 	}
 }
 
-func handleDisburse(pc *clients.PlatformClients) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func handleDisburse(_ *clients.PlatformClients) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(
 			w,
 			"disbursement requires operations service - create a DISBURSEMENT transfer order",
@@ -408,14 +409,14 @@ func handleIdentifyPayment(prBusiness opsbusiness.PaymentRoutingBusiness) http.H
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
 func handleAllocatePayment(
 	prBusiness opsbusiness.PaymentRoutingBusiness,
-	toBusiness opsbusiness.TransferOrderBusiness,
-	obBusiness opsbusiness.ObligationBusiness,
+	_ opsbusiness.TransferOrderBusiness,
+	_ opsbusiness.ObligationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -429,7 +430,7 @@ func handleAllocatePayment(
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, result)
 	}
 }
 
@@ -446,7 +447,7 @@ func handleExecuteTransferOrder(toBusiness opsbusiness.TransferOrderBusiness) ht
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		writeJSON(w, map[string]string{"status": "ok"})
 	}
 }
 
@@ -463,13 +464,15 @@ func handleObligationStatus(obBusiness opsbusiness.ObligationBusiness) http.Hand
 			return
 		}
 
-		writeJSON(w, http.StatusOK, status)
+		writeJSON(w, status)
 	}
 }
 
-// writeJSON writes a JSON response.
-func writeJSON(w http.ResponseWriter, status int, data interface{}) {
+// writeJSON writes a JSON response with HTTP 200 OK status.
+func writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data) //nolint:errcheck
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		util.Log(context.Background()).WithError(err).Warn("failed to encode JSON response")
+	}
 }

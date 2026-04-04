@@ -3,6 +3,7 @@ package business
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -19,6 +20,19 @@ import (
 	"github.com/antinvestor/service-lender/apps/loans/service/models"
 	"github.com/antinvestor/service-lender/apps/loans/service/repository"
 	"github.com/antinvestor/service-lender/pkg/calculation"
+)
+
+const (
+	// decimalPrecision is the number of decimal places for minor unit conversions (cents).
+	decimalPrecision = 2
+	// daysPerWeek is the number of days in a weekly period.
+	daysPerWeek = 7
+	// daysPerBiweek is the number of days in a biweekly period.
+	daysPerBiweek = 14
+	// daysPerMonth is the approximate number of days in a monthly period.
+	daysPerMonth = 30
+	// daysPerQuarter is the approximate number of days in a quarterly period.
+	daysPerQuarter = 90
 )
 
 // validTransitions defines the allowed loan status transitions.
@@ -111,69 +125,13 @@ func NewLoanAccountBusiness(
 func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) (*loansv1.LoanAccountObject, error) {
 	logger := util.Log(ctx).WithField("method", "LoanAccountBusiness.Create")
 
-	la := &models.LoanAccount{
-		ApplicationID: applicationID,
-		Status:        int32(loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT),
-	}
-
-	// Fetch application details from origination service to populate the loan
 	if b.originationCli == nil {
 		return nil, ErrOriginationServiceUnavailable
 	}
 
-	var lp *models.LoanProduct
-	{
-		appResp, appErr := b.originationCli.ApplicationGet(ctx, connect.NewRequest(
-			&originationv1.ApplicationGetRequest{Id: applicationID},
-		))
-		if appErr != nil {
-			logger.WithError(appErr).Error("could not fetch application from origination service")
-			return nil, ErrApplicationNotFound
-		}
-
-		app := appResp.Msg.GetData()
-		la.ProductID = app.GetProductId()
-		la.ClientID = app.GetClientId()
-		la.AgentID = app.GetAgentId()
-		la.BranchID = app.GetBranchId()
-		la.BankID = app.GetBankId()
-		approvedAmount, approvedCurrency := models.MoneyToMinorUnits(app.GetApprovedAmount())
-		la.CurrencyCode = approvedCurrency
-		la.PrincipalAmount = approvedAmount
-		la.InterestRate = models.StringToBasisPoints(app.GetInterestRate())
-		la.TermDays = app.GetApprovedTermDays()
-
-		// Fetch product details for interest method and repayment frequency
-		if app.GetProductId() != "" {
-			prod, prodErr := b.loanProductRepo.GetByID(ctx, app.GetProductId())
-			if prodErr == nil && prod != nil {
-				lp = prod
-				la.InterestMethod = prod.InterestMethod
-				la.RepaymentFrequency = prod.RepaymentFrequency
-
-				// Use product rate if application doesn't have one
-				if la.InterestRate == 0 {
-					la.InterestRate = prod.AnnualInterestRate
-				}
-				if la.CurrencyCode == "" {
-					la.CurrencyCode = prod.CurrencyCode
-				}
-			} else {
-				logger.WithError(prodErr).Warn("could not fetch loan product, using application data only")
-			}
-		}
-
-		// Use requested amounts as fallback if approved amounts are zero
-		if la.PrincipalAmount == 0 {
-			reqAmt, reqCur := models.MoneyToMinorUnits(app.GetRequestedAmount())
-			la.PrincipalAmount = reqAmt
-			if la.CurrencyCode == "" {
-				la.CurrencyCode = reqCur
-			}
-		}
-		if la.TermDays == 0 {
-			la.TermDays = app.GetRequestedTermDays()
-		}
+	la, lp, err := b.populateLoanFromApplication(ctx, logger, applicationID)
+	if err != nil {
+		return nil, err
 	}
 
 	if la.PrincipalAmount <= 0 {
@@ -181,42 +139,118 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 	}
 
 	la.GenID(ctx)
+	setDisbursementDates(la)
 
-	// Set disbursement date and first repayment date so the schedule can be generated.
-	// For direct client products, disbursement happens immediately upon loan creation.
-	now := time.Now().UTC()
-	la.DisbursedAt = &now
-	firstRepayment := now.AddDate(0, 0, computeFirstRepaymentDays(loansv1.RepaymentFrequency(la.RepaymentFrequency)))
-	la.FirstRepaymentDate = &firstRepayment
-
-	err := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la)
-	if err != nil {
+	if err = b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); err != nil {
 		logger.WithError(err).Error("could not emit loan account save event")
 		return nil, err
 	}
 
-	// Compute total outstanding including interest and fees from product
-	var totalInterest, totalFees int64
-	if lp != nil {
-		ppy := int64(
-			calculation.PeriodsPerYear(frequencyToPeriodType(loansv1.RepaymentFrequency(la.RepaymentFrequency))),
-		)
-		numInstallments := computeInstallmentCount(la.TermDays, loansv1.RepaymentFrequency(la.RepaymentFrequency))
-		if numInstallments <= 0 {
-			numInstallments = 1
+	b.createInitialBalance(ctx, logger, la, lp)
+
+	if b.scheduleBusiness != nil {
+		if _, schedErr := b.scheduleBusiness.Generate(ctx, la.GetID()); schedErr != nil {
+			logger.WithError(schedErr).Error("could not generate repayment schedule")
 		}
-		principal := decimalx.FromMinorUnits(la.PrincipalAmount, 2)
-		totalInterest = calculation.FlatRateInterest(principal, la.InterestRate, numInstallments, int32(ppy)).
-			ToMinorUnits(2)
-		totalFees = calculation.FlatRateInterest(
-			principal,
-			lp.InsuranceFeePercent+lp.ProcessingFeePercent,
-			numInstallments,
-			int32(ppy),
-		).ToMinorUnits(2)
 	}
 
-	// Create initial balance snapshot
+	return la.ToAPI(), nil
+}
+
+// populateLoanFromApplication fetches the application from origination and
+// populates a LoanAccount with its data and optional product defaults.
+func (b *loanAccountBusiness) populateLoanFromApplication(
+	ctx context.Context,
+	logger *util.LogEntry,
+	applicationID string,
+) (*models.LoanAccount, *models.LoanProduct, error) {
+	la := &models.LoanAccount{
+		ApplicationID: applicationID,
+		Status:        int32(loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT),
+	}
+
+	appResp, appErr := b.originationCli.ApplicationGet(ctx, connect.NewRequest(
+		&originationv1.ApplicationGetRequest{Id: applicationID},
+	))
+	if appErr != nil {
+		logger.WithError(appErr).Error("could not fetch application from origination service")
+		return nil, nil, ErrApplicationNotFound
+	}
+
+	app := appResp.Msg.GetData()
+	la.ProductID = app.GetProductId()
+	la.ClientID = app.GetClientId()
+	la.AgentID = app.GetAgentId()
+	la.BranchID = app.GetBranchId()
+	la.BankID = app.GetBankId()
+	approvedAmount, approvedCurrency := models.MoneyToMinorUnits(app.GetApprovedAmount())
+	la.CurrencyCode = approvedCurrency
+	la.PrincipalAmount = approvedAmount
+	la.InterestRate = models.StringToBasisPoints(app.GetInterestRate())
+	la.TermDays = app.GetApprovedTermDays()
+
+	lp := b.applyProductDefaults(ctx, logger, la, app.GetProductId())
+
+	// Use requested amounts as fallback if approved amounts are zero
+	if la.PrincipalAmount == 0 {
+		reqAmt, reqCur := models.MoneyToMinorUnits(app.GetRequestedAmount())
+		la.PrincipalAmount = reqAmt
+		if la.CurrencyCode == "" {
+			la.CurrencyCode = reqCur
+		}
+	}
+	if la.TermDays == 0 {
+		la.TermDays = app.GetRequestedTermDays()
+	}
+
+	return la, lp, nil
+}
+
+// applyProductDefaults enriches a loan account with product-level defaults
+// (interest method, repayment frequency, rate, currency).
+func (b *loanAccountBusiness) applyProductDefaults(
+	ctx context.Context,
+	logger *util.LogEntry,
+	la *models.LoanAccount,
+	productID string,
+) *models.LoanProduct {
+	if productID == "" {
+		return nil
+	}
+	prod, prodErr := b.loanProductRepo.GetByID(ctx, productID)
+	if prodErr != nil || prod == nil {
+		logger.WithError(prodErr).Warn("could not fetch loan product, using application data only")
+		return nil
+	}
+	la.InterestMethod = prod.InterestMethod
+	la.RepaymentFrequency = prod.RepaymentFrequency
+	if la.InterestRate == 0 {
+		la.InterestRate = prod.AnnualInterestRate
+	}
+	if la.CurrencyCode == "" {
+		la.CurrencyCode = prod.CurrencyCode
+	}
+	return prod
+}
+
+// setDisbursementDates sets the disbursement date to now and computes the first repayment date.
+func setDisbursementDates(la *models.LoanAccount) {
+	now := time.Now().UTC()
+	la.DisbursedAt = &now
+	firstRepayment := now.AddDate(0, 0, computeFirstRepaymentDays(loansv1.RepaymentFrequency(la.RepaymentFrequency)))
+	la.FirstRepaymentDate = &firstRepayment
+}
+
+// createInitialBalance creates the initial loan balance snapshot and emits it.
+func (b *loanAccountBusiness) createInitialBalance(
+	ctx context.Context,
+	logger *util.LogEntry,
+	la *models.LoanAccount,
+	lp *models.LoanProduct,
+) {
+	totalInterest, totalFees := computeInterestAndFees(la, lp)
+	now := time.Now().UTC()
+
 	balance := &models.LoanBalance{
 		LoanAccountID:        la.GetID(),
 		CurrencyCode:         la.CurrencyCode,
@@ -229,20 +263,9 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 	}
 	balance.GenID(ctx)
 
-	err = b.eventsMan.Emit(ctx, events.LoanBalanceSaveEvent, balance)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.LoanBalanceSaveEvent, balance); err != nil {
 		logger.WithError(err).Warn("could not emit loan balance save event")
 	}
-
-	// Auto-generate repayment schedule
-	if b.scheduleBusiness != nil {
-		if _, schedErr := b.scheduleBusiness.Generate(ctx, la.GetID()); schedErr != nil {
-			logger.WithError(schedErr).Error("could not generate repayment schedule")
-			// Non-fatal: loan is created but schedule needs manual generation
-		}
-	}
-
-	return la.ToAPI(), nil
 }
 
 func (b *loanAccountBusiness) Get(ctx context.Context, id string) (*loansv1.LoanAccountObject, error) {
@@ -348,47 +371,65 @@ func (b *loanAccountBusiness) GetStatement(
 		balanceAPI = balance.ToAPI()
 	}
 
-	// Build statement entries from repayments
-	var statementEntries []*loansv1.LoanStatementEntry
-
 	fromDate := models.StringToTime(req.GetFromDate())
 	toDate := models.StringToTime(req.GetToDate())
-
-	// Add repayment entries
-	repQuery := data.NewSearchQuery(
-		data.WithSearchFiltersAndByValue(map[string]any{
-			"loan_account_id = ?": req.GetLoanAccountId(),
-		}),
-	)
-	repResults, repErr := b.repaymentRepo.Search(ctx, repQuery)
-	if repErr == nil {
-		_ = workerpoolConsumeStream(ctx, repResults, func(batch []*models.Repayment) error {
-			for _, r := range batch {
-				if r.ReceivedAt == nil {
-					continue
-				}
-				if fromDate != nil && r.ReceivedAt.Before(*fromDate) {
-					continue
-				}
-				if toDate != nil && r.ReceivedAt.After(*toDate) {
-					continue
-				}
-				statementEntries = append(statementEntries, &loansv1.LoanStatementEntry{
-					Date:        models.TimeToString(r.ReceivedAt),
-					Description: "Repayment via " + r.Channel,
-					Credit:      models.MinorUnitsToMoney(r.Amount, r.CurrencyCode),
-					Reference:   r.PaymentReference,
-				})
-			}
-			return nil
-		})
-	}
+	statementEntries := b.buildStatementEntries(ctx, req.GetLoanAccountId(), fromDate, toDate)
 
 	return &loansv1.LoanStatementResponse{
 		Loan:    la.ToAPI(),
 		Balance: balanceAPI,
 		Entries: statementEntries,
 	}, nil
+}
+
+// buildStatementEntries collects repayment entries for a statement within the given date range.
+func (b *loanAccountBusiness) buildStatementEntries(
+	ctx context.Context,
+	loanAccountID string,
+	fromDate, toDate *time.Time,
+) []*loansv1.LoanStatementEntry {
+	var entries []*loansv1.LoanStatementEntry
+
+	repQuery := data.NewSearchQuery(
+		data.WithSearchFiltersAndByValue(map[string]any{
+			"loan_account_id = ?": loanAccountID,
+		}),
+	)
+	repResults, repErr := b.repaymentRepo.Search(ctx, repQuery)
+	if repErr != nil {
+		return entries
+	}
+
+	_ = workerpoolConsumeStream(ctx, repResults, func(batch []*models.Repayment) error {
+		for _, r := range batch {
+			if !isRepaymentInRange(r, fromDate, toDate) {
+				continue
+			}
+			entries = append(entries, &loansv1.LoanStatementEntry{
+				Date:        models.TimeToString(r.ReceivedAt),
+				Description: "Repayment via " + r.Channel,
+				Credit:      models.MinorUnitsToMoney(r.Amount, r.CurrencyCode),
+				Reference:   r.PaymentReference,
+			})
+		}
+		return nil
+	})
+
+	return entries
+}
+
+// isRepaymentInRange checks whether a repayment falls within the given date range.
+func isRepaymentInRange(r *models.Repayment, fromDate, toDate *time.Time) bool {
+	if r.ReceivedAt == nil {
+		return false
+	}
+	if fromDate != nil && r.ReceivedAt.Before(*fromDate) {
+		return false
+	}
+	if toDate != nil && r.ReceivedAt.After(*toDate) {
+		return false
+	}
+	return true
 }
 
 func (b *loanAccountBusiness) TransitionStatus(
@@ -461,14 +502,50 @@ func computeFirstRepaymentDays(freq loansv1.RepaymentFrequency) int {
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_DAILY:
 		return 1
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_WEEKLY:
-		return 7
+		return daysPerWeek
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_BIWEEKLY:
-		return 14
+		return daysPerBiweek
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_MONTHLY:
-		return 30
+		return daysPerMonth
 	case loansv1.RepaymentFrequency_REPAYMENT_FREQUENCY_QUARTERLY:
-		return 90
+		return daysPerQuarter
 	default:
-		return 7
+		return daysPerWeek
 	}
+}
+
+// computeInterestAndFees calculates total interest and fees for a loan based on
+// the product configuration. Returns (0, 0) if no product is provided.
+func computeInterestAndFees(la *models.LoanAccount, lp *models.LoanProduct) (int64, int64) {
+	if lp == nil {
+		return 0, 0
+	}
+	ppy := int64(
+		calculation.PeriodsPerYear(frequencyToPeriodType(loansv1.RepaymentFrequency(la.RepaymentFrequency))),
+	)
+	numInstallments := computeInstallmentCount(la.TermDays, loansv1.RepaymentFrequency(la.RepaymentFrequency))
+	if numInstallments <= 0 {
+		numInstallments = 1
+	}
+	principal := decimalx.FromMinorUnits(la.PrincipalAmount, decimalPrecision)
+	totalInterest := calculation.FlatRateInterest(principal, la.InterestRate, numInstallments, safeInt32(ppy)).
+		ToMinorUnits(decimalPrecision)
+	totalFees := calculation.FlatRateInterest(
+		principal,
+		lp.InsuranceFeePercent+lp.ProcessingFeePercent,
+		numInstallments,
+		safeInt32(ppy),
+	).ToMinorUnits(decimalPrecision)
+	return totalInterest, totalFees
+}
+
+// safeInt32 converts an int64 to int32 with clamping to avoid overflow.
+func safeInt32(v int64) int32 {
+	if v > math.MaxInt32 {
+		return math.MaxInt32
+	}
+	if v < math.MinInt32 {
+		return math.MinInt32
+	}
+	return int32(v)
 }

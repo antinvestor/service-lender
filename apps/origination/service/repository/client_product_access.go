@@ -16,6 +16,9 @@ type ClientProductAccessRepository interface {
 	HasAccess(ctx context.Context, clientID, productID string) (bool, error)
 }
 
+// stateActive is the numeric value for the active state used in database queries.
+const stateActive = 3
+
 type clientProductAccessRepository struct {
 	datastore.BaseRepository[*models.ClientProductAccess]
 }
@@ -38,7 +41,7 @@ func (r *clientProductAccessRepository) GetByClientID(
 ) ([]*models.ClientProductAccess, error) {
 	var records []*models.ClientProductAccess
 	err := r.Pool().DB(ctx, true).
-		Where("client_id = ? AND state = ?", clientID, 3). // StateActive
+		Where("client_id = ? AND state = ?", clientID, stateActive).
 		Find(&records).Error
 	return records, err
 }
@@ -50,7 +53,7 @@ func (r *clientProductAccessRepository) HasAccess(ctx context.Context, clientID,
 	var totalCount int64
 	err := r.Pool().DB(ctx, true).
 		Model(&models.ClientProductAccess{}).
-		Where("client_id = ? AND state = ?", clientID, 3).
+		Where("client_id = ? AND state = ?", clientID, stateActive).
 		Count(&totalCount).Error
 	if err != nil {
 		return false, err
@@ -65,7 +68,7 @@ func (r *clientProductAccessRepository) HasAccess(ctx context.Context, clientID,
 	var matchCount int64
 	err = r.Pool().DB(ctx, true).
 		Model(&models.ClientProductAccess{}).
-		Where("client_id = ? AND product_id = ? AND state = ?", clientID, productID, 3).
+		Where("client_id = ? AND product_id = ? AND state = ?", clientID, productID, stateActive).
 		Count(&matchCount).Error
 	if err != nil {
 		return false, err

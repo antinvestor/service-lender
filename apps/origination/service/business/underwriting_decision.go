@@ -72,7 +72,7 @@ func (b *underwritingDecisionBusiness) Save(
 	}
 
 	// Drive application status based on the underwriting outcome
-	if err := b.applyDecisionToApplication(ctx, logger, ud); err != nil {
+	if err = b.applyDecisionToApplication(ctx, logger, ud); err != nil {
 		logger.WithError(err).Error("could not apply underwriting decision to application")
 		return nil, err
 	}

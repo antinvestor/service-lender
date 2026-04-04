@@ -67,6 +67,13 @@ type identificationResult struct {
 // Strategy 5: Customer group name match via payer name
 //
 // If no match is found the payment is routed to the product's unidentified account.
+// identificationStrategy defines one step in the payment identification pipeline.
+type identificationStrategy struct {
+	name    string
+	enabled bool
+	run     func(ctx context.Context) (*identificationResult, error)
+}
+
 func (b *paymentRoutingBusiness) IdentifyPayment(
 	ctx context.Context,
 	paymentData map[string]interface{},
@@ -83,76 +90,49 @@ func (b *paymentRoutingBusiness) IdentifyPayment(
 	payerRef = strings.TrimSpace(payerRef)
 	payerName = strings.TrimSpace(payerName)
 
-	// Strategy 1: Direct membership ID in payment reference.
-	// The payer may place the membership ID directly into the payment reference field.
-	if paymentRef != "" {
-		result, err := b.identifyByMembershipID(ctx, paymentRef)
+	strategies := []identificationStrategy{
+		{"direct membership ID", paymentRef != "", func(ctx context.Context) (*identificationResult, error) {
+			return b.identifyByMembershipID(ctx, paymentRef)
+		}},
+		{"profile ID single match", payerRef != "", func(ctx context.Context) (*identificationResult, error) {
+			return b.identifyByProfileID(ctx, payerRef)
+		}},
+		{"filtered membership type", payerRef != "", func(ctx context.Context) (*identificationResult, error) {
+			return b.identifyByFilteredMembership(ctx, payerRef, groupID)
+		}},
+		{"contact ID match", payerRef != "", func(ctx context.Context) (*identificationResult, error) {
+			return b.identifyByContactID(ctx, payerRef, groupID)
+		}},
+		{
+			"payer name match",
+			payerName != "" && groupID != "",
+			func(ctx context.Context) (*identificationResult, error) {
+				return b.identifyByPayerName(ctx, payerName, groupID)
+			},
+		},
+	}
+
+	for i, s := range strategies {
+		if !s.enabled {
+			continue
+		}
+		result, err := s.run(ctx)
 		if err == nil && result != nil {
 			logger.WithField("membership_id", result.MembershipID).
-				Info("payment identified via strategy 1: direct membership ID")
+				Info(fmt.Sprintf("payment identified via strategy %d: %s", i+1, s.name))
 			return b.buildIdentificationResult(result), nil
 		}
 	}
 
-	// Strategy 2: Profile ID match -- single membership lookup.
-	// If the payer_reference resolves to a profile ID that has exactly one active membership
-	// we can unambiguously attribute the payment.
-	if payerRef != "" {
-		result, err := b.identifyByProfileID(ctx, payerRef)
-		if err == nil && result != nil {
-			logger.WithField("membership_id", result.MembershipID).
-				Info("payment identified via strategy 2: profile ID single match")
-			return b.buildIdentificationResult(result), nil
-		}
-	}
-
-	// Strategy 3: Filter member subscriptions (non-account types).
-	// When a profile has multiple memberships we narrow the list to only
-	// MembershipTypeMember (type 3) entries, excluding registra/agent/funder subscriptions.
-	// If that yields a single result we use it.
-	if payerRef != "" {
-		result, err := b.identifyByFilteredMembership(ctx, payerRef, groupID)
-		if err == nil && result != nil {
-			logger.WithField("membership_id", result.MembershipID).
-				Info("payment identified via strategy 3: filtered membership type")
-			return b.buildIdentificationResult(result), nil
-		}
-	}
-
-	// Strategy 4: Contact ID match within group members.
-	// Look up all memberships with a matching contact_id. If a group_id scope is provided
-	// narrow down to that group. A single match is used.
-	if payerRef != "" {
-		result, err := b.identifyByContactID(ctx, payerRef, groupID)
-		if err == nil && result != nil {
-			logger.WithField("membership_id", result.MembershipID).
-				Info("payment identified via strategy 4: contact ID match")
-			return b.buildIdentificationResult(result), nil
-		}
-	}
-
-	// Strategy 5: Customer group name match.
-	// When none of the ID-based strategies succeed, attempt a fuzzy match on the payer name
-	// against membership names within the target group.
-	if payerName != "" && groupID != "" {
-		result, err := b.identifyByPayerName(ctx, payerName, groupID)
-		if err == nil && result != nil {
-			logger.WithField("membership_id", result.MembershipID).
-				Info("payment identified via strategy 5: payer name match")
-			return b.buildIdentificationResult(result), nil
-		}
-	}
-
-	// Unidentified -- route to the product's unidentified account.
 	logger.Warn("payment could not be identified, routing to unidentified account")
-	result := map[string]interface{}{
+	unidentified := map[string]interface{}{
 		"strategy": "unidentified",
 		"reason":   "no matching member found across all identification strategies",
 	}
 	if productID != "" {
-		result["unidentified_account"] = constants.ProductUnidentifiedAccount(productID)
+		unidentified["unidentified_account"] = constants.ProductUnidentifiedAccount(productID)
 	}
-	return result, nil
+	return unidentified, nil
 }
 
 // identifyByMembershipID implements Strategy 1.
@@ -393,7 +373,7 @@ func (b *paymentRoutingBusiness) AllocatePayment(
 
 	// Claim the payment for processing to prevent concurrent allocation.
 	payment.State = int32(constants.StateCheckCreated)
-	if err := b.eventsMan.Emit(ctx, events.IncomingPaymentSaveEvent, payment); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.IncomingPaymentSaveEvent, payment); err != nil {
 		return nil, fmt.Errorf("could not claim payment for allocation: %w", err)
 	}
 
@@ -421,200 +401,13 @@ func (b *paymentRoutingBusiness) AllocatePayment(
 		return di.Before(dj)
 	})
 
-	// Define priority buckets in strict allocation order.
-	// Loan obligations are split into separate buckets for principal, interest,
-	// and fees so each component gets its own transfer order and can be routed
-	// to the correct handler (repayment, interest income, insurance).
-	buckets := []allocationBucket{
-		{
-			// Overdue loan interest (oldest first)
-			name:      "overdue_loan_interest",
-			orderType: constants.TransferTypeLoanInterestRepayment,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "loan_interest" &&
-					isOverdue(o)
-			},
-		},
-		{
-			// Overdue loan fees (oldest first)
-			name:      "overdue_loan_fees",
-			orderType: constants.TransferTypeLoanInsuranceRepayment,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "loan_fees" &&
-					isOverdue(o)
-			},
-		},
-		{
-			// Overdue loan principal (oldest first)
-			name:      "overdue_loan_principal",
-			orderType: constants.TransferTypeLoanRepayment,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "loan_principal" &&
-					isOverdue(o)
-			},
-		},
-		{
-			// Current loan interest repayment
-			name:      "loan_interest_repayment",
-			orderType: constants.TransferTypeLoanInterestRepayment,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "loan_interest" &&
-					!isOverdue(o)
-			},
-		},
-		{
-			// Current loan fees repayment (insurance + processing combined)
-			name:      "loan_fees_repayment",
-			orderType: constants.TransferTypeLoanInsuranceRepayment,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "loan_fees" &&
-					!isOverdue(o)
-			},
-		},
-		{
-			// Current loan principal repayment
-			name:      "loan_principal_repayment",
-			orderType: constants.TransferTypeLoanRepayment,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "loan_principal" &&
-					!isOverdue(o)
-			},
-		},
-		{
-			name:      "penalty",
-			orderType: constants.TransferTypePenalty,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "penalty"
-			},
-		},
-		{
-			name:      "periodic_saving",
-			orderType: constants.TransferTypePeriodicSaving,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.ObligationType == int32(models.ObligationTypePeriodic) &&
-					o.CauseType == "saving"
-			},
-		},
-		{
-			name:      "registration_fee",
-			orderType: constants.TransferTypeRegistrationFee,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.ObligationType == int32(models.ObligationTypeOneTime) &&
-					o.CauseType == "registration_fee"
-			},
-		},
-		{
-			name:      "service_fee",
-			orderType: constants.TransferTypeServiceFee,
-			filter: func(o *models.Obligation) bool {
-				return o.State == int32(constants.StateActive) &&
-					o.CauseType == "service_fee"
-			},
-		},
-	}
+	buckets := buildAllocationBuckets()
+	remainingAmount, allocations := b.runAllocationBuckets(
+		ctx, logger, buckets, obligations, payment, paymentID, membershipID,
+	)
 
-	remainingAmount := payment.Amount
-	var allocations []map[string]interface{}
-
-	// Walk each priority bucket and allocate funds to matching obligations.
-	for _, bkt := range buckets {
-		if remainingAmount <= 0 {
-			break
-		}
-
-		for _, obl := range obligations {
-			if remainingAmount <= 0 {
-				break
-			}
-			if !bkt.filter(obl) {
-				continue
-			}
-			if obl.Amount <= 0 {
-				continue
-			}
-
-			// Determine the allocation amount: the lesser of the obligation amount
-			// and the remaining payment balance.
-			allocAmount := obl.Amount
-			if allocAmount > remainingAmount {
-				allocAmount = remainingAmount
-			}
-
-			// Resolve debit (member suspense) and credit accounts for this transfer type.
-			debitAccount := constants.MemberSuspenseAccount(membershipID)
-			creditAccount := b.creditAccountForBucket(bkt.name, membershipID, obl)
-
-			// Build the transfer order.
-			to := &models.TransferOrder{
-				DebitAccountRef:  debitAccount,
-				CreditAccountRef: creditAccount,
-				Amount:           allocAmount,
-				Currency:         payment.Currency,
-				OrderType:        int32(bkt.orderType),
-				Reference:        fmt.Sprintf("payment:%s:obligation:%s", paymentID, obl.GetID()),
-				Description:      fmt.Sprintf("Auto-allocation of %s from payment %s", bkt.name, paymentID),
-				State:            int32(constants.StateJustCreated),
-			}
-			to.GenID(ctx)
-
-			if emitErr := b.eventsMan.Emit(ctx, events.TransferOrderSaveEvent, to); emitErr != nil {
-				logger.WithError(emitErr).WithField("bucket", bkt.name).
-					Error("failed to create transfer order for allocation")
-				continue
-			}
-
-			// Update the obligation based on whether it is fully or partially satisfied.
-			if allocAmount < obl.Amount {
-				// Partial: update remaining obligation amount.
-				obl.Amount -= allocAmount
-				if emitErr := b.eventsMan.Emit(ctx, events.ObligationSaveEvent, obl); emitErr != nil {
-					logger.WithError(emitErr).WithField("obligation_id", obl.GetID()).
-						Error("could not update partial obligation")
-				}
-			} else {
-				// Fully satisfied: mark inactive.
-				obl.State = int32(constants.StateInactive)
-				if emitErr := b.eventsMan.Emit(ctx, events.ObligationSaveEvent, obl); emitErr != nil {
-					logger.WithError(emitErr).WithField("obligation_id", obl.GetID()).
-						Error("could not deactivate obligation")
-				}
-			}
-
-			remainingAmount -= allocAmount
-			allocations = append(allocations, map[string]interface{}{
-				"bucket":            bkt.name,
-				"obligation_id":     obl.GetID(),
-				"transfer_order_id": to.GetID(),
-				"amount":            allocAmount,
-				"partial":           allocAmount < obl.Amount,
-			})
-
-			logger.WithField("bucket", bkt.name).
-				WithField("obligation_id", obl.GetID()).
-				WithField("amount", allocAmount).
-				Info("allocated payment to obligation")
-		}
-	}
-
-	// Determine the final payment state.
 	allocatedAmount := payment.Amount - remainingAmount
-	var paymentState int32
-	if remainingAmount == 0 {
-		paymentState = int32(constants.StateInactive) // fully allocated
-	} else if allocatedAmount > 0 {
-		paymentState = int32(constants.StateActive) // partially allocated
-	} else {
-		paymentState = int32(constants.StateCheckCreated) // nothing allocated
-	}
+	paymentState := resolvePaymentState(remainingAmount, allocatedAmount)
 
 	// Update the incoming payment state.
 	payment.State = paymentState
@@ -631,6 +424,179 @@ func (b *paymentRoutingBusiness) AllocatePayment(
 		"allocations":      allocations,
 		"payment_state":    paymentState,
 	}, nil
+}
+
+// buildAllocationBuckets returns the priority-ordered allocation buckets.
+func buildAllocationBuckets() []allocationBucket {
+	active := int32(constants.StateActive)
+	return []allocationBucket{
+		{name: "overdue_loan_interest", orderType: constants.TransferTypeLoanInterestRepayment,
+			filter: obligationMatcher(active, "loan_interest", true, 0)},
+		{name: "overdue_loan_fees", orderType: constants.TransferTypeLoanInsuranceRepayment,
+			filter: obligationMatcher(active, "loan_fees", true, 0)},
+		{name: "overdue_loan_principal", orderType: constants.TransferTypeLoanRepayment,
+			filter: obligationMatcher(active, "loan_principal", true, 0)},
+		{name: "loan_interest_repayment", orderType: constants.TransferTypeLoanInterestRepayment,
+			filter: obligationMatcherCurrent(active, "loan_interest")},
+		{name: "loan_fees_repayment", orderType: constants.TransferTypeLoanInsuranceRepayment,
+			filter: obligationMatcherCurrent(active, "loan_fees")},
+		{name: "loan_principal_repayment", orderType: constants.TransferTypeLoanRepayment,
+			filter: obligationMatcherCurrent(active, "loan_principal")},
+		{name: "penalty", orderType: constants.TransferTypePenalty,
+			filter: func(o *models.Obligation) bool {
+				return o.State == active && o.CauseType == "penalty"
+			}},
+		{name: "periodic_saving", orderType: constants.TransferTypePeriodicSaving,
+			filter: func(o *models.Obligation) bool {
+				return o.State == active && o.ObligationType == int32(models.ObligationTypePeriodic) &&
+					o.CauseType == "saving"
+			}},
+		{name: "registration_fee", orderType: constants.TransferTypeRegistrationFee,
+			filter: func(o *models.Obligation) bool {
+				return o.State == active && o.ObligationType == int32(models.ObligationTypeOneTime) &&
+					o.CauseType == "registration_fee"
+			}},
+		{name: "service_fee", orderType: constants.TransferTypeServiceFee,
+			filter: func(o *models.Obligation) bool {
+				return o.State == active && o.CauseType == "service_fee"
+			}},
+	}
+}
+
+// obligationMatcher returns a filter for active obligations of a given cause type that are overdue.
+func obligationMatcher(activeState int32, causeType string, overdue bool, _ int) func(*models.Obligation) bool {
+	return func(o *models.Obligation) bool {
+		return o.State == activeState && o.CauseType == causeType && isOverdue(o) == overdue
+	}
+}
+
+// obligationMatcherCurrent returns a filter for active, non-overdue obligations of a given cause type.
+func obligationMatcherCurrent(activeState int32, causeType string) func(*models.Obligation) bool {
+	return func(o *models.Obligation) bool {
+		return o.State == activeState && o.CauseType == causeType && !isOverdue(o)
+	}
+}
+
+// runAllocationBuckets walks priority buckets and allocates funds from the payment.
+// Returns the remaining amount and all allocation records.
+func (b *paymentRoutingBusiness) runAllocationBuckets(
+	ctx context.Context,
+	logger *util.LogEntry,
+	buckets []allocationBucket,
+	obligations []*models.Obligation,
+	payment *models.IncomingPayment,
+	paymentID, membershipID string,
+) (int64, []map[string]interface{}) {
+	remainingAmount := payment.Amount
+	var allocations []map[string]interface{}
+
+	for _, bkt := range buckets {
+		if remainingAmount <= 0 {
+			break
+		}
+		var allocated int64
+		allocated, allocations = b.allocateBucket(
+			ctx, logger, bkt, obligations, payment,
+			paymentID, membershipID, remainingAmount, allocations,
+		)
+		remainingAmount -= allocated
+	}
+
+	return remainingAmount, allocations
+}
+
+// resolvePaymentState determines the final payment state based on allocation outcome.
+func resolvePaymentState(remaining, allocated int64) int32 {
+	switch {
+	case remaining == 0:
+		return int32(constants.StateInactive)
+	case allocated > 0:
+		return int32(constants.StateActive)
+	default:
+		return int32(constants.StateCheckCreated)
+	}
+}
+
+// allocateBucket processes a single priority bucket against obligations, creating
+// transfer orders and updating obligation state. Returns total allocated amount
+// and the updated allocations slice.
+func (b *paymentRoutingBusiness) allocateBucket(
+	ctx context.Context,
+	logger *util.LogEntry,
+	bkt allocationBucket,
+	obligations []*models.Obligation,
+	payment *models.IncomingPayment,
+	paymentID, membershipID string,
+	remainingAmount int64,
+	allocations []map[string]interface{},
+) (int64, []map[string]interface{}) {
+	var totalAllocated int64
+
+	for _, obl := range obligations {
+		if remainingAmount <= 0 {
+			break
+		}
+		if !bkt.filter(obl) || obl.Amount <= 0 {
+			continue
+		}
+
+		allocAmount := obl.Amount
+		if allocAmount > remainingAmount {
+			allocAmount = remainingAmount
+		}
+
+		debitAccount := constants.MemberSuspenseAccount(membershipID)
+		creditAccount := b.creditAccountForBucket(bkt.name, membershipID, obl)
+
+		to := &models.TransferOrder{
+			DebitAccountRef:  debitAccount,
+			CreditAccountRef: creditAccount,
+			Amount:           allocAmount,
+			Currency:         payment.Currency,
+			OrderType:        constants.SafeInt32FromInt(bkt.orderType),
+			Reference:        fmt.Sprintf("payment:%s:obligation:%s", paymentID, obl.GetID()),
+			Description:      fmt.Sprintf("Auto-allocation of %s from payment %s", bkt.name, paymentID),
+			State:            int32(constants.StateJustCreated),
+		}
+		to.GenID(ctx)
+
+		if emitErr := b.eventsMan.Emit(ctx, events.TransferOrderSaveEvent, to); emitErr != nil {
+			logger.WithError(emitErr).WithField("bucket", bkt.name).
+				Error("failed to create transfer order for allocation")
+			continue
+		}
+
+		if allocAmount < obl.Amount {
+			obl.Amount -= allocAmount
+			if emitErr := b.eventsMan.Emit(ctx, events.ObligationSaveEvent, obl); emitErr != nil {
+				logger.WithError(emitErr).WithField("obligation_id", obl.GetID()).
+					Error("could not update partial obligation")
+			}
+		} else {
+			obl.State = int32(constants.StateInactive)
+			if emitErr := b.eventsMan.Emit(ctx, events.ObligationSaveEvent, obl); emitErr != nil {
+				logger.WithError(emitErr).WithField("obligation_id", obl.GetID()).
+					Error("could not deactivate obligation")
+			}
+		}
+
+		remainingAmount -= allocAmount
+		totalAllocated += allocAmount
+		allocations = append(allocations, map[string]interface{}{
+			"bucket":            bkt.name,
+			"obligation_id":     obl.GetID(),
+			"transfer_order_id": to.GetID(),
+			"amount":            allocAmount,
+			"partial":           allocAmount < obl.Amount,
+		})
+
+		logger.WithField("bucket", bkt.name).
+			WithField("obligation_id", obl.GetID()).
+			WithField("amount", allocAmount).
+			Info("allocated payment to obligation")
+	}
+
+	return totalAllocated, allocations
 }
 
 // creditAccountForBucket returns the appropriate credit account reference for a given

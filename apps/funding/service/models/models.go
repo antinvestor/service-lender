@@ -7,10 +7,17 @@ import (
 	money "google.golang.org/genproto/googleapis/type/money"
 )
 
+const (
+	// percentageDivisor is the number of minor units per major currency unit (e.g. 100 cents per dollar).
+	percentageDivisor = 100
+	// moneyNanosFactor converts minor-unit remainders to protobuf nanos (1e9 / 100).
+	moneyNanosFactor = 10_000_000
+)
+
 // MinorUnitsToMoney converts minor units and a currency code to a *money.Money.
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
-	units := v / 100
-	nanos := (v % 100) * 10_000_000
+	units := v / percentageDivisor
+	nanos := (v % percentageDivisor) * moneyNanosFactor
 	return &money.Money{
 		CurrencyCode: currencyCode,
 		Units:        units,

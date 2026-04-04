@@ -26,12 +26,13 @@ type Discrepancy struct {
 	Currency        string
 }
 
-// ReconciliationResult summarizes a reconciliation run.
-type ReconciliationResult struct {
-	TotalAccounts   int
-	MatchedAccounts int
-	Discrepancies   []Discrepancy
-	Errors          []string
+// Result summarizes a reconciliation run.
+type Result struct {
+	TotalAccounts    int
+	MatchedAccounts  int
+	Discrepancies    []Discrepancy
+	Errors           []string
+	ExpectedBalances map[string]int64 // account → expected balance from transfer orders
 }
 
 // Reconciler performs balance reconciliation.
@@ -57,9 +58,11 @@ func NewReconciler(
 }
 
 // ReconcileGroup performs balance reconciliation for all accounts in a group.
-func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*ReconciliationResult, error) {
+func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Result, error) {
 	logger := util.Log(ctx).WithField("method", "Reconciler.ReconcileGroup").WithField("group_id", groupID)
-	result := &ReconciliationResult{}
+	result := &Result{
+		ExpectedBalances: make(map[string]int64),
+	}
 
 	// Get all members in the group
 	members, err := r.memRepo.GetByGroupID(ctx, groupID)
@@ -89,8 +92,8 @@ func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Recon
 
 			// TODO: Get actual balance from Ledger service
 			// For now, we record the expected balance
-			result.MatchedAccounts++ // placeholder until ledger integration
-			_ = expectedBalance
+			result.MatchedAccounts++
+			result.ExpectedBalances[accountName] = expectedBalance
 		}
 	}
 
@@ -114,7 +117,7 @@ func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Recon
 			continue
 		}
 		result.MatchedAccounts++
-		_ = expectedBalance
+		result.ExpectedBalances[accountName] = expectedBalance
 	}
 
 	logger.WithField("total_accounts", result.TotalAccounts).
@@ -179,7 +182,7 @@ func (r *Reconciler) calculateExpectedBalance(ctx context.Context, accountRef st
 }
 
 // ReconcileAllActiveGroups runs reconciliation across all active groups.
-func (r *Reconciler) ReconcileAllActiveGroups(ctx context.Context) ([]*ReconciliationResult, error) {
+func (r *Reconciler) ReconcileAllActiveGroups(ctx context.Context) ([]*Result, error) {
 	logger := util.Log(ctx).WithField("method", "Reconciler.ReconcileAllActiveGroups")
 
 	// Search for all active groups
@@ -193,7 +196,7 @@ func (r *Reconciler) ReconcileAllActiveGroups(ctx context.Context) ([]*Reconcili
 		return nil, fmt.Errorf("could not search active groups: %w", err)
 	}
 
-	var results []*ReconciliationResult
+	var results []*Result
 	err = workerpool.ConsumeResultStream(ctx, groupResults, func(batch []*groupmodels.CustomerGroup) error {
 		for _, group := range batch {
 			result, reconcileErr := r.ReconcileGroup(ctx, group.GetID())

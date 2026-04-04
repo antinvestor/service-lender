@@ -15,6 +15,7 @@ import (
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
 	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
+	"connectrpc.com/connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
 	"github.com/pitabwire/util"
@@ -50,153 +51,125 @@ type PlatformClients struct {
 	TenancyClient      tenancyv1connect.TenancyServiceClient
 }
 
+// newClient creates one typed Connect RPC client for the given endpoint and audience.
+func newClient[T any](
+	ctx context.Context, cfg any, endpoint, audience string,
+	ctor func(connect.HTTPClient, string, ...connect.ClientOption) T,
+) (T, error) {
+	target := common.ServiceTarget{Endpoint: endpoint, Audiences: []string{audience}}
+	return connection.NewServiceClient(ctx, cfg, target, ctor)
+}
+
 // NewPlatformClients creates all platform service clients using the given
 // endpoints. cfg is passed through to connection.NewServiceClient for auth
 // resolution. Clients whose endpoint is empty are left nil with a warning.
-func NewPlatformClients(ctx context.Context, cfg any, endpoints ServiceEndpoints) (*PlatformClients, error) {
-	log := util.Log(ctx)
+func NewPlatformClients(ctx context.Context, cfg any, ep ServiceEndpoints) (*PlatformClients, error) {
 	pc := &PlatformClients{}
 	var firstErr error
+	b := &clientBuilder{ctx: ctx, cfg: cfg, log: util.Log(ctx)}
 
-	trackErr := func(name string, err error) {
-		if err != nil {
-			log.WithError(err).Warn(fmt.Sprintf("Could not setup %s client", name))
-			if firstErr == nil {
-				firstErr = err
-			}
-		}
-	}
+	initServiceClient(b, ep.IdentityURI, "service_lender_identity", "lender-identity",
+		func(c fieldv1connect.FieldServiceClient) { pc.LenderIdentity = c }, fieldv1connect.NewFieldServiceClient)
+	initServiceClient(
+		b,
+		ep.IdentityURI,
+		"service_lender_identity",
+		"lender-registry",
+		func(c identityv1connect.IdentityServiceClient) { pc.LenderRegistry = c },
+		identityv1connect.NewIdentityServiceClient,
+	)
+	initServiceClient(
+		b,
+		ep.OriginationURI,
+		"service_lender_origination",
+		"lender-origination",
+		func(c originationv1connect.OriginationServiceClient) { pc.LenderOrigination = c },
+		originationv1connect.NewOriginationServiceClient,
+	)
+	initServiceClient(
+		b,
+		ep.LoanMgmtURI,
+		"service_lender_loans",
+		"lender-loan-management",
+		func(c loansv1connect.LoanManagementServiceClient) { pc.LenderLoanMgmt = c },
+		loansv1connect.NewLoanManagementServiceClient,
+	)
+	initServiceClient(
+		b,
+		ep.SavingsURI,
+		"service_lender_savings",
+		"lender-savings",
+		func(c savingsv1connect.SavingsServiceClient) { pc.LenderSavings = c },
+		savingsv1connect.NewSavingsServiceClient,
+	)
+	initServiceClient(b, ep.LedgerURI, "service_ledger", "ledger",
+		func(c ledgerv1connect.LedgerServiceClient) { pc.LedgerClient = c }, ledgerv1connect.NewLedgerServiceClient)
+	initServiceClient(
+		b,
+		ep.PaymentURI,
+		"service_payment",
+		"payment",
+		func(c paymentv1connect.PaymentServiceClient) { pc.PaymentClient = c },
+		paymentv1connect.NewPaymentServiceClient,
+	)
+	initServiceClient(
+		b,
+		ep.NotificationURI,
+		"service_notification",
+		"notification",
+		func(c notificationv1connect.NotificationServiceClient) { pc.NotificationClient = c },
+		notificationv1connect.NewNotificationServiceClient,
+	)
+	initServiceClient(b, ep.FilesURI, "service_file", "files",
+		func(c filesv1connect.FilesServiceClient) { pc.FilesClient = c }, filesv1connect.NewFilesServiceClient)
+	initServiceClient(
+		b,
+		ep.ProfileURI,
+		"service_profile",
+		"profile",
+		func(c profilev1connect.ProfileServiceClient) { pc.ProfileClient = c },
+		profilev1connect.NewProfileServiceClient,
+	)
+	initServiceClient(
+		b,
+		ep.PartitionURI,
+		"service_tenancy",
+		"partition",
+		func(c tenancyv1connect.TenancyServiceClient) { pc.TenancyClient = c },
+		tenancyv1connect.NewTenancyServiceClient,
+	)
 
-	warnSkip := func(name string) {
-		log.Warn(fmt.Sprintf("Skipping %s client: no endpoint configured", name))
-	}
-
-	// --- Identity (Field + Registry) ---
-	if endpoints.IdentityURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.IdentityURI,
-			Audiences: []string{"service_lender_identity"},
-		}, fieldv1connect.NewFieldServiceClient)
-		trackErr("lender-identity", err)
-		pc.LenderIdentity = cli
-
-		regCli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.IdentityURI,
-			Audiences: []string{"service_lender_identity"},
-		}, identityv1connect.NewIdentityServiceClient)
-		trackErr("lender-registry", err)
-		pc.LenderRegistry = regCli
-	} else {
-		warnSkip("lender-identity")
-	}
-
-	// --- Origination ---
-	if endpoints.OriginationURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.OriginationURI,
-			Audiences: []string{"service_lender_origination"},
-		}, originationv1connect.NewOriginationServiceClient)
-		trackErr("lender-origination", err)
-		pc.LenderOrigination = cli
-	} else {
-		warnSkip("lender-origination")
-	}
-
-	// --- Loan Management ---
-	if endpoints.LoanMgmtURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.LoanMgmtURI,
-			Audiences: []string{"service_lender_loans"},
-		}, loansv1connect.NewLoanManagementServiceClient)
-		trackErr("lender-loan-management", err)
-		pc.LenderLoanMgmt = cli
-	} else {
-		warnSkip("lender-loan-management")
-	}
-
-	// --- Savings ---
-	if endpoints.SavingsURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.SavingsURI,
-			Audiences: []string{"service_lender_savings"},
-		}, savingsv1connect.NewSavingsServiceClient)
-		trackErr("lender-savings", err)
-		pc.LenderSavings = cli
-	} else {
-		warnSkip("lender-savings")
-	}
-
-	// --- Ledger ---
-	if endpoints.LedgerURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.LedgerURI,
-			Audiences: []string{"service_ledger"},
-		}, ledgerv1connect.NewLedgerServiceClient)
-		trackErr("ledger", err)
-		pc.LedgerClient = cli
-	} else {
-		warnSkip("ledger")
-	}
-
-	// --- Payment ---
-	if endpoints.PaymentURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.PaymentURI,
-			Audiences: []string{"service_payment"},
-		}, paymentv1connect.NewPaymentServiceClient)
-		trackErr("payment", err)
-		pc.PaymentClient = cli
-	} else {
-		warnSkip("payment")
-	}
-
-	// --- Notification ---
-	if endpoints.NotificationURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.NotificationURI,
-			Audiences: []string{"service_notification"},
-		}, notificationv1connect.NewNotificationServiceClient)
-		trackErr("notification", err)
-		pc.NotificationClient = cli
-	} else {
-		warnSkip("notification")
-	}
-
-	// --- Files ---
-	if endpoints.FilesURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.FilesURI,
-			Audiences: []string{"service_file"},
-		}, filesv1connect.NewFilesServiceClient)
-		trackErr("files", err)
-		pc.FilesClient = cli
-	} else {
-		warnSkip("files")
-	}
-
-	// --- Profile ---
-	if endpoints.ProfileURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.ProfileURI,
-			Audiences: []string{"service_profile"},
-		}, profilev1connect.NewProfileServiceClient)
-		trackErr("profile", err)
-		pc.ProfileClient = cli
-	} else {
-		warnSkip("profile")
-	}
-
-	// --- Partition ---
-	if endpoints.PartitionURI != "" {
-		cli, err := connection.NewServiceClient(ctx, cfg, common.ServiceTarget{
-			Endpoint:  endpoints.PartitionURI,
-			Audiences: []string{"service_tenancy"},
-		}, tenancyv1connect.NewTenancyServiceClient)
-		trackErr("partition", err)
-		pc.TenancyClient = cli
-	} else {
-		warnSkip("partition")
-	}
-
+	firstErr = b.firstErr
 	return pc, firstErr
+}
+
+// clientBuilder accumulates the first error while initialising multiple service clients.
+type clientBuilder struct {
+	ctx      context.Context
+	cfg      any
+	log      *util.LogEntry
+	firstErr error
+}
+
+// initServiceClient creates a single service client and assigns it via the setter.
+// Skips clients whose endpoint is empty; records the first error on the builder.
+func initServiceClient[T any](
+	b *clientBuilder,
+	endpoint, audience, name string,
+	setter func(T),
+	ctor func(connect.HTTPClient, string, ...connect.ClientOption) T,
+) {
+	if endpoint == "" {
+		b.log.Warn(fmt.Sprintf("Skipping %s client: no endpoint configured", name))
+		return
+	}
+	cli, err := newClient(b.ctx, b.cfg, endpoint, audience, ctor)
+	if err != nil {
+		b.log.WithError(err).Warn(fmt.Sprintf("Could not setup %s client", name))
+		if b.firstErr == nil {
+			b.firstErr = err
+		}
+		return
+	}
+	setter(cli)
 }

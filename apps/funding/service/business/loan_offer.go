@@ -21,6 +21,15 @@ import (
 	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
+const (
+	// offerExpiryHours is the number of hours before a loan offer expires.
+	offerExpiryHours = 72
+	// decimalPrecisionOffer is the number of decimal places for minor unit conversions.
+	decimalPrecisionOffer = 2
+	// membershipTypeMember is the membership type value for regular members.
+	membershipTypeMember = int32(3)
+)
+
 type loanOfferBusiness struct {
 	eventsMan fevents.Manager
 	loRepo    repository.LoanOfferRepository
@@ -76,13 +85,13 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 	}
 
 	var offersGenerated int
-	expiryTime := time.Now().Add(72 * time.Hour)
+	expiryTime := time.Now().Add(offerExpiryHours * time.Hour)
 
 	for _, mem := range members {
 		memberID := mem.GetID()
 
 		// Skip non-regular members (agents, registrars)
-		if mem.MembershipType != int32(3) { // MembershipTypeMember
+		if mem.MembershipType != membershipTypeMember {
 			continue
 		}
 
@@ -94,9 +103,9 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 
 		// Calculate max loan amount using the window's leverage and periodic amount
 		// The periodic amount represents the member's savings balance for the window
-		periodicDec := decimalx.FromMinorUnits(window.PeriodicAmount, 2)
+		periodicDec := decimalx.FromMinorUnits(window.PeriodicAmount, decimalPrecisionOffer)
 		maxLoanDec := calculation.CalculateMaxLoanAmount(periodicDec, window.Leverage)
-		maxLoan := maxLoanDec.ToMinorUnits(2)
+		maxLoan := maxLoanDec.ToMinorUnits(decimalPrecisionOffer)
 		if maxLoan <= 0 {
 			logger.WithField("member_id", memberID).Debug("max loan is zero, skipping")
 			continue
@@ -187,39 +196,8 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 		"membership_id": offer.MembershipID,
 	}
 
-	// Create loan application via origination service
-	if b.clients != nil && b.clients.LenderOrigination != nil {
-		offerMoney := models.MinorUnitsToMoney(offer.Amount, offer.Currency)
-		appObj := &originationv1.ApplicationObject{
-			RequestedAmount: offerMoney,
-			ApprovedAmount:  offerMoney,
-			Purpose:         fmt.Sprintf("Group loan offer %s", offerID),
-		}
-		appResp, appErr := b.clients.LenderOrigination.ApplicationSave(ctx, connect.NewRequest(
-			&originationv1.ApplicationSaveRequest{Data: appObj},
-		))
-		if appErr != nil {
-			logger.WithError(appErr).Warn("could not create loan application via origination")
-		} else if appResp.Msg.GetData() != nil {
-			offer.ApplicationID = appResp.Msg.GetData().GetId()
-			result["application_id"] = offer.ApplicationID
-
-			// Create loan account via loan management service
-			if b.clients.LenderLoanMgmt != nil && offer.ApplicationID != "" {
-				loanResp, loanErr := b.clients.LenderLoanMgmt.LoanAccountCreate(ctx, connect.NewRequest(
-					&loansv1.LoanAccountCreateRequest{ApplicationId: offer.ApplicationID},
-				))
-				if loanErr != nil {
-					logger.WithError(loanErr).Warn("could not create loan account via loan management")
-				} else if loanResp.Msg.GetData() != nil {
-					offer.LoanAccountID = loanResp.Msg.GetData().GetId()
-					result["loan_account_id"] = offer.LoanAccountID
-				}
-			}
-		}
-	} else {
-		logger.Warn("origination client not available, skipping loan account creation")
-	}
+	// Create loan application and account via platform services
+	b.createLoanFromOffer(ctx, logger, offer, offerID, result)
 
 	// Persist any updates to the offer
 	if emitErr := b.eventsMan.Emit(ctx, events.LoanOfferSaveEvent, offer); emitErr != nil {
@@ -227,4 +205,55 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 	}
 
 	return result, nil
+}
+
+// createLoanFromOffer creates a loan application and account via origination and
+// loan management services, updating the offer and result map with the IDs.
+func (b *loanOfferBusiness) createLoanFromOffer(
+	ctx context.Context,
+	logger *util.LogEntry,
+	offer *models.LoanOffer,
+	offerID string,
+	result map[string]interface{},
+) {
+	if b.clients == nil || b.clients.LenderOrigination == nil {
+		logger.Warn("origination client not available, skipping loan account creation")
+		return
+	}
+
+	offerMoney := models.MinorUnitsToMoney(offer.Amount, offer.Currency)
+	appObj := &originationv1.ApplicationObject{
+		RequestedAmount: offerMoney,
+		ApprovedAmount:  offerMoney,
+		Purpose:         fmt.Sprintf("Group loan offer %s", offerID),
+	}
+	appResp, appErr := b.clients.LenderOrigination.ApplicationSave(ctx, connect.NewRequest(
+		&originationv1.ApplicationSaveRequest{Data: appObj},
+	))
+	if appErr != nil {
+		logger.WithError(appErr).Warn("could not create loan application via origination")
+		return
+	}
+	if appResp.Msg.GetData() == nil {
+		return
+	}
+
+	offer.ApplicationID = appResp.Msg.GetData().GetId()
+	result["application_id"] = offer.ApplicationID
+
+	if b.clients.LenderLoanMgmt == nil || offer.ApplicationID == "" {
+		return
+	}
+
+	loanResp, loanErr := b.clients.LenderLoanMgmt.LoanAccountCreate(ctx, connect.NewRequest(
+		&loansv1.LoanAccountCreateRequest{ApplicationId: offer.ApplicationID},
+	))
+	if loanErr != nil {
+		logger.WithError(loanErr).Warn("could not create loan account via loan management")
+		return
+	}
+	if loanResp.Msg.GetData() != nil {
+		offer.LoanAccountID = loanResp.Msg.GetData().GetId()
+		result["loan_account_id"] = offer.LoanAccountID
+	}
 }

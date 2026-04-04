@@ -8,6 +8,7 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 
 	"github.com/antinvestor/service-lender/apps/funding/service/models"
+	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
 // LoanWindowRepository provides data access for loan windows.
@@ -34,7 +35,7 @@ func (r *loanWindowRepository) CountByGroupID(ctx context.Context, groupID strin
 	var count int64
 	err := r.Pool().DB(ctx, true).Model(&models.LoanWindow{}).
 		Where("group_id = ?", groupID).Count(&count).Error
-	return int32(count), err
+	return constants.SafeInt32FromInt64(count), err
 }
 
 func (r *loanWindowRepository) GetByGroupID(ctx context.Context, groupID string) ([]*models.LoanWindow, error) {

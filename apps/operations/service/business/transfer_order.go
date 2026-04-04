@@ -24,6 +24,13 @@ import (
 	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
+const (
+	// decimalPrecisionTO is the number of decimal places for minor unit conversions.
+	decimalPrecisionTO = 2
+	// basisPointsDenominator is the multiplier used to convert proportions to basis points.
+	basisPointsDenominator = 10000
+)
+
 type transferOrderBusiness struct {
 	eventsMan fevents.Manager
 	toRepo    repository.TransferOrderRepository
@@ -70,7 +77,6 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 	logger := util.Log(ctx).WithField("method", "TransferOrderBusiness.Execute").
 		WithField("order_id", orderID)
 
-	// Step 1: Load transfer order
 	order, err := b.toRepo.GetByID(ctx, orderID)
 	if err != nil {
 		return fmt.Errorf("transfer order not found: %w", err)
@@ -80,120 +86,30 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 	typeName := constants.TransferTypeName(orderType)
 	logger = logger.WithField("order_type", typeName)
 
-	// Idempotency: if already completed, return success (at-least-once safe)
 	if order.State == int32(constants.StateInactive) || order.State == int32(constants.StateDeleted) {
 		logger.Info("transfer order already completed, skipping")
 		return nil
 	}
 
-	// Claim the order atomically: transition to processing state before any side effects.
-	// This prevents double-execution on concurrent retries.
 	order.State = int32(constants.StateCheckCreated)
-	if err := b.eventsMan.Emit(ctx, events.TransferOrderSaveEvent, order); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.TransferOrderSaveEvent, order); err != nil {
 		return fmt.Errorf("could not claim transfer order for execution: %w", err)
 	}
 
 	logger.Info("executing transfer order")
 
-	// Step 2: Resolve account references
 	debitRef, creditRef, err := b.resolveAccountRefs(ctx, order)
 	if err != nil {
 		logger.WithError(err).Error("failed to resolve account references")
 		return fmt.Errorf("resolve account refs: %w", err)
 	}
 
-	// Step 3: Execute the base ledger transfer (debit source, credit destination)
 	if execErr := b.executeBaseLedgerTransfer(ctx, order, debitRef, creditRef); execErr != nil {
 		logger.WithError(execErr).Error("base ledger transfer failed")
 		return execErr
 	}
 
-	// Step 4: Type-specific side effects
-	var sideEffectErr error
-	switch orderType {
-	// === Loan-related (call Lender loans APIs) ===
-	case constants.TransferTypeLoan:
-		sideEffectErr = b.handleLoanDisbursement(ctx, order)
-	case constants.TransferTypeLoanRepayment:
-		sideEffectErr = b.handleLoanRepayment(ctx, order)
-	case constants.TransferTypeLoanInterest:
-		sideEffectErr = b.handleLoanInterest(ctx, order)
-	case constants.TransferTypeLoanInterestRepayment:
-		sideEffectErr = b.handleLoanInterestRepayment(ctx, order)
-	case constants.TransferTypeLoanInsurance:
-		sideEffectErr = b.handleLoanInsurance(ctx, order)
-	case constants.TransferTypeLoanInsuranceRepayment:
-		sideEffectErr = b.handleLoanInsuranceRepayment(ctx, order)
-	case constants.TransferTypeDisbursement:
-		sideEffectErr = b.handleDisbursement(ctx, order)
-	case constants.TransferTypeDisbursementReversal:
-		sideEffectErr = b.handleDisbursementReversal(ctx, order)
-	case constants.TransferTypeDisbursementReversalReroute:
-		sideEffectErr = b.handleDisbursementReversalReroute(ctx, order)
-
-	// === Savings-related (call Lender savings APIs) ===
-	case constants.TransferTypePeriodicSaving:
-		sideEffectErr = b.handlePeriodicSaving(ctx, order)
-	case constants.TransferTypePeriodicSavingRecovery:
-		sideEffectErr = b.handlePeriodicSavingRecovery(ctx, order)
-	case constants.TransferTypePeriodicSavingsInterestIncomeDistribution:
-		sideEffectErr = b.handleSavingsInterestDistribution(ctx, order)
-	case constants.TransferTypeRegistrationFee:
-		sideEffectErr = b.handleRegistrationFee(ctx, order)
-	case constants.TransferTypeTerminalDisbursement:
-		sideEffectErr = b.handleTerminalDisbursement(ctx, order)
-	case constants.TransferTypeTerminalDisbursementRecovery:
-		sideEffectErr = b.handleTerminalDisbursementRecovery(ctx, order)
-
-	// === Payment flow ===
-	case constants.TransferTypePayment:
-		sideEffectErr = b.handlePaymentOutflow(ctx, order)
-	case constants.TransferTypePaymentIdentified:
-		sideEffectErr = b.handlePaymentIdentified(ctx, order)
-	case constants.TransferTypePaymentAllocated:
-		sideEffectErr = b.handlePaymentAllocated(ctx, order)
-
-	// === Penalties ===
-	case constants.TransferTypePenalty:
-		sideEffectErr = b.handlePenalty(ctx, order)
-	case constants.TransferTypePenaltyCancel:
-		sideEffectErr = b.handlePenaltyCancel(ctx, order)
-	case constants.TransferTypePenaltyIncomeDistribution:
-		sideEffectErr = b.handlePenaltyIncomeDistribution(ctx, order)
-
-	// === Other ===
-	case constants.TransferTypeCost:
-		sideEffectErr = b.handleCost(ctx, order)
-	case constants.TransferTypeServiceFee:
-		sideEffectErr = b.handleServiceFee(ctx, order)
-	case constants.TransferTypeLoanFundingExternalLending:
-		sideEffectErr = b.handleExternalLending(ctx, order)
-	case constants.TransferTypeLoanFundingExternalLendingPayback:
-		sideEffectErr = b.handleExternalLendingPayback(ctx, order)
-	case constants.TransferTypeShutdownLoanRecovery:
-		sideEffectErr = b.handleShutdownLoanRecovery(ctx, order)
-	case constants.TransferTypeInterSubscriptionPayment:
-		sideEffectErr = b.handleInterSubscriptionPayment(ctx, order)
-	case constants.TransferTypeLoanInterestIncomeDistribution:
-		sideEffectErr = b.handleLoanInterestIncomeDistribution(ctx, order)
-
-	// === Investor-related ===
-	case constants.TransferTypeInvestorDeployment:
-		sideEffectErr = b.handleInvestorDeployment(ctx, order)
-	case constants.TransferTypeInvestorPrincipalReturn:
-		sideEffectErr = b.handleInvestorPrincipalReturn(ctx, order)
-	case constants.TransferTypeInvestorIncomeDistribution:
-		sideEffectErr = b.handleInvestorIncomeDistribution(ctx, order)
-	case constants.TransferTypePlatformFirstLossAbsorption:
-		sideEffectErr = b.handlePlatformFirstLossAbsorption(ctx, order)
-	case constants.TransferTypeInvestorLossAbsorption:
-		sideEffectErr = b.handleInvestorLossAbsorption(ctx, order)
-
-	default:
-		logger.Warn("unknown transfer order type, executing base transfer only")
-	}
-
-	if sideEffectErr != nil {
+	if sideEffectErr := b.dispatchSideEffect(ctx, logger, orderType, order); sideEffectErr != nil {
 		logger.WithError(sideEffectErr).Error("side effect failed")
 		return sideEffectErr
 	}
@@ -212,6 +128,71 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 
 	logger.Info("transfer order executed successfully")
 	return nil
+}
+
+// transferHandler is the signature for side-effect handlers that may return an error.
+type transferHandler func(ctx context.Context, order *models.TransferOrder) error
+
+// noErr wraps a void handler into a transferHandler returning nil.
+func noErr(fn func(ctx context.Context, order *models.TransferOrder)) transferHandler {
+	return func(ctx context.Context, order *models.TransferOrder) error {
+		fn(ctx, order)
+		return nil
+	}
+}
+
+// sideEffectHandlers returns a dispatch map from order type to handler.
+func (b *transferOrderBusiness) sideEffectHandlers() map[int]transferHandler {
+	return map[int]transferHandler{
+		constants.TransferTypeLoan:                                      b.handleLoanDisbursement,
+		constants.TransferTypeLoanRepayment:                             noErr(b.handleLoanRepayment),
+		constants.TransferTypeLoanInterest:                              noErr(b.handleLoanInterest),
+		constants.TransferTypeLoanInterestRepayment:                     noErr(b.handleLoanInterestRepayment),
+		constants.TransferTypeLoanInsurance:                             noErr(b.handleLoanInsurance),
+		constants.TransferTypeLoanInsuranceRepayment:                    noErr(b.handleLoanInsuranceRepayment),
+		constants.TransferTypeDisbursement:                              b.handleDisbursement,
+		constants.TransferTypeDisbursementReversal:                      noErr(b.handleDisbursementReversal),
+		constants.TransferTypeDisbursementReversalReroute:               b.handleDisbursementReversalReroute,
+		constants.TransferTypePeriodicSaving:                            noErr(b.handlePeriodicSaving),
+		constants.TransferTypePeriodicSavingRecovery:                    noErr(b.handlePeriodicSavingRecovery),
+		constants.TransferTypePeriodicSavingsInterestIncomeDistribution: noErr(b.handleSavingsInterestDistribution),
+		constants.TransferTypeRegistrationFee:                           noErr(b.handleRegistrationFee),
+		constants.TransferTypeTerminalDisbursement:                      b.handleTerminalDisbursement,
+		constants.TransferTypeTerminalDisbursementRecovery:              noErr(b.handleTerminalDisbursementRecovery),
+		constants.TransferTypePayment:                                   noErr(b.handlePaymentOutflow),
+		constants.TransferTypePaymentIdentified:                         noErr(b.handlePaymentIdentified),
+		constants.TransferTypePaymentAllocated:                          noErr(b.handlePaymentAllocated),
+		constants.TransferTypePenalty:                                   noErr(b.handlePenalty),
+		constants.TransferTypePenaltyCancel:                             noErr(b.handlePenaltyCancel),
+		constants.TransferTypePenaltyIncomeDistribution:                 noErr(b.handlePenaltyIncomeDistribution),
+		constants.TransferTypeCost:                                      noErr(b.handleCost),
+		constants.TransferTypeServiceFee:                                noErr(b.handleServiceFee),
+		constants.TransferTypeLoanFundingExternalLending:                noErr(b.handleExternalLending),
+		constants.TransferTypeLoanFundingExternalLendingPayback:         b.handleExternalLendingPayback,
+		constants.TransferTypeShutdownLoanRecovery:                      noErr(b.handleShutdownLoanRecovery),
+		constants.TransferTypeInterSubscriptionPayment:                  noErr(b.handleInterSubscriptionPayment),
+		constants.TransferTypeLoanInterestIncomeDistribution:            noErr(b.handleLoanInterestIncomeDistribution),
+		constants.TransferTypeInvestorDeployment:                        noErr(b.handleInvestorDeployment),
+		constants.TransferTypeInvestorPrincipalReturn:                   noErr(b.handleInvestorPrincipalReturn),
+		constants.TransferTypeInvestorIncomeDistribution:                noErr(b.handleInvestorIncomeDistribution),
+		constants.TransferTypePlatformFirstLossAbsorption:               noErr(b.handlePlatformFirstLossAbsorption),
+		constants.TransferTypeInvestorLossAbsorption:                    noErr(b.handleInvestorLossAbsorption),
+	}
+}
+
+// dispatchSideEffect looks up and executes the type-specific side effect handler.
+func (b *transferOrderBusiness) dispatchSideEffect(
+	ctx context.Context,
+	logger *util.LogEntry,
+	orderType int,
+	order *models.TransferOrder,
+) error {
+	handler, ok := b.sideEffectHandlers()[orderType]
+	if !ok {
+		logger.Warn("unknown transfer order type, executing base transfer only")
+		return nil
+	}
+	return handler(ctx, order)
 }
 
 // resolveAccountRefs looks up the debit and credit AccountRef records for the
@@ -328,7 +309,7 @@ func (b *transferOrderBusiness) logCBSSyncRecord(ctx context.Context, order *mod
 // minorToMoney converts a minor-unit int64 amount and currency code to a
 // google.type.Money protobuf value. Assumes 2-decimal-place currencies.
 func minorToMoney(currency string, amount int64) *money.Money {
-	return utilmoney.FromInt64(currency, amount, 2)
+	return utilmoney.FromInt64(currency, amount, decimalPrecisionTO)
 }
 
 // sendPayment is a helper that calls PaymentClient.Send with common parameters.
@@ -417,130 +398,152 @@ func (b *transferOrderBusiness) redistributeRepayment(
 		return
 	}
 
-	// Load all funding records for this loan offer
 	fundings, err := b.lfRepo.GetByLoanOfferID(ctx, loanOfferID)
 	if err != nil || len(fundings) == 0 {
 		logger.WithError(err).Warn("no funding records found for redistribution")
 		return
 	}
 
-	// Load tranches for tracking updates
-	tranchesByFunding := make(map[string]*fundingmodels.FundingTranche)
-	if b.ftRepo != nil {
-		for _, funding := range fundings {
-			tranches, tErr := b.ftRepo.GetByLoanFundingID(ctx, funding.GetID())
-			if tErr == nil && len(tranches) > 0 {
-				tranchesByFunding[funding.GetID()] = tranches[0]
-			}
-		}
-	}
-
-	// Extract platform fee and tax rates from source order (or use defaults)
-	platformFeeBP := calculation.DefaultPlatformFeePercent
-	taxBP := calculation.DefaultWithholdingTaxPercent
-	if sourceOrder.ExtraData != nil {
-		if pfee, ok := sourceOrder.ExtraData["platform_fee_bp"].(float64); ok && pfee > 0 {
-			platformFeeBP = int64(pfee)
-		}
-		if tax, ok := sourceOrder.ExtraData["withholding_tax_bp"].(float64); ok && tax > 0 {
-			taxBP = int64(tax)
-		}
-	}
-
+	tranchesByFunding := b.loadTrancheMap(ctx, fundings)
+	platformFeeBP, taxBP := extractFeeRates(sourceOrder)
 	isInterest := repaymentType == "interest"
 
-	// Distribute proportionally to each funding source
 	var distributed int64
 	for i, funding := range fundings {
 		var share int64
 		if i == len(fundings)-1 {
 			share = amount - distributed
 		} else {
-			share = amount * funding.Proportion / 10000
+			share = amount * funding.Proportion / basisPointsDenominator
 		}
 		if share <= 0 {
 			continue
 		}
 
-		// Determine credit account and transfer type based on funding source type
-		var creditAccount string
-		actualTransferType := transferType
-		actualAmount := share
-
-		switch fundingmodels.FundingSource(
-			funding.FundingType,
-		) {
-		case fundingmodels.FundingSourceGroupSavings:
-			creditAccount = constants.MemberPeriodicSavingsAccount(funding.OwnerID)
-		case fundingmodels.FundingSourceGroupIncome:
-			creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
-		case fundingmodels.FundingSourceInvestorAffiliated, fundingmodels.FundingSourceInvestorGeneral:
-			creditAccount = constants.InvestorCapitalAccount(funding.OwnerID)
-			if isInterest {
-				actualTransferType = constants.TransferTypeInvestorIncomeDistribution
-				// Apply platform fees and withholding tax on investor interest
-				shareDec := decimalx.FromMinorUnits(share, 2)
-				dist := calculation.CalculateInterestDistribution(shareDec, platformFeeBP, taxBP)
-				actualAmount = dist.NetInterest.ToMinorUnits(2)
-
-				// Create platform fee transfer order
-				if dist.PlatformFee.IsPositive() {
-					b.createRedistributionOrder(ctx, sourceOrder, dist.PlatformFee.ToMinorUnits(2),
-						constants.ProductServiceFeePayableAccount("default"),
-						constants.TransferTypeServiceFee,
-						fmt.Sprintf("platform_fee:%s:%s", sourceOrder.GetID(), funding.GetID()),
-						fmt.Sprintf("Platform fee on investor interest from %s", funding.OwnerID),
-					)
-				}
-				// Create withholding tax transfer order
-				if dist.WithholdingTax.IsPositive() {
-					b.createRedistributionOrder(ctx, sourceOrder, dist.WithholdingTax.ToMinorUnits(2),
-						constants.ProductServiceFeePayableAccount("tax"),
-						constants.TransferTypeCost,
-						fmt.Sprintf("wht:%s:%s", sourceOrder.GetID(), funding.GetID()),
-						fmt.Sprintf("Withholding tax on investor interest from %s", funding.OwnerID),
-					)
-				}
-			} else {
-				actualTransferType = constants.TransferTypeInvestorPrincipalReturn
-			}
-		case fundingmodels.FundingSourcePlatformReserve:
-			creditAccount = constants.PlatformFirstLossAccount("default")
-		case fundingmodels.FundingSourceUnspecified:
-			creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
-		}
-
-		// Create the redistribution transfer order
-		b.createRedistributionOrder(ctx, sourceOrder, actualAmount,
-			creditAccount, actualTransferType,
-			fmt.Sprintf("redist:%s:%s:%s", repaymentType, sourceOrder.GetID(), funding.GetID()),
-			fmt.Sprintf("%s redistribution to %s funding source", repaymentType, funding.OwnerID),
-		)
-
-		// Update tranche tracking
-		if tranche, ok := tranchesByFunding[funding.GetID()]; ok {
-			if isInterest {
-				tranche.InterestEarned += share
-			} else {
-				tranche.PrincipalRepaid += share
-			}
-			if ftErr := b.eventsMan.Emit(ctx, "funding_tranche.save", tranche); ftErr != nil {
-				logger.WithError(ftErr).Warn("could not update funding tranche")
-			}
-		}
-
-		// Release investor balance on principal return
-		if !isInterest && b.iaRepo != nil &&
-			(fundingmodels.FundingSource(funding.FundingType) == fundingmodels.FundingSourceInvestorAffiliated ||
-				fundingmodels.FundingSource(funding.FundingType) == fundingmodels.FundingSourceInvestorGeneral) {
-			b.releaseInvestorBalance(ctx, funding.OwnerID, share)
-		}
+		b.redistributeToFundingSource(ctx, sourceOrder, funding, share,
+			repaymentType, transferType, isInterest, platformFeeBP, taxBP,
+			tranchesByFunding, logger)
 
 		distributed += share
 	}
 
 	logger.WithFields(map[string]any{"amount": amount, "distributed": distributed, "funding_sources": len(fundings)}).
 		Info("repayment redistribution completed")
+}
+
+// loadTrancheMap loads the first tranche for each funding record into a lookup map.
+func (b *transferOrderBusiness) loadTrancheMap(
+	ctx context.Context,
+	fundings []*fundingmodels.LoanFunding,
+) map[string]*fundingmodels.FundingTranche {
+	result := make(map[string]*fundingmodels.FundingTranche)
+	if b.ftRepo == nil {
+		return result
+	}
+	for _, funding := range fundings {
+		tranches, tErr := b.ftRepo.GetByLoanFundingID(ctx, funding.GetID())
+		if tErr == nil && len(tranches) > 0 {
+			result[funding.GetID()] = tranches[0]
+		}
+	}
+	return result
+}
+
+// extractFeeRates reads platform fee and withholding tax basis points from a
+// transfer order's extra data, falling back to system defaults.
+func extractFeeRates(order *models.TransferOrder) (int64, int64) {
+	feeBP := calculation.DefaultPlatformFeePercent
+	taxBP := calculation.DefaultWithholdingTaxPercent
+	if order.ExtraData == nil {
+		return feeBP, taxBP
+	}
+	if pfee, ok := order.ExtraData["platform_fee_bp"].(float64); ok && pfee > 0 {
+		feeBP = int64(pfee)
+	}
+	if tax, ok := order.ExtraData["withholding_tax_bp"].(float64); ok && tax > 0 {
+		taxBP = int64(tax)
+	}
+	return feeBP, taxBP
+}
+
+// redistributeToFundingSource routes a single funding source's share of a repayment,
+// handling investor fee/tax deductions, tranche tracking updates, and investor balance release.
+func (b *transferOrderBusiness) redistributeToFundingSource(
+	ctx context.Context,
+	sourceOrder *models.TransferOrder,
+	funding *fundingmodels.LoanFunding,
+	share int64,
+	repaymentType string,
+	transferType int,
+	isInterest bool,
+	platformFeeBP, taxBP int64,
+	tranchesByFunding map[string]*fundingmodels.FundingTranche,
+	logger *util.LogEntry,
+) {
+	var creditAccount string
+	actualTransferType := transferType
+	actualAmount := share
+
+	switch fundingmodels.FundingSource(funding.FundingType) {
+	case fundingmodels.FundingSourceGroupSavings:
+		creditAccount = constants.MemberPeriodicSavingsAccount(funding.OwnerID)
+	case fundingmodels.FundingSourceGroupIncome:
+		creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
+	case fundingmodels.FundingSourceInvestorAffiliated, fundingmodels.FundingSourceInvestorGeneral:
+		creditAccount = constants.InvestorCapitalAccount(funding.OwnerID)
+		if isInterest {
+			actualTransferType = constants.TransferTypeInvestorIncomeDistribution
+			shareDec := decimalx.FromMinorUnits(share, decimalPrecisionTO)
+			dist := calculation.CalculateInterestDistribution(shareDec, platformFeeBP, taxBP)
+			actualAmount = dist.NetInterest.ToMinorUnits(decimalPrecisionTO)
+
+			if dist.PlatformFee.IsPositive() {
+				b.createRedistributionOrder(ctx, sourceOrder, dist.PlatformFee.ToMinorUnits(decimalPrecisionTO),
+					constants.ProductServiceFeePayableAccount("default"),
+					constants.TransferTypeServiceFee,
+					fmt.Sprintf("platform_fee:%s:%s", sourceOrder.GetID(), funding.GetID()),
+					fmt.Sprintf("Platform fee on investor interest from %s", funding.OwnerID),
+				)
+			}
+			if dist.WithholdingTax.IsPositive() {
+				b.createRedistributionOrder(ctx, sourceOrder, dist.WithholdingTax.ToMinorUnits(decimalPrecisionTO),
+					constants.ProductServiceFeePayableAccount("tax"),
+					constants.TransferTypeCost,
+					fmt.Sprintf("wht:%s:%s", sourceOrder.GetID(), funding.GetID()),
+					fmt.Sprintf("Withholding tax on investor interest from %s", funding.OwnerID),
+				)
+			}
+		} else {
+			actualTransferType = constants.TransferTypeInvestorPrincipalReturn
+		}
+	case fundingmodels.FundingSourcePlatformReserve:
+		creditAccount = constants.PlatformFirstLossAccount("default")
+	case fundingmodels.FundingSourceUnspecified:
+		creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
+	}
+
+	b.createRedistributionOrder(ctx, sourceOrder, actualAmount,
+		creditAccount, actualTransferType,
+		fmt.Sprintf("redist:%s:%s:%s", repaymentType, sourceOrder.GetID(), funding.GetID()),
+		fmt.Sprintf("%s redistribution to %s funding source", repaymentType, funding.OwnerID),
+	)
+
+	if tranche, ok := tranchesByFunding[funding.GetID()]; ok {
+		if isInterest {
+			tranche.InterestEarned += share
+		} else {
+			tranche.PrincipalRepaid += share
+		}
+		if ftErr := b.eventsMan.Emit(ctx, "funding_tranche.save", tranche); ftErr != nil {
+			logger.WithError(ftErr).Warn("could not update funding tranche")
+		}
+	}
+
+	if !isInterest && b.iaRepo != nil &&
+		(fundingmodels.FundingSource(funding.FundingType) == fundingmodels.FundingSourceInvestorAffiliated ||
+			fundingmodels.FundingSource(funding.FundingType) == fundingmodels.FundingSourceInvestorGeneral) {
+		b.releaseInvestorBalance(ctx, funding.OwnerID, share)
+	}
 }
 
 // createRedistributionOrder creates and emits a transfer order for redistribution.
@@ -562,7 +565,7 @@ func (b *transferOrderBusiness) createRedistributionOrder(
 		CreditAccountRef: creditAccount,
 		Amount:           amount,
 		Currency:         sourceOrder.Currency,
-		OrderType:        int32(transferType),
+		OrderType:        constants.SafeInt32FromInt(transferType),
 		Reference:        reference,
 		Description:      description,
 		State:            int32(constants.StateJustCreated),
@@ -626,7 +629,10 @@ func (b *transferOrderBusiness) handleLoanDisbursement(ctx context.Context, orde
 // handleLoanRepayment processes a loan principal repayment transfer.
 // Debit: member suspense -> Credit: subscription loans account.
 // Side effect: records the repayment in Lender loans.
-func (b *transferOrderBusiness) handleLoanRepayment(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleLoanRepayment(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanRepayment").
 		WithField("order_id", order.GetID())
 
@@ -669,24 +675,27 @@ func (b *transferOrderBusiness) handleLoanRepayment(ctx context.Context, order *
 	if feesPortion > 0 {
 		b.redistributeRepayment(ctx, order, feesPortion, "fees", constants.TransferTypeServiceFee)
 	}
-
-	return nil
 }
 
 // handleLoanInterest processes a loan interest charge transfer.
 // Debit: group bank -> Credit: group interest income account.
 // No external side effect beyond the base ledger posting.
-func (b *transferOrderBusiness) handleLoanInterest(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleLoanInterest(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanInterest").
 		WithField("order_id", order.GetID())
 	logger.Info("loan interest charge posted")
-	return nil
 }
 
 // handleLoanInterestRepayment processes a loan interest repayment.
 // Debit: member suspense -> Credit: interest account.
 // Side effect: records the interest repayment in Lender.
-func (b *transferOrderBusiness) handleLoanInterestRepayment(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleLoanInterestRepayment(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanInterestRepayment").
 		WithField("order_id", order.GetID())
 
@@ -697,27 +706,29 @@ func (b *transferOrderBusiness) handleLoanInterestRepayment(ctx context.Context,
 
 	// Interest repayment recording is handled by the loans app via its own event
 	// pipeline. This handler only manages the base ledger posting.
-
-	return nil
 }
 
 // handleLoanInsurance processes a loan insurance charge.
 // Debit: group bank -> Credit: product insurance account.
 // No external side effect beyond the base ledger posting.
-func (b *transferOrderBusiness) handleLoanInsurance(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleLoanInsurance(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanInsurance").
 		WithField("order_id", order.GetID())
 	logger.Info("loan insurance charge posted")
-	return nil
 }
 
 // handleLoanInsuranceRepayment processes a loan insurance repayment.
 // Debit: member suspense -> Credit: insurance account.
-func (b *transferOrderBusiness) handleLoanInsuranceRepayment(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleLoanInsuranceRepayment(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanInsuranceRepayment").
 		WithField("order_id", order.GetID())
 	logger.Info("loan insurance repayment posted")
-	return nil
 }
 
 // handleDisbursement processes an external disbursement via the payment service.
@@ -747,7 +758,10 @@ func (b *transferOrderBusiness) handleDisbursement(ctx context.Context, order *m
 
 // handleDisbursementReversal reverses a failed disbursement.
 // Credit goes back to group bank from the disbursement holding account.
-func (b *transferOrderBusiness) handleDisbursementReversal(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleDisbursementReversal(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleDisbursementReversal").
 		WithField("order_id", order.GetID())
 
@@ -755,8 +769,6 @@ func (b *transferOrderBusiness) handleDisbursementReversal(ctx context.Context, 
 
 	logger.WithField("original_order_id", originalOrderID).
 		Info("disbursement reversal processed")
-
-	return nil
 }
 
 // handleDisbursementReversalReroute processes a disbursement reversal that is
@@ -796,7 +808,10 @@ func (b *transferOrderBusiness) handleDisbursementReversalReroute(
 // handlePeriodicSaving processes a periodic savings deposit.
 // Debit: member suspense -> Credit: member periodic savings.
 // Side effect: records the deposit in Lender savings.
-func (b *transferOrderBusiness) handlePeriodicSaving(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePeriodicSaving(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePeriodicSaving").
 		WithField("order_id", order.GetID())
 
@@ -811,13 +826,14 @@ func (b *transferOrderBusiness) handlePeriodicSaving(ctx context.Context, order 
 	// Savings deposit recording is handled by the savings app via its own event
 	// pipeline. The operations app manages the ledger posting which handles the
 	// accounting side of the deposit.
-
-	return nil
 }
 
 // handlePeriodicSavingRecovery processes a recovery transfer for a missed periodic saving.
 // The member is being charged for previously missed savings contributions.
-func (b *transferOrderBusiness) handlePeriodicSavingRecovery(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePeriodicSavingRecovery(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePeriodicSavingRecovery").
 		WithField("order_id", order.GetID())
 
@@ -827,8 +843,6 @@ func (b *transferOrderBusiness) handlePeriodicSavingRecovery(ctx context.Context
 	logger.WithField("member_id", memberID).
 		WithField("period_id", periodID).
 		Info("periodic saving recovery processed")
-
-	return nil
 }
 
 // handleSavingsInterestDistribution processes the distribution of savings interest
@@ -836,7 +850,7 @@ func (b *transferOrderBusiness) handlePeriodicSavingRecovery(ctx context.Context
 func (b *transferOrderBusiness) handleSavingsInterestDistribution(
 	ctx context.Context,
 	order *models.TransferOrder,
-) error {
+) {
 	logger := util.Log(ctx).WithField("handler", "handleSavingsInterestDistribution").
 		WithField("order_id", order.GetID())
 
@@ -844,13 +858,14 @@ func (b *transferOrderBusiness) handleSavingsInterestDistribution(
 
 	logger.WithField("group_id", groupID).
 		Info("savings interest income distribution processed")
-
-	return nil
 }
 
 // handleRegistrationFee processes a member registration fee payment.
 // Debit: member suspense -> Credit: group joining fee account.
-func (b *transferOrderBusiness) handleRegistrationFee(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleRegistrationFee(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleRegistrationFee").
 		WithField("order_id", order.GetID())
 
@@ -858,8 +873,6 @@ func (b *transferOrderBusiness) handleRegistrationFee(ctx context.Context, order
 
 	logger.WithField("member_id", memberID).
 		Info("registration fee processed")
-
-	return nil
 }
 
 // handleTerminalDisbursement processes a terminal (end-of-tenure) savings
@@ -885,7 +898,7 @@ func (b *transferOrderBusiness) handleTerminalDisbursement(ctx context.Context, 
 func (b *transferOrderBusiness) handleTerminalDisbursementRecovery(
 	ctx context.Context,
 	order *models.TransferOrder,
-) error {
+) {
 	logger := util.Log(ctx).WithField("handler", "handleTerminalDisbursementRecovery").
 		WithField("order_id", order.GetID())
 
@@ -893,8 +906,6 @@ func (b *transferOrderBusiness) handleTerminalDisbursementRecovery(
 
 	logger.WithField("original_order_id", originalOrderID).
 		Info("terminal disbursement recovery processed")
-
-	return nil
 }
 
 // ---------------------------------------------------------------------------
@@ -904,7 +915,10 @@ func (b *transferOrderBusiness) handleTerminalDisbursementRecovery(
 // handlePaymentOutflow processes an outgoing payment.
 // Debit: group bank -> Credit: product unidentified account.
 // This is the initial receipt of funds before identification.
-func (b *transferOrderBusiness) handlePaymentOutflow(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePaymentOutflow(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePaymentOutflow").
 		WithField("order_id", order.GetID())
 
@@ -912,13 +926,14 @@ func (b *transferOrderBusiness) handlePaymentOutflow(ctx context.Context, order 
 
 	logger.WithField("transaction_id", transactionID).
 		Info("payment outflow posted to unidentified holding")
-
-	return nil
 }
 
 // handlePaymentIdentified processes a payment that has been identified to a
 // specific member. Funds move from unidentified to unallocated.
-func (b *transferOrderBusiness) handlePaymentIdentified(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePaymentIdentified(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePaymentIdentified").
 		WithField("order_id", order.GetID())
 
@@ -928,14 +943,15 @@ func (b *transferOrderBusiness) handlePaymentIdentified(ctx context.Context, ord
 	logger.WithField("member_id", memberID).
 		WithField("payment_id", paymentID).
 		Info("payment identified and moved to member suspense")
-
-	return nil
 }
 
 // handlePaymentAllocated processes a payment that has been allocated to specific
 // obligations (loan repayment, savings, fees, etc.). This triggers creation of
 // the downstream transfer orders for each allocation target.
-func (b *transferOrderBusiness) handlePaymentAllocated(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePaymentAllocated(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePaymentAllocated").
 		WithField("order_id", order.GetID())
 
@@ -949,8 +965,6 @@ func (b *transferOrderBusiness) handlePaymentAllocated(ctx context.Context, orde
 	// NOTE: The payment routing business handles the creation of downstream
 	// transfer orders for each obligation the payment is allocated against.
 	// This handler only manages the base ledger movement.
-
-	return nil
 }
 
 // ---------------------------------------------------------------------------
@@ -959,7 +973,10 @@ func (b *transferOrderBusiness) handlePaymentAllocated(ctx context.Context, orde
 
 // handlePenalty processes a penalty charge against a member.
 // Debit: member suspense -> Credit: group penalty income account.
-func (b *transferOrderBusiness) handlePenalty(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePenalty(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePenalty").
 		WithField("order_id", order.GetID())
 
@@ -969,13 +986,14 @@ func (b *transferOrderBusiness) handlePenalty(ctx context.Context, order *models
 	logger.WithField("member_id", memberID).
 		WithField("reason", reason).
 		Info("penalty charge posted")
-
-	return nil
 }
 
 // handlePenaltyCancel reverses a previously posted penalty.
 // Debit: group penalty income -> Credit: member suspense.
-func (b *transferOrderBusiness) handlePenaltyCancel(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handlePenaltyCancel(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePenaltyCancel").
 		WithField("order_id", order.GetID())
 
@@ -983,8 +1001,6 @@ func (b *transferOrderBusiness) handlePenaltyCancel(ctx context.Context, order *
 
 	logger.WithField("original_order_id", originalOrderID).
 		Info("penalty cancellation processed")
-
-	return nil
 }
 
 // handlePenaltyIncomeDistribution distributes accumulated penalty income to
@@ -992,7 +1008,7 @@ func (b *transferOrderBusiness) handlePenaltyCancel(ctx context.Context, order *
 func (b *transferOrderBusiness) handlePenaltyIncomeDistribution(
 	ctx context.Context,
 	order *models.TransferOrder,
-) error {
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePenaltyIncomeDistribution").
 		WithField("order_id", order.GetID())
 
@@ -1000,8 +1016,6 @@ func (b *transferOrderBusiness) handlePenaltyIncomeDistribution(
 
 	logger.WithField("group_id", groupID).
 		Info("penalty income distribution processed")
-
-	return nil
 }
 
 // ---------------------------------------------------------------------------
@@ -1010,7 +1024,10 @@ func (b *transferOrderBusiness) handlePenaltyIncomeDistribution(
 
 // handleCost processes a transaction cost charge.
 // Debit: group bank -> Credit: group transaction costs account.
-func (b *transferOrderBusiness) handleCost(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleCost(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleCost").
 		WithField("order_id", order.GetID())
 
@@ -1018,13 +1035,14 @@ func (b *transferOrderBusiness) handleCost(ctx context.Context, order *models.Tr
 
 	logger.WithField("cost_type", costType).
 		Info("transaction cost posted")
-
-	return nil
 }
 
 // handleServiceFee processes a platform service fee charge.
 // Debit: group bank -> Credit: product service fee payable account.
-func (b *transferOrderBusiness) handleServiceFee(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleServiceFee(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleServiceFee").
 		WithField("order_id", order.GetID())
 
@@ -1032,13 +1050,14 @@ func (b *transferOrderBusiness) handleServiceFee(ctx context.Context, order *mod
 
 	logger.WithField("period_id", periodID).
 		Info("service fee posted")
-
-	return nil
 }
 
 // handleExternalLending processes a loan funding transfer from an external
 // lending source into the group's bank account.
-func (b *transferOrderBusiness) handleExternalLending(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleExternalLending(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleExternalLending").
 		WithField("order_id", order.GetID())
 
@@ -1048,8 +1067,6 @@ func (b *transferOrderBusiness) handleExternalLending(ctx context.Context, order
 	logger.WithField("funder_id", funderID).
 		WithField("funding_id", fundingID).
 		Info("external lending funding received")
-
-	return nil
 }
 
 // handleExternalLendingPayback processes a payback from the group to the
@@ -1074,7 +1091,10 @@ func (b *transferOrderBusiness) handleExternalLendingPayback(ctx context.Context
 
 // handleShutdownLoanRecovery processes loan recovery during group shutdown.
 // Outstanding loan balances are recovered from member savings or guarantors.
-func (b *transferOrderBusiness) handleShutdownLoanRecovery(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleShutdownLoanRecovery(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleShutdownLoanRecovery").
 		WithField("order_id", order.GetID())
 
@@ -1084,14 +1104,15 @@ func (b *transferOrderBusiness) handleShutdownLoanRecovery(ctx context.Context, 
 	logger.WithField("member_id", memberID).
 		WithField("loan_id", loanID).
 		Info("shutdown loan recovery processed")
-
-	return nil
 }
 
 // handleInterSubscriptionPayment processes a payment between two different
 // group subscriptions (e.g., transferring savings from one group to fund
 // a loan in another).
-func (b *transferOrderBusiness) handleInterSubscriptionPayment(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleInterSubscriptionPayment(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleInterSubscriptionPayment").
 		WithField("order_id", order.GetID())
 
@@ -1101,8 +1122,6 @@ func (b *transferOrderBusiness) handleInterSubscriptionPayment(ctx context.Conte
 	logger.WithField("source_group_id", sourceGroupID).
 		WithField("target_group_id", targetGroupID).
 		Info("inter-subscription payment processed")
-
-	return nil
 }
 
 // handleLoanInterestIncomeDistribution distributes accumulated loan interest
@@ -1110,7 +1129,7 @@ func (b *transferOrderBusiness) handleInterSubscriptionPayment(ctx context.Conte
 func (b *transferOrderBusiness) handleLoanInterestIncomeDistribution(
 	ctx context.Context,
 	order *models.TransferOrder,
-) error {
+) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanInterestIncomeDistribution").
 		WithField("order_id", order.GetID())
 
@@ -1118,8 +1137,6 @@ func (b *transferOrderBusiness) handleLoanInterestIncomeDistribution(
 
 	logger.WithField("group_id", groupID).
 		Info("loan interest income distribution processed")
-
-	return nil
 }
 
 // ---------------------------------------------------------------------------
@@ -1127,7 +1144,10 @@ func (b *transferOrderBusiness) handleLoanInterestIncomeDistribution(
 // ---------------------------------------------------------------------------
 
 // handleInvestorDeployment processes capital deployment from an investor account to fund a loan.
-func (b *transferOrderBusiness) handleInvestorDeployment(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleInvestorDeployment(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleInvestorDeployment").
 		WithField("order_id", order.GetID())
 
@@ -1138,12 +1158,13 @@ func (b *transferOrderBusiness) handleInvestorDeployment(ctx context.Context, or
 		WithField("loan_offer_id", loanOfferID).
 		WithField("amount", order.Amount).
 		Info("investor capital deployed to loan")
-
-	return nil
 }
 
 // handleInvestorPrincipalReturn processes principal being returned to an investor account.
-func (b *transferOrderBusiness) handleInvestorPrincipalReturn(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleInvestorPrincipalReturn(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleInvestorPrincipalReturn").
 		WithField("order_id", order.GetID())
 
@@ -1152,8 +1173,6 @@ func (b *transferOrderBusiness) handleInvestorPrincipalReturn(ctx context.Contex
 	logger.WithField("investor_account_id", investorAccountID).
 		WithField("amount", order.Amount).
 		Info("principal returned to investor")
-
-	return nil
 }
 
 // handleInvestorIncomeDistribution processes interest/income distribution to an investor.
@@ -1161,7 +1180,7 @@ func (b *transferOrderBusiness) handleInvestorPrincipalReturn(ctx context.Contex
 func (b *transferOrderBusiness) handleInvestorIncomeDistribution(
 	ctx context.Context,
 	order *models.TransferOrder,
-) error {
+) {
 	logger := util.Log(ctx).WithField("handler", "handleInvestorIncomeDistribution").
 		WithField("order_id", order.GetID())
 
@@ -1170,15 +1189,13 @@ func (b *transferOrderBusiness) handleInvestorIncomeDistribution(
 	logger.WithField("investor_account_id", investorAccountID).
 		WithField("amount", order.Amount).
 		Info("income distributed to investor (net of platform fees and tax)")
-
-	return nil
 }
 
 // handlePlatformFirstLossAbsorption processes a first-loss absorption from the platform reserve.
 func (b *transferOrderBusiness) handlePlatformFirstLossAbsorption(
 	ctx context.Context,
 	order *models.TransferOrder,
-) error {
+) {
 	logger := util.Log(ctx).WithField("handler", "handlePlatformFirstLossAbsorption").
 		WithField("order_id", order.GetID())
 
@@ -1187,12 +1204,13 @@ func (b *transferOrderBusiness) handlePlatformFirstLossAbsorption(
 	logger.WithField("loan_offer_id", loanOfferID).
 		WithField("amount", order.Amount).
 		Info("platform first-loss reserve absorbed loss")
-
-	return nil
 }
 
 // handleInvestorLossAbsorption processes a loss absorption from an investor account.
-func (b *transferOrderBusiness) handleInvestorLossAbsorption(ctx context.Context, order *models.TransferOrder) error {
+func (b *transferOrderBusiness) handleInvestorLossAbsorption(
+	ctx context.Context,
+	order *models.TransferOrder,
+) {
 	logger := util.Log(ctx).WithField("handler", "handleInvestorLossAbsorption").
 		WithField("order_id", order.GetID())
 
@@ -1201,6 +1219,4 @@ func (b *transferOrderBusiness) handleInvestorLossAbsorption(ctx context.Context
 	logger.WithField("investor_account_id", investorAccountID).
 		WithField("amount", order.Amount).
 		Info("investor account absorbed loss")
-
-	return nil
 }

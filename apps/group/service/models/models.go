@@ -95,6 +95,7 @@ type CustomerGroup struct {
 }
 
 func (m *CustomerGroup) TableName() string { return "customer_groups" }
+func (m *CustomerGroup) SetVersion(v uint) { m.Version = v }
 
 // Membership represents a member's subscription to a group.
 type Membership struct {
@@ -116,6 +117,7 @@ type Membership struct {
 }
 
 func (m *Membership) TableName() string { return "memberships" }
+func (m *Membership) SetVersion(v uint) { m.Version = v }
 
 // Tenure represents a group's lifecycle period (e.g. 52 weeks).
 type Tenure struct {
@@ -131,6 +133,7 @@ type Tenure struct {
 }
 
 func (m *Tenure) TableName() string { return "tenures" }
+func (m *Tenure) SetVersion(v uint) { m.Version = v }
 
 // Period represents a single time period within a tenure (e.g. 1 week).
 type Period struct {
@@ -147,6 +150,7 @@ type Period struct {
 }
 
 func (m *Period) TableName() string { return "periods" }
+func (m *Period) SetVersion(v uint) { m.Version = v }
 
 // Motion represents a group voting/decision motion.
 type Motion struct {
@@ -162,6 +166,7 @@ type Motion struct {
 }
 
 func (m *Motion) TableName() string { return "motions" }
+func (m *Motion) SetVersion(v uint) { m.Version = v }
 
 // MotionVote represents a member's vote on a motion.
 type MotionVote struct {
@@ -190,6 +195,7 @@ type Infraction struct {
 }
 
 func (m *Infraction) TableName() string { return "infractions" }
+func (m *Infraction) SetVersion(v uint) { m.Version = v }
 
 // GroupWarning represents a warning issued to a group.
 type GroupWarning struct {

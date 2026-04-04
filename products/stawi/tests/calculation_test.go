@@ -196,7 +196,7 @@ func TestCalculatePenalty(t *testing.T) {
 }
 
 func TestEscalatingPenalty(t *testing.T) {
-	rates := calculation.DefaultFineRates // [1000, 2000, 3000] = 10%, 20%, 30%
+	rates := calculation.DefaultFineRates() // [1000, 2000, 3000] = 10%, 20%, 30%
 	amount := int64(10000)
 
 	tests := []struct {

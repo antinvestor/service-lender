@@ -30,48 +30,92 @@ func ExpireOffersJob(
 		results, err := appRepo.Search(ctx, query)
 		if err != nil {
 			logger.WithError(err).Warn("could not search for expirable offers")
-			return nil // don't fail the background loop
+			return nil
 		}
 
 		now := time.Now()
 		expired := 0
 
 		consumeErr := workerpoolConsumeStream(ctx, results, func(batch []*models.Application) error {
-			for _, app := range batch {
-				// Guard against TOCTOU: re-check status hasn't changed since the query
-				if app.Status != int32(originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_GENERATED) {
-					continue
-				}
-				if app.OfferExpiresAt == nil || app.OfferExpiresAt.After(now) {
-					continue
-				}
-
-				transErr := appBusiness.TransitionStatus(
-					ctx, app.GetID(),
-					originationv1.ApplicationStatus_APPLICATION_STATUS_EXPIRED,
-					"offer expired",
-				)
-				if transErr != nil {
-					logger.WithField("application_id", app.GetID()).
-						WithError(transErr).
-						Warn("could not expire offer")
-					continue
-				}
-				expired++
-			}
+			expired += expireOfferBatch(ctx, logger, appBusiness, batch, now)
 			return nil
 		})
 
 		if consumeErr != nil {
 			logger.WithError(consumeErr).Warn("error consuming expirable offers stream")
 		}
-
 		if expired > 0 {
 			logger.WithField("count", expired).Info("expired offers")
 		}
-
 		return nil
 	}
+}
+
+// expireOfferBatch processes a single batch of applications, expiring any whose
+// offer has passed its deadline and whose status hasn't changed since the query.
+func expireOfferBatch(
+	ctx context.Context,
+	logger *util.LogEntry,
+	appBusiness ApplicationBusiness,
+	batch []*models.Application,
+	now time.Time,
+) int {
+	expired := 0
+	for _, app := range batch {
+		if app.Status != int32(originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_GENERATED) {
+			continue
+		}
+		if app.OfferExpiresAt == nil || app.OfferExpiresAt.After(now) {
+			continue
+		}
+		transErr := appBusiness.TransitionStatus(
+			ctx, app.GetID(),
+			originationv1.ApplicationStatus_APPLICATION_STATUS_EXPIRED,
+			"offer expired",
+		)
+		if transErr != nil {
+			logger.WithField("application_id", app.GetID()).
+				WithError(transErr).
+				Warn("could not expire offer")
+			continue
+		}
+		expired++
+	}
+	return expired
+}
+
+// cancelStaleDrafts processes a batch of draft applications, cancelling those
+// created before cutoff that are still in DRAFT status.
+func cancelStaleDrafts(
+	ctx context.Context,
+	logger *util.LogEntry,
+	appBusiness ApplicationBusiness,
+	cutoff time.Time,
+	batch []*models.Application,
+) int {
+	cleaned := 0
+	for _, app := range batch {
+		if app.Status != int32(originationv1.ApplicationStatus_APPLICATION_STATUS_DRAFT) {
+			continue
+		}
+		if app.CreatedAt.After(cutoff) {
+			continue
+		}
+
+		transErr := appBusiness.TransitionStatus(
+			ctx, app.GetID(),
+			originationv1.ApplicationStatus_APPLICATION_STATUS_CANCELLED,
+			"draft expired after inactivity",
+		)
+		if transErr != nil {
+			logger.WithField("application_id", app.GetID()).
+				WithError(transErr).
+				Warn("could not cancel stale draft")
+			continue
+		}
+		cleaned++
+	}
+	return cleaned
 }
 
 // CleanDraftApplicationsJob finds DRAFT applications older than draftExpiryDays
@@ -104,28 +148,7 @@ func CleanDraftApplicationsJob(
 		cleaned := 0
 
 		consumeErr := workerpoolConsumeStream(ctx, results, func(batch []*models.Application) error {
-			for _, app := range batch {
-				// Guard against TOCTOU: re-check status hasn't changed since the query
-				if app.Status != int32(originationv1.ApplicationStatus_APPLICATION_STATUS_DRAFT) {
-					continue
-				}
-				if app.CreatedAt.After(cutoff) {
-					continue
-				}
-
-				transErr := appBusiness.TransitionStatus(
-					ctx, app.GetID(),
-					originationv1.ApplicationStatus_APPLICATION_STATUS_CANCELLED,
-					"draft expired after inactivity",
-				)
-				if transErr != nil {
-					logger.WithField("application_id", app.GetID()).
-						WithError(transErr).
-						Warn("could not cancel stale draft")
-					continue
-				}
-				cleaned++
-			}
+			cleaned += cancelStaleDrafts(ctx, logger, appBusiness, cutoff, batch)
 			return nil
 		})
 

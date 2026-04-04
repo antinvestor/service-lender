@@ -8,6 +8,7 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 
 	"github.com/antinvestor/service-lender/apps/group/service/models"
+	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
 // PeriodRepository provides data access for periods.
@@ -33,7 +34,7 @@ func (r *periodRepository) GetCurrentByGroupID(ctx context.Context, groupID stri
 	var period models.Period
 	err := r.Pool().
 		DB(ctx, true).
-		Where("group_id = ? AND state != ?", groupID, 5).
+		Where("group_id = ? AND state != ?", groupID, constants.StateDeleted).
 		Order("created_at DESC").
 		First(&period).
 		Error

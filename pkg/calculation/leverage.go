@@ -2,6 +2,9 @@ package calculation
 
 import "github.com/pitabwire/util/decimalx"
 
+// leverageDivisor is the basis-point scale for leverage factors (100 = 1.00x).
+const leverageDivisor = 100
+
 // CalculateMaxLoanAmount computes the maximum loan amount a member is eligible for
 // based on their savings balance and leverage factor.
 // leverageFactor is in basis points (e.g., 190 = 1.90x).
@@ -13,7 +16,7 @@ func CalculateMaxLoanAmount(savingsBalance decimalx.Decimal, leverageFactor int6
 	}
 	// leverageFactor is basis points of 100: 190 = 1.90x
 	// maxLoan = savings * leverage / 100
-	return savingsBalance.Mul(decimalx.NewFromInt64(leverageFactor)).Div(decimalx.NewFromInt64(100))
+	return savingsBalance.Mul(decimalx.NewFromInt64(leverageFactor)).Div(decimalx.NewFromInt64(leverageDivisor))
 }
 
 // CalculateLeverageRatio computes the effective leverage ratio.
@@ -22,5 +25,5 @@ func CalculateLeverageRatio(loanAmount, savingsBalance decimalx.Decimal) int64 {
 	if !savingsBalance.IsPositive() {
 		return 0
 	}
-	return loanAmount.Mul(decimalx.NewFromInt64(100)).Div(savingsBalance).Int64()
+	return loanAmount.Mul(decimalx.NewFromInt64(leverageDivisor)).Div(savingsBalance).Int64()
 }

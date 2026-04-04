@@ -282,15 +282,41 @@ func (b *savingsAccountBusiness) GetStatement(
 	accountID string,
 	from, to time.Time,
 ) (*savingsv1.SavingsStatementResponse, error) {
-	logger := util.Log(ctx).WithField("method", "SavingsAccountBusiness.GetStatement")
-
 	stmtSa, err := b.saRepo.GetByID(ctx, accountID)
 	if err != nil {
 		return nil, ErrSavingsAccountNotFound
 	}
-	stmtCC := stmtSa.CurrencyCode
 
-	var statementEntries []*savingsv1.SavingsStatementEntry
+	statementEntries, err := b.fetchStatementEntries(ctx, accountID, stmtSa.CurrencyCode, from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	balance, _ := b.GetBalance(ctx, accountID)
+
+	sa, _ := b.saRepo.GetByID(ctx, accountID)
+	var saObj *savingsv1.SavingsAccountObject
+	if sa != nil {
+		saObj = sa.ToAPI()
+	}
+
+	return &savingsv1.SavingsStatementResponse{
+		Account: saObj,
+		Balance: balance,
+		Entries: statementEntries,
+	}, nil
+}
+
+// fetchStatementEntries gathers deposit, withdrawal, and interest accrual entries
+// for the given account and time period.
+func (b *savingsAccountBusiness) fetchStatementEntries(
+	ctx context.Context,
+	accountID, currencyCode string,
+	from, to time.Time,
+) ([]*savingsv1.SavingsStatementEntry, error) {
+	logger := util.Log(ctx).WithField("method", "SavingsAccountBusiness.fetchStatementEntries")
+
+	var entries []*savingsv1.SavingsStatementEntry
 
 	// Fetch deposits in the period
 	depQuery := data.NewSearchQuery(
@@ -308,10 +334,10 @@ func (b *savingsAccountBusiness) GetStatement(
 	}
 	_ = workerpoolConsumeStream(ctx, depResults, func(batch []*models.Deposit) error {
 		for _, d := range batch {
-			statementEntries = append(statementEntries, &savingsv1.SavingsStatementEntry{
+			entries = append(entries, &savingsv1.SavingsStatementEntry{
 				Date:        models.TimeToString(&d.CreatedAt),
 				Description: "Deposit",
-				Credit:      models.MinorUnitsToMoney(d.Amount, stmtCC),
+				Credit:      models.MinorUnitsToMoney(d.Amount, currencyCode),
 				Reference:   d.PaymentReference,
 			})
 		}
@@ -334,10 +360,10 @@ func (b *savingsAccountBusiness) GetStatement(
 	}
 	_ = workerpoolConsumeStream(ctx, wdrResults, func(batch []*models.Withdrawal) error {
 		for _, w := range batch {
-			statementEntries = append(statementEntries, &savingsv1.SavingsStatementEntry{
+			entries = append(entries, &savingsv1.SavingsStatementEntry{
 				Date:        models.TimeToString(&w.CreatedAt),
 				Description: "Withdrawal",
-				Debit:       models.MinorUnitsToMoney(w.Amount, stmtCC),
+				Debit:       models.MinorUnitsToMoney(w.Amount, currencyCode),
 				Reference:   w.PaymentReference,
 			})
 		}
@@ -359,29 +385,15 @@ func (b *savingsAccountBusiness) GetStatement(
 	}
 	_ = workerpoolConsumeStream(ctx, iaResults, func(batch []*models.InterestAccrual) error {
 		for _, ia := range batch {
-			statementEntries = append(statementEntries, &savingsv1.SavingsStatementEntry{
+			entries = append(entries, &savingsv1.SavingsStatementEntry{
 				Date:        models.TimeToString(&ia.CreatedAt),
 				Description: "Interest Accrual",
-				Credit:      models.MinorUnitsToMoney(ia.Amount, stmtCC),
+				Credit:      models.MinorUnitsToMoney(ia.Amount, currencyCode),
 				Reference:   ia.LedgerTransactionID,
 			})
 		}
 		return nil
 	})
 
-	// Build balance
-	balance, _ := b.GetBalance(ctx, accountID)
-
-	// Get account for response
-	sa, _ := b.saRepo.GetByID(ctx, accountID)
-	var saObj *savingsv1.SavingsAccountObject
-	if sa != nil {
-		saObj = sa.ToAPI()
-	}
-
-	return &savingsv1.SavingsStatementResponse{
-		Account: saObj,
-		Balance: balance,
-		Entries: statementEntries,
-	}, nil
+	return entries, nil
 }

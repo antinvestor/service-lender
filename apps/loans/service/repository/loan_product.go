@@ -1,4 +1,4 @@
-package repository
+package repository //nolint:dupl // similar patterns for different entity types
 
 import (
 	"context"

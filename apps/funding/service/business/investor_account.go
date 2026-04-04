@@ -77,7 +77,7 @@ func (b *investorAccountBusiness) Deposit(
 
 	account.AvailableBalance += amount
 
-	if err := b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); err != nil {
 		logger.WithError(err).Error("could not update investor account after deposit")
 		return fmt.Errorf("deposit: %w", err)
 	}
@@ -109,7 +109,7 @@ func (b *investorAccountBusiness) Withdraw(
 
 	account.AvailableBalance -= amount
 
-	if err := b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); err != nil {
 		logger.WithError(err).Error("could not update investor account after withdrawal")
 		return fmt.Errorf("withdraw: %w", err)
 	}

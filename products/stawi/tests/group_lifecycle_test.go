@@ -135,7 +135,7 @@ func TestTenurePeriodLifecycle(t *testing.T) {
 	defer env.cleanup()
 
 	// Create and activate a group
-	group := createActiveGroup(t, ctx, env)
+	group := createActiveGroup(ctx, t, env)
 
 	// Open tenure
 	tenure, err := env.tenBusiness.Open(ctx, group.GetID())
@@ -201,7 +201,7 @@ func TestTenureClose(t *testing.T) {
 	env := setupTestEnv(t)
 	defer env.cleanup()
 
-	group := createActiveGroup(t, ctx, env)
+	group := createActiveGroup(ctx, t, env)
 
 	tenure, err := env.tenBusiness.Open(ctx, group.GetID())
 	if err != nil {
@@ -237,7 +237,7 @@ func TestGroupStateTransitions(t *testing.T) {
 	env := setupTestEnv(t)
 	defer env.cleanup()
 
-	group := createActiveGroup(t, ctx, env)
+	group := createActiveGroup(ctx, t, env)
 
 	// ACTIVE -> INACTIVE
 	err := env.grpBusiness.Transition(ctx, group.GetID(), int32(constants.StateInactive), "test deactivation")
@@ -317,7 +317,7 @@ func TestDuplicateTenureOpen(t *testing.T) {
 	env := setupTestEnv(t)
 	defer env.cleanup()
 
-	group := createActiveGroup(t, ctx, env)
+	group := createActiveGroup(ctx, t, env)
 
 	_, err := env.tenBusiness.Open(ctx, group.GetID())
 	if err != nil {

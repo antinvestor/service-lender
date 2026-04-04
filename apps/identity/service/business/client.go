@@ -85,7 +85,7 @@ func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.ClientObject) (*
 		client.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
-	if err := b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
 		logger.WithError(err).Error("could not emit client save event")
 		return nil, err
 	}
@@ -248,7 +248,7 @@ func (b *clientBusiness) SetAgentCreditLimit(ctx context.Context, clientID strin
 
 	client.AgentCreditLimit = amount
 
-	if err := b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
 		logger.WithError(err).Error("could not update agent credit limit")
 		return err
 	}
@@ -296,7 +296,7 @@ func (b *clientBusiness) RequestSystemCreditLimitChange(
 	}
 	req.GenID(ctx)
 
-	if err := b.eventsMan.Emit(ctx, events.CreditLimitChangeRequestSaveEvent, req); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.CreditLimitChangeRequestSaveEvent, req); err != nil {
 		logger.WithError(err).Error("could not create credit limit change request")
 		return nil, err
 	}
@@ -341,7 +341,7 @@ func (b *clientBusiness) ApproveSystemCreditLimitChange(
 		client.AgentCreditLimit = client.SystemCreditLimit
 	}
 
-	if err := b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
 		logger.WithError(err).Error("could not update client system credit limit")
 		return err
 	}
@@ -351,7 +351,7 @@ func (b *clientBusiness) ApproveSystemCreditLimitChange(
 	req.ReviewedBy = reviewedBy
 	req.ReviewNotes = notes
 
-	if err := b.eventsMan.Emit(ctx, events.CreditLimitChangeRequestSaveEvent, req); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.CreditLimitChangeRequestSaveEvent, req); err != nil {
 		logger.WithError(err).Error("could not update credit limit change request")
 		return err
 	}
@@ -384,7 +384,7 @@ func (b *clientBusiness) RejectSystemCreditLimitChange(
 	req.ReviewedBy = reviewedBy
 	req.ReviewNotes = notes
 
-	if err := b.eventsMan.Emit(ctx, events.CreditLimitChangeRequestSaveEvent, req); err != nil {
+	if err = b.eventsMan.Emit(ctx, events.CreditLimitChangeRequestSaveEvent, req); err != nil {
 		logger.WithError(err).Error("could not update credit limit change request")
 		return err
 	}

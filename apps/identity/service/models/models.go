@@ -11,10 +11,21 @@ import (
 	money "google.golang.org/genproto/googleapis/type/money"
 )
 
+const (
+	// decimalPrecision is the number of decimal places for minor unit conversions (cents).
+	decimalPrecision = 2
+	// percentageDivisor is the number of minor units per major currency unit (e.g. 100 cents per dollar).
+	percentageDivisor = 100
+	// moneyNanosFactor converts minor-unit remainders to protobuf nanos (1e9 / 100).
+	moneyNanosFactor = 10_000_000
+	// extraPropertiesCount is the number of extra properties added when converting to API.
+	extraPropertiesCount = 3
+)
+
 // MinorUnitsToString converts an int64 minor-unit amount (e.g. cents) to a
 // decimal string with two fractional digits. 123456 -> "1234.56".
 func MinorUnitsToString(v int64) string {
-	return decimalx.FromMinorUnits(v, 2).String()
+	return decimalx.FromMinorUnits(v, decimalPrecision).String()
 }
 
 // StringToMinorUnits parses a decimal string (e.g. "1234.56") into int64 minor
@@ -25,13 +36,13 @@ func StringToMinorUnits(s string) int64 {
 	if err != nil {
 		return 0
 	}
-	return d.ToMinorUnits(2)
+	return d.ToMinorUnits(decimalPrecision)
 }
 
 // MinorUnitsToMoney converts minor units and a currency code to a *money.Money.
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
-	units := v / 100
-	nanos := (v % 100) * 10_000_000
+	units := v / percentageDivisor
+	nanos := (v % percentageDivisor) * moneyNanosFactor
 	return &money.Money{
 		CurrencyCode: currencyCode,
 		Units:        units,
@@ -44,7 +55,7 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	if m == nil {
 		return 0, ""
 	}
-	return m.GetUnits()*100 + int64(m.GetNanos())/10_000_000, m.GetCurrencyCode()
+	return m.GetUnits()*percentageDivisor + int64(m.GetNanos())/moneyNanosFactor, m.GetCurrencyCode()
 }
 
 // Bank represents a top-level lending institution mapped to a partition.
@@ -250,7 +261,7 @@ func (m *Client) EffectiveCreditLimit() int64 {
 
 func (m *Client) ToAPI() *fieldv1.ClientObject {
 	// Copy properties so we don't mutate the model's map
-	props := make(data.JSONMap, len(m.Properties)+3)
+	props := make(data.JSONMap, len(m.Properties)+extraPropertiesCount)
 	for k, v := range m.Properties {
 		props[k] = v
 	}

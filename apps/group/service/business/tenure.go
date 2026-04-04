@@ -14,6 +14,15 @@ import (
 	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
+const (
+	// defaultTenureDuration is the default number of periods in a tenure.
+	defaultTenureDuration = int32(52)
+	// tenureDaysPerWeek is the number of days in a weekly period.
+	tenureDaysPerWeek = 7
+	// tenureDaysPerBiweek is the number of days in a biweekly period.
+	tenureDaysPerBiweek = 14
+)
+
 type tenureBusiness struct {
 	eventsMan fevents.Manager
 	grpRepo   repository.CustomerGroupRepository
@@ -59,10 +68,10 @@ func (b *tenureBusiness) Open(ctx context.Context, groupID string) (*models.Tenu
 	}
 
 	// Duration defaults to 52 periods, overridable from group properties
-	duration := int32(52)
+	duration := defaultTenureDuration
 	if group.Properties != nil {
-		if v, ok := group.Properties["tenure_duration"]; ok {
-			if d, ok := v.(float64); ok && d > 0 {
+		if v, hasDuration := group.Properties["tenure_duration"]; hasDuration {
+			if d, isFloat := v.(float64); isFloat && d > 0 {
 				duration = int32(d)
 			}
 		}
@@ -71,8 +80,8 @@ func (b *tenureBusiness) Open(ctx context.Context, groupID string) (*models.Tenu
 	// Determine period type for end date calculation (default WEEKLY)
 	periodType := models.PeriodTypeWeekly
 	if group.Properties != nil {
-		if v, ok := group.Properties["period_type"]; ok {
-			if pt, ok := v.(float64); ok && pt > 0 {
+		if v, hasPeriodType := group.Properties["period_type"]; hasPeriodType {
+			if pt, isFloat := v.(float64); isFloat && pt > 0 {
 				periodType = models.PeriodType(int32(pt))
 			}
 		}
@@ -159,12 +168,12 @@ func (b *tenureBusiness) GetActive(ctx context.Context, groupID string) (*models
 func calculateTenureEndDate(start time.Time, periodType models.PeriodType, duration int32) time.Time {
 	switch periodType {
 	case models.PeriodTypeBiweekly:
-		return start.AddDate(0, 0, int(duration)*14)
+		return start.AddDate(0, 0, int(duration)*tenureDaysPerBiweek)
 	case models.PeriodTypeMonthly:
 		return start.AddDate(0, int(duration), 0)
 	case models.PeriodTypeUnspecified, models.PeriodTypeWeekly:
-		return start.AddDate(0, 0, int(duration)*7)
+		return start.AddDate(0, 0, int(duration)*tenureDaysPerWeek)
 	default:
-		return start.AddDate(0, 0, int(duration)*7)
+		return start.AddDate(0, 0, int(duration)*tenureDaysPerWeek)
 	}
 }

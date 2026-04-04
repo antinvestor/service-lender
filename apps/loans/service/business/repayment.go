@@ -94,84 +94,13 @@ func (b *repaymentBusiness) Record(
 	_ = repCurrencyCode
 
 	// Waterfall allocation against schedule entries
-	var principalApplied, interestApplied, feesApplied int64
-	var excessAmount int64
-	remaining := amount
-	status := loansv1.RepaymentStatus_REPAYMENT_STATUS_PENDING
+	alloc := b.waterfallAllocate(ctx, logger, req.GetLoanAccountId(), amount)
 
-	// Get active schedule and unpaid entries for waterfall allocation
-	schedule, schedErr := b.scheduleRepo.GetActivByLoanAccountID(ctx, req.GetLoanAccountId())
-	if schedErr == nil && schedule != nil {
-		entries, entryErr := b.scheduleEntryRepo.GetByScheduleID(ctx, schedule.GetID())
-		if entryErr == nil {
-			// Filter to unpaid entries (not fully paid)
-			for _, entry := range entries {
-				if remaining <= 0 {
-					break
-				}
-				totalPaid := entry.PrincipalPaid + entry.InterestPaid + entry.FeesPaid
-				if totalPaid >= entry.TotalDue {
-					continue // already fully paid
-				}
-
-				// 1. Interest first
-				interestOwed := entry.InterestDue - entry.InterestPaid
-				if interestOwed > 0 {
-					pay := min64(interestOwed, remaining)
-					entry.InterestPaid += pay
-					interestApplied += pay
-					remaining -= pay
-				}
-
-				// 2. Fees (insurance + processing)
-				feesOwed := entry.FeesDue - entry.FeesPaid
-				if feesOwed > 0 {
-					pay := min64(feesOwed, remaining)
-					entry.FeesPaid += pay
-					feesApplied += pay
-					remaining -= pay
-				}
-
-				// 3. Principal last
-				principalOwed := entry.PrincipalDue - entry.PrincipalPaid
-				if principalOwed > 0 {
-					pay := min64(principalOwed, remaining)
-					entry.PrincipalPaid += pay
-					principalApplied += pay
-					remaining -= pay
-				}
-
-				// Update entry status
-				entryTotalPaid := entry.PrincipalPaid + entry.InterestPaid + entry.FeesPaid
-				if entryTotalPaid >= entry.TotalDue {
-					entry.Status = int32(loansv1.ScheduleEntryStatus_SCHEDULE_ENTRY_STATUS_PAID)
-				} else if entryTotalPaid > 0 {
-					entry.Status = int32(loansv1.ScheduleEntryStatus_SCHEDULE_ENTRY_STATUS_PARTIAL)
-				}
-				entry.TotalPaid = entryTotalPaid
-				entry.Outstanding = entry.TotalDue - entryTotalPaid
-
-				// Emit entry update
-				if emitErr := b.eventsMan.Emit(ctx, events.ScheduleEntrySaveEvent, entry); emitErr != nil {
-					logger.WithField("entry_id", entry.GetID()).
-						WithError(emitErr).
-						Warn("could not emit schedule entry update")
-				}
-			}
-
-			excessAmount = remaining
-			if excessAmount == 0 {
-				status = loansv1.RepaymentStatus_REPAYMENT_STATUS_MATCHED
-			} else if principalApplied+interestApplied+feesApplied > 0 {
-				status = loansv1.RepaymentStatus_REPAYMENT_STATUS_MATCHED
-			}
-		}
-	}
-
-	// If no schedule was found, fall back to applying full amount as principal
-	if schedule == nil {
-		principalApplied = amount
-	}
+	principalApplied := alloc.principalApplied
+	interestApplied := alloc.interestApplied
+	feesApplied := alloc.feesApplied
+	excessAmount := alloc.excessAmount
+	status := alloc.status
 
 	r := &models.Repayment{
 		LoanAccountID:    req.GetLoanAccountId(),
@@ -196,32 +125,48 @@ func (b *repaymentBusiness) Record(
 		return nil, err
 	}
 
-	// Update loan balance to reflect the repayment
+	// Update loan balance and handle payoff detection
 	balance, balErr := b.loanBalanceRepo.GetByLoanAccountID(ctx, req.GetLoanAccountId())
 	if balErr == nil && balance != nil {
-		balance.PrincipalOutstanding -= principalApplied
-		if balance.PrincipalOutstanding < 0 {
-			balance.PrincipalOutstanding = 0
-		}
-		balance.InterestAccrued -= interestApplied
-		if balance.InterestAccrued < 0 {
-			balance.InterestAccrued = 0
-		}
-		balance.FeesOutstanding -= feesApplied
-		if balance.FeesOutstanding < 0 {
-			balance.FeesOutstanding = 0
-		}
-		balance.TotalPaid += amount - remaining
-		balance.TotalOutstanding = balance.PrincipalOutstanding + balance.InterestAccrued + balance.FeesOutstanding + balance.PenaltiesOutstanding
-		now := time.Now().UTC()
-		balance.LastCalculatedAt = &now
-		if emitErr := b.eventsMan.Emit(ctx, events.LoanBalanceSaveEvent, balance); emitErr != nil {
-			logger.WithError(emitErr).Error("could not update loan balance after repayment")
-		}
+		b.applyRepaymentToBalance(ctx, logger, la, balance, amount, alloc)
+	}
+
+	return r.ToAPI(), nil
+}
+
+// applyRepaymentToBalance updates the loan balance after a repayment, emits the
+// updated balance, checks for full payoff, and sends notifications.
+func (b *repaymentBusiness) applyRepaymentToBalance(
+	ctx context.Context,
+	logger *util.LogEntry,
+	la *models.LoanAccount,
+	balance *models.LoanBalance,
+	amount int64,
+	alloc waterfallResult,
+) {
+	balance.PrincipalOutstanding -= alloc.principalApplied
+	if balance.PrincipalOutstanding < 0 {
+		balance.PrincipalOutstanding = 0
+	}
+	balance.InterestAccrued -= alloc.interestApplied
+	if balance.InterestAccrued < 0 {
+		balance.InterestAccrued = 0
+	}
+	balance.FeesOutstanding -= alloc.feesApplied
+	if balance.FeesOutstanding < 0 {
+		balance.FeesOutstanding = 0
+	}
+	balance.TotalPaid += amount - alloc.excessAmount
+	balance.TotalOutstanding = balance.PrincipalOutstanding + balance.InterestAccrued +
+		balance.FeesOutstanding + balance.PenaltiesOutstanding
+	now := time.Now().UTC()
+	balance.LastCalculatedAt = &now
+	if emitErr := b.eventsMan.Emit(ctx, events.LoanBalanceSaveEvent, balance); emitErr != nil {
+		logger.WithError(emitErr).Error("could not update loan balance after repayment")
 	}
 
 	// Notify client about repayment received
-	if b.notifier != nil && balance != nil {
+	if b.notifier != nil {
 		b.notifier.NotifyRepaymentReceived(ctx, la.ClientID, "",
 			models.MinorUnitsToString(amount),
 			la.CurrencyCode,
@@ -230,7 +175,7 @@ func (b *repaymentBusiness) Record(
 	}
 
 	// Check if loan is fully paid off
-	if balance != nil && balance.TotalOutstanding <= 0 {
+	if balance.TotalOutstanding <= 0 {
 		la.Status = int32(loansv1.LoanStatus_LOAN_STATUS_PAID_OFF)
 		if emitErr := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); emitErr != nil {
 			logger.WithError(emitErr).Error("could not transition loan to PAID_OFF")
@@ -238,13 +183,119 @@ func (b *repaymentBusiness) Record(
 			logger.WithField("loan_id", la.GetID()).Info("loan fully paid off")
 		}
 
-		// Notify client about full payoff
 		if b.notifier != nil {
 			b.notifier.NotifyLoanFullyPaid(ctx, la.ClientID, "")
 		}
 	}
+}
 
-	return r.ToAPI(), nil
+// waterfallResult holds the outcome of waterfall allocation against schedule entries.
+type waterfallResult struct {
+	principalApplied int64
+	interestApplied  int64
+	feesApplied      int64
+	excessAmount     int64
+	status           loansv1.RepaymentStatus
+}
+
+// waterfallAllocate applies a payment amount to unpaid schedule entries in
+// waterfall order: interest -> fees -> principal. Returns allocation totals.
+func (b *repaymentBusiness) waterfallAllocate(
+	ctx context.Context,
+	logger *util.LogEntry,
+	loanAccountID string,
+	amount int64,
+) waterfallResult {
+	result := waterfallResult{status: loansv1.RepaymentStatus_REPAYMENT_STATUS_PENDING}
+	remaining := amount
+
+	schedule, schedErr := b.scheduleRepo.GetActivByLoanAccountID(ctx, loanAccountID)
+	if schedErr != nil || schedule == nil {
+		// No schedule found, fall back to applying full amount as principal
+		result.principalApplied = amount
+		return result
+	}
+
+	entries, entryErr := b.scheduleEntryRepo.GetByScheduleID(ctx, schedule.GetID())
+	if entryErr != nil {
+		result.principalApplied = amount
+		return result
+	}
+
+	for _, entry := range entries {
+		if remaining <= 0 {
+			break
+		}
+		totalPaid := entry.PrincipalPaid + entry.InterestPaid + entry.FeesPaid
+		if totalPaid >= entry.TotalDue {
+			continue
+		}
+
+		remaining = b.allocateToEntry(ctx, logger, entry, remaining, &result)
+	}
+
+	result.excessAmount = remaining
+	if remaining == 0 || result.principalApplied+result.interestApplied+result.feesApplied > 0 {
+		result.status = loansv1.RepaymentStatus_REPAYMENT_STATUS_MATCHED
+	}
+
+	return result
+}
+
+// allocateToEntry applies payment to a single schedule entry in waterfall order
+// and emits the updated entry. Returns the remaining amount.
+func (b *repaymentBusiness) allocateToEntry(
+	ctx context.Context,
+	logger *util.LogEntry,
+	entry *models.ScheduleEntry,
+	remaining int64,
+	result *waterfallResult,
+) int64 {
+	// 1. Interest first
+	interestOwed := entry.InterestDue - entry.InterestPaid
+	if interestOwed > 0 {
+		pay := min64(interestOwed, remaining)
+		entry.InterestPaid += pay
+		result.interestApplied += pay
+		remaining -= pay
+	}
+
+	// 2. Fees (insurance + processing)
+	feesOwed := entry.FeesDue - entry.FeesPaid
+	if feesOwed > 0 {
+		pay := min64(feesOwed, remaining)
+		entry.FeesPaid += pay
+		result.feesApplied += pay
+		remaining -= pay
+	}
+
+	// 3. Principal last
+	principalOwed := entry.PrincipalDue - entry.PrincipalPaid
+	if principalOwed > 0 {
+		pay := min64(principalOwed, remaining)
+		entry.PrincipalPaid += pay
+		result.principalApplied += pay
+		remaining -= pay
+	}
+
+	// Update entry status
+	entryTotalPaid := entry.PrincipalPaid + entry.InterestPaid + entry.FeesPaid
+	switch {
+	case entryTotalPaid >= entry.TotalDue:
+		entry.Status = int32(loansv1.ScheduleEntryStatus_SCHEDULE_ENTRY_STATUS_PAID)
+	case entryTotalPaid > 0:
+		entry.Status = int32(loansv1.ScheduleEntryStatus_SCHEDULE_ENTRY_STATUS_PARTIAL)
+	}
+	entry.TotalPaid = entryTotalPaid
+	entry.Outstanding = entry.TotalDue - entryTotalPaid
+
+	if emitErr := b.eventsMan.Emit(ctx, events.ScheduleEntrySaveEvent, entry); emitErr != nil {
+		logger.WithField("entry_id", entry.GetID()).
+			WithError(emitErr).
+			Warn("could not emit schedule entry update")
+	}
+
+	return remaining
 }
 
 // min64 returns the smaller of two int64 values.

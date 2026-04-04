@@ -16,6 +16,8 @@ import (
 	"github.com/antinvestor/service-lender/apps/origination/service/repository"
 )
 
+const recentAppsLimit = 10
+
 // RiskFlag represents a single risk finding from automated assessment.
 type RiskFlag struct {
 	Code     string // machine-readable code e.g. "NAME_MISMATCH"
@@ -108,43 +110,10 @@ func (r *RiskAssessor) checkClientDataConsistency(ctx context.Context, app *mode
 	client := resp.Msg.GetData()
 	var flags []RiskFlag
 
-	// Name mismatch: compare application KYC name against identity record
-	if app.KycData != nil {
-		kycName, _ := app.KycData["full_name"].(string)
-		if kycName != "" && client.GetName() != "" {
-			if !namesMatch(kycName, client.GetName()) {
-				flags = append(flags, RiskFlag{
-					Code:     "NAME_MISMATCH",
-					Severity: "review",
-					Message: fmt.Sprintf("application name %q does not match identity record %q",
-						kycName, client.GetName()),
-				})
-			}
-		}
+	flags = append(flags, checkKycDataFlags(app.KycData, client)...)
 
-		// ID number consistency: if KYC has an ID number, verify it matches
-		// the identity record's properties
-		kycIDNumber, _ := app.KycData["id_number"].(string)
-		if kycIDNumber != "" && client.GetProperties() != nil {
-			registeredID := ""
-			if v := client.GetProperties().GetFields(); v != nil {
-				if idField, ok := v["id_number"]; ok {
-					registeredID = idField.GetStringValue()
-				}
-			}
-			if registeredID != "" && kycIDNumber != registeredID {
-				flags = append(flags, RiskFlag{
-					Code:     "ID_NUMBER_MISMATCH",
-					Severity: "block",
-					Message: fmt.Sprintf("application ID %q does not match registered ID %q",
-						kycIDNumber, registeredID),
-				})
-			}
-		}
-	}
-
-	// Client state check: must be active
-	if client.GetState() != 3 { // StateActive
+	const stateActive = 3
+	if client.GetState() != stateActive {
 		flags = append(flags, RiskFlag{
 			Code:     "CLIENT_NOT_ACTIVE",
 			Severity: "block",
@@ -153,6 +122,63 @@ func (r *RiskAssessor) checkClientDataConsistency(ctx context.Context, app *mode
 	}
 
 	return flags
+}
+
+// checkKycDataFlags compares application KYC data against the identity client record.
+func checkKycDataFlags(kycData map[string]interface{}, client *fieldv1.ClientObject) []RiskFlag {
+	if kycData == nil {
+		return nil
+	}
+
+	var flags []RiskFlag
+
+	kycName, _ := kycData["full_name"].(string)
+	if kycName != "" && client.GetName() != "" && !namesMatch(kycName, client.GetName()) {
+		flags = append(flags, RiskFlag{
+			Code:     "NAME_MISMATCH",
+			Severity: "review",
+			Message:  fmt.Sprintf("application name %q does not match identity record %q", kycName, client.GetName()),
+		})
+	}
+
+	flags = append(flags, checkIDNumberMismatch(kycData, client)...)
+	return flags
+}
+
+// checkIDNumberMismatch checks whether the KYC ID number matches the identity record.
+func checkIDNumberMismatch(kycData map[string]interface{}, client *fieldv1.ClientObject) []RiskFlag {
+	kycIDNumber, _ := kycData["id_number"].(string)
+	if kycIDNumber == "" {
+		return nil
+	}
+
+	registeredID := clientPropertyString(client, "id_number")
+	if registeredID == "" || kycIDNumber == registeredID {
+		return nil
+	}
+
+	return []RiskFlag{{
+		Code:     "ID_NUMBER_MISMATCH",
+		Severity: "block",
+		Message:  fmt.Sprintf("application ID %q does not match registered ID %q", kycIDNumber, registeredID),
+	}}
+}
+
+// clientPropertyString extracts a string property from a client's protobuf properties.
+func clientPropertyString(client *fieldv1.ClientObject, key string) string {
+	props := client.GetProperties()
+	if props == nil {
+		return ""
+	}
+	fields := props.GetFields()
+	if fields == nil {
+		return ""
+	}
+	v, ok := fields[key]
+	if !ok || v == nil {
+		return ""
+	}
+	return v.GetStringValue()
 }
 
 // checkAgentOnboardingVelocity detects suspicious agent activity.
@@ -220,7 +246,7 @@ func (r *RiskAssessor) checkRecentApplicationFrequency(ctx context.Context, app 
 			"client_id = ?": app.ClientID,
 			"status IN (?)": recentTerminalStatuses,
 		}),
-		data.WithSearchLimit(10),
+		data.WithSearchLimit(recentAppsLimit),
 	)
 
 	results, err := r.appRepo.Search(ctx, query)

@@ -105,7 +105,7 @@ func (n *LoanNotifier) send(
 	for stream.Receive() {
 		// discard responses
 	}
-	if err := stream.Close(); err != nil {
-		logger.WithError(err).Warn("error closing notification stream")
+	if closeErr := stream.Close(); closeErr != nil {
+		logger.WithError(closeErr).Warn("error closing notification stream")
 	}
 }

@@ -10,6 +10,17 @@ import (
 	"github.com/antinvestor/service-lender/pkg/calculation"
 )
 
+const (
+	// defaultMaturityPeriod is the default number of periods before loan maturity.
+	defaultMaturityPeriod = int32(4)
+	// defaultGracePeriod is the default grace period in number of periods.
+	defaultGracePeriod = int32(1)
+	// defaultLoanTenure is the default loan tenure in number of periods.
+	defaultLoanTenure = int32(4)
+	// defaultCoolOff is the default cool-off period in number of periods.
+	defaultCoolOff = int32(0)
+)
+
 type loanWindowBusiness struct {
 	eventsMan fevents.Manager
 	lwRepo    repository.LoanWindowRepository
@@ -35,10 +46,10 @@ func (b *loanWindowBusiness) Evaluate(ctx context.Context, groupID string) (map[
 
 	// Default cycle parameters from product config
 	// These would typically come from group properties or product configuration
-	maturityPeriod := int32(4)
-	gracePeriod := int32(1)
-	loanTenure := int32(4)
-	coolOff := int32(0)
+	maturityPeriod := defaultMaturityPeriod
+	gracePeriod := defaultGracePeriod
+	loanTenure := defaultLoanTenure
+	coolOff := defaultCoolOff
 
 	shouldOpen := calculation.ShouldOpenLoanWindow(completedPeriods, maturityPeriod, gracePeriod, loanTenure, coolOff)
 	cycle := calculation.ActiveLoanWindowCycle(completedPeriods, maturityPeriod, gracePeriod, loanTenure, coolOff)

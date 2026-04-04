@@ -6,7 +6,7 @@ import (
 )
 
 // FormatReport generates a human-readable reconciliation report.
-func FormatReport(results []*ReconciliationResult) string {
+func FormatReport(results []*Result) string {
 	var sb strings.Builder
 
 	sb.WriteString("=== Balance Reconciliation Report ===\n\n")
@@ -58,7 +58,7 @@ func FormatReport(results []*ReconciliationResult) string {
 }
 
 // FormatCSV generates a CSV report of discrepancies.
-func FormatCSV(results []*ReconciliationResult) string {
+func FormatCSV(results []*Result) string {
 	var sb strings.Builder
 	sb.WriteString("account_ref,owner_type,owner_id,expected_balance,actual_balance,difference,currency\n")
 

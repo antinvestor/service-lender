@@ -17,9 +17,12 @@ import (
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
+	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
 	aconfig "github.com/antinvestor/service-lender/apps/identity/config"
@@ -81,7 +84,25 @@ func main() {
 		return
 	}
 
-	// Initialise repositories
+	// Initialise repositories, business logic, handlers, and events
+	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, cfg)
+
+	svc.Init(ctx, serviceOptions...)
+
+	err = svc.Run(ctx, "")
+	if err != nil {
+		log.WithError(err).Fatal("could not run Server")
+	}
+}
+
+func setupServiceOptions(
+	ctx context.Context,
+	sm security.Manager,
+	evtsMan fevents.Manager,
+	dbPool pool.Pool,
+	workMan workerpool.Manager,
+	cfg aconfig.IdentityConfig,
+) []frame.Option {
 	bankRepo := repository.NewBankRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
@@ -93,7 +114,6 @@ func main() {
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
 
-	// Create business logic with all dependencies
 	bankBusiness := business.NewBankBusiness(ctx, evtsMan, bankRepo)
 	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, bankRepo, branchRepo)
 	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo)
@@ -103,22 +123,13 @@ func main() {
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 
-	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(
-		ctx,
-		sm,
-		bankBusiness,
-		branchBusiness,
-		agentBusiness,
-		clientBusiness,
-		groupBusiness,
-		membershipBusiness,
-		investorBusiness,
-		suBusiness,
+		ctx, sm,
+		bankBusiness, branchBusiness, agentBusiness, clientBusiness,
+		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
 	)
 
-	// Initialise the service with all options
-	serviceOptions := []frame.Option{
+	return []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
 		frame.WithRegisterEvents(
 			identityevents.NewBankSave(ctx, bankRepo),
@@ -131,13 +142,6 @@ func main() {
 			identityevents.NewSystemUserSave(ctx, systemUserRepo),
 			identityevents.NewCreditLimitChangeRequestSave(ctx, clcrRepo),
 		),
-	}
-
-	svc.Init(ctx, serviceOptions...)
-
-	err = svc.Run(ctx, "")
-	if err != nil {
-		log.WithError(err).Fatal("could not run Server")
 	}
 }
 
@@ -185,8 +189,8 @@ func setupConnectServer(
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
-	groupBusiness business.GroupBusiness,
-	membershipBusiness business.MembershipBusiness,
+	_ business.GroupBusiness,
+	_ business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) http.Handler {

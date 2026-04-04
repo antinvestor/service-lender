@@ -8,6 +8,7 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 
 	"github.com/antinvestor/service-lender/apps/group/service/models"
+	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
 // TenureRepository provides data access for tenures.
@@ -33,7 +34,7 @@ func (r *tenureRepository) GetActiveByGroupID(ctx context.Context, groupID strin
 	var tenure models.Tenure
 	err := r.Pool().
 		DB(ctx, true).
-		Where("group_id = ? AND state != ?", groupID, 5).
+		Where("group_id = ? AND state != ?", groupID, constants.StateDeleted).
 		Order("created_at DESC").
 		First(&tenure).
 		Error

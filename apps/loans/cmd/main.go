@@ -15,9 +15,12 @@ import (
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
+	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
 	aconfig "github.com/antinvestor/service-lender/apps/loans/config"
@@ -80,7 +83,25 @@ func main() {
 		return
 	}
 
-	// Initialise repositories
+	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, originationCli, loanNotifier)
+
+	svc.Init(ctx, serviceOptions...)
+
+	err = svc.Run(ctx, "")
+	if err != nil {
+		log.WithError(err).Fatal("could not run Server")
+	}
+}
+
+func setupServiceOptions(
+	ctx context.Context,
+	sm security.Manager,
+	evtsMan fevents.Manager,
+	dbPool pool.Pool,
+	workMan workerpool.Manager,
+	originationCli originationv1connect.OriginationServiceClient,
+	loanNotifier *business.LoanNotifier,
+) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 	laRepo := repository.NewLoanAccountRepository(ctx, dbPool, workMan)
 	rsRepo := repository.NewRepaymentScheduleRepository(ctx, dbPool, workMan)
@@ -92,33 +113,22 @@ func main() {
 	lscRepo := repository.NewLoanStatusChangeRepository(ctx, dbPool, workMan)
 	reconRepo := repository.NewReconciliationRepository(ctx, dbPool, workMan)
 
-	// Create business logic with all dependencies
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
-		ctx,
-		evtsMan,
-		lpRepo,
-		laRepo,
-		lbRepo,
-		lscRepo,
-		repRepo,
-		originationCli,
-		scheduleBusiness,
+		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo,
+		originationCli, scheduleBusiness,
 	)
 	repBusiness := business.NewRepaymentBusiness(ctx, evtsMan, laRepo, repRepo, rsRepo, seRepo, lbRepo, loanNotifier)
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
 
-	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(ctx, sm,
 		lpBusiness, laBusiness, repBusiness, scheduleBusiness,
-		penaltyBusiness, restructBusiness, reconBusiness,
-		lscRepo)
+		penaltyBusiness, restructBusiness, reconBusiness, lscRepo)
 
-	// Initialise the service with all options
-	serviceOptions := []frame.Option{
+	return []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
 		frame.WithRegisterEvents(
 			lmevents.NewLoanProductSave(ctx, lpRepo),
@@ -132,13 +142,6 @@ func main() {
 			lmevents.NewLoanStatusChangeSave(ctx, lscRepo),
 			lmevents.NewReconciliationSave(ctx, reconRepo),
 		),
-	}
-
-	svc.Init(ctx, serviceOptions...)
-
-	err = svc.Run(ctx, "")
-	if err != nil {
-		log.WithError(err).Fatal("could not run Server")
 	}
 }
 

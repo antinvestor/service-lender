@@ -27,6 +27,9 @@ func NewObligationRepository(ctx context.Context, dbPool pool.Pool, workMan work
 	}
 }
 
+// stateActive is the numeric value for the active state used in database queries.
+const stateActive = 3
+
 type obligationRepository struct {
 	datastore.BaseRepository[*models.Obligation]
 }
@@ -37,7 +40,7 @@ func (r *obligationRepository) GetByMembershipID(
 ) ([]*models.Obligation, error) {
 	var obligations []*models.Obligation
 	err := r.Pool().DB(ctx, true).
-		Where("membership_id = ? AND state = ?", membershipID, 3). // StateActive
+		Where("membership_id = ? AND state = ?", membershipID, stateActive).
 		Order("deadline ASC").
 		Find(&obligations).Error
 	return obligations, err

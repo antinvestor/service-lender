@@ -11,10 +11,19 @@ import (
 
 const timeLayout = time.RFC3339
 
+const (
+	// decimalPrecision is the number of decimal places for minor unit conversions (cents).
+	decimalPrecision = 2
+	// minorUnitsPerUnit is the number of minor units (cents) per major unit.
+	minorUnitsPerUnit = 100
+	// nanosPerMinorUnit converts minor units to nanos for google.type.Money.
+	nanosPerMinorUnit = 10_000_000
+)
+
 // MinorUnitsToString converts an int64 minor-unit amount (e.g. cents) to a
 // decimal string with two fractional digits. 123456 -> "1234.56".
 func MinorUnitsToString(v int64) string {
-	return decimalx.FromMinorUnits(v, 2).String()
+	return decimalx.FromMinorUnits(v, decimalPrecision).String()
 }
 
 // StringToMinorUnits parses a decimal string (e.g. "1234.56") into int64 minor
@@ -25,13 +34,13 @@ func StringToMinorUnits(s string) int64 {
 	if err != nil {
 		return 0
 	}
-	return d.ToMinorUnits(2)
+	return d.ToMinorUnits(decimalPrecision)
 }
 
 // BasisPointsToString converts basis points (int64) to a percentage string.
 // 1500 -> "15.00".
 func BasisPointsToString(v int64) string {
-	return decimalx.FromMinorUnits(v, 2).String()
+	return decimalx.FromMinorUnits(v, decimalPrecision).String()
 }
 
 // StringToBasisPoints parses a percentage string into basis points.
@@ -41,7 +50,7 @@ func StringToBasisPoints(s string) int64 {
 	if err != nil {
 		return 0
 	}
-	return d.ToMinorUnits(2)
+	return d.ToMinorUnits(decimalPrecision)
 }
 
 // TimeToString converts a *time.Time to an RFC3339 string.
@@ -75,8 +84,8 @@ func jsonMapToStringSlice(m data.JSONMap) []string {
 	result := make([]string, 0, len(m))
 	for i := range len(m) {
 		key := strconv.Itoa(i)
-		if v, ok := m[key]; ok {
-			if s, ok := v.(string); ok {
+		if v, exists := m[key]; exists {
+			if s, isStr := v.(string); isStr {
 				result = append(result, s)
 			}
 		}
@@ -87,8 +96,8 @@ func jsonMapToStringSlice(m data.JSONMap) []string {
 // MinorUnitsToMoney converts minor units (e.g. cents) and a currency code to a
 // *money.Money proto message.
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
-	units := v / 100
-	nanos := (v % 100) * 10_000_000
+	units := v / minorUnitsPerUnit
+	nanos := (v % minorUnitsPerUnit) * nanosPerMinorUnit
 	return &money.Money{
 		CurrencyCode: currencyCode,
 		Units:        units,
@@ -101,7 +110,7 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	if m == nil {
 		return 0, ""
 	}
-	return m.GetUnits()*100 + int64(m.GetNanos())/10_000_000, m.GetCurrencyCode()
+	return m.GetUnits()*minorUnitsPerUnit + int64(m.GetNanos())/nanosPerMinorUnit, m.GetCurrencyCode()
 }
 
 // stringSliceToJSONMap converts a []string into a JSONMap keyed by index.

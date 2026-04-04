@@ -23,10 +23,10 @@ func NewMotionBusiness(
 	return &motionBusiness{eventsMan: eventsMan, motRepo: motRepo}
 }
 
-func (b *motionBusiness) Create(ctx context.Context, motion *models.Motion) (*models.Motion, error) {
+func (b *motionBusiness) Create(_ context.Context, _ *models.Motion) (*models.Motion, error) {
 	return nil, errors.New("group motion operations are not yet available for this product")
 }
 
-func (b *motionBusiness) Vote(ctx context.Context, motionID, membershipID string, choice int32) error {
+func (b *motionBusiness) Vote(_ context.Context, _, _ string, _ int32) error {
 	return errors.New("group motion operations are not yet available for this product")
 }

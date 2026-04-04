@@ -2,6 +2,15 @@ package calculation
 
 import "github.com/pitabwire/util/decimalx"
 
+const (
+	// weeksPerYear is the number of weeks in a year.
+	weeksPerYear = 52
+	// biweeksPerYear is the number of biweekly periods in a year.
+	biweeksPerYear = 26
+	// monthsPerYear is the number of months in a year.
+	monthsPerYear = 12
+)
+
 // FlatRateInterest calculates interest using flat-rate method.
 // principal is a Decimal amount, annualRate is in basis points.
 // termPeriods is the number of payment periods, periodsPerYear is periods in a year.
@@ -43,13 +52,13 @@ func ReducingBalanceInterestForPeriod(
 // periodType: 1=WEEKLY(52), 2=BIWEEKLY(26), 3=MONTHLY(12).
 func PeriodsPerYear(periodType int32) int32 {
 	switch periodType {
-	case 1: // WEEKLY
-		return 52
-	case 2: // BIWEEKLY
-		return 26
-	case 3: // MONTHLY
-		return 12
+	case periodTypeWeekly:
+		return weeksPerYear
+	case periodTypeBiweekly:
+		return biweeksPerYear
+	case periodTypeMonthly:
+		return monthsPerYear
 	default:
-		return 52
+		return weeksPerYear
 	}
 }

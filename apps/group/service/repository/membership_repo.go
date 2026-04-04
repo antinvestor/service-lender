@@ -8,6 +8,7 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 
 	"github.com/antinvestor/service-lender/apps/group/service/models"
+	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
 // MembershipRepository provides data access for memberships.
@@ -32,12 +33,20 @@ type membershipRepository struct {
 
 func (r *membershipRepository) GetByGroupID(ctx context.Context, groupID string) ([]*models.Membership, error) {
 	var memberships []*models.Membership
-	err := r.Pool().DB(ctx, true).Where("group_id = ? AND state != ?", groupID, 5).Find(&memberships).Error
+	err := r.Pool().
+		DB(ctx, true).
+		Where("group_id = ? AND state != ?", groupID, constants.StateDeleted).
+		Find(&memberships).
+		Error
 	return memberships, err
 }
 
 func (r *membershipRepository) GetByProfileID(ctx context.Context, profileID string) ([]*models.Membership, error) {
 	var memberships []*models.Membership
-	err := r.Pool().DB(ctx, true).Where("profile_id = ? AND state != ?", profileID, 5).Find(&memberships).Error
+	err := r.Pool().
+		DB(ctx, true).
+		Where("profile_id = ? AND state != ?", profileID, constants.StateDeleted).
+		Find(&memberships).
+		Error
 	return memberships, err
 }

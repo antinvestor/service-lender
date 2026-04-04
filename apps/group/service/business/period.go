@@ -14,6 +14,13 @@ import (
 	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
+const (
+	// daysPerWeek is the number of days in a weekly period.
+	daysPerWeek = 7
+	// daysPerBiweek is the number of days in a biweekly period.
+	daysPerBiweek = 14
+)
+
 type periodBusiness struct {
 	eventsMan fevents.Manager
 	tenRepo   repository.TenureRepository
@@ -38,7 +45,6 @@ func (b *periodBusiness) Open(ctx context.Context, groupID string) (*models.Peri
 	logger := util.Log(ctx).WithField("method", "PeriodBusiness.Open").
 		WithField("group_id", groupID)
 
-	// Get the active tenure
 	tenure, err := b.tenRepo.GetActiveByGroupID(ctx, groupID)
 	if err != nil {
 		return nil, fmt.Errorf("no active tenure for group: %w", err)
@@ -48,48 +54,12 @@ func (b *periodBusiness) Open(ctx context.Context, groupID string) (*models.Peri
 		return nil, fmt.Errorf("tenure is not active (state=%d)", tenure.State)
 	}
 
-	// Determine period type from tenure properties or default from period_type field
-	periodType := models.PeriodTypeWeekly
-	if tenure.Properties != nil {
-		if v, ok := tenure.Properties["period_type"]; ok {
-			if pt, ok := v.(float64); ok && pt > 0 {
-				periodType = models.PeriodType(int32(pt))
-			}
-		}
+	periodType := tenurePeriodType(tenure)
+	nextPosition, startDate, parentPeriodID, err := b.resolveNextPeriod(ctx, tenure)
+	if err != nil {
+		return nil, err
 	}
 
-	// Determine next position and start date from latest period in this tenure
-	var nextPosition int32 = 1
-	var startDate time.Time
-	var parentPeriodID string
-
-	latestPeriod, err := b.perRepo.GetLastestBy(ctx, map[string]any{
-		"tenure_id": tenure.GetID(),
-	})
-	if err == nil && latestPeriod != nil && latestPeriod.GetID() != "" {
-		// Ensure previous period is closed before opening a new one
-		if latestPeriod.State == int32(constants.StateActive) {
-			return nil, fmt.Errorf("previous period (id=%s) is still active, close it first", latestPeriod.GetID())
-		}
-		nextPosition = latestPeriod.Position + 1
-		parentPeriodID = latestPeriod.GetID()
-
-		// Start where the previous period ended
-		if latestPeriod.EndDate != nil {
-			startDate = *latestPeriod.EndDate
-		} else {
-			startDate = time.Now().UTC()
-		}
-	} else {
-		// First period: start at tenure start date
-		if tenure.StartDate != nil {
-			startDate = *tenure.StartDate
-		} else {
-			startDate = time.Now().UTC()
-		}
-	}
-
-	// Check that we haven't exceeded the tenure duration
 	if nextPosition > tenure.Duration {
 		return nil, fmt.Errorf(
 			"tenure duration of %d periods exhausted, close tenure and open a new one",
@@ -97,7 +67,6 @@ func (b *periodBusiness) Open(ctx context.Context, groupID string) (*models.Peri
 		)
 	}
 
-	// Calculate end date based on period type
 	endDate := calculatePeriodEndDate(startDate, periodType)
 
 	period := &models.Period{
@@ -126,6 +95,52 @@ func (b *periodBusiness) Open(ctx context.Context, groupID string) (*models.Peri
 		Info("new period opened")
 
 	return period, nil
+}
+
+// tenurePeriodType extracts the period type from tenure properties, defaulting to weekly.
+func tenurePeriodType(tenure *models.Tenure) models.PeriodType {
+	if tenure.Properties == nil {
+		return models.PeriodTypeWeekly
+	}
+	v, ok := tenure.Properties["period_type"]
+	if !ok {
+		return models.PeriodTypeWeekly
+	}
+	pt, isFloat := v.(float64)
+	if !isFloat || pt <= 0 {
+		return models.PeriodTypeWeekly
+	}
+	return models.PeriodType(int32(pt))
+}
+
+// resolveNextPeriod determines the next position, start date, and parent period
+// from the latest period in a tenure.
+func (b *periodBusiness) resolveNextPeriod(
+	ctx context.Context,
+	tenure *models.Tenure,
+) (int32, time.Time, string, error) {
+	latestPeriod, err := b.perRepo.GetLastestBy(ctx, map[string]any{
+		"tenure_id": tenure.GetID(),
+	})
+	if err != nil || latestPeriod == nil || latestPeriod.GetID() == "" {
+		startDate := time.Now().UTC()
+		if tenure.StartDate != nil {
+			startDate = *tenure.StartDate
+		}
+		return 1, startDate, "", nil
+	}
+
+	if latestPeriod.State == int32(constants.StateActive) {
+		return 0, time.Time{}, "", fmt.Errorf(
+			"previous period (id=%s) is still active, close it first", latestPeriod.GetID())
+	}
+
+	startDate := time.Now().UTC()
+	if latestPeriod.EndDate != nil {
+		startDate = *latestPeriod.EndDate
+	}
+
+	return latestPeriod.Position + 1, startDate, latestPeriod.GetID(), nil
 }
 
 // Close marks a period as shutdown, setting its end date to now if it
@@ -165,12 +180,12 @@ func (b *periodBusiness) GetCurrent(ctx context.Context, groupID string) (*model
 func calculatePeriodEndDate(start time.Time, periodType models.PeriodType) time.Time {
 	switch periodType {
 	case models.PeriodTypeBiweekly:
-		return start.AddDate(0, 0, 14)
+		return start.AddDate(0, 0, daysPerBiweek)
 	case models.PeriodTypeMonthly:
 		return start.AddDate(0, 1, 0)
 	case models.PeriodTypeUnspecified, models.PeriodTypeWeekly:
-		return start.AddDate(0, 0, 7)
+		return start.AddDate(0, 0, daysPerWeek)
 	default:
-		return start.AddDate(0, 0, 7)
+		return start.AddDate(0, 0, daysPerWeek)
 	}
 }

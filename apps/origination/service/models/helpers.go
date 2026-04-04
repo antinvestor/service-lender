@@ -7,10 +7,19 @@ import (
 	money "google.golang.org/genproto/googleapis/type/money"
 )
 
+const (
+	// decimalPrecision is the number of decimal places for minor unit conversions (cents).
+	decimalPrecision = 2
+	// minorUnitsPerUnit is the number of minor units (cents) per major unit.
+	minorUnitsPerUnit = 100
+	// nanosPerMinorUnit converts minor units to nanos for google.type.Money.
+	nanosPerMinorUnit = 10_000_000
+)
+
 // MinorUnitsToString converts minor units (e.g. cents) stored as int64 to a decimal string.
 // For example, 123456 becomes "1234.56".
 func MinorUnitsToString(v int64) string {
-	return decimalx.FromMinorUnits(v, 2).String()
+	return decimalx.FromMinorUnits(v, decimalPrecision).String()
 }
 
 // StringToMinorUnits converts a decimal string to minor units (int64).
@@ -21,13 +30,13 @@ func StringToMinorUnits(s string) int64 {
 	if err != nil {
 		return 0
 	}
-	return d.ToMinorUnits(2)
+	return d.ToMinorUnits(decimalPrecision)
 }
 
 // BasisPointsToString converts basis points stored as int64 to a percentage string.
 // For example, 1250 becomes "12.50".
 func BasisPointsToString(v int64) string {
-	return decimalx.FromMinorUnits(v, 2).String()
+	return decimalx.FromMinorUnits(v, decimalPrecision).String()
 }
 
 // StringToBasisPoints converts a percentage string to basis points (int64).
@@ -38,7 +47,7 @@ func StringToBasisPoints(s string) int64 {
 	if err != nil {
 		return 0
 	}
-	return d.ToMinorUnits(2)
+	return d.ToMinorUnits(decimalPrecision)
 }
 
 // TimeToString converts a *time.Time to an RFC3339 string. Returns "" if nil.
@@ -61,18 +70,11 @@ func StringToTime(s string) *time.Time {
 	return &t
 }
 
-func padLeft(s string, length int) string {
-	for len(s) < length {
-		s = "0" + s
-	}
-	return s
-}
-
 // MinorUnitsToMoney converts minor units (e.g. cents) and a currency code to a
 // *money.Money proto message. 123456 with "KES" becomes {CurrencyCode:"KES", Units:1234, Nanos:560000000}.
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
-	units := v / 100
-	nanos := (v % 100) * 10_000_000
+	units := v / minorUnitsPerUnit
+	nanos := (v % minorUnitsPerUnit) * nanosPerMinorUnit
 	return &money.Money{
 		CurrencyCode: currencyCode,
 		Units:        units,
@@ -86,5 +88,5 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	if m == nil {
 		return 0, ""
 	}
-	return m.GetUnits()*100 + int64(m.GetNanos())/10_000_000, m.GetCurrencyCode()
+	return m.GetUnits()*minorUnitsPerUnit + int64(m.GetNanos())/nanosPerMinorUnit, m.GetCurrencyCode()
 }

@@ -26,7 +26,7 @@ func NewMembershipBusiness(
 	return &membershipBusiness{eventsMan: eventsMan, memRepo: memRepo, clients: pc}
 }
 
-func (b *membershipBusiness) Create(ctx context.Context, membership *models.Membership) (*models.Membership, error) {
+func (b *membershipBusiness) Create(_ context.Context, _ *models.Membership) (*models.Membership, error) {
 	return nil, errors.New("group membership operations are not yet available for this product")
 }
 
@@ -38,13 +38,13 @@ func (b *membershipBusiness) GetByGroupID(ctx context.Context, groupID string) (
 	return b.memRepo.GetByGroupID(ctx, groupID)
 }
 
-func (b *membershipBusiness) UpdateRole(ctx context.Context, membershipID string, role int32) error {
+func (b *membershipBusiness) UpdateRole(_ context.Context, _ string, _ int32) error {
 	return errors.New("group membership operations are not yet available for this product")
 }
 
 func (b *membershipBusiness) CheckPeriodicPayment(
-	ctx context.Context,
-	membershipID string,
+	_ context.Context,
+	_ string,
 ) (map[string]interface{}, error) {
 	return nil, errors.New("group membership operations are not yet available for this product")
 }

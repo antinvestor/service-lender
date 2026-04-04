@@ -2,7 +2,7 @@ package constants
 
 import "fmt"
 
-// Product-level ledger account names.
+// ProductUnallocatedAccount returns the product-level unallocated ledger account name.
 func ProductUnallocatedAccount(productID string) string {
 	return fmt.Sprintf("product:%s:unallocated", productID)
 }
@@ -19,7 +19,7 @@ func ProductInsuranceAccount(productID string) string {
 	return fmt.Sprintf("product:%s:insurance", productID)
 }
 
-// Group-level ledger account names.
+// GroupBankAccount returns the group-level bank ledger account name.
 func GroupBankAccount(groupID string) string {
 	return fmt.Sprintf("group:%s:bank", groupID)
 }
@@ -48,7 +48,7 @@ func GroupSavingsInterestIncomeAccount(groupID string) string {
 	return fmt.Sprintf("group:%s:savings_interest_income", groupID)
 }
 
-// Member-level ledger account names.
+// MemberSuspenseAccount returns the member-level suspense ledger account name.
 func MemberSuspenseAccount(memberID string) string {
 	return fmt.Sprintf("member:%s:suspense", memberID)
 }
@@ -65,7 +65,7 @@ func MemberLoansAccount(memberID string) string {
 	return fmt.Sprintf("member:%s:loans", memberID)
 }
 
-// Investor-level ledger account names.
+// InvestorCapitalAccount returns the investor-level capital ledger account name.
 func InvestorCapitalAccount(investorAccountID string) string {
 	return fmt.Sprintf("investor:%s:capital", investorAccountID)
 }
@@ -74,7 +74,7 @@ func InvestorReservedAccount(investorAccountID string) string {
 	return fmt.Sprintf("investor:%s:reserved", investorAccountID)
 }
 
-// Platform-level ledger account names.
+// PlatformFirstLossAccount returns the platform-level first loss ledger account name.
 func PlatformFirstLossAccount(productID string) string {
 	return fmt.Sprintf("platform:%s:first_loss", productID)
 }

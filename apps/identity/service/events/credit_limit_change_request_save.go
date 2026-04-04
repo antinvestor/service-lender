@@ -13,26 +13,27 @@ import (
 
 const CreditLimitChangeRequestSaveEvent = "credit_limit_change_request.save"
 
-type creditLimitChangeRequestSave struct {
+// CreditLimitChangeRequestSave handles persistence of credit limit change requests.
+type CreditLimitChangeRequestSave struct {
 	repo repository.CreditLimitChangeRequestRepository
 }
 
 func NewCreditLimitChangeRequestSave(
 	_ context.Context,
 	repo repository.CreditLimitChangeRequestRepository,
-) *creditLimitChangeRequestSave {
-	return &creditLimitChangeRequestSave{repo: repo}
+) *CreditLimitChangeRequestSave {
+	return &CreditLimitChangeRequestSave{repo: repo}
 }
 
-func (e *creditLimitChangeRequestSave) Name() string {
+func (e *CreditLimitChangeRequestSave) Name() string {
 	return CreditLimitChangeRequestSaveEvent
 }
 
-func (e *creditLimitChangeRequestSave) PayloadType() any {
+func (e *CreditLimitChangeRequestSave) PayloadType() any {
 	return &models.CreditLimitChangeRequest{}
 }
 
-func (e *creditLimitChangeRequestSave) Validate(_ context.Context, payload any) error {
+func (e *CreditLimitChangeRequestSave) Validate(_ context.Context, payload any) error {
 	req, ok := payload.(*models.CreditLimitChangeRequest)
 	if !ok {
 		return errors.New("invalid payload type for credit_limit_change_request.save")
@@ -43,7 +44,7 @@ func (e *creditLimitChangeRequestSave) Validate(_ context.Context, payload any) 
 	return nil
 }
 
-func (e *creditLimitChangeRequestSave) Execute(ctx context.Context, payload any) error {
+func (e *CreditLimitChangeRequestSave) Execute(ctx context.Context, payload any) error {
 	req, ok := payload.(*models.CreditLimitChangeRequest)
 	if !ok {
 		return errors.New("invalid payload type for credit_limit_change_request.save")

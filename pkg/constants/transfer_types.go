@@ -37,78 +37,49 @@ const (
 	TransferTypeInterSubscriptionPayment                  = 71
 )
 
+// transferTypeNames maps each transfer type constant to its human-readable name.
+var transferTypeNames = map[int]string{ //nolint:gochecknoglobals // package-level lookup table
+	TransferTypePayment:                                   "PAYMENT",
+	TransferTypePaymentIdentified:                         "PAYMENT_IDENTIFIED",
+	TransferTypePaymentAllocated:                          "PAYMENT_ALLOCATED",
+	TransferTypeDisbursement:                              "DISBURSEMENT",
+	TransferTypeDisbursementReversal:                      "DISBURSEMENT_REVERSAL",
+	TransferTypeDisbursementReversalReroute:               "DISBURSEMENT_REVERSAL_REROUTE",
+	TransferTypeTerminalDisbursement:                      "TERMINAL_DISBURSEMENT",
+	TransferTypeTerminalDisbursementRecovery:              "TERMINAL_DISBURSEMENT_RECOVERY",
+	TransferTypeCost:                                      "COST",
+	TransferTypeServiceFee:                                "SERVICE_FEE",
+	TransferTypeRegistrationFee:                           "REGISTRATION_FEE",
+	TransferTypePeriodicSaving:                            "PERIODIC_SAVING",
+	TransferTypePeriodicSavingsInterestIncomeDistribution: "PERIODIC_SAVINGS_INTEREST_INCOME_DISTRIBUTION",
+	TransferTypePeriodicSavingRecovery:                    "PERIODIC_SAVING_RECOVERY",
+	TransferTypePenalty:                                   "PENALTY",
+	TransferTypePenaltyCancel:                             "PENALTY_CANCEL",
+	TransferTypePenaltyIncomeDistribution:                 "PENALTY_INCOME_DISTRIBUTION",
+	TransferTypeLoanFundingExternalLending:                "LOAN_FUNDING_EXTERNAL_LENDING",
+	TransferTypeLoanFundingExternalLendingPayback:         "LOAN_FUNDING_EXTERNAL_LENDING_PAYBACK",
+	TransferTypeLoan:                                      "LOAN",
+	TransferTypeLoanRepayment:                             "LOAN_REPAYMENT",
+	TransferTypeShutdownLoanRecovery:                      "SHUTDOWN_LOAN_RECOVERY",
+	TransferTypeLoanInterest:                              "LOAN_INTEREST",
+	TransferTypeLoanInterestRepayment:                     "LOAN_INTEREST_REPAYMENT",
+	TransferTypeLoanInterestIncomeDistribution:            "LOAN_INTEREST_INCOME_DISTRIBUTION",
+	TransferTypeLoanInsurance:                             "LOAN_INSURANCE",
+	TransferTypeLoanInsuranceRepayment:                    "LOAN_INSURANCE_REPAYMENT",
+	TransferTypeInvestorDeployment:                        "INVESTOR_DEPLOYMENT",
+	TransferTypeInvestorPrincipalReturn:                   "INVESTOR_PRINCIPAL_RETURN",
+	TransferTypeInvestorIncomeDistribution:                "INVESTOR_INCOME_DISTRIBUTION",
+	TransferTypePlatformFirstLossAbsorption:               "PLATFORM_FIRST_LOSS_ABSORPTION",
+	TransferTypeInvestorLossAbsorption:                    "INVESTOR_LOSS_ABSORPTION",
+	TransferTypeInterSubscriptionPayment:                  "INTER_SUBSCRIPTION_PAYMENT",
+}
+
 // TransferTypeName returns a human-readable name for a transfer type.
 func TransferTypeName(t int) string {
-	switch t {
-	case TransferTypePayment:
-		return "PAYMENT"
-	case TransferTypePaymentIdentified:
-		return "PAYMENT_IDENTIFIED"
-	case TransferTypePaymentAllocated:
-		return "PAYMENT_ALLOCATED"
-	case TransferTypeDisbursement:
-		return "DISBURSEMENT"
-	case TransferTypeDisbursementReversal:
-		return "DISBURSEMENT_REVERSAL"
-	case TransferTypeDisbursementReversalReroute:
-		return "DISBURSEMENT_REVERSAL_REROUTE"
-	case TransferTypeTerminalDisbursement:
-		return "TERMINAL_DISBURSEMENT"
-	case TransferTypeTerminalDisbursementRecovery:
-		return "TERMINAL_DISBURSEMENT_RECOVERY"
-	case TransferTypeCost:
-		return "COST"
-	case TransferTypeServiceFee:
-		return "SERVICE_FEE"
-	case TransferTypeRegistrationFee:
-		return "REGISTRATION_FEE"
-	case TransferTypePeriodicSaving:
-		return "PERIODIC_SAVING"
-	case TransferTypePeriodicSavingsInterestIncomeDistribution:
-		return "PERIODIC_SAVINGS_INTEREST_INCOME_DISTRIBUTION"
-	case TransferTypePeriodicSavingRecovery:
-		return "PERIODIC_SAVING_RECOVERY"
-	case TransferTypePenalty:
-		return "PENALTY"
-	case TransferTypePenaltyCancel:
-		return "PENALTY_CANCEL"
-	case TransferTypePenaltyIncomeDistribution:
-		return "PENALTY_INCOME_DISTRIBUTION"
-	case TransferTypeLoanFundingExternalLending:
-		return "LOAN_FUNDING_EXTERNAL_LENDING"
-	case TransferTypeLoanFundingExternalLendingPayback:
-		return "LOAN_FUNDING_EXTERNAL_LENDING_PAYBACK"
-	case TransferTypeLoan:
-		return "LOAN"
-	case TransferTypeLoanRepayment:
-		return "LOAN_REPAYMENT"
-	case TransferTypeShutdownLoanRecovery:
-		return "SHUTDOWN_LOAN_RECOVERY"
-	case TransferTypeLoanInterest:
-		return "LOAN_INTEREST"
-	case TransferTypeLoanInterestRepayment:
-		return "LOAN_INTEREST_REPAYMENT"
-	case TransferTypeLoanInterestIncomeDistribution:
-		return "LOAN_INTEREST_INCOME_DISTRIBUTION"
-	case TransferTypeLoanInsurance:
-		return "LOAN_INSURANCE"
-	case TransferTypeLoanInsuranceRepayment:
-		return "LOAN_INSURANCE_REPAYMENT"
-	case TransferTypeInvestorDeployment:
-		return "INVESTOR_DEPLOYMENT"
-	case TransferTypeInvestorPrincipalReturn:
-		return "INVESTOR_PRINCIPAL_RETURN"
-	case TransferTypeInvestorIncomeDistribution:
-		return "INVESTOR_INCOME_DISTRIBUTION"
-	case TransferTypePlatformFirstLossAbsorption:
-		return "PLATFORM_FIRST_LOSS_ABSORPTION"
-	case TransferTypeInvestorLossAbsorption:
-		return "INVESTOR_LOSS_ABSORPTION"
-	case TransferTypeInterSubscriptionPayment:
-		return "INTER_SUBSCRIPTION_PAYMENT"
-	default:
-		return "UNKNOWN"
+	if name, ok := transferTypeNames[t]; ok {
+		return name
 	}
+	return "UNKNOWN"
 }
 
 // IsLoanRelated returns true if the transfer type is related to loan management.
