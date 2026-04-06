@@ -5,6 +5,9 @@ import (
 	"errors"
 
 	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-lender/apps/loans/service/models"
 	opsmodels "github.com/antinvestor/service-lender/apps/operations/service/models"
@@ -14,6 +17,11 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultMigrationPoolName)
 	if dbPool == nil {
 		return errors.New("datastore pool is not initialised")
+	}
+
+	// Run pre-migrations before AutoMigrate to handle column renames
+	if err := preMigrate(ctx, dbPool); err != nil {
+		util.Log(ctx).WithError(err).Warn("preMigrate -- non-fatal pre-migration issue")
 	}
 
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
@@ -29,4 +37,49 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.Reconciliation{},
 		&opsmodels.TransferOrder{},
 	)
+}
+
+// preMigrate renames bank_id columns to organization_id across loan tables.
+func preMigrate(ctx context.Context, dbPool pool.Pool) error {
+	db := dbPool.DB(ctx, false)
+	if db == nil {
+		return nil
+	}
+
+	migrator := db.Migrator()
+
+	// Rename bank_id → organization_id in loan_products
+	if migrator.HasTable("loan_products") {
+		if err := renameColumnIfExists(ctx, db, "loan_products", "bank_id", "organization_id"); err != nil {
+			return err
+		}
+		safeRenameIndex(db, "loan_products", "idx_lp_bank", "idx_lp_organization")
+	}
+
+	// Rename bank_id → organization_id in loan_accounts
+	if migrator.HasTable("loan_accounts") {
+		if err := renameColumnIfExists(ctx, db, "loan_accounts", "bank_id", "organization_id"); err != nil {
+			return err
+		}
+		safeRenameIndex(db, "loan_accounts", "idx_la_bank", "idx_la_organization")
+	}
+
+	return nil
+}
+
+func renameColumnIfExists(ctx context.Context, db *gorm.DB, table, oldCol, newCol string) error {
+	// Check if old column exists before renaming
+	var count int64
+	db.Raw(`SELECT count(*) FROM information_schema.columns
+		WHERE table_name = ? AND column_name = ?`, table, oldCol).Scan(&count)
+	if count > 0 {
+		util.Log(ctx).WithField("table", table).WithField("old", oldCol).WithField("new", newCol).
+			Info("preMigrate -- renaming column")
+		return db.Exec("ALTER TABLE " + table + " RENAME COLUMN " + oldCol + " TO " + newCol).Error
+	}
+	return nil
+}
+
+func safeRenameIndex(db *gorm.DB, _ string, oldName, newName string) {
+	db.Exec("ALTER INDEX IF EXISTS " + oldName + " RENAME TO " + newName)
 }

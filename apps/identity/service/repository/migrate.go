@@ -5,6 +5,9 @@ import (
 	"errors"
 
 	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-lender/apps/identity/service/models"
 )
@@ -15,9 +18,63 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		return errors.New("datastore pool is not initialised")
 	}
 
+	// Run pre-migrations before AutoMigrate to handle table renames
+	if err := preMigrate(ctx, dbPool); err != nil {
+		util.Log(ctx).WithError(err).Warn("preMigrate -- non-fatal pre-migration issue")
+	}
+
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.Organization{}, &models.Branch{}, &models.Agent{},
 		&models.Client{}, &models.ClientAssignmentHistory{}, &models.CreditLimitChangeRequest{},
 		&models.Group{}, &models.Membership{},
 		&models.Investor{}, &models.SystemUser{})
+}
+
+// preMigrate handles structural changes that must happen before GORM AutoMigrate.
+// Currently renames the 'banks' table to 'organizations' and updates foreign key columns.
+func preMigrate(ctx context.Context, dbPool pool.Pool) error {
+	db := dbPool.DB(ctx, false)
+	if db == nil {
+		return nil
+	}
+
+	migrator := db.Migrator()
+
+	// Rename banks → organizations if the old table exists
+	if migrator.HasTable("banks") && !migrator.HasTable("organizations") {
+		util.Log(ctx).Info("preMigrate -- renaming 'banks' table to 'organizations'")
+		if err := db.Exec("ALTER TABLE banks RENAME TO organizations").Error; err != nil {
+			return err
+		}
+
+		// Rename indexes
+		safeRenameIndex(db, "organizations", "uq_bank_code", "uq_organization_code")
+	}
+
+	// Rename bank_id → organization_id in branches if the old column exists
+	if migrator.HasTable("branches") && migrator.HasColumn(&models.Branch{}, "bank_id") {
+		util.Log(ctx).Info("preMigrate -- renaming 'bank_id' to 'organization_id' in branches")
+		if err := db.Exec("ALTER TABLE branches RENAME COLUMN bank_id TO organization_id").Error; err != nil {
+			return err
+		}
+
+		safeRenameIndex(db, "branches", "idx_branch_bank", "idx_branch_organization")
+	}
+
+	// Add organization_type column if it doesn't exist on organizations table
+	if migrator.HasTable("organizations") && !migrator.HasColumn(&models.Organization{}, "organization_type") {
+		util.Log(ctx).Info("preMigrate -- adding 'organization_type' column to organizations")
+		if err := db.Exec(
+			"ALTER TABLE organizations ADD COLUMN IF NOT EXISTS organization_type integer DEFAULT 0",
+		).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func safeRenameIndex(db *gorm.DB, _, oldName, newName string) {
+	// PostgreSQL syntax for renaming indexes
+	db.Exec("ALTER INDEX IF EXISTS " + oldName + " RENAME TO " + newName)
 }
