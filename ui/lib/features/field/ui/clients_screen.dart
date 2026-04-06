@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/state_badge.dart';
-import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../auth/data/auth_repository.dart';
 import '../data/agent_providers.dart';
 import '../data/client_providers.dart';
 
@@ -21,9 +21,32 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   String _searchQuery = '';
   String _selectedAgentId = '';
   bool _isSyncing = false;
+  bool _agentScopeInitialized = false;
+
+  /// Auto-scope to current user's agent ID when user is an agent.
+  void _initAgentScope(WidgetRef ref) {
+    if (_agentScopeInitialized) return;
+    _agentScopeInitialized = true;
+
+    final roles = ref.read(currentUserRolesProvider).value ?? <LenderRole>{};
+    final isAgentOnly = roles.contains(LenderRole.agent) &&
+        !roles.any((r) =>
+            r == LenderRole.owner ||
+            r == LenderRole.admin ||
+            r == LenderRole.manager);
+
+    if (isAgentOnly) {
+      final profileId = ref.read(currentProfileIdProvider).value;
+      if (profileId != null && profileId.isNotEmpty) {
+        _selectedAgentId = profileId;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    _initAgentScope(ref);
+
     final clientsAsync = ref.watch(
       clientListProvider(query: _searchQuery, agentId: _selectedAgentId),
     );
@@ -74,10 +97,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         onSearchChanged: (q) => setState(() => _searchQuery = q),
         actionLabel: 'Onboard Client',
         canAction: canManage.value ?? false,
-        onAction: () => _showClientDialog(
-          context,
-          agentsAsync.value ?? [],
-        ),
+        onAction: () => context.go('/field/clients/new'),
         filterWidget: _buildFilters(agentsAsync, pendingCount),
       ),
     );
@@ -213,194 +233,4 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     );
   }
 
-  void _showClientDialog(
-    BuildContext context,
-    List<AgentObject> agents, {
-    ClientObject? existing,
-  }) {
-    final isEdit = existing != null;
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController(text: existing?.name ?? '');
-    final profileIdController =
-        TextEditingController(text: existing?.profileId ?? '');
-    var selectedAgentId = existing?.agentId ?? '';
-    var selectedState = existing?.state ?? STATE.CREATED;
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (dialogCtx, setDialogState) {
-            return AlertDialog(
-              title: Text(isEdit ? 'Edit Client' : 'Onboard Client'),
-              content: SizedBox(
-                width: 400,
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                        ),
-                        textInputAction: TextInputAction.next,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return 'Name is required';
-                          }
-                          if (v.trim().length < 2) {
-                            return 'Name must be at least 2 characters';
-                          }
-                          if (v.trim().length > 200) {
-                            return 'Name is too long';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: profileIdController,
-                        decoration: const InputDecoration(
-                          labelText: 'Profile ID',
-                          hintText: 'Optional — links to a profile',
-                        ),
-                        textInputAction: TextInputAction.next,
-                        validator: (v) {
-                          if (v != null && v.trim().isNotEmpty) {
-                            if (v.trim().length > 100) {
-                              return 'Profile ID is too long';
-                            }
-                            if (v.trim().contains(' ')) {
-                              return 'Profile ID cannot contain spaces';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedAgentId.isNotEmpty
-                            ? selectedAgentId
-                            : null,
-                        decoration: const InputDecoration(
-                          labelText: 'Agent',
-                        ),
-                        items: agents.map((a) {
-                          return DropdownMenuItem(
-                            value: a.id,
-                            child:
-                                Text(a.name.isNotEmpty ? a.name : a.id),
-                          );
-                        }).toList(),
-                        validator: (v) =>
-                            (v == null || v.isEmpty) ? 'Agent is required' : null,
-                        onChanged: (value) {
-                          setDialogState(
-                            () => selectedAgentId = value ?? '',
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<STATE>(
-                        initialValue: selectedState,
-                        decoration: const InputDecoration(
-                          labelText: 'State',
-                        ),
-                        items: STATE.values.map((s) {
-                          return DropdownMenuItem(
-                            value: s,
-                            child: Text(stateLabel(s)),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setDialogState(
-                            () => selectedState = value ?? STATE.CREATED,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'),
-                ),
-                FilledButton(
-                  onPressed: () {
-                    if (!formKey.currentState!.validate()) return;
-                    _saveClient(
-                      dialogContext,
-                      existing: existing,
-                      name: nameController.text.trim(),
-                      profileId: profileIdController.text.trim(),
-                      agentId: selectedAgentId,
-                      state: selectedState,
-                    );
-                  },
-                  child: Text(isEdit ? 'Save' : 'Onboard'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    ).then((_) {
-      nameController.dispose();
-      profileIdController.dispose();
-    });
-  }
-
-  Future<void> _saveClient(
-    BuildContext dialogContext, {
-    ClientObject? existing,
-    required String name,
-    required String profileId,
-    required String agentId,
-    required STATE state,
-  }) async {
-    // Safety net — form validation should catch these before reaching here
-    if (name.isEmpty || name.length < 2 || agentId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name and Agent are required')),
-      );
-      return;
-    }
-
-    final clientObj = ClientObject(
-      id: existing?.id ?? '',
-      name: name,
-      profileId: profileId,
-      agentId: agentId,
-      state: state,
-    );
-
-    // Preserve properties when editing.
-    if (existing != null && existing.hasProperties()) {
-      clientObj.properties = existing.properties;
-    }
-
-    Navigator.of(dialogContext).pop();
-
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await ref.read(clientProvider.notifier).save(clientObj);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            existing != null
-                ? 'Client updated successfully'
-                : 'Client onboarded successfully',
-          ),
-        ),
-      );
-    } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
 }

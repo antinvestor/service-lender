@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/auth/role_provider.dart';
 import '../../../core/responsive/breakpoints.dart';
 import '../../../core/theme/design_tokens.dart';
+import '../../../core/widgets/money_helpers.dart';
+import '../../reporting/data/portfolio_providers.dart';
 import '../data/dashboard_providers.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -12,6 +15,44 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final rolesAsync = ref.watch(currentUserRolesProvider);
+
+    return rolesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, _) => const Center(child: Text('Failed to load user roles')),
+      data: (roles) => _RoleDashboard(roles: roles),
+    );
+  }
+}
+
+/// Determines the dashboard variant to show based on user roles.
+enum _DashboardVariant { agent, creditTeam, manager }
+
+_DashboardVariant _variant(Set<LenderRole> roles) {
+  // Manager/admin/owner get the full dashboard
+  if (roles.any((r) =>
+      r == LenderRole.owner ||
+      r == LenderRole.admin ||
+      r == LenderRole.manager)) {
+    return _DashboardVariant.manager;
+  }
+  // Credit team (verifier, approver) get credit-focused dashboard
+  if (roles.any(
+      (r) => r == LenderRole.verifier || r == LenderRole.approver)) {
+    return _DashboardVariant.creditTeam;
+  }
+  // Default: agent dashboard (also for viewer, auditor, service)
+  return _DashboardVariant.agent;
+}
+
+class _RoleDashboard extends ConsumerWidget {
+  const _RoleDashboard({required this.roles});
+  final Set<LenderRole> roles;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final variant = _variant(roles);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = AppBreakpoints.isMobile(constraints.maxWidth);
@@ -21,12 +62,16 @@ class DashboardScreen extends ConsumerWidget {
 
         return RefreshIndicator(
           onRefresh: () async {
+            // Invalidate all metric providers
             ref.invalidate(pendingVerificationCountProvider);
             ref.invalidate(pendingUnderwritingCountProvider);
             ref.invalidate(offerPendingCountProvider);
             ref.invalidate(activeLoansCountProvider);
             ref.invalidate(pendingDisbursementCountProvider);
             ref.invalidate(delinquentLoansCountProvider);
+            if (variant == _DashboardVariant.manager) {
+              ref.invalidate(portfolioSummaryProvider);
+            }
           },
           child: CustomScrollView(
             slivers: [
@@ -38,7 +83,7 @@ class DashboardScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Welcome back',
+                        _greetingTitle(variant),
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall
@@ -46,19 +91,20 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Here\'s an overview of your lending operations.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                        _greetingSubtitle(variant),
+                        style:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
                       ),
                     ],
                   ),
                 ),
               ),
 
-              // Metric cards
+              // Metric cards — role-specific
               SliverPadding(
                 padding: EdgeInsets.all(padding),
                 sliver: SliverGrid(
@@ -68,71 +114,35 @@ class DashboardScreen extends ConsumerWidget {
                     crossAxisSpacing: 12,
                     mainAxisExtent: 110,
                   ),
-                  delegate: SliverChildListDelegate([
-                    _MetricCard(
-                      label: 'Pending Verification',
-                      icon: Icons.verified_user_outlined,
-                      accentColor: Colors.purple,
-                      countAsync: ref.watch(pendingVerificationCountProvider),
-                      onTap: () => context.go('/origination/applications'),
-                    ),
-                    _MetricCard(
-                      label: 'Pending Underwriting',
-                      icon: Icons.gavel_outlined,
-                      accentColor: Colors.indigo,
-                      countAsync: ref.watch(pendingUnderwritingCountProvider),
-                      onTap: () => context.go('/origination/applications'),
-                    ),
-                    _MetricCard(
-                      label: 'Offer Pending',
-                      icon: Icons.local_offer_outlined,
-                      accentColor: Colors.teal,
-                      countAsync: ref.watch(offerPendingCountProvider),
-                      onTap: () => context.go('/origination/applications'),
-                    ),
-                    _MetricCard(
-                      label: 'Active Loans',
-                      icon: Icons.account_balance_wallet_outlined,
-                      accentColor: Colors.green,
-                      countAsync: ref.watch(activeLoansCountProvider),
-                      onTap: () => context.go('/loans'),
-                    ),
-                    _MetricCard(
-                      label: 'Pending Disbursement',
-                      icon: Icons.payments_outlined,
-                      accentColor: Colors.orange,
-                      countAsync: ref.watch(pendingDisbursementCountProvider),
-                      onTap: () => context.go('/loans'),
-                    ),
-                    _MetricCard(
-                      label: 'Delinquent Loans',
-                      icon: Icons.warning_amber_outlined,
-                      accentColor: Colors.red,
-                      countAsync: ref.watch(delinquentLoansCountProvider),
-                      onTap: () => context.go('/loans'),
-                    ),
-                  ]),
-                ),
-              ),
-
-              // Quick Actions section label
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(padding, 8, padding, 16),
-                  child: Text(
-                    'QUICK ACTIONS',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
-                          letterSpacing: 0.8,
-                        ),
+                  delegate: SliverChildListDelegate(
+                    _buildMetricCards(context, ref, variant),
                   ),
                 ),
               ),
 
-              // Quick action grid
+              // Portfolio Health — manager/admin only
+              if (variant == _DashboardVariant.manager) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(padding, 8, padding, 12),
+                    child: _SectionLabel(label: 'PORTFOLIO HEALTH'),
+                  ),
+                ),
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(padding, 0, padding, 16),
+                  sliver: SliverToBoxAdapter(
+                    child: _PortfolioHealthRow(),
+                  ),
+                ),
+              ],
+
+              // Quick Actions — role-specific
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(padding, 8, padding, 16),
+                  child: _SectionLabel(label: 'QUICK ACTIONS'),
+                ),
+              ),
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
                 sliver: SliverGrid(
@@ -142,44 +152,9 @@ class DashboardScreen extends ConsumerWidget {
                     crossAxisSpacing: 12,
                     mainAxisExtent: 100,
                   ),
-                  delegate: SliverChildListDelegate([
-                    _QuickActionCard(
-                      icon: Icons.assignment_outlined,
-                      label: 'Pending Cases',
-                      subtitle: 'View all cases requiring action',
-                      onTap: () => context.go('/origination/pending'),
-                    ),
-                    _QuickActionCard(
-                      icon: Icons.description_outlined,
-                      label: 'All Applications',
-                      subtitle: 'Browse & manage applications',
-                      onTap: () => context.go('/origination/applications'),
-                    ),
-                    _QuickActionCard(
-                      icon: Icons.credit_score_outlined,
-                      label: 'Loan Accounts',
-                      subtitle: 'Manage active loan accounts',
-                      onTap: () => context.go('/loans'),
-                    ),
-                    _QuickActionCard(
-                      icon: Icons.history_outlined,
-                      label: 'Audit Log',
-                      subtitle: 'Review status change history',
-                      onTap: () => context.go('/admin/audit'),
-                    ),
-                    _QuickActionCard(
-                      icon: Icons.account_balance_outlined,
-                      label: 'Banks & Branches',
-                      subtitle: 'Manage organizational structure',
-                      onTap: () => context.go('/organization/banks'),
-                    ),
-                    _QuickActionCard(
-                      icon: Icons.person_pin_outlined,
-                      label: 'Manage Agents',
-                      subtitle: 'Agent hierarchy & assignment',
-                      onTap: () => context.go('/field/agents'),
-                    ),
-                  ]),
+                  delegate: SliverChildListDelegate(
+                    _buildQuickActions(context, variant),
+                  ),
                 ),
               ),
             ],
@@ -188,10 +163,249 @@ class DashboardScreen extends ConsumerWidget {
       },
     );
   }
+
+  String _greetingTitle(_DashboardVariant variant) {
+    return switch (variant) {
+      _DashboardVariant.agent => 'Field Dashboard',
+      _DashboardVariant.creditTeam => 'Credit Team Dashboard',
+      _DashboardVariant.manager => 'Management Dashboard',
+    };
+  }
+
+  String _greetingSubtitle(_DashboardVariant variant) {
+    return switch (variant) {
+      _DashboardVariant.agent =>
+        'Your clients, applications, and active loans.',
+      _DashboardVariant.creditTeam =>
+        'Your verification and underwriting queue.',
+      _DashboardVariant.manager =>
+        'Overview of lending operations and portfolio health.',
+    };
+  }
+
+  List<Widget> _buildMetricCards(
+    BuildContext context,
+    WidgetRef ref,
+    _DashboardVariant variant,
+  ) {
+    return switch (variant) {
+      _DashboardVariant.agent => [
+          _MetricCard(
+            label: 'Active Loans',
+            icon: Icons.account_balance_wallet_outlined,
+            accentColor: Colors.green,
+            countAsync: ref.watch(activeLoansCountProvider),
+            onTap: () => context.go('/loans'),
+          ),
+          _MetricCard(
+            label: 'Pending Disbursement',
+            icon: Icons.payments_outlined,
+            accentColor: Colors.orange,
+            countAsync: ref.watch(pendingDisbursementCountProvider),
+            onTap: () => context.go('/loans'),
+          ),
+          _MetricCard(
+            label: 'Delinquent Loans',
+            icon: Icons.warning_amber_outlined,
+            accentColor: Colors.red,
+            countAsync: ref.watch(delinquentLoansCountProvider),
+            onTap: () => context.go('/loans'),
+          ),
+          _MetricCard(
+            label: 'Offer Pending',
+            icon: Icons.local_offer_outlined,
+            accentColor: Colors.teal,
+            countAsync: ref.watch(offerPendingCountProvider),
+            onTap: () => context.go('/origination/applications'),
+          ),
+        ],
+      _DashboardVariant.creditTeam => [
+          _MetricCard(
+            label: 'Pending Verification',
+            icon: Icons.verified_user_outlined,
+            accentColor: Colors.purple,
+            countAsync: ref.watch(pendingVerificationCountProvider),
+            onTap: () => context.go('/origination/pending'),
+          ),
+          _MetricCard(
+            label: 'Pending Underwriting',
+            icon: Icons.gavel_outlined,
+            accentColor: Colors.indigo,
+            countAsync: ref.watch(pendingUnderwritingCountProvider),
+            onTap: () => context.go('/origination/pending'),
+          ),
+          _MetricCard(
+            label: 'Offer Pending',
+            icon: Icons.local_offer_outlined,
+            accentColor: Colors.teal,
+            countAsync: ref.watch(offerPendingCountProvider),
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _MetricCard(
+            label: 'Active Loans',
+            icon: Icons.account_balance_wallet_outlined,
+            accentColor: Colors.green,
+            countAsync: ref.watch(activeLoansCountProvider),
+            onTap: () => context.go('/loans'),
+          ),
+        ],
+      _DashboardVariant.manager => [
+          _MetricCard(
+            label: 'Pending Verification',
+            icon: Icons.verified_user_outlined,
+            accentColor: Colors.purple,
+            countAsync: ref.watch(pendingVerificationCountProvider),
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _MetricCard(
+            label: 'Pending Underwriting',
+            icon: Icons.gavel_outlined,
+            accentColor: Colors.indigo,
+            countAsync: ref.watch(pendingUnderwritingCountProvider),
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _MetricCard(
+            label: 'Offer Pending',
+            icon: Icons.local_offer_outlined,
+            accentColor: Colors.teal,
+            countAsync: ref.watch(offerPendingCountProvider),
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _MetricCard(
+            label: 'Active Loans',
+            icon: Icons.account_balance_wallet_outlined,
+            accentColor: Colors.green,
+            countAsync: ref.watch(activeLoansCountProvider),
+            onTap: () => context.go('/loans'),
+          ),
+          _MetricCard(
+            label: 'Pending Disbursement',
+            icon: Icons.payments_outlined,
+            accentColor: Colors.orange,
+            countAsync: ref.watch(pendingDisbursementCountProvider),
+            onTap: () => context.go('/operations/disbursements'),
+          ),
+          _MetricCard(
+            label: 'Delinquent Loans',
+            icon: Icons.warning_amber_outlined,
+            accentColor: Colors.red,
+            countAsync: ref.watch(delinquentLoansCountProvider),
+            onTap: () => context.go('/loans'),
+          ),
+        ],
+    };
+  }
+
+  List<Widget> _buildQuickActions(
+    BuildContext context,
+    _DashboardVariant variant,
+  ) {
+    return switch (variant) {
+      _DashboardVariant.agent => [
+          _QuickActionCard(
+            icon: Icons.people_outline,
+            label: 'My Clients',
+            subtitle: 'View and onboard clients',
+            onTap: () => context.go('/field/clients'),
+          ),
+          _QuickActionCard(
+            icon: Icons.description_outlined,
+            label: 'Applications',
+            subtitle: 'Create and track applications',
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _QuickActionCard(
+            icon: Icons.credit_score_outlined,
+            label: 'Loan Accounts',
+            subtitle: 'View active loans',
+            onTap: () => context.go('/loans'),
+          ),
+        ],
+      _DashboardVariant.creditTeam => [
+          _QuickActionCard(
+            icon: Icons.assignment_late_outlined,
+            label: 'Pending Cases',
+            subtitle: 'Cases requiring your action',
+            onTap: () => context.go('/origination/pending'),
+          ),
+          _QuickActionCard(
+            icon: Icons.description_outlined,
+            label: 'All Applications',
+            subtitle: 'Browse & manage applications',
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _QuickActionCard(
+            icon: Icons.credit_score_outlined,
+            label: 'Loan Accounts',
+            subtitle: 'View loan accounts',
+            onTap: () => context.go('/loans'),
+          ),
+        ],
+      _DashboardVariant.manager => [
+          _QuickActionCard(
+            icon: Icons.assignment_late_outlined,
+            label: 'Pending Cases',
+            subtitle: 'View all cases requiring action',
+            onTap: () => context.go('/origination/pending'),
+          ),
+          _QuickActionCard(
+            icon: Icons.description_outlined,
+            label: 'All Applications',
+            subtitle: 'Browse & manage applications',
+            onTap: () => context.go('/origination/applications'),
+          ),
+          _QuickActionCard(
+            icon: Icons.credit_score_outlined,
+            label: 'Loan Accounts',
+            subtitle: 'Manage active loan accounts',
+            onTap: () => context.go('/loans'),
+          ),
+          _QuickActionCard(
+            icon: Icons.send_outlined,
+            label: 'Disbursement Queue',
+            subtitle: 'Pending disbursements',
+            onTap: () => context.go('/operations/disbursements'),
+          ),
+          _QuickActionCard(
+            icon: Icons.pie_chart_outline,
+            label: 'Portfolio Summary',
+            subtitle: 'Portfolio health & metrics',
+            onTap: () => context.go('/reports/portfolio'),
+          ),
+          _QuickActionCard(
+            icon: Icons.history_outlined,
+            label: 'Audit Log',
+            subtitle: 'Review status change history',
+            onTap: () => context.go('/admin/audit'),
+          ),
+        ],
+    };
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Metric card — tonal surface with left accent bar
+// Section label
+// ---------------------------------------------------------------------------
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            letterSpacing: 0.8,
+          ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Metric card
 // ---------------------------------------------------------------------------
 
 class _MetricCard extends StatelessWidget {
@@ -219,7 +433,6 @@ class _MetricCard extends StatelessWidget {
         borderRadius: DesignTokens.borderRadiusAll,
         child: Row(
           children: [
-            // Left accent bar
             Container(
               width: DesignTokens.accentBarWidth,
               decoration: BoxDecoration(
@@ -302,7 +515,7 @@ class _MetricCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Quick action card — tonal surface
+// Quick action card
 // ---------------------------------------------------------------------------
 
 class _QuickActionCard extends StatelessWidget {
@@ -364,6 +577,114 @@ class _QuickActionCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Portfolio health row — manager/admin only
+// ---------------------------------------------------------------------------
+
+class _PortfolioHealthRow extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryAsync = ref.watch(portfolioSummaryProvider());
+
+    return summaryAsync.when(
+      data: (response) {
+        final s = response.data;
+        return Row(
+          children: [
+            Expanded(
+              child: _HealthCard(
+                label: 'Total Outstanding',
+                value: formatMoney(s.totalOutstanding),
+                icon: Icons.account_balance_wallet,
+                color: Colors.deepOrange,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _HealthCard(
+                label: 'Collection Rate',
+                value: '${s.collectionRate}%',
+                icon: Icons.trending_up,
+                color: Colors.green,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _HealthCard(
+                label: 'PAR 30',
+                value: '${s.par30}%',
+                icon: Icons.warning_amber,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox(
+        height: 80,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, _) => const SizedBox(
+        height: 80,
+        child: Center(
+          child: Text('Portfolio data unavailable'),
+        ),
+      ),
+    );
+  }
+}
+
+class _HealthCard extends StatelessWidget {
+  const _HealthCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 18, color: color),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: GoogleFonts.manrope(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
         ),
       ),
     );

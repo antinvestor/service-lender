@@ -145,30 +145,30 @@ final class HasAnyRoleFamily extends $Family
   String toString() => r'hasAnyRoleProvider';
 }
 
-/// Whether the current user can manage banks/branches
+/// Whether the current user can manage organizations/branches
 
-@ProviderFor(canManageBanks)
-final canManageBanksProvider = CanManageBanksProvider._();
+@ProviderFor(canManageOrganizations)
+final canManageOrganizationsProvider = CanManageOrganizationsProvider._();
 
-/// Whether the current user can manage banks/branches
+/// Whether the current user can manage organizations/branches
 
-final class CanManageBanksProvider
+final class CanManageOrganizationsProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether the current user can manage banks/branches
-  CanManageBanksProvider._()
+  /// Whether the current user can manage organizations/branches
+  CanManageOrganizationsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'canManageBanksProvider',
+        name: r'canManageOrganizationsProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$canManageBanksHash();
+  String debugGetCreateSourceHash() => _$canManageOrganizationsHash();
 
   @$internal
   @override
@@ -177,11 +177,12 @@ final class CanManageBanksProvider
 
   @override
   FutureOr<bool> create(Ref ref) {
-    return canManageBanks(ref);
+    return canManageOrganizations(ref);
   }
 }
 
-String _$canManageBanksHash() => r'd541bdb80d9ab85d5362b004fc155c3968fe5c5c';
+String _$canManageOrganizationsHash() =>
+    r'99b25fe773a6ba5fc51edaa76af2005be8566554';
 
 /// Whether the current user can manage agents
 
@@ -530,3 +531,120 @@ final class CanRecordRepaymentsProvider
 
 String _$canRecordRepaymentsHash() =>
     r'b58a273644d6525f2f0876f7b54748de5509ff3f';
+
+/// Whether the current user can manage system users
+
+@ProviderFor(canManageSystemUsers)
+final canManageSystemUsersProvider = CanManageSystemUsersProvider._();
+
+/// Whether the current user can manage system users
+
+final class CanManageSystemUsersProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage system users
+  CanManageSystemUsersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageSystemUsersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageSystemUsersHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageSystemUsers(ref);
+  }
+}
+
+String _$canManageSystemUsersHash() =>
+    r'c4d5a826a88d219f9f85220c3b87905a767381b8';
+
+/// Whether the current user can manage penalties
+
+@ProviderFor(canManagePenalties)
+final canManagePenaltiesProvider = CanManagePenaltiesProvider._();
+
+/// Whether the current user can manage penalties
+
+final class CanManagePenaltiesProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage penalties
+  CanManagePenaltiesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManagePenaltiesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManagePenaltiesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManagePenalties(ref);
+  }
+}
+
+String _$canManagePenaltiesHash() =>
+    r'39c8c7ee68728dbc5f88769ddbae26ab79ab666f';
+
+/// Whether the current user can manage loan restructuring
+
+@ProviderFor(canManageRestructuring)
+final canManageRestructuringProvider = CanManageRestructuringProvider._();
+
+/// Whether the current user can manage loan restructuring
+
+final class CanManageRestructuringProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether the current user can manage loan restructuring
+  CanManageRestructuringProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'canManageRestructuringProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$canManageRestructuringHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return canManageRestructuring(ref);
+  }
+}
+
+String _$canManageRestructuringHash() =>
+    r'3488f20507b8cab6a438529c97a7e3fede4797cb';

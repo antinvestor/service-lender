@@ -7,35 +7,35 @@ import "package:connectrpc/connect.dart" as connect;
 import "identity.pb.dart" as identityv1identity;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages banks, branches, and system users for the lending platform.
+/// IdentityService manages organizations, branches, and system users for the platform.
 /// All RPCs require authentication via Bearer token.
 abstract final class IdentityService {
   /// Fully-qualified name of the IdentityService service.
   static const name = 'identity.v1.IdentityService';
 
-  /// BankSave creates or updates a bank record.
-  static const bankSave = connect.Spec(
-    '/$name/BankSave',
+  /// OrganizationSave creates or updates an organization record.
+  static const organizationSave = connect.Spec(
+    '/$name/OrganizationSave',
     connect.StreamType.unary,
-    identityv1identity.BankSaveRequest.new,
-    identityv1identity.BankSaveResponse.new,
+    identityv1identity.OrganizationSaveRequest.new,
+    identityv1identity.OrganizationSaveResponse.new,
   );
 
-  /// BankGet retrieves a bank by its ID.
-  static const bankGet = connect.Spec(
-    '/$name/BankGet',
+  /// OrganizationGet retrieves an organization by its ID.
+  static const organizationGet = connect.Spec(
+    '/$name/OrganizationGet',
     connect.StreamType.unary,
-    identityv1identity.BankGetRequest.new,
-    identityv1identity.BankGetResponse.new,
+    identityv1identity.OrganizationGetRequest.new,
+    identityv1identity.OrganizationGetResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// BankSearch finds banks matching search criteria.
-  static const bankSearch = connect.Spec(
-    '/$name/BankSearch',
+  /// OrganizationSearch finds organizations matching search criteria.
+  static const organizationSearch = connect.Spec(
+    '/$name/OrganizationSearch',
     connect.StreamType.server,
     commonv1common.SearchRequest.new,
-    identityv1identity.BankSearchResponse.new,
+    identityv1identity.OrganizationSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 

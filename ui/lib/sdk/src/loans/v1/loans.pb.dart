@@ -31,7 +31,7 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
-    $core.String? bankId,
+    $core.String? organizationId,
     LoanStatus? status,
     $9.Money? principalAmount,
     $core.String? interestRate,
@@ -69,8 +69,8 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     if (branchId != null) {
       $result.branchId = branchId;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (status != null) {
       $result.status = status;
@@ -136,7 +136,7 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     ..aOS(4, _omitFieldNames ? '' : 'clientId')
     ..aOS(5, _omitFieldNames ? '' : 'agentId')
     ..aOS(6, _omitFieldNames ? '' : 'branchId')
-    ..aOS(7, _omitFieldNames ? '' : 'bankId')
+    ..aOS(7, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanStatus>(8, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: LoanStatus.LOAN_STATUS_UNSPECIFIED, valueOf: LoanStatus.valueOf, enumValues: LoanStatus.values)
     ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'principalAmount', subBuilder: $9.Money.create)
     ..aOS(11, _omitFieldNames ? '' : 'interestRate')
@@ -233,13 +233,13 @@ class LoanAccountObject extends $pb.GeneratedMessage {
   void clearBranchId() => clearField(6);
 
   @$pb.TagNumber(7)
-  $core.String get bankId => $_getSZ(6);
+  $core.String get organizationId => $_getSZ(6);
   @$pb.TagNumber(7)
-  set bankId($core.String v) { $_setString(6, v); }
+  set organizationId($core.String v) { $_setString(6, v); }
   @$pb.TagNumber(7)
-  $core.bool hasBankId() => $_has(6);
+  $core.bool hasOrganizationId() => $_has(6);
   @$pb.TagNumber(7)
-  void clearBankId() => clearField(7);
+  void clearOrganizationId() => clearField(7);
 
   @$pb.TagNumber(8)
   LoanStatus get status => $_getN(7);
@@ -2603,7 +2603,7 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
     $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
-    $core.String? bankId,
+    $core.String? organizationId,
     LoanStatus? status,
     $7.PageCursor? cursor,
   }) {
@@ -2620,8 +2620,8 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
     if (branchId != null) {
       $result.branchId = branchId;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (status != null) {
       $result.status = status;
@@ -2640,7 +2640,7 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'clientId')
     ..aOS(3, _omitFieldNames ? '' : 'agentId')
     ..aOS(4, _omitFieldNames ? '' : 'branchId')
-    ..aOS(5, _omitFieldNames ? '' : 'bankId')
+    ..aOS(5, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanStatus>(6, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: LoanStatus.LOAN_STATUS_UNSPECIFIED, valueOf: LoanStatus.valueOf, enumValues: LoanStatus.values)
     ..aOM<$7.PageCursor>(7, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
     ..hasRequiredFields = false
@@ -2704,13 +2704,13 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
   void clearBranchId() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get bankId => $_getSZ(4);
+  $core.String get organizationId => $_getSZ(4);
   @$pb.TagNumber(5)
-  set bankId($core.String v) { $_setString(4, v); }
+  set organizationId($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasBankId() => $_has(4);
+  $core.bool hasOrganizationId() => $_has(4);
   @$pb.TagNumber(5)
-  void clearBankId() => clearField(5);
+  void clearOrganizationId() => clearField(5);
 
   @$pb.TagNumber(6)
   LoanStatus get status => $_getN(5);
@@ -5409,6 +5409,668 @@ class LoanRequestResponse extends $pb.GeneratedMessage {
   void clearMessage() => clearField(4);
 }
 
+/// PortfolioSummary provides aggregate financial metrics across a filtered set of loans.
+class PortfolioSummary extends $pb.GeneratedMessage {
+  factory PortfolioSummary({
+    $core.int? totalLoans,
+    $core.int? activeLoans,
+    $core.int? delinquentLoans,
+    $core.int? defaultLoans,
+    $core.int? paidOffLoans,
+    $core.int? writtenOffLoans,
+    $9.Money? totalDisbursed,
+    $9.Money? totalOutstanding,
+    $9.Money? totalCollected,
+    $9.Money? principalOutstanding,
+    $9.Money? interestOutstanding,
+    $9.Money? feesOutstanding,
+    $9.Money? penaltiesOutstanding,
+    $core.String? currencyCode,
+    $core.String? collectionRate,
+    $core.String? par30,
+  }) {
+    final $result = create();
+    if (totalLoans != null) {
+      $result.totalLoans = totalLoans;
+    }
+    if (activeLoans != null) {
+      $result.activeLoans = activeLoans;
+    }
+    if (delinquentLoans != null) {
+      $result.delinquentLoans = delinquentLoans;
+    }
+    if (defaultLoans != null) {
+      $result.defaultLoans = defaultLoans;
+    }
+    if (paidOffLoans != null) {
+      $result.paidOffLoans = paidOffLoans;
+    }
+    if (writtenOffLoans != null) {
+      $result.writtenOffLoans = writtenOffLoans;
+    }
+    if (totalDisbursed != null) {
+      $result.totalDisbursed = totalDisbursed;
+    }
+    if (totalOutstanding != null) {
+      $result.totalOutstanding = totalOutstanding;
+    }
+    if (totalCollected != null) {
+      $result.totalCollected = totalCollected;
+    }
+    if (principalOutstanding != null) {
+      $result.principalOutstanding = principalOutstanding;
+    }
+    if (interestOutstanding != null) {
+      $result.interestOutstanding = interestOutstanding;
+    }
+    if (feesOutstanding != null) {
+      $result.feesOutstanding = feesOutstanding;
+    }
+    if (penaltiesOutstanding != null) {
+      $result.penaltiesOutstanding = penaltiesOutstanding;
+    }
+    if (currencyCode != null) {
+      $result.currencyCode = currencyCode;
+    }
+    if (collectionRate != null) {
+      $result.collectionRate = collectionRate;
+    }
+    if (par30 != null) {
+      $result.par30 = par30;
+    }
+    return $result;
+  }
+  PortfolioSummary._() : super();
+  factory PortfolioSummary.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PortfolioSummary.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PortfolioSummary', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'totalLoans', $pb.PbFieldType.O3)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'activeLoans', $pb.PbFieldType.O3)
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'delinquentLoans', $pb.PbFieldType.O3)
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'defaultLoans', $pb.PbFieldType.O3)
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'paidOffLoans', $pb.PbFieldType.O3)
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'writtenOffLoans', $pb.PbFieldType.O3)
+    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'totalDisbursed', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'totalOutstanding', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'totalCollected', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'principalOutstanding', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'interestOutstanding', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(12, _omitFieldNames ? '' : 'feesOutstanding', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(13, _omitFieldNames ? '' : 'penaltiesOutstanding', subBuilder: $9.Money.create)
+    ..aOS(14, _omitFieldNames ? '' : 'currencyCode')
+    ..aOS(15, _omitFieldNames ? '' : 'collectionRate')
+    ..aOS(16, _omitFieldNames ? '' : 'par30', protoName: 'par_30')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PortfolioSummary clone() => PortfolioSummary()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PortfolioSummary copyWith(void Function(PortfolioSummary) updates) => super.copyWith((message) => updates(message as PortfolioSummary)) as PortfolioSummary;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PortfolioSummary create() => PortfolioSummary._();
+  PortfolioSummary createEmptyInstance() => create();
+  static $pb.PbList<PortfolioSummary> createRepeated() => $pb.PbList<PortfolioSummary>();
+  @$core.pragma('dart2js:noInline')
+  static PortfolioSummary getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PortfolioSummary>(create);
+  static PortfolioSummary? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get totalLoans => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set totalLoans($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasTotalLoans() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTotalLoans() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get activeLoans => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set activeLoans($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasActiveLoans() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearActiveLoans() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get delinquentLoans => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set delinquentLoans($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDelinquentLoans() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDelinquentLoans() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get defaultLoans => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set defaultLoans($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasDefaultLoans() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDefaultLoans() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get paidOffLoans => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set paidOffLoans($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasPaidOffLoans() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPaidOffLoans() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get writtenOffLoans => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set writtenOffLoans($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasWrittenOffLoans() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearWrittenOffLoans() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $9.Money get totalDisbursed => $_getN(6);
+  @$pb.TagNumber(7)
+  set totalDisbursed($9.Money v) { setField(7, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasTotalDisbursed() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearTotalDisbursed() => clearField(7);
+  @$pb.TagNumber(7)
+  $9.Money ensureTotalDisbursed() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  $9.Money get totalOutstanding => $_getN(7);
+  @$pb.TagNumber(8)
+  set totalOutstanding($9.Money v) { setField(8, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasTotalOutstanding() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearTotalOutstanding() => clearField(8);
+  @$pb.TagNumber(8)
+  $9.Money ensureTotalOutstanding() => $_ensure(7);
+
+  @$pb.TagNumber(9)
+  $9.Money get totalCollected => $_getN(8);
+  @$pb.TagNumber(9)
+  set totalCollected($9.Money v) { setField(9, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasTotalCollected() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearTotalCollected() => clearField(9);
+  @$pb.TagNumber(9)
+  $9.Money ensureTotalCollected() => $_ensure(8);
+
+  @$pb.TagNumber(10)
+  $9.Money get principalOutstanding => $_getN(9);
+  @$pb.TagNumber(10)
+  set principalOutstanding($9.Money v) { setField(10, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasPrincipalOutstanding() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearPrincipalOutstanding() => clearField(10);
+  @$pb.TagNumber(10)
+  $9.Money ensurePrincipalOutstanding() => $_ensure(9);
+
+  @$pb.TagNumber(11)
+  $9.Money get interestOutstanding => $_getN(10);
+  @$pb.TagNumber(11)
+  set interestOutstanding($9.Money v) { setField(11, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasInterestOutstanding() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearInterestOutstanding() => clearField(11);
+  @$pb.TagNumber(11)
+  $9.Money ensureInterestOutstanding() => $_ensure(10);
+
+  @$pb.TagNumber(12)
+  $9.Money get feesOutstanding => $_getN(11);
+  @$pb.TagNumber(12)
+  set feesOutstanding($9.Money v) { setField(12, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasFeesOutstanding() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearFeesOutstanding() => clearField(12);
+  @$pb.TagNumber(12)
+  $9.Money ensureFeesOutstanding() => $_ensure(11);
+
+  @$pb.TagNumber(13)
+  $9.Money get penaltiesOutstanding => $_getN(12);
+  @$pb.TagNumber(13)
+  set penaltiesOutstanding($9.Money v) { setField(13, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasPenaltiesOutstanding() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearPenaltiesOutstanding() => clearField(13);
+  @$pb.TagNumber(13)
+  $9.Money ensurePenaltiesOutstanding() => $_ensure(12);
+
+  @$pb.TagNumber(14)
+  $core.String get currencyCode => $_getSZ(13);
+  @$pb.TagNumber(14)
+  set currencyCode($core.String v) { $_setString(13, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasCurrencyCode() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearCurrencyCode() => clearField(14);
+
+  /// collection_rate is total_collected / total_disbursed as a percentage string (e.g. "85.50").
+  @$pb.TagNumber(15)
+  $core.String get collectionRate => $_getSZ(14);
+  @$pb.TagNumber(15)
+  set collectionRate($core.String v) { $_setString(14, v); }
+  @$pb.TagNumber(15)
+  $core.bool hasCollectionRate() => $_has(14);
+  @$pb.TagNumber(15)
+  void clearCollectionRate() => clearField(15);
+
+  /// par_30 is portfolio-at-risk > 30 days as a percentage string (e.g. "12.30").
+  @$pb.TagNumber(16)
+  $core.String get par30 => $_getSZ(15);
+  @$pb.TagNumber(16)
+  set par30($core.String v) { $_setString(15, v); }
+  @$pb.TagNumber(16)
+  $core.bool hasPar30() => $_has(15);
+  @$pb.TagNumber(16)
+  void clearPar30() => clearField(16);
+}
+
+class PortfolioSummaryRequest extends $pb.GeneratedMessage {
+  factory PortfolioSummaryRequest({
+    $core.String? organizationId,
+    $core.String? branchId,
+    $core.String? agentId,
+    $core.String? productId,
+    $core.String? clientId,
+    $core.String? currencyCode,
+  }) {
+    final $result = create();
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
+    }
+    if (branchId != null) {
+      $result.branchId = branchId;
+    }
+    if (agentId != null) {
+      $result.agentId = agentId;
+    }
+    if (productId != null) {
+      $result.productId = productId;
+    }
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (currencyCode != null) {
+      $result.currencyCode = currencyCode;
+    }
+    return $result;
+  }
+  PortfolioSummaryRequest._() : super();
+  factory PortfolioSummaryRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PortfolioSummaryRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PortfolioSummaryRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'organizationId')
+    ..aOS(2, _omitFieldNames ? '' : 'branchId')
+    ..aOS(3, _omitFieldNames ? '' : 'agentId')
+    ..aOS(4, _omitFieldNames ? '' : 'productId')
+    ..aOS(5, _omitFieldNames ? '' : 'clientId')
+    ..aOS(6, _omitFieldNames ? '' : 'currencyCode')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PortfolioSummaryRequest clone() => PortfolioSummaryRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PortfolioSummaryRequest copyWith(void Function(PortfolioSummaryRequest) updates) => super.copyWith((message) => updates(message as PortfolioSummaryRequest)) as PortfolioSummaryRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PortfolioSummaryRequest create() => PortfolioSummaryRequest._();
+  PortfolioSummaryRequest createEmptyInstance() => create();
+  static $pb.PbList<PortfolioSummaryRequest> createRepeated() => $pb.PbList<PortfolioSummaryRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PortfolioSummaryRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PortfolioSummaryRequest>(create);
+  static PortfolioSummaryRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get organizationId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set organizationId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasOrganizationId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearOrganizationId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get branchId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set branchId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBranchId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBranchId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get agentId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set agentId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasAgentId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAgentId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get productId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set productId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasProductId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearProductId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get clientId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set clientId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasClientId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearClientId() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get currencyCode => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set currencyCode($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCurrencyCode() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCurrencyCode() => clearField(6);
+}
+
+class PortfolioSummaryResponse extends $pb.GeneratedMessage {
+  factory PortfolioSummaryResponse({
+    PortfolioSummary? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  PortfolioSummaryResponse._() : super();
+  factory PortfolioSummaryResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PortfolioSummaryResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PortfolioSummaryResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
+    ..aOM<PortfolioSummary>(1, _omitFieldNames ? '' : 'data', subBuilder: PortfolioSummary.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PortfolioSummaryResponse clone() => PortfolioSummaryResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PortfolioSummaryResponse copyWith(void Function(PortfolioSummaryResponse) updates) => super.copyWith((message) => updates(message as PortfolioSummaryResponse)) as PortfolioSummaryResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PortfolioSummaryResponse create() => PortfolioSummaryResponse._();
+  PortfolioSummaryResponse createEmptyInstance() => create();
+  static $pb.PbList<PortfolioSummaryResponse> createRepeated() => $pb.PbList<PortfolioSummaryResponse>();
+  @$core.pragma('dart2js:noInline')
+  static PortfolioSummaryResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PortfolioSummaryResponse>(create);
+  static PortfolioSummaryResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  PortfolioSummary get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(PortfolioSummary v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  PortfolioSummary ensureData() => $_ensure(0);
+}
+
+class PortfolioExportRequest extends $pb.GeneratedMessage {
+  factory PortfolioExportRequest({
+    $core.String? organizationId,
+    $core.String? branchId,
+    $core.String? agentId,
+    $core.String? productId,
+    $core.String? clientId,
+    $core.String? currencyCode,
+    $core.String? format,
+  }) {
+    final $result = create();
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
+    }
+    if (branchId != null) {
+      $result.branchId = branchId;
+    }
+    if (agentId != null) {
+      $result.agentId = agentId;
+    }
+    if (productId != null) {
+      $result.productId = productId;
+    }
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (currencyCode != null) {
+      $result.currencyCode = currencyCode;
+    }
+    if (format != null) {
+      $result.format = format;
+    }
+    return $result;
+  }
+  PortfolioExportRequest._() : super();
+  factory PortfolioExportRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PortfolioExportRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PortfolioExportRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'organizationId')
+    ..aOS(2, _omitFieldNames ? '' : 'branchId')
+    ..aOS(3, _omitFieldNames ? '' : 'agentId')
+    ..aOS(4, _omitFieldNames ? '' : 'productId')
+    ..aOS(5, _omitFieldNames ? '' : 'clientId')
+    ..aOS(6, _omitFieldNames ? '' : 'currencyCode')
+    ..aOS(7, _omitFieldNames ? '' : 'format')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PortfolioExportRequest clone() => PortfolioExportRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PortfolioExportRequest copyWith(void Function(PortfolioExportRequest) updates) => super.copyWith((message) => updates(message as PortfolioExportRequest)) as PortfolioExportRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PortfolioExportRequest create() => PortfolioExportRequest._();
+  PortfolioExportRequest createEmptyInstance() => create();
+  static $pb.PbList<PortfolioExportRequest> createRepeated() => $pb.PbList<PortfolioExportRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PortfolioExportRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PortfolioExportRequest>(create);
+  static PortfolioExportRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get organizationId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set organizationId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasOrganizationId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearOrganizationId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get branchId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set branchId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBranchId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBranchId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get agentId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set agentId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasAgentId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAgentId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get productId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set productId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasProductId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearProductId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get clientId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set clientId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasClientId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearClientId() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get currencyCode => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set currencyCode($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCurrencyCode() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCurrencyCode() => clearField(6);
+
+  /// format is the export format: "CSV" (default).
+  @$pb.TagNumber(7)
+  $core.String get format => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set format($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasFormat() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearFormat() => clearField(7);
+}
+
+class PortfolioExportResponse extends $pb.GeneratedMessage {
+  factory PortfolioExportResponse({
+    $core.List<$core.int>? data,
+    $core.String? filename,
+    $core.String? contentType,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    if (filename != null) {
+      $result.filename = filename;
+    }
+    if (contentType != null) {
+      $result.contentType = contentType;
+    }
+    return $result;
+  }
+  PortfolioExportResponse._() : super();
+  factory PortfolioExportResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PortfolioExportResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PortfolioExportResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.OY)
+    ..aOS(2, _omitFieldNames ? '' : 'filename')
+    ..aOS(3, _omitFieldNames ? '' : 'contentType')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PortfolioExportResponse clone() => PortfolioExportResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PortfolioExportResponse copyWith(void Function(PortfolioExportResponse) updates) => super.copyWith((message) => updates(message as PortfolioExportResponse)) as PortfolioExportResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PortfolioExportResponse create() => PortfolioExportResponse._();
+  PortfolioExportResponse createEmptyInstance() => create();
+  static $pb.PbList<PortfolioExportResponse> createRepeated() => $pb.PbList<PortfolioExportResponse>();
+  @$core.pragma('dart2js:noInline')
+  static PortfolioExportResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PortfolioExportResponse>(create);
+  static PortfolioExportResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get filename => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set filename($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFilename() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFilename() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get contentType => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set contentType($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasContentType() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearContentType() => clearField(3);
+}
+
 class LoanManagementServiceApi {
   $pb.RpcClient _client;
   LoanManagementServiceApi(this._client);
@@ -5484,6 +6146,12 @@ class LoanManagementServiceApi {
   ;
   $async.Future<LoanRequestResponse> loanRequest($pb.ClientContext? ctx, LoanRequestRequest request) =>
     _client.invoke<LoanRequestResponse>(ctx, 'LoanManagementService', 'LoanRequest', request, LoanRequestResponse())
+  ;
+  $async.Future<PortfolioSummaryResponse> portfolioSummary($pb.ClientContext? ctx, PortfolioSummaryRequest request) =>
+    _client.invoke<PortfolioSummaryResponse>(ctx, 'LoanManagementService', 'PortfolioSummary', request, PortfolioSummaryResponse())
+  ;
+  $async.Future<PortfolioExportResponse> portfolioExport($pb.ClientContext? ctx, PortfolioExportRequest request) =>
+    _client.invoke<PortfolioExportResponse>(ctx, 'LoanManagementService', 'PortfolioExport', request, PortfolioExportResponse())
   ;
 }
 

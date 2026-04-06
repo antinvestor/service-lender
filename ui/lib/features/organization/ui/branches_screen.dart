@@ -8,7 +8,7 @@ import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
-import '../data/bank_providers.dart';
+import '../data/organization_providers.dart';
 import '../data/branch_providers.dart';
 
 class BranchesScreen extends ConsumerStatefulWidget {
@@ -20,7 +20,7 @@ class BranchesScreen extends ConsumerStatefulWidget {
 
 class _BranchesScreenState extends ConsumerState<BranchesScreen> {
   String _searchQuery = '';
-  String _selectedBankId = '';
+  String _selectedOrganizationId = '';
   Timer? _debounce;
 
   @override
@@ -41,13 +41,13 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
   @override
   Widget build(BuildContext context) {
     final branchesAsync = ref.watch(
-      branchListProvider(_searchQuery, _selectedBankId),
+      branchListProvider(_searchQuery, _selectedOrganizationId),
     );
-    final canManage = ref.watch(canManageBanksProvider);
-    final banksAsync = ref.watch(bankListProvider(''));
+    final canManage = ref.watch(canManageOrganizationsProvider);
+    final organizationsAsync = ref.watch(organizationListProvider(''));
 
-    final banks = banksAsync.value ?? <BankObject>[];
-    final bankMap = {for (final b in banks) b.id: b};
+    final organizations = organizationsAsync.value ?? <OrganizationObject>[];
+    final organizationMap = {for (final b in organizations) b.id: b};
 
     return EntityListPage<BranchObject>(
       title: 'Branches',
@@ -58,24 +58,24 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
           ? branchesAsync.error.toString()
           : null,
       onRetry: () => ref.invalidate(
-        branchListProvider(_searchQuery, _selectedBankId),
+        branchListProvider(_searchQuery, _selectedOrganizationId),
       ),
       searchHint: 'Search branches...',
       onSearchChanged: _onSearchChanged,
       actionLabel: 'Add Branch',
       canAction: canManage.value ?? false,
-      onAction: () => _showBranchDialog(context, banks: banks),
-      filterWidget: _buildBankFilter(banks),
+      onAction: () => _showBranchDialog(context, organizations: organizations),
+      filterWidget: _buildOrganizationFilter(organizations),
       itemBuilder: (context, branch) {
-        final bank = bankMap[branch.bankId];
+        final organization = organizationMap[branch.organizationId];
         return _BranchCard(
           branch: branch,
-          bankName: bank?.name,
+          organizationName: organization?.name,
           onTap: (canManage.value ?? false)
               ? () => _showBranchDialog(
                     context,
                     branch: branch,
-                    banks: banks,
+                    organizations: organizations,
                   )
               : null,
         );
@@ -83,20 +83,20 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
     );
   }
 
-  Widget _buildBankFilter(List<BankObject> banks) {
+  Widget _buildOrganizationFilter(List<OrganizationObject> organizations) {
     return DropdownButton<String>(
-      value: _selectedBankId,
-      hint: const Text('All Banks'),
+      value: _selectedOrganizationId,
+      hint: const Text('All Organizations'),
       underline: const SizedBox.shrink(),
       items: [
-        const DropdownMenuItem(value: '', child: Text('All Banks')),
-        ...banks.map(
+        const DropdownMenuItem(value: '', child: Text('All Organizations')),
+        ...organizations.map(
           (b) => DropdownMenuItem(value: b.id, child: Text(b.name)),
         ),
       ],
       onChanged: (value) {
         setState(() {
-          _selectedBankId = value ?? '';
+          _selectedOrganizationId = value ?? '';
         });
       },
     );
@@ -105,13 +105,13 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
   Future<void> _showBranchDialog(
     BuildContext context, {
     BranchObject? branch,
-    required List<BankObject> banks,
+    required List<OrganizationObject> organizations,
   }) async {
     final result = await showDialog<BranchObject>(
       context: context,
       builder: (context) => _BranchFormDialog(
         branch: branch,
-        banks: banks,
+        organizations: organizations,
       ),
     );
     if (result == null || !mounted) return;
@@ -143,12 +143,12 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
 class _BranchCard extends StatelessWidget {
   const _BranchCard({
     required this.branch,
-    this.bankName,
+    this.organizationName,
     this.onTap,
   });
 
   final BranchObject branch;
-  final String? bankName;
+  final String? organizationName;
   final VoidCallback? onTap;
 
   @override
@@ -199,7 +199,7 @@ class _BranchCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                         ],
-                        if (bankName != null && bankName!.isNotEmpty) ...[
+                        if (organizationName != null && organizationName!.isNotEmpty) ...[
                           Icon(
                             Icons.account_balance_outlined,
                             size: 12,
@@ -207,7 +207,7 @@ class _BranchCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            bankName!,
+                            organizationName!,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withAlpha(140),
                             ),
@@ -245,11 +245,11 @@ class _BranchCard extends StatelessWidget {
 class _BranchFormDialog extends StatefulWidget {
   const _BranchFormDialog({
     this.branch,
-    required this.banks,
+    required this.organizations,
   });
 
   final BranchObject? branch;
-  final List<BankObject> banks;
+  final List<OrganizationObject> organizations;
 
   @override
   State<_BranchFormDialog> createState() => _BranchFormDialogState();
@@ -261,7 +261,7 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
   late final TextEditingController _codeController;
   late final TextEditingController _partitionIdController;
   late final TextEditingController _geoIdController;
-  late String _selectedBankId;
+  late String _selectedOrganizationId;
   late STATE _selectedState;
 
   @override
@@ -274,7 +274,7 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
       text: branch?.partitionId ?? '',
     );
     _geoIdController = TextEditingController(text: branch?.geoId ?? '');
-    _selectedBankId = branch?.bankId ?? '';
+    _selectedOrganizationId = branch?.organizationId ?? '';
     _selectedState = branch?.state ?? STATE.CREATED;
   }
 
@@ -315,9 +315,9 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  initialValue: _selectedBankId.isEmpty ? null : _selectedBankId,
-                  decoration: const InputDecoration(labelText: 'Bank'),
-                  items: widget.banks
+                  initialValue: _selectedOrganizationId.isEmpty ? null : _selectedOrganizationId,
+                  decoration: const InputDecoration(labelText: 'Organization'),
+                  items: widget.organizations
                       .map(
                         (b) => DropdownMenuItem(
                           value: b.id,
@@ -327,11 +327,11 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedBankId = value ?? '';
+                      _selectedOrganizationId = value ?? '';
                     });
                   },
                   validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Bank is required' : null,
+                      (v == null || v.isEmpty) ? 'Organization is required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -386,7 +386,7 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
 
     final branch = BranchObject(
       id: widget.branch?.id ?? '',
-      bankId: _selectedBankId,
+      organizationId: _selectedOrganizationId,
       partitionId: _partitionIdController.text.trim(),
       name: _nameController.text.trim(),
       code: _codeController.text.trim(),

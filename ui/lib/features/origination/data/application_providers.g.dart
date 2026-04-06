@@ -16,7 +16,8 @@ final class ApplicationListProvider
     extends $AsyncNotifierProvider<ApplicationList, List<ApplicationObject>> {
   ApplicationListProvider._({
     required ApplicationListFamily super.from,
-    required (String, {String statusFilter}) super.argument,
+    required (String, {String statusFilter, String agentId, String clientId})
+    super.argument,
   }) : super(
          retry: null,
          name: r'applicationListProvider',
@@ -50,7 +51,7 @@ final class ApplicationListProvider
   }
 }
 
-String _$applicationListHash() => r'b1f682d95be4cddee06352beb36707a3c74c4491';
+String _$applicationListHash() => r'587b460f354e655dfe365ff844144ea28d8b2651';
 
 final class ApplicationListFamily extends $Family
     with
@@ -59,7 +60,7 @@ final class ApplicationListFamily extends $Family
           AsyncValue<List<ApplicationObject>>,
           List<ApplicationObject>,
           FutureOr<List<ApplicationObject>>,
-          (String, {String statusFilter})
+          (String, {String statusFilter, String agentId, String clientId})
         > {
   ApplicationListFamily._()
     : super(
@@ -70,11 +71,20 @@ final class ApplicationListFamily extends $Family
         isAutoDispose: true,
       );
 
-  ApplicationListProvider call(String query, {String statusFilter = ''}) =>
-      ApplicationListProvider._(
-        argument: (query, statusFilter: statusFilter),
-        from: this,
-      );
+  ApplicationListProvider call(
+    String query, {
+    String statusFilter = '',
+    String agentId = '',
+    String clientId = '',
+  }) => ApplicationListProvider._(
+    argument: (
+      query,
+      statusFilter: statusFilter,
+      agentId: agentId,
+      clientId: clientId,
+    ),
+    from: this,
+  );
 
   @override
   String toString() => r'applicationListProvider';
@@ -82,13 +92,19 @@ final class ApplicationListFamily extends $Family
 
 abstract class _$ApplicationList
     extends $AsyncNotifier<List<ApplicationObject>> {
-  late final _$args = ref.$arg as (String, {String statusFilter});
+  late final _$args =
+      ref.$arg
+          as (String, {String statusFilter, String agentId, String clientId});
   String get query => _$args.$1;
   String get statusFilter => _$args.statusFilter;
+  String get agentId => _$args.agentId;
+  String get clientId => _$args.clientId;
 
   FutureOr<List<ApplicationObject>> build(
     String query, {
     String statusFilter = '',
+    String agentId = '',
+    String clientId = '',
   });
   @$mustCallSuper
   @override
@@ -112,7 +128,12 @@ abstract class _$ApplicationList
             >;
     element.handleCreate(
       ref,
-      () => build(_$args.$1, statusFilter: _$args.statusFilter),
+      () => build(
+        _$args.$1,
+        statusFilter: _$args.statusFilter,
+        agentId: _$args.agentId,
+        clientId: _$args.clientId,
+      ),
     );
   }
 }

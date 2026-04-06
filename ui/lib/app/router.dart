@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/auth/role_guard.dart';
+import '../core/auth/route_permissions.dart';
 import '../core/navigation/app_shell.dart';
 import '../features/admin/ui/audit_log_screen.dart';
 import '../features/admin/ui/roles_screen.dart';
@@ -12,20 +14,27 @@ import '../features/auth/ui/login_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
 import '../features/field/ui/agents_screen.dart';
 import '../features/field/ui/client_detail_screen.dart';
+import '../features/field/ui/client_onboard_screen.dart';
 import '../features/field/ui/clients_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
-import '../features/organization/ui/bank_detail_screen.dart';
-import '../features/organization/ui/banks_screen.dart';
+import '../features/organization/ui/organization_detail_screen.dart';
+import '../features/organization/ui/organizations_screen.dart';
 import '../features/organization/ui/investors_screen.dart';
 import '../features/loan_management/ui/loan_account_detail_screen.dart';
 import '../features/loan_management/ui/loan_accounts_screen.dart';
+import '../features/loan_management/ui/loan_product_detail_screen.dart';
+import '../features/origination/ui/application_create_screen.dart';
 import '../features/origination/ui/application_detail_screen.dart';
 import '../features/origination/ui/applications_screen.dart';
 import '../features/loan_management/ui/loan_products_screen.dart';
 import '../features/origination/ui/pending_cases_screen.dart';
 import '../features/operations/ui/disbursement_queue_screen.dart';
 import '../features/operations/ui/transfer_orders_screen.dart';
+import '../features/reporting/ui/portfolio_summary_screen.dart';
+import '../features/savings/ui/savings_account_detail_screen.dart';
+import '../features/savings/ui/savings_accounts_screen.dart';
+import '../features/reporting/ui/loan_book_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
 part 'router.g.dart';
@@ -41,6 +50,14 @@ class AuthChangeNotifier extends ChangeNotifier {
 
 @Riverpod(keepAlive: true)
 AuthChangeNotifier authChange(Ref ref) => AuthChangeNotifier(ref);
+
+/// Wraps a screen with [RouteRoleGuard] using the permissions defined
+/// in [routePermissions] for the given [routePrefix].
+Widget _guarded(String routePrefix, Widget child) {
+  final roles = requiredRolesForRoute(routePrefix);
+  if (roles.isEmpty) return child;
+  return RouteRoleGuard(requiredRoles: roles, child: child);
+}
 
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
@@ -79,12 +96,14 @@ GoRouter router(Ref ref) {
         builder: (context, state) => const LoginScreen(),
       ),
 
-      // All authenticated routes live inside the shell
+      // All authenticated routes live inside the shell.
+      // Each route is wrapped with RouteRoleGuard to enforce
+      // permissions even when a user navigates via URL directly.
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
         branches: [
-          // Dashboard (root)
+          // Dashboard (root) — accessible to all authenticated users
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -94,17 +113,23 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Organization — Banks (list + detail with branches)
+          // Organization — Organizations (list + detail with branches)
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/organization/banks',
-                builder: (context, state) => const BanksScreen(),
+                path: '/organization/organizations',
+                builder: (context, state) => _guarded(
+                  '/organization/organizations',
+                  const OrganizationsScreen(),
+                ),
                 routes: [
                   GoRoute(
-                    path: ':bankId',
-                    builder: (context, state) => BankDetailScreen(
-                      bankId: state.pathParameters['bankId']!,
+                    path: ':organizationId',
+                    builder: (context, state) => _guarded(
+                      '/organization/organizations',
+                      OrganizationDetailScreen(
+                        organizationId: state.pathParameters['organizationId']!,
+                      ),
                     ),
                   ),
                 ],
@@ -115,7 +140,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/organization/investors',
-                builder: (context, state) => const InvestorsScreen(),
+                builder: (context, state) => _guarded(
+                  '/organization/investors',
+                  const InvestorsScreen(),
+                ),
               ),
             ],
           ),
@@ -125,7 +153,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/field/agents',
-                builder: (context, state) => const AgentsScreen(),
+                builder: (context, state) => _guarded(
+                  '/field/agents',
+                  const AgentsScreen(),
+                ),
               ),
             ],
           ),
@@ -133,7 +164,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/field/hierarchy',
-                builder: (context, state) => const HierarchyScreen(),
+                builder: (context, state) => _guarded(
+                  '/field/hierarchy',
+                  const HierarchyScreen(),
+                ),
               ),
             ],
           ),
@@ -141,12 +175,25 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/field/clients',
-                builder: (context, state) => const ClientsScreen(),
+                builder: (context, state) => _guarded(
+                  '/field/clients',
+                  const ClientsScreen(),
+                ),
                 routes: [
                   GoRoute(
+                    path: 'new',
+                    builder: (context, state) => _guarded(
+                      '/field/clients',
+                      const ClientOnboardScreen(),
+                    ),
+                  ),
+                  GoRoute(
                     path: ':clientId',
-                    builder: (context, state) => ClientDetailScreen(
-                      clientId: state.pathParameters['clientId']!,
+                    builder: (context, state) => _guarded(
+                      '/field/clients',
+                      ClientDetailScreen(
+                        clientId: state.pathParameters['clientId']!,
+                      ),
                     ),
                   ),
                 ],
@@ -157,7 +204,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/field/reassignment',
-                builder: (context, state) => const ReassignmentScreen(),
+                builder: (context, state) => _guarded(
+                  '/field/reassignment',
+                  const ReassignmentScreen(),
+                ),
               ),
             ],
           ),
@@ -167,7 +217,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/origination/pending',
-                builder: (context, state) => const PendingCasesScreen(),
+                builder: (context, state) => _guarded(
+                  '/origination/pending',
+                  const PendingCasesScreen(),
+                ),
               ),
             ],
           ),
@@ -176,12 +229,28 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/origination/applications',
-                builder: (context, state) => const ApplicationsScreen(),
+                builder: (context, state) => _guarded(
+                  '/origination/applications',
+                  const ApplicationsScreen(),
+                ),
                 routes: [
                   GoRoute(
+                    path: 'new',
+                    builder: (context, state) => _guarded(
+                      '/origination/applications',
+                      ApplicationCreateScreen(
+                        clientId: state.uri.queryParameters['clientId'],
+                      ),
+                    ),
+                  ),
+                  GoRoute(
                     path: ':applicationId',
-                    builder: (context, state) => ApplicationDetailScreen(
-                      applicationId: state.pathParameters['applicationId']!,
+                    builder: (context, state) => _guarded(
+                      '/origination/applications',
+                      ApplicationDetailScreen(
+                        applicationId:
+                            state.pathParameters['applicationId']!,
+                      ),
                     ),
                   ),
                 ],
@@ -194,7 +263,21 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/loans/products',
-                builder: (context, state) => const LoanProductsScreen(),
+                builder: (context, state) => _guarded(
+                  '/loans/products',
+                  const LoanProductsScreen(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':productId',
+                    builder: (context, state) => _guarded(
+                      '/loans/products',
+                      LoanProductDetailScreen(
+                        productId: state.pathParameters['productId']!,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -203,15 +286,70 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/loans',
-                builder: (context, state) => const LoanAccountsScreen(),
+                builder: (context, state) => _guarded(
+                  '/loans',
+                  const LoanAccountsScreen(),
+                ),
                 routes: [
                   GoRoute(
                     path: ':loanId',
-                    builder: (context, state) => LoanAccountDetailScreen(
-                      loanId: state.pathParameters['loanId']!,
+                    builder: (context, state) => _guarded(
+                      '/loans',
+                      LoanAccountDetailScreen(
+                        loanId: state.pathParameters['loanId']!,
+                      ),
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+
+          // Savings
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/savings',
+                builder: (context, state) => _guarded(
+                  '/savings',
+                  const SavingsAccountsScreen(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':accountId',
+                    builder: (context, state) => _guarded(
+                      '/savings',
+                      SavingsAccountDetailScreen(
+                        accountId: state.pathParameters['accountId']!,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Reports — Portfolio Summary
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/reports/portfolio',
+                builder: (context, state) => _guarded(
+                  '/reports/portfolio',
+                  const PortfolioSummaryScreen(),
+                ),
+              ),
+            ],
+          ),
+          // Reports — Loan Book
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/reports/loan-book',
+                builder: (context, state) => _guarded(
+                  '/reports/loan-book',
+                  const LoanBookScreen(),
+                ),
               ),
             ],
           ),
@@ -221,8 +359,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/operations/disbursements',
-                builder: (context, state) =>
-                    const DisbursementQueueScreen(),
+                builder: (context, state) => _guarded(
+                  '/operations/disbursements',
+                  const DisbursementQueueScreen(),
+                ),
               ),
             ],
           ),
@@ -231,7 +371,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/operations/transfers',
-                builder: (context, state) => const TransferOrdersScreen(),
+                builder: (context, state) => _guarded(
+                  '/operations/transfers',
+                  const TransferOrdersScreen(),
+                ),
               ),
             ],
           ),
@@ -241,7 +384,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/admin/users',
-                builder: (context, state) => const SystemUsersScreen(),
+                builder: (context, state) => _guarded(
+                  '/admin/users',
+                  const SystemUsersScreen(),
+                ),
               ),
             ],
           ),
@@ -249,7 +395,10 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/admin/roles',
-                builder: (context, state) => const RolesScreen(),
+                builder: (context, state) => _guarded(
+                  '/admin/roles',
+                  const RolesScreen(),
+                ),
               ),
             ],
           ),
@@ -257,12 +406,15 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/admin/audit',
-                builder: (context, state) => const AuditLogScreen(),
+                builder: (context, state) => _guarded(
+                  '/admin/audit',
+                  const AuditLogScreen(),
+                ),
               ),
             ],
           ),
 
-          // Settings
+          // Settings — accessible to all authenticated users
           StatefulShellBranch(
             routes: [
               GoRoute(

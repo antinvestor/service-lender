@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
@@ -61,7 +62,7 @@ class _LoanProductsScreenState extends ConsumerState<LoanProductsScreen> {
       onAction: () => _showProductDialog(context),
       itemBuilder: (context, product) => _LoanProductCard(
         product: product,
-        onTap: () => _showProductDialog(context, product: product),
+        onTap: () => context.go('/loans/products/${product.id}'),
       ),
     );
   }
@@ -276,8 +277,8 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
 
     // Preserve backend-managed fields when editing.
     if (widget.product != null) {
-      if (widget.product!.hasBankId()) {
-        product.bankId = widget.product!.bankId;
+      if (widget.product!.hasOrganizationId()) {
+        product.organizationId = widget.product!.organizationId;
       }
       if (widget.product!.hasProperties()) {
         product.properties = widget.product!.properties;

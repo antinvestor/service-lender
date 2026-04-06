@@ -219,4 +219,23 @@ abstract final class LoanManagementService {
     loansv1loans.LoanRequestRequest.new,
     loansv1loans.LoanRequestResponse.new,
   );
+
+  /// PortfolioSummary returns aggregated financial metrics across a filtered
+  /// set of loans. Supports filtering by organization, branch, agent, product, and client.
+  static const portfolioSummary = connect.Spec(
+    '/$name/PortfolioSummary',
+    connect.StreamType.unary,
+    loansv1loans.PortfolioSummaryRequest.new,
+    loansv1loans.PortfolioSummaryResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// PortfolioExport exports the loan book as CSV for a filtered set of loans.
+  static const portfolioExport = connect.Spec(
+    '/$name/PortfolioExport',
+    connect.StreamType.unary,
+    loansv1loans.PortfolioExportRequest.new,
+    loansv1loans.PortfolioExportResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
 }

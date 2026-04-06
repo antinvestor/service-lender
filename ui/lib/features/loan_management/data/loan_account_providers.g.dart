@@ -24,7 +24,13 @@ final class LoanAccountListProvider
         $FutureProvider<List<LoanAccountObject>> {
   LoanAccountListProvider._({
     required LoanAccountListFamily super.from,
-    required ({String query, LoanStatus? status}) super.argument,
+    required ({
+      String query,
+      LoanStatus? status,
+      String agentId,
+      String clientId,
+    })
+    super.argument,
   }) : super(
          retry: null,
          name: r'loanAccountListProvider',
@@ -51,8 +57,21 @@ final class LoanAccountListProvider
 
   @override
   FutureOr<List<LoanAccountObject>> create(Ref ref) {
-    final argument = this.argument as ({String query, LoanStatus? status});
-    return loanAccountList(ref, query: argument.query, status: argument.status);
+    final argument =
+        this.argument
+            as ({
+              String query,
+              LoanStatus? status,
+              String agentId,
+              String clientId,
+            });
+    return loanAccountList(
+      ref,
+      query: argument.query,
+      status: argument.status,
+      agentId: argument.agentId,
+      clientId: argument.clientId,
+    );
   }
 
   @override
@@ -66,13 +85,13 @@ final class LoanAccountListProvider
   }
 }
 
-String _$loanAccountListHash() => r'373116bd062af740240be2ba69470ebcb6ad164b';
+String _$loanAccountListHash() => r'23162ac9b0b401fcc1671846a8d5a352298a9c86';
 
 final class LoanAccountListFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<LoanAccountObject>>,
-          ({String query, LoanStatus? status})
+          ({String query, LoanStatus? status, String agentId, String clientId})
         > {
   LoanAccountListFamily._()
     : super(
@@ -83,11 +102,20 @@ final class LoanAccountListFamily extends $Family
         isAutoDispose: true,
       );
 
-  LoanAccountListProvider call({required String query, LoanStatus? status}) =>
-      LoanAccountListProvider._(
-        argument: (query: query, status: status),
-        from: this,
-      );
+  LoanAccountListProvider call({
+    required String query,
+    LoanStatus? status,
+    String agentId = '',
+    String clientId = '',
+  }) => LoanAccountListProvider._(
+    argument: (
+      query: query,
+      status: status,
+      agentId: agentId,
+      clientId: clientId,
+    ),
+    from: this,
+  );
 
   @override
   String toString() => r'loanAccountListProvider';

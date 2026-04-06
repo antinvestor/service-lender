@@ -25,6 +25,18 @@ class LoanProductList extends _$LoanProductList {
 }
 
 @riverpod
+Future<LoanProductObject> loanProductDetail(
+  Ref ref,
+  String productId,
+) async {
+  final client = ref.watch(originationServiceClientProvider);
+  final response = await client.loanProductGet(
+    LoanProductGetRequest(id: productId),
+  );
+  return response.data;
+}
+
+@riverpod
 class LoanProductNotifier extends _$LoanProductNotifier {
   @override
   FutureOr<void> build() {

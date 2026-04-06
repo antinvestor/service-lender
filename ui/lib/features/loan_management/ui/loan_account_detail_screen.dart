@@ -12,10 +12,12 @@ import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../../core/auth/role_guard.dart';
 import '../data/disbursement_providers.dart';
 import '../data/loan_account_providers.dart';
 import '../data/penalty_providers.dart';
 import '../data/repayment_providers.dart';
+import '../data/restructure_providers.dart';
 import '../data/schedule_providers.dart';
 
 class LoanAccountDetailScreen extends ConsumerStatefulWidget {
@@ -36,7 +38,7 @@ class _LoanAccountDetailScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -220,10 +222,12 @@ class _LoanAccountDetailScreenState
           // Tabs
           TabBar(
             controller: _tabController,
+            isScrollable: true,
             tabs: const [
               Tab(text: 'Schedule'),
               Tab(text: 'Transactions'),
               Tab(text: 'Penalties'),
+              Tab(text: 'Restructuring'),
               Tab(text: 'History'),
             ],
           ),
@@ -235,6 +239,10 @@ class _LoanAccountDetailScreenState
                 _ScheduleTab(loanAccountId: widget.loanId),
                 _TransactionsTab(loanAccountId: widget.loanId),
                 _PenaltiesTab(
+                  loanAccountId: widget.loanId,
+                  canManage: canManage,
+                ),
+                _RestructuringTab(
                   loanAccountId: widget.loanId,
                   canManage: canManage,
                 ),
@@ -395,6 +403,13 @@ class _BalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Calculate repayment progress
+    final paid = _moneyToDouble(balance.totalPaid);
+    final outstanding = _moneyToDouble(balance.totalOutstanding);
+    final total = paid + outstanding;
+    final progress = total > 0 ? paid / total : 0.0;
+    final percentText = '${(progress * 100).toStringAsFixed(1)}%';
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -405,13 +420,46 @@ class _BalanceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Balance Summary',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+            Row(
+              children: [
+                Text(
+                  'Balance Summary',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$percentText repaid',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: progress >= 0.8
+                        ? Colors.green
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Progress bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress.clamp(0.0, 1.0),
+                backgroundColor: Colors.green.withAlpha(20),
+                valueColor: AlwaysStoppedAnimation(
+                  progress >= 0.8
+                      ? Colors.green
+                      : progress >= 0.5
+                          ? Colors.orange
+                          : Colors.red,
+                ),
+                minHeight: 6,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+
             Row(
               children: [
                 Expanded(
@@ -454,6 +502,8 @@ class _BalanceCard extends StatelessWidget {
                   child: _BalanceItem(
                     label: 'Total Paid',
                     value: formatMoney(balance.totalPaid),
+                    isBold: true,
+                    color: Colors.green,
                   ),
                 ),
               ],
@@ -463,6 +513,17 @@ class _BalanceCard extends StatelessWidget {
       ),
     );
   }
+
+  double _moneyToDouble(dynamic money) {
+    if (money == null) return 0;
+    try {
+      final units = money.units.toInt();
+      final nanos = money.nanos.toInt();
+      return units + nanos / 1e9;
+    } catch (_) {
+      return 0;
+    }
+  }
 }
 
 class _BalanceItem extends StatelessWidget {
@@ -470,11 +531,13 @@ class _BalanceItem extends StatelessWidget {
     required this.label,
     required this.value,
     this.isBold = false,
+    this.color,
   });
 
   final String label;
   final String value;
   final bool isBold;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -493,6 +556,7 @@ class _BalanceItem extends StatelessWidget {
           value,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+            color: color,
           ),
         ),
       ],
@@ -558,7 +622,19 @@ class _ScheduleTab extends ConsumerWidget {
                 DataColumn(label: Text('Status')),
               ],
               rows: schedule.entries.map((entry) {
-                return DataRow(cells: [
+                return DataRow(
+                  color: WidgetStateProperty.resolveWith<Color?>((_) {
+                    return switch (entry.status) {
+                      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PAID =>
+                        Colors.green.withAlpha(8),
+                      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_OVERDUE =>
+                        Colors.red.withAlpha(12),
+                      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PARTIAL =>
+                        Colors.amber.withAlpha(10),
+                      _ => null,
+                    };
+                  }),
+                  cells: [
                   DataCell(Text('${entry.installmentNumber}')),
                   DataCell(Text(entry.dueDate)),
                   DataCell(Text(formatMoney(entry.principalDue))),
@@ -1022,6 +1098,508 @@ class _PenaltiesTab extends ConsumerWidget {
 
 // ---------------------------------------------------------------------------
 // History Tab (Status Changes)
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Restructuring tab
+// ---------------------------------------------------------------------------
+
+class _RestructuringTab extends ConsumerWidget {
+  const _RestructuringTab({
+    required this.loanAccountId,
+    required this.canManage,
+  });
+
+  final String loanAccountId;
+  final bool canManage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final restructuresAsync =
+        ref.watch(restructureListProvider(loanAccountId));
+
+    return Column(
+      children: [
+        if (canManage)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+            child: Row(
+              children: [
+                const Spacer(),
+                RoleGuard(
+                  requiredRoles: const {
+                    LenderRole.owner,
+                    LenderRole.admin,
+                    LenderRole.manager,
+                  },
+                  child: FilledButton.icon(
+                    onPressed: () =>
+                        _showCreateRestructureDialog(context, ref),
+                    icon: const Icon(Icons.edit_note, size: 18),
+                    label: const Text('Request Restructure'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: restructuresAsync.when(
+            loading: () =>
+                const Center(child: CircularProgressIndicator()),
+            error: (error, _) =>
+                Center(child: Text('Error: $error')),
+            data: (items) {
+              if (items.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.edit_note_outlined,
+                        size: 48,
+                        color: theme.colorScheme.onSurface.withAlpha(100),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No restructuring requests',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurface.withAlpha(140),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 8),
+                itemCount: items.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final r = items[index];
+                  return _RestructureCard(
+                    restructure: r,
+                    canManage: canManage,
+                    onApprove: () async {
+                      try {
+                        await ref
+                            .read(restructureProvider.notifier)
+                            .approve(r.id);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Restructure approved')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Failed to approve: $e'),
+                              backgroundColor:
+                                  theme.colorScheme.error,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    onReject: () =>
+                        _showRejectDialog(context, ref, r.id),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showCreateRestructureDialog(
+      BuildContext context, WidgetRef ref) {
+    final reasonCtrl = TextEditingController();
+    final newRateCtrl = TextEditingController();
+    final newTermCtrl = TextEditingController();
+    var type = RestructureType.RESTRUCTURE_TYPE_RESCHEDULE;
+    var saving = false;
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Request Restructure'),
+          content: SizedBox(
+            width: 440,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<RestructureType>(
+                  initialValue: type,
+                  decoration: const InputDecoration(
+                      labelText: 'Restructure Type'),
+                  items: RestructureType.values
+                      .where((t) =>
+                          t !=
+                          RestructureType
+                              .RESTRUCTURE_TYPE_UNSPECIFIED)
+                      .map((t) => DropdownMenuItem(
+                            value: t,
+                            child: Text(_restructureTypeLabel(t)),
+                          ))
+                      .toList(),
+                  onChanged: (v) =>
+                      setDialogState(() => type = v ?? type),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: newRateCtrl,
+                  decoration: const InputDecoration(
+                      labelText: 'New Interest Rate (%)'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(
+                          decimal: true),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: newTermCtrl,
+                  decoration: const InputDecoration(
+                      labelText: 'New Term (days)'),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: reasonCtrl,
+                  decoration:
+                      const InputDecoration(labelText: 'Reason'),
+                  maxLines: 2,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed:
+                  saving ? null : () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      setDialogState(() => saving = true);
+                      try {
+                        final data = LoanRestructureObject(
+                          loanAccountId: loanAccountId,
+                          restructureType: type,
+                          newInterestRate:
+                              newRateCtrl.text.trim(),
+                          newTermDays: int.tryParse(
+                                  newTermCtrl.text.trim()) ??
+                              0,
+                          reason: reasonCtrl.text.trim(),
+                        );
+                        await ref
+                            .read(restructureProvider
+                                .notifier)
+                            .create(data);
+                        if (ctx.mounted) {
+                          Navigator.of(ctx).pop();
+                        }
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Restructure request created')),
+                          );
+                        }
+                      } catch (e) {
+                        setDialogState(() => saving = false);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed: $e'),
+                              backgroundColor:
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .error,
+                            ),
+                          );
+                        }
+                      }
+                    },
+              child: saving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2),
+                    )
+                  : const Text('Submit Request'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRejectDialog(
+      BuildContext context, WidgetRef ref, String id) {
+    final reasonCtrl = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reject Restructure'),
+        content: SizedBox(
+          width: 400,
+          child: TextField(
+            controller: reasonCtrl,
+            decoration:
+                const InputDecoration(labelText: 'Reason'),
+            maxLines: 2,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              try {
+                await ref
+                    .read(restructureProvider.notifier)
+                    .reject(id, reasonCtrl.text.trim());
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Restructure rejected')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed: $e'),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.error,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _restructureTypeLabel(RestructureType type) {
+    return switch (type) {
+      RestructureType.RESTRUCTURE_TYPE_RESCHEDULE => 'Reschedule',
+      RestructureType.RESTRUCTURE_TYPE_REFINANCE => 'Refinance',
+      RestructureType.RESTRUCTURE_TYPE_RATE_CHANGE => 'Rate Change',
+      RestructureType.RESTRUCTURE_TYPE_PARTIAL_WAIVER =>
+        'Partial Waiver',
+      RestructureType.RESTRUCTURE_TYPE_WRITE_OFF => 'Write Off',
+      _ => 'Unknown',
+    };
+  }
+}
+
+class _RestructureCard extends StatelessWidget {
+  const _RestructureCard({
+    required this.restructure,
+    required this.canManage,
+    required this.onApprove,
+    required this.onReject,
+  });
+
+  final LoanRestructureObject restructure;
+  final bool canManage;
+  final VoidCallback onApprove;
+  final VoidCallback onReject;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isPending = restructure.state == STATE.CREATED ||
+        restructure.state == STATE.CHECKED;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _typeColor(restructure.restructureType)
+                        .withAlpha(30),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    _RestructuringTab._restructureTypeLabel(
+                        restructure.restructureType),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color:
+                          _typeColor(restructure.restructureType),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isPending
+                        ? Colors.orange.withAlpha(30)
+                        : restructure.state == STATE.ACTIVE
+                            ? Colors.green.withAlpha(30)
+                            : Colors.red.withAlpha(30),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    isPending
+                        ? 'Pending'
+                        : restructure.state == STATE.ACTIVE
+                            ? 'Approved'
+                            : 'Rejected',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: isPending
+                          ? Colors.orange
+                          : restructure.state == STATE.ACTIVE
+                              ? Colors.green
+                              : Colors.red,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                if (isPending && canManage) ...[
+                  RoleGuard(
+                    requiredRoles: const {
+                      LenderRole.owner,
+                      LenderRole.admin,
+                      LenderRole.manager,
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.check_circle,
+                              color: Colors.green),
+                          tooltip: 'Approve',
+                          onPressed: onApprove,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.cancel,
+                              color: Colors.red),
+                          tooltip: 'Reject',
+                          onPressed: onReject,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (restructure.reason.isNotEmpty) ...[
+              Text(
+                'Reason: ${restructure.reason}',
+                style: theme.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 4),
+            ],
+            Row(
+              children: [
+                if (restructure.newInterestRate.isNotEmpty)
+                  _DetailChip(
+                    label: 'New Rate',
+                    value: '${restructure.newInterestRate}%',
+                  ),
+                if (restructure.newTermDays > 0)
+                  _DetailChip(
+                    label: 'New Term',
+                    value: '${restructure.newTermDays} days',
+                  ),
+                if (restructure.requestedBy.isNotEmpty)
+                  _DetailChip(
+                    label: 'Requested by',
+                    value: restructure.requestedBy,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _typeColor(RestructureType type) {
+    return switch (type) {
+      RestructureType.RESTRUCTURE_TYPE_RESCHEDULE => Colors.blue,
+      RestructureType.RESTRUCTURE_TYPE_REFINANCE => Colors.indigo,
+      RestructureType.RESTRUCTURE_TYPE_RATE_CHANGE => Colors.teal,
+      RestructureType.RESTRUCTURE_TYPE_PARTIAL_WAIVER =>
+        Colors.orange,
+      RestructureType.RESTRUCTURE_TYPE_WRITE_OFF => Colors.red,
+      _ => Colors.grey,
+    };
+  }
+}
+
+class _DetailChip extends StatelessWidget {
+  const _DetailChip({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurface.withAlpha(100),
+            ),
+          ),
+          Text(
+            value,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Status history tab
 // ---------------------------------------------------------------------------
 
 class _HistoryTab extends ConsumerWidget {

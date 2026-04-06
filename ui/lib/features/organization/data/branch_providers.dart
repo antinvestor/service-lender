@@ -11,13 +11,13 @@ part 'branch_providers.g.dart';
 Future<List<BranchObject>> branchList(
   Ref ref,
   String query,
-  String bankId,
+  String organizationId,
 ) async {
   final client = ref.watch(identityServiceClientProvider);
   final stream = client.branchSearch(
     BranchSearchRequest(
       query: query,
-      bankId: bankId,
+      organizationId: organizationId,
       cursor: PageCursor(limit: 50),
     ),
   );

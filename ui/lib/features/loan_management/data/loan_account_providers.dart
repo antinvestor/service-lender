@@ -12,6 +12,8 @@ Future<List<LoanAccountObject>> loanAccountList(
   Ref ref, {
   required String query,
   LoanStatus? status,
+  String agentId = '',
+  String clientId = '',
 }) async {
   final client = ref.watch(loanManagementServiceClientProvider);
   final request = LoanAccountSearchRequest(
@@ -20,6 +22,12 @@ Future<List<LoanAccountObject>> loanAccountList(
   );
   if (status != null) {
     request.status = status;
+  }
+  if (agentId.isNotEmpty) {
+    request.agentId = agentId;
+  }
+  if (clientId.isNotEmpty) {
+    request.clientId = clientId;
   }
   return collectStream(
     client.loanAccountSearch(request),

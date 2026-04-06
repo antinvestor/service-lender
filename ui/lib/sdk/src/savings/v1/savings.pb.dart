@@ -26,7 +26,7 @@ export 'savings.pbenum.dart';
 class SavingsProductObject extends $pb.GeneratedMessage {
   factory SavingsProductObject({
     $core.String? id,
-    $core.String? bankId,
+    $core.String? organizationId,
     $core.String? name,
     $core.String? code,
     $core.String? description,
@@ -44,8 +44,8 @@ class SavingsProductObject extends $pb.GeneratedMessage {
     if (id != null) {
       $result.id = id;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (name != null) {
       $result.name = name;
@@ -91,7 +91,7 @@ class SavingsProductObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SavingsProductObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..aOS(2, _omitFieldNames ? '' : 'bankId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOS(3, _omitFieldNames ? '' : 'name')
     ..aOS(4, _omitFieldNames ? '' : 'code')
     ..aOS(5, _omitFieldNames ? '' : 'description')
@@ -138,13 +138,13 @@ class SavingsProductObject extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get bankId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set bankId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBankId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBankId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get name => $_getSZ(2);
@@ -270,7 +270,7 @@ class SavingsAccountObject extends $pb.GeneratedMessage {
     $core.String? productId,
     $core.String? ownerId,
     SavingsAccountOwnerType? ownerType,
-    $core.String? bankId,
+    $core.String? organizationId,
     $core.String? branchId,
     $core.String? agentId,
     $core.String? currencyCode,
@@ -292,8 +292,8 @@ class SavingsAccountObject extends $pb.GeneratedMessage {
     if (ownerType != null) {
       $result.ownerType = ownerType;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (branchId != null) {
       $result.branchId = branchId;
@@ -327,7 +327,7 @@ class SavingsAccountObject extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'productId')
     ..aOS(3, _omitFieldNames ? '' : 'ownerId')
     ..e<SavingsAccountOwnerType>(4, _omitFieldNames ? '' : 'ownerType', $pb.PbFieldType.OE, defaultOrMaker: SavingsAccountOwnerType.SAVINGS_ACCOUNT_OWNER_TYPE_UNSPECIFIED, valueOf: SavingsAccountOwnerType.valueOf, enumValues: SavingsAccountOwnerType.values)
-    ..aOS(5, _omitFieldNames ? '' : 'bankId')
+    ..aOS(5, _omitFieldNames ? '' : 'organizationId')
     ..aOS(6, _omitFieldNames ? '' : 'branchId')
     ..aOS(7, _omitFieldNames ? '' : 'agentId')
     ..aOS(8, _omitFieldNames ? '' : 'currencyCode')
@@ -396,13 +396,13 @@ class SavingsAccountObject extends $pb.GeneratedMessage {
   void clearOwnerType() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get bankId => $_getSZ(4);
+  $core.String get organizationId => $_getSZ(4);
   @$pb.TagNumber(5)
-  set bankId($core.String v) { $_setString(4, v); }
+  set organizationId($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasBankId() => $_has(4);
+  $core.bool hasOrganizationId() => $_has(4);
   @$pb.TagNumber(5)
-  void clearBankId() => clearField(5);
+  void clearOrganizationId() => clearField(5);
 
   @$pb.TagNumber(6)
   $core.String get branchId => $_getSZ(5);
@@ -1480,15 +1480,15 @@ class SavingsProductGetResponse extends $pb.GeneratedMessage {
 class SavingsProductSearchRequest extends $pb.GeneratedMessage {
   factory SavingsProductSearchRequest({
     $core.String? query,
-    $core.String? bankId,
+    $core.String? organizationId,
     $7.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
       $result.query = query;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (cursor != null) {
       $result.cursor = cursor;
@@ -1501,7 +1501,7 @@ class SavingsProductSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SavingsProductSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
-    ..aOS(2, _omitFieldNames ? '' : 'bankId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
     ..hasRequiredFields = false
   ;
@@ -1537,13 +1537,13 @@ class SavingsProductSearchRequest extends $pb.GeneratedMessage {
   void clearQuery() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get bankId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set bankId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBankId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBankId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   $7.PageCursor get cursor => $_getN(2);
@@ -1812,7 +1812,7 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
     $core.String? query,
     $core.String? ownerId,
     $core.String? productId,
-    $core.String? bankId,
+    $core.String? organizationId,
     SavingsAccountStatus? status,
     $7.PageCursor? cursor,
   }) {
@@ -1826,8 +1826,8 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
     if (productId != null) {
       $result.productId = productId;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (status != null) {
       $result.status = status;
@@ -1845,7 +1845,7 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'ownerId')
     ..aOS(3, _omitFieldNames ? '' : 'productId')
-    ..aOS(4, _omitFieldNames ? '' : 'bankId')
+    ..aOS(4, _omitFieldNames ? '' : 'organizationId')
     ..e<SavingsAccountStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_UNSPECIFIED, valueOf: SavingsAccountStatus.valueOf, enumValues: SavingsAccountStatus.values)
     ..aOM<$7.PageCursor>(6, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
     ..hasRequiredFields = false
@@ -1900,13 +1900,13 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
   void clearProductId() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get bankId => $_getSZ(3);
+  $core.String get organizationId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set bankId($core.String v) { $_setString(3, v); }
+  set organizationId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasBankId() => $_has(3);
+  $core.bool hasOrganizationId() => $_has(3);
   @$pb.TagNumber(4)
-  void clearBankId() => clearField(4);
+  void clearOrganizationId() => clearField(4);
 
   @$pb.TagNumber(5)
   SavingsAccountStatus get status => $_getN(4);

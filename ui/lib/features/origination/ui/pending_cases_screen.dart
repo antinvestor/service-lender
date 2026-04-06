@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/application_status_badge.dart';
+import '../../../core/widgets/entity_chip.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../dashboard/data/dashboard_providers.dart';
 import '../data/application_providers.dart';
 
 class PendingCasesScreen extends ConsumerStatefulWidget {
@@ -36,6 +39,9 @@ class _PendingCasesScreenState extends ConsumerState<PendingCasesScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final verCount = ref.watch(pendingVerificationCountProvider);
+    final uwCount = ref.watch(pendingUnderwritingCountProvider);
+    final offerCount = ref.watch(offerPendingCountProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -57,19 +63,41 @@ class _PendingCasesScreenState extends ConsumerState<PendingCasesScreen>
                   ),
                 ),
               ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Refresh',
+                onPressed: () {
+                  ref.invalidate(pendingVerificationCountProvider);
+                  ref.invalidate(pendingUnderwritingCountProvider);
+                  ref.invalidate(offerPendingCountProvider);
+                  ref.invalidate(applicationListProvider);
+                },
+              ),
             ],
           ),
         ),
 
-        // Tabs
+        // Tabs with count badges
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           child: TabBar(
             controller: _tabController,
-            tabs: const [
-              Tab(text: 'Verification'),
-              Tab(text: 'Underwriting'),
-              Tab(text: 'Offers'),
+            tabs: [
+              _BadgeTab(
+                label: 'Verification',
+                count: verCount.when(
+                    data: (c) => c, loading: () => null, error: (_, _) => null),
+              ),
+              _BadgeTab(
+                label: 'Underwriting',
+                count: uwCount.when(
+                    data: (c) => c, loading: () => null, error: (_, _) => null),
+              ),
+              _BadgeTab(
+                label: 'Offers',
+                count: offerCount.when(
+                    data: (c) => c, loading: () => null, error: (_, _) => null),
+              ),
             ],
           ),
         ),
@@ -83,21 +111,64 @@ class _PendingCasesScreenState extends ConsumerState<PendingCasesScreen>
                 statusFilter:
                     ApplicationStatus.APPLICATION_STATUS_VERIFICATION.name,
                 emptyLabel: 'No cases pending verification',
+                emptyIcon: Icons.verified_user_outlined,
               ),
               _PendingTab(
                 statusFilter:
                     ApplicationStatus.APPLICATION_STATUS_UNDERWRITING.name,
                 emptyLabel: 'No cases pending underwriting',
+                emptyIcon: Icons.gavel_outlined,
               ),
               _PendingTab(
                 statusFilter:
                     ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED.name,
                 emptyLabel: 'No cases with pending offers',
+                emptyIcon: Icons.local_offer_outlined,
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tab with badge count
+// ---------------------------------------------------------------------------
+
+class _BadgeTab extends StatelessWidget {
+  const _BadgeTab({required this.label, this.count});
+  final String label;
+  final int? count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tab(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          if (count != null && count! > 0) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.error,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                count! > 99 ? '99+' : '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -110,10 +181,12 @@ class _PendingTab extends ConsumerStatefulWidget {
   const _PendingTab({
     required this.statusFilter,
     required this.emptyLabel,
+    this.emptyIcon = Icons.check_circle_outline,
   });
 
   final String statusFilter;
   final String emptyLabel;
+  final IconData emptyIcon;
 
   @override
   ConsumerState<_PendingTab> createState() => _PendingTabState();
@@ -134,11 +207,7 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
   void _onSearchChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
-      if (mounted) {
-        setState(() {
-          _query = value.trim();
-        });
-      }
+      if (mounted) setState(() => _query = value.trim());
     });
   }
 
@@ -158,7 +227,7 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
             controller: _searchController,
             onChanged: _onSearchChanged,
             decoration: const InputDecoration(
-              hintText: 'Search cases...',
+              hintText: 'Search by client name or ID...',
               prefixIcon: Icon(Icons.search, size: 20),
             ),
           ),
@@ -167,8 +236,7 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
         // List
         Expanded(
           child: appsAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, _) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -181,9 +249,7 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
                   FilledButton.tonal(
                     onPressed: () => ref.invalidate(
                       applicationListProvider(
-                        _query,
-                        statusFilter: widget.statusFilter,
-                      ),
+                          _query, statusFilter: widget.statusFilter),
                     ),
                     child: const Text('Retry'),
                   ),
@@ -204,41 +270,40 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
                               .withAlpha(60),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Icon(
-                          Icons.check_circle_outline,
-                          size: 28,
-                          color:
-                              theme.colorScheme.primary.withAlpha(160),
-                        ),
+                        child: Icon(widget.emptyIcon,
+                            size: 28,
+                            color: theme.colorScheme.primary.withAlpha(160)),
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        widget.emptyLabel,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withAlpha(140),
-                        ),
-                      ),
+                      Text(widget.emptyLabel,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color:
+                                theme.colorScheme.onSurface.withAlpha(140),
+                          )),
                     ],
                   ),
                 );
               }
 
-              return ListView.separated(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 8),
-                itemCount: apps.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final app = apps[index];
-                  return _PendingCaseCard(
-                    app: app,
-                    onTap: () => context.go(
-                      '/origination/applications/${app.id}',
-                    ),
-                  );
-                },
+              return RefreshIndicator(
+                onRefresh: () async => ref.invalidate(
+                  applicationListProvider(
+                      _query, statusFilter: widget.statusFilter),
+                ),
+                child: ListView.separated(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  itemCount: apps.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final app = apps[index];
+                    return _PendingCaseCard(
+                      app: app,
+                      onTap: () =>
+                          context.go('/origination/applications/${app.id}'),
+                    );
+                  },
+                ),
               );
             },
           ),
@@ -249,127 +314,163 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
 }
 
 // ---------------------------------------------------------------------------
-// Case card
+// Enhanced case card with resolved names and urgency
 // ---------------------------------------------------------------------------
 
-class _PendingCaseCard extends StatelessWidget {
+class _PendingCaseCard extends ConsumerWidget {
   const _PendingCaseCard({required this.app, required this.onTap});
 
   final ApplicationObject app;
   final VoidCallback onTap;
 
-  String _extractRiskFlags() {
-    if (!app.hasProperties()) return '';
-    try {
-      final fields = app.properties.fields;
-      final riskFlags = fields['risk_flags'];
-      if (riskFlags == null) return '';
-      if (riskFlags.hasStringValue()) return riskFlags.stringValue;
-      if (riskFlags.hasListValue()) {
-        return riskFlags.listValue.values
-            .map((v) => v.stringValue)
-            .where((s) => s.isNotEmpty)
-            .join(', ');
-      }
-    } catch (_) {
-      // Ignore parse errors
-    }
-    return '';
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final riskFlags = _extractRiskFlags();
+
+    // Calculate days in current stage
+    final daysInStage = _calculateDaysInStage(app.submittedAt);
+    final urgencyColor = daysInStage > 5
+        ? Colors.red
+        : daysInStage > 2
+            ? Colors.orange
+            : Colors.green;
+
+    // Risk flags
+    final riskFlagCount = _countRiskFlags(app);
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                backgroundColor: theme.colorScheme.primaryContainer,
-                child: Icon(
-                  Icons.description,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Client: ${app.clientId}',
+              Row(
+                children: [
+                  Expanded(
+                    child: ClientNameText(
+                      clientId: app.clientId,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Product: ${app.productId} \u2022 ${formatMoney(app.requestedAmount)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color:
-                            theme.colorScheme.onSurface.withAlpha(160),
-                      ),
+                  ),
+                  ApplicationStatusBadge(status: app.status),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  EntityChip(type: EntityType.product, id: app.productId),
+                  const SizedBox(width: 8),
+                  Text(
+                    formatMoney(app.requestedAmount),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    if (app.submittedAt.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          'Submitted: ${app.submittedAt}',
-                          style:
-                              theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withAlpha(120),
+                  ),
+                  const Spacer(),
+                  // Urgency indicator
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: urgencyColor.withAlpha(20),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.schedule,
+                            size: 12, color: urgencyColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          daysInStage > 0
+                              ? '${daysInStage}d'
+                              : 'Today',
+                          style: TextStyle(
                             fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: urgencyColor,
                           ),
                         ),
-                      ),
-                    if (riskFlags.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withAlpha(15),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: Colors.red.withAlpha(50),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (riskFlagCount > 0 || app.agentId.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    if (app.agentId.isNotEmpty)
+                      EntityChip(
+                          type: EntityType.agent, id: app.agentId),
+                    if (riskFlagCount > 0) ...[
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withAlpha(15),
+                          borderRadius: BorderRadius.circular(4),
+                          border:
+                              Border.all(color: Colors.red.withAlpha(50)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.flag,
+                                size: 12, color: Colors.red),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$riskFlagCount risk flag${riskFlagCount > 1 ? 's' : ''}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red,
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            riskFlags,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.red,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          ],
                         ),
                       ),
+                    ],
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              ApplicationStatusBadge(status: app.status),
+              ],
             ],
           ),
         ),
       ),
     );
+  }
+
+  int _calculateDaysInStage(String submittedAt) {
+    if (submittedAt.isEmpty) return 0;
+    try {
+      final submitted = DateTime.parse(submittedAt);
+      return DateTime.now().difference(submitted).inDays;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  int _countRiskFlags(ApplicationObject app) {
+    if (!app.hasProperties()) return 0;
+    try {
+      final riskFlags = app.properties.fields['risk_flags'];
+      if (riskFlags == null) return 0;
+      if (riskFlags.hasListValue()) {
+        return riskFlags.listValue.values.length;
+      }
+    } catch (_) {}
+    return 0;
   }
 }

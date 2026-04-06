@@ -66,7 +66,7 @@ final class BranchListProvider
   }
 }
 
-String _$branchListHash() => r'c0cc331ce4c748b4ab9999d30604651b59e1b937';
+String _$branchListHash() => r'aa9beba3cc745afe4827d101da861ad92a5a07b5';
 
 final class BranchListFamily extends $Family
     with
@@ -83,8 +83,8 @@ final class BranchListFamily extends $Family
         isAutoDispose: true,
       );
 
-  BranchListProvider call(String query, String bankId) =>
-      BranchListProvider._(argument: (query, bankId), from: this);
+  BranchListProvider call(String query, String organizationId) =>
+      BranchListProvider._(argument: (query, organizationId), from: this);
 
   @override
   String toString() => r'branchListProvider';

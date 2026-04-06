@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // Data model
 // ─────────────────────────────────────────────────────────────────────────────
 
-enum _Entity { bank, branch, agent, client, investor, systemUser }
+enum _Entity { organization, branch, agent, client, investor, systemUser }
 
 enum _Action { create, manage, view, reassign }
 
@@ -28,8 +28,8 @@ class _Permission {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const _allPermissions = [
-  _Permission(_Entity.bank, _Action.manage),
-  _Permission(_Entity.bank, _Action.view),
+  _Permission(_Entity.organization, _Action.manage),
+  _Permission(_Entity.organization, _Action.view),
   _Permission(_Entity.branch, _Action.manage),
   _Permission(_Entity.branch, _Action.view),
   _Permission(_Entity.agent, _Action.create),
@@ -80,7 +80,7 @@ final Map<String, Set<_Permission>> _rolePermissions = {
     const _Permission(_Entity.investor, _Action.view),
   },
   'Auditor': {
-    const _Permission(_Entity.bank, _Action.view),
+    const _Permission(_Entity.organization, _Action.view),
     const _Permission(_Entity.branch, _Action.view),
     const _Permission(_Entity.agent, _Action.view),
     const _Permission(_Entity.client, _Action.view),
@@ -88,7 +88,7 @@ final Map<String, Set<_Permission>> _rolePermissions = {
     const _Permission(_Entity.systemUser, _Action.view),
   },
   'Viewer': {
-    const _Permission(_Entity.bank, _Action.view),
+    const _Permission(_Entity.organization, _Action.view),
     const _Permission(_Entity.branch, _Action.view),
     const _Permission(_Entity.agent, _Action.view),
     const _Permission(_Entity.client, _Action.view),
@@ -100,7 +100,7 @@ final Map<String, Set<_Permission>> _rolePermissions = {
 
 // Column groups for the header row
 const _entityColumns = <(_Entity, List<_Action>)>[
-  (_Entity.bank, [_Action.manage, _Action.view]),
+  (_Entity.organization, [_Action.manage, _Action.view]),
   (_Entity.branch, [_Action.manage, _Action.view]),
   (_Entity.agent, [_Action.create, _Action.manage, _Action.view]),
   (_Entity.client, [_Action.create, _Action.manage, _Action.view, _Action.reassign]),
@@ -113,7 +113,7 @@ const _entityColumns = <(_Entity, List<_Action>)>[
 // ─────────────────────────────────────────────────────────────────────────────
 
 String _entityLabel(_Entity e) => switch (e) {
-      _Entity.bank => 'Bank',
+      _Entity.organization => 'Organization',
       _Entity.branch => 'Branch',
       _Entity.agent => 'Agent',
       _Entity.client => 'Client',

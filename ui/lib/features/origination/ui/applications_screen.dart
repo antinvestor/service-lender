@@ -74,7 +74,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
   Widget build(BuildContext context) {
     final appsAsync = ref.watch(
         applicationListProvider(_query, statusFilter: _statusFilter));
-    final canCreate = ref.watch(canManageAgentsProvider).value ?? false;
+    final canCreate = ref.watch(canCreateApplicationsProvider).value ?? false;
 
     final items = appsAsync.value ?? [];
     return EntityListPage<ApplicationObject>(
@@ -90,7 +90,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
       onSearchChanged: _onSearchChanged,
       actionLabel: 'New Application',
       canAction: canCreate,
-      onAction: () => _showCreateDialog(context),
+      onAction: () => context.go('/origination/applications/new'),
       filterWidget: _buildStatusFilter(),
       itemBuilder: (context, app) => _ApplicationCard(
         app: app,
@@ -99,33 +99,6 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
     );
   }
 
-  void _showCreateDialog(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => ApplicationCreateDialog(
-        onSave: (app) async {
-          try {
-            await ref.read(applicationProvider.notifier).save(app);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Application created successfully')),
-              );
-            }
-          } catch (e) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Failed to create application: $e'),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
-              );
-            }
-          }
-        },
-      ),
-    );
-  }
 }
 
 class _ApplicationCard extends ConsumerWidget {
@@ -204,7 +177,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
   late final TextEditingController _clientIdCtrl;
   late final TextEditingController _agentIdCtrl;
   late final TextEditingController _branchIdCtrl;
-  late final TextEditingController _bankIdCtrl;
+  late final TextEditingController _organizationIdCtrl;
   late final TextEditingController _amountCtrl;
   late final TextEditingController _termCtrl;
   late final TextEditingController _currencyCtrl;
@@ -218,7 +191,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
     _clientIdCtrl = TextEditingController();
     _agentIdCtrl = TextEditingController();
     _branchIdCtrl = TextEditingController();
-    _bankIdCtrl = TextEditingController();
+    _organizationIdCtrl = TextEditingController();
     _amountCtrl = TextEditingController();
     _termCtrl = TextEditingController();
     _currencyCtrl = TextEditingController();
@@ -231,7 +204,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
     _clientIdCtrl.dispose();
     _agentIdCtrl.dispose();
     _branchIdCtrl.dispose();
-    _bankIdCtrl.dispose();
+    _organizationIdCtrl.dispose();
     _amountCtrl.dispose();
     _termCtrl.dispose();
     _currencyCtrl.dispose();
@@ -249,7 +222,7 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
       clientId: _clientIdCtrl.text.trim(),
       agentId: _agentIdCtrl.text.trim(),
       branchId: _branchIdCtrl.text.trim(),
-      bankId: _bankIdCtrl.text.trim(),
+      organizationId: _organizationIdCtrl.text.trim(),
       requestedAmount: moneyFromString(
           _amountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
       requestedTermDays: int.tryParse(_termCtrl.text.trim()) ?? 0,
@@ -314,11 +287,11 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _bankIdCtrl,
-                  decoration: const InputDecoration(labelText: 'Bank ID'),
+                  controller: _organizationIdCtrl,
+                  decoration: const InputDecoration(labelText: 'Organization ID'),
                   textInputAction: TextInputAction.next,
                   validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Bank ID is required'
+                      ? 'Organization ID is required'
                       : null,
                 ),
                 const SizedBox(height: 12),

@@ -11,6 +11,7 @@ import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../auth/data/auth_repository.dart';
 import '../data/loan_account_providers.dart';
 
 class LoanAccountsScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,23 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
   Timer? _debounce;
   String _query = '';
   LoanStatus? _statusFilter;
+  String _agentScope = '';
+  bool _scopeInitialized = false;
+
+  void _initAgentScope() {
+    if (_scopeInitialized) return;
+    _scopeInitialized = true;
+    final roles = ref.read(currentUserRolesProvider).value ?? <LenderRole>{};
+    final isAgentOnly = roles.contains(LenderRole.agent) &&
+        !roles.any((r) =>
+            r == LenderRole.owner ||
+            r == LenderRole.admin ||
+            r == LenderRole.manager);
+    if (isAgentOnly) {
+      _agentScope =
+          ref.read(currentProfileIdProvider).value ?? '';
+    }
+  }
 
   static const _filterableStatuses = [
     LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT,
@@ -56,8 +74,14 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _initAgentScope();
+
     final loansAsync = ref.watch(
-      loanAccountListProvider(query: _query, status: _statusFilter),
+      loanAccountListProvider(
+        query: _query,
+        status: _statusFilter,
+        agentId: _agentScope,
+      ),
     );
     final canManage = ref.watch(canManageLoansProvider).value ?? false;
 

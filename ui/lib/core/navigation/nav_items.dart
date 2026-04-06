@@ -125,11 +125,11 @@ List<NavItem> buildNavItems() => [
         requiredRoles: _viewRoles,
         children: [
           NavItem(
-            id: 'banks',
-            label: 'Banks & Branches',
+            id: 'organizations',
+            label: 'Organizations & Branches',
             icon: Icons.account_balance_outlined,
             activeIcon: Icons.account_balance,
-            route: '/organization/banks',
+            route: '/organization/organizations',
             requiredRoles: _viewRoles,
           ),
           NavItem(
@@ -234,6 +234,48 @@ List<NavItem> buildNavItems() => [
         ],
       ),
       NavItem(
+        id: 'savings',
+        label: 'Savings',
+        icon: Icons.savings_outlined,
+        activeIcon: Icons.savings,
+        requiredRoles: _allViewRoles,
+        children: [
+          NavItem(
+            id: 'savings_accounts',
+            label: 'Savings Accounts',
+            icon: Icons.account_balance_outlined,
+            activeIcon: Icons.account_balance,
+            route: '/savings',
+            requiredRoles: _allViewRoles,
+          ),
+        ],
+      ),
+      NavItem(
+        id: 'reports',
+        label: 'Reports',
+        icon: Icons.bar_chart_outlined,
+        activeIcon: Icons.bar_chart,
+        requiredRoles: _viewRoles,
+        children: [
+          NavItem(
+            id: 'portfolio_summary',
+            label: 'Portfolio Summary',
+            icon: Icons.pie_chart_outline,
+            activeIcon: Icons.pie_chart,
+            route: '/reports/portfolio',
+            requiredRoles: _viewRoles,
+          ),
+          NavItem(
+            id: 'loan_book',
+            label: 'Loan Book',
+            icon: Icons.menu_book_outlined,
+            activeIcon: Icons.menu_book,
+            route: '/reports/loan-book',
+            requiredRoles: _viewRoles,
+          ),
+        ],
+      ),
+      NavItem(
         id: 'operations',
         label: 'Operations',
         icon: Icons.sync_alt_outlined,
@@ -263,7 +305,7 @@ List<NavItem> buildNavItems() => [
         label: 'Administration',
         icon: Icons.admin_panel_settings_outlined,
         activeIcon: Icons.admin_panel_settings,
-        requiredRoles: _adminRoles,
+        requiredRoles: {..._adminRoles, LenderRole.auditor},
         children: [
           NavItem(
             id: 'system_users',

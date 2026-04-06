@@ -51,9 +51,9 @@ Future<bool> hasAnyRole(Ref ref, List<LenderRole> requiredRoles) async {
   return requiredRoles.any(roles.contains);
 }
 
-/// Whether the current user can manage banks/branches
+/// Whether the current user can manage organizations/branches
 @riverpod
-Future<bool> canManageBanks(Ref ref) async {
+Future<bool> canManageOrganizations(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any((r) => [LenderRole.owner, LenderRole.admin].contains(r));
 }
@@ -156,6 +156,39 @@ Future<bool> canManageLoans(Ref ref) async {
 /// Whether the current user can record repayments
 @riverpod
 Future<bool> canRecordRepayments(Ref ref) async {
+  final roles = await ref.watch(currentUserRolesProvider.future);
+  return roles.any(
+    (r) => [
+      LenderRole.owner,
+      LenderRole.admin,
+      LenderRole.manager,
+    ].contains(r),
+  );
+}
+
+/// Whether the current user can manage system users
+@riverpod
+Future<bool> canManageSystemUsers(Ref ref) async {
+  final roles = await ref.watch(currentUserRolesProvider.future);
+  return roles.any((r) => [LenderRole.owner, LenderRole.admin].contains(r));
+}
+
+/// Whether the current user can manage penalties
+@riverpod
+Future<bool> canManagePenalties(Ref ref) async {
+  final roles = await ref.watch(currentUserRolesProvider.future);
+  return roles.any(
+    (r) => [
+      LenderRole.owner,
+      LenderRole.admin,
+      LenderRole.manager,
+    ].contains(r),
+  );
+}
+
+/// Whether the current user can manage loan restructuring
+@riverpod
+Future<bool> canManageRestructuring(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
     (r) => [

@@ -26,7 +26,7 @@ export 'origination.pbenum.dart';
 class LoanProductObject extends $pb.GeneratedMessage {
   factory LoanProductObject({
     $core.String? id,
-    $core.String? bankId,
+    $core.String? organizationId,
     $core.String? name,
     $core.String? code,
     $core.String? description,
@@ -54,8 +54,8 @@ class LoanProductObject extends $pb.GeneratedMessage {
     if (id != null) {
       $result.id = id;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (name != null) {
       $result.name = name;
@@ -131,7 +131,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..aOS(2, _omitFieldNames ? '' : 'bankId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOS(3, _omitFieldNames ? '' : 'name')
     ..aOS(4, _omitFieldNames ? '' : 'code')
     ..aOS(5, _omitFieldNames ? '' : 'description')
@@ -188,13 +188,13 @@ class LoanProductObject extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get bankId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set bankId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBankId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBankId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get name => $_getSZ(2);
@@ -409,7 +409,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
     $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
-    $core.String? bankId,
+    $core.String? organizationId,
     ApplicationStatus? status,
     $9.Money? requestedAmount,
     $9.Money? approvedAmount,
@@ -442,8 +442,8 @@ class ApplicationObject extends $pb.GeneratedMessage {
     if (branchId != null) {
       $result.branchId = branchId;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (status != null) {
       $result.status = status;
@@ -502,7 +502,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
     ..aOS(3, _omitFieldNames ? '' : 'clientId')
     ..aOS(4, _omitFieldNames ? '' : 'agentId')
     ..aOS(5, _omitFieldNames ? '' : 'branchId')
-    ..aOS(6, _omitFieldNames ? '' : 'bankId')
+    ..aOS(6, _omitFieldNames ? '' : 'organizationId')
     ..e<ApplicationStatus>(7, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED, valueOf: ApplicationStatus.valueOf, enumValues: ApplicationStatus.values)
     ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'requestedAmount', subBuilder: $9.Money.create)
     ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'approvedAmount', subBuilder: $9.Money.create)
@@ -588,13 +588,13 @@ class ApplicationObject extends $pb.GeneratedMessage {
   void clearBranchId() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.String get bankId => $_getSZ(5);
+  $core.String get organizationId => $_getSZ(5);
   @$pb.TagNumber(6)
-  set bankId($core.String v) { $_setString(5, v); }
+  set organizationId($core.String v) { $_setString(5, v); }
   @$pb.TagNumber(6)
-  $core.bool hasBankId() => $_has(5);
+  $core.bool hasOrganizationId() => $_has(5);
   @$pb.TagNumber(6)
-  void clearBankId() => clearField(6);
+  void clearOrganizationId() => clearField(6);
 
   @$pb.TagNumber(7)
   ApplicationStatus get status => $_getN(6);
@@ -1552,7 +1552,7 @@ class LoanProductGetResponse extends $pb.GeneratedMessage {
 class LoanProductSearchRequest extends $pb.GeneratedMessage {
   factory LoanProductSearchRequest({
     $core.String? query,
-    $core.String? bankId,
+    $core.String? organizationId,
     LoanProductType? productType,
     $7.PageCursor? cursor,
   }) {
@@ -1560,8 +1560,8 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
     if (query != null) {
       $result.query = query;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (productType != null) {
       $result.productType = productType;
@@ -1577,7 +1577,7 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
-    ..aOS(2, _omitFieldNames ? '' : 'bankId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanProductType>(3, _omitFieldNames ? '' : 'productType', $pb.PbFieldType.OE, defaultOrMaker: LoanProductType.LOAN_PRODUCT_TYPE_UNSPECIFIED, valueOf: LoanProductType.valueOf, enumValues: LoanProductType.values)
     ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
     ..hasRequiredFields = false
@@ -1614,13 +1614,13 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
   void clearQuery() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get bankId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set bankId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBankId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBankId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   LoanProductType get productType => $_getN(2);
@@ -1899,7 +1899,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
     $core.String? clientId,
     $core.String? agentId,
     $core.String? branchId,
-    $core.String? bankId,
+    $core.String? organizationId,
     ApplicationStatus? status,
     $7.PageCursor? cursor,
   }) {
@@ -1916,8 +1916,8 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
     if (branchId != null) {
       $result.branchId = branchId;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (status != null) {
       $result.status = status;
@@ -1936,7 +1936,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'clientId')
     ..aOS(3, _omitFieldNames ? '' : 'agentId')
     ..aOS(4, _omitFieldNames ? '' : 'branchId')
-    ..aOS(5, _omitFieldNames ? '' : 'bankId')
+    ..aOS(5, _omitFieldNames ? '' : 'organizationId')
     ..e<ApplicationStatus>(6, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED, valueOf: ApplicationStatus.valueOf, enumValues: ApplicationStatus.values)
     ..aOM<$7.PageCursor>(7, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
     ..hasRequiredFields = false
@@ -2000,13 +2000,13 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   void clearBranchId() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get bankId => $_getSZ(4);
+  $core.String get organizationId => $_getSZ(4);
   @$pb.TagNumber(5)
-  set bankId($core.String v) { $_setString(4, v); }
+  set organizationId($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasBankId() => $_has(4);
+  $core.bool hasOrganizationId() => $_has(4);
   @$pb.TagNumber(5)
-  void clearBankId() => clearField(5);
+  void clearOrganizationId() => clearField(5);
 
   @$pb.TagNumber(6)
   ApplicationStatus get status => $_getN(5);

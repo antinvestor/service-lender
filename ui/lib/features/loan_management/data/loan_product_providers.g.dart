@@ -107,6 +107,83 @@ abstract class _$LoanProductList
   }
 }
 
+@ProviderFor(loanProductDetail)
+final loanProductDetailProvider = LoanProductDetailFamily._();
+
+final class LoanProductDetailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<LoanProductObject>,
+          LoanProductObject,
+          FutureOr<LoanProductObject>
+        >
+    with
+        $FutureModifier<LoanProductObject>,
+        $FutureProvider<LoanProductObject> {
+  LoanProductDetailProvider._({
+    required LoanProductDetailFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'loanProductDetailProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$loanProductDetailHash();
+
+  @override
+  String toString() {
+    return r'loanProductDetailProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<LoanProductObject> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<LoanProductObject> create(Ref ref) {
+    final argument = this.argument as String;
+    return loanProductDetail(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LoanProductDetailProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$loanProductDetailHash() => r'b42ba8be829fa24efad1c865c864d505a13accc0';
+
+final class LoanProductDetailFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<LoanProductObject>, String> {
+  LoanProductDetailFamily._()
+    : super(
+        retry: null,
+        name: r'loanProductDetailProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  LoanProductDetailProvider call(String productId) =>
+      LoanProductDetailProvider._(argument: productId, from: this);
+
+  @override
+  String toString() => r'loanProductDetailProvider';
+}
+
 @ProviderFor(LoanProductNotifier)
 final loanProductProvider = LoanProductNotifierProvider._();
 

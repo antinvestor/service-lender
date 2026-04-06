@@ -8,19 +8,19 @@ import "identity.pb.dart" as identityv1identity;
 import "identity.connect.spec.dart" as specs;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages banks, branches, and system users for the lending platform.
+/// IdentityService manages organizations, branches, and system users for the platform.
 /// All RPCs require authentication via Bearer token.
 extension type IdentityServiceClient (connect.Transport _transport) {
-  /// BankSave creates or updates a bank record.
-  Future<identityv1identity.BankSaveResponse> bankSave(
-    identityv1identity.BankSaveRequest input, {
+  /// OrganizationSave creates or updates an organization record.
+  Future<identityv1identity.OrganizationSaveResponse> organizationSave(
+    identityv1identity.OrganizationSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.IdentityService.bankSave,
+      specs.IdentityService.organizationSave,
       input,
       signal: signal,
       headers: headers,
@@ -29,16 +29,16 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BankGet retrieves a bank by its ID.
-  Future<identityv1identity.BankGetResponse> bankGet(
-    identityv1identity.BankGetRequest input, {
+  /// OrganizationGet retrieves an organization by its ID.
+  Future<identityv1identity.OrganizationGetResponse> organizationGet(
+    identityv1identity.OrganizationGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.IdentityService.bankGet,
+      specs.IdentityService.organizationGet,
       input,
       signal: signal,
       headers: headers,
@@ -47,8 +47,8 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BankSearch finds banks matching search criteria.
-  Stream<identityv1identity.BankSearchResponse> bankSearch(
+  /// OrganizationSearch finds organizations matching search criteria.
+  Stream<identityv1identity.OrganizationSearchResponse> organizationSearch(
     commonv1common.SearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -56,7 +56,7 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).server(
-      specs.IdentityService.bankSearch,
+      specs.IdentityService.organizationSearch,
       input,
       signal: signal,
       headers: headers,

@@ -5,12 +5,12 @@ import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 
-part 'bank_providers.g.dart';
+part 'organization_providers.g.dart';
 
 @riverpod
-class BankList extends _$BankList {
+class OrganizationList extends _$OrganizationList {
   @override
-  Future<List<BankObject>> build(String query) async {
+  Future<List<OrganizationObject>> build(String query) async {
     final client = ref.watch(identityServiceClientProvider);
     final request = SearchRequest(
       query: query,
@@ -18,25 +18,26 @@ class BankList extends _$BankList {
     );
 
     return collectStream(
-      client.bankSearch(request),
+      client.organizationSearch(request),
       extract: (response) => response.data,
     );
   }
 }
 
 @riverpod
-class BankNotifier extends _$BankNotifier {
+class OrganizationNotifier extends _$OrganizationNotifier {
   @override
   FutureOr<void> build() {
     // no-op
   }
 
-  Future<BankObject> save(BankObject bank) async {
+  Future<OrganizationObject> save(OrganizationObject organization) async {
     final client = ref.read(identityServiceClientProvider);
-    final response = await client.bankSave(BankSaveRequest(data: bank));
+    final response =
+        await client.organizationSave(OrganizationSaveRequest(data: organization));
 
-    // Invalidate all bank list queries so they re-fetch.
-    ref.invalidate(bankListProvider);
+    // Invalidate all organization list queries so they re-fetch.
+    ref.invalidate(organizationListProvider);
 
     return response.data;
   }

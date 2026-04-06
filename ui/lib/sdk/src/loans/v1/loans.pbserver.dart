@@ -45,6 +45,8 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
   $async.Future<$12.InitiateCollectionResponse> initiateCollection($pb.ServerContext ctx, $12.InitiateCollectionRequest request);
   $async.Future<$12.LoanStatusChangeSearchResponse> loanStatusChangeSearch($pb.ServerContext ctx, $12.LoanStatusChangeSearchRequest request);
   $async.Future<$12.LoanRequestResponse> loanRequest($pb.ServerContext ctx, $12.LoanRequestRequest request);
+  $async.Future<$12.PortfolioSummaryResponse> portfolioSummary($pb.ServerContext ctx, $12.PortfolioSummaryRequest request);
+  $async.Future<$12.PortfolioExportResponse> portfolioExport($pb.ServerContext ctx, $12.PortfolioExportRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -72,6 +74,8 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
       case 'InitiateCollection': return $12.InitiateCollectionRequest();
       case 'LoanStatusChangeSearch': return $12.LoanStatusChangeSearchRequest();
       case 'LoanRequest': return $12.LoanRequestRequest();
+      case 'PortfolioSummary': return $12.PortfolioSummaryRequest();
+      case 'PortfolioExport': return $12.PortfolioExportRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -102,6 +106,8 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
       case 'InitiateCollection': return this.initiateCollection(ctx, request as $12.InitiateCollectionRequest);
       case 'LoanStatusChangeSearch': return this.loanStatusChangeSearch(ctx, request as $12.LoanStatusChangeSearchRequest);
       case 'LoanRequest': return this.loanRequest(ctx, request as $12.LoanRequestRequest);
+      case 'PortfolioSummary': return this.portfolioSummary(ctx, request as $12.PortfolioSummaryRequest);
+      case 'PortfolioExport': return this.portfolioExport(ctx, request as $12.PortfolioExportRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/auth/role_guard.dart';
+import '../../../core/auth/role_provider.dart';
 import '../../../core/theme/design_tokens.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/loan_status_badge.dart';
@@ -26,7 +28,23 @@ class ClientDetailScreen extends ConsumerWidget {
 
     return clientsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 48),
+            const SizedBox(height: 16),
+            Text('Error: $e'),
+            const SizedBox(height: 16),
+            FilledButton.tonal(
+              onPressed: () => ref.invalidate(
+                clientListProvider(query: '', agentId: ''),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
       data: (clients) {
         final client =
             clients.where((c) => c.id == clientId).firstOrNull;
@@ -60,6 +78,16 @@ class _ClientDetailContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final properties =
+        client.hasProperties() ? client.properties.fields : null;
+
+    // Extract KYC fields for completeness calculation
+    final kycFields = _extractKycFields(properties);
+    final totalFields = kycFields.length;
+    final filledFields =
+        kycFields.values.where((v) => v.isNotEmpty).length;
+    final completeness =
+        totalFields > 0 ? filledFields / totalFields : 0.0;
 
     return DefaultTabController(
       length: 3,
@@ -77,14 +105,14 @@ class _ClientDetailContent extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 CircleAvatar(
-                  radius: 24,
+                  radius: 28,
                   backgroundColor: theme.colorScheme.primaryContainer,
                   child: Text(
                     client.name.isNotEmpty
                         ? client.name[0].toUpperCase()
                         : '?',
                     style: GoogleFonts.manrope(
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: theme.colorScheme.primary,
                     ),
@@ -101,11 +129,34 @@ class _ClientDetailContent extends ConsumerWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      Text(
-                        'ID: ${_shortId(client.id)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                      Row(
+                        children: [
+                          if (properties != null &&
+                              properties.containsKey('phone'))
+                            Text(
+                              properties['phone']!.stringValue,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color:
+                                    theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          if (properties != null &&
+                              properties.containsKey('phone'))
+                            Text(
+                              ' \u2022 ',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color:
+                                    theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          Text(
+                            'ID: ${_shortId(client.id)}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -115,7 +166,43 @@ class _ClientDetailContent extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          // KYC completeness bar
+          if (totalFields > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: _KycCompletenessBar(
+                completeness: completeness,
+                filled: filledFields,
+                total: totalFields,
+              ),
+            ),
+
+          // Action buttons
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+            child: Row(
+              children: [
+                RoleGuard(
+                  requiredRoles: const {
+                    LenderRole.owner,
+                    LenderRole.admin,
+                    LenderRole.manager,
+                    LenderRole.agent,
+                  },
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      // Navigate to application creation with client pre-selected
+                      context.go('/origination/applications');
+                    },
+                    icon: const Icon(Icons.description_outlined, size: 18),
+                    label: const Text('New Application'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
 
           // Tabs
           TabBar(
@@ -133,7 +220,7 @@ class _ClientDetailContent extends ConsumerWidget {
           Expanded(
             child: TabBarView(
               children: [
-                _ProfileTab(client: client),
+                _ProfileTab(client: client, kycFields: kycFields),
                 _ApplicationsTab(clientId: client.id),
                 _LoansTab(clientId: client.id),
               ],
@@ -146,77 +233,296 @@ class _ClientDetailContent extends ConsumerWidget {
 
   String _shortId(String id) =>
       id.length > 12 ? '${id.substring(0, 12)}...' : id;
+
+  /// Extract KYC-relevant fields from client properties.
+  Map<String, String> _extractKycFields(
+      Map<String, dynamic>? properties) {
+    if (properties == null) return {};
+    final result = <String, String>{};
+    for (final entry in properties.entries) {
+      final v = entry.value;
+      String strVal = '';
+      if (v.hasStringValue()) {
+        strVal = v.stringValue;
+      } else if (v.hasNumberValue()) {
+        strVal = v.numberValue.toString();
+      } else if (v.hasBoolValue()) {
+        strVal = v.boolValue ? 'Yes' : 'No';
+      }
+      result[entry.key] = strVal;
+    }
+    return result;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Profile Tab
+// KYC Completeness Bar
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _ProfileTab extends StatelessWidget {
-  const _ProfileTab({required this.client});
-  final ClientObject client;
+class _KycCompletenessBar extends StatelessWidget {
+  const _KycCompletenessBar({
+    required this.completeness,
+    required this.filled,
+    required this.total,
+  });
+
+  final double completeness;
+  final int filled;
+  final int total;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final properties = client.hasProperties() ? client.properties : null;
+    final color = completeness >= 0.8
+        ? Colors.green
+        : completeness >= 0.5
+            ? Colors.orange
+            : Colors.red;
+
+    return Card(
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  completeness >= 0.8
+                      ? Icons.check_circle
+                      : Icons.info_outline,
+                  size: 18,
+                  color: color,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'KYC Completeness',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$filled / $total fields',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: completeness,
+                backgroundColor: color.withAlpha(30),
+                valueColor: AlwaysStoppedAnimation(color),
+                minHeight: 6,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile Tab — structured property display
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ProfileTab extends StatelessWidget {
+  const _ProfileTab({required this.client, required this.kycFields});
+  final ClientObject client;
+  final Map<String, String> kycFields;
+
+  /// Known field groupings for display organization.
+  static const _personalFields = [
+    'name',
+    'full_name',
+    'first_name',
+    'last_name',
+    'date_of_birth',
+    'dob',
+    'gender',
+    'id_type',
+    'id_number',
+    'national_id',
+  ];
+
+  static const _contactFields = [
+    'phone',
+    'phone_number',
+    'email',
+    'address',
+    'physical_address',
+    'county',
+    'district',
+    'sub_county',
+    'landmark',
+  ];
+
+  static const _financialFields = [
+    'employment_status',
+    'employer',
+    'business_type',
+    'monthly_income',
+    'income',
+    'next_of_kin',
+    'next_of_kin_phone',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    // Group fields by category
+    final personal = <String, String>{};
+    final contact = <String, String>{};
+    final financial = <String, String>{};
+    final other = <String, String>{};
+
+    for (final entry in kycFields.entries) {
+      final key = entry.key.toLowerCase();
+      if (_personalFields.any((f) => key.contains(f))) {
+        personal[entry.key] = entry.value;
+      } else if (_contactFields.any((f) => key.contains(f))) {
+        contact[entry.key] = entry.value;
+      } else if (_financialFields.any((f) => key.contains(f))) {
+        financial[entry.key] = entry.value;
+      } else {
+        other[entry.key] = entry.value;
+      }
+    }
 
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        // Info card
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Client Information',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 16),
-                _InfoRow(label: 'Name', value: client.name),
-                _InfoRow(label: 'Client ID', value: client.id),
-                _InfoRow(label: 'Profile ID', value: client.profileId),
-                _InfoRow(label: 'Agent ID', value: client.agentId),
-                _InfoRow(label: 'State', value: client.state.name),
-              ],
-            ),
-          ),
+        // Core client info
+        _SectionCard(
+          title: 'Client Information',
+          fields: {
+            'Name': client.name,
+            'Client ID': client.id,
+            'Profile ID': client.profileId,
+            'Agent ID': client.agentId,
+            'State': client.state.name,
+          },
         ),
 
-        if (properties != null && properties.fields.isNotEmpty) ...[
+        if (personal.isNotEmpty) ...[
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Additional Properties',
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 16),
-                  for (final entry in properties.fields.entries)
-                    _InfoRow(
-                      label: entry.key,
-                      value: _valueToString(entry.value),
-                    ),
-                ],
-              ),
-            ),
+          _SectionCard(
+            title: 'Personal Information',
+            fields: personal.map(
+                (k, v) => MapEntry(_humanizeKey(k), v)),
+          ),
+        ],
+
+        if (contact.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _SectionCard(
+            title: 'Contact & Address',
+            fields: contact.map(
+                (k, v) => MapEntry(_humanizeKey(k), v)),
+          ),
+        ],
+
+        if (financial.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _SectionCard(
+            title: 'Financial Information',
+            fields: financial.map(
+                (k, v) => MapEntry(_humanizeKey(k), v)),
+          ),
+        ],
+
+        if (other.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _SectionCard(
+            title: 'Additional Properties',
+            fields: other.map(
+                (k, v) => MapEntry(_humanizeKey(k), v)),
           ),
         ],
       ],
     );
   }
 
-  String _valueToString(dynamic value) {
-    if (value == null) return '—';
-    if (value.hasStringValue()) return value.stringValue;
-    if (value.hasNumberValue()) return value.numberValue.toString();
-    if (value.hasBoolValue()) return value.boolValue ? 'Yes' : 'No';
-    return value.toString();
+  String _humanizeKey(String key) {
+    return key
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w.isNotEmpty
+            ? '${w[0].toUpperCase()}${w.substring(1)}'
+            : '')
+        .join(' ');
+  }
+}
+
+class _SectionCard extends StatelessWidget {
+  const _SectionCard({required this.title, required this.fields});
+  final String title;
+  final Map<String, String> fields;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            for (final entry in fields.entries)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            margin: const EdgeInsets.only(top: 6, right: 8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: entry.value.isNotEmpty
+                                  ? Colors.green
+                                  : Colors.red.withAlpha(150),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              entry.key,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        entry.value.isNotEmpty ? entry.value : '\u2014',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -231,27 +537,48 @@ class _ApplicationsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final appsAsync = ref.watch(applicationListProvider(''));
+    final appsAsync = ref.watch(
+        applicationListProvider('', clientId: clientId));
 
     return appsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Error: $e'),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: () => ref.invalidate(
+                  applicationListProvider('', clientId: clientId)),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
       data: (apps) {
-        final clientApps =
-            apps.where((a) => a.clientId == clientId).toList();
-        if (clientApps.isEmpty) {
+        if (apps.isEmpty) {
           return Center(
-            child: Text('No applications found',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.description_outlined,
+                    size: 48,
+                    color: theme.colorScheme.onSurface.withAlpha(100)),
+                const SizedBox(height: 16),
+                Text('No applications found',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant)),
+              ],
+            ),
           );
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
-          itemCount: clientApps.length,
+          itemCount: apps.length,
           separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final app = clientApps[index];
+            final app = apps[index];
             return Card(
               child: InkWell(
                 onTap: () =>
@@ -283,7 +610,7 @@ class _ApplicationsTab extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Product: ${app.productId.isNotEmpty ? app.productId.substring(0, app.productId.length.clamp(0, 8)) : "—"}',
+                              'Product: ${app.productId.isNotEmpty ? app.productId.substring(0, app.productId.length.clamp(0, 8)) : "\u2014"}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color:
                                     theme.colorScheme.onSurfaceVariant,
@@ -329,28 +656,48 @@ class _LoansTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final loansAsync =
-        ref.watch(loanAccountListProvider(query: ''));
+    final loansAsync = ref.watch(
+        loanAccountListProvider(query: '', clientId: clientId));
 
     return loansAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Error: $e'),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: () => ref.invalidate(
+                  loanAccountListProvider(query: '', clientId: clientId)),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
       data: (loans) {
-        final clientLoans =
-            loans.where((l) => l.clientId == clientId).toList();
-        if (clientLoans.isEmpty) {
+        if (loans.isEmpty) {
           return Center(
-            child: Text('No loan accounts found',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.credit_score_outlined,
+                    size: 48,
+                    color: theme.colorScheme.onSurface.withAlpha(100)),
+                const SizedBox(height: 16),
+                Text('No loan accounts found',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant)),
+              ],
+            ),
           );
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
-          itemCount: clientLoans.length,
+          itemCount: loans.length,
           separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final loan = clientLoans[index];
+            final loan = loans[index];
             return Card(
               child: InkWell(
                 onTap: () => context.go('/loans/${loan.id}'),
@@ -418,44 +765,5 @@ class _LoansTab extends ConsumerWidget {
       LoanStatus.LOAN_STATUS_PAID_OFF => Colors.teal,
       _ => Colors.orange,
     };
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Info Row
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.isNotEmpty ? value : '—',
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

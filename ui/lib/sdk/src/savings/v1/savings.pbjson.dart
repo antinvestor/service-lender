@@ -134,7 +134,7 @@ const SavingsProductObject$json = {
   '1': 'SavingsProductObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {'1': 'bank_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'bankId'},
+    {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
     {'1': 'name', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'name'},
     {'1': 'code', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'code'},
     {'1': 'description', '3': 5, '4': 1, '5': 9, '10': 'description'},
@@ -153,18 +153,18 @@ const SavingsProductObject$json = {
 /// Descriptor for `SavingsProductObject`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List savingsProductObjectDescriptor = $convert.base64Decode(
     'ChRTYXZpbmdzUHJvZHVjdE9iamVjdBIuCgJpZBgBIAEoCUIeukgb2AEBchYQAxgoMhBbMC05YS'
-    '16Xy1dezMsNDB9UgJpZBIiCgdiYW5rX2lkGAIgASgJQgm6SAZyBBADGChSBmJhbmtJZBIbCgRu'
-    'YW1lGAMgASgJQge6SARyAhABUgRuYW1lEhsKBGNvZGUYBCABKAlCB7pIBHICEAFSBGNvZGUSIA'
-    'oLZGVzY3JpcHRpb24YBSABKAlSC2Rlc2NyaXB0aW9uEi0KDWN1cnJlbmN5X2NvZGUYBiABKAlC'
-    'CLpIBXIDmAEDUgxjdXJyZW5jeUNvZGUSIwoNaW50ZXJlc3RfcmF0ZRgHIAEoCVIMaW50ZXJlc3'
-    'RSYXRlElUKFWNvbXBvdW5kaW5nX2ZyZXF1ZW5jeRgIIAEoDjIgLnNhdmluZ3MudjEuQ29tcG91'
-    'bmRpbmdGcmVxdWVuY3lSFGNvbXBvdW5kaW5nRnJlcXVlbmN5Ej4KC3BlcmlvZF90eXBlGAkgAS'
-    'gOMh0uc2F2aW5ncy52MS5TYXZpbmdzUGVyaW9kVHlwZVIKcGVyaW9kVHlwZRIzCgttaW5fZGVw'
-    'b3NpdBgKIAEoCzISLmdvb2dsZS50eXBlLk1vbmV5UgptaW5EZXBvc2l0EjMKC21heF9kZXBvc2'
-    'l0GAsgASgLMhIuZ29vZ2xlLnR5cGUuTW9uZXlSCm1heERlcG9zaXQSQgoQd2l0aGRyYXdhbF9y'
-    'dWxlcxgMIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3RSD3dpdGhkcmF3YWxSdWxlcxImCg'
-    'VzdGF0ZRgNIAEoDjIQLmNvbW1vbi52MS5TVEFURVIFc3RhdGUSNwoKcHJvcGVydGllcxgOIAEo'
-    'CzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3RSCnByb3BlcnRpZXM=');
+    '16Xy1dezMsNDB9UgJpZBIyCg9vcmdhbml6YXRpb25faWQYAiABKAlCCbpIBnIEEAMYKFIOb3Jn'
+    'YW5pemF0aW9uSWQSGwoEbmFtZRgDIAEoCUIHukgEcgIQAVIEbmFtZRIbCgRjb2RlGAQgASgJQg'
+    'e6SARyAhABUgRjb2RlEiAKC2Rlc2NyaXB0aW9uGAUgASgJUgtkZXNjcmlwdGlvbhItCg1jdXJy'
+    'ZW5jeV9jb2RlGAYgASgJQgi6SAVyA5gBA1IMY3VycmVuY3lDb2RlEiMKDWludGVyZXN0X3JhdG'
+    'UYByABKAlSDGludGVyZXN0UmF0ZRJVChVjb21wb3VuZGluZ19mcmVxdWVuY3kYCCABKA4yIC5z'
+    'YXZpbmdzLnYxLkNvbXBvdW5kaW5nRnJlcXVlbmN5UhRjb21wb3VuZGluZ0ZyZXF1ZW5jeRI+Cg'
+    'twZXJpb2RfdHlwZRgJIAEoDjIdLnNhdmluZ3MudjEuU2F2aW5nc1BlcmlvZFR5cGVSCnBlcmlv'
+    'ZFR5cGUSMwoLbWluX2RlcG9zaXQYCiABKAsyEi5nb29nbGUudHlwZS5Nb25leVIKbWluRGVwb3'
+    'NpdBIzCgttYXhfZGVwb3NpdBgLIAEoCzISLmdvb2dsZS50eXBlLk1vbmV5UgptYXhEZXBvc2l0'
+    'EkIKEHdpdGhkcmF3YWxfcnVsZXMYDCABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ug93aX'
+    'RoZHJhd2FsUnVsZXMSJgoFc3RhdGUYDSABKA4yEC5jb21tb24udjEuU1RBVEVSBXN0YXRlEjcK'
+    'CnByb3BlcnRpZXMYDiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ugpwcm9wZXJ0aWVz');
 
 @$core.Deprecated('Use savingsAccountObjectDescriptor instead')
 const SavingsAccountObject$json = {
@@ -174,7 +174,7 @@ const SavingsAccountObject$json = {
     {'1': 'product_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'productId'},
     {'1': 'owner_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'ownerId'},
     {'1': 'owner_type', '3': 4, '4': 1, '5': 14, '6': '.savings.v1.SavingsAccountOwnerType', '10': 'ownerType'},
-    {'1': 'bank_id', '3': 5, '4': 1, '5': 9, '8': {}, '10': 'bankId'},
+    {'1': 'organization_id', '3': 5, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
     {'1': 'branch_id', '3': 6, '4': 1, '5': 9, '8': {}, '10': 'branchId'},
     {'1': 'agent_id', '3': 7, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
     {'1': 'currency_code', '3': 8, '4': 1, '5': 9, '8': {}, '10': 'currencyCode'},
@@ -190,14 +190,14 @@ final $typed_data.Uint8List savingsAccountObjectDescriptor = $convert.base64Deco
     'ChRTYXZpbmdzQWNjb3VudE9iamVjdBIuCgJpZBgBIAEoCUIeukgb2AEBchYQAxgoMhBbMC05YS'
     '16Xy1dezMsNDB9UgJpZBIoCgpwcm9kdWN0X2lkGAIgASgJQgm6SAZyBBADGChSCXByb2R1Y3RJ'
     'ZBIkCghvd25lcl9pZBgDIAEoCUIJukgGcgQQAxgoUgdvd25lcklkEkIKCm93bmVyX3R5cGUYBC'
-    'ABKA4yIy5zYXZpbmdzLnYxLlNhdmluZ3NBY2NvdW50T3duZXJUeXBlUglvd25lclR5cGUSIgoH'
-    'YmFua19pZBgFIAEoCUIJukgGcgQQAxgoUgZiYW5rSWQSKQoJYnJhbmNoX2lkGAYgASgJQgy6SA'
-    'nYAQFyBBADGChSCGJyYW5jaElkEicKCGFnZW50X2lkGAcgASgJQgy6SAnYAQFyBBADGChSB2Fn'
-    'ZW50SWQSLQoNY3VycmVuY3lfY29kZRgIIAEoCUIIukgFcgOYAQNSDGN1cnJlbmN5Q29kZRI4Cg'
-    'ZzdGF0dXMYCSABKA4yIC5zYXZpbmdzLnYxLlNhdmluZ3NBY2NvdW50U3RhdHVzUgZzdGF0dXMS'
-    'KgoRbGVkZ2VyX2FjY291bnRfaWQYCiABKAlSD2xlZGdlckFjY291bnRJZBIuChNwYXltZW50X2'
-    'FjY291bnRfcmVmGAsgASgJUhFwYXltZW50QWNjb3VudFJlZhI3Cgpwcm9wZXJ0aWVzGAwgASgL'
-    'MhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJvcGVydGllcw==');
+    'ABKA4yIy5zYXZpbmdzLnYxLlNhdmluZ3NBY2NvdW50T3duZXJUeXBlUglvd25lclR5cGUSMgoP'
+    'b3JnYW5pemF0aW9uX2lkGAUgASgJQgm6SAZyBBADGChSDm9yZ2FuaXphdGlvbklkEikKCWJyYW'
+    '5jaF9pZBgGIAEoCUIMukgJ2AEBcgQQAxgoUghicmFuY2hJZBInCghhZ2VudF9pZBgHIAEoCUIM'
+    'ukgJ2AEBcgQQAxgoUgdhZ2VudElkEi0KDWN1cnJlbmN5X2NvZGUYCCABKAlCCLpIBXIDmAEDUg'
+    'xjdXJyZW5jeUNvZGUSOAoGc3RhdHVzGAkgASgOMiAuc2F2aW5ncy52MS5TYXZpbmdzQWNjb3Vu'
+    'dFN0YXR1c1IGc3RhdHVzEioKEWxlZGdlcl9hY2NvdW50X2lkGAogASgJUg9sZWRnZXJBY2NvdW'
+    '50SWQSLgoTcGF5bWVudF9hY2NvdW50X3JlZhgLIAEoCVIRcGF5bWVudEFjY291bnRSZWYSNwoK'
+    'cHJvcGVydGllcxgMIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3RSCnByb3BlcnRpZXM=');
 
 @$core.Deprecated('Use depositObjectDescriptor instead')
 const DepositObject$json = {
@@ -393,16 +393,16 @@ const SavingsProductSearchRequest$json = {
   '1': 'SavingsProductSearchRequest',
   '2': [
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
-    {'1': 'bank_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'bankId'},
+    {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
     {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
 };
 
 /// Descriptor for `SavingsProductSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List savingsProductSearchRequestDescriptor = $convert.base64Decode(
-    'ChtTYXZpbmdzUHJvZHVjdFNlYXJjaFJlcXVlc3QSFAoFcXVlcnkYASABKAlSBXF1ZXJ5EiUKB2'
-    'JhbmtfaWQYAiABKAlCDLpICdgBAXIEEAMYKFIGYmFua0lkEi0KBmN1cnNvchgDIAEoCzIVLmNv'
-    'bW1vbi52MS5QYWdlQ3Vyc29yUgZjdXJzb3I=');
+    'ChtTYXZpbmdzUHJvZHVjdFNlYXJjaFJlcXVlc3QSFAoFcXVlcnkYASABKAlSBXF1ZXJ5EjUKD2'
+    '9yZ2FuaXphdGlvbl9pZBgCIAEoCUIMukgJ2AEBcgQQAxgoUg5vcmdhbml6YXRpb25JZBItCgZj'
+    'dXJzb3IYAyABKAsyFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
 
 @$core.Deprecated('Use savingsProductSearchResponseDescriptor instead')
 const SavingsProductSearchResponse$json = {
@@ -476,7 +476,7 @@ const SavingsAccountSearchRequest$json = {
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
     {'1': 'owner_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'ownerId'},
     {'1': 'product_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'productId'},
-    {'1': 'bank_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'bankId'},
+    {'1': 'organization_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
     {'1': 'status', '3': 5, '4': 1, '5': 14, '6': '.savings.v1.SavingsAccountStatus', '10': 'status'},
     {'1': 'cursor', '3': 6, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
@@ -486,10 +486,10 @@ const SavingsAccountSearchRequest$json = {
 final $typed_data.Uint8List savingsAccountSearchRequestDescriptor = $convert.base64Decode(
     'ChtTYXZpbmdzQWNjb3VudFNlYXJjaFJlcXVlc3QSFAoFcXVlcnkYASABKAlSBXF1ZXJ5EicKCG'
     '93bmVyX2lkGAIgASgJQgy6SAnYAQFyBBADGChSB293bmVySWQSKwoKcHJvZHVjdF9pZBgDIAEo'
-    'CUIMukgJ2AEBcgQQAxgoUglwcm9kdWN0SWQSJQoHYmFua19pZBgEIAEoCUIMukgJ2AEBcgQQAx'
-    'goUgZiYW5rSWQSOAoGc3RhdHVzGAUgASgOMiAuc2F2aW5ncy52MS5TYXZpbmdzQWNjb3VudFN0'
-    'YXR1c1IGc3RhdHVzEi0KBmN1cnNvchgGIAEoCzIVLmNvbW1vbi52MS5QYWdlQ3Vyc29yUgZjdX'
-    'Jzb3I=');
+    'CUIMukgJ2AEBcgQQAxgoUglwcm9kdWN0SWQSNQoPb3JnYW5pemF0aW9uX2lkGAQgASgJQgy6SA'
+    'nYAQFyBBADGChSDm9yZ2FuaXphdGlvbklkEjgKBnN0YXR1cxgFIAEoDjIgLnNhdmluZ3MudjEu'
+    'U2F2aW5nc0FjY291bnRTdGF0dXNSBnN0YXR1cxItCgZjdXJzb3IYBiABKAsyFS5jb21tb24udj'
+    'EuUGFnZUN1cnNvclIGY3Vyc29y');
 
 @$core.Deprecated('Use savingsAccountSearchResponseDescriptor instead')
 const SavingsAccountSearchResponse$json = {

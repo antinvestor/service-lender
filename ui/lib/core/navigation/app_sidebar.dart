@@ -68,7 +68,7 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
                   error: (_, _) => null,
                 ),
                 onTap: () {
-                  context.go('/organization/banks');
+                  context.go('/organization/organizations');
                   widget.onNavigate?.call();
                 },
               ),

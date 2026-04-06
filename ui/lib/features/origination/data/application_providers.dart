@@ -13,6 +13,8 @@ class ApplicationList extends _$ApplicationList {
   Future<List<ApplicationObject>> build(
     String query, {
     String statusFilter = '',
+    String agentId = '',
+    String clientId = '',
   }) async {
     final client = ref.watch(originationServiceClientProvider);
     final request = ApplicationSearchRequest(
@@ -28,6 +30,14 @@ class ApplicationList extends _$ApplicationList {
       if (status != ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED) {
         request.status = status;
       }
+    }
+
+    if (agentId.isNotEmpty) {
+      request.agentId = agentId;
+    }
+
+    if (clientId.isNotEmpty) {
+      request.clientId = clientId;
     }
 
     return collectStream(

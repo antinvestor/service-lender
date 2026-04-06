@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/audit_context.dart';
+import '../../../core/auth/role_guard.dart';
+import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/application_status_badge.dart';
-import '../../../core/widgets/resolved_name.dart';
+import '../../../core/widgets/entity_chip.dart';
 import '../../../core/widgets/workflow_stepper.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
@@ -65,7 +67,7 @@ class _ApplicationDetailContentState
   void initState() {
     super.initState();
     _app = widget.app;
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -118,25 +120,20 @@ class _ApplicationDetailContentState
                         letterSpacing: -0.5,
                       ),
                     ),
-                    Row(
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
                       children: [
-                        ClientNameText(
-                          clientId: _app.clientId,
-                          prefix: 'Client: ',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        Text(' \u2022 ',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant)),
-                        ProductNameText(
-                          productId: _app.productId,
-                          prefix: 'Product: ',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
+                        EntityChip(
+                            type: EntityType.client,
+                            id: _app.clientId),
+                        EntityChip(
+                            type: EntityType.product,
+                            id: _app.productId),
+                        if (_app.agentId.isNotEmpty)
+                          EntityChip(
+                              type: EntityType.agent,
+                              id: _app.agentId),
                       ],
                     ),
                   ],
@@ -153,11 +150,11 @@ class _ApplicationDetailContentState
           child: ApplicationWorkflowStepper(status: _app.status),
         ),
 
-        // Action buttons
+        // Action buttons — role-gated
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           child: Row(
-            children: _buildActionButtons(context),
+            children: _buildActionButtons(context, ref),
           ),
         ),
 
@@ -175,10 +172,12 @@ class _ApplicationDetailContentState
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           child: TabBar(
             controller: _tabController,
+            isScrollable: true,
             tabs: const [
               Tab(text: 'Documents'),
               Tab(text: 'Verification'),
               Tab(text: 'Underwriting'),
+              Tab(text: 'Timeline'),
             ],
           ),
         ),
@@ -190,6 +189,7 @@ class _ApplicationDetailContentState
               _DocumentsTab(applicationId: _app.id),
               _VerificationTab(applicationId: _app.id),
               _UnderwritingTab(applicationId: _app.id),
+              _TimelineTab(app: _app),
             ],
           ),
         ),
@@ -197,33 +197,68 @@ class _ApplicationDetailContentState
     );
   }
 
-  List<Widget> _buildActionButtons(BuildContext context) {
+  /// Roles that can edit/submit draft applications
+  static const _editRoles = {
+    LenderRole.owner,
+    LenderRole.admin,
+    LenderRole.manager,
+    LenderRole.agent,
+  };
+
+  /// Roles that can accept/decline offers
+  static const _offerRoles = {
+    LenderRole.owner,
+    LenderRole.admin,
+    LenderRole.manager,
+  };
+
+  /// Roles that can cancel applications
+  static const _cancelRoles = {
+    LenderRole.owner,
+    LenderRole.admin,
+    LenderRole.manager,
+    LenderRole.agent,
+  };
+
+  List<Widget> _buildActionButtons(BuildContext context, WidgetRef ref) {
     final buttons = <Widget>[];
 
     switch (_app.status) {
       case ApplicationStatus.APPLICATION_STATUS_DRAFT:
-        buttons.add(FilledButton.icon(
-          onPressed: () => _confirmSubmit(context),
-          icon: const Icon(Icons.send, size: 18),
-          label: const Text('Submit'),
+        buttons.add(RoleGuard(
+          requiredRoles: _editRoles,
+          child: FilledButton.icon(
+            onPressed: () => _confirmSubmit(context),
+            icon: const Icon(Icons.send, size: 18),
+            label: const Text('Submit'),
+          ),
         ));
         buttons.add(const SizedBox(width: 8));
-        buttons.add(OutlinedButton.icon(
-          onPressed: () => _showEditDialog(context),
-          icon: const Icon(Icons.edit, size: 18),
-          label: const Text('Edit'),
+        buttons.add(RoleGuard(
+          requiredRoles: _editRoles,
+          child: OutlinedButton.icon(
+            onPressed: () => _showEditDialog(context),
+            icon: const Icon(Icons.edit, size: 18),
+            label: const Text('Edit'),
+          ),
         ));
       case ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED:
-        buttons.add(FilledButton.icon(
-          onPressed: () => _confirmAcceptOffer(context),
-          icon: const Icon(Icons.check_circle, size: 18),
-          label: const Text('Accept Offer'),
+        buttons.add(RoleGuard(
+          requiredRoles: _offerRoles,
+          child: FilledButton.icon(
+            onPressed: () => _confirmAcceptOffer(context),
+            icon: const Icon(Icons.check_circle, size: 18),
+            label: const Text('Accept Offer'),
+          ),
         ));
         buttons.add(const SizedBox(width: 8));
-        buttons.add(OutlinedButton.icon(
-          onPressed: () => _confirmDeclineOffer(context),
-          icon: const Icon(Icons.cancel, size: 18),
-          label: const Text('Decline Offer'),
+        buttons.add(RoleGuard(
+          requiredRoles: _offerRoles,
+          child: OutlinedButton.icon(
+            onPressed: () => _confirmDeclineOffer(context),
+            icon: const Icon(Icons.cancel, size: 18),
+            label: const Text('Decline Offer'),
+          ),
         ));
       default:
         break;
@@ -234,12 +269,15 @@ class _ApplicationDetailContentState
         _app.status != ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED &&
         _app.status != ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED) {
       if (buttons.isNotEmpty) buttons.add(const SizedBox(width: 8));
-      buttons.add(OutlinedButton.icon(
-        onPressed: () => _confirmCancel(context),
-        icon: Icon(Icons.block, size: 18,
-            color: Theme.of(context).colorScheme.error),
-        label: Text('Cancel',
-            style: TextStyle(color: Theme.of(context).colorScheme.error)),
+      buttons.add(RoleGuard(
+        requiredRoles: _cancelRoles,
+        child: OutlinedButton.icon(
+          onPressed: () => _confirmCancel(context),
+          icon: Icon(Icons.block, size: 18,
+              color: Theme.of(context).colorScheme.error),
+          label: Text('Cancel',
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        ),
       ));
     }
 
@@ -713,10 +751,19 @@ class _DocumentsTab extends ConsumerWidget {
               child: Row(
                 children: [
                   const Spacer(),
-                  FilledButton.icon(
-                    onPressed: () => _showAddDocumentDialog(context, ref),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add Document'),
+                  RoleGuard(
+                    requiredRoles: const {
+                      LenderRole.owner,
+                      LenderRole.admin,
+                      LenderRole.manager,
+                      LenderRole.agent,
+                      LenderRole.verifier,
+                    },
+                    child: FilledButton.icon(
+                      onPressed: () => _showAddDocumentDialog(context, ref),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add Document'),
+                    ),
                   ),
                 ],
               ),
@@ -920,10 +967,17 @@ class _VerificationTab extends ConsumerWidget {
           child: Row(
             children: [
               const Spacer(),
-              FilledButton.icon(
-                onPressed: () => _showAddTaskDialog(context, ref),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add Task'),
+              RoleGuard(
+                requiredRoles: const {
+                  LenderRole.owner,
+                  LenderRole.admin,
+                  LenderRole.verifier,
+                },
+                child: FilledButton.icon(
+                  onPressed: () => _showAddTaskDialog(context, ref),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add Task'),
+                ),
               ),
             ],
           ),
@@ -977,11 +1031,18 @@ class _VerificationTab extends ConsumerWidget {
                       subtitle: Text(
                           '${_verificationStatusLabel(task.status)} \u2022 Assigned: ${task.assignedTo.isNotEmpty ? task.assignedTo : "Unassigned"}'),
                       trailing: isPending
-                          ? IconButton(
-                              icon: const Icon(Icons.done_all),
-                              tooltip: 'Complete Task',
-                              onPressed: () => _showCompleteDialog(
-                                  context, ref, task),
+                          ? RoleGuard(
+                              requiredRoles: const {
+                                LenderRole.owner,
+                                LenderRole.admin,
+                                LenderRole.verifier,
+                              },
+                              child: IconButton(
+                                icon: const Icon(Icons.done_all),
+                                tooltip: 'Complete Task',
+                                onPressed: () => _showCompleteDialog(
+                                    context, ref, task),
+                              ),
                             )
                           : null,
                     ),
@@ -1253,10 +1314,17 @@ class _UnderwritingTab extends ConsumerWidget {
           child: Row(
             children: [
               const Spacer(),
-              FilledButton.icon(
-                onPressed: () => _showAddDecisionDialog(context, ref),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add Decision'),
+              RoleGuard(
+                requiredRoles: const {
+                  LenderRole.owner,
+                  LenderRole.admin,
+                  LenderRole.approver,
+                },
+                child: FilledButton.icon(
+                  onPressed: () => _showAddDecisionDialog(context, ref),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add Decision'),
+                ),
               ),
             ],
           ),
@@ -1579,5 +1647,195 @@ class _UnderwritingTab extends ConsumerWidget {
       _ => Colors.grey,
     };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Timeline tab — chronological log of application lifecycle events
+// ---------------------------------------------------------------------------
+
+class _TimelineTab extends ConsumerWidget {
+  const _TimelineTab({required this.app});
+  final ApplicationObject app;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
+    // Build timeline events from available data
+    final events = <_TimelineEvent>[];
+
+    // Status-based events we can infer
+    if (app.submittedAt.isNotEmpty) {
+      events.add(_TimelineEvent(
+        timestamp: app.submittedAt,
+        title: 'Application Submitted',
+        subtitle: 'Entered origination pipeline',
+        icon: Icons.send,
+        color: Colors.blue,
+      ));
+    }
+
+    if (app.decidedAt.isNotEmpty) {
+      final isApproved =
+          app.status == ApplicationStatus.APPLICATION_STATUS_APPROVED ||
+              app.status ==
+                  ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED ||
+              app.status ==
+                  ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED ||
+              app.status ==
+                  ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED;
+      events.add(_TimelineEvent(
+        timestamp: app.decidedAt,
+        title: isApproved ? 'Application Approved' : 'Decision Made',
+        subtitle: app.rejectionReason.isNotEmpty
+            ? 'Reason: ${app.rejectionReason}'
+            : 'Underwriting decision recorded',
+        icon: isApproved ? Icons.check_circle : Icons.gavel,
+        color: isApproved ? Colors.green : Colors.orange,
+      ));
+    }
+
+    if (app.rejectionReason.isNotEmpty &&
+        (app.status == ApplicationStatus.APPLICATION_STATUS_REJECTED ||
+            app.status == ApplicationStatus.APPLICATION_STATUS_CANCELLED)) {
+      events.add(_TimelineEvent(
+        timestamp: app.decidedAt.isNotEmpty ? app.decidedAt : '',
+        title: app.status == ApplicationStatus.APPLICATION_STATUS_CANCELLED
+            ? 'Application Cancelled'
+            : 'Application Rejected',
+        subtitle: app.rejectionReason,
+        icon: Icons.cancel,
+        color: Colors.red,
+      ));
+    }
+
+    // Current status
+    events.add(_TimelineEvent(
+      timestamp: '',
+      title: 'Current Status',
+      subtitle: applicationStatusLabel(app.status),
+      icon: Icons.circle,
+      color: theme.colorScheme.primary,
+    ));
+
+    // Sort by timestamp (most recent first), empty timestamps last
+    events.sort((a, b) {
+      if (a.timestamp.isEmpty && b.timestamp.isEmpty) return 0;
+      if (a.timestamp.isEmpty) return 1;
+      if (b.timestamp.isEmpty) return -1;
+      return b.timestamp.compareTo(a.timestamp);
+    });
+
+    if (events.isEmpty) {
+      return Center(
+        child: Text(
+          'No timeline events available',
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final event = events[index];
+        final isLast = index == events.length - 1;
+
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Timeline line + dot
+              SizedBox(
+                width: 32,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: event.color,
+                      ),
+                    ),
+                    if (!isLast)
+                      Expanded(
+                        child: Container(
+                          width: 2,
+                          color: theme.colorScheme.outlineVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Event content
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(event.icon, size: 16, color: event.color),
+                          const SizedBox(width: 6),
+                          Text(
+                            event.title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (event.subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          event.subtitle,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                      if (event.timestamp.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          event.timestamp,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color:
+                                theme.colorScheme.onSurface.withAlpha(100),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _TimelineEvent {
+  const _TimelineEvent({
+    required this.timestamp,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+  });
+
+  final String timestamp;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
 }
 

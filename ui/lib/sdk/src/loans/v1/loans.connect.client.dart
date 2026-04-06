@@ -444,4 +444,41 @@ extension type LoanManagementServiceClient (connect.Transport _transport) {
       onTrailer: onTrailer,
     );
   }
+
+  /// PortfolioSummary returns aggregated financial metrics across a filtered
+  /// set of loans. Supports filtering by organization, branch, agent, product, and client.
+  Future<loansv1loans.PortfolioSummaryResponse> portfolioSummary(
+    loansv1loans.PortfolioSummaryRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.portfolioSummary,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// PortfolioExport exports the loan book as CSV for a filtered set of loans.
+  Future<loansv1loans.PortfolioExportResponse> portfolioExport(
+    loansv1loans.PortfolioExportRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.portfolioExport,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
 }

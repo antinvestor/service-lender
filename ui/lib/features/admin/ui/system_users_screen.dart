@@ -58,7 +58,7 @@ class _SystemUsersScreenState extends ConsumerState<SystemUsersScreen> {
         role: _roleFilter,
       ),
     );
-    final canManage = ref.watch(canManageBanksProvider);
+    final canManage = ref.watch(canManageSystemUsersProvider);
 
     final isAdmin = canManage.when(
       data: (value) => value,

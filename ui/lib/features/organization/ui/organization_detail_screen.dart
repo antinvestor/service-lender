@@ -7,21 +7,23 @@ import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
-import '../data/bank_providers.dart';
+import '../data/organization_providers.dart';
 import '../data/branch_providers.dart';
-import 'banks_screen.dart';
+import 'organizations_screen.dart';
 
-class BankDetailScreen extends ConsumerWidget {
-  const BankDetailScreen({super.key, required this.bankId});
+class OrganizationDetailScreen extends ConsumerWidget {
+  const OrganizationDetailScreen(
+      {super.key, required this.organizationId});
 
-  final String bankId;
+  final String organizationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final canManage = ref.watch(canManageBanksProvider).value ?? false;
+    final canManage =
+        ref.watch(canManageOrganizationsProvider).value ?? false;
 
-    return FutureBuilder<BankObject>(
-      future: _loadBank(ref),
+    return FutureBuilder<OrganizationObject>(
+      future: _loadOrganization(ref),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -29,53 +31,55 @@ class BankDetailScreen extends ConsumerWidget {
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
-        final bank = snapshot.data;
-        if (bank == null) {
-          return const Center(child: Text('Bank not found'));
+        final organization = snapshot.data;
+        if (organization == null) {
+          return const Center(child: Text('Organization not found'));
         }
-        return _BankDetailContent(
-          bank: bank,
+        return _OrganizationDetailContent(
+          organization: organization,
           canManage: canManage,
         );
       },
     );
   }
 
-  Future<BankObject> _loadBank(WidgetRef ref) async {
+  Future<OrganizationObject> _loadOrganization(WidgetRef ref) async {
     final client = ref.read(identityServiceClientProvider);
-    final response = await client.bankGet(BankGetRequest(id: bankId));
+    final response =
+        await client.organizationGet(OrganizationGetRequest(id: organizationId));
     return response.data;
   }
 }
 
-class _BankDetailContent extends ConsumerStatefulWidget {
-  const _BankDetailContent({
-    required this.bank,
+class _OrganizationDetailContent extends ConsumerStatefulWidget {
+  const _OrganizationDetailContent({
+    required this.organization,
     required this.canManage,
   });
 
-  final BankObject bank;
+  final OrganizationObject organization;
   final bool canManage;
 
   @override
-  ConsumerState<_BankDetailContent> createState() =>
-      _BankDetailContentState();
+  ConsumerState<_OrganizationDetailContent> createState() =>
+      _OrganizationDetailContentState();
 }
 
-class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
-  late BankObject _bank;
+class _OrganizationDetailContentState
+    extends ConsumerState<_OrganizationDetailContent> {
+  late OrganizationObject _organization;
 
   @override
   void initState() {
     super.initState();
-    _bank = widget.bank;
+    _organization = widget.organization;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final branchesAsync =
-        ref.watch(branchListProvider('', _bank.id));
+        ref.watch(branchListProvider('', _organization.id));
 
     return CustomScrollView(
       slivers: [
@@ -87,8 +91,9 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.go('/organization/banks'),
-                  tooltip: 'Back to Banks',
+                  onPressed: () =>
+                      context.go('/organization/organizations'),
+                  tooltip: 'Back to Organizations',
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -96,28 +101,29 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _bank.name,
+                        _organization.name,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           letterSpacing: -0.5,
                         ),
                       ),
                       Text(
-                        'Code: ${_bank.code}',
+                        'Code: ${_organization.code}',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withAlpha(140),
+                          color:
+                              theme.colorScheme.onSurface.withAlpha(140),
                         ),
                       ),
                     ],
                   ),
                 ),
-                StateBadge(state: _bank.state),
+                StateBadge(state: _organization.state),
                 if (widget.canManage) ...[
                   const SizedBox(width: 12),
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
-                    tooltip: 'Edit Bank',
-                    onPressed: () => _editBank(context),
+                    tooltip: 'Edit Organization',
+                    onPressed: () => _editOrganization(context),
                   ),
                 ],
               ],
@@ -173,7 +179,7 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
                     const SizedBox(height: 8),
                     FilledButton.tonal(
                       onPressed: () => ref.invalidate(
-                          branchListProvider('', _bank.id)),
+                          branchListProvider('', _organization.id)),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -192,19 +198,23 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
                         Icon(
                           Icons.store_outlined,
                           size: 48,
-                          color: theme.colorScheme.onSurface.withAlpha(80),
+                          color:
+                              theme.colorScheme.onSurface.withAlpha(80),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No branches yet',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withAlpha(140),
+                          style:
+                              theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurface
+                                .withAlpha(140),
                           ),
                         ),
                         if (widget.canManage) ...[
                           const SizedBox(height: 12),
                           FilledButton.icon(
-                            onPressed: () => _showBranchDialog(context),
+                            onPressed: () =>
+                                _showBranchDialog(context),
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Add Branch'),
                           ),
@@ -217,8 +227,8 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
             }
 
             return SliverPadding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 8),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -226,8 +236,8 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
                     return _BranchCard(
                       branch: branch,
                       onTap: widget.canManage
-                          ? () =>
-                              _showBranchDialog(context, branch: branch)
+                          ? () => _showBranchDialog(context,
+                              branch: branch)
                           : null,
                     );
                   },
@@ -241,17 +251,20 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
     );
   }
 
-  void _editBank(BuildContext context) {
+  void _editOrganization(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => BankFormDialog(
-        bank: _bank,
+      builder: (dialogContext) => OrganizationFormDialog(
+        organization: _organization,
         onSave: (updated) async {
-          final saved = await ref.read(bankProvider.notifier).save(updated);
+          final saved = await ref
+              .read(organizationProvider.notifier)
+              .save(updated);
           if (!mounted) return;
-          setState(() => _bank = saved);
+          setState(() => _organization = saved);
           ScaffoldMessenger.of(this.context).showSnackBar(
-            const SnackBar(content: Text('Bank updated successfully')),
+            const SnackBar(
+                content: Text('Organization updated successfully')),
           );
         },
       ),
@@ -264,8 +277,8 @@ class _BankDetailContentState extends ConsumerState<_BankDetailContent> {
   }) async {
     final result = await showDialog<BranchObject>(
       context: context,
-      builder: (context) =>
-          _BranchFormDialog(branch: branch, bankId: _bank.id),
+      builder: (context) => _BranchFormDialog(
+          branch: branch, organizationId: _organization.id),
     );
     if (result == null || !mounted) return;
 
@@ -312,14 +325,16 @@ class _BranchCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withAlpha(80),
+                  color: theme.colorScheme.primaryContainer
+                      .withAlpha(80),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -345,9 +360,10 @@ class _BranchCard extends StatelessWidget {
                         if (branch.code.isNotEmpty)
                           Text(
                             branch.code,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  theme.colorScheme.onSurface.withAlpha(160),
+                            style:
+                                theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withAlpha(160),
                             ),
                           ),
                         if (branch.geoId.isNotEmpty) ...[
@@ -359,9 +375,10 @@ class _BranchCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             branch.geoId,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  theme.colorScheme.onSurface.withAlpha(140),
+                            style:
+                                theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withAlpha(140),
                             ),
                           ),
                         ],
@@ -380,14 +397,14 @@ class _BranchCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Branch create / edit dialog (bank is pre-set, not selectable)
+// Branch create / edit dialog (organization is pre-set, not selectable)
 // ---------------------------------------------------------------------------
 
 class _BranchFormDialog extends StatefulWidget {
-  const _BranchFormDialog({this.branch, required this.bankId});
+  const _BranchFormDialog({this.branch, required this.organizationId});
 
   final BranchObject? branch;
-  final String bankId;
+  final String organizationId;
 
   @override
   State<_BranchFormDialog> createState() => _BranchFormDialogState();
@@ -404,9 +421,12 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
   void initState() {
     super.initState();
     final branch = widget.branch;
-    _nameController = TextEditingController(text: branch?.name ?? '');
-    _codeController = TextEditingController(text: branch?.code ?? '');
-    _geoIdController = TextEditingController(text: branch?.geoId ?? '');
+    _nameController =
+        TextEditingController(text: branch?.name ?? '');
+    _codeController =
+        TextEditingController(text: branch?.code ?? '');
+    _geoIdController =
+        TextEditingController(text: branch?.geoId ?? '');
     _selectedState = branch?.state ?? STATE.CREATED;
   }
 
@@ -432,27 +452,32 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Name is required' : null,
+                decoration:
+                    const InputDecoration(labelText: 'Name'),
+                validator: (v) => (v == null || v.isEmpty)
+                    ? 'Name is required'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _codeController,
-                decoration: const InputDecoration(labelText: 'Code'),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Code is required' : null,
+                decoration:
+                    const InputDecoration(labelText: 'Code'),
+                validator: (v) => (v == null || v.isEmpty)
+                    ? 'Code is required'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _geoIdController,
-                decoration:
-                    const InputDecoration(labelText: 'Geo ID (optional)'),
+                decoration: const InputDecoration(
+                    labelText: 'Geo ID (optional)'),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<STATE>(
                 initialValue: _selectedState,
-                decoration: const InputDecoration(labelText: 'State'),
+                decoration:
+                    const InputDecoration(labelText: 'State'),
                 items: const [
                   STATE.CREATED,
                   STATE.CHECKED,
@@ -495,7 +520,7 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
 
     final branch = BranchObject(
       id: widget.branch?.id ?? '',
-      bankId: widget.bankId,
+      organizationId: widget.organizationId,
       name: _nameController.text.trim(),
       code: _codeController.text.trim(),
       geoId: _geoIdController.text.trim(),

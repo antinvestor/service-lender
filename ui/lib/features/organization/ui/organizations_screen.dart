@@ -9,16 +9,17 @@ import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
-import '../data/bank_providers.dart';
+import '../data/organization_providers.dart';
 
-class BanksScreen extends ConsumerStatefulWidget {
-  const BanksScreen({super.key});
+class OrganizationsScreen extends ConsumerStatefulWidget {
+  const OrganizationsScreen({super.key});
 
   @override
-  ConsumerState<BanksScreen> createState() => _BanksScreenState();
+  ConsumerState<OrganizationsScreen> createState() =>
+      _OrganizationsScreenState();
 }
 
-class _BanksScreenState extends ConsumerState<BanksScreen> {
+class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
   final _searchController = TextEditingController();
   Timer? _debounce;
   String _query = '';
@@ -43,45 +44,52 @@ class _BanksScreenState extends ConsumerState<BanksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final banksAsync = ref.watch(bankListProvider(_query));
-    final canManage = ref.watch(canManageBanksProvider).value ?? false;
+    final organizationsAsync = ref.watch(organizationListProvider(_query));
+    final canManage =
+        ref.watch(canManageOrganizationsProvider).value ?? false;
 
-    return EntityListPage<BankObject>(
-      title: 'Banks',
+    return EntityListPage<OrganizationObject>(
+      title: 'Organizations',
       icon: Icons.account_balance_outlined,
-      items: banksAsync.value ?? [],
-      isLoading: banksAsync.isLoading,
-      error: banksAsync.hasError ? banksAsync.error.toString() : null,
-      onRetry: () => ref.invalidate(bankListProvider(_query)),
-      searchHint: 'Search banks...',
+      items: organizationsAsync.value ?? [],
+      isLoading: organizationsAsync.isLoading,
+      error: organizationsAsync.hasError
+          ? organizationsAsync.error.toString()
+          : null,
+      onRetry: () => ref.invalidate(organizationListProvider(_query)),
+      searchHint: 'Search organizations...',
       onSearchChanged: _onSearchChanged,
-      actionLabel: 'Add Bank',
+      actionLabel: 'Add Organization',
       canAction: canManage,
-      onAction: () => _showBankDialog(context),
-      itemBuilder: (context, bank) => _BankCard(
-        bank: bank,
-        onTap: () => context.go('/organization/banks/${bank.id}'),
+      onAction: () => _showOrganizationDialog(context),
+      itemBuilder: (context, organization) => _OrganizationCard(
+        organization: organization,
+        onTap: () =>
+            context.go('/organization/organizations/${organization.id}'),
       ),
     );
   }
 
-  void _showBankDialog(BuildContext context) {
+  void _showOrganizationDialog(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => BankFormDialog(
+      builder: (dialogContext) => OrganizationFormDialog(
         onSave: (updated) async {
           try {
-            await ref.read(bankProvider.notifier).save(updated);
+            await ref
+                .read(organizationProvider.notifier)
+                .save(updated);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bank created successfully')),
+                const SnackBar(
+                    content: Text('Organization created successfully')),
               );
             }
           } catch (e) {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Failed to save bank: $e'),
+                  content: Text('Failed to save organization: $e'),
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
@@ -93,10 +101,11 @@ class _BanksScreenState extends ConsumerState<BanksScreen> {
   }
 }
 
-class _BankCard extends StatelessWidget {
-  const _BankCard({required this.bank, required this.onTap});
+class _OrganizationCard extends StatelessWidget {
+  const _OrganizationCard(
+      {required this.organization, required this.onTap});
 
-  final BankObject bank;
+  final OrganizationObject organization;
   final VoidCallback onTap;
 
   @override
@@ -121,18 +130,18 @@ class _BankCard extends StatelessWidget {
           ),
         ),
         title: Text(
-          bank.name,
+          organization.name,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: Text(
-          'Code: ${bank.code}',
+          'Code: ${organization.code}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withAlpha(160),
           ),
         ),
-        trailing: StateBadge(state: bank.state),
+        trailing: StateBadge(state: organization.state),
         onTap: onTap,
       ),
     );
@@ -140,34 +149,38 @@ class _BankCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Bank create / edit dialog (public so bank detail can reuse for editing)
+// Organization create / edit dialog (public so detail screen can reuse)
 // ---------------------------------------------------------------------------
 
-class BankFormDialog extends StatefulWidget {
-  const BankFormDialog({super.key, this.bank, required this.onSave});
+class OrganizationFormDialog extends StatefulWidget {
+  const OrganizationFormDialog(
+      {super.key, this.organization, required this.onSave});
 
-  final BankObject? bank;
-  final Future<void> Function(BankObject bank) onSave;
+  final OrganizationObject? organization;
+  final Future<void> Function(OrganizationObject organization) onSave;
 
   @override
-  State<BankFormDialog> createState() => _BankFormDialogState();
+  State<OrganizationFormDialog> createState() =>
+      _OrganizationFormDialogState();
 }
 
-class _BankFormDialogState extends State<BankFormDialog> {
+class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _codeCtrl;
   late STATE _selectedState;
   bool _saving = false;
 
-  bool get _isEditing => widget.bank != null;
+  bool get _isEditing => widget.organization != null;
 
   @override
   void initState() {
     super.initState();
-    _nameCtrl = TextEditingController(text: widget.bank?.name ?? '');
-    _codeCtrl = TextEditingController(text: widget.bank?.code ?? '');
-    _selectedState = widget.bank?.state ?? STATE.CREATED;
+    _nameCtrl =
+        TextEditingController(text: widget.organization?.name ?? '');
+    _codeCtrl =
+        TextEditingController(text: widget.organization?.code ?? '');
+    _selectedState = widget.organization?.state ?? STATE.CREATED;
   }
 
   @override
@@ -182,28 +195,28 @@ class _BankFormDialogState extends State<BankFormDialog> {
 
     setState(() => _saving = true);
 
-    final bank = BankObject(
-      id: widget.bank?.id,
+    final organization = OrganizationObject(
+      id: widget.organization?.id,
       name: _nameCtrl.text.trim(),
       code: _codeCtrl.text.trim(),
       state: _selectedState,
     );
 
     // Preserve backend-managed fields when editing.
-    if (widget.bank != null) {
-      if (widget.bank!.hasPartitionId()) {
-        bank.partitionId = widget.bank!.partitionId;
+    if (widget.organization != null) {
+      if (widget.organization!.hasPartitionId()) {
+        organization.partitionId = widget.organization!.partitionId;
       }
-      if (widget.bank!.hasProfileId()) {
-        bank.profileId = widget.bank!.profileId;
+      if (widget.organization!.hasProfileId()) {
+        organization.profileId = widget.organization!.profileId;
       }
-      if (widget.bank!.hasProperties()) {
-        bank.properties = widget.bank!.properties;
+      if (widget.organization!.hasProperties()) {
+        organization.properties = widget.organization!.properties;
       }
     }
 
     try {
-      await widget.onSave(bank);
+      await widget.onSave(organization);
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -225,7 +238,7 @@ class _BankFormDialogState extends State<BankFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(_isEditing ? 'Edit Bank' : 'Add Bank'),
+      title: Text(_isEditing ? 'Edit Organization' : 'Add Organization'),
       content: SizedBox(
         width: 420,
         child: Form(
@@ -238,7 +251,9 @@ class _BankFormDialogState extends State<BankFormDialog> {
                 decoration: const InputDecoration(labelText: 'Name'),
                 textInputAction: TextInputAction.next,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+                    (v == null || v.trim().isEmpty)
+                        ? 'Name is required'
+                        : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -246,7 +261,9 @@ class _BankFormDialogState extends State<BankFormDialog> {
                 decoration: const InputDecoration(labelText: 'Code'),
                 textInputAction: TextInputAction.done,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Code is required' : null,
+                    (v == null || v.trim().isEmpty)
+                        ? 'Code is required'
+                        : null,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<STATE>(
