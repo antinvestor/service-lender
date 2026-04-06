@@ -23,7 +23,7 @@ require (
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260330075109-319b4e3fd9dd.2
 	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260404160115-01a64abb4c52.2
 	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260330080453-87e747c157cb.1
-	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260330064539-b81b51773e97.2
+	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260406091002-ec643023d3b3.2
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.3
 	github.com/pitabwire/frame v1.93.8
