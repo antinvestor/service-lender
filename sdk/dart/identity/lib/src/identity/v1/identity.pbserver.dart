@@ -22,9 +22,9 @@ import 'identity.pbjson.dart';
 export 'identity.pb.dart';
 
 abstract class IdentityServiceBase extends $pb.GeneratedService {
-  $async.Future<$11.BankSaveResponse> bankSave($pb.ServerContext ctx, $11.BankSaveRequest request);
-  $async.Future<$11.BankGetResponse> bankGet($pb.ServerContext ctx, $11.BankGetRequest request);
-  $async.Future<$11.BankSearchResponse> bankSearch($pb.ServerContext ctx, $7.SearchRequest request);
+  $async.Future<$11.OrganizationSaveResponse> organizationSave($pb.ServerContext ctx, $11.OrganizationSaveRequest request);
+  $async.Future<$11.OrganizationGetResponse> organizationGet($pb.ServerContext ctx, $11.OrganizationGetRequest request);
+  $async.Future<$11.OrganizationSearchResponse> organizationSearch($pb.ServerContext ctx, $7.SearchRequest request);
   $async.Future<$11.BranchSaveResponse> branchSave($pb.ServerContext ctx, $11.BranchSaveRequest request);
   $async.Future<$11.BranchGetResponse> branchGet($pb.ServerContext ctx, $11.BranchGetRequest request);
   $async.Future<$11.BranchSearchResponse> branchSearch($pb.ServerContext ctx, $11.BranchSearchRequest request);
@@ -37,9 +37,9 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
-      case 'BankSave': return $11.BankSaveRequest();
-      case 'BankGet': return $11.BankGetRequest();
-      case 'BankSearch': return $7.SearchRequest();
+      case 'OrganizationSave': return $11.OrganizationSaveRequest();
+      case 'OrganizationGet': return $11.OrganizationGetRequest();
+      case 'OrganizationSearch': return $7.SearchRequest();
       case 'BranchSave': return $11.BranchSaveRequest();
       case 'BranchGet': return $11.BranchGetRequest();
       case 'BranchSearch': return $11.BranchSearchRequest();
@@ -55,9 +55,9 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
 
   $async.Future<$pb.GeneratedMessage> handleCall($pb.ServerContext ctx, $core.String methodName, $pb.GeneratedMessage request) {
     switch (methodName) {
-      case 'BankSave': return this.bankSave(ctx, request as $11.BankSaveRequest);
-      case 'BankGet': return this.bankGet(ctx, request as $11.BankGetRequest);
-      case 'BankSearch': return this.bankSearch(ctx, request as $7.SearchRequest);
+      case 'OrganizationSave': return this.organizationSave(ctx, request as $11.OrganizationSaveRequest);
+      case 'OrganizationGet': return this.organizationGet(ctx, request as $11.OrganizationGetRequest);
+      case 'OrganizationSearch': return this.organizationSearch(ctx, request as $7.SearchRequest);
       case 'BranchSave': return this.branchSave(ctx, request as $11.BranchSaveRequest);
       case 'BranchGet': return this.branchGet(ctx, request as $11.BranchGetRequest);
       case 'BranchSearch': return this.branchSearch(ctx, request as $11.BranchSearchRequest);

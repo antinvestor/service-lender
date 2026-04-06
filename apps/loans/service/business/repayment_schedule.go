@@ -214,7 +214,37 @@ func (b *repaymentScheduleBusiness) generateScheduleEntries(
 		entry.GenID(ctx)
 		modelEntries = append(modelEntries, entry)
 	}
+
+	// Validate schedule invariant: sum of principal must equal loan principal
+	if invariantErr := validateScheduleInvariant(modelEntries, la); invariantErr != nil {
+		return nil, fmt.Errorf("schedule invariant violation: %w", invariantErr)
+	}
+
 	return modelEntries, nil
+}
+
+// validateScheduleInvariant verifies that the sum of all schedule entry
+// principal amounts equals the loan principal. A tolerance of 1 minor unit
+// is allowed to accommodate rounding dust from the last-entry remainder.
+func validateScheduleInvariant(entries []*models.ScheduleEntry, la *models.LoanAccount) error {
+	var sumPrincipal int64
+	for _, e := range entries {
+		sumPrincipal += e.PrincipalDue
+	}
+
+	const tolerance int64 = 1 // at most 1 minor unit (e.g. 1 cent) of rounding
+	diff := sumPrincipal - la.PrincipalAmount
+	if diff < 0 {
+		diff = -diff
+	}
+
+	if diff > tolerance {
+		return fmt.Errorf(
+			"sum of schedule principal (%d) differs from loan principal (%d) by %d, exceeding tolerance of %d",
+			sumPrincipal, la.PrincipalAmount, diff, tolerance,
+		)
+	}
+	return nil
 }
 
 const (

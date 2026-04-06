@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 	"strconv"
 	"time"
 
@@ -95,6 +96,7 @@ type loanAccountBusiness struct {
 	loanBalanceRepo  repository.LoanBalanceRepository
 	statusChangeRepo repository.LoanStatusChangeRepository
 	repaymentRepo    repository.RepaymentRepository
+	penaltyRepo      repository.PenaltyRepository
 	originationCli   originationv1connect.OriginationServiceClient
 	scheduleBusiness RepaymentScheduleBusiness
 }
@@ -107,6 +109,7 @@ func NewLoanAccountBusiness(
 	loanBalanceRepo repository.LoanBalanceRepository,
 	statusChangeRepo repository.LoanStatusChangeRepository,
 	repaymentRepo repository.RepaymentRepository,
+	penaltyRepo repository.PenaltyRepository,
 	originationCli originationv1connect.OriginationServiceClient,
 	scheduleBusiness RepaymentScheduleBusiness,
 ) LoanAccountBusiness {
@@ -117,6 +120,7 @@ func NewLoanAccountBusiness(
 		loanBalanceRepo:  loanBalanceRepo,
 		statusChangeRepo: statusChangeRepo,
 		repaymentRepo:    repaymentRepo,
+		penaltyRepo:      penaltyRepo,
 		originationCli:   originationCli,
 		scheduleBusiness: scheduleBusiness,
 	}
@@ -182,7 +186,7 @@ func (b *loanAccountBusiness) populateLoanFromApplication(
 	la.ClientID = app.GetClientId()
 	la.AgentID = app.GetAgentId()
 	la.BranchID = app.GetBranchId()
-	la.BankID = app.GetBankId()
+	la.OrganizationID = app.GetBankId()
 	approvedAmount, approvedCurrency := models.MoneyToMinorUnits(app.GetApprovedAmount())
 	la.CurrencyCode = approvedCurrency
 	la.PrincipalAmount = approvedAmount
@@ -305,7 +309,7 @@ func (b *loanAccountBusiness) Search(
 		andQueryVal["branch_id = ?"] = req.GetBranchId()
 	}
 	if req.GetBankId() != "" {
-		andQueryVal["bank_id = ?"] = req.GetBankId()
+		andQueryVal["organization_id = ?"] = req.GetBankId()
 	}
 	if req.GetStatus() != loansv1.LoanStatus_LOAN_STATUS_UNSPECIFIED {
 		andQueryVal["status = ?"] = int32(req.GetStatus())
@@ -382,51 +386,151 @@ func (b *loanAccountBusiness) GetStatement(
 	}, nil
 }
 
-// buildStatementEntries collects repayment entries for a statement within the given date range.
+// statementEntry is an internal type used to sort and compute running balances
+// before converting to the proto LoanStatementEntry.
+type statementEntry struct {
+	date        time.Time
+	description string
+	debit       int64 // charges to the borrower (increases balance)
+	credit      int64 // payments by the borrower (decreases balance)
+	reference   string
+	currency    string
+}
+
+// buildStatementEntries collects all financial events for a loan (disbursement,
+// penalties, repayments), sorts them chronologically, computes a running
+// balance, and returns proto statement entries filtered by the given date range.
+//
+//nolint:gocognit,funlen // statement assembly is inherently complex
 func (b *loanAccountBusiness) buildStatementEntries(
 	ctx context.Context,
 	loanAccountID string,
 	fromDate, toDate *time.Time,
 ) []*loansv1.LoanStatementEntry {
-	var entries []*loansv1.LoanStatementEntry
+	la, laErr := b.loanAccountRepo.GetByID(ctx, loanAccountID)
+	if laErr != nil {
+		return nil
+	}
 
+	var raw []statementEntry
+
+	// 1. Disbursement entry (the initial loan advance)
+	if la.DisbursedAt != nil {
+		raw = append(raw, statementEntry{
+			date:        *la.DisbursedAt,
+			description: "Loan disbursement",
+			debit:       la.PrincipalAmount,
+			currency:    la.CurrencyCode,
+			reference:   la.ApplicationID,
+		})
+	}
+
+	// 2. Penalty entries
+	penQuery := data.NewSearchQuery(
+		data.WithSearchFiltersAndByValue(map[string]any{
+			"loan_account_id = ?": loanAccountID,
+		}),
+	)
+	if penResults, penErr := b.penaltyRepo.Search(ctx, penQuery); penErr == nil {
+		_ = workerpoolConsumeStream(ctx, penResults, func(batch []*models.Penalty) error {
+			for _, p := range batch {
+				if p.IsWaived {
+					continue
+				}
+				t := time.Now().UTC()
+				if p.AppliedAt != nil {
+					t = *p.AppliedAt
+				}
+				raw = append(raw, statementEntry{
+					date:        t,
+					description: "Penalty: " + p.Reason,
+					debit:       p.Amount,
+					currency:    p.CurrencyCode,
+					reference:   p.GetID(),
+				})
+			}
+			return nil
+		})
+	}
+
+	// 3. Repayment entries
 	repQuery := data.NewSearchQuery(
 		data.WithSearchFiltersAndByValue(map[string]any{
 			"loan_account_id = ?": loanAccountID,
 		}),
 	)
-	repResults, repErr := b.repaymentRepo.Search(ctx, repQuery)
-	if repErr != nil {
-		return entries
+	if repResults, repErr := b.repaymentRepo.Search(ctx, repQuery); repErr == nil {
+		_ = workerpoolConsumeStream(ctx, repResults, func(batch []*models.Repayment) error {
+			for _, r := range batch {
+				if r.ReceivedAt == nil {
+					continue
+				}
+				raw = append(raw, statementEntry{
+					date:        *r.ReceivedAt,
+					description: "Repayment via " + r.Channel,
+					credit:      r.Amount,
+					currency:    r.CurrencyCode,
+					reference:   r.PaymentReference,
+				})
+			}
+			return nil
+		})
 	}
 
-	_ = workerpoolConsumeStream(ctx, repResults, func(batch []*models.Repayment) error {
-		for _, r := range batch {
-			if !isRepaymentInRange(r, fromDate, toDate) {
-				continue
-			}
-			entries = append(entries, &loansv1.LoanStatementEntry{
-				Date:        models.TimeToString(r.ReceivedAt),
-				Description: "Repayment via " + r.Channel,
-				Credit:      models.MinorUnitsToMoney(r.Amount, r.CurrencyCode),
-				Reference:   r.PaymentReference,
-			})
-		}
-		return nil
+	// Sort chronologically
+	sort.Slice(raw, func(i, j int) bool {
+		return raw[i].date.Before(raw[j].date)
 	})
+
+	// Compute running balance and filter by date range.
+	// If fromDate is set, emit an opening balance row for the period.
+	var entries []*loansv1.LoanStatementEntry
+	var runningBalance int64
+	openingBalanceEmitted := fromDate == nil // skip opening balance if no date filter
+	currency := la.CurrencyCode
+
+	for _, e := range raw {
+		runningBalance += e.debit - e.credit
+
+		if !isTimeInRange(e.date, fromDate, toDate) {
+			continue
+		}
+
+		// Emit opening balance row before the first in-range entry
+		if !openingBalanceEmitted {
+			openingBalance := runningBalance - e.debit + e.credit // balance before this entry
+			entries = append(entries, &loansv1.LoanStatementEntry{
+				Date:        models.TimeToString(fromDate),
+				Description: "Opening balance brought forward",
+				Balance:     models.MinorUnitsToMoney(openingBalance, currency),
+			})
+			openingBalanceEmitted = true
+		}
+
+		entry := &loansv1.LoanStatementEntry{
+			Date:        models.TimeToString(&e.date),
+			Description: e.description,
+			Balance:     models.MinorUnitsToMoney(runningBalance, e.currency),
+			Reference:   e.reference,
+		}
+		if e.debit > 0 {
+			entry.Debit = models.MinorUnitsToMoney(e.debit, e.currency)
+		}
+		if e.credit > 0 {
+			entry.Credit = models.MinorUnitsToMoney(e.credit, e.currency)
+		}
+		entries = append(entries, entry)
+	}
 
 	return entries
 }
 
-// isRepaymentInRange checks whether a repayment falls within the given date range.
-func isRepaymentInRange(r *models.Repayment, fromDate, toDate *time.Time) bool {
-	if r.ReceivedAt == nil {
+// isTimeInRange checks whether a time falls within the given date range.
+func isTimeInRange(t time.Time, fromDate, toDate *time.Time) bool {
+	if fromDate != nil && t.Before(*fromDate) {
 		return false
 	}
-	if fromDate != nil && r.ReceivedAt.Before(*fromDate) {
-		return false
-	}
-	if toDate != nil && r.ReceivedAt.After(*toDate) {
+	if toDate != nil && t.After(*toDate) {
 		return false
 	}
 	return true

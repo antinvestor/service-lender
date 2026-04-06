@@ -21,7 +21,7 @@ type LoanAccount struct {
 	ClientID                      string `gorm:"type:varchar(50);index:idx_la_client"`
 	AgentID                       string `gorm:"type:varchar(50);index:idx_la_agent"`
 	BranchID                      string `gorm:"type:varchar(50);index:idx_la_branch"`
-	BankID                        string `gorm:"type:varchar(50);index:idx_la_bank"`
+	OrganizationID                string `gorm:"type:varchar(50);index:idx_la_organization"`
 	Status                        int32
 	CurrencyCode                  string `gorm:"type:varchar(3)"`
 	PrincipalAmount               int64
@@ -52,7 +52,7 @@ func (m *LoanAccount) ToAPI() *loansv1.LoanAccountObject {
 		ClientId:                      m.ClientID,
 		AgentId:                       m.AgentID,
 		BranchId:                      m.BranchID,
-		BankId:                        m.BankID,
+		BankId:                        m.OrganizationID,
 		Status:                        loansv1.LoanStatus(m.Status),
 		PrincipalAmount:               MinorUnitsToMoney(m.PrincipalAmount, m.CurrencyCode),
 		InterestRate:                  BasisPointsToString(m.InterestRate),
@@ -86,7 +86,7 @@ func LoanAccountFromAPI(ctx context.Context, obj *loansv1.LoanAccountObject) *Lo
 		ClientID:                      obj.GetClientId(),
 		AgentID:                       obj.GetAgentId(),
 		BranchID:                      obj.GetBranchId(),
-		BankID:                        obj.GetBankId(),
+		OrganizationID:                obj.GetBankId(),
 		Status:                        int32(obj.GetStatus()),
 		CurrencyCode:                  principalCurrency,
 		PrincipalAmount:               principalAmount,
@@ -308,7 +308,7 @@ func (m *LoanBalance) ToAPI() *loansv1.LoanBalanceObject {
 
 type LoanProduct struct {
 	data.BaseModel
-	BankID               string `gorm:"type:varchar(50);index:idx_lp_bank"`
+	OrganizationID       string `gorm:"type:varchar(50);index:idx_lp_organization"`
 	Name                 string `gorm:"type:varchar(255)"`
 	Code                 string `gorm:"type:varchar(50);uniqueIndex:uq_lp_code"`
 	Description          string `gorm:"type:text"`
@@ -338,7 +338,7 @@ func (m *LoanProduct) TableName() string { return "loan_products" }
 func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
 	return &originationv1.LoanProductObject{
 		Id:                   m.GetID(),
-		BankId:               m.BankID,
+		BankId:               m.OrganizationID,
 		Name:                 m.Name,
 		Code:                 m.Code,
 		Description:          m.Description,
@@ -373,7 +373,7 @@ func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObjec
 	lpMax, _ := MoneyToMinorUnits(obj.GetMaxAmount())
 
 	model := &LoanProduct{
-		BankID:               obj.GetBankId(),
+		OrganizationID:       obj.GetBankId(),
 		Name:                 obj.GetName(),
 		Code:                 obj.GetCode(),
 		Description:          obj.GetDescription(),

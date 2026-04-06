@@ -18,8 +18,8 @@ package identity.v1;
 
 // -----------------------------------------------------
 // Core notes (normative):
-// - Identity Service manages the organizational backbone of the lending system
-// - Manages Banks (partition mappings), Branches (sub-partitions with geo areas),
+// - Identity Service manages the organizational backbone of the system
+// - Manages Organizations (partition mappings), Branches (sub-partitions with geo areas),
 //   and System Users (verifiers, approvers, administrators, auditors)
 // - Integrates with Profile and Partition ecosystem services
 // - All timestamps are RFC3339 / google.protobuf.Timestamp
@@ -38,7 +38,7 @@ option (gnostic.openapi.v3.document) = {
   info: {
     title: "Lender Identity Service"
     version: "v1.0.0"
-    description: "The Lender Identity Service manages the organizational backbone of the lending system including banks, branches, and system users. Banks map to partitions, branches represent sub-divisions with geographic areas, and system users are assigned roles for loan processing workflows."
+    description: "The Lender Identity Service manages the organizational backbone of the system including organizations, branches, and system users. Organizations map to partitions, branches represent sub-divisions with geographic areas, and system users are assigned roles for processing workflows."
     contact: {
       name: "Ant Investor Ltd"
       url: "https://github.com/antinvestor/service-lender"
@@ -71,6 +71,19 @@ option (gnostic.openapi.v3.document) = {
 // Enumerations
 // -----------------------------------------------------
 
+// OrganizationType defines the kind of organization.
+enum OrganizationType {
+  ORGANIZATION_TYPE_UNSPECIFIED = 0;
+  ORGANIZATION_TYPE_BANK = 1;           // Traditional bank or financial institution
+  ORGANIZATION_TYPE_MICROFINANCE = 2;   // Microfinance institution
+  ORGANIZATION_TYPE_SACCO = 3;          // Savings and Credit Co-operative
+  ORGANIZATION_TYPE_FINTECH = 4;        // Fintech lending company
+  ORGANIZATION_TYPE_COOPERATIVE = 5;    // Cooperative society
+  ORGANIZATION_TYPE_NGO = 6;            // Non-governmental organization
+  ORGANIZATION_TYPE_GOVERNMENT = 7;     // Government lending program
+  ORGANIZATION_TYPE_OTHER = 8;          // Other organization type
+}
+
 // SystemUserRole defines the role a system user plays in the lending workflow.
 enum SystemUserRole {
   SYSTEM_USER_ROLE_UNSPECIFIED = 0;
@@ -84,8 +97,10 @@ enum SystemUserRole {
 // Entity Messages
 // -----------------------------------------------------
 
-// BankObject represents a top-level lending institution mapped to a partition.
-message BankObject {
+// OrganizationObject represents a top-level institution mapped to a partition.
+// This is a generic entity that can represent banks, microfinance institutions,
+// SACCOs, fintechs, cooperatives, or any other organization type.
+message OrganizationObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
@@ -95,7 +110,7 @@ message BankObject {
   string partition_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
-  ]; // Partition this bank maps to
+  ]; // Partition this organization maps to
   string name = 3 [(buf.validate.field).string.min_len = 1]; // Display name
   string code = 4 [(buf.validate.field).string.min_len = 1]; // Unique short code
   string profile_id = 5 [
@@ -104,10 +119,11 @@ message BankObject {
     (buf.validate.field).string.max_len = 40
   ]; // Associated profile ID
   common.v1.STATE state = 6; // Current state
-  google.protobuf.Struct properties = 7; // Additional metadata
+  OrganizationType organization_type = 7; // Type of organization
+  google.protobuf.Struct properties = 8; // Additional metadata
 }
 
-// BranchObject represents a branch within a bank, mapped to a child partition with a geographic area.
+// BranchObject represents a branch within an organization, mapped to a child partition with a geographic area.
 message BranchObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -115,10 +131,10 @@ message BranchObject {
     (buf.validate.field).string.max_len = 40,
     (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
   ];
-  string bank_id = 2 [
+  string organization_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
-  ]; // Parent bank ID
+  ]; // Parent organization ID
   string partition_id = 3 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
@@ -181,16 +197,16 @@ message SystemUserObject {
 // Request/Response Messages
 // -----------------------------------------------------
 
-// Bank messages
-message BankSaveRequest {
-  BankObject data = 1 [(buf.validate.field).required = true];
+// Organization messages
+message OrganizationSaveRequest {
+  OrganizationObject data = 1 [(buf.validate.field).required = true];
 }
 
-message BankSaveResponse {
-  BankObject data = 1;
+message OrganizationSaveResponse {
+  OrganizationObject data = 1;
 }
 
-message BankGetRequest {
+message OrganizationGetRequest {
   string id = 1 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40,
@@ -198,12 +214,12 @@ message BankGetRequest {
   ];
 }
 
-message BankGetResponse {
-  BankObject data = 1;
+message OrganizationGetResponse {
+  OrganizationObject data = 1;
 }
 
-message BankSearchResponse {
-  repeated BankObject data = 1;
+message OrganizationSearchResponse {
+  repeated OrganizationObject data = 1;
 }
 
 // Branch messages
@@ -229,11 +245,11 @@ message BranchGetResponse {
 
 message BranchSearchRequest {
   string query = 1; // Free-text search
-  string bank_id = 2 [
+  string organization_id = 2 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
-  ]; // Optional filter by bank
+  ]; // Optional filter by organization
   common.v1.PageCursor cursor = 3; // Pagination
 }
 
@@ -311,14 +327,14 @@ message SystemUserSearchResponse {
 // Identity Service
 // -----------------------------------------------------
 
-// IdentityService manages banks, branches, and system users for the lending platform.
+// IdentityService manages organizations, branches, and system users for the platform.
 // All RPCs require authentication via Bearer token.
 service IdentityService {
   option (common.v1.service_permissions) = {
     namespace: "service_identity"
     permissions: [
-      "bank_view",
-      "bank_manage",
+      "organization_view",
+      "organization_manage",
       "branch_view",
       "branch_manage",
       "investor_view",
@@ -330,8 +346,8 @@ service IdentityService {
       {
         role: ROLE_OWNER
         permissions: [
-          "bank_view",
-          "bank_manage",
+          "organization_view",
+          "organization_manage",
           "branch_view",
           "branch_manage",
           "investor_view",
@@ -343,8 +359,8 @@ service IdentityService {
       {
         role: ROLE_ADMIN
         permissions: [
-          "bank_view",
-          "bank_manage",
+          "organization_view",
+          "organization_manage",
           "branch_view",
           "branch_manage",
           "investor_view",
@@ -356,8 +372,8 @@ service IdentityService {
       {
         role: ROLE_OPERATOR
         permissions: [
-          "bank_view",
-          "bank_manage",
+          "organization_view",
+          "organization_manage",
           "branch_view",
           "branch_manage",
           "investor_view",
@@ -367,7 +383,7 @@ service IdentityService {
       {
         role: ROLE_VIEWER
         permissions: [
-          "bank_view",
+          "organization_view",
           "branch_view",
           "investor_view",
           "system_user_view"
@@ -376,7 +392,7 @@ service IdentityService {
       {
         role: ROLE_MEMBER
         permissions: [
-          "bank_view",
+          "organization_view",
           "branch_view",
           "investor_view",
           "system_user_view"
@@ -385,8 +401,8 @@ service IdentityService {
       {
         role: ROLE_SERVICE
         permissions: [
-          "bank_view",
-          "bank_manage",
+          "organization_view",
+          "organization_manage",
           "branch_view",
           "branch_manage",
           "investor_view",
@@ -398,44 +414,44 @@ service IdentityService {
     ]
   };
 
-  // BankSave creates or updates a bank record.
-  rpc BankSave(BankSaveRequest) returns (BankSaveResponse) {
+  // OrganizationSave creates or updates an organization record.
+  rpc OrganizationSave(OrganizationSaveRequest) returns (OrganizationSaveResponse) {
     option (common.v1.method_permissions) = {
-      permissions: ["bank_manage"]
+      permissions: ["organization_manage"]
     };
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "bankSave"
-      summary: "Create or update a bank"
-      description: "Creates a new bank or updates an existing one. Banks represent top-level lending institutions mapped to partitions."
-      tags: "Banks"
+      operation_id: "organizationSave"
+      summary: "Create or update an organization"
+      description: "Creates a new organization or updates an existing one. Organizations represent top-level institutions mapped to partitions."
+      tags: "Organizations"
     };
   }
 
-  // BankGet retrieves a bank by its ID.
-  rpc BankGet(BankGetRequest) returns (BankGetResponse) {
+  // OrganizationGet retrieves an organization by its ID.
+  rpc OrganizationGet(OrganizationGetRequest) returns (OrganizationGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (common.v1.method_permissions) = {
-      permissions: ["bank_view"]
+      permissions: ["organization_view"]
     };
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "bankGet"
-      summary: "Get a bank by ID"
-      description: "Retrieves a bank record by its unique identifier."
-      tags: "Banks"
+      operation_id: "organizationGet"
+      summary: "Get an organization by ID"
+      description: "Retrieves an organization record by its unique identifier."
+      tags: "Organizations"
     };
   }
 
-  // BankSearch finds banks matching search criteria.
-  rpc BankSearch(common.v1.SearchRequest) returns (stream BankSearchResponse) {
+  // OrganizationSearch finds organizations matching search criteria.
+  rpc OrganizationSearch(common.v1.SearchRequest) returns (stream OrganizationSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (common.v1.method_permissions) = {
-      permissions: ["bank_view"]
+      permissions: ["organization_view"]
     };
     option (gnostic.openapi.v3.operation) = {
-      operation_id: "bankSearch"
-      summary: "Search banks"
-      description: "Searches for banks matching specified criteria. Returns a stream of matching bank records."
-      tags: "Banks"
+      operation_id: "organizationSearch"
+      summary: "Search organizations"
+      description: "Searches for organizations matching specified criteria. Returns a stream of matching organization records."
+      tags: "Organizations"
     };
   }
 
@@ -447,7 +463,7 @@ service IdentityService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "branchSave"
       summary: "Create or update a branch"
-      description: "Creates a new branch or updates an existing one. Branches represent sub-divisions of banks with geographic areas."
+      description: "Creates a new branch or updates an existing one. Branches represent sub-divisions of organizations with geographic areas."
       tags: "Branches"
     };
   }
@@ -475,7 +491,7 @@ service IdentityService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "branchSearch"
       summary: "Search branches"
-      description: "Searches for branches matching specified criteria. Supports filtering by bank ID. Returns a stream of matching branch records."
+      description: "Searches for branches matching specified criteria. Supports filtering by organization ID. Returns a stream of matching branch records."
       tags: "Branches"
     };
   }
@@ -529,7 +545,7 @@ service IdentityService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "systemUserSave"
       summary: "Create or update a system user"
-      description: "Creates a new system user or updates an existing one. System users are assigned roles (verifier, approver, administrator, auditor) for loan processing workflows."
+      description: "Creates a new system user or updates an existing one. System users are assigned roles (verifier, approver, administrator, auditor) for processing workflows."
       tags: "SystemUsers"
     };
   }

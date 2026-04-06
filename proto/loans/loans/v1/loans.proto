@@ -185,7 +185,7 @@ message LoanAccountObject {
   string client_id = 4;
   string agent_id = 5;
   string branch_id = 6;
-  string bank_id = 7;
+  string organization_id = 7;
   LoanStatus status = 8;
   // Field 9 removed (currency_code now in Money).
   google.type.Money principal_amount = 10;
@@ -446,7 +446,7 @@ message LoanAccountSearchRequest {
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
-  string bank_id = 5 [
+  string organization_id = 5 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
@@ -751,6 +751,60 @@ message LoanRequestResponse {
   string message = 4; // human-readable status message
 }
 
+// --- Portfolio ---
+
+// PortfolioSummary provides aggregate financial metrics across a filtered set of loans.
+message PortfolioSummary {
+  int32 total_loans = 1;
+  int32 active_loans = 2;
+  int32 delinquent_loans = 3;
+  int32 default_loans = 4;
+  int32 paid_off_loans = 5;
+  int32 written_off_loans = 6;
+  google.type.Money total_disbursed = 7;
+  google.type.Money total_outstanding = 8;
+  google.type.Money total_collected = 9;
+  google.type.Money principal_outstanding = 10;
+  google.type.Money interest_outstanding = 11;
+  google.type.Money fees_outstanding = 12;
+  google.type.Money penalties_outstanding = 13;
+  string currency_code = 14;
+  // collection_rate is total_collected / total_disbursed as a percentage string (e.g. "85.50").
+  string collection_rate = 15;
+  // par_30 is portfolio-at-risk > 30 days as a percentage string (e.g. "12.30").
+  string par_30 = 16;
+}
+
+message PortfolioSummaryRequest {
+  string organization_id = 1;
+  string branch_id = 2;
+  string agent_id = 3;
+  string product_id = 4;
+  string client_id = 5;
+  string currency_code = 6;
+}
+
+message PortfolioSummaryResponse {
+  PortfolioSummary data = 1;
+}
+
+message PortfolioExportRequest {
+  string organization_id = 1;
+  string branch_id = 2;
+  string agent_id = 3;
+  string product_id = 4;
+  string client_id = 5;
+  string currency_code = 6;
+  // format is the export format: "CSV" (default).
+  string format = 7;
+}
+
+message PortfolioExportResponse {
+  bytes data = 1;
+  string filename = 2;
+  string content_type = 3;
+}
+
 // -----------------------------------------------------
 // Loan Management Service
 // -----------------------------------------------------
@@ -773,7 +827,9 @@ service LoanManagementService {
       "restructure_view",
       "restructure_manage",
       "reconciliation_manage",
-      "collection_manage"
+      "collection_manage",
+      "portfolio_view",
+      "portfolio_export"
     ]
     role_bindings: [
       {
@@ -790,7 +846,9 @@ service LoanManagementService {
           "restructure_view",
           "restructure_manage",
           "reconciliation_manage",
-          "collection_manage"
+          "collection_manage",
+          "portfolio_view",
+          "portfolio_export"
         ]
       },
       {
@@ -807,7 +865,9 @@ service LoanManagementService {
           "restructure_view",
           "restructure_manage",
           "reconciliation_manage",
-          "collection_manage"
+          "collection_manage",
+          "portfolio_view",
+          "portfolio_export"
         ]
       },
       {
@@ -819,7 +879,8 @@ service LoanManagementService {
           "repayment_manage",
           "penalty_view",
           "restructure_view",
-          "reconciliation_manage"
+          "reconciliation_manage",
+          "portfolio_view"
         ]
       },
       {
@@ -829,7 +890,8 @@ service LoanManagementService {
           "disbursement_view",
           "repayment_view",
           "penalty_view",
-          "restructure_view"
+          "restructure_view",
+          "portfolio_view"
         ]
       },
       {
@@ -856,7 +918,9 @@ service LoanManagementService {
           "restructure_view",
           "restructure_manage",
           "reconciliation_manage",
-          "collection_manage"
+          "collection_manage",
+          "portfolio_view",
+          "portfolio_export"
         ]
       }
     ]
@@ -898,7 +962,7 @@ service LoanManagementService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanAccountSearch"
       summary: "Search loan accounts"
-      description: "Searches for loan accounts. Supports filtering by client, agent, branch, bank, and status."
+      description: "Searches for loan accounts. Supports filtering by client, agent, branch, organization, and status."
       tags: "LoanAccounts"
     };
   }
@@ -1186,6 +1250,35 @@ service LoanManagementService {
       summary: "Request a loan (direct client)"
       description: "A client-facing API for direct client loan requests. Validates eligibility, runs automated risk checks, and routes to the agent for approval. Returns the request status and reference for tracking."
       tags: "LoanRequest"
+    };
+  }
+
+  // PortfolioSummary returns aggregated financial metrics across a filtered
+  // set of loans. Supports filtering by organization, branch, agent, product, and client.
+  rpc PortfolioSummary(PortfolioSummaryRequest) returns (PortfolioSummaryResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["portfolio_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "portfolioSummary"
+      summary: "Get portfolio summary"
+      description: "Returns aggregated financial metrics (totals, counts, collection rate, PAR) across loans, filterable by organization, branch, agent, product, or client."
+      tags: "Portfolio"
+    };
+  }
+
+  // PortfolioExport exports the loan book as CSV for a filtered set of loans.
+  rpc PortfolioExport(PortfolioExportRequest) returns (PortfolioExportResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["portfolio_export"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "portfolioExport"
+      summary: "Export loan book"
+      description: "Exports the loan book as a CSV file for the filtered set of loans."
+      tags: "Portfolio"
     };
   }
 }

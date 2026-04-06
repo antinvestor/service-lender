@@ -13,6 +13,36 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+/// OrganizationType defines the kind of organization.
+class OrganizationType extends $pb.ProtobufEnum {
+  static const OrganizationType ORGANIZATION_TYPE_UNSPECIFIED = OrganizationType._(0, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_UNSPECIFIED');
+  static const OrganizationType ORGANIZATION_TYPE_BANK = OrganizationType._(1, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_BANK');
+  static const OrganizationType ORGANIZATION_TYPE_MICROFINANCE = OrganizationType._(2, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_MICROFINANCE');
+  static const OrganizationType ORGANIZATION_TYPE_SACCO = OrganizationType._(3, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_SACCO');
+  static const OrganizationType ORGANIZATION_TYPE_FINTECH = OrganizationType._(4, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_FINTECH');
+  static const OrganizationType ORGANIZATION_TYPE_COOPERATIVE = OrganizationType._(5, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_COOPERATIVE');
+  static const OrganizationType ORGANIZATION_TYPE_NGO = OrganizationType._(6, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_NGO');
+  static const OrganizationType ORGANIZATION_TYPE_GOVERNMENT = OrganizationType._(7, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_GOVERNMENT');
+  static const OrganizationType ORGANIZATION_TYPE_OTHER = OrganizationType._(8, _omitEnumNames ? '' : 'ORGANIZATION_TYPE_OTHER');
+
+  static const $core.List<OrganizationType> values = <OrganizationType> [
+    ORGANIZATION_TYPE_UNSPECIFIED,
+    ORGANIZATION_TYPE_BANK,
+    ORGANIZATION_TYPE_MICROFINANCE,
+    ORGANIZATION_TYPE_SACCO,
+    ORGANIZATION_TYPE_FINTECH,
+    ORGANIZATION_TYPE_COOPERATIVE,
+    ORGANIZATION_TYPE_NGO,
+    ORGANIZATION_TYPE_GOVERNMENT,
+    ORGANIZATION_TYPE_OTHER,
+  ];
+
+  static final $core.Map<$core.int, OrganizationType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static OrganizationType? valueOf($core.int value) => _byValue[value];
+
+  const OrganizationType._($core.int v, $core.String n) : super(v, n);
+}
+
 /// SystemUserRole defines the role a system user plays in the lending workflow.
 class SystemUserRole extends $pb.ProtobufEnum {
   static const SystemUserRole SYSTEM_USER_ROLE_UNSPECIFIED = SystemUserRole._(0, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_UNSPECIFIED');

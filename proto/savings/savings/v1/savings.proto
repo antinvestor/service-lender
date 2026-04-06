@@ -139,7 +139,7 @@ message SavingsProductObject {
     (buf.validate.field).string.max_len = 40,
     (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
   ];
-  string bank_id = 2 [
+  string organization_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
@@ -174,7 +174,7 @@ message SavingsAccountObject {
     (buf.validate.field).string.max_len = 40
   ];
   SavingsAccountOwnerType owner_type = 4;
-  string bank_id = 5 [
+  string organization_id = 5 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
@@ -311,7 +311,7 @@ message SavingsProductGetResponse {
 
 message SavingsProductSearchRequest {
   string query = 1;
-  string bank_id = 2 [
+  string organization_id = 2 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
@@ -357,7 +357,7 @@ message SavingsAccountSearchRequest {
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
-  string bank_id = 4 [
+  string organization_id = 4 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40

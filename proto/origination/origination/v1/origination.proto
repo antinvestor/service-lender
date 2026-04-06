@@ -163,7 +163,7 @@ message LoanProductObject {
     (buf.validate.field).string.max_len = 40,
     (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
   ];
-  string bank_id = 2 [
+  string organization_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
@@ -217,7 +217,7 @@ message ApplicationObject {
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
-  string bank_id = 6 [
+  string organization_id = 6 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
@@ -339,7 +339,7 @@ message LoanProductGetResponse {
 
 message LoanProductSearchRequest {
   string query = 1;
-  string bank_id = 2 [
+  string organization_id = 2 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
@@ -391,7 +391,7 @@ message ApplicationSearchRequest {
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
-  string bank_id = 5 [
+  string organization_id = 5 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40

@@ -7,6 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore"
 
 	"github.com/antinvestor/service-lender/apps/loans/service/models"
+	opsmodels "github.com/antinvestor/service-lender/apps/operations/service/models"
 )
 
 func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {
@@ -26,5 +27,6 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.LoanRestructure{},
 		&models.LoanStatusChange{},
 		&models.Reconciliation{},
+		&opsmodels.TransferOrder{},
 	)
 }

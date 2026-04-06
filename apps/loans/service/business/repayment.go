@@ -14,6 +14,9 @@ import (
 	"github.com/antinvestor/service-lender/apps/loans/service/events"
 	"github.com/antinvestor/service-lender/apps/loans/service/models"
 	"github.com/antinvestor/service-lender/apps/loans/service/repository"
+	opsevents "github.com/antinvestor/service-lender/apps/operations/service/events"
+	opsmodels "github.com/antinvestor/service-lender/apps/operations/service/models"
+	"github.com/antinvestor/service-lender/pkg/constants"
 )
 
 type RepaymentBusiness interface {
@@ -93,28 +96,32 @@ func (b *repaymentBusiness) Record(
 	amount, repCurrencyCode := models.MoneyToMinorUnits(req.GetAmount())
 	_ = repCurrencyCode
 
-	// Waterfall allocation against schedule entries
-	alloc := b.waterfallAllocate(ctx, logger, req.GetLoanAccountId(), amount)
+	if amount <= 0 {
+		return nil, fmt.Errorf("repayment amount must be positive, got %d", amount)
+	}
 
-	principalApplied := alloc.principalApplied
-	interestApplied := alloc.interestApplied
-	feesApplied := alloc.feesApplied
-	excessAmount := alloc.excessAmount
-	status := alloc.status
+	// Load balance once — used for both penalty allocation and balance update.
+	// This avoids a race condition where two concurrent repayments could read
+	// different balance states between the waterfall and the update.
+	balance, balErr := b.loanBalanceRepo.GetByLoanAccountID(ctx, req.GetLoanAccountId())
+
+	// Waterfall allocation: penalties (from balance) -> interest -> fees -> principal (from schedule)
+	alloc := b.waterfallAllocate(ctx, logger, req.GetLoanAccountId(), amount, balance)
 
 	r := &models.Repayment{
 		LoanAccountID:    req.GetLoanAccountId(),
 		Amount:           amount,
 		CurrencyCode:     la.CurrencyCode,
-		Status:           int32(status),
+		Status:           int32(alloc.status),
 		PaymentReference: req.GetPaymentReference(),
 		ReceivedAt:       receivedAt,
 		Channel:          req.GetChannel(),
 		PayerReference:   req.GetPayerReference(),
-		PrincipalApplied: principalApplied,
-		InterestApplied:  interestApplied,
-		FeesApplied:      feesApplied,
-		ExcessAmount:     excessAmount,
+		PrincipalApplied: alloc.principalApplied,
+		InterestApplied:  alloc.interestApplied,
+		FeesApplied:      alloc.feesApplied,
+		PenaltiesApplied: alloc.penaltiesApplied,
+		ExcessAmount:     alloc.excessAmount,
 		IdempotencyKey:   req.GetIdempotencyKey(),
 	}
 	r.GenID(ctx)
@@ -125,8 +132,10 @@ func (b *repaymentBusiness) Record(
 		return nil, err
 	}
 
+	// Emit transfer orders for each allocation component (ledger double-entry)
+	b.emitRepaymentTransferOrders(ctx, logger, la, r, alloc)
+
 	// Update loan balance and handle payoff detection
-	balance, balErr := b.loanBalanceRepo.GetByLoanAccountID(ctx, req.GetLoanAccountId())
 	if balErr == nil && balance != nil {
 		b.applyRepaymentToBalance(ctx, logger, la, balance, amount, alloc)
 	}
@@ -156,7 +165,12 @@ func (b *repaymentBusiness) applyRepaymentToBalance(
 	if balance.FeesOutstanding < 0 {
 		balance.FeesOutstanding = 0
 	}
-	balance.TotalPaid += amount - alloc.excessAmount
+	balance.PenaltiesOutstanding -= alloc.penaltiesApplied
+	if balance.PenaltiesOutstanding < 0 {
+		balance.PenaltiesOutstanding = 0
+	}
+	balance.TotalPaid += alloc.principalApplied + alloc.interestApplied +
+		alloc.feesApplied + alloc.penaltiesApplied
 	balance.TotalOutstanding = balance.PrincipalOutstanding + balance.InterestAccrued +
 		balance.FeesOutstanding + balance.PenaltiesOutstanding
 	now := time.Now().UTC()
@@ -194,31 +208,130 @@ type waterfallResult struct {
 	principalApplied int64
 	interestApplied  int64
 	feesApplied      int64
+	penaltiesApplied int64
 	excessAmount     int64
 	status           loansv1.RepaymentStatus
 }
 
-// waterfallAllocate applies a payment amount to unpaid schedule entries in
-// waterfall order: interest -> fees -> principal. Returns allocation totals.
+// emitRepaymentTransferOrders creates transfer orders for each allocation
+// component of a repayment. This ensures all money movements are captured in
+// the ledger via double-entry accounting.
+func (b *repaymentBusiness) emitRepaymentTransferOrders(
+	ctx context.Context,
+	logger *util.LogEntry,
+	la *models.LoanAccount,
+	repayment *models.Repayment,
+	alloc waterfallResult,
+) {
+	repID := repayment.GetID()
+	memberAccount := constants.MemberLoansAccount(la.ClientID)
+
+	// Transfer order for principal repayment
+	if alloc.principalApplied > 0 {
+		b.emitTransferOrder(ctx, logger,
+			memberAccount, la.LedgerAssetAccountID,
+			alloc.principalApplied, la.CurrencyCode,
+			constants.TransferTypeLoanRepayment,
+			fmt.Sprintf("repayment:%s:principal", repID),
+			"Principal repayment",
+		)
+	}
+
+	// Transfer order for interest repayment
+	if alloc.interestApplied > 0 {
+		b.emitTransferOrder(ctx, logger,
+			memberAccount, la.LedgerInterestIncomeAccountID,
+			alloc.interestApplied, la.CurrencyCode,
+			constants.TransferTypeLoanInterestRepayment,
+			fmt.Sprintf("repayment:%s:interest", repID),
+			"Interest repayment",
+		)
+	}
+
+	// Transfer order for fee repayment (insurance + processing)
+	if alloc.feesApplied > 0 {
+		b.emitTransferOrder(ctx, logger,
+			memberAccount, la.LedgerFeeIncomeAccountID,
+			alloc.feesApplied, la.CurrencyCode,
+			constants.TransferTypeLoanInsuranceRepayment,
+			fmt.Sprintf("repayment:%s:fees", repID),
+			"Fee repayment",
+		)
+	}
+
+	// Transfer order for penalty repayment
+	if alloc.penaltiesApplied > 0 {
+		b.emitTransferOrder(ctx, logger,
+			memberAccount, la.LedgerPenaltyIncomeAccountID,
+			alloc.penaltiesApplied, la.CurrencyCode,
+			constants.TransferTypePenaltyCancel,
+			fmt.Sprintf("repayment:%s:penalties", repID),
+			"Penalty repayment",
+		)
+	}
+}
+
+// emitTransferOrder creates and emits a single transfer order.
+func (b *repaymentBusiness) emitTransferOrder(
+	ctx context.Context,
+	logger *util.LogEntry,
+	debitAccount, creditAccount string,
+	amount int64,
+	currency string,
+	orderType int,
+	reference, description string,
+) {
+	to := &opsmodels.TransferOrder{
+		DebitAccountRef:  debitAccount,
+		CreditAccountRef: creditAccount,
+		Amount:           amount,
+		Currency:         currency,
+		OrderType:        constants.SafeInt32FromInt(orderType),
+		Reference:        reference,
+		Description:      description,
+		State:            int32(constants.StateJustCreated),
+	}
+	to.GenID(ctx)
+
+	if emitErr := b.eventsMan.Emit(ctx, opsevents.TransferOrderSaveEvent, to); emitErr != nil {
+		logger.WithError(emitErr).
+			WithField("reference", reference).
+			Error("could not emit transfer order for repayment")
+	}
+}
+
+// waterfallAllocate applies a payment amount in waterfall order:
+// penalties -> interest -> fees -> principal. Penalties are allocated from the
+// balance first, then schedule entries are processed for interest, fees,
+// and principal. The balance parameter is optional (may be nil).
 func (b *repaymentBusiness) waterfallAllocate(
 	ctx context.Context,
 	logger *util.LogEntry,
 	loanAccountID string,
 	amount int64,
+	balance *models.LoanBalance,
 ) waterfallResult {
 	result := waterfallResult{status: loansv1.RepaymentStatus_REPAYMENT_STATUS_PENDING}
 	remaining := amount
 
+	// 1. Allocate to outstanding penalties first (balance-level, not schedule-level)
+	if balance != nil && balance.PenaltiesOutstanding > 0 && remaining > 0 {
+		penaltyPay := min64(balance.PenaltiesOutstanding, remaining)
+		result.penaltiesApplied = penaltyPay
+		remaining -= penaltyPay
+	}
+
+	// 2. Allocate remaining amount to schedule entries: interest -> fees -> principal
 	schedule, schedErr := b.scheduleRepo.GetActivByLoanAccountID(ctx, loanAccountID)
 	if schedErr != nil || schedule == nil {
-		// No schedule found, fall back to applying full amount as principal
-		result.principalApplied = amount
+		// No schedule found, fall back to applying full remaining as principal
+		result.principalApplied = remaining
 		return result
 	}
 
 	entries, entryErr := b.scheduleEntryRepo.GetByScheduleID(ctx, schedule.GetID())
 	if entryErr != nil {
-		result.principalApplied = amount
+		result.principalApplied = remaining
 		return result
 	}
 
@@ -235,7 +348,9 @@ func (b *repaymentBusiness) waterfallAllocate(
 	}
 
 	result.excessAmount = remaining
-	if remaining == 0 || result.principalApplied+result.interestApplied+result.feesApplied > 0 {
+	totalAllocated := result.penaltiesApplied + result.principalApplied +
+		result.interestApplied + result.feesApplied
+	if remaining == 0 || totalAllocated > 0 {
 		result.status = loansv1.RepaymentStatus_REPAYMENT_STATUS_MATCHED
 	}
 

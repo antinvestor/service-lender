@@ -21,15 +21,18 @@ import 'identity.pbenum.dart';
 
 export 'identity.pbenum.dart';
 
-/// BankObject represents a top-level lending institution mapped to a partition.
-class BankObject extends $pb.GeneratedMessage {
-  factory BankObject({
+/// OrganizationObject represents a top-level institution mapped to a partition.
+/// This is a generic entity that can represent banks, microfinance institutions,
+/// SACCOs, fintechs, cooperatives, or any other organization type.
+class OrganizationObject extends $pb.GeneratedMessage {
+  factory OrganizationObject({
     $core.String? id,
     $core.String? partitionId,
     $core.String? name,
     $core.String? code,
     $core.String? profileId,
     $7.STATE? state,
+    OrganizationType? organizationType,
     $6.Struct? properties,
   }) {
     final $result = create();
@@ -51,23 +54,27 @@ class BankObject extends $pb.GeneratedMessage {
     if (state != null) {
       $result.state = state;
     }
+    if (organizationType != null) {
+      $result.organizationType = organizationType;
+    }
     if (properties != null) {
       $result.properties = properties;
     }
     return $result;
   }
-  BankObject._() : super();
-  factory BankObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BankObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  OrganizationObject._() : super();
+  factory OrganizationObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrganizationObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BankObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrganizationObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'partitionId')
     ..aOS(3, _omitFieldNames ? '' : 'name')
     ..aOS(4, _omitFieldNames ? '' : 'code')
     ..aOS(5, _omitFieldNames ? '' : 'profileId')
     ..e<$7.STATE>(6, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
-    ..aOM<$6.Struct>(7, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..e<OrganizationType>(7, _omitFieldNames ? '' : 'organizationType', $pb.PbFieldType.OE, defaultOrMaker: OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED, valueOf: OrganizationType.valueOf, enumValues: OrganizationType.values)
+    ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..hasRequiredFields = false
   ;
 
@@ -75,22 +82,22 @@ class BankObject extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BankObject clone() => BankObject()..mergeFromMessage(this);
+  OrganizationObject clone() => OrganizationObject()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BankObject copyWith(void Function(BankObject) updates) => super.copyWith((message) => updates(message as BankObject)) as BankObject;
+  OrganizationObject copyWith(void Function(OrganizationObject) updates) => super.copyWith((message) => updates(message as OrganizationObject)) as OrganizationObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static BankObject create() => BankObject._();
-  BankObject createEmptyInstance() => create();
-  static $pb.PbList<BankObject> createRepeated() => $pb.PbList<BankObject>();
+  static OrganizationObject create() => OrganizationObject._();
+  OrganizationObject createEmptyInstance() => create();
+  static $pb.PbList<OrganizationObject> createRepeated() => $pb.PbList<OrganizationObject>();
   @$core.pragma('dart2js:noInline')
-  static BankObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BankObject>(create);
-  static BankObject? _defaultInstance;
+  static OrganizationObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrganizationObject>(create);
+  static OrganizationObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -147,22 +154,31 @@ class BankObject extends $pb.GeneratedMessage {
   void clearState() => clearField(6);
 
   @$pb.TagNumber(7)
-  $6.Struct get properties => $_getN(6);
+  OrganizationType get organizationType => $_getN(6);
   @$pb.TagNumber(7)
-  set properties($6.Struct v) { setField(7, v); }
+  set organizationType(OrganizationType v) { setField(7, v); }
   @$pb.TagNumber(7)
-  $core.bool hasProperties() => $_has(6);
+  $core.bool hasOrganizationType() => $_has(6);
   @$pb.TagNumber(7)
-  void clearProperties() => clearField(7);
-  @$pb.TagNumber(7)
-  $6.Struct ensureProperties() => $_ensure(6);
+  void clearOrganizationType() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $6.Struct get properties => $_getN(7);
+  @$pb.TagNumber(8)
+  set properties($6.Struct v) { setField(8, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasProperties() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearProperties() => clearField(8);
+  @$pb.TagNumber(8)
+  $6.Struct ensureProperties() => $_ensure(7);
 }
 
-/// BranchObject represents a branch within a bank, mapped to a child partition with a geographic area.
+/// BranchObject represents a branch within an organization, mapped to a child partition with a geographic area.
 class BranchObject extends $pb.GeneratedMessage {
   factory BranchObject({
     $core.String? id,
-    $core.String? bankId,
+    $core.String? organizationId,
     $core.String? partitionId,
     $core.String? name,
     $core.String? code,
@@ -174,8 +190,8 @@ class BranchObject extends $pb.GeneratedMessage {
     if (id != null) {
       $result.id = id;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (partitionId != null) {
       $result.partitionId = partitionId;
@@ -203,7 +219,7 @@ class BranchObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BranchObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..aOS(2, _omitFieldNames ? '' : 'bankId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOS(3, _omitFieldNames ? '' : 'partitionId')
     ..aOS(4, _omitFieldNames ? '' : 'name')
     ..aOS(5, _omitFieldNames ? '' : 'code')
@@ -244,13 +260,13 @@ class BranchObject extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get bankId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set bankId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBankId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBankId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get partitionId => $_getSZ(2);
@@ -556,10 +572,10 @@ class SystemUserObject extends $pb.GeneratedMessage {
   $6.Struct ensureProperties() => $_ensure(6);
 }
 
-/// Bank messages
-class BankSaveRequest extends $pb.GeneratedMessage {
-  factory BankSaveRequest({
-    BankObject? data,
+/// Organization messages
+class OrganizationSaveRequest extends $pb.GeneratedMessage {
+  factory OrganizationSaveRequest({
+    OrganizationObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -567,12 +583,12 @@ class BankSaveRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  BankSaveRequest._() : super();
-  factory BankSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BankSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  OrganizationSaveRequest._() : super();
+  factory OrganizationSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrganizationSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BankSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
-    ..aOM<BankObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BankObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrganizationSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<OrganizationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: OrganizationObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -580,38 +596,38 @@ class BankSaveRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BankSaveRequest clone() => BankSaveRequest()..mergeFromMessage(this);
+  OrganizationSaveRequest clone() => OrganizationSaveRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BankSaveRequest copyWith(void Function(BankSaveRequest) updates) => super.copyWith((message) => updates(message as BankSaveRequest)) as BankSaveRequest;
+  OrganizationSaveRequest copyWith(void Function(OrganizationSaveRequest) updates) => super.copyWith((message) => updates(message as OrganizationSaveRequest)) as OrganizationSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static BankSaveRequest create() => BankSaveRequest._();
-  BankSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<BankSaveRequest> createRepeated() => $pb.PbList<BankSaveRequest>();
+  static OrganizationSaveRequest create() => OrganizationSaveRequest._();
+  OrganizationSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<OrganizationSaveRequest> createRepeated() => $pb.PbList<OrganizationSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static BankSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BankSaveRequest>(create);
-  static BankSaveRequest? _defaultInstance;
+  static OrganizationSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrganizationSaveRequest>(create);
+  static OrganizationSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  BankObject get data => $_getN(0);
+  OrganizationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(BankObject v) { setField(1, v); }
+  set data(OrganizationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  BankObject ensureData() => $_ensure(0);
+  OrganizationObject ensureData() => $_ensure(0);
 }
 
-class BankSaveResponse extends $pb.GeneratedMessage {
-  factory BankSaveResponse({
-    BankObject? data,
+class OrganizationSaveResponse extends $pb.GeneratedMessage {
+  factory OrganizationSaveResponse({
+    OrganizationObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -619,12 +635,12 @@ class BankSaveResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  BankSaveResponse._() : super();
-  factory BankSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BankSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  OrganizationSaveResponse._() : super();
+  factory OrganizationSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrganizationSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BankSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
-    ..aOM<BankObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BankObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrganizationSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<OrganizationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: OrganizationObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -632,37 +648,37 @@ class BankSaveResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BankSaveResponse clone() => BankSaveResponse()..mergeFromMessage(this);
+  OrganizationSaveResponse clone() => OrganizationSaveResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BankSaveResponse copyWith(void Function(BankSaveResponse) updates) => super.copyWith((message) => updates(message as BankSaveResponse)) as BankSaveResponse;
+  OrganizationSaveResponse copyWith(void Function(OrganizationSaveResponse) updates) => super.copyWith((message) => updates(message as OrganizationSaveResponse)) as OrganizationSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static BankSaveResponse create() => BankSaveResponse._();
-  BankSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<BankSaveResponse> createRepeated() => $pb.PbList<BankSaveResponse>();
+  static OrganizationSaveResponse create() => OrganizationSaveResponse._();
+  OrganizationSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<OrganizationSaveResponse> createRepeated() => $pb.PbList<OrganizationSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static BankSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BankSaveResponse>(create);
-  static BankSaveResponse? _defaultInstance;
+  static OrganizationSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrganizationSaveResponse>(create);
+  static OrganizationSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  BankObject get data => $_getN(0);
+  OrganizationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(BankObject v) { setField(1, v); }
+  set data(OrganizationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  BankObject ensureData() => $_ensure(0);
+  OrganizationObject ensureData() => $_ensure(0);
 }
 
-class BankGetRequest extends $pb.GeneratedMessage {
-  factory BankGetRequest({
+class OrganizationGetRequest extends $pb.GeneratedMessage {
+  factory OrganizationGetRequest({
     $core.String? id,
   }) {
     final $result = create();
@@ -671,11 +687,11 @@ class BankGetRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  BankGetRequest._() : super();
-  factory BankGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BankGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  OrganizationGetRequest._() : super();
+  factory OrganizationGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrganizationGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BankGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrganizationGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..hasRequiredFields = false
   ;
@@ -684,22 +700,22 @@ class BankGetRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BankGetRequest clone() => BankGetRequest()..mergeFromMessage(this);
+  OrganizationGetRequest clone() => OrganizationGetRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BankGetRequest copyWith(void Function(BankGetRequest) updates) => super.copyWith((message) => updates(message as BankGetRequest)) as BankGetRequest;
+  OrganizationGetRequest copyWith(void Function(OrganizationGetRequest) updates) => super.copyWith((message) => updates(message as OrganizationGetRequest)) as OrganizationGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static BankGetRequest create() => BankGetRequest._();
-  BankGetRequest createEmptyInstance() => create();
-  static $pb.PbList<BankGetRequest> createRepeated() => $pb.PbList<BankGetRequest>();
+  static OrganizationGetRequest create() => OrganizationGetRequest._();
+  OrganizationGetRequest createEmptyInstance() => create();
+  static $pb.PbList<OrganizationGetRequest> createRepeated() => $pb.PbList<OrganizationGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static BankGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BankGetRequest>(create);
-  static BankGetRequest? _defaultInstance;
+  static OrganizationGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrganizationGetRequest>(create);
+  static OrganizationGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -711,9 +727,9 @@ class BankGetRequest extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 }
 
-class BankGetResponse extends $pb.GeneratedMessage {
-  factory BankGetResponse({
-    BankObject? data,
+class OrganizationGetResponse extends $pb.GeneratedMessage {
+  factory OrganizationGetResponse({
+    OrganizationObject? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -721,12 +737,12 @@ class BankGetResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  BankGetResponse._() : super();
-  factory BankGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BankGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  OrganizationGetResponse._() : super();
+  factory OrganizationGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrganizationGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BankGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
-    ..aOM<BankObject>(1, _omitFieldNames ? '' : 'data', subBuilder: BankObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrganizationGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<OrganizationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: OrganizationObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -734,38 +750,38 @@ class BankGetResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BankGetResponse clone() => BankGetResponse()..mergeFromMessage(this);
+  OrganizationGetResponse clone() => OrganizationGetResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BankGetResponse copyWith(void Function(BankGetResponse) updates) => super.copyWith((message) => updates(message as BankGetResponse)) as BankGetResponse;
+  OrganizationGetResponse copyWith(void Function(OrganizationGetResponse) updates) => super.copyWith((message) => updates(message as OrganizationGetResponse)) as OrganizationGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static BankGetResponse create() => BankGetResponse._();
-  BankGetResponse createEmptyInstance() => create();
-  static $pb.PbList<BankGetResponse> createRepeated() => $pb.PbList<BankGetResponse>();
+  static OrganizationGetResponse create() => OrganizationGetResponse._();
+  OrganizationGetResponse createEmptyInstance() => create();
+  static $pb.PbList<OrganizationGetResponse> createRepeated() => $pb.PbList<OrganizationGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static BankGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BankGetResponse>(create);
-  static BankGetResponse? _defaultInstance;
+  static OrganizationGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrganizationGetResponse>(create);
+  static OrganizationGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  BankObject get data => $_getN(0);
+  OrganizationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(BankObject v) { setField(1, v); }
+  set data(OrganizationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
   @$pb.TagNumber(1)
-  BankObject ensureData() => $_ensure(0);
+  OrganizationObject ensureData() => $_ensure(0);
 }
 
-class BankSearchResponse extends $pb.GeneratedMessage {
-  factory BankSearchResponse({
-    $core.Iterable<BankObject>? data,
+class OrganizationSearchResponse extends $pb.GeneratedMessage {
+  factory OrganizationSearchResponse({
+    $core.Iterable<OrganizationObject>? data,
   }) {
     final $result = create();
     if (data != null) {
@@ -773,12 +789,12 @@ class BankSearchResponse extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  BankSearchResponse._() : super();
-  factory BankSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BankSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  OrganizationSearchResponse._() : super();
+  factory OrganizationSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrganizationSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BankSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
-    ..pc<BankObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: BankObject.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrganizationSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..pc<OrganizationObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: OrganizationObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -786,25 +802,25 @@ class BankSearchResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BankSearchResponse clone() => BankSearchResponse()..mergeFromMessage(this);
+  OrganizationSearchResponse clone() => OrganizationSearchResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BankSearchResponse copyWith(void Function(BankSearchResponse) updates) => super.copyWith((message) => updates(message as BankSearchResponse)) as BankSearchResponse;
+  OrganizationSearchResponse copyWith(void Function(OrganizationSearchResponse) updates) => super.copyWith((message) => updates(message as OrganizationSearchResponse)) as OrganizationSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static BankSearchResponse create() => BankSearchResponse._();
-  BankSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<BankSearchResponse> createRepeated() => $pb.PbList<BankSearchResponse>();
+  static OrganizationSearchResponse create() => OrganizationSearchResponse._();
+  OrganizationSearchResponse createEmptyInstance() => create();
+  static $pb.PbList<OrganizationSearchResponse> createRepeated() => $pb.PbList<OrganizationSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static BankSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BankSearchResponse>(create);
-  static BankSearchResponse? _defaultInstance;
+  static OrganizationSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrganizationSearchResponse>(create);
+  static OrganizationSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<BankObject> get data => $_getList(0);
+  $core.List<OrganizationObject> get data => $_getList(0);
 }
 
 /// Branch messages
@@ -1017,15 +1033,15 @@ class BranchGetResponse extends $pb.GeneratedMessage {
 class BranchSearchRequest extends $pb.GeneratedMessage {
   factory BranchSearchRequest({
     $core.String? query,
-    $core.String? bankId,
+    $core.String? organizationId,
     $7.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
       $result.query = query;
     }
-    if (bankId != null) {
-      $result.bankId = bankId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (cursor != null) {
       $result.cursor = cursor;
@@ -1038,7 +1054,7 @@ class BranchSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BranchSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
-    ..aOS(2, _omitFieldNames ? '' : 'bankId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
     ..hasRequiredFields = false
   ;
@@ -1074,13 +1090,13 @@ class BranchSearchRequest extends $pb.GeneratedMessage {
   void clearQuery() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get bankId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set bankId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBankId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBankId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   $7.PageCursor get cursor => $_getN(2);
@@ -1804,14 +1820,14 @@ class IdentityServiceApi {
   $pb.RpcClient _client;
   IdentityServiceApi(this._client);
 
-  $async.Future<BankSaveResponse> bankSave($pb.ClientContext? ctx, BankSaveRequest request) =>
-    _client.invoke<BankSaveResponse>(ctx, 'IdentityService', 'BankSave', request, BankSaveResponse())
+  $async.Future<OrganizationSaveResponse> organizationSave($pb.ClientContext? ctx, OrganizationSaveRequest request) =>
+    _client.invoke<OrganizationSaveResponse>(ctx, 'IdentityService', 'OrganizationSave', request, OrganizationSaveResponse())
   ;
-  $async.Future<BankGetResponse> bankGet($pb.ClientContext? ctx, BankGetRequest request) =>
-    _client.invoke<BankGetResponse>(ctx, 'IdentityService', 'BankGet', request, BankGetResponse())
+  $async.Future<OrganizationGetResponse> organizationGet($pb.ClientContext? ctx, OrganizationGetRequest request) =>
+    _client.invoke<OrganizationGetResponse>(ctx, 'IdentityService', 'OrganizationGet', request, OrganizationGetResponse())
   ;
-  $async.Future<BankSearchResponse> bankSearch($pb.ClientContext? ctx, $7.SearchRequest request) =>
-    _client.invoke<BankSearchResponse>(ctx, 'IdentityService', 'BankSearch', request, BankSearchResponse())
+  $async.Future<OrganizationSearchResponse> organizationSearch($pb.ClientContext? ctx, $7.SearchRequest request) =>
+    _client.invoke<OrganizationSearchResponse>(ctx, 'IdentityService', 'OrganizationSearch', request, OrganizationSearchResponse())
   ;
   $async.Future<BranchSaveResponse> branchSave($pb.ClientContext? ctx, BranchSaveRequest request) =>
     _client.invoke<BranchSaveResponse>(ctx, 'IdentityService', 'BranchSave', request, BranchSaveResponse())

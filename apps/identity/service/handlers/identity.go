@@ -15,35 +15,35 @@ import (
 // IdentityServer implements the IdentityService RPC handler.
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type IdentityServer struct {
-	bankBusiness     business.BankBusiness
-	branchBusiness   business.BranchBusiness
-	investorBusiness business.InvestorBusiness
-	suBusiness       business.SystemUserBusiness
+	organizationBusiness business.OrganizationBusiness
+	branchBusiness       business.BranchBusiness
+	investorBusiness     business.InvestorBusiness
+	suBusiness           business.SystemUserBusiness
 
 	identityv1connect.UnimplementedIdentityServiceHandler
 }
 
 func NewIdentityServer(
-	bankBusiness business.BankBusiness,
+	organizationBusiness business.OrganizationBusiness,
 	branchBusiness business.BranchBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) identityv1connect.IdentityServiceHandler {
 	return &IdentityServer{
-		bankBusiness:     bankBusiness,
-		branchBusiness:   branchBusiness,
-		investorBusiness: investorBusiness,
-		suBusiness:       suBusiness,
+		organizationBusiness: organizationBusiness,
+		branchBusiness:       branchBusiness,
+		investorBusiness:     investorBusiness,
+		suBusiness:           suBusiness,
 	}
 }
 
-// --- Bank RPCs ---
+// --- Organization RPCs ---
 
 func (s *IdentityServer) BankSave(
 	ctx context.Context,
 	req *connect.Request[identityv1.BankSaveRequest],
 ) (*connect.Response[identityv1.BankSaveResponse], error) {
-	result, err := s.bankBusiness.Save(ctx, req.Msg.GetData())
+	result, err := s.organizationBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
@@ -54,7 +54,7 @@ func (s *IdentityServer) BankGet(
 	ctx context.Context,
 	req *connect.Request[identityv1.BankGetRequest],
 ) (*connect.Response[identityv1.BankGetResponse], error) {
-	result, err := s.bankBusiness.Get(ctx, req.Msg.GetId())
+	result, err := s.organizationBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
@@ -66,7 +66,7 @@ func (s *IdentityServer) BankSearch(
 	req *connect.Request[commonv1.SearchRequest],
 	stream *connect.ServerStream[identityv1.BankSearchResponse],
 ) error {
-	err := s.bankBusiness.Search(ctx, req.Msg,
+	err := s.organizationBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.BankObject) error {
 			return stream.Send(&identityv1.BankSearchResponse{Data: batch})
 		})

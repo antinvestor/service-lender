@@ -16,7 +16,7 @@ import (
 	"github.com/antinvestor/service-lender/apps/identity/service/repository"
 )
 
-type BankBusiness interface {
+type OrganizationBusiness interface {
 	Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error)
 	Get(ctx context.Context, id string) (*identityv1.BankObject, error)
 	Search(
@@ -26,51 +26,55 @@ type BankBusiness interface {
 	) error
 }
 
-type bankBusiness struct {
-	eventsMan fevents.Manager
-	bankRepo  repository.BankRepository
+type organizationBusiness struct {
+	eventsMan        fevents.Manager
+	organizationRepo repository.OrganizationRepository
 }
 
-func NewBankBusiness(_ context.Context, eventsMan fevents.Manager, bankRepo repository.BankRepository) BankBusiness {
-	return &bankBusiness{
-		eventsMan: eventsMan,
-		bankRepo:  bankRepo,
+func NewOrganizationBusiness(
+	_ context.Context,
+	eventsMan fevents.Manager,
+	organizationRepo repository.OrganizationRepository,
+) OrganizationBusiness {
+	return &organizationBusiness{
+		eventsMan:        eventsMan,
+		organizationRepo: organizationRepo,
 	}
 }
 
-func (b *bankBusiness) Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error) {
-	logger := util.Log(ctx).WithField("method", "BankBusiness.Save")
+func (b *organizationBusiness) Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error) {
+	logger := util.Log(ctx).WithField("method", "OrganizationBusiness.Save")
 
 	isNew := obj.GetId() == ""
-	bank := models.BankFromAPI(ctx, obj)
+	organization := models.OrganizationFromAPI(ctx, obj)
 
-	if isNew && bank.State == 0 {
-		bank.State = int32(commonv1.STATE_CREATED.Number())
+	if isNew && organization.State == 0 {
+		organization.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
-	err := b.eventsMan.Emit(ctx, events.BankSaveEvent, bank)
+	err := b.eventsMan.Emit(ctx, events.OrganizationSaveEvent, organization)
 	if err != nil {
-		logger.WithError(err).Error("could not emit bank save event")
+		logger.WithError(err).Error("could not emit organization save event")
 		return nil, err
 	}
 
-	return bank.ToAPI(), nil
+	return organization.ToAPI(), nil
 }
 
-func (b *bankBusiness) Get(ctx context.Context, id string) (*identityv1.BankObject, error) {
-	bank, err := b.bankRepo.GetByID(ctx, id)
+func (b *organizationBusiness) Get(ctx context.Context, id string) (*identityv1.BankObject, error) {
+	organization, err := b.organizationRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, ErrBankNotFound
+		return nil, ErrOrganizationNotFound
 	}
-	return bank.ToAPI(), nil
+	return organization.ToAPI(), nil
 }
 
-func (b *bankBusiness) Search(
+func (b *organizationBusiness) Search(
 	ctx context.Context,
 	searchQuery *commonv1.SearchRequest,
 	consumer func(ctx context.Context, batch []*identityv1.BankObject) error,
 ) error {
-	logger := util.Log(ctx).WithField("method", "BankBusiness.Search")
+	logger := util.Log(ctx).WithField("method", "OrganizationBusiness.Search")
 
 	var searchOpts []data.SearchOption
 
@@ -123,16 +127,16 @@ func (b *bankBusiness) Search(
 	}
 
 	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.bankRepo.Search(ctx, query)
+	results, err := b.organizationRepo.Search(ctx, query)
 	if err != nil {
-		logger.WithError(err).Error("failed to search banks")
+		logger.WithError(err).Error("failed to search organizations")
 		return err
 	}
 
-	return workerpoolConsumeStream(ctx, results, func(res []*models.Bank) error {
+	return workerpoolConsumeStream(ctx, results, func(res []*models.Organization) error {
 		var apiResults []*identityv1.BankObject
-		for _, bank := range res {
-			apiResults = append(apiResults, bank.ToAPI())
+		for _, organization := range res {
+			apiResults = append(apiResults, organization.ToAPI())
 		}
 		return consumer(ctx, apiResults)
 	})

@@ -103,7 +103,7 @@ func setupServiceOptions(
 	workMan workerpool.Manager,
 	cfg aconfig.IdentityConfig,
 ) []frame.Option {
-	bankRepo := repository.NewBankRepository(ctx, dbPool, workMan)
+	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
 	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
@@ -114,8 +114,8 @@ func setupServiceOptions(
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
 
-	bankBusiness := business.NewBankBusiness(ctx, evtsMan, bankRepo)
-	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, bankRepo, branchRepo)
+	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo)
+	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo)
 	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo)
 	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, branchRepo, clcrRepo)
 	groupBusiness := business.NewGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
@@ -125,14 +125,14 @@ func setupServiceOptions(
 
 	connectHandler := setupConnectServer(
 		ctx, sm,
-		bankBusiness, branchBusiness, agentBusiness, clientBusiness,
+		organizationBusiness, branchBusiness, agentBusiness, clientBusiness,
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
 	)
 
 	return []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
 		frame.WithRegisterEvents(
-			identityevents.NewBankSave(ctx, bankRepo),
+			identityevents.NewOrganizationSave(ctx, organizationRepo),
 			identityevents.NewBranchSave(ctx, branchRepo),
 			identityevents.NewAgentSave(ctx, agentRepo),
 			identityevents.NewClientSave(ctx, clientRepo),
@@ -185,7 +185,7 @@ func setupTenancyClient(
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
-	bankBusiness business.BankBusiness,
+	organizationBusiness business.OrganizationBusiness,
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
@@ -196,7 +196,7 @@ func setupConnectServer(
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
-		bankBusiness,
+		organizationBusiness,
 		branchBusiness,
 		investorBusiness,
 		suBusiness,

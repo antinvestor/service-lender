@@ -85,7 +85,7 @@ func (b *loanProductBusiness) Search(
 
 	andQueryVal := map[string]any{}
 	if req.GetBankId() != "" {
-		andQueryVal["bank_id = ?"] = req.GetBankId()
+		andQueryVal["organization_id = ?"] = req.GetBankId()
 	}
 	if req.GetProductType() != originationv1.LoanProductType_LOAN_PRODUCT_TYPE_UNSPECIFIED {
 		andQueryVal["product_type = ?"] = int32(req.GetProductType())

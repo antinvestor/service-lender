@@ -58,19 +58,19 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	return m.GetUnits()*percentageDivisor + int64(m.GetNanos())/moneyNanosFactor, m.GetCurrencyCode()
 }
 
-// Bank represents a top-level lending institution mapped to a partition.
-type Bank struct {
+// Organization represents a top-level lending institution mapped to a partition.
+type Organization struct {
 	data.BaseModel
 	Name       string `gorm:"type:varchar(255)"`
-	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_bank_code"`
+	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
 	ProfileID  string `gorm:"type:varchar(50)"`
 	State      int32
 	Properties data.JSONMap
 }
 
-func (m *Bank) TableName() string { return "banks" }
+func (m *Organization) TableName() string { return "organizations" }
 
-func (m *Bank) ToAPI() *identityv1.BankObject {
+func (m *Organization) ToAPI() *identityv1.BankObject {
 	return &identityv1.BankObject{
 		Id:          m.GetID(),
 		PartitionId: m.PartitionID,
@@ -82,12 +82,12 @@ func (m *Bank) ToAPI() *identityv1.BankObject {
 	}
 }
 
-func BankFromAPI(ctx context.Context, obj *identityv1.BankObject) *Bank {
+func OrganizationFromAPI(ctx context.Context, obj *identityv1.BankObject) *Organization {
 	if obj == nil {
 		return nil
 	}
 
-	model := &Bank{
+	model := &Organization{
 		Name:      obj.GetName(),
 		Code:      obj.GetCode(),
 		ProfileID: obj.GetProfileId(),
@@ -107,15 +107,15 @@ func BankFromAPI(ctx context.Context, obj *identityv1.BankObject) *Bank {
 	return model
 }
 
-// Branch represents a branch within a bank, mapped to a child partition with a geographic area.
+// Branch represents a branch within an organization, mapped to a child partition with a geographic area.
 type Branch struct {
 	data.BaseModel
-	BankID     string `gorm:"type:varchar(50);index:idx_branch_bank"`
-	Name       string `gorm:"type:varchar(255)"`
-	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
-	GeoID      string `gorm:"type:varchar(50)"`
-	State      int32
-	Properties data.JSONMap
+	OrganizationID string `gorm:"type:varchar(50);index:idx_branch_organization"`
+	Name           string `gorm:"type:varchar(255)"`
+	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
+	GeoID          string `gorm:"type:varchar(50)"`
+	State          int32
+	Properties     data.JSONMap
 }
 
 func (m *Branch) TableName() string { return "branches" }
@@ -123,7 +123,7 @@ func (m *Branch) TableName() string { return "branches" }
 func (m *Branch) ToAPI() *identityv1.BranchObject {
 	return &identityv1.BranchObject{
 		Id:          m.GetID(),
-		BankId:      m.BankID,
+		BankId:      m.OrganizationID,
 		PartitionId: m.PartitionID,
 		Name:        m.Name,
 		Code:        m.Code,
@@ -139,11 +139,11 @@ func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
 	}
 
 	model := &Branch{
-		BankID: obj.GetBankId(),
-		Name:   obj.GetName(),
-		Code:   obj.GetCode(),
-		GeoID:  obj.GetGeoId(),
-		State:  int32(obj.GetState()),
+		OrganizationID: obj.GetBankId(),
+		Name:           obj.GetName(),
+		Code:           obj.GetCode(),
+		GeoID:          obj.GetGeoId(),
+		State:          int32(obj.GetState()),
 	}
 
 	if obj.GetProperties() != nil {

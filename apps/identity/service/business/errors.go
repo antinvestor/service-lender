@@ -3,22 +3,22 @@ package business
 import "github.com/antinvestor/service-lender/pkg/apperrors"
 
 var (
-	ErrBankNotFound       = apperrors.NewError(apperrors.NotFound, "bank not found")
-	ErrBranchNotFound     = apperrors.NewError(apperrors.NotFound, "branch not found")
-	ErrAgentNotFound      = apperrors.NewError(apperrors.NotFound, "agent not found")
-	ErrClientNotFound     = apperrors.NewError(apperrors.NotFound, "client not found")
-	ErrGroupNotFound      = apperrors.NewError(apperrors.NotFound, "group not found")
-	ErrMembershipNotFound = apperrors.NewError(apperrors.NotFound, "membership not found")
-	ErrInvestorNotFound   = apperrors.NewError(apperrors.NotFound, "investor not found")
-	ErrSystemUserNotFound = apperrors.NewError(apperrors.NotFound, "system user not found")
+	ErrOrganizationNotFound = apperrors.NewError(apperrors.NotFound, "organization not found")
+	ErrBranchNotFound       = apperrors.NewError(apperrors.NotFound, "branch not found")
+	ErrAgentNotFound        = apperrors.NewError(apperrors.NotFound, "agent not found")
+	ErrClientNotFound       = apperrors.NewError(apperrors.NotFound, "client not found")
+	ErrGroupNotFound        = apperrors.NewError(apperrors.NotFound, "group not found")
+	ErrMembershipNotFound   = apperrors.NewError(apperrors.NotFound, "membership not found")
+	ErrInvestorNotFound     = apperrors.NewError(apperrors.NotFound, "investor not found")
+	ErrSystemUserNotFound   = apperrors.NewError(apperrors.NotFound, "system user not found")
 
-	ErrAgentDepthExceeded  = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
-	ErrAgentInactive       = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
-	ErrClientAlreadyExists = apperrors.NewError(apperrors.Conflict, "client with this profile already exists")
-	ErrReassignSameAgent   = apperrors.NewError(apperrors.BadRequest, "client is already assigned to this agent")
-	ErrReassignCrossBank   = apperrors.NewError(
+	ErrAgentDepthExceeded        = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
+	ErrAgentInactive             = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
+	ErrClientAlreadyExists       = apperrors.NewError(apperrors.Conflict, "client with this profile already exists")
+	ErrReassignSameAgent         = apperrors.NewError(apperrors.BadRequest, "client is already assigned to this agent")
+	ErrReassignCrossOrganization = apperrors.NewError(
 		apperrors.BadRequest,
-		"cannot reassign client to agent in different bank",
+		"cannot reassign client to agent in different organization",
 	)
 
 	ErrCreditLimitNegative     = apperrors.NewError(apperrors.BadRequest, "credit limit cannot be negative")

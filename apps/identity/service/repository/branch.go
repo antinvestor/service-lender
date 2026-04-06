@@ -13,7 +13,7 @@ import (
 type BranchRepository interface {
 	datastore.BaseRepository[*models.Branch]
 	GetByCode(ctx context.Context, code string) (*models.Branch, error)
-	GetByBankID(ctx context.Context, bankID string, offset, limit int) ([]*models.Branch, error)
+	GetByOrganizationID(ctx context.Context, organizationID string, offset, limit int) ([]*models.Branch, error)
 }
 
 type branchRepository struct {
@@ -37,14 +37,14 @@ func (repo *branchRepository) GetByCode(ctx context.Context, code string) (*mode
 	return &branch, nil
 }
 
-func (repo *branchRepository) GetByBankID(
+func (repo *branchRepository) GetByOrganizationID(
 	ctx context.Context,
-	bankID string,
+	organizationID string,
 	offset, limit int,
 ) ([]*models.Branch, error) {
 	var branches []*models.Branch
 	err := repo.Pool().DB(ctx, true).
-		Where("bank_id = ?", bankID).
+		Where("organization_id = ?", organizationID).
 		Offset(offset).Limit(limit).
 		Find(&branches).Error
 	if err != nil {

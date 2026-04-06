@@ -26,32 +26,32 @@ type BranchBusiness interface {
 }
 
 type branchBusiness struct {
-	eventsMan  fevents.Manager
-	bankRepo   repository.BankRepository
-	branchRepo repository.BranchRepository
+	eventsMan        fevents.Manager
+	organizationRepo repository.OrganizationRepository
+	branchRepo       repository.BranchRepository
 }
 
 func NewBranchBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	bankRepo repository.BankRepository,
+	organizationRepo repository.OrganizationRepository,
 	branchRepo repository.BranchRepository,
 ) BranchBusiness {
 	return &branchBusiness{
-		eventsMan:  eventsMan,
-		bankRepo:   bankRepo,
-		branchRepo: branchRepo,
+		eventsMan:        eventsMan,
+		organizationRepo: organizationRepo,
+		branchRepo:       branchRepo,
 	}
 }
 
 func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject) (*identityv1.BranchObject, error) {
 	logger := util.Log(ctx).WithField("method", "BranchBusiness.Save")
 
-	// Validate bank exists
-	_, err := b.bankRepo.GetByID(ctx, obj.GetBankId())
+	// Validate organization exists
+	_, err := b.organizationRepo.GetByID(ctx, obj.GetBankId())
 	if err != nil {
-		logger.WithError(err).Warn("bank not found for branch")
-		return nil, ErrBankNotFound
+		logger.WithError(err).Warn("organization not found for branch")
+		return nil, ErrOrganizationNotFound
 	}
 
 	isNew := obj.GetId() == ""
@@ -99,7 +99,7 @@ func (b *branchBusiness) Search(
 
 	andQueryVal := map[string]any{}
 	if req.GetBankId() != "" {
-		andQueryVal["bank_id = ?"] = req.GetBankId()
+		andQueryVal["organization_id = ?"] = req.GetBankId()
 	}
 
 	if len(andQueryVal) > 0 {

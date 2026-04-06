@@ -174,7 +174,7 @@ func (b *clientBusiness) Reassign(
 		return nil, ErrAgentNotFound.Extend("new agent not found")
 	}
 
-	// Validate both agents are in the same bank
+	// Validate both agents are in the same organization
 	oldAgent, err := b.agentRepo.GetByID(ctx, client.AgentID)
 	if err != nil {
 		return nil, ErrAgentNotFound.Extend("current agent not found")
@@ -190,8 +190,8 @@ func (b *clientBusiness) Reassign(
 		return nil, ErrBranchNotFound
 	}
 
-	if oldBranch.BankID != newBranch.BankID {
-		return nil, ErrReassignCrossBank
+	if oldBranch.OrganizationID != newBranch.OrganizationID {
+		return nil, ErrReassignCrossOrganization
 	}
 
 	// Create assignment history and update client in a transaction

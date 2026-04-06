@@ -19,14 +19,15 @@ import (
 // LoanManagementServer implements the LoanManagementService RPC handler.
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type LoanManagementServer struct {
-	lpBusiness       business.LoanProductBusiness
-	laBusiness       business.LoanAccountBusiness
-	repBusiness      business.RepaymentBusiness
-	scheduleBusiness business.RepaymentScheduleBusiness
-	penaltyBusiness  business.PenaltyBusiness
-	restructBusiness business.LoanRestructureBusiness
-	reconBusiness    business.ReconciliationBusiness
-	statusChangeRepo repository.LoanStatusChangeRepository
+	lpBusiness        business.LoanProductBusiness
+	laBusiness        business.LoanAccountBusiness
+	repBusiness       business.RepaymentBusiness
+	scheduleBusiness  business.RepaymentScheduleBusiness
+	penaltyBusiness   business.PenaltyBusiness
+	restructBusiness  business.LoanRestructureBusiness
+	reconBusiness     business.ReconciliationBusiness
+	portfolioBusiness business.PortfolioBusiness
+	statusChangeRepo  repository.LoanStatusChangeRepository
 
 	loansv1connect.UnimplementedLoanManagementServiceHandler
 }
@@ -39,17 +40,19 @@ func NewLoanManagementServer(
 	penaltyBusiness business.PenaltyBusiness,
 	restructBusiness business.LoanRestructureBusiness,
 	reconBusiness business.ReconciliationBusiness,
+	portfolioBusiness business.PortfolioBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
 ) loansv1connect.LoanManagementServiceHandler {
 	return &LoanManagementServer{
-		lpBusiness:       lpBusiness,
-		laBusiness:       laBusiness,
-		repBusiness:      repBusiness,
-		scheduleBusiness: scheduleBusiness,
-		penaltyBusiness:  penaltyBusiness,
-		restructBusiness: restructBusiness,
-		reconBusiness:    reconBusiness,
-		statusChangeRepo: statusChangeRepo,
+		lpBusiness:        lpBusiness,
+		laBusiness:        laBusiness,
+		repBusiness:       repBusiness,
+		scheduleBusiness:  scheduleBusiness,
+		penaltyBusiness:   penaltyBusiness,
+		restructBusiness:  restructBusiness,
+		reconBusiness:     reconBusiness,
+		portfolioBusiness: portfolioBusiness,
+		statusChangeRepo:  statusChangeRepo,
 	}
 }
 

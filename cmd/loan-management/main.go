@@ -115,17 +115,18 @@ func setupServiceOptions(
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
-		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo,
+		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, penRepo,
 		originationCli, scheduleBusiness,
 	)
 	repBusiness := business.NewRepaymentBusiness(ctx, evtsMan, laRepo, repRepo, rsRepo, seRepo, lbRepo, loanNotifier)
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
+	portfolioBusiness := business.NewPortfolioBusiness(ctx, dbPool)
 
 	connectHandler := setupConnectServer(ctx, sm,
 		lpBusiness, laBusiness, repBusiness, scheduleBusiness,
-		penaltyBusiness, restructBusiness, reconBusiness, lscRepo)
+		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, lscRepo)
 
 	return []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
@@ -191,6 +192,7 @@ func setupConnectServer(
 	penaltyBusiness business.PenaltyBusiness,
 	restructBusiness business.LoanRestructureBusiness,
 	reconBusiness business.ReconciliationBusiness,
+	portfolioBusiness business.PortfolioBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
 ) http.Handler {
 	lmHandler := handlers.NewLoanManagementServer(
@@ -201,6 +203,7 @@ func setupConnectServer(
 		penaltyBusiness,
 		restructBusiness,
 		reconBusiness,
+		portfolioBusiness,
 		statusChangeRepo,
 	)
 
