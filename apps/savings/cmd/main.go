@@ -81,8 +81,11 @@ func main() {
 		spBusiness, saBusiness, depBusiness, wdBusiness, iaBusiness)
 
 	// Initialise the service with all options
+	sd := savingspb.File_savings_v1_savings_proto.Services().ByName("SavingsService")
+
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
+		frame.WithPermissionRegistration(sd),
 		frame.WithRegisterEvents(
 			savingsevents.NewSavingsProductSave(ctx, spRepo),
 			savingsevents.NewSavingsAccountSave(ctx, saRepo),

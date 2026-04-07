@@ -105,8 +105,11 @@ func main() {
 		appRepo, cfg.DraftExpiryDays)
 
 	// Initialise the service with all options
+	sd := originationpb.File_origination_v1_origination_proto.Services().ByName("OriginationService")
+
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
+		frame.WithPermissionRegistration(sd),
 		frame.WithRegisterEvents(
 			originationevents.NewApplicationSave(ctx, appRepo),
 			originationevents.NewApplicationDocumentSave(ctx, docRepo),

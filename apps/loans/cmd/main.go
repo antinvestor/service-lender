@@ -133,8 +133,11 @@ func setupServiceOptions(
 		lpBusiness, laBusiness, repBusiness, scheduleBusiness,
 		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, lscRepo)
 
+	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
+
 	return []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
+		frame.WithPermissionRegistration(sd),
 		frame.WithRegisterEvents(
 			lmevents.NewLoanProductSave(ctx, lpRepo),
 			lmevents.NewLoanAccountSave(ctx, laRepo),

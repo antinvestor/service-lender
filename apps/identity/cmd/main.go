@@ -129,8 +129,13 @@ func setupServiceOptions(
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
 	)
 
+	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
+	fieldSD := fieldpb.File_field_v1_field_proto.Services().ByName("FieldService")
+
 	return []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
+		frame.WithPermissionRegistration(identitySD),
+		frame.WithPermissionRegistration(fieldSD),
 		frame.WithRegisterEvents(
 			identityevents.NewOrganizationSave(ctx, organizationRepo),
 			identityevents.NewBranchSave(ctx, branchRepo),
