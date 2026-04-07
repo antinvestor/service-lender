@@ -99,9 +99,10 @@ func main() {
 		cfg.OfferExpiryDays,
 	)
 
-	// Setup Connect RPC servers
+	// Setup Connect RPC servers + maintenance job HTTP handlers
 	connectHandler := setupConnectServer(ctx, sm,
-		appBusiness, docBusiness, vtBusiness, udBusiness)
+		appBusiness, docBusiness, vtBusiness, udBusiness,
+		appRepo, cfg.DraftExpiryDays)
 
 	// Initialise the service with all options
 	serviceOptions := []frame.Option{
@@ -113,10 +114,6 @@ func main() {
 			originationevents.NewUnderwritingDecisionSave(ctx, udRepo),
 			originationevents.NewApplicationStatusHistorySave(ctx, ashRepo),
 		),
-		// Background jobs — combined into a single consumer because
-		// WithBackgroundConsumer only supports one (last call wins),
-		// and when the consumer returns, the service shuts down.
-		frame.WithBackgroundConsumer(business.BackgroundJobs(appRepo, appBusiness, cfg.DraftExpiryDays)),
 	}
 
 	svc.Init(ctx, serviceOptions...)
@@ -171,6 +168,8 @@ func setupConnectServer(
 	docBusiness business.ApplicationDocumentBusiness,
 	vtBusiness business.VerificationTaskBusiness,
 	udBusiness business.UnderwritingDecisionBusiness,
+	appRepo repository.ApplicationRepository,
+	draftExpiryDays int,
 ) http.Handler {
 	// Create handler with injected dependencies
 	originationHandler := handlers.NewOriginationServer(
@@ -210,5 +209,23 @@ func setupConnectServer(
 	mux := http.NewServeMux()
 	mux.Handle(originationPath, originationServerHandler)
 
+	// Maintenance job endpoints — invoked by CronJob every 6 hours.
+	mux.HandleFunc("POST /internal/jobs/expire-offers", jobHandler(business.ExpireOffersJob(appRepo, appBusiness)))
+	mux.HandleFunc(
+		"POST /internal/jobs/clean-drafts",
+		jobHandler(business.CleanDraftApplicationsJob(appRepo, appBusiness, draftExpiryDays)),
+	)
+
 	return mux
+}
+
+func jobHandler(job func(context.Context) error) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := job(r.Context()); err != nil {
+			util.Log(r.Context()).WithError(err).Error("maintenance job failed")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
 }
