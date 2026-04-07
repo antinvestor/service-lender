@@ -171,8 +171,8 @@ func (b *applicationBusiness) Search(
 	if req.GetBranchId() != "" {
 		andQueryVal["branch_id = ?"] = req.GetBranchId()
 	}
-	if req.GetBankId() != "" {
-		andQueryVal["bank_id = ?"] = req.GetBankId()
+	if req.GetOrganizationId() != "" {
+		andQueryVal["bank_id = ?"] = req.GetOrganizationId()
 	}
 	if req.GetStatus() != originationv1.ApplicationStatus_APPLICATION_STATUS_UNSPECIFIED {
 		andQueryVal["status = ?"] = int32(req.GetStatus())

@@ -48,7 +48,7 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 	logger := util.Log(ctx).WithField("method", "BranchBusiness.Save")
 
 	// Validate organization exists
-	_, err := b.organizationRepo.GetByID(ctx, obj.GetBankId())
+	_, err := b.organizationRepo.GetByID(ctx, obj.GetOrganizationId())
 	if err != nil {
 		logger.WithError(err).Warn("organization not found for branch")
 		return nil, ErrOrganizationNotFound
@@ -98,8 +98,8 @@ func (b *branchBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
-	if req.GetBankId() != "" {
-		andQueryVal["organization_id = ?"] = req.GetBankId()
+	if req.GetOrganizationId() != "" {
+		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
 	}
 
 	if len(andQueryVal) > 0 {

@@ -17,12 +17,12 @@ import (
 )
 
 type OrganizationBusiness interface {
-	Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error)
-	Get(ctx context.Context, id string) (*identityv1.BankObject, error)
+	Save(ctx context.Context, obj *identityv1.OrganizationObject) (*identityv1.OrganizationObject, error)
+	Get(ctx context.Context, id string) (*identityv1.OrganizationObject, error)
 	Search(
 		ctx context.Context,
 		search *commonv1.SearchRequest,
-		consumer func(ctx context.Context, batch []*identityv1.BankObject) error,
+		consumer func(ctx context.Context, batch []*identityv1.OrganizationObject) error,
 	) error
 }
 
@@ -42,7 +42,7 @@ func NewOrganizationBusiness(
 	}
 }
 
-func (b *organizationBusiness) Save(ctx context.Context, obj *identityv1.BankObject) (*identityv1.BankObject, error) {
+func (b *organizationBusiness) Save(ctx context.Context, obj *identityv1.OrganizationObject) (*identityv1.OrganizationObject, error) {
 	logger := util.Log(ctx).WithField("method", "OrganizationBusiness.Save")
 
 	isNew := obj.GetId() == ""
@@ -61,7 +61,7 @@ func (b *organizationBusiness) Save(ctx context.Context, obj *identityv1.BankObj
 	return organization.ToAPI(), nil
 }
 
-func (b *organizationBusiness) Get(ctx context.Context, id string) (*identityv1.BankObject, error) {
+func (b *organizationBusiness) Get(ctx context.Context, id string) (*identityv1.OrganizationObject, error) {
 	organization, err := b.organizationRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrOrganizationNotFound
@@ -72,7 +72,7 @@ func (b *organizationBusiness) Get(ctx context.Context, id string) (*identityv1.
 func (b *organizationBusiness) Search(
 	ctx context.Context,
 	searchQuery *commonv1.SearchRequest,
-	consumer func(ctx context.Context, batch []*identityv1.BankObject) error,
+	consumer func(ctx context.Context, batch []*identityv1.OrganizationObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "OrganizationBusiness.Search")
 
@@ -134,7 +134,7 @@ func (b *organizationBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.Organization) error {
-		var apiResults []*identityv1.BankObject
+		var apiResults []*identityv1.OrganizationObject
 		for _, organization := range res {
 			apiResults = append(apiResults, organization.ToAPI())
 		}

@@ -70,8 +70,8 @@ type Organization struct {
 
 func (m *Organization) TableName() string { return "organizations" }
 
-func (m *Organization) ToAPI() *identityv1.BankObject {
-	return &identityv1.BankObject{
+func (m *Organization) ToAPI() *identityv1.OrganizationObject {
+	return &identityv1.OrganizationObject{
 		Id:          m.GetID(),
 		PartitionId: m.PartitionID,
 		Name:        m.Name,
@@ -82,7 +82,7 @@ func (m *Organization) ToAPI() *identityv1.BankObject {
 	}
 }
 
-func OrganizationFromAPI(ctx context.Context, obj *identityv1.BankObject) *Organization {
+func OrganizationFromAPI(ctx context.Context, obj *identityv1.OrganizationObject) *Organization {
 	if obj == nil {
 		return nil
 	}
@@ -123,7 +123,7 @@ func (m *Branch) TableName() string { return "branches" }
 func (m *Branch) ToAPI() *identityv1.BranchObject {
 	return &identityv1.BranchObject{
 		Id:          m.GetID(),
-		BankId:      m.OrganizationID,
+		OrganizationId: m.OrganizationID,
 		PartitionId: m.PartitionID,
 		Name:        m.Name,
 		Code:        m.Code,
@@ -139,7 +139,7 @@ func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
 	}
 
 	model := &Branch{
-		OrganizationID: obj.GetBankId(),
+		OrganizationID: obj.GetOrganizationId(),
 		Name:           obj.GetName(),
 		Code:           obj.GetCode(),
 		GeoID:          obj.GetGeoId(),

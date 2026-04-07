@@ -32,7 +32,7 @@ func (m *SavingsProduct) TableName() string { return "savings_products" }
 func (m *SavingsProduct) ToAPI() *savingsv1.SavingsProductObject {
 	return &savingsv1.SavingsProductObject{
 		Id:                   m.GetID(),
-		BankId:               m.BankID,
+		OrganizationId:       m.BankID,
 		Name:                 m.Name,
 		Code:                 m.Code,
 		Description:          m.Description,
@@ -57,7 +57,7 @@ func SavingsProductFromAPI(ctx context.Context, obj *savingsv1.SavingsProductObj
 	maxDeposit, _ := MoneyToMinorUnits(obj.GetMaxDeposit())
 
 	model := &SavingsProduct{
-		BankID:               obj.GetBankId(),
+		BankID:               obj.GetOrganizationId(),
 		Name:                 obj.GetName(),
 		Code:                 obj.GetCode(),
 		Description:          obj.GetDescription(),
@@ -109,7 +109,7 @@ func (m *SavingsAccount) ToAPI() *savingsv1.SavingsAccountObject {
 		ProductId:         m.ProductID,
 		OwnerId:           m.OwnerID,
 		OwnerType:         savingsv1.SavingsAccountOwnerType(m.OwnerType),
-		BankId:            m.BankID,
+		OrganizationId:    m.BankID,
 		BranchId:          m.BranchID,
 		AgentId:           m.AgentID,
 		CurrencyCode:      m.CurrencyCode,
@@ -129,7 +129,7 @@ func SavingsAccountFromAPI(ctx context.Context, obj *savingsv1.SavingsAccountObj
 		ProductID:         obj.GetProductId(),
 		OwnerID:           obj.GetOwnerId(),
 		OwnerType:         int32(obj.GetOwnerType()),
-		BankID:            obj.GetBankId(),
+		BankID:            obj.GetOrganizationId(),
 		BranchID:          obj.GetBranchId(),
 		AgentID:           obj.GetAgentId(),
 		CurrencyCode:      obj.GetCurrencyCode(),

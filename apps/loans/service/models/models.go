@@ -52,7 +52,7 @@ func (m *LoanAccount) ToAPI() *loansv1.LoanAccountObject {
 		ClientId:                      m.ClientID,
 		AgentId:                       m.AgentID,
 		BranchId:                      m.BranchID,
-		BankId:                        m.OrganizationID,
+		OrganizationId:                m.OrganizationID,
 		Status:                        loansv1.LoanStatus(m.Status),
 		PrincipalAmount:               MinorUnitsToMoney(m.PrincipalAmount, m.CurrencyCode),
 		InterestRate:                  BasisPointsToString(m.InterestRate),
@@ -86,7 +86,7 @@ func LoanAccountFromAPI(ctx context.Context, obj *loansv1.LoanAccountObject) *Lo
 		ClientID:                      obj.GetClientId(),
 		AgentID:                       obj.GetAgentId(),
 		BranchID:                      obj.GetBranchId(),
-		OrganizationID:                obj.GetBankId(),
+		OrganizationID:                obj.GetOrganizationId(),
 		Status:                        int32(obj.GetStatus()),
 		CurrencyCode:                  principalCurrency,
 		PrincipalAmount:               principalAmount,
@@ -338,7 +338,7 @@ func (m *LoanProduct) TableName() string { return "loan_products" }
 func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
 	return &originationv1.LoanProductObject{
 		Id:                   m.GetID(),
-		BankId:               m.OrganizationID,
+		OrganizationId:       m.OrganizationID,
 		Name:                 m.Name,
 		Code:                 m.Code,
 		Description:          m.Description,
@@ -373,7 +373,7 @@ func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObjec
 	lpMax, _ := MoneyToMinorUnits(obj.GetMaxAmount())
 
 	model := &LoanProduct{
-		OrganizationID:       obj.GetBankId(),
+		OrganizationID:       obj.GetOrganizationId(),
 		Name:                 obj.GetName(),
 		Code:                 obj.GetCode(),
 		Description:          obj.GetDescription(),

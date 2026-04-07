@@ -90,8 +90,8 @@ func (b *savingsProductBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
-	if req.GetBankId() != "" {
-		andQueryVal["bank_id = ?"] = req.GetBankId()
+	if req.GetOrganizationId() != "" {
+		andQueryVal["bank_id = ?"] = req.GetOrganizationId()
 	}
 
 	if len(andQueryVal) > 0 {

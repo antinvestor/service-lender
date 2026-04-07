@@ -39,36 +39,36 @@ func NewIdentityServer(
 
 // --- Organization RPCs ---
 
-func (s *IdentityServer) BankSave(
+func (s *IdentityServer) OrganizationSave(
 	ctx context.Context,
-	req *connect.Request[identityv1.BankSaveRequest],
-) (*connect.Response[identityv1.BankSaveResponse], error) {
+	req *connect.Request[identityv1.OrganizationSaveRequest],
+) (*connect.Response[identityv1.OrganizationSaveResponse], error) {
 	result, err := s.organizationBusiness.Save(ctx, req.Msg.GetData())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&identityv1.BankSaveResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.OrganizationSaveResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) BankGet(
+func (s *IdentityServer) OrganizationGet(
 	ctx context.Context,
-	req *connect.Request[identityv1.BankGetRequest],
-) (*connect.Response[identityv1.BankGetResponse], error) {
+	req *connect.Request[identityv1.OrganizationGetRequest],
+) (*connect.Response[identityv1.OrganizationGetResponse], error) {
 	result, err := s.organizationBusiness.Get(ctx, req.Msg.GetId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
-	return connect.NewResponse(&identityv1.BankGetResponse{Data: result}), nil
+	return connect.NewResponse(&identityv1.OrganizationGetResponse{Data: result}), nil
 }
 
-func (s *IdentityServer) BankSearch(
+func (s *IdentityServer) OrganizationSearch(
 	ctx context.Context,
 	req *connect.Request[commonv1.SearchRequest],
-	stream *connect.ServerStream[identityv1.BankSearchResponse],
+	stream *connect.ServerStream[identityv1.OrganizationSearchResponse],
 ) error {
 	err := s.organizationBusiness.Search(ctx, req.Msg,
-		func(_ context.Context, batch []*identityv1.BankObject) error {
-			return stream.Send(&identityv1.BankSearchResponse{Data: batch})
+		func(_ context.Context, batch []*identityv1.OrganizationObject) error {
+			return stream.Send(&identityv1.OrganizationSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)

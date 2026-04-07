@@ -105,8 +105,8 @@ func (b *savingsAccountBusiness) Search(
 	if req.GetOwnerId() != "" {
 		andQueryVal["owner_id = ?"] = req.GetOwnerId()
 	}
-	if req.GetBankId() != "" {
-		andQueryVal["bank_id = ?"] = req.GetBankId()
+	if req.GetOrganizationId() != "" {
+		andQueryVal["bank_id = ?"] = req.GetOrganizationId()
 	}
 	if req.GetProductId() != "" {
 		andQueryVal["product_id = ?"] = req.GetProductId()

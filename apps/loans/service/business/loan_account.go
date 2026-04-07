@@ -186,7 +186,7 @@ func (b *loanAccountBusiness) populateLoanFromApplication(
 	la.ClientID = app.GetClientId()
 	la.AgentID = app.GetAgentId()
 	la.BranchID = app.GetBranchId()
-	la.OrganizationID = app.GetBankId()
+	la.OrganizationID = app.GetOrganizationId()
 	approvedAmount, approvedCurrency := models.MoneyToMinorUnits(app.GetApprovedAmount())
 	la.CurrencyCode = approvedCurrency
 	la.PrincipalAmount = approvedAmount
@@ -308,8 +308,8 @@ func (b *loanAccountBusiness) Search(
 	if req.GetBranchId() != "" {
 		andQueryVal["branch_id = ?"] = req.GetBranchId()
 	}
-	if req.GetBankId() != "" {
-		andQueryVal["organization_id = ?"] = req.GetBankId()
+	if req.GetOrganizationId() != "" {
+		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
 	}
 	if req.GetStatus() != loansv1.LoanStatus_LOAN_STATUS_UNSPECIFIED {
 		andQueryVal["status = ?"] = int32(req.GetStatus())
