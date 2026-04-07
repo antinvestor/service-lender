@@ -12,6 +12,43 @@ import (
 	"github.com/antinvestor/service-lender/apps/origination/service/repository"
 )
 
+// BackgroundJobs returns a long-running consumer that periodically runs
+// maintenance jobs (expire offers, clean drafts). It blocks until ctx is cancelled.
+func BackgroundJobs(
+	appRepo repository.ApplicationRepository,
+	appBusiness ApplicationBusiness,
+	draftExpiryDays int,
+) func(ctx context.Context) error {
+	expireOffers := ExpireOffersJob(appRepo, appBusiness)
+	cleanDrafts := CleanDraftApplicationsJob(appRepo, appBusiness, draftExpiryDays)
+
+	return func(ctx context.Context) error {
+		logger := util.Log(ctx).WithField("component", "background-jobs")
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+
+		// Run once at startup.
+		runJobs(ctx, logger, expireOffers, cleanDrafts)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-ticker.C:
+				runJobs(ctx, logger, expireOffers, cleanDrafts)
+			}
+		}
+	}
+}
+
+func runJobs(ctx context.Context, logger *util.LogEntry, jobs ...func(context.Context) error) {
+	for _, job := range jobs {
+		if err := job(ctx); err != nil {
+			logger.WithError(err).Warn("background job failed")
+		}
+	}
+}
+
 // ExpireOffersJob finds applications with OFFER_GENERATED status whose offer has expired
 // and transitions them to EXPIRED. Intended to run periodically (e.g. every hour).
 func ExpireOffersJob(

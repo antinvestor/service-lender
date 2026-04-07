@@ -113,9 +113,10 @@ func main() {
 			originationevents.NewUnderwritingDecisionSave(ctx, udRepo),
 			originationevents.NewApplicationStatusHistorySave(ctx, ashRepo),
 		),
-		// Background jobs
-		frame.WithBackgroundConsumer(business.ExpireOffersJob(appRepo, appBusiness)),
-		frame.WithBackgroundConsumer(business.CleanDraftApplicationsJob(appRepo, appBusiness, cfg.DraftExpiryDays)),
+		// Background jobs — combined into a single consumer because
+		// WithBackgroundConsumer only supports one (last call wins),
+		// and when the consumer returns, the service shuts down.
+		frame.WithBackgroundConsumer(business.BackgroundJobs(appRepo, appBusiness, cfg.DraftExpiryDays)),
 	}
 
 	svc.Init(ctx, serviceOptions...)
