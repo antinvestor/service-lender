@@ -62,12 +62,12 @@ const _operationsUrl = String.fromEnvironment(
 
 const _profileUrl = String.fromEnvironment(
   'PROFILE_URL',
-  defaultValue: 'https://api.antinvestor.com/profile',
+  defaultValue: 'https://api.stawi.org/profile',
 );
 
 const _notificationUrl = String.fromEnvironment(
   'NOTIFICATION_URL',
-  defaultValue: 'https://api.antinvestor.com/notification',
+  defaultValue: 'https://api.stawi.org/notification',
 );
 
 /// Interceptor that injects the Bearer token into every request.
