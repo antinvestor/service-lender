@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/role_guard.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_chip.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/savings/v1/savings.pb.dart';
 import '../data/savings_providers.dart';
@@ -287,18 +288,26 @@ class _SavingsAccountDetailScreenState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: amountCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'Amount'),
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
+                FormFieldCard(
+                  label: 'Amount',
+                  description: 'The amount to deposit into this savings account.',
+                  isRequired: true,
+                  child: TextField(
+                    controller: amountCtrl,
+                    decoration: const InputDecoration(
+                        hintText: '0.00'),
+                    keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: refCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'Payment Reference'),
+                FormFieldCard(
+                  label: 'Payment Reference',
+                  description: 'Optional description or reason for this transaction.',
+                  child: TextField(
+                    controller: refCtrl,
+                    decoration: const InputDecoration(
+                        hintText: 'e.g. TXN-12345'),
+                  ),
                 ),
               ],
             ),
@@ -363,12 +372,17 @@ class _SavingsAccountDetailScreenState
           title: const Text('Request Withdrawal'),
           content: SizedBox(
             width: 400,
-            child: TextField(
-              controller: amountCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Amount'),
-              keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true),
+            child: FormFieldCard(
+              label: 'Amount',
+              description: 'The amount to withdraw from this savings account.',
+              isRequired: true,
+              child: TextField(
+                controller: amountCtrl,
+                decoration:
+                    const InputDecoration(hintText: '0.00'),
+                keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true),
+              ),
             ),
           ),
           actions: [

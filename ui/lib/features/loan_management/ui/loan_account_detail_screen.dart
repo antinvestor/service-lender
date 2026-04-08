@@ -12,6 +12,7 @@ import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/auth/role_guard.dart';
 import '../data/disbursement_providers.dart';
 import '../data/loan_account_providers.dart';
@@ -1018,21 +1019,28 @@ class _PenaltiesTab extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Show who is waiving
-                InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Waived By',
-                    suffixIcon: Icon(Icons.lock_outline, size: 18),
-                  ),
-                  child: Text(
-                    auditLabel ?? 'Loading...',
-                    style: Theme.of(dialogContext).textTheme.bodyMedium,
+                FormFieldCard(
+                  label: 'Waived By',
+                  description: 'The user authorizing this penalty waiver.',
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.lock_outline, size: 18),
+                    ),
+                    child: Text(
+                      auditLabel ?? 'Loading...',
+                      style: Theme.of(dialogContext).textTheme.bodyMedium,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: reasonCtrl,
-                  decoration: const InputDecoration(labelText: 'Reason'),
-                  maxLines: 2,
+                FormFieldCard(
+                  label: 'Reason',
+                  description: 'Justification for waiving this penalty.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: reasonCtrl,
+                    decoration: const InputDecoration(hintText: 'Enter reason'),
+                    maxLines: 2,
+                  ),
                 ),
               ],
             ),
@@ -1237,45 +1245,60 @@ class _RestructuringTab extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                DropdownButtonFormField<RestructureType>(
-                  initialValue: type,
-                  decoration: const InputDecoration(
-                      labelText: 'Restructure Type'),
-                  items: RestructureType.values
-                      .where((t) =>
-                          t !=
-                          RestructureType
-                              .RESTRUCTURE_TYPE_UNSPECIFIED)
-                      .map((t) => DropdownMenuItem(
-                            value: t,
-                            child: Text(_restructureTypeLabel(t)),
-                          ))
-                      .toList(),
-                  onChanged: (v) =>
-                      setDialogState(() => type = v ?? type),
+                FormFieldCard(
+                  label: 'Restructure Type',
+                  description: 'The kind of restructuring to apply to this loan.',
+                  isRequired: true,
+                  child: DropdownButtonFormField<RestructureType>(
+                    initialValue: type,
+                    decoration: const InputDecoration(
+                        hintText: 'Select type'),
+                    items: RestructureType.values
+                        .where((t) =>
+                            t !=
+                            RestructureType
+                                .RESTRUCTURE_TYPE_UNSPECIFIED)
+                        .map((t) => DropdownMenuItem(
+                              value: t,
+                              child: Text(_restructureTypeLabel(t)),
+                            ))
+                        .toList(),
+                    onChanged: (v) =>
+                        setDialogState(() => type = v ?? type),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: newRateCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'New Interest Rate (%)'),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(
-                          decimal: true),
+                FormFieldCard(
+                  label: 'New Interest Rate (%)',
+                  description: 'The revised annual interest rate for the loan.',
+                  child: TextField(
+                    controller: newRateCtrl,
+                    decoration: const InputDecoration(
+                        hintText: 'e.g. 12.5'),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(
+                            decimal: true),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: newTermCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'New Term (days)'),
-                  keyboardType: TextInputType.number,
+                FormFieldCard(
+                  label: 'New Term (days)',
+                  description: 'The new repayment period in days.',
+                  child: TextField(
+                    controller: newTermCtrl,
+                    decoration: const InputDecoration(
+                        hintText: 'e.g. 365'),
+                    keyboardType: TextInputType.number,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: reasonCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Reason'),
-                  maxLines: 2,
+                FormFieldCard(
+                  label: 'Reason',
+                  description: 'Why this restructuring is being requested.',
+                  isRequired: true,
+                  child: TextField(
+                    controller: reasonCtrl,
+                    decoration:
+                        const InputDecoration(hintText: 'Enter reason'),
+                    maxLines: 2,
+                  ),
                 ),
               ],
             ),
@@ -1355,11 +1378,16 @@ class _RestructuringTab extends ConsumerWidget {
         title: const Text('Reject Restructure'),
         content: SizedBox(
           width: 400,
-          child: TextField(
-            controller: reasonCtrl,
-            decoration:
-                const InputDecoration(labelText: 'Reason'),
-            maxLines: 2,
+          child: FormFieldCard(
+            label: 'Reason',
+            description: 'Explain why this restructure request is being rejected.',
+            isRequired: true,
+            child: TextField(
+              controller: reasonCtrl,
+              decoration:
+                  const InputDecoration(hintText: 'Enter reason'),
+              maxLines: 2,
+            ),
           ),
         ),
         actions: [
@@ -1773,22 +1801,31 @@ class _DisbursementFormDialogState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _channelCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Channel'),
-                textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              FormFieldCard(
+                label: 'Channel',
+                description: 'The disbursement channel (e.g. mobile money, bank transfer).',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _channelCtrl,
+                  decoration:
+                      const InputDecoration(hintText: 'e.g. mobile_money'),
+                  textInputAction: TextInputAction.next,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _recipientRefCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Recipient Reference'),
-                textInputAction: TextInputAction.done,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              FormFieldCard(
+                label: 'Recipient Reference',
+                description: 'External payment reference or transaction ID.',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _recipientRefCtrl,
+                  decoration: const InputDecoration(
+                      hintText: 'e.g. phone number or account'),
+                  textInputAction: TextInputAction.done,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                ),
               ),
             ],
           ),
@@ -1908,43 +1945,59 @@ class _RecordPaymentFormDialogState
                         ),
                   ),
                 ),
-              TextFormField(
-                controller: _amountCtrl,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  hintText: widget.totalOutstanding,
+              FormFieldCard(
+                label: 'Amount',
+                description: 'The repayment amount received from the borrower.',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _amountCtrl,
+                  decoration: InputDecoration(
+                    hintText: widget.totalOutstanding,
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
+                  validator: validateAmount,
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                textInputAction: TextInputAction.next,
-                validator: validateAmount,
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _paymentRefCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Payment Reference'),
-                textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    validateRequired(v, 'Payment reference'),
+              FormFieldCard(
+                label: 'Payment Reference',
+                description: 'External transaction or receipt reference.',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _paymentRefCtrl,
+                  decoration: const InputDecoration(
+                      hintText: 'e.g. TXN-12345'),
+                  textInputAction: TextInputAction.next,
+                  validator: (v) =>
+                      validateRequired(v, 'Payment reference'),
+                ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _channelCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Channel'),
-                textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    validateRequired(v, 'Channel'),
+              FormFieldCard(
+                label: 'Channel',
+                description: 'How the payment was received (cash, mobile money, bank transfer, etc.).',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _channelCtrl,
+                  decoration:
+                      const InputDecoration(hintText: 'e.g. mobile_money'),
+                  textInputAction: TextInputAction.next,
+                  validator: (v) =>
+                      validateRequired(v, 'Channel'),
+                ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _payerRefCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Payer Reference'),
-                textInputAction: TextInputAction.done,
-                validator: (v) =>
-                    validateRequired(v, 'Payer reference'),
+              FormFieldCard(
+                label: 'Payer Reference',
+                description: 'Identifier for the person making the payment.',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _payerRefCtrl,
+                  decoration: const InputDecoration(
+                      hintText: 'e.g. phone number or ID'),
+                  textInputAction: TextInputAction.done,
+                  validator: (v) =>
+                      validateRequired(v, 'Payer reference'),
+                ),
               ),
             ],
           ),
@@ -2036,23 +2089,32 @@ class _CollectPaymentFormDialogState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _amountCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Amount'),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                textInputAction: TextInputAction.next,
-                validator: validateAmount,
+              FormFieldCard(
+                label: 'Amount',
+                description: 'The amount to collect from the borrower.',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _amountCtrl,
+                  decoration:
+                      const InputDecoration(hintText: '0.00'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
+                  validator: validateAmount,
+                ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _phoneCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Phone Number'),
-                keyboardType: TextInputType.phone,
-                textInputAction: TextInputAction.done,
-                validator: validatePhone,
+              FormFieldCard(
+                label: 'Phone Number',
+                description: 'The borrower\'s mobile money phone number for the collection prompt.',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _phoneCtrl,
+                  decoration: const InputDecoration(
+                      hintText: 'e.g. +254712345678'),
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
+                  validator: validatePhone,
+                ),
               ),
             ],
           ),

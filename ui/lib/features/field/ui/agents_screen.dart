@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
@@ -276,106 +277,201 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
   @override
   Widget build(BuildContext context) {
     final branchesAsync = ref.watch(branchListProvider('', ''));
+    final theme = Theme.of(context);
 
     return AlertDialog(
-      title: Text(_isEditing ? 'Edit Agent' : 'Add Agent'),
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.person_pin_outlined,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isEditing ? 'Edit Agent' : 'New Agent',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  _isEditing
+                      ? 'Update the agent details below.'
+                      : 'Register a new field agent in the system.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       content: SizedBox(
-        width: 480,
+        width: 520,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Name is required' : null,
+                const Divider(),
+                const SizedBox(height: 8),
+                FormFieldCard(
+                  label: 'Agent Name',
+                  description:
+                      'The full name of the field agent.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. Jane Muthoni',
+                      prefixIcon: Icon(Icons.person_outlined),
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Name is required' : null,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _profileIdController,
-                  decoration: const InputDecoration(labelText: 'Profile ID'),
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Profile ID is required'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                branchesAsync.when(
-                  loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => Text('Failed to load branches: $e'),
-                  data: (branches) => DropdownButtonFormField<String>(
-                    initialValue: _selectedBranchId.isNotEmpty &&
-                            branches.any((b) => b.id == _selectedBranchId)
-                        ? _selectedBranchId
+                FormFieldCard(
+                  label: 'Profile ID',
+                  description:
+                      'The platform profile identifier linking this agent to their user account.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _profileIdController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. prof-abc123',
+                      prefixIcon: Icon(Icons.badge_outlined),
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.isEmpty)
+                        ? 'Profile ID is required'
                         : null,
-                    decoration: const InputDecoration(labelText: 'Branch'),
-                    items: [
-                      for (final branch in branches)
-                        DropdownMenuItem(
-                          value: branch.id,
-                          child: Text(
-                            branch.name.isNotEmpty ? branch.name : branch.id,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Branch',
+                  description:
+                      'The branch office this agent operates from.',
+                  isRequired: true,
+                  child: branchesAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) => Text('Failed to load branches: $e'),
+                    data: (branches) => DropdownButtonFormField<String>(
+                      initialValue: _selectedBranchId.isNotEmpty &&
+                              branches.any((b) => b.id == _selectedBranchId)
+                          ? _selectedBranchId
+                          : null,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.store_outlined),
+                      ),
+                      items: [
+                        for (final branch in branches)
+                          DropdownMenuItem(
+                            value: branch.id,
+                            child: Text(
+                              branch.name.isNotEmpty ? branch.name : branch.id,
+                            ),
                           ),
-                        ),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Branch is required';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        setState(() => _selectedBranchId = value ?? '');
+                      },
+                    ),
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Parent Agent',
+                  description:
+                      'Optional. The supervising agent in the hierarchy.',
+                  child: TextFormField(
+                    controller: _parentAgentIdController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. agent-xyz789',
+                      prefixIcon: Icon(Icons.supervisor_account_outlined),
+                    ),
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Agent Type',
+                  description:
+                      'The operational role of this agent in the field.',
+                  isRequired: true,
+                  child: DropdownButtonFormField<AgentType>(
+                    initialValue: _agentType,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.category_outlined),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: AgentType.AGENT_TYPE_INDIVIDUAL,
+                        child: Text('Individual'),
+                      ),
+                      DropdownMenuItem(
+                        value: AgentType.AGENT_TYPE_ORGANIZATION,
+                        child: Text('Organization'),
+                      ),
                     ],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Branch is required';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      setState(() => _selectedBranchId = value ?? '');
+                    onChanged: (v) {
+                      if (v != null) setState(() => _agentType = v);
                     },
                   ),
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _parentAgentIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Parent Agent ID (optional)',
+                FormFieldCard(
+                  label: 'Geographic ID',
+                  description:
+                      'Optional geographic area identifier for this agent\'s territory.',
+                  child: TextFormField(
+                    controller: _geoIdController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. KE-NBI-EAST',
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                    ),
+                    textInputAction: TextInputAction.next,
                   ),
                 ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<AgentType>(
-                  initialValue: _agentType,
-                  decoration: const InputDecoration(labelText: 'Agent Type'),
-                  items: const [
-                    DropdownMenuItem(
-                      value: AgentType.AGENT_TYPE_INDIVIDUAL,
-                      child: Text('Individual'),
+                FormFieldCard(
+                  label: 'State',
+                  description:
+                      'The current operational status of this agent.',
+                  isRequired: true,
+                  child: DropdownButtonFormField<STATE>(
+                    initialValue: _state,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.toggle_on_outlined),
                     ),
-                    DropdownMenuItem(
-                      value: AgentType.AGENT_TYPE_ORGANIZATION,
-                      child: Text('Organization'),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) setState(() => _agentType = v);
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _geoIdController,
-                  decoration: const InputDecoration(labelText: 'Geo ID'),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<STATE>(
-                  initialValue: _state,
-                  decoration: const InputDecoration(labelText: 'State'),
-                  items: STATE.values
-                      .map(
-                        (s) => DropdownMenuItem(
-                          value: s,
-                          child: Text(stateLabel(s)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setState(() => _state = v);
-                  },
+                    items: STATE.values
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(stateLabel(s)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) setState(() => _state = v);
+                    },
+                  ),
                 ),
               ],
             ),

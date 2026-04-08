@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/role_provider.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
@@ -441,64 +442,139 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.branch != null;
+    final theme = Theme.of(context);
+
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Branch' : 'Add Branch'),
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.store_outlined,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isEditing ? 'Edit Branch' : 'New Branch',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  isEditing
+                      ? 'Update the branch details below.'
+                      : 'Add a new branch office or location.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       content: SizedBox(
-        width: 400,
+        width: 480,
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration:
-                    const InputDecoration(labelText: 'Name'),
-                validator: (v) => (v == null || v.isEmpty)
-                    ? 'Name is required'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _codeController,
-                decoration:
-                    const InputDecoration(labelText: 'Code'),
-                validator: (v) => (v == null || v.isEmpty)
-                    ? 'Code is required'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _geoIdController,
-                decoration: const InputDecoration(
-                    labelText: 'Geo ID (optional)'),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<STATE>(
-                initialValue: _selectedState,
-                decoration:
-                    const InputDecoration(labelText: 'State'),
-                items: const [
-                  STATE.CREATED,
-                  STATE.CHECKED,
-                  STATE.ACTIVE,
-                  STATE.INACTIVE,
-                  STATE.DELETED,
-                ]
-                    .map(
-                      (s) => DropdownMenuItem(
-                        value: s,
-                        child: Text(stateLabel(s)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedState = value);
-                  }
-                },
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(),
+                const SizedBox(height: 8),
+                FormFieldCard(
+                  label: 'Branch Name',
+                  description:
+                      'The display name for this branch office or location.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. Westlands Branch',
+                      prefixIcon: Icon(Icons.business),
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.isEmpty)
+                        ? 'Name is required'
+                        : null,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Code',
+                  description:
+                      'A unique short identifier for reports and system references.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _codeController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. WL001',
+                      prefixIcon: Icon(Icons.tag),
+                    ),
+                    textCapitalization: TextCapitalization.characters,
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.isEmpty)
+                        ? 'Code is required'
+                        : null,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Geographic ID',
+                  description:
+                      'Optional geographic identifier for mapping and location services.',
+                  child: TextFormField(
+                    controller: _geoIdController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. KE-NBI-WEST',
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                    ),
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'State',
+                  description:
+                      'The operational status of this branch.',
+                  isRequired: true,
+                  child: DropdownButtonFormField<STATE>(
+                    initialValue: _selectedState,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.toggle_on_outlined),
+                    ),
+                    items: const [
+                      STATE.CREATED,
+                      STATE.CHECKED,
+                      STATE.ACTIVE,
+                      STATE.INACTIVE,
+                      STATE.DELETED,
+                    ]
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(stateLabel(s)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedState = value);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
