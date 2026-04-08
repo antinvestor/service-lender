@@ -253,7 +253,7 @@ final class ApplicationNotifierProvider
 }
 
 String _$applicationNotifierHash() =>
-    r'862df9b02c94fcac9a782b4ebc14bf9ce60beae8';
+    r'f7c742ca6d7de8b8aa31330a4550355a3ac11fa0';
 
 abstract class _$ApplicationNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

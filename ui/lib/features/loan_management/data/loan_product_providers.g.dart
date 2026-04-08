@@ -209,7 +209,7 @@ final class LoanProductNotifierProvider
 }
 
 String _$loanProductNotifierHash() =>
-    r'87a817711b3570ba8f03db49f099a35a2076163e';
+    r'd8c66ddfcf445e3702c029bd89849ea5b3fe918e';
 
 abstract class _$LoanProductNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

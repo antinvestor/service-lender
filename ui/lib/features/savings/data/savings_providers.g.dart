@@ -116,7 +116,7 @@ final class SavingsProductNotifierProvider
 }
 
 String _$savingsProductNotifierHash() =>
-    r'b025d70423225418a0fe06e9710f9389e194e65a';
+    r'1b413dd4b696e2f3774e1b651fe18cbd1df1ab64';
 
 abstract class _$SavingsProductNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -407,7 +407,7 @@ final class SavingsAccountNotifierProvider
 }
 
 String _$savingsAccountNotifierHash() =>
-    r'c0d5aa7858edd6c3073db8298175266b554aa5bd';
+    r'99017e6c1de302c1aee42a87d9894e2388fc97d2';
 
 abstract class _$SavingsAccountNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

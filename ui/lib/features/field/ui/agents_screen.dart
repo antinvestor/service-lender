@@ -9,6 +9,7 @@ import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../organization/data/branch_providers.dart';
+import '../../organization/data/organization_providers.dart';
 import '../data/agent_providers.dart';
 
 class AgentsScreen extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class AgentsScreen extends ConsumerStatefulWidget {
 
 class _AgentsScreenState extends ConsumerState<AgentsScreen> {
   String _searchQuery = '';
+  String _orgFilter = '';
   String _branchFilter = '';
 
   @override
@@ -28,7 +30,8 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
       agentListProvider(query: _searchQuery, branchId: _branchFilter),
     );
     final canManage = ref.watch(canManageAgentsProvider);
-    final branchesAsync = ref.watch(branchListProvider('', ''));
+    final orgsAsync = ref.watch(organizationListProvider(''));
+    final branchesAsync = ref.watch(branchListProvider('', _orgFilter));
 
     return EntityListPage<AgentObject>(
       title: 'Agents',
@@ -44,7 +47,7 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
       actionLabel: 'Add Agent',
       canAction: canManage.value ?? false,
       onAction: () => _showAgentDialog(context),
-      filterWidget: _buildBranchFilter(branchesAsync),
+      filterWidget: _buildFilters(orgsAsync, branchesAsync),
       itemBuilder: (context, agent) => _AgentCard(
         agent: agent,
         onEdit: (canManage.value ?? false)
@@ -54,22 +57,53 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
     );
   }
 
-  Widget _buildBranchFilter(AsyncValue<List<BranchObject>> branchesAsync) {
+  Widget _buildFilters(
+    AsyncValue<List<OrganizationObject>> orgsAsync,
+    AsyncValue<List<BranchObject>> branchesAsync,
+  ) {
+    final orgs = orgsAsync.value ?? [];
     final branches = branchesAsync.value ?? [];
-    return DropdownButton<String>(
-      value: _branchFilter,
-      hint: const Text('All Branches'),
-      underline: const SizedBox.shrink(),
-      items: [
-        const DropdownMenuItem(value: '', child: Text('All Branches')),
-        ...branches.map(
-          (b) => DropdownMenuItem(
-            value: b.id,
-            child: Text(b.name.isNotEmpty ? b.name : b.id),
-          ),
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Organization filter
+        DropdownButton<String>(
+          value: _orgFilter,
+          hint: const Text('All Orgs'),
+          underline: const SizedBox.shrink(),
+          items: [
+            const DropdownMenuItem(value: '', child: Text('All Organizations')),
+            ...orgs.map(
+              (o) => DropdownMenuItem(
+                value: o.id,
+                child: Text(o.name.isNotEmpty ? o.name : o.id),
+              ),
+            ),
+          ],
+          onChanged: (value) => setState(() {
+            _orgFilter = value ?? '';
+            _branchFilter = ''; // Reset branch when org changes
+          }),
+        ),
+        const SizedBox(width: 8),
+        // Branch filter (filtered by selected org)
+        DropdownButton<String>(
+          value: _branchFilter,
+          hint: const Text('All Branches'),
+          underline: const SizedBox.shrink(),
+          items: [
+            const DropdownMenuItem(value: '', child: Text('All Branches')),
+            ...branches.map(
+              (b) => DropdownMenuItem(
+                value: b.id,
+                child: Text(b.name.isNotEmpty ? b.name : b.id),
+              ),
+            ),
+          ],
+          onChanged: (value) => setState(() => _branchFilter = value ?? ''),
         ),
       ],
-      onChanged: (value) => setState(() => _branchFilter = value ?? ''),
     );
   }
 
@@ -79,160 +113,95 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
   }) async {
     final result = await showDialog<AgentObject>(
       context: context,
+      barrierDismissible: false,
       builder: (context) => _AgentFormDialog(agent: agent),
     );
-    if (result == null || !mounted) return;
 
-    try {
-      await ref.read(agentProvider.notifier).save(result);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            agent == null
-                ? 'Agent created successfully'
-                : 'Agent updated successfully',
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to save agent: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+    if (result != null && context.mounted) {
+      try {
+        await ref.read(agentProvider.notifier).save(result);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                agent == null
+                    ? 'Agent created successfully'
+                    : 'Agent updated successfully',
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      }
     }
   }
 }
 
+// ---------------------------------------------------------------------------
+// Agent card
+// ---------------------------------------------------------------------------
+
 class _AgentCard extends StatelessWidget {
   const _AgentCard({required this.agent, this.onEdit});
-
   final AgentObject agent;
   final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final subtitle = [
+      if (agent.branchId.isNotEmpty) 'Branch: ${agent.branchId}',
+      if (agent.parentAgentId.isNotEmpty) 'Parent: ${agent.parentAgentId}',
+      if (agent.depth > 0) 'Depth: ${agent.depth}',
+    ].join(' · ');
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: InkWell(
-        onTap: onEdit,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withAlpha(80),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  agent.agentType == AgentType.AGENT_TYPE_ORGANIZATION
-                      ? Icons.business
-                      : Icons.person,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        leading: CircleAvatar(
+          backgroundColor: theme.colorScheme.primaryContainer,
+          child: Icon(Icons.person_pin, color: theme.colorScheme.primary, size: 20),
+        ),
+        title: Text(
+          agent.name,
+          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        subtitle: subtitle.isNotEmpty
+            ? Text(subtitle, style: theme.textTheme.bodySmall)
+            : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StateBadge(state: agent.state),
+            if (onEdit != null)
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                onPressed: onEdit,
+                tooltip: 'Edit',
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      agent.name.isNotEmpty ? agent.name : '(unnamed)',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        _InfoChip(
-                          label: _agentTypeLabel(agent.agentType),
-                          icon: Icons.badge_outlined,
-                        ),
-                        const SizedBox(width: 8),
-                        if (agent.branchId.isNotEmpty) ...[
-                          _InfoChip(
-                            label: 'Branch: ${agent.branchId}',
-                            icon: Icons.store_outlined,
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        _InfoChip(
-                          label: 'Depth: ${agent.depth}',
-                          icon: Icons.account_tree_outlined,
-                        ),
-                      ],
-                    ),
-                    if (agent.parentAgentId.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Parent: ${agent.parentAgentId}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withAlpha(140),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              StateBadge(state: agent.state),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
-
-  static String _agentTypeLabel(AgentType type) {
-    return switch (type) {
-      AgentType.AGENT_TYPE_INDIVIDUAL => 'Individual',
-      AgentType.AGENT_TYPE_ORGANIZATION => 'Organization',
-      _ => 'Unspecified',
-    };
-  }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.label, required this.icon});
-
-  final String label;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12, color: theme.colorScheme.onSurface.withAlpha(120)),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withAlpha(160),
-          ),
-        ),
-      ],
-    );
-  }
-}
+// ---------------------------------------------------------------------------
+// Agent create / edit dialog
+// ---------------------------------------------------------------------------
 
 class _AgentFormDialog extends ConsumerStatefulWidget {
   const _AgentFormDialog({this.agent});
-
   final AgentObject? agent;
 
   @override
@@ -243,9 +212,10 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _profileIdController;
-  late final TextEditingController _parentAgentIdController;
   late final TextEditingController _geoIdController;
+  late String _selectedOrgId;
   late String _selectedBranchId;
+  late String _selectedParentAgentId;
   late AgentType _agentType;
   late STATE _state;
 
@@ -257,10 +227,10 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
     final a = widget.agent;
     _nameController = TextEditingController(text: a?.name ?? '');
     _profileIdController = TextEditingController(text: a?.profileId ?? '');
-    _parentAgentIdController =
-        TextEditingController(text: a?.parentAgentId ?? '');
     _geoIdController = TextEditingController(text: a?.geoId ?? '');
+    _selectedOrgId = '';
     _selectedBranchId = a?.branchId ?? '';
+    _selectedParentAgentId = a?.parentAgentId ?? '';
     _agentType = a?.agentType ?? AgentType.AGENT_TYPE_INDIVIDUAL;
     _state = a?.state ?? STATE.CREATED;
   }
@@ -269,15 +239,19 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
   void dispose() {
     _nameController.dispose();
     _profileIdController.dispose();
-    _parentAgentIdController.dispose();
     _geoIdController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final branchesAsync = ref.watch(branchListProvider('', ''));
     final theme = Theme.of(context);
+    final orgsAsync = ref.watch(organizationListProvider(''));
+    final branchesAsync = ref.watch(branchListProvider('', _selectedOrgId));
+    // Load agents in selected branch for parent agent dropdown
+    final branchAgentsAsync = _selectedBranchId.isNotEmpty
+        ? ref.watch(agentListProvider(query: '', branchId: _selectedBranchId))
+        : const AsyncValue<List<AgentObject>>.data([]);
 
     return AlertDialog(
       title: Row(
@@ -289,11 +263,7 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
               color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              Icons.person_pin_outlined,
-              color: theme.colorScheme.primary,
-              size: 22,
-            ),
+            child: Icon(Icons.person_pin_outlined, color: theme.colorScheme.primary, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -302,16 +272,13 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
               children: [
                 Text(
                   _isEditing ? 'Edit Agent' : 'New Agent',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   _isEditing
                       ? 'Update the agent details below.'
                       : 'Register a new field agent in the system.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -329,10 +296,11 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
               children: [
                 const Divider(),
                 const SizedBox(height: 8),
+
+                // --- Identity ---
                 FormFieldCard(
                   label: 'Agent Name',
-                  description:
-                      'The full name of the field agent.',
+                  description: 'The full name of the field agent.',
                   isRequired: true,
                   child: TextFormField(
                     controller: _nameController,
@@ -341,81 +309,142 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                       prefixIcon: Icon(Icons.person_outlined),
                     ),
                     textInputAction: TextInputAction.next,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Name is required' : null,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Name is required' : null,
                   ),
                 ),
                 FormFieldCard(
                   label: 'Profile ID',
-                  description:
-                      'The platform profile identifier linking this agent to their user account.',
+                  description: 'The platform profile identifier linking this agent to their user account.',
                   isRequired: true,
                   child: TextFormField(
                     controller: _profileIdController,
                     decoration: const InputDecoration(
-                      hintText: 'e.g. prof-abc123',
+                      hintText: 'e.g. d75qclkpf2t1uum8ij3g',
                       prefixIcon: Icon(Icons.badge_outlined),
                     ),
                     textInputAction: TextInputAction.next,
-                    validator: (v) => (v == null || v.isEmpty)
-                        ? 'Profile ID is required'
-                        : null,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Profile ID is required' : null,
+                  ),
+                ),
+
+                // --- Placement (cascading) ---
+                FormFieldCard(
+                  label: 'Organization',
+                  description: 'The organization this agent belongs to. Filters the available branches.',
+                  isRequired: true,
+                  child: orgsAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) => Text('Failed to load: $e'),
+                    data: (orgs) => DropdownButtonFormField<String>(
+                      initialValue: _selectedOrgId.isNotEmpty &&
+                              orgs.any((o) => o.id == _selectedOrgId)
+                          ? _selectedOrgId
+                          : null,
+                      decoration: const InputDecoration(
+                        hintText: 'Select organization',
+                        prefixIcon: Icon(Icons.business_outlined),
+                      ),
+                      items: orgs
+                          .map((o) => DropdownMenuItem(
+                                value: o.id,
+                                child: Text(o.name.isNotEmpty ? o.name : o.id),
+                              ))
+                          .toList(),
+                      validator: (v) => (v == null || v.isEmpty) ? 'Organization is required' : null,
+                      onChanged: (v) => setState(() {
+                        _selectedOrgId = v ?? '';
+                        _selectedBranchId = ''; // Reset branch
+                        _selectedParentAgentId = ''; // Reset parent
+                      }),
+                    ),
                   ),
                 ),
                 FormFieldCard(
                   label: 'Branch',
-                  description:
-                      'The branch office this agent operates from.',
+                  description: 'The branch office this agent operates from.',
                   isRequired: true,
                   child: branchesAsync.when(
                     loading: () => const LinearProgressIndicator(),
-                    error: (e, _) => Text('Failed to load branches: $e'),
-                    data: (branches) => DropdownButtonFormField<String>(
-                      initialValue: _selectedBranchId.isNotEmpty &&
-                              branches.any((b) => b.id == _selectedBranchId)
-                          ? _selectedBranchId
-                          : null,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.store_outlined),
-                      ),
-                      items: [
-                        for (final branch in branches)
-                          DropdownMenuItem(
-                            value: branch.id,
-                            child: Text(
-                              branch.name.isNotEmpty ? branch.name : branch.id,
-                            ),
-                          ),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Branch is required';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() => _selectedBranchId = value ?? '');
-                      },
-                    ),
+                    error: (e, _) => Text('Failed to load: $e'),
+                    data: (branches) {
+                      if (_selectedOrgId.isEmpty) {
+                        return const Text(
+                          'Select an organization first',
+                          style: TextStyle(color: Colors.grey),
+                        );
+                      }
+                      return DropdownButtonFormField<String>(
+                        initialValue: _selectedBranchId.isNotEmpty &&
+                                branches.any((b) => b.id == _selectedBranchId)
+                            ? _selectedBranchId
+                            : null,
+                        decoration: const InputDecoration(
+                          hintText: 'Select branch',
+                          prefixIcon: Icon(Icons.store_outlined),
+                        ),
+                        items: branches
+                            .map((b) => DropdownMenuItem(
+                                  value: b.id,
+                                  child: Text(b.name.isNotEmpty ? b.name : b.id),
+                                ))
+                            .toList(),
+                        validator: (v) => (v == null || v.isEmpty) ? 'Branch is required' : null,
+                        onChanged: (v) => setState(() {
+                          _selectedBranchId = v ?? '';
+                          _selectedParentAgentId = ''; // Reset parent
+                        }),
+                      );
+                    },
                   ),
                 ),
                 FormFieldCard(
-                  label: 'Parent Agent',
+                  label: 'Supervising Agent',
                   description:
-                      'Optional. The supervising agent in the hierarchy.',
-                  child: TextFormField(
-                    controller: _parentAgentIdController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. agent-xyz789',
-                      prefixIcon: Icon(Icons.supervisor_account_outlined),
-                    ),
-                    textInputAction: TextInputAction.next,
+                      'Optional. Select a parent agent to create a sub-agent. '
+                      'Sub-agents can only be one level deep.',
+                  child: branchAgentsAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) => Text('Failed to load: $e'),
+                    data: (agents) {
+                      // Filter to only top-level agents (depth 0) — enforces max 1 level of sub-agents
+                      final topLevelAgents = agents.where((a) => a.depth <= 0).toList();
+                      if (_selectedBranchId.isEmpty) {
+                        return const Text(
+                          'Select a branch first',
+                          style: TextStyle(color: Colors.grey),
+                        );
+                      }
+                      return DropdownButtonFormField<String>(
+                        initialValue: _selectedParentAgentId.isNotEmpty &&
+                                topLevelAgents.any((a) => a.id == _selectedParentAgentId)
+                            ? _selectedParentAgentId
+                            : null,
+                        decoration: const InputDecoration(
+                          hintText: 'None (top-level agent)',
+                          prefixIcon: Icon(Icons.supervisor_account_outlined),
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: '',
+                            child: Text('None (top-level agent)'),
+                          ),
+                          ...topLevelAgents.map((a) => DropdownMenuItem(
+                                value: a.id,
+                                child: Text(a.name.isNotEmpty ? a.name : a.id),
+                              )),
+                        ],
+                        onChanged: (v) => setState(() {
+                          _selectedParentAgentId = v ?? '';
+                        }),
+                      );
+                    },
                   ),
                 ),
+
+                // --- Classification ---
                 FormFieldCard(
                   label: 'Agent Type',
-                  description:
-                      'The operational role of this agent in the field.',
+                  description: 'The operational role of this agent in the field.',
                   isRequired: true,
                   child: DropdownButtonFormField<AgentType>(
                     initialValue: _agentType,
@@ -439,35 +468,29 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                 ),
                 FormFieldCard(
                   label: 'Geographic ID',
-                  description:
-                      'Optional geographic area identifier for this agent\'s territory.',
+                  description: "Optional geographic area identifier for this agent's territory.",
                   child: TextFormField(
                     controller: _geoIdController,
                     decoration: const InputDecoration(
                       hintText: 'e.g. KE-NBI-EAST',
                       prefixIcon: Icon(Icons.location_on_outlined),
                     ),
-                    textInputAction: TextInputAction.next,
                   ),
                 ),
                 FormFieldCard(
                   label: 'State',
-                  description:
-                      'The current operational status of this agent.',
+                  description: 'The current operational status of this agent.',
                   isRequired: true,
                   child: DropdownButtonFormField<STATE>(
                     initialValue: _state,
                     decoration: const InputDecoration(
                       prefixIcon: Icon(Icons.toggle_on_outlined),
                     ),
-                    items: STATE.values
-                        .map(
-                          (s) => DropdownMenuItem(
-                            value: s,
-                            child: Text(stateLabel(s)),
-                          ),
-                        )
-                        .toList(),
+                    items: const [
+                      DropdownMenuItem(value: STATE.CREATED, child: Text('Created')),
+                      DropdownMenuItem(value: STATE.ACTIVE, child: Text('Active')),
+                      DropdownMenuItem(value: STATE.INACTIVE, child: Text('Inactive')),
+                    ],
                     onChanged: (v) {
                       if (v != null) setState(() => _state = v);
                     },
@@ -480,12 +503,13 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        FilledButton(
+        FilledButton.icon(
           onPressed: _submit,
-          child: Text(_isEditing ? 'Update' : 'Create'),
+          icon: Icon(_isEditing ? Icons.save : Icons.add),
+          label: Text(_isEditing ? 'Update Agent' : 'Create Agent'),
         ),
       ],
     );
@@ -494,22 +518,18 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final agent = AgentObject(
-      id: widget.agent?.id ?? '',
-      name: _nameController.text.trim(),
-      profileId: _profileIdController.text.trim(),
-      branchId: _selectedBranchId,
-      parentAgentId: _parentAgentIdController.text.trim(),
-      agentType: _agentType,
-      geoId: _geoIdController.text.trim(),
-      state: _state,
+    Navigator.pop(
+      context,
+      AgentObject(
+        id: widget.agent?.id ?? '',
+        name: _nameController.text.trim(),
+        profileId: _profileIdController.text.trim(),
+        branchId: _selectedBranchId,
+        parentAgentId: _selectedParentAgentId,
+        agentType: _agentType,
+        geoId: _geoIdController.text.trim(),
+        state: _state,
+      ),
     );
-
-    // Preserve properties when editing.
-    if (widget.agent != null && widget.agent!.hasProperties()) {
-      agent.properties = widget.agent!.properties;
-    }
-
-    Navigator.of(context).pop(agent);
   }
 }

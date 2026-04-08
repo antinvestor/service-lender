@@ -132,7 +132,7 @@ final class OrganizationNotifierProvider
 }
 
 String _$organizationNotifierHash() =>
-    r'5bdc64c081473a58f05aa002cd28817cd3c85d9a';
+    r'2ec287a2f0f26401e9e425cd05aafb87cdfe626d';
 
 abstract class _$OrganizationNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
