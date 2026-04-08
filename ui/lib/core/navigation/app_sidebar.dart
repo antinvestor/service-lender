@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/auth_state_provider.dart';
 import '../theme/design_tokens.dart';
+import '../widgets/profile_badge.dart';
 import 'nav_items.dart';
 import 'nav_state.dart';
 
@@ -519,63 +520,30 @@ class _UserFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = displayName != null && displayName!.isNotEmpty
         ? displayName!
-        : profileId != null
-            ? '${profileId!.substring(0, profileId!.length.clamp(0, 8))}...'
-            : 'User';
+        : 'User';
+    final id = profileId ?? '';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Colors.white.withAlpha(20),
-            child: Text(
-              label.isNotEmpty ? label[0].toUpperCase() : '?',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
+      child: ProfileBadge(
+        profileId: id,
+        name: label,
+        description: 'Signed in',
+        avatarSize: 32,
+        nameColor: Colors.white,
+        descriptionColor: Colors.white.withAlpha(100),
+        trailing: IconButton(
+          icon: Icon(
+            Icons.logout,
+            size: 18,
+            color: Colors.white.withAlpha(140),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                        color: Colors.white,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'Signed in',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withAlpha(100),
-                        fontSize: 11,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.logout,
-              size: 18,
-              color: Colors.white.withAlpha(140),
-            ),
-            tooltip: 'Sign out',
-            onPressed: onLogout,
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-          ),
-        ],
+          tooltip: 'Sign out',
+          onPressed: onLogout,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/form_field_card.dart';
+import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
@@ -168,9 +169,10 @@ class _AgentCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        leading: CircleAvatar(
-          backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(Icons.person_pin, color: theme.colorScheme.primary, size: 20),
+        leading: ProfileAvatar(
+          profileId: agent.profileId,
+          name: agent.name,
+          size: 40,
         ),
         title: Text(
           agent.name,
