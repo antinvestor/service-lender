@@ -174,7 +174,7 @@ func (a *AuditInterceptor) logEntry(
 
 // parseProcedure extracts a resource type and action from a Connect
 // procedure name like "/identity.v1.IdentityService/OrganizationSave".
-func parseProcedure(procedure string) (resourceType, action string) {
+func parseProcedure(procedure string) (string, string) {
 	// Get the method name after the last "/"
 	parts := strings.Split(procedure, "/")
 	method := parts[len(parts)-1]
