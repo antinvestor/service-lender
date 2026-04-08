@@ -16,7 +16,45 @@ import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
 part 'api_provider.g.dart';
 
-const _apiBaseUrl = 'https://api.antinvestor.com/lender';
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-service base URLs.
+//
+// Each deployed service gets its own gateway path prefix on
+// api.antinvestor.com, following the same pattern as other Antinvestor
+// products (tenancy, profile, payment, etc.).
+//
+// Override at build time with --dart-define for local development.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const _loansUrl = String.fromEnvironment(
+  'LOANS_URL',
+  defaultValue: 'https://api.antinvestor.com/loans',
+);
+
+const _originationUrl = String.fromEnvironment(
+  'ORIGINATION_URL',
+  defaultValue: 'https://api.antinvestor.com/origination',
+);
+
+const _identityUrl = String.fromEnvironment(
+  'IDENTITY_URL',
+  defaultValue: 'https://api.antinvestor.com/identity',
+);
+
+const _savingsUrl = String.fromEnvironment(
+  'SAVINGS_URL',
+  defaultValue: 'https://api.antinvestor.com/savings',
+);
+
+const _fundingUrl = String.fromEnvironment(
+  'FUNDING_URL',
+  defaultValue: 'https://api.antinvestor.com/funding',
+);
+
+const _operationsUrl = String.fromEnvironment(
+  'OPERATIONS_URL',
+  defaultValue: 'https://api.antinvestor.com/operations',
+);
 
 /// Interceptor that injects the Bearer token into every request.
 ///
@@ -67,8 +105,8 @@ class AuthInterceptor {
   }
 }
 
-@riverpod
-Transport apiTransport(Ref ref) {
+/// Creates a Connect RPC transport for the given [baseUrl].
+Transport _createTransport(Ref ref, String baseUrl) {
   final authRepo = ref.watch(authRepositoryProvider);
   final authInterceptor = AuthInterceptor(authRepo, () {
     authRepo.logout();
@@ -76,7 +114,7 @@ Transport apiTransport(Ref ref) {
   });
 
   return protocol.Transport(
-    baseUrl: _apiBaseUrl,
+    baseUrl: baseUrl,
     codec: const ProtoCodec(),
     httpClient: createPlatformHttpClient(),
     interceptors: [authInterceptor.call],
@@ -84,44 +122,75 @@ Transport apiTransport(Ref ref) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-service transports
+// ─────────────────────────────────────────────────────────────────────────────
+
+@riverpod
+Transport loansTransport(Ref ref) => _createTransport(ref, _loansUrl);
+
+@riverpod
+Transport originationTransport(Ref ref) =>
+    _createTransport(ref, _originationUrl);
+
+@riverpod
+Transport identityTransport(Ref ref) =>
+    _createTransport(ref, _identityUrl);
+
+@riverpod
+Transport savingsTransport(Ref ref) =>
+    _createTransport(ref, _savingsUrl);
+
+@riverpod
+Transport fundingTransport(Ref ref) =>
+    _createTransport(ref, _fundingUrl);
+
+@riverpod
+Transport operationsTransport(Ref ref) =>
+    _createTransport(ref, _operationsUrl);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Service clients
+// ─────────────────────────────────────────────────────────────────────────────
+
 @riverpod
 IdentityServiceClient identityServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(identityTransportProvider);
   return IdentityServiceClient(transport);
 }
 
 @riverpod
 FieldServiceClient fieldServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(identityTransportProvider);
   return FieldServiceClient(transport);
 }
 
 @riverpod
 OriginationServiceClient originationServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(originationTransportProvider);
   return OriginationServiceClient(transport);
 }
 
 @riverpod
 LoanManagementServiceClient loanManagementServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(loansTransportProvider);
   return LoanManagementServiceClient(transport);
 }
 
 @riverpod
 SavingsServiceClient savingsServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(savingsTransportProvider);
   return SavingsServiceClient(transport);
 }
 
 @riverpod
 FundingServiceClient fundingServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(fundingTransportProvider);
   return FundingServiceClient(transport);
 }
 
 @riverpod
 OperationsServiceClient operationsServiceClient(Ref ref) {
-  final transport = ref.watch(apiTransportProvider);
+  final transport = ref.watch(operationsTransportProvider);
   return OperationsServiceClient(transport);
 }

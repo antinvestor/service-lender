@@ -9,25 +9,25 @@ part of 'api_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(apiTransport)
-final apiTransportProvider = ApiTransportProvider._();
+@ProviderFor(loansTransport)
+final loansTransportProvider = LoansTransportProvider._();
 
-final class ApiTransportProvider
+final class LoansTransportProvider
     extends $FunctionalProvider<Transport, Transport, Transport>
     with $Provider<Transport> {
-  ApiTransportProvider._()
+  LoansTransportProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'apiTransportProvider',
+        name: r'loansTransportProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$apiTransportHash();
+  String debugGetCreateSourceHash() => _$loansTransportHash();
 
   @$internal
   @override
@@ -36,7 +36,7 @@ final class ApiTransportProvider
 
   @override
   Transport create(Ref ref) {
-    return apiTransport(ref);
+    return loansTransport(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -48,7 +48,214 @@ final class ApiTransportProvider
   }
 }
 
-String _$apiTransportHash() => r'ff291759dc6536e97cc7532005985b8c7436ba14';
+String _$loansTransportHash() => r'5bb033348a2576c9c776483e4dbc9736d6429fdc';
+
+@ProviderFor(originationTransport)
+final originationTransportProvider = OriginationTransportProvider._();
+
+final class OriginationTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  OriginationTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'originationTransportProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$originationTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return originationTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$originationTransportHash() =>
+    r'26529bb3aade5859994faf43cbe31b3a39e41146';
+
+@ProviderFor(identityTransport)
+final identityTransportProvider = IdentityTransportProvider._();
+
+final class IdentityTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  IdentityTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'identityTransportProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$identityTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return identityTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$identityTransportHash() => r'5627c3836741ed03fad30e2c6496c78e25926f7f';
+
+@ProviderFor(savingsTransport)
+final savingsTransportProvider = SavingsTransportProvider._();
+
+final class SavingsTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  SavingsTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savingsTransportProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savingsTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return savingsTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$savingsTransportHash() => r'6adfb650e7dde839205978392c6b334e49e38343';
+
+@ProviderFor(fundingTransport)
+final fundingTransportProvider = FundingTransportProvider._();
+
+final class FundingTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  FundingTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'fundingTransportProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$fundingTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return fundingTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$fundingTransportHash() => r'0bf09a84942f528db7f9f6411f75edb5b31f1ea8';
+
+@ProviderFor(operationsTransport)
+final operationsTransportProvider = OperationsTransportProvider._();
+
+final class OperationsTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  OperationsTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'operationsTransportProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$operationsTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return operationsTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$operationsTransportHash() =>
+    r'f36d02fa0dda3fc1946b9aacb636a5a3eb157f23';
 
 @ProviderFor(identityServiceClient)
 final identityServiceClientProvider = IdentityServiceClientProvider._();
@@ -96,7 +303,7 @@ final class IdentityServiceClientProvider
 }
 
 String _$identityServiceClientHash() =>
-    r'02b2cb0078d4148e606d9bffb1d461a424d16bb8';
+    r'59730e7ef23ecdab320508274e6d5f9d341fd721';
 
 @ProviderFor(fieldServiceClient)
 final fieldServiceClientProvider = FieldServiceClientProvider._();
@@ -144,7 +351,7 @@ final class FieldServiceClientProvider
 }
 
 String _$fieldServiceClientHash() =>
-    r'53c5253387dfb7db7e65f4afb6db0f14aed4717e';
+    r'72296bac95e8aa1c85e8f0ab360f1e12ada447cf';
 
 @ProviderFor(originationServiceClient)
 final originationServiceClientProvider = OriginationServiceClientProvider._();
@@ -192,7 +399,7 @@ final class OriginationServiceClientProvider
 }
 
 String _$originationServiceClientHash() =>
-    r'984784ff518dea9e2ee9b9631876fded837103dd';
+    r'c6e9e473d11de78ad9975fac6820bb10ede6591b';
 
 @ProviderFor(loanManagementServiceClient)
 final loanManagementServiceClientProvider =
@@ -241,7 +448,7 @@ final class LoanManagementServiceClientProvider
 }
 
 String _$loanManagementServiceClientHash() =>
-    r'22b65e18e8d9b91396352f7cec51b61afcd6b5f9';
+    r'85327f6f805edb0dc53fb609393aa632ee85277c';
 
 @ProviderFor(savingsServiceClient)
 final savingsServiceClientProvider = SavingsServiceClientProvider._();
@@ -289,7 +496,7 @@ final class SavingsServiceClientProvider
 }
 
 String _$savingsServiceClientHash() =>
-    r'1bfc16080d08fce552c74dede6a9639a94e6ec5a';
+    r'b233e19cc3eeeacfa98f074701df8062d13b4c98';
 
 @ProviderFor(fundingServiceClient)
 final fundingServiceClientProvider = FundingServiceClientProvider._();
@@ -337,7 +544,7 @@ final class FundingServiceClientProvider
 }
 
 String _$fundingServiceClientHash() =>
-    r'9da3a68c006a7ae8ffaa655ded82968d244dca9a';
+    r'd5585fb84c2b541b0a2ea6b52ab492c0c6fefcf2';
 
 @ProviderFor(operationsServiceClient)
 final operationsServiceClientProvider = OperationsServiceClientProvider._();
@@ -385,4 +592,4 @@ final class OperationsServiceClientProvider
 }
 
 String _$operationsServiceClientHash() =>
-    r'292c313e1de94a97710cc4d529c97de262d4cf36';
+    r'a87acdf185dc21e1b1ed6c69aa0d37bbfffed6ea';

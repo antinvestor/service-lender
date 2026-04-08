@@ -15,6 +15,7 @@ enum LenderRole {
   approver,
   auditor,
   viewer,
+  member,
   service,
 }
 

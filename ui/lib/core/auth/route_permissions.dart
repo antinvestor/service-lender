@@ -63,6 +63,7 @@ const _viewRoles = {
   LenderRole.approver,
   LenderRole.auditor,
   LenderRole.viewer,
+  LenderRole.member,
   LenderRole.service,
 };
 
@@ -82,6 +83,7 @@ const _allViewRoles = {
   LenderRole.approver,
   LenderRole.auditor,
   LenderRole.viewer,
+  LenderRole.member,
   LenderRole.service,
 };
 
