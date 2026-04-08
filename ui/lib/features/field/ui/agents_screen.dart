@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
@@ -45,9 +46,9 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
       ),
       searchHint: 'Search agents...',
       onSearchChanged: (value) => setState(() => _searchQuery = value),
-      actionLabel: 'Add Agent',
+      actionLabel: 'Register Agent',
       canAction: canManage.value ?? false,
-      onAction: () => _showAgentDialog(context),
+      onAction: () => context.go('/field/agents/new'),
       filterWidget: _buildFilters(orgsAsync, branchesAsync),
       itemBuilder: (context, agent) => _AgentCard(
         agent: agent,

@@ -135,6 +135,22 @@ List<NavItem> buildNavItems() => [
             requiredRoles: _viewRoles,
           ),
           NavItem(
+            id: 'agents',
+            label: 'Agents',
+            icon: Icons.person_pin_outlined,
+            activeIcon: Icons.person_pin,
+            route: '/field/agents',
+            requiredRoles: _allViewRoles,
+          ),
+          NavItem(
+            id: 'agent_hierarchy',
+            label: 'Agent Hierarchy',
+            icon: Icons.account_tree_outlined,
+            activeIcon: Icons.account_tree,
+            route: '/field/hierarchy',
+            requiredRoles: _allViewRoles,
+          ),
+          NavItem(
             id: 'investors',
             label: 'Investors',
             icon: Icons.trending_up_outlined,
@@ -151,22 +167,6 @@ List<NavItem> buildNavItems() => [
         activeIcon: Icons.groups,
         requiredRoles: _allViewRoles,
         children: [
-          NavItem(
-            id: 'agents',
-            label: 'Agents',
-            icon: Icons.person_pin_outlined,
-            activeIcon: Icons.person_pin,
-            route: '/field/agents',
-            requiredRoles: _allViewRoles,
-          ),
-          NavItem(
-            id: 'agent_hierarchy',
-            label: 'Hierarchy',
-            icon: Icons.account_tree_outlined,
-            activeIcon: Icons.account_tree,
-            route: '/field/hierarchy',
-            requiredRoles: _allViewRoles,
-          ),
           NavItem(
             id: 'clients',
             label: 'Clients',

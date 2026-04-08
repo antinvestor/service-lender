@@ -13,6 +13,7 @@ import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
+import '../features/field/ui/agent_create_screen.dart';
 import '../features/field/ui/agents_screen.dart';
 import '../features/field/ui/client_detail_screen.dart';
 import '../features/field/ui/client_onboard_screen.dart';
@@ -149,6 +150,15 @@ GoRouter router(Ref ref) {
               '/field/agents',
               const AgentsScreen(),
             ),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => _guarded(
+                  '/field/agents',
+                  const AgentCreateScreen(),
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: '/field/hierarchy',
