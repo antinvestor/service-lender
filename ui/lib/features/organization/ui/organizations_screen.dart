@@ -76,6 +76,7 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
   void _showOrganizationDialog(BuildContext context) {
     showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => OrganizationFormDialog(
         onSave: (updated) async {
           try {

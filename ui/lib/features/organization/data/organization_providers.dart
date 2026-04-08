@@ -36,8 +36,11 @@ class OrganizationNotifier extends _$OrganizationNotifier {
     final response =
         await client.organizationSave(OrganizationSaveRequest(data: organization));
 
-    // Invalidate all organization list queries so they re-fetch.
-    ref.invalidate(organizationListProvider);
+    // Delay the list refresh slightly to allow the async event handler
+    // to commit to the database before we query.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(organizationListProvider);
+    });
 
     return response.data;
   }
