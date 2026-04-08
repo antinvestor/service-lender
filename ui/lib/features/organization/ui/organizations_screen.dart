@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
+import '../../../features/auth/data/auth_repository.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../data/organization_providers.dart';
@@ -149,10 +151,10 @@ class _OrganizationCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Organization create / edit dialog (public so detail screen can reuse)
+// Organization create / edit dialog
 // ---------------------------------------------------------------------------
 
-class OrganizationFormDialog extends StatefulWidget {
+class OrganizationFormDialog extends ConsumerStatefulWidget {
   const OrganizationFormDialog(
       {super.key, this.organization, required this.onSave});
 
@@ -160,15 +162,17 @@ class OrganizationFormDialog extends StatefulWidget {
   final Future<void> Function(OrganizationObject organization) onSave;
 
   @override
-  State<OrganizationFormDialog> createState() =>
+  ConsumerState<OrganizationFormDialog> createState() =>
       _OrganizationFormDialogState();
 }
 
-class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
+class _OrganizationFormDialogState
+    extends ConsumerState<OrganizationFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _codeCtrl;
   late STATE _selectedState;
+  late OrganizationType _orgType;
   bool _saving = false;
 
   bool get _isEditing => widget.organization != null;
@@ -181,6 +185,8 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     _codeCtrl =
         TextEditingController(text: widget.organization?.code ?? '');
     _selectedState = widget.organization?.state ?? STATE.CREATED;
+    _orgType = widget.organization?.organizationType ??
+        OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED;
   }
 
   @override
@@ -195,18 +201,21 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
     setState(() => _saving = true);
 
+    // Read tenancy context from the authenticated user's JWT.
+    final partitionId =
+        await ref.read(currentPartitionIdProvider.future) ?? '';
+
     final organization = OrganizationObject(
       id: widget.organization?.id,
       name: _nameCtrl.text.trim(),
       code: _codeCtrl.text.trim(),
       state: _selectedState,
+      organizationType: _orgType,
+      partitionId: widget.organization?.partitionId ?? partitionId,
     );
 
     // Preserve backend-managed fields when editing.
     if (widget.organization != null) {
-      if (widget.organization!.hasPartitionId()) {
-        organization.partitionId = widget.organization!.partitionId;
-      }
       if (widget.organization!.hasProfileId()) {
         organization.profileId = widget.organization!.profileId;
       }
@@ -235,55 +244,177 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     STATE.DELETED,
   ];
 
+  static const _orgTypes = [
+    OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED,
+    OrganizationType.ORGANIZATION_TYPE_BANK,
+    OrganizationType.ORGANIZATION_TYPE_MICROFINANCE,
+    OrganizationType.ORGANIZATION_TYPE_SACCO,
+    OrganizationType.ORGANIZATION_TYPE_COOPERATIVE,
+    OrganizationType.ORGANIZATION_TYPE_FINTECH,
+  ];
+
+  String _orgTypeLabel(OrganizationType type) {
+    switch (type) {
+      case OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED:
+        return 'Not specified';
+      case OrganizationType.ORGANIZATION_TYPE_BANK:
+        return 'Bank';
+      case OrganizationType.ORGANIZATION_TYPE_MICROFINANCE:
+        return 'Microfinance Institution';
+      case OrganizationType.ORGANIZATION_TYPE_SACCO:
+        return 'SACCO';
+      case OrganizationType.ORGANIZATION_TYPE_COOPERATIVE:
+        return 'Cooperative';
+      case OrganizationType.ORGANIZATION_TYPE_FINTECH:
+        return 'Fintech';
+      default:
+        return type.name;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return AlertDialog(
-      title: Text(_isEditing ? 'Edit Organization' : 'Add Organization'),
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.account_balance,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isEditing ? 'Edit Organization' : 'New Organization',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  _isEditing
+                      ? 'Update the organization details below.'
+                      : 'Set up a new lending organization in the system.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       content: SizedBox(
-        width: 420,
+        width: 480,
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
-                textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty)
-                        ? 'Name is required'
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(),
+                const SizedBox(height: 8),
+                FormFieldCard(
+                  label: 'Organization Name',
+                  description:
+                      'The official registered name of the lending organization.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _nameCtrl,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. Stawi Microfinance Ltd',
+                      prefixIcon: Icon(Icons.business),
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Organization name is required'
                         : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _codeCtrl,
-                decoration: const InputDecoration(labelText: 'Code'),
-                textInputAction: TextInputAction.done,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty)
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Short Code',
+                  description:
+                      'A unique alphanumeric identifier used in reports, '
+                      'transaction references, and system integrations.',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _codeCtrl,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. STAWI',
+                      prefixIcon: Icon(Icons.tag),
+                    ),
+                    textCapitalization: TextCapitalization.characters,
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.trim().isEmpty)
                         ? 'Code is required'
                         : null,
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<STATE>(
-                initialValue: _selectedState,
-                decoration: const InputDecoration(labelText: 'State'),
-                items: _editableStates
-                    .map(
-                      (s) => DropdownMenuItem(
-                        value: s,
-                        child: Text(stateLabel(s)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() => _selectedState = v);
-                  }
-                },
-              ),
-            ],
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Organization Type',
+                  description:
+                      'The regulatory category of this organization. '
+                      'This determines applicable compliance rules and reporting requirements.',
+                  child: DropdownButtonFormField<OrganizationType>(
+                    initialValue: _orgType,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.category_outlined),
+                    ),
+                    items: _orgTypes
+                        .map(
+                          (t) => DropdownMenuItem(
+                            value: t,
+                            child: Text(_orgTypeLabel(t)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        setState(() => _orgType = v);
+                      }
+                    },
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Status',
+                  description:
+                      'The lifecycle state of the organization. '
+                      'New organizations start as "Created" and must be activated before operations can begin.',
+                  isRequired: true,
+                  child: DropdownButtonFormField<STATE>(
+                    initialValue: _selectedState,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.flag_outlined),
+                    ),
+                    items: _editableStates
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(stateLabel(s)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        setState(() => _selectedState = v);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -292,15 +423,19 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
           onPressed: _saving ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
+        FilledButton.icon(
           onPressed: _saving ? null : _submit,
-          child: _saving
+          icon: _saving
               ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
-              : Text(_isEditing ? 'Update' : 'Create'),
+              : Icon(_isEditing ? Icons.save : Icons.add),
+          label: Text(_isEditing ? 'Update Organization' : 'Create Organization'),
         ),
       ],
     );
