@@ -9,7 +9,7 @@ import '../../../sdk/src/origination/v1/origination.pb.dart';
 part 'dashboard_providers.g.dart';
 
 /// Fetches count of applications in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 @riverpod
 Future<int> applicationCountByStatus(
   Ref ref,
@@ -17,19 +17,19 @@ Future<int> applicationCountByStatus(
 ) async {
   final client = ref.watch(originationServiceClientProvider);
   final request = ApplicationSearchRequest(
-    cursor: PageCursor(limit: 200),
+    cursor: PageCursor(limit: 1),
   );
   request.status = status;
 
   return countStream(
     client.applicationSearch(request),
     count: (response) => response.data.length,
-    maxPages: 20,
+    maxPages: 1,
   );
 }
 
 /// Fetches count of loan accounts in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 @riverpod
 Future<int> loanCountByStatus(
   Ref ref,
@@ -37,14 +37,14 @@ Future<int> loanCountByStatus(
 ) async {
   final client = ref.watch(loanManagementServiceClientProvider);
   final request = LoanAccountSearchRequest(
-    cursor: PageCursor(limit: 200),
+    cursor: PageCursor(limit: 1),
   );
   request.status = status;
 
   return countStream(
     client.loanAccountSearch(request),
     count: (response) => response.data.length,
-    maxPages: 20,
+    maxPages: 1,
   );
 }
 

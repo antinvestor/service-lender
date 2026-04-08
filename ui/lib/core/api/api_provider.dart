@@ -118,7 +118,7 @@ Transport _createTransport(Ref ref, String baseUrl) {
     codec: const ProtoCodec(),
     httpClient: createPlatformHttpClient(),
     interceptors: [authInterceptor.call],
-    useHttpGet: true,
+    useHttpGet: false,
   );
 }
 
