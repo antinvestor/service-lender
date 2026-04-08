@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/error_helpers.dart';
 import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../features/auth/data/auth_repository.dart';
@@ -91,11 +92,12 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Failed to save organization: $e'),
+                  content: Text(friendlyError(e)),
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
             }
+            rethrow;
           }
         },
       ),
