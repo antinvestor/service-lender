@@ -243,7 +243,12 @@ func setupConnectServer(
 	fieldAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_field")
 
 	identityInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, identityFunctionAccessInterceptor, identityAuditInterceptor)
+		ctx,
+		sm.GetAuthenticator(ctx),
+		tenancyAccessInterceptor,
+		identityFunctionAccessInterceptor,
+		identityAuditInterceptor,
+	)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create identity interceptors")
 	}

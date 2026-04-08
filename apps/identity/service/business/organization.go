@@ -42,7 +42,10 @@ func NewOrganizationBusiness(
 	}
 }
 
-func (b *organizationBusiness) Save(ctx context.Context, obj *identityv1.OrganizationObject) (*identityv1.OrganizationObject, error) {
+func (b *organizationBusiness) Save(
+	ctx context.Context,
+	obj *identityv1.OrganizationObject,
+) (*identityv1.OrganizationObject, error) {
 	logger := util.Log(ctx).WithField("method", "OrganizationBusiness.Save")
 
 	isNew := obj.GetId() == ""
