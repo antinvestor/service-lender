@@ -68,19 +68,26 @@ GoRouter router(Ref ref) {
   return GoRouter(
     initialLocation: '/',
     refreshListenable: authChangeNotifier,
-    redirect: (context, state) async {
+    redirect: (context, state) {
       final location = state.matchedLocation;
       final isLoginRoute = location == '/login';
       final isAuthCallback = location == '/auth/callback';
 
-      // Use sync cache for instant navigation when session is warm.
-      final isLoggedIn =
-          authRepository.isLoggedInSync ?? await authRepository.isLoggedIn();
+      // Synchronous check — avoids microtask delays on every navigation.
+      // Cache is warm after the first login check.
+      final cachedAuth = authRepository.isLoggedInSync;
+      if (cachedAuth == null) {
+        // Cold start: do async check (only happens once on app launch).
+        return authRepository.isLoggedIn().then((isLoggedIn) {
+          if (isAuthCallback) return isLoggedIn ? '/' : null;
+          if (!isLoggedIn && !isLoginRoute) return '/login';
+          if (isLoggedIn && isLoginRoute) return '/';
+          return null;
+        });
+      }
 
-      // Auth callback: if already logged in, go straight to dashboard.
-      // Otherwise let the callback screen handle the token exchange.
+      final isLoggedIn = cachedAuth;
       if (isAuthCallback) return isLoggedIn ? '/' : null;
-
       if (!isLoggedIn && !isLoginRoute) return '/login';
       if (isLoggedIn && isLoginRoute) return '/';
 

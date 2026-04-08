@@ -30,11 +30,28 @@ class AppSidebar extends ConsumerStatefulWidget {
 
 class _AppSidebarState extends ConsumerState<AppSidebar> {
   bool _initialExpansionDone = false;
+  late SidebarExpansionState _expansionState;
+
+  @override
+  void initState() {
+    super.initState();
+    _expansionState = ref.read(sidebarExpansionProvider);
+    _expansionState.addListener(_onExpansionChanged);
+  }
+
+  @override
+  void dispose() {
+    _expansionState.removeListener(_onExpansionChanged);
+    super.dispose();
+  }
+
+  void _onExpansionChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     final navItemsAsync = ref.watch(filteredNavItemsProvider);
-    final expansionState = ref.watch(sidebarExpansionProvider);
     final theme = Theme.of(context);
     final userInfoAsync = ref.watch(currentProfileIdProvider);
     final displayNameAsync = ref.watch(currentDisplayNameProvider);
@@ -48,7 +65,7 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
         if (!_initialExpansionDone) {
           _initialExpansionDone = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            expansionState.expandForRoute(widget.currentRoute, items);
+            _expansionState.expandForRoute(widget.currentRoute, items);
           });
         }
 
@@ -91,7 +108,7 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
                       _buildNavItem(
                         context,
                         item,
-                        expansionState,
+                        _expansionState,
                         depth: 0,
                       ),
                   ],
@@ -164,9 +181,9 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
   }
 }
 
-// ��───────────────────────────────────────────────────────────��────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // Brand header — white on navy with gradient logo
-// ───────────────────��──────────────────────────────────���──────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _BrandHeader extends StatelessWidget {
   const _BrandHeader();
@@ -224,10 +241,6 @@ class _BrandHeader extends StatelessWidget {
   }
 }
 
-// ────────────────────────────────��────────────────────────────────────────────
-// Section tile (expandable parent)
-// ───��──────────────────���────────────────────────────────���─────────────────────
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Partition indicator — shows active partition, taps to Organization view
 // ─────────────────────────────────────────────────────────────────────────────
@@ -279,6 +292,10 @@ class _PartitionIndicator extends StatelessWidget {
   String _shortId(String id) =>
       id.length > 16 ? '${id.substring(0, 16)}...' : id;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section tile (expandable parent)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _SectionTile extends StatelessWidget {
   const _SectionTile({
@@ -380,7 +397,7 @@ class _SectionTile extends StatelessWidget {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Leaf tile (navigatable item) with left accent bar
-// ─���──────────────────────��────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _LeafTile extends StatelessWidget {
   const _LeafTile({
@@ -484,9 +501,9 @@ class _LeafTile extends StatelessWidget {
   }
 }
 
-// ──────────────────────���──────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // User footer — white on navy
-// ─────────��─────────────────────��─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _UserFooter extends StatelessWidget {
   const _UserFooter({
