@@ -1,4 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -68,21 +69,19 @@ GoRouter router(Ref ref) {
     initialLocation: '/',
     refreshListenable: authChangeNotifier,
     redirect: (context, state) async {
-      // Use the synchronous cache when warm to avoid frame delays on
-      // every navigation. Only fall back to async on cold start.
-      final cachedAuth = authRepository.isLoggedInSync;
-      final isLoggedIn = cachedAuth ?? await authRepository.isLoggedIn();
       final location = state.matchedLocation;
       final isLoginRoute = location == '/login';
       final isAuthCallback = location == '/auth/callback';
 
-      if (isAuthCallback) {
-        if (isLoggedIn) {
-          ref.invalidate(authStateProvider);
-          return '/';
-        }
-        return '/login';
-      }
+      // Auth callback: always let it through so the token exchange can
+      // complete. The LoginScreen handles the redirect result and
+      // transitions to authenticated state, which triggers a router
+      // refresh that sends the user to '/'.
+      if (isAuthCallback) return null;
+
+      // Use sync cache for instant navigation when session is warm.
+      final isLoggedIn =
+          authRepository.isLoggedInSync ?? await authRepository.isLoggedIn();
 
       if (!isLoggedIn && !isLoginRoute) return '/login';
       if (isLoggedIn && isLoginRoute) return '/';
@@ -96,7 +95,7 @@ GoRouter router(Ref ref) {
       ),
       GoRoute(
         path: '/auth/callback',
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const _AuthCallbackScreen(),
       ),
 
       // All authenticated routes live inside the shell.
@@ -331,4 +330,48 @@ GoRouter router(Ref ref) {
       ),
     ],
   );
+}
+
+/// Handles the OAuth callback: shows a loading spinner while the token
+/// exchange completes, then redirects to '/'. If already authenticated
+/// (e.g. page refresh with a warm session), redirects immediately.
+class _AuthCallbackScreen extends ConsumerStatefulWidget {
+  const _AuthCallbackScreen();
+
+  @override
+  ConsumerState<_AuthCallbackScreen> createState() =>
+      _AuthCallbackScreenState();
+}
+
+class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _processCallback();
+  }
+
+  Future<void> _processCallback() async {
+    final authRepo = ref.read(authRepositoryProvider);
+
+    // isAuthenticated() detects the OAuth redirect result (code + state
+    // in the URL), exchanges them for tokens, and caches the session.
+    final loggedIn = await authRepo.isLoggedIn();
+
+    if (!mounted) return;
+
+    if (loggedIn) {
+      // Invalidate auth state so the router picks up the new session.
+      ref.invalidate(authStateProvider);
+    }
+
+    // Navigate to root — the router redirect handles the rest.
+    context.go('/');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
 }
