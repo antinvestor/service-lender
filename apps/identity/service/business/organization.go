@@ -66,27 +66,10 @@ func (b *organizationBusiness) Save(
 		claims := security.ClaimsFromContext(ctx)
 		tenantID := claims.GetTenantID()
 		parentPartitionID := claims.GetPartitionID()
-
-		if b.partitionCli != nil {
-			createReq := connect.NewRequest(&tenancyv1.CreatePartitionRequest{
-				TenantId:    tenantID,
-				ParentId:    parentPartitionID,
-				Name:        organization.Name,
-				Description: "Partition for organization: " + organization.Name,
-			})
-			resp, createErr := b.partitionCli.CreatePartition(ctx, createReq)
-			if createErr != nil {
-				logger.WithError(createErr).Warn("failed to create partition for organization, falling back to context partition")
-				organization.PartitionID = parentPartitionID
-			} else {
-				organization.PartitionID = resp.Msg.GetData().GetId()
-			}
-		} else {
-			logger.Warn("partition client is nil, falling back to context partition")
-			organization.PartitionID = parentPartitionID
-		}
-
 		organization.TenantID = tenantID
+		organization.PartitionID = b.createChildPartition(
+			ctx, logger, tenantID, parentPartitionID, organization.Name,
+		)
 	}
 
 	err := b.eventsMan.Emit(ctx, events.OrganizationSaveEvent, organization)
@@ -96,6 +79,30 @@ func (b *organizationBusiness) Save(
 	}
 
 	return organization.ToAPI(), nil
+}
+
+func (b *organizationBusiness) createChildPartition(
+	ctx context.Context,
+	logger *util.LogEntry,
+	tenantID, parentID, name string,
+) string {
+	if b.partitionCli == nil {
+		logger.Warn("partition client is nil, using parent partition")
+		return parentID
+	}
+	resp, err := b.partitionCli.CreatePartition(ctx, connect.NewRequest(
+		&tenancyv1.CreatePartitionRequest{
+			TenantId:    tenantID,
+			ParentId:    parentID,
+			Name:        name,
+			Description: "Partition for organization: " + name,
+		},
+	))
+	if err != nil {
+		logger.WithError(err).Warn("failed to create child partition, using parent")
+		return parentID
+	}
+	return resp.Msg.GetData().GetId()
 }
 
 func (b *organizationBusiness) Get(ctx context.Context, id string) (*identityv1.OrganizationObject, error) {

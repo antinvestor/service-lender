@@ -68,29 +68,10 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 	}
 
 	if isNew {
-		orgPartitionID := org.PartitionID
-		orgTenantID := org.TenantID
-
-		if b.partitionCli != nil {
-			createReq := connect.NewRequest(&tenancyv1.CreatePartitionRequest{
-				TenantId:    orgTenantID,
-				ParentId:    orgPartitionID,
-				Name:        branch.Name,
-				Description: "Partition for branch: " + branch.Name,
-			})
-			resp, createErr := b.partitionCli.CreatePartition(ctx, createReq)
-			if createErr != nil {
-				logger.WithError(createErr).Warn("failed to create partition for branch, falling back to organization partition")
-				branch.PartitionID = orgPartitionID
-			} else {
-				branch.PartitionID = resp.Msg.GetData().GetId()
-			}
-		} else {
-			logger.Warn("partition client is nil, falling back to organization partition")
-			branch.PartitionID = orgPartitionID
-		}
-
-		branch.TenantID = orgTenantID
+		branch.TenantID = org.TenantID
+		branch.PartitionID = b.createChildPartition(
+			ctx, logger, org.TenantID, org.PartitionID, branch.Name,
+		)
 	}
 
 	err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, branch)
@@ -100,6 +81,30 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 	}
 
 	return branch.ToAPI(), nil
+}
+
+func (b *branchBusiness) createChildPartition(
+	ctx context.Context,
+	logger *util.LogEntry,
+	tenantID, parentID, name string,
+) string {
+	if b.partitionCli == nil {
+		logger.Warn("partition client is nil, using parent partition")
+		return parentID
+	}
+	resp, err := b.partitionCli.CreatePartition(ctx, connect.NewRequest(
+		&tenancyv1.CreatePartitionRequest{
+			TenantId:    tenantID,
+			ParentId:    parentID,
+			Name:        name,
+			Description: "Partition for branch: " + name,
+		},
+	))
+	if err != nil {
+		logger.WithError(err).Warn("failed to create child partition, using parent")
+		return parentID
+	}
+	return resp.Msg.GetData().GetId()
 }
 
 func (b *branchBusiness) Get(ctx context.Context, id string) (*identityv1.BranchObject, error) {
