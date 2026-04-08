@@ -14,6 +14,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   app_links: ^7.0.0
   antinvestor_api_common: ^1.52.0
+  antinvestor_api_profile: ^1.52.0
+  antinvestor_api_notification: ^1.51.0
   connectivity_plus: ^7.0.0
   connectrpc: ^1.0.0
   drift: ^2.31.0

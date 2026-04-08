@@ -12,6 +12,10 @@ import '../../sdk/src/loans/v1/loans.connect.client.dart';
 import '../../sdk/src/savings/v1/savings.connect.client.dart';
 import '../../sdk/src/funding/v1/funding.connect.client.dart';
 import '../../sdk/src/operations/v1/operations.connect.client.dart';
+import 'package:antinvestor_api_profile/antinvestor_api_profile.dart'
+    show ProfileServiceClient;
+import 'package:antinvestor_api_notification/antinvestor_api_notification.dart'
+    show NotificationServiceClient;
 import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
 part 'api_provider.g.dart';
@@ -54,6 +58,16 @@ const _fundingUrl = String.fromEnvironment(
 const _operationsUrl = String.fromEnvironment(
   'OPERATIONS_URL',
   defaultValue: 'https://api.antinvestor.com/operations',
+);
+
+const _profileUrl = String.fromEnvironment(
+  'PROFILE_URL',
+  defaultValue: 'https://api.antinvestor.com/profile',
+);
+
+const _notificationUrl = String.fromEnvironment(
+  'NOTIFICATION_URL',
+  defaultValue: 'https://api.antinvestor.com/notification',
 );
 
 /// Interceptor that injects the Bearer token into every request.
@@ -193,4 +207,27 @@ FundingServiceClient fundingServiceClient(Ref ref) {
 OperationsServiceClient operationsServiceClient(Ref ref) {
   final transport = ref.watch(operationsTransportProvider);
   return OperationsServiceClient(transport);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Platform service clients (profile, notification)
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Riverpod(keepAlive: true)
+Transport profileTransport(Ref ref) => _createTransport(ref, _profileUrl);
+
+@Riverpod(keepAlive: true)
+Transport notificationTransport(Ref ref) =>
+    _createTransport(ref, _notificationUrl);
+
+@Riverpod(keepAlive: true)
+ProfileServiceClient profileServiceClient(Ref ref) {
+  final transport = ref.watch(profileTransportProvider);
+  return ProfileServiceClient(transport);
+}
+
+@Riverpod(keepAlive: true)
+NotificationServiceClient notificationServiceClient(Ref ref) {
+  final transport = ref.watch(notificationTransportProvider);
+  return NotificationServiceClient(transport);
 }

@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:antinvestor_api_profile/antinvestor_api_profile.dart' as profile_api;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/api/api_provider.dart';
 import '../../../core/widgets/error_helpers.dart';
 import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/profile_badge.dart';
+import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../organization/data/branch_providers.dart';
@@ -84,24 +87,48 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   }
 
   Future<void> _searchProfile(String contact) async {
-    // TODO: Call profile service to search by contact (email/phone).
-    // For now, simulate: if the contact looks like an existing profile ID,
-    // treat it as found. In production, this calls:
-    //   profileClient.Search(SearchRequest(query: contact))
-    // and returns matching profiles.
+    final profileClient = ref.read(profileServiceClientProvider);
 
-    // Simulate search delay
-    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      final stream = profileClient.search(
+        profile_api.SearchRequest(
+          query: contact,
+          count: 1,
+        ),
+      );
 
-    if (!mounted) return;
+      profile_api.ProfileObject? found;
+      await for (final response in stream) {
+        if (response.data.isNotEmpty) {
+          found = response.data.first;
+          break;
+        }
+      }
 
-    // For now, always treat as "not found" — new profile will be created.
-    // When profile service SDK is available, this will do a real lookup.
-    setState(() {
-      _searchState = _ProfileSearchState.notFound;
-      _profileId = '';
-      _profileName = '';
-    });
+      if (!mounted) return;
+
+      if (found != null) {
+        setState(() {
+          _searchState = _ProfileSearchState.found;
+          _profileId = found!.id;
+          _profileName = found.properties.fields['name']?.stringValue ??
+              found.id;
+        });
+      } else {
+        setState(() {
+          _searchState = _ProfileSearchState.notFound;
+          _profileId = '';
+          _profileName = '';
+        });
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _searchState = _ProfileSearchState.notFound;
+        _profileId = '';
+        _profileName = '';
+      });
+    }
   }
 
   void _confirmExistingProfile() {
