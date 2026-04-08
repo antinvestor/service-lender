@@ -122,14 +122,14 @@ func (m *Branch) TableName() string { return "branches" }
 
 func (m *Branch) ToAPI() *identityv1.BranchObject {
 	return &identityv1.BranchObject{
-		Id:          m.GetID(),
+		Id:             m.GetID(),
 		OrganizationId: m.OrganizationID,
-		PartitionId: m.PartitionID,
-		Name:        m.Name,
-		Code:        m.Code,
-		GeoId:       m.GeoID,
-		State:       commonv1.STATE(m.State),
-		Properties:  m.Properties.ToProtoStruct(),
+		PartitionId:    m.PartitionID,
+		Name:           m.Name,
+		Code:           m.Code,
+		GeoId:          m.GeoID,
+		State:          commonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
 
