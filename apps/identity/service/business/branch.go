@@ -6,6 +6,9 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
+	tenancyv1 "buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go/tenancy/v1"
+	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -29,6 +32,7 @@ type branchBusiness struct {
 	eventsMan        fevents.Manager
 	organizationRepo repository.OrganizationRepository
 	branchRepo       repository.BranchRepository
+	partitionCli     tenancyv1connect.TenancyServiceClient
 }
 
 func NewBranchBusiness(
@@ -36,11 +40,13 @@ func NewBranchBusiness(
 	eventsMan fevents.Manager,
 	organizationRepo repository.OrganizationRepository,
 	branchRepo repository.BranchRepository,
+	partitionCli tenancyv1connect.TenancyServiceClient,
 ) BranchBusiness {
 	return &branchBusiness{
 		eventsMan:        eventsMan,
 		organizationRepo: organizationRepo,
 		branchRepo:       branchRepo,
+		partitionCli:     partitionCli,
 	}
 }
 
@@ -48,7 +54,7 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 	logger := util.Log(ctx).WithField("method", "BranchBusiness.Save")
 
 	// Validate organization exists
-	_, err := b.organizationRepo.GetByID(ctx, obj.GetOrganizationId())
+	org, err := b.organizationRepo.GetByID(ctx, obj.GetOrganizationId())
 	if err != nil {
 		logger.WithError(err).Warn("organization not found for branch")
 		return nil, ErrOrganizationNotFound
@@ -59,6 +65,32 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 
 	if isNew && branch.State == 0 {
 		branch.State = int32(commonv1.STATE_CREATED.Number())
+	}
+
+	if isNew {
+		orgPartitionID := org.PartitionID
+		orgTenantID := org.TenantID
+
+		if b.partitionCli != nil {
+			createReq := connect.NewRequest(&tenancyv1.CreatePartitionRequest{
+				TenantId:    orgTenantID,
+				ParentId:    orgPartitionID,
+				Name:        branch.Name,
+				Description: "Partition for branch: " + branch.Name,
+			})
+			resp, createErr := b.partitionCli.CreatePartition(ctx, createReq)
+			if createErr != nil {
+				logger.WithError(createErr).Warn("failed to create partition for branch, falling back to organization partition")
+				branch.PartitionID = orgPartitionID
+			} else {
+				branch.PartitionID = resp.Msg.GetData().GetId()
+			}
+		} else {
+			logger.Warn("partition client is nil, falling back to organization partition")
+			branch.PartitionID = orgPartitionID
+		}
+
+		branch.TenantID = orgTenantID
 	}
 
 	err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, branch)

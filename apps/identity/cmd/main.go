@@ -77,7 +77,6 @@ func main() {
 	if err != nil {
 		log.WithError(err).Fatal("main -- Could not setup partition client")
 	}
-	_ = partitionCli // Used for partition validation in future
 
 	notificationCli, notifErr := setupNotificationClient(ctx, cfg)
 	if notifErr != nil {
@@ -94,7 +93,7 @@ func main() {
 	}
 
 	// Initialise repositories, business logic, handlers, and events
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, cfg, agentNotifier)
+	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, cfg, agentNotifier, partitionCli)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -112,6 +111,7 @@ func setupServiceOptions(
 	workMan workerpool.Manager,
 	cfg aconfig.IdentityConfig,
 	agentNotifier *business.AgentNotifier,
+	partitionCli tenancyv1connect.TenancyServiceClient,
 ) []frame.Option {
 	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
@@ -124,8 +124,8 @@ func setupServiceOptions(
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
 
-	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo)
-	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo)
+	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
+	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo, partitionCli)
 	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo, agentNotifier)
 	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, branchRepo, clcrRepo)
 	groupBusiness := business.NewGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)

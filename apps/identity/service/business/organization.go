@@ -7,8 +7,12 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
+	tenancyv1 "buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go/tenancy/v1"
+	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/events"
@@ -29,16 +33,19 @@ type OrganizationBusiness interface {
 type organizationBusiness struct {
 	eventsMan        fevents.Manager
 	organizationRepo repository.OrganizationRepository
+	partitionCli     tenancyv1connect.TenancyServiceClient
 }
 
 func NewOrganizationBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	organizationRepo repository.OrganizationRepository,
+	partitionCli tenancyv1connect.TenancyServiceClient,
 ) OrganizationBusiness {
 	return &organizationBusiness{
 		eventsMan:        eventsMan,
 		organizationRepo: organizationRepo,
+		partitionCli:     partitionCli,
 	}
 }
 
@@ -53,6 +60,33 @@ func (b *organizationBusiness) Save(
 
 	if isNew && organization.State == 0 {
 		organization.State = int32(commonv1.STATE_CREATED.Number())
+	}
+
+	if isNew {
+		claims := security.ClaimsFromContext(ctx)
+		tenantID := claims.GetTenantID()
+		parentPartitionID := claims.GetPartitionID()
+
+		if b.partitionCli != nil {
+			createReq := connect.NewRequest(&tenancyv1.CreatePartitionRequest{
+				TenantId:    tenantID,
+				ParentId:    parentPartitionID,
+				Name:        organization.Name,
+				Description: "Partition for organization: " + organization.Name,
+			})
+			resp, createErr := b.partitionCli.CreatePartition(ctx, createReq)
+			if createErr != nil {
+				logger.WithError(createErr).Warn("failed to create partition for organization, falling back to context partition")
+				organization.PartitionID = parentPartitionID
+			} else {
+				organization.PartitionID = resp.Msg.GetData().GetId()
+			}
+		} else {
+			logger.Warn("partition client is nil, falling back to context partition")
+			organization.PartitionID = parentPartitionID
+		}
+
+		organization.TenantID = tenantID
 	}
 
 	err := b.eventsMan.Emit(ctx, events.OrganizationSaveEvent, organization)

@@ -16,6 +16,7 @@ dependencies:
   antinvestor_api_common: ^1.52.0
   antinvestor_api_profile: ^1.52.0
   antinvestor_api_notification: ^1.51.0
+  antinvestor_api_tenancy: ^1.54.0
   connectivity_plus: ^7.0.0
   connectrpc: ^1.0.0
   drift: ^2.31.0

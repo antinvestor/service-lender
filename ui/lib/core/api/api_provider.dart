@@ -16,6 +16,8 @@ import 'package:antinvestor_api_profile/antinvestor_api_profile.dart'
     show ProfileServiceClient;
 import 'package:antinvestor_api_notification/antinvestor_api_notification.dart'
     show NotificationServiceClient;
+import 'package:antinvestor_api_tenancy/antinvestor_api_tenancy.dart'
+    show TenancyServiceClient;
 import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
 part 'api_provider.g.dart';
@@ -68,6 +70,11 @@ const _profileUrl = String.fromEnvironment(
 const _notificationUrl = String.fromEnvironment(
   'NOTIFICATION_URL',
   defaultValue: 'https://api.stawi.org/notification',
+);
+
+const _tenancyUrl = String.fromEnvironment(
+  'TENANCY_URL',
+  defaultValue: 'https://api.stawi.org/tenancy',
 );
 
 /// Interceptor that injects the Bearer token into every request.
@@ -230,4 +237,13 @@ ProfileServiceClient profileServiceClient(Ref ref) {
 NotificationServiceClient notificationServiceClient(Ref ref) {
   final transport = ref.watch(notificationTransportProvider);
   return NotificationServiceClient(transport);
+}
+
+@Riverpod(keepAlive: true)
+Transport tenancyTransport(Ref ref) => _createTransport(ref, _tenancyUrl);
+
+@Riverpod(keepAlive: true)
+TenancyServiceClient tenancyServiceClient(Ref ref) {
+  final transport = ref.watch(tenancyTransportProvider);
+  return TenancyServiceClient(transport);
 }

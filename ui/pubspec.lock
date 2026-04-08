@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.53.0"
+  antinvestor_api_tenancy:
+    dependency: "direct main"
+    description:
+      name: antinvestor_api_tenancy
+      sha256: "38d430d840d0b0771a2ceb9dfe2517d93a2025bfe9446c9f47ae2b5bbb81f9e2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.54.0"
   app_links:
     dependency: "direct main"
     description:

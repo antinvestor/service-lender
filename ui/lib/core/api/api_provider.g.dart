@@ -772,3 +772,92 @@ final class NotificationServiceClientProvider
 
 String _$notificationServiceClientHash() =>
     r'127d6f270625d544637c3de7b00d966a22dae6d1';
+
+@ProviderFor(tenancyTransport)
+final tenancyTransportProvider = TenancyTransportProvider._();
+
+final class TenancyTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  TenancyTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tenancyTransportProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tenancyTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return tenancyTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$tenancyTransportHash() => r'8c5c20ec3fa472dd3edad2eb43ebe5cd73f452d9';
+
+@ProviderFor(tenancyServiceClient)
+final tenancyServiceClientProvider = TenancyServiceClientProvider._();
+
+final class TenancyServiceClientProvider
+    extends
+        $FunctionalProvider<
+          TenancyServiceClient,
+          TenancyServiceClient,
+          TenancyServiceClient
+        >
+    with $Provider<TenancyServiceClient> {
+  TenancyServiceClientProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tenancyServiceClientProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tenancyServiceClientHash();
+
+  @$internal
+  @override
+  $ProviderElement<TenancyServiceClient> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TenancyServiceClient create(Ref ref) {
+    return tenancyServiceClient(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TenancyServiceClient value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TenancyServiceClient>(value),
+    );
+  }
+}
+
+String _$tenancyServiceClientHash() =>
+    r'aeac9102200df82eb7f8574bd0042ceeb0a47b0e';
