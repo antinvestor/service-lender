@@ -34,6 +34,7 @@ import '../features/origination/ui/applications_screen.dart';
 import '../features/loan_management/ui/loan_products_screen.dart';
 import '../features/origination/ui/pending_cases_screen.dart';
 import '../features/operations/ui/disbursement_queue_screen.dart';
+import '../features/operations/ui/notification_templates_screen.dart';
 import '../features/operations/ui/transfer_orders_screen.dart';
 import '../features/reporting/ui/portfolio_summary_screen.dart';
 import '../features/savings/ui/savings_account_detail_screen.dart';
@@ -341,6 +342,13 @@ GoRouter router(Ref ref) {
             builder: (context, state) => _guarded(
               '/operations/transfers',
               const TransferOrdersScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/operations/templates',
+            builder: (context, state) => _guarded(
+              '/operations/templates',
+              const NotificationTemplatesScreen(),
             ),
           ),
           GoRoute(

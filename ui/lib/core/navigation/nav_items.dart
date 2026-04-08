@@ -300,6 +300,14 @@ List<NavItem> buildNavItems() => [
             route: '/operations/transfers',
             requiredRoles: _viewRoles,
           ),
+          NavItem(
+            id: 'notification_templates',
+            label: 'Notification Templates',
+            icon: Icons.mail_outlined,
+            activeIcon: Icons.mail,
+            route: '/operations/templates',
+            requiredRoles: _adminRoles,
+          ),
         ],
       ),
       NavItem(
