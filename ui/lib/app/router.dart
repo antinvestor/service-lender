@@ -16,12 +16,14 @@ import '../features/auth/ui/login_screen.dart';
 import '../features/auth/ui/terms_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
 import '../features/field/ui/agent_create_screen.dart';
+import '../features/field/ui/agent_detail_screen.dart';
 import '../features/field/ui/agents_screen.dart';
 import '../features/field/ui/client_detail_screen.dart';
 import '../features/field/ui/client_onboard_screen.dart';
 import '../features/field/ui/clients_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
+import '../features/organization/ui/branch_detail_screen.dart';
 import '../features/organization/ui/organization_detail_screen.dart';
 import '../features/organization/ui/organizations_screen.dart';
 import '../features/organization/ui/investors_screen.dart';
@@ -162,6 +164,19 @@ GoRouter router(Ref ref) {
                         state.pathParameters['organizationId']!,
                   ),
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'branches/:branchId',
+                    builder: (context, state) => _guarded(
+                      '/organization/organizations',
+                      BranchDetailScreen(
+                        branchId: state.pathParameters['branchId']!,
+                        organizationId:
+                            state.pathParameters['organizationId']!,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -184,6 +199,15 @@ GoRouter router(Ref ref) {
                 builder: (context, state) => _guarded(
                   '/field/agents',
                   const AgentCreateScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':agentId',
+                builder: (context, state) => _guarded(
+                  '/field/agents',
+                  AgentDetailScreen(
+                    agentId: state.pathParameters['agentId']!,
+                  ),
                 ),
               ),
             ],

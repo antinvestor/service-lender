@@ -163,13 +163,14 @@ class _AgentCard extends StatelessWidget {
       if (agent.branchId.isNotEmpty) 'Branch: ${agent.branchId}',
       if (agent.parentAgentId.isNotEmpty) 'Parent: ${agent.parentAgentId}',
       if (agent.depth > 0) 'Depth: ${agent.depth}',
-    ].join(' · ');
+    ].join(' \u00b7 ');
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        onTap: () => context.go('/field/agents/${agent.id}'),
         leading: ProfileAvatar(
           profileId: agent.profileId,
           name: agent.name,

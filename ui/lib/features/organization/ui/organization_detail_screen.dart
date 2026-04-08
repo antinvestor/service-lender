@@ -236,7 +236,8 @@ class _OrganizationDetailContentState
                     final branch = branches[index];
                     return _BranchCard(
                       branch: branch,
-                      onTap: widget.canManage
+                      organizationId: _organization.id,
+                      onEdit: widget.canManage
                           ? () => _showBranchDialog(context,
                               branch: branch)
                           : null,
@@ -278,7 +279,7 @@ class _OrganizationDetailContentState
   }) async {
     final result = await showDialog<BranchObject>(
       context: context,
-      builder: (context) => _BranchFormDialog(
+      builder: (context) => BranchFormDialog(
           branch: branch, organizationId: _organization.id),
     );
     if (result == null || !mounted) return;
@@ -312,10 +313,15 @@ class _OrganizationDetailContentState
 // ---------------------------------------------------------------------------
 
 class _BranchCard extends StatelessWidget {
-  const _BranchCard({required this.branch, this.onTap});
+  const _BranchCard({
+    required this.branch,
+    required this.organizationId,
+    this.onEdit,
+  });
 
   final BranchObject branch;
-  final VoidCallback? onTap;
+  final String organizationId;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +329,9 @@ class _BranchCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 2),
       child: InkWell(
-        onTap: onTap,
+        onTap: () => context.go(
+          '/organization/organizations/$organizationId/branches/${branch.id}',
+        ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding:
@@ -389,6 +397,12 @@ class _BranchCard extends StatelessWidget {
                 ),
               ),
               StateBadge(state: branch.state),
+              if (onEdit != null)
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  onPressed: onEdit,
+                  tooltip: 'Edit',
+                ),
             ],
           ),
         ),
@@ -401,17 +415,17 @@ class _BranchCard extends StatelessWidget {
 // Branch create / edit dialog (organization is pre-set, not selectable)
 // ---------------------------------------------------------------------------
 
-class _BranchFormDialog extends StatefulWidget {
-  const _BranchFormDialog({this.branch, required this.organizationId});
+class BranchFormDialog extends StatefulWidget {
+  const BranchFormDialog({super.key, this.branch, required this.organizationId});
 
   final BranchObject? branch;
   final String organizationId;
 
   @override
-  State<_BranchFormDialog> createState() => _BranchFormDialogState();
+  State<BranchFormDialog> createState() => BranchFormDialogState();
 }
 
-class _BranchFormDialogState extends State<_BranchFormDialog> {
+class BranchFormDialogState extends State<BranchFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _codeController;

@@ -143,14 +143,6 @@ List<NavItem> buildNavItems() => [
             requiredRoles: _allViewRoles,
           ),
           NavItem(
-            id: 'agent_hierarchy',
-            label: 'Agent Hierarchy',
-            icon: Icons.account_tree_outlined,
-            activeIcon: Icons.account_tree,
-            route: '/field/hierarchy',
-            requiredRoles: _allViewRoles,
-          ),
-          NavItem(
             id: 'investors',
             label: 'Investors',
             icon: Icons.trending_up_outlined,
