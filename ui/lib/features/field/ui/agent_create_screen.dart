@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:antinvestor_api_profile/antinvestor_api_profile.dart' as profile_api;
+import 'package:connectrpc/connect.dart' show Code, ConnectException;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -98,31 +99,31 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     final profileClient = ref.read(profileServiceClientProvider);
 
     try {
-      final stream = profileClient.search(
-        profile_api.SearchRequest(
-          query: contact,
-          count: 1,
-        ),
+      final response = await profileClient.getByContact(
+        profile_api.GetByContactRequest(contact: contact),
       );
-
-      profile_api.ProfileObject? found;
-      await for (final response in stream) {
-        if (response.data.isNotEmpty) {
-          found = response.data.first;
-          break;
-        }
-      }
 
       if (!mounted) return;
 
-      if (found != null) {
+      final profile = response.data;
+      final name = profile.properties.fields['name']?.stringValue ?? '';
+
+      setState(() {
+        _searchState = _ProfileSearchState.found;
+        _profileId = profile.id;
+        _profileName = name.isNotEmpty ? name : profile.id;
+      });
+    } on ConnectException catch (e) {
+      if (!mounted) return;
+      // NOT_FOUND means no profile with this contact — allow creating new
+      if (e.code == Code.notFound) {
         setState(() {
-          _searchState = _ProfileSearchState.found;
-          _profileId = found!.id;
-          _profileName = found.properties.fields['name']?.stringValue ??
-              found.id;
+          _searchState = _ProfileSearchState.notFound;
+          _profileId = '';
+          _profileName = '';
         });
       } else {
+        // Auth or other errors — show as not found, log
         setState(() {
           _searchState = _ProfileSearchState.notFound;
           _profileId = '';
