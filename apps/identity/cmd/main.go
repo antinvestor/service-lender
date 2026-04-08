@@ -22,6 +22,7 @@ import (
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
+	auditInterceptors "github.com/antinvestor/service-lender/pkg/interceptors"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
@@ -237,14 +238,18 @@ func setupConnectServer(
 		fieldProcMap,
 	)
 
+	// Layer 3: Audit interceptor logs all non-idempotent calls and failed reads.
+	identityAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_identity")
+	fieldAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_field")
+
 	identityInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, identityFunctionAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, identityFunctionAccessInterceptor, identityAuditInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create identity interceptors")
 	}
 
 	fieldInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, fieldFunctionAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, fieldFunctionAccessInterceptor, fieldAuditInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create field interceptors")
 	}

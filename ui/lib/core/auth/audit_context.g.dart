@@ -8,14 +8,9 @@ part of 'audit_context.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider that builds an AuditContext from current JWT claims and device location.
-/// The location is fetched in parallel with auth claims for speed.
 
 @ProviderFor(auditContext)
 final auditContextProvider = AuditContextProvider._();
-
-/// Provider that builds an AuditContext from current JWT claims and device location.
-/// The location is fetched in parallel with auth claims for speed.
 
 final class AuditContextProvider
     extends
@@ -25,15 +20,13 @@ final class AuditContextProvider
           FutureOr<AuditContext>
         >
     with $FutureModifier<AuditContext>, $FutureProvider<AuditContext> {
-  /// Provider that builds an AuditContext from current JWT claims and device location.
-  /// The location is fetched in parallel with auth claims for speed.
   AuditContextProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'auditContextProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -53,4 +46,4 @@ final class AuditContextProvider
   }
 }
 
-String _$auditContextHash() => r'e6d56cef95ace2bebb89ae1b8a586aa09523be8d';
+String _$auditContextHash() => r'302427d60d4596f65d8a4f0b839fec118ec53276';

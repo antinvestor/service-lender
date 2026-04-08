@@ -14,6 +14,7 @@ import (
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
+	auditInterceptors "github.com/antinvestor/service-lender/pkg/interceptors"
 	"github.com/pitabwire/util"
 
 	aconfig "github.com/antinvestor/service-lender/apps/savings/config"
@@ -149,8 +150,9 @@ func setupConnectServer(
 	functionChecker := authorizer.NewFunctionChecker(auth, svcPerms.Namespace)
 	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
 
+	savingsAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_savings")
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor)
+		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor, savingsAuditInterceptor)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
 	}

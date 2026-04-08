@@ -6,13 +6,13 @@ import 'device_location.dart';
 part 'audit_context.g.dart';
 
 /// AuditContext captures the full context of an authenticated action:
-/// who (user identity claims), when (timestamp), and where (device location).
-///
-/// Every action that modifies state should include this context in its
-/// audit trail properties.
+/// who (user identity claims), when (timestamp), where (device location),
+/// and the tenancy context (tenant + partition).
 class AuditContext {
   const AuditContext({
     required this.profileId,
+    this.tenantId,
+    this.partitionId,
     this.contactId,
     this.accessId,
     this.sessionId,
@@ -21,22 +21,27 @@ class AuditContext {
     this.location,
   });
 
-  // Who — authenticated user claims (from Frame AuthenticationClaims)
-  final String profileId; // sub / profile_id claim
-  final String? contactId; // contact_id claim
-  final String? accessId; // azp / access_id claim
-  final String? sessionId; // sid / session_id claim
-  final String? deviceId; // device_id claim
-  final String? displayName; // name or preferred_username claim
+  // Tenancy — multi-tenant isolation context
+  final String? tenantId;
+  final String? partitionId;
+
+  // Who — authenticated user claims
+  final String profileId;
+  final String? contactId;
+  final String? accessId;
+  final String? sessionId;
+  final String? deviceId;
+  final String? displayName;
 
   // Where — device location at time of action
   final DeviceLocation? location;
 
-  /// Serializes the full audit context (identity + location) to a flat map
-  /// for embedding in Properties/ExtraData proto fields.
+  /// Serializes to a flat map for embedding in proto Properties/ExtraData fields.
   Map<String, String> toMap() {
     final map = <String, String>{
       'profile_id': profileId,
+      'tenant_id': ?tenantId,
+      'partition_id': ?partitionId,
       'contact_id': ?contactId,
       'access_id': ?accessId,
       'session_id': ?sessionId,
@@ -45,7 +50,6 @@ class AuditContext {
       'timestamp': DateTime.now().toUtc().toIso8601String(),
     };
 
-    // Merge device location details
     if (location != null) {
       map.addAll(location!.toMap());
     }
@@ -53,27 +57,17 @@ class AuditContext {
     return map;
   }
 
-  /// Returns a display string like "John Doe (profile123)"
   String get displayLabel => displayName != null && displayName!.isNotEmpty
       ? '$displayName ($profileId)'
       : profileId;
 
-  /// Returns a location display string like "Nairobi, Kenya"
   String get locationLabel => location?.displayLabel ?? 'Unknown location';
 
-  /// Returns a full display string like "John Doe — Nairobi, Kenya"
-  String get fullLabel {
-    final who = displayLabel;
-    final where = locationLabel;
-    return '$who — $where';
-  }
+  String get fullLabel => '$displayLabel — $locationLabel';
 }
 
-/// Provider that builds an AuditContext from current JWT claims and device location.
-/// The location is fetched in parallel with auth claims for speed.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<AuditContext> auditContext(Ref ref) async {
-  // Fetch identity and location in parallel
   final claimsFuture = ref.watch(authRepositoryProvider).getUserInfo();
   final locationFuture = ref.watch(deviceLocationProvider.future);
 
@@ -91,6 +85,8 @@ Future<AuditContext> auditContext(Ref ref) async {
 
   return AuditContext(
     profileId: claims['sub'] as String? ?? '',
+    tenantId: claims['tenant_id'] as String?,
+    partitionId: claims['partition_id'] as String?,
     contactId:
         claims['contact_id'] as String? ?? claims['email'] as String?,
     accessId:
