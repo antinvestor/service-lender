@@ -40,8 +40,11 @@ class SystemUserNotifier extends _$SystemUserNotifier {
     final response =
         await client.systemUserSave(SystemUserSaveRequest(data: user));
 
-    // Invalidate all system user list queries so they re-fetch.
-    ref.invalidate(systemUserListProvider);
+    // Delay the list refresh slightly to allow the async event handler
+    // to commit to the database before we query.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(systemUserListProvider);
+    });
 
     return response.data;
   }

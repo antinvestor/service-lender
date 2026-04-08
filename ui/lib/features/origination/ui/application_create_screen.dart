@@ -122,7 +122,7 @@ class _ApplicationCreateScreenState
         clientId: _clientIdCtrl.text.trim(),
         agentId: profileId,
         organizationId: _selectedProduct!.organizationId,
-        branchId: '',
+        // branchId is optional; omit to let the backend resolve it.
         requestedAmount: moneyFromString(
             _amountCtrl.text.trim(),
             _currencyCtrl.text.trim().toUpperCase()),

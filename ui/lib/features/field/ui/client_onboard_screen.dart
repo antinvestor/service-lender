@@ -133,6 +133,7 @@ class _ClientOnboardScreenState
 
       final client = ClientObject(
         name: _nameCtrl.text.trim(),
+        profileId: profileId,
         agentId: profileId,
         state: STATE.CREATED,
         properties: mapToStruct(propsMap),

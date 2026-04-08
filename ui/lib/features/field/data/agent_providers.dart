@@ -35,6 +35,8 @@ class AgentNotifier extends _$AgentNotifier {
   Future<void> save(AgentObject agent) async {
     final client = ref.read(fieldServiceClientProvider);
     await client.agentSave(AgentSaveRequest(data: agent));
-    ref.invalidate(agentListProvider);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(agentListProvider);
+    });
   }
 }

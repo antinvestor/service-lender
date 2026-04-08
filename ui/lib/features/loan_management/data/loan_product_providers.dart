@@ -48,8 +48,11 @@ class LoanProductNotifier extends _$LoanProductNotifier {
     final response =
         await client.loanProductSave(LoanProductSaveRequest(data: product));
 
-    // Invalidate all loan product list queries so they re-fetch.
-    ref.invalidate(loanProductListProvider);
+    // Delay the list refresh slightly to allow the async event handler
+    // to commit to the database before we query.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(loanProductListProvider);
+    });
 
     return response.data;
   }

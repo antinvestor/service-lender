@@ -35,7 +35,9 @@ class InvestorNotifier extends _$InvestorNotifier {
     final response = await apiClient.investorSave(
       InvestorSaveRequest(data: investor),
     );
-    ref.invalidate(investorListProvider);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(investorListProvider);
+    });
     return response.data;
   }
 }

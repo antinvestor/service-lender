@@ -36,7 +36,9 @@ class SavingsProductNotifier extends _$SavingsProductNotifier {
     final client = ref.read(savingsServiceClientProvider);
     final response = await client
         .savingsProductSave(SavingsProductSaveRequest(data: product));
-    ref.invalidate(savingsProductListProvider);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(savingsProductListProvider);
+    });
     return response.data;
   }
 }
@@ -96,7 +98,9 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
     final client = ref.read(savingsServiceClientProvider);
     final response = await client
         .savingsAccountCreate(SavingsAccountCreateRequest(data: account));
-    ref.invalidate(savingsAccountListProvider);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(savingsAccountListProvider);
+    });
     return response.data;
   }
 
@@ -104,16 +108,20 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
     final client = ref.read(savingsServiceClientProvider);
     await client
         .savingsAccountFreeze(SavingsAccountFreezeRequest(id: id));
-    ref.invalidate(savingsAccountListProvider);
-    ref.invalidate(savingsAccountDetailProvider);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(savingsAccountListProvider);
+      ref.invalidate(savingsAccountDetailProvider);
+    });
   }
 
   Future<void> close(String id) async {
     final client = ref.read(savingsServiceClientProvider);
     await client
         .savingsAccountClose(SavingsAccountCloseRequest(id: id));
-    ref.invalidate(savingsAccountListProvider);
-    ref.invalidate(savingsAccountDetailProvider);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ref.invalidate(savingsAccountListProvider);
+      ref.invalidate(savingsAccountDetailProvider);
+    });
   }
 }
 
