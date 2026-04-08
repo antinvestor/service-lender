@@ -45,7 +45,7 @@ final class CurrentUserRolesProvider
         argument: null,
         retry: null,
         name: r'currentUserRolesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -65,7 +65,7 @@ final class CurrentUserRolesProvider
   }
 }
 
-String _$currentUserRolesHash() => r'a5af15e840c5746ec0af16ced5b7d9b75a56810c';
+String _$currentUserRolesHash() => r'0b1c12247e2a6fe0e93455d94b389b67897da028';
 
 /// Check if user has any of the specified roles
 

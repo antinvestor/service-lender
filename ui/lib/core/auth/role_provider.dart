@@ -33,7 +33,7 @@ LenderRole? parseLenderRole(String role) {
 /// If no recognized roles are found, the user gets an empty set — they can
 /// see the dashboard but no functional sections or action buttons. The
 /// backend enforces the same restrictions via OPL relation tuples.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<Set<LenderRole>> currentUserRoles(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   final roleStrings = await authRepo.getUserRoles();

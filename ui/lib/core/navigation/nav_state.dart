@@ -7,7 +7,7 @@ import 'nav_items.dart';
 part 'nav_state.g.dart';
 
 /// Provides the filtered navigation items based on current user roles.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<NavItem>> filteredNavItems(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   final allItems = buildNavItems();

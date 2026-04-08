@@ -91,31 +91,31 @@ AuthRepository authRepository(Ref ref) {
   return AuthRepository(authService);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<String?> currentProfileId(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.getCurrentProfileId();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<String>> userRoles(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.getUserRoles();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<String?> currentTenantId(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.getCurrentTenantId();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<String?> currentPartitionId(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.getCurrentPartitionId();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<String?> currentDisplayName(Ref ref) async {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.getDisplayName();

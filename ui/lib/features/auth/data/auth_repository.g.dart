@@ -62,7 +62,7 @@ final class CurrentProfileIdProvider
         argument: null,
         retry: null,
         name: r'currentProfileIdProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -81,7 +81,7 @@ final class CurrentProfileIdProvider
   }
 }
 
-String _$currentProfileIdHash() => r'8ad5de46d40d2ef6ed2b289aaac91824d12f38a7';
+String _$currentProfileIdHash() => r'75ca6c4acd26917b2f3e9b7801fdd0674cccf512';
 
 @ProviderFor(userRoles)
 final userRolesProvider = UserRolesProvider._();
@@ -100,7 +100,7 @@ final class UserRolesProvider
         argument: null,
         retry: null,
         name: r'userRolesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -120,7 +120,7 @@ final class UserRolesProvider
   }
 }
 
-String _$userRolesHash() => r'ef6f26b437642590bed3086dc456579e2b0bb0bb';
+String _$userRolesHash() => r'7ee79817961969fa75243e6659630887677c895f';
 
 @ProviderFor(currentTenantId)
 final currentTenantIdProvider = CurrentTenantIdProvider._();
@@ -134,7 +134,7 @@ final class CurrentTenantIdProvider
         argument: null,
         retry: null,
         name: r'currentTenantIdProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -153,7 +153,7 @@ final class CurrentTenantIdProvider
   }
 }
 
-String _$currentTenantIdHash() => r'81dce1e5c7ddafce8263aa46689bab80a1b949e5';
+String _$currentTenantIdHash() => r'569cad1dc510d4638e5cf0d318a6a5b1e262a8ae';
 
 @ProviderFor(currentPartitionId)
 final currentPartitionIdProvider = CurrentPartitionIdProvider._();
@@ -167,7 +167,7 @@ final class CurrentPartitionIdProvider
         argument: null,
         retry: null,
         name: r'currentPartitionIdProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -187,7 +187,7 @@ final class CurrentPartitionIdProvider
 }
 
 String _$currentPartitionIdHash() =>
-    r'6a0f0d1b2e465ce8684882f75e77716b390e30ec';
+    r'3026b3bd40031e807464ede174cd866ca7f14a48';
 
 @ProviderFor(currentDisplayName)
 final currentDisplayNameProvider = CurrentDisplayNameProvider._();
@@ -201,7 +201,7 @@ final class CurrentDisplayNameProvider
         argument: null,
         retry: null,
         name: r'currentDisplayNameProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -221,4 +221,4 @@ final class CurrentDisplayNameProvider
 }
 
 String _$currentDisplayNameHash() =>
-    r'3212f34ee7e519e91e80cdbe966ecc830d9abb71';
+    r'd5c17b11173d6dac3cfa64502c55ed28b6cd342a';

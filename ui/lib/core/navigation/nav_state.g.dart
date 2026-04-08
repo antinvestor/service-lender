@@ -30,7 +30,7 @@ final class FilteredNavItemsProvider
         argument: null,
         retry: null,
         name: r'filteredNavItemsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -50,7 +50,7 @@ final class FilteredNavItemsProvider
   }
 }
 
-String _$filteredNavItemsHash() => r'62de1be2ebbcd1c26d2e2586a52213807bb23caa';
+String _$filteredNavItemsHash() => r'bc6fc2671f9ec88b066995284fe15ce41ffd1ad1';
 
 @ProviderFor(sidebarExpansion)
 final sidebarExpansionProvider = SidebarExpansionProvider._();
