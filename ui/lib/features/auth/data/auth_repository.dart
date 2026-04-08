@@ -18,6 +18,9 @@ class AuthRepository {
 
   Future<void> logout() async => _authService.logout();
 
+  /// Synchronous auth check — returns null if cache is cold.
+  bool? get isLoggedInSync => _authService.isAuthenticatedSync;
+
   /// Returns cached auth state synchronously if warm, else async check.
   /// This keeps the GoRouter redirect fast after the first check.
   Future<bool> isLoggedIn() async {

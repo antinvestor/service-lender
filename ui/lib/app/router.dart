@@ -68,7 +68,10 @@ GoRouter router(Ref ref) {
     initialLocation: '/',
     refreshListenable: authChangeNotifier,
     redirect: (context, state) async {
-      final isLoggedIn = await authRepository.isLoggedIn();
+      // Use the synchronous cache when warm to avoid frame delays on
+      // every navigation. Only fall back to async on cold start.
+      final cachedAuth = authRepository.isLoggedInSync;
+      final isLoggedIn = cachedAuth ?? await authRepository.isLoggedIn();
       final location = state.matchedLocation;
       final isLoginRoute = location == '/login';
       final isAuthCallback = location == '/auth/callback';
@@ -99,11 +102,13 @@ GoRouter router(Ref ref) {
       // All authenticated routes live inside the shell.
       // Each route is wrapped with RouteRoleGuard to enforce
       // permissions even when a user navigates via URL directly.
+      // All authenticated routes live inside the shell.
+      // Branches are grouped by section to minimize navigator stacks.
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
         branches: [
-          // Dashboard (root) — accessible to all authenticated users
+          // Dashboard
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -113,7 +118,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Organization — Organizations (list + detail with branches)
+          // Organization (organizations + investors share a branch)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -128,16 +133,13 @@ GoRouter router(Ref ref) {
                     builder: (context, state) => _guarded(
                       '/organization/organizations',
                       OrganizationDetailScreen(
-                        organizationId: state.pathParameters['organizationId']!,
+                        organizationId:
+                            state.pathParameters['organizationId']!,
                       ),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/organization/investors',
                 builder: (context, state) => _guarded(
@@ -148,7 +150,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Field Operations
+          // Field Operations (agents, hierarchy, clients, reassignment)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -158,10 +160,6 @@ GoRouter router(Ref ref) {
                   const AgentsScreen(),
                 ),
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/field/hierarchy',
                 builder: (context, state) => _guarded(
@@ -169,10 +167,6 @@ GoRouter router(Ref ref) {
                   const HierarchyScreen(),
                 ),
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/field/clients',
                 builder: (context, state) => _guarded(
@@ -198,10 +192,6 @@ GoRouter router(Ref ref) {
                   ),
                 ],
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/field/reassignment',
                 builder: (context, state) => _guarded(
@@ -212,7 +202,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Origination — Pending Cases
+          // Origination (pending cases + applications)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -222,11 +212,6 @@ GoRouter router(Ref ref) {
                   const PendingCasesScreen(),
                 ),
               ),
-            ],
-          ),
-          // Origination — Applications (list + detail)
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/origination/applications',
                 builder: (context, state) => _guarded(
@@ -258,7 +243,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Loan Management — Loan Products
+          // Loan Management (products + accounts)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -279,11 +264,6 @@ GoRouter router(Ref ref) {
                   ),
                 ],
               ),
-            ],
-          ),
-          // Loan Management — Loan Accounts (list + detail)
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/loans',
                 builder: (context, state) => _guarded(
@@ -329,7 +309,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Reports — Portfolio Summary
+          // Reports (portfolio + loan book)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -339,11 +319,6 @@ GoRouter router(Ref ref) {
                   const PortfolioSummaryScreen(),
                 ),
               ),
-            ],
-          ),
-          // Reports — Loan Book
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/reports/loan-book',
                 builder: (context, state) => _guarded(
@@ -354,7 +329,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Operations — Disbursement Queue
+          // Operations (disbursements + transfers)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -364,11 +339,6 @@ GoRouter router(Ref ref) {
                   const DisbursementQueueScreen(),
                 ),
               ),
-            ],
-          ),
-          // Operations — Transfer Orders
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/operations/transfers',
                 builder: (context, state) => _guarded(
@@ -379,7 +349,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Administration
+          // Administration (users + roles + audit)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -389,10 +359,6 @@ GoRouter router(Ref ref) {
                   const SystemUsersScreen(),
                 ),
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/admin/roles',
                 builder: (context, state) => _guarded(
@@ -400,10 +366,6 @@ GoRouter router(Ref ref) {
                   const RolesScreen(),
                 ),
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: '/admin/audit',
                 builder: (context, state) => _guarded(
@@ -414,7 +376,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Settings — accessible to all authenticated users
+          // Settings
           StatefulShellBranch(
             routes: [
               GoRoute(
