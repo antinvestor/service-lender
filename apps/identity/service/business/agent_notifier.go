@@ -44,15 +44,15 @@ func NewAgentNotifier(
 // newly registered agent. The call is fire-and-forget: errors are logged but
 // never propagated to the caller.
 func (n *AgentNotifier) NotifyAgentOnboarded(ctx context.Context, contactDetail, agentName, agentID string) {
+	if n == nil || n.client == nil {
+		util.Log(ctx).Warn("notification client is nil, skipping agent onboarding notification")
+		return
+	}
+
 	logger := util.Log(ctx).WithFields(map[string]any{
 		"component": "AgentNotifier",
 		"template":  n.templateName,
 	})
-
-	if n == nil || n.client == nil {
-		logger.Warn("notification client is nil, skipping agent onboarding notification")
-		return
-	}
 
 	data := map[string]string{
 		"agent_name": agentName,
@@ -100,15 +100,15 @@ func (n *AgentNotifier) NotifyAgentOnboarded(ctx context.Context, contactDetail,
 // profileID is empty. If profileID is already provided, it is returned as-is
 // (trust the caller). Returns the profile ID and any error.
 func (n *AgentNotifier) CreateOrLinkProfile(ctx context.Context, name, contactDetail string) (string, error) {
+	if n == nil || n.profileClient == nil {
+		util.Log(ctx).Warn("profile client is nil, skipping profile creation")
+		return "", nil
+	}
+
 	logger := util.Log(ctx).WithFields(map[string]any{
 		"component": "AgentNotifier",
 		"method":    "CreateOrLinkProfile",
 	})
-
-	if n == nil || n.profileClient == nil {
-		logger.Warn("profile client is nil, skipping profile creation")
-		return "", nil
-	}
 
 	props, err := structpb.NewStruct(map[string]any{
 		"name": name,

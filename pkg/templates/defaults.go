@@ -13,8 +13,17 @@ type Template struct {
 }
 
 // Defaults returns all notification templates the fintech platform requires.
-// These are organized by category for the management UI.
 func Defaults() []Template {
+	var all []Template
+	all = append(all, agentTemplates()...)
+	all = append(all, loanTemplates()...)
+	all = append(all, originationTemplates()...)
+	all = append(all, savingsTemplates()...)
+	all = append(all, systemTemplates()...)
+	return all
+}
+
+func agentTemplates() []Template { //nolint:funlen // template definitions
 	return []Template{
 		// ── Agent Onboarding ─────────────────────────────────────────────
 		{
@@ -38,8 +47,11 @@ func Defaults() []Template {
 			Category:    "agent",
 			Description: "Sent when an agent account is deactivated by an administrator.",
 		},
+	}
+}
 
-		// ── Loan Lifecycle ───────────────────────────────────────────────
+func loanTemplates() []Template {
+	return []Template{
 		{
 			Name:        "loan_approved",
 			Subject:     "Loan Application Approved",
@@ -82,8 +94,11 @@ func Defaults() []Template {
 			Category:    "loan",
 			Description: "Sent when a penalty is applied to a loan account.",
 		},
+	}
+}
 
-		// ── Origination ──────────────────────────────────────────────────
+func originationTemplates() []Template {
+	return []Template{
 		{
 			Name:        "application_under_review",
 			Subject:     "Application Under Review",
@@ -112,8 +127,11 @@ func Defaults() []Template {
 			Category:    "origination",
 			Description: "Sent when a loan offer is generated for the applicant.",
 		},
+	}
+}
 
-		// ── Savings ──────────────────────────────────────────────────────
+func savingsTemplates() []Template {
+	return []Template{
 		{
 			Name:        "template.fintech.savings.deposit",
 			Subject:     "Deposit Received",
@@ -128,8 +146,11 @@ func Defaults() []Template {
 			Category:    "savings",
 			Description: "Sent when a withdrawal is made from a savings account.",
 		},
+	}
+}
 
-		// ── System ───────────────────────────────────────────────────────
+func systemTemplates() []Template {
+	return []Template{
 		{
 			Name:        "template.fintech.system.welcome",
 			Subject:     "Welcome to the Platform",

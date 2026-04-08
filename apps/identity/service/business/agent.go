@@ -90,24 +90,11 @@ func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fi
 	}
 
 	isNew := obj.GetId() == ""
+	contactDetail := extractProperty(agent.Properties, "contact_detail")
 
-	// If creating a new agent without a profile, attempt to create one via the
-	// profile service. The contact detail is expected in properties.
-	if isNew && agent.ProfileID == "" && b.notifier != nil {
-		contactDetail := ""
-		if agent.Properties != nil {
-			if v, ok := agent.Properties["contact_detail"]; ok {
-				contactDetail, _ = v.(string)
-			}
-		}
-		if contactDetail != "" {
-			profileID, profileErr := b.notifier.CreateOrLinkProfile(ctx, agent.Name, contactDetail)
-			if profileErr != nil {
-				logger.WithError(profileErr).Warn("could not create profile for agent, continuing without")
-			} else if profileID != "" {
-				agent.ProfileID = profileID
-			}
-		}
+	// For new agents without a profile, create one via the profile service.
+	if isNew && agent.ProfileID == "" && contactDetail != "" {
+		b.linkProfile(ctx, logger, agent, contactDetail)
 	}
 
 	err := b.eventsMan.Emit(ctx, events.AgentSaveEvent, agent)
@@ -117,19 +104,53 @@ func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fi
 	}
 
 	// Send T&C onboarding notification for newly created agents.
-	if isNew && b.notifier != nil {
-		contactDetail := ""
-		if agent.Properties != nil {
-			if v, ok := agent.Properties["contact_detail"]; ok {
-				contactDetail, _ = v.(string)
-			}
-		}
-		if contactDetail != "" {
-			b.notifier.NotifyAgentOnboarded(ctx, contactDetail, agent.Name, agent.GetID())
-		}
+	if isNew && contactDetail != "" {
+		b.notifyOnboarding(ctx, agent, contactDetail)
 	}
 
 	return agent.ToAPI(), nil
+}
+
+func (b *agentBusiness) linkProfile(
+	ctx context.Context,
+	logger *util.LogEntry,
+	agent *models.Agent,
+	contactDetail string,
+) {
+	if b.notifier == nil {
+		return
+	}
+	profileID, err := b.notifier.CreateOrLinkProfile(ctx, agent.Name, contactDetail)
+	if err != nil {
+		logger.WithError(err).Warn("could not create profile for agent, continuing without")
+		return
+	}
+	if profileID != "" {
+		agent.ProfileID = profileID
+	}
+}
+
+func (b *agentBusiness) notifyOnboarding(
+	ctx context.Context,
+	agent *models.Agent,
+	contactDetail string,
+) {
+	if b.notifier == nil {
+		return
+	}
+	b.notifier.NotifyAgentOnboarded(ctx, contactDetail, agent.Name, agent.GetID())
+}
+
+func extractProperty(props map[string]any, key string) string {
+	if props == nil {
+		return ""
+	}
+	v, ok := props[key]
+	if !ok {
+		return ""
+	}
+	s, _ := v.(string)
+	return s
 }
 
 func (b *agentBusiness) Get(ctx context.Context, id string) (*fieldv1.AgentObject, error) {
