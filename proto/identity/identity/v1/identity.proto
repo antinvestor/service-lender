@@ -74,14 +74,14 @@ option (gnostic.openapi.v3.document) = {
 // OrganizationType defines the kind of organization.
 enum OrganizationType {
   ORGANIZATION_TYPE_UNSPECIFIED = 0;
-  ORGANIZATION_TYPE_BANK = 1;           // Traditional bank or financial institution
-  ORGANIZATION_TYPE_MICROFINANCE = 2;   // Microfinance institution
-  ORGANIZATION_TYPE_SACCO = 3;          // Savings and Credit Co-operative
-  ORGANIZATION_TYPE_FINTECH = 4;        // Fintech lending company
-  ORGANIZATION_TYPE_COOPERATIVE = 5;    // Cooperative society
-  ORGANIZATION_TYPE_NGO = 6;            // Non-governmental organization
-  ORGANIZATION_TYPE_GOVERNMENT = 7;     // Government lending program
-  ORGANIZATION_TYPE_OTHER = 8;          // Other organization type
+  ORGANIZATION_TYPE_BANK = 1; // Traditional bank or financial institution
+  ORGANIZATION_TYPE_MICROFINANCE = 2; // Microfinance institution
+  ORGANIZATION_TYPE_SACCO = 3; // Savings and Credit Co-operative
+  ORGANIZATION_TYPE_FINTECH = 4; // Fintech lending company
+  ORGANIZATION_TYPE_COOPERATIVE = 5; // Cooperative society
+  ORGANIZATION_TYPE_NGO = 6; // Non-governmental organization
+  ORGANIZATION_TYPE_GOVERNMENT = 7; // Government lending program
+  ORGANIZATION_TYPE_OTHER = 8; // Other organization type
 }
 
 // SystemUserRole defines the role a system user plays in the lending workflow.
