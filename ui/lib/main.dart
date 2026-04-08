@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/config/url_strategy.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  configureUrlStrategy();
   runApp(const ProviderScope(child: LenderApp()));
 }
 
