@@ -7,8 +7,8 @@ import (
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/origination/service/models"
-	"github.com/antinvestor/service-lender/apps/origination/service/repository"
+	"github.com/antinvestor/service-fintech/apps/origination/service/models"
+	"github.com/antinvestor/service-fintech/apps/origination/service/repository"
 )
 
 const VerificationTaskSaveEvent = "verification_task.save"

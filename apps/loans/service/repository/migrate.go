@@ -9,8 +9,8 @@ import (
 	"github.com/pitabwire/util"
 	"gorm.io/gorm"
 
-	"github.com/antinvestor/service-lender/apps/loans/service/models"
-	opsmodels "github.com/antinvestor/service-lender/apps/operations/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
+	opsmodels "github.com/antinvestor/service-fintech/apps/operations/service/models"
 )
 
 func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {

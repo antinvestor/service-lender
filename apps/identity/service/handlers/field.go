@@ -7,8 +7,8 @@ import (
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"connectrpc.com/connect"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/business"
-	"github.com/antinvestor/service-lender/pkg/apperrors"
+	"github.com/antinvestor/service-fintech/apps/identity/service/business"
+	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
 // FieldServer implements the FieldService RPC handler.

@@ -7,7 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/operations/service/models"
+	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 )
 
 // IncomingPaymentRepository provides data access for incoming payments.

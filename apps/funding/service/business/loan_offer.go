@@ -12,13 +12,13 @@ import (
 	"github.com/pitabwire/util"
 	"github.com/pitabwire/util/decimalx"
 
-	"github.com/antinvestor/service-lender/apps/funding/service/events"
-	"github.com/antinvestor/service-lender/apps/funding/service/models"
-	"github.com/antinvestor/service-lender/apps/funding/service/repository"
-	grouprepo "github.com/antinvestor/service-lender/apps/group/service/repository"
-	"github.com/antinvestor/service-lender/pkg/calculation"
-	"github.com/antinvestor/service-lender/pkg/clients"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	"github.com/antinvestor/service-fintech/apps/funding/service/events"
+	"github.com/antinvestor/service-fintech/apps/funding/service/models"
+	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	grouprepo "github.com/antinvestor/service-fintech/apps/group/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/calculation"
+	"github.com/antinvestor/service-fintech/pkg/clients"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 const (

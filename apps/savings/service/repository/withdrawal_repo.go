@@ -7,7 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/savings/service/models"
+	"github.com/antinvestor/service-fintech/apps/savings/service/models"
 )
 
 type WithdrawalRepository interface {

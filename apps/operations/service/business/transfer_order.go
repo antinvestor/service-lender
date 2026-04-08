@@ -14,14 +14,14 @@ import (
 	utilmoney "github.com/pitabwire/util/money"
 	"google.golang.org/genproto/googleapis/type/money"
 
-	fundingmodels "github.com/antinvestor/service-lender/apps/funding/service/models"
-	fundingrepo "github.com/antinvestor/service-lender/apps/funding/service/repository"
-	"github.com/antinvestor/service-lender/apps/operations/service/events"
-	"github.com/antinvestor/service-lender/apps/operations/service/models"
-	"github.com/antinvestor/service-lender/apps/operations/service/repository"
-	"github.com/antinvestor/service-lender/pkg/calculation"
-	"github.com/antinvestor/service-lender/pkg/clients"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	fundingmodels "github.com/antinvestor/service-fintech/apps/funding/service/models"
+	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	"github.com/antinvestor/service-fintech/apps/operations/service/events"
+	"github.com/antinvestor/service-fintech/apps/operations/service/models"
+	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/calculation"
+	"github.com/antinvestor/service-fintech/pkg/clients"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 const (

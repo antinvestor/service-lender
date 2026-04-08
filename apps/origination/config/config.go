@@ -9,11 +9,11 @@ type OriginationConfig struct {
 
 	// Identity service (internal lender service)
 	IdentityServiceURI                   string `envDefault:"127.0.0.1:7001"                                 env:"IDENTITY_SERVICE_URI"`
-	IdentityServiceWorkloadAPITargetPath string `envDefault:"/ns/lender-identity/sa/service-lender-identity" env:"IDENTITY_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	IdentityServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-identity" env:"IDENTITY_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
 	// Loan management service (internal lender service)
 	LoanMgmtServiceURI                   string `envDefault:"127.0.0.1:7002"                                   env:"LOANMGMT_SERVICE_URI"`
-	LoanMgmtServiceWorkloadAPITargetPath string `envDefault:"/ns/lender-loan-mgmt/sa/service-lender-loan-mgmt" env:"LOANMGMT_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	LoanMgmtServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-loans" env:"LOANMGMT_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
 	// Profile service (external)
 	ProfileServiceURI                   string `envDefault:"127.0.0.1:7005"                 env:"PROFILE_SERVICE_URI"`

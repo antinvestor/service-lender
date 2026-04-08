@@ -6,7 +6,7 @@ import (
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 
-	"github.com/antinvestor/service-lender/apps/operations/service/models"
+	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 )
 
 // Migrate runs database migrations for all operations models.

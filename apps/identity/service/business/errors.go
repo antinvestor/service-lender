@@ -1,6 +1,6 @@
 package business
 
-import "github.com/antinvestor/service-lender/pkg/apperrors"
+import "github.com/antinvestor/service-fintech/pkg/apperrors"
 
 var (
 	ErrOrganizationNotFound = apperrors.NewError(apperrors.NotFound, "organization not found")

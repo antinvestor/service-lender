@@ -7,7 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/origination/service/models"
+	"github.com/antinvestor/service-fintech/apps/origination/service/models"
 )
 
 type UnderwritingDecisionRepository interface {

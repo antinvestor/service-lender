@@ -7,8 +7,8 @@ import (
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 
-	"github.com/antinvestor/service-lender/apps/origination/service/business"
-	"github.com/antinvestor/service-lender/pkg/apperrors"
+	"github.com/antinvestor/service-fintech/apps/origination/service/business"
+	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
 // OriginationServer implements the OriginationService RPC handler.

@@ -6,7 +6,7 @@ import (
 
 	"github.com/pitabwire/frame/datastore"
 
-	"github.com/antinvestor/service-lender/apps/savings/service/models"
+	"github.com/antinvestor/service-fintech/apps/savings/service/models"
 )
 
 func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {

@@ -8,9 +8,9 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/events"
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
+	"github.com/antinvestor/service-fintech/apps/identity/service/events"
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
 type MembershipBusiness interface {

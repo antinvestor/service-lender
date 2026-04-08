@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/antinvestor/service-lender/apps/group/service/models"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	"github.com/antinvestor/service-fintech/apps/group/service/models"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 // TestGroupFormationFlow tests group creation -> member addition -> formation check -> activation.

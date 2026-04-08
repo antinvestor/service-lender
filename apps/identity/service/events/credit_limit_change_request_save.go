@@ -7,8 +7,8 @@ import (
 	"github.com/pitabwire/util"
 	"gorm.io/gorm"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
 const CreditLimitChangeRequestSaveEvent = "credit_limit_change_request.save"

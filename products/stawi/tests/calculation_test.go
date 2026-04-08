@@ -6,7 +6,7 @@ import (
 
 	"github.com/pitabwire/util/decimalx"
 
-	"github.com/antinvestor/service-lender/pkg/calculation"
+	"github.com/antinvestor/service-fintech/pkg/calculation"
 )
 
 // dec is a helper to create a Decimal from minor units (int64).

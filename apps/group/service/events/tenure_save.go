@@ -6,8 +6,8 @@ import (
 
 	"github.com/pitabwire/frame/events"
 
-	"github.com/antinvestor/service-lender/apps/group/service/models"
-	"github.com/antinvestor/service-lender/apps/group/service/repository"
+	"github.com/antinvestor/service-fintech/apps/group/service/models"
+	"github.com/antinvestor/service-fintech/apps/group/service/repository"
 )
 
 const TenureSaveEvent = "tenure.save"

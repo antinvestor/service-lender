@@ -8,10 +8,10 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/funding/service/events"
-	"github.com/antinvestor/service-lender/apps/funding/service/models"
-	"github.com/antinvestor/service-lender/apps/funding/service/repository"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	"github.com/antinvestor/service-fintech/apps/funding/service/events"
+	"github.com/antinvestor/service-fintech/apps/funding/service/models"
+	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 type investorAccountBusiness struct {

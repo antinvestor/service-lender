@@ -15,10 +15,10 @@ import (
 	"github.com/pitabwire/frame/queue"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/group/service/business"
-	"github.com/antinvestor/service-lender/apps/group/service/models"
-	"github.com/antinvestor/service-lender/apps/group/service/repository"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	"github.com/antinvestor/service-fintech/apps/group/service/business"
+	"github.com/antinvestor/service-fintech/apps/group/service/models"
+	"github.com/antinvestor/service-fintech/apps/group/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 // ---------------------------------------------------------------------------

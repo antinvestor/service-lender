@@ -9,7 +9,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/funding/service/models"
+	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 )
 
 // stateActive is the numeric value for the active state used in database queries.

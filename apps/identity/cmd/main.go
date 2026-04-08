@@ -22,16 +22,16 @@ import (
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
-	auditInterceptors "github.com/antinvestor/service-lender/pkg/interceptors"
+	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
-	aconfig "github.com/antinvestor/service-lender/apps/identity/config"
-	"github.com/antinvestor/service-lender/apps/identity/service/authz"
-	"github.com/antinvestor/service-lender/apps/identity/service/business"
-	identityevents "github.com/antinvestor/service-lender/apps/identity/service/events"
-	"github.com/antinvestor/service-lender/apps/identity/service/handlers"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
+	aconfig "github.com/antinvestor/service-fintech/apps/identity/config"
+	"github.com/antinvestor/service-fintech/apps/identity/service/authz"
+	"github.com/antinvestor/service-fintech/apps/identity/service/business"
+	identityevents "github.com/antinvestor/service-fintech/apps/identity/service/events"
+	"github.com/antinvestor/service-fintech/apps/identity/service/handlers"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 	}
 
 	if cfg.Name() == "" {
-		cfg.ServiceName = "service_lender_identity"
+		cfg.ServiceName = "service_identity"
 	}
 
 	ctx, svc := frame.NewServiceWithContext(

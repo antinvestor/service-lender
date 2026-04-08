@@ -7,10 +7,10 @@ import (
 
 	"github.com/pitabwire/util"
 
-	fundingbusiness "github.com/antinvestor/service-lender/apps/funding/service/business"
-	groupbusiness "github.com/antinvestor/service-lender/apps/group/service/business"
-	opsbusiness "github.com/antinvestor/service-lender/apps/operations/service/business"
-	"github.com/antinvestor/service-lender/pkg/clients"
+	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
+	groupbusiness "github.com/antinvestor/service-fintech/apps/group/service/business"
+	opsbusiness "github.com/antinvestor/service-fintech/apps/operations/service/business"
+	"github.com/antinvestor/service-fintech/pkg/clients"
 )
 
 // RegisterWorkflowCallbacks registers all workflow callback HTTP endpoints.

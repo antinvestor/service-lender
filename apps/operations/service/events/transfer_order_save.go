@@ -6,8 +6,8 @@ import (
 
 	"github.com/pitabwire/frame/events"
 
-	"github.com/antinvestor/service-lender/apps/operations/service/models"
-	"github.com/antinvestor/service-lender/apps/operations/service/repository"
+	"github.com/antinvestor/service-fintech/apps/operations/service/models"
+	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
 )
 
 const TransferOrderSaveEvent = "transfer_order.save"

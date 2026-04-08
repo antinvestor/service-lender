@@ -7,7 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/loans/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 )
 
 type LoanStatusChangeRepository interface {

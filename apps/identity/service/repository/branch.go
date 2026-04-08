@@ -7,7 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 )
 
 type BranchRepository interface {

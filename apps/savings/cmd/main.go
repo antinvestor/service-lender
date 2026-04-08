@@ -14,15 +14,15 @@ import (
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
-	auditInterceptors "github.com/antinvestor/service-lender/pkg/interceptors"
+	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 	"github.com/pitabwire/util"
 
-	aconfig "github.com/antinvestor/service-lender/apps/savings/config"
-	"github.com/antinvestor/service-lender/apps/savings/service/authz"
-	"github.com/antinvestor/service-lender/apps/savings/service/business"
-	savingsevents "github.com/antinvestor/service-lender/apps/savings/service/events"
-	"github.com/antinvestor/service-lender/apps/savings/service/handlers"
-	"github.com/antinvestor/service-lender/apps/savings/service/repository"
+	aconfig "github.com/antinvestor/service-fintech/apps/savings/config"
+	"github.com/antinvestor/service-fintech/apps/savings/service/authz"
+	"github.com/antinvestor/service-fintech/apps/savings/service/business"
+	savingsevents "github.com/antinvestor/service-fintech/apps/savings/service/events"
+	"github.com/antinvestor/service-fintech/apps/savings/service/handlers"
+	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	if cfg.Name() == "" {
-		cfg.ServiceName = "service_lender_savings"
+		cfg.ServiceName = "service_savings"
 	}
 
 	ctx, svc := frame.NewServiceWithContext(

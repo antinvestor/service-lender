@@ -7,8 +7,8 @@ import (
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/savings/service/models"
-	"github.com/antinvestor/service-lender/apps/savings/service/repository"
+	"github.com/antinvestor/service-fintech/apps/savings/service/models"
+	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
 )
 
 const SavingsProductSaveEvent = "savings_product.save"

@@ -16,9 +16,9 @@ import (
 	"github.com/pitabwire/util"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 
-	"github.com/antinvestor/service-lender/apps/origination/service/events"
-	"github.com/antinvestor/service-lender/apps/origination/service/models"
-	"github.com/antinvestor/service-lender/apps/origination/service/repository"
+	"github.com/antinvestor/service-fintech/apps/origination/service/events"
+	"github.com/antinvestor/service-fintech/apps/origination/service/models"
+	"github.com/antinvestor/service-fintech/apps/origination/service/repository"
 )
 
 // Terminal statuses cannot transition further.

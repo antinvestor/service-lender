@@ -23,12 +23,12 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
-	aconfig "github.com/antinvestor/service-lender/apps/loans/config"
-	"github.com/antinvestor/service-lender/apps/loans/service/authz"
-	"github.com/antinvestor/service-lender/apps/loans/service/business"
-	lmevents "github.com/antinvestor/service-lender/apps/loans/service/events"
-	"github.com/antinvestor/service-lender/apps/loans/service/handlers"
-	"github.com/antinvestor/service-lender/apps/loans/service/repository"
+	aconfig "github.com/antinvestor/service-fintech/apps/loans/config"
+	"github.com/antinvestor/service-fintech/apps/loans/service/authz"
+	"github.com/antinvestor/service-fintech/apps/loans/service/business"
+	lmevents "github.com/antinvestor/service-fintech/apps/loans/service/events"
+	"github.com/antinvestor/service-fintech/apps/loans/service/handlers"
+	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 	}
 
 	if cfg.Name() == "" {
-		cfg.ServiceName = "service_lender_loan_management"
+		cfg.ServiceName = "service_loans"
 	}
 
 	ctx, svc := frame.NewServiceWithContext(
@@ -167,7 +167,7 @@ func setupOriginationClient(
 	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.OriginationServiceURI,
 		WorkloadAPITargetPath: cfg.OriginationServiceWorkloadAPITargetPath,
-		Audiences:             []string{"service_lender_origination"},
+		Audiences:             []string{"service_origination"},
 	}, originationv1connect.NewOriginationServiceClient)
 }
 
@@ -178,7 +178,7 @@ func setupNotificationClient(
 	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.NotificationServiceURI,
 		WorkloadAPITargetPath: cfg.NotificationServiceWorkloadAPITargetPath,
-		Audiences:             []string{"service_lender_notification"},
+		Audiences:             []string{"service_notification"},
 	}, notificationv1connect.NewNotificationServiceClient)
 }
 
@@ -216,7 +216,7 @@ func setupConnectServer(
 	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
 	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
 	procMap := permissions.BuildProcedureMap(sd)
-	functionChecker := authorizer.NewFunctionChecker(auth, "service_lender_loan_management")
+	functionChecker := authorizer.NewFunctionChecker(auth, "service_loans")
 	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
 
 	defaultInterceptorList, err := connectInterceptors.DefaultList(

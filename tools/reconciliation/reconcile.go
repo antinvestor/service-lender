@@ -8,11 +8,11 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
-	groupmodels "github.com/antinvestor/service-lender/apps/group/service/models"
-	grouprepo "github.com/antinvestor/service-lender/apps/group/service/repository"
-	opsmodels "github.com/antinvestor/service-lender/apps/operations/service/models"
-	opsrepo "github.com/antinvestor/service-lender/apps/operations/service/repository"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	groupmodels "github.com/antinvestor/service-fintech/apps/group/service/models"
+	grouprepo "github.com/antinvestor/service-fintech/apps/group/service/repository"
+	opsmodels "github.com/antinvestor/service-fintech/apps/operations/service/models"
+	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 // Discrepancy represents a balance mismatch.

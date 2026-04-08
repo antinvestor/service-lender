@@ -7,8 +7,8 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/group/service/models"
-	"github.com/antinvestor/service-lender/pkg/constants"
+	"github.com/antinvestor/service-fintech/apps/group/service/models"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 // PeriodRepository provides data access for periods.

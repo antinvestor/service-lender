@@ -8,8 +8,8 @@ import (
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/business"
-	"github.com/antinvestor/service-lender/pkg/apperrors"
+	"github.com/antinvestor/service-fintech/apps/identity/service/business"
+	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
 // IdentityServer implements the IdentityService RPC handler.

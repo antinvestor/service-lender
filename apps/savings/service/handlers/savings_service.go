@@ -8,9 +8,9 @@ import (
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
 
-	"github.com/antinvestor/service-lender/apps/savings/service/business"
-	"github.com/antinvestor/service-lender/apps/savings/service/models"
-	"github.com/antinvestor/service-lender/pkg/apperrors"
+	"github.com/antinvestor/service-fintech/apps/savings/service/business"
+	"github.com/antinvestor/service-fintech/apps/savings/service/models"
+	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
 // SavingsServer implements the SavingsService RPC handler.

@@ -6,8 +6,8 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/funding/service/repository"
-	"github.com/antinvestor/service-lender/pkg/calculation"
+	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/calculation"
 )
 
 const (

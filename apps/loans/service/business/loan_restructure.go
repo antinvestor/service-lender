@@ -11,9 +11,9 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/loans/service/events"
-	"github.com/antinvestor/service-lender/apps/loans/service/models"
-	"github.com/antinvestor/service-lender/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/apps/loans/service/events"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 )
 
 type LoanRestructureBusiness interface {

@@ -3,7 +3,7 @@ package business
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/group/service/models"
+	"github.com/antinvestor/service-fintech/apps/group/service/models"
 )
 
 // GroupBusiness handles customer group lifecycle operations.

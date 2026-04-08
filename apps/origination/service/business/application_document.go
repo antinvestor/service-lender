@@ -9,9 +9,9 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/origination/service/events"
-	"github.com/antinvestor/service-lender/apps/origination/service/models"
-	"github.com/antinvestor/service-lender/apps/origination/service/repository"
+	"github.com/antinvestor/service-fintech/apps/origination/service/events"
+	"github.com/antinvestor/service-fintech/apps/origination/service/models"
+	"github.com/antinvestor/service-fintech/apps/origination/service/repository"
 )
 
 type ApplicationDocumentBusiness interface {

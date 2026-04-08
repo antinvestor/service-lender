@@ -1,4 +1,4 @@
-module github.com/antinvestor/service-lender
+module github.com/antinvestor/service-fintech
 
 go 1.26
 

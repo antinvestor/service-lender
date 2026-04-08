@@ -10,9 +10,9 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/savings/service/events"
-	"github.com/antinvestor/service-lender/apps/savings/service/models"
-	"github.com/antinvestor/service-lender/apps/savings/service/repository"
+	"github.com/antinvestor/service-fintech/apps/savings/service/events"
+	"github.com/antinvestor/service-fintech/apps/savings/service/models"
+	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
 )
 
 type SavingsAccountBusiness interface {

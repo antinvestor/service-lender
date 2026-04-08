@@ -18,15 +18,15 @@ import (
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
-	auditInterceptors "github.com/antinvestor/service-lender/pkg/interceptors"
+	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 	"github.com/pitabwire/util"
 
-	aconfig "github.com/antinvestor/service-lender/apps/origination/config"
-	"github.com/antinvestor/service-lender/apps/origination/service/authz"
-	"github.com/antinvestor/service-lender/apps/origination/service/business"
-	originationevents "github.com/antinvestor/service-lender/apps/origination/service/events"
-	"github.com/antinvestor/service-lender/apps/origination/service/handlers"
-	"github.com/antinvestor/service-lender/apps/origination/service/repository"
+	aconfig "github.com/antinvestor/service-fintech/apps/origination/config"
+	"github.com/antinvestor/service-fintech/apps/origination/service/authz"
+	"github.com/antinvestor/service-fintech/apps/origination/service/business"
+	originationevents "github.com/antinvestor/service-fintech/apps/origination/service/events"
+	"github.com/antinvestor/service-fintech/apps/origination/service/handlers"
+	"github.com/antinvestor/service-fintech/apps/origination/service/repository"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	if cfg.Name() == "" {
-		cfg.ServiceName = "service_lender_origination"
+		cfg.ServiceName = "service_origination"
 	}
 
 	ctx, svc := frame.NewServiceWithContext(
@@ -150,7 +150,7 @@ func setupIdentityClient(
 	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.IdentityServiceURI,
 		WorkloadAPITargetPath: cfg.IdentityServiceWorkloadAPITargetPath,
-		Audiences:             []string{"service_lender_identity"},
+		Audiences:             []string{"service_identity"},
 	}, fieldv1connect.NewFieldServiceClient)
 }
 
@@ -161,7 +161,7 @@ func setupLoanManagementClient(
 	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
 		Endpoint:              cfg.LoanMgmtServiceURI,
 		WorkloadAPITargetPath: cfg.LoanMgmtServiceWorkloadAPITargetPath,
-		Audiences:             []string{"service_lender_loan_management"},
+		Audiences:             []string{"service_loans"},
 	}, loansv1connect.NewLoanManagementServiceClient)
 }
 

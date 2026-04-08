@@ -10,10 +10,10 @@ import (
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/workerpool"
 
-	"github.com/antinvestor/service-lender/apps/loans/service/business"
-	"github.com/antinvestor/service-lender/apps/loans/service/models"
-	"github.com/antinvestor/service-lender/apps/loans/service/repository"
-	"github.com/antinvestor/service-lender/pkg/apperrors"
+	"github.com/antinvestor/service-fintech/apps/loans/service/business"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
 // LoanManagementServer implements the LoanManagementService RPC handler.

@@ -11,7 +11,7 @@ import (
 	"github.com/pitabwire/util"
 	"gorm.io/gorm"
 
-	"github.com/antinvestor/service-lender/apps/loans/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 )
 
 // loanExportRow holds joined loan + balance data for CSV export.

@@ -9,19 +9,19 @@ part of 'dashboard_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Fetches count of applications in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 
 @ProviderFor(applicationCountByStatus)
 final applicationCountByStatusProvider = ApplicationCountByStatusFamily._();
 
 /// Fetches count of applications in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 
 final class ApplicationCountByStatusProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
   /// Fetches count of applications in a given status.
-  /// Uses countStream to avoid loading full records into memory.
+  /// Uses a single page with limit 1 to get count efficiently.
   ApplicationCountByStatusProvider._({
     required ApplicationCountByStatusFamily super.from,
     required ApplicationStatus super.argument,
@@ -67,10 +67,10 @@ final class ApplicationCountByStatusProvider
 }
 
 String _$applicationCountByStatusHash() =>
-    r'b78e43e561b5da512876b7949161af672fcc5a7a';
+    r'5b6026f2349cbec032e599ff5befbf99e181fddd';
 
 /// Fetches count of applications in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 
 final class ApplicationCountByStatusFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<int>, ApplicationStatus> {
@@ -84,7 +84,7 @@ final class ApplicationCountByStatusFamily extends $Family
       );
 
   /// Fetches count of applications in a given status.
-  /// Uses countStream to avoid loading full records into memory.
+  /// Uses a single page with limit 1 to get count efficiently.
 
   ApplicationCountByStatusProvider call(ApplicationStatus status) =>
       ApplicationCountByStatusProvider._(argument: status, from: this);
@@ -94,19 +94,19 @@ final class ApplicationCountByStatusFamily extends $Family
 }
 
 /// Fetches count of loan accounts in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 
 @ProviderFor(loanCountByStatus)
 final loanCountByStatusProvider = LoanCountByStatusFamily._();
 
 /// Fetches count of loan accounts in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 
 final class LoanCountByStatusProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
   /// Fetches count of loan accounts in a given status.
-  /// Uses countStream to avoid loading full records into memory.
+  /// Uses a single page with limit 1 to get count efficiently.
   LoanCountByStatusProvider._({
     required LoanCountByStatusFamily super.from,
     required LoanStatus super.argument,
@@ -150,10 +150,10 @@ final class LoanCountByStatusProvider
   }
 }
 
-String _$loanCountByStatusHash() => r'817903c20da08e798c21c2c6715b04fab3417d3b';
+String _$loanCountByStatusHash() => r'c3b07985f825e34f55808087f877c3168ae5bdcf';
 
 /// Fetches count of loan accounts in a given status.
-/// Uses countStream to avoid loading full records into memory.
+/// Uses a single page with limit 1 to get count efficiently.
 
 final class LoanCountByStatusFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<int>, LoanStatus> {
@@ -167,7 +167,7 @@ final class LoanCountByStatusFamily extends $Family
       );
 
   /// Fetches count of loan accounts in a given status.
-  /// Uses countStream to avoid loading full records into memory.
+  /// Uses a single page with limit 1 to get count efficiently.
 
   LoanCountByStatusProvider call(LoanStatus status) =>
       LoanCountByStatusProvider._(argument: status, from: this);

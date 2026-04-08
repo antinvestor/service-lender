@@ -7,8 +7,8 @@ import (
 
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/loans/service/business"
-	"github.com/antinvestor/service-lender/apps/loans/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/business"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 )
 
 // RegisterPortfolioHandlers registers REST endpoints for portfolio reporting.

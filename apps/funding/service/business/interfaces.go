@@ -3,7 +3,7 @@ package business
 import (
 	"context"
 
-	"github.com/antinvestor/service-lender/apps/funding/service/models"
+	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 )
 
 // LoanWindowBusiness handles loan window operations.

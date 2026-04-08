@@ -68,12 +68,12 @@ func NewPlatformClients(ctx context.Context, cfg any, ep ServiceEndpoints) (*Pla
 	var firstErr error
 	b := &clientBuilder{ctx: ctx, cfg: cfg, log: util.Log(ctx)}
 
-	initServiceClient(b, ep.IdentityURI, "service_lender_identity", "lender-identity",
+	initServiceClient(b, ep.IdentityURI, "service_identity", "fintech-identity",
 		func(c fieldv1connect.FieldServiceClient) { pc.LenderIdentity = c }, fieldv1connect.NewFieldServiceClient)
 	initServiceClient(
 		b,
 		ep.IdentityURI,
-		"service_lender_identity",
+		"service_identity",
 		"lender-registry",
 		func(c identityv1connect.IdentityServiceClient) { pc.LenderRegistry = c },
 		identityv1connect.NewIdentityServiceClient,
@@ -81,7 +81,7 @@ func NewPlatformClients(ctx context.Context, cfg any, ep ServiceEndpoints) (*Pla
 	initServiceClient(
 		b,
 		ep.OriginationURI,
-		"service_lender_origination",
+		"service_origination",
 		"lender-origination",
 		func(c originationv1connect.OriginationServiceClient) { pc.LenderOrigination = c },
 		originationv1connect.NewOriginationServiceClient,
@@ -89,7 +89,7 @@ func NewPlatformClients(ctx context.Context, cfg any, ep ServiceEndpoints) (*Pla
 	initServiceClient(
 		b,
 		ep.LoanMgmtURI,
-		"service_lender_loans",
+		"service_fintech_loans",
 		"lender-loan-management",
 		func(c loansv1connect.LoanManagementServiceClient) { pc.LenderLoanMgmt = c },
 		loansv1connect.NewLoanManagementServiceClient,
@@ -97,7 +97,7 @@ func NewPlatformClients(ctx context.Context, cfg any, ep ServiceEndpoints) (*Pla
 	initServiceClient(
 		b,
 		ep.SavingsURI,
-		"service_lender_savings",
+		"service_savings",
 		"lender-savings",
 		func(c savingsv1connect.SavingsServiceClient) { pc.LenderSavings = c },
 		savingsv1connect.NewSavingsServiceClient,

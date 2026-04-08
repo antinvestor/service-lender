@@ -6,8 +6,8 @@ import (
 
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-lender/apps/identity/service/models"
-	"github.com/antinvestor/service-lender/apps/identity/service/repository"
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
 const BranchSaveEvent = "branch.save"
