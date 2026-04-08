@@ -126,26 +126,26 @@ Transport _createTransport(Ref ref, String baseUrl) {
 // Per-service transports
 // ─────────────────────────────────────────────────────────────────────────────
 
-@riverpod
+@Riverpod(keepAlive: true)
 Transport loansTransport(Ref ref) => _createTransport(ref, _loansUrl);
 
-@riverpod
+@Riverpod(keepAlive: true)
 Transport originationTransport(Ref ref) =>
     _createTransport(ref, _originationUrl);
 
-@riverpod
+@Riverpod(keepAlive: true)
 Transport identityTransport(Ref ref) =>
     _createTransport(ref, _identityUrl);
 
-@riverpod
+@Riverpod(keepAlive: true)
 Transport savingsTransport(Ref ref) =>
     _createTransport(ref, _savingsUrl);
 
-@riverpod
+@Riverpod(keepAlive: true)
 Transport fundingTransport(Ref ref) =>
     _createTransport(ref, _fundingUrl);
 
-@riverpod
+@Riverpod(keepAlive: true)
 Transport operationsTransport(Ref ref) =>
     _createTransport(ref, _operationsUrl);
 
@@ -153,43 +153,43 @@ Transport operationsTransport(Ref ref) =>
 // Service clients
 // ─────────────────────────────────────────────────────────────────────────────
 
-@riverpod
+@Riverpod(keepAlive: true)
 IdentityServiceClient identityServiceClient(Ref ref) {
   final transport = ref.watch(identityTransportProvider);
   return IdentityServiceClient(transport);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 FieldServiceClient fieldServiceClient(Ref ref) {
   final transport = ref.watch(identityTransportProvider);
   return FieldServiceClient(transport);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 OriginationServiceClient originationServiceClient(Ref ref) {
   final transport = ref.watch(originationTransportProvider);
   return OriginationServiceClient(transport);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 LoanManagementServiceClient loanManagementServiceClient(Ref ref) {
   final transport = ref.watch(loansTransportProvider);
   return LoanManagementServiceClient(transport);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 SavingsServiceClient savingsServiceClient(Ref ref) {
   final transport = ref.watch(savingsTransportProvider);
   return SavingsServiceClient(transport);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 FundingServiceClient fundingServiceClient(Ref ref) {
   final transport = ref.watch(fundingTransportProvider);
   return FundingServiceClient(transport);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 OperationsServiceClient operationsServiceClient(Ref ref) {
   final transport = ref.watch(operationsTransportProvider);
   return OperationsServiceClient(transport);

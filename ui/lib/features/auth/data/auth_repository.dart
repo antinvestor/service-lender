@@ -79,7 +79,7 @@ class AuthRepository {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
   const issuerUrl = AppConfig.oauthIssuerUrl;
   const clientId = AppConfig.oauthClientId;

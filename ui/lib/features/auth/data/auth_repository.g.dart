@@ -21,7 +21,7 @@ final class AuthRepositoryProvider
         argument: null,
         retry: null,
         name: r'authRepositoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,7 +48,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'd26038c840ed68416a6c6c1e180cb83944f94c33';
+String _$authRepositoryHash() => r'b2c0adba936ffe89b8afd536cd2160423ed8c625';
 
 @ProviderFor(currentProfileId)
 final currentProfileIdProvider = CurrentProfileIdProvider._();

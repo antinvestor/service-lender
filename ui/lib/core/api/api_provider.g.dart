@@ -21,7 +21,7 @@ final class LoansTransportProvider
         argument: null,
         retry: null,
         name: r'loansTransportProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,7 +48,7 @@ final class LoansTransportProvider
   }
 }
 
-String _$loansTransportHash() => r'5bb033348a2576c9c776483e4dbc9736d6429fdc';
+String _$loansTransportHash() => r'6f327f930f7e903335c1005578e9d55c4fd8e2fa';
 
 @ProviderFor(originationTransport)
 final originationTransportProvider = OriginationTransportProvider._();
@@ -62,7 +62,7 @@ final class OriginationTransportProvider
         argument: null,
         retry: null,
         name: r'originationTransportProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -90,7 +90,7 @@ final class OriginationTransportProvider
 }
 
 String _$originationTransportHash() =>
-    r'26529bb3aade5859994faf43cbe31b3a39e41146';
+    r'3a23823e744224ae2f737826ab703d80ec07a3cb';
 
 @ProviderFor(identityTransport)
 final identityTransportProvider = IdentityTransportProvider._();
@@ -104,7 +104,7 @@ final class IdentityTransportProvider
         argument: null,
         retry: null,
         name: r'identityTransportProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -131,7 +131,7 @@ final class IdentityTransportProvider
   }
 }
 
-String _$identityTransportHash() => r'5627c3836741ed03fad30e2c6496c78e25926f7f';
+String _$identityTransportHash() => r'380128a7faad72275bea613363a561e7dd642324';
 
 @ProviderFor(savingsTransport)
 final savingsTransportProvider = SavingsTransportProvider._();
@@ -145,7 +145,7 @@ final class SavingsTransportProvider
         argument: null,
         retry: null,
         name: r'savingsTransportProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -172,7 +172,7 @@ final class SavingsTransportProvider
   }
 }
 
-String _$savingsTransportHash() => r'6adfb650e7dde839205978392c6b334e49e38343';
+String _$savingsTransportHash() => r'923b2fdf71eeac420227d3ad259d082b6532d22f';
 
 @ProviderFor(fundingTransport)
 final fundingTransportProvider = FundingTransportProvider._();
@@ -186,7 +186,7 @@ final class FundingTransportProvider
         argument: null,
         retry: null,
         name: r'fundingTransportProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -213,7 +213,7 @@ final class FundingTransportProvider
   }
 }
 
-String _$fundingTransportHash() => r'0bf09a84942f528db7f9f6411f75edb5b31f1ea8';
+String _$fundingTransportHash() => r'49adaf9940c64f37ea697fd145a43f817cce600e';
 
 @ProviderFor(operationsTransport)
 final operationsTransportProvider = OperationsTransportProvider._();
@@ -227,7 +227,7 @@ final class OperationsTransportProvider
         argument: null,
         retry: null,
         name: r'operationsTransportProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -255,7 +255,7 @@ final class OperationsTransportProvider
 }
 
 String _$operationsTransportHash() =>
-    r'f36d02fa0dda3fc1946b9aacb636a5a3eb157f23';
+    r'2be88f8c3583563184b6c5943390ef6b737780e3';
 
 @ProviderFor(identityServiceClient)
 final identityServiceClientProvider = IdentityServiceClientProvider._();
@@ -274,7 +274,7 @@ final class IdentityServiceClientProvider
         argument: null,
         retry: null,
         name: r'identityServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -303,7 +303,7 @@ final class IdentityServiceClientProvider
 }
 
 String _$identityServiceClientHash() =>
-    r'59730e7ef23ecdab320508274e6d5f9d341fd721';
+    r'f9daf782d43243aa03041c3ef2885097ed0367bb';
 
 @ProviderFor(fieldServiceClient)
 final fieldServiceClientProvider = FieldServiceClientProvider._();
@@ -322,7 +322,7 @@ final class FieldServiceClientProvider
         argument: null,
         retry: null,
         name: r'fieldServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -351,7 +351,7 @@ final class FieldServiceClientProvider
 }
 
 String _$fieldServiceClientHash() =>
-    r'72296bac95e8aa1c85e8f0ab360f1e12ada447cf';
+    r'daac05d4f21ac4140358443fe7fd7b3c92f0257f';
 
 @ProviderFor(originationServiceClient)
 final originationServiceClientProvider = OriginationServiceClientProvider._();
@@ -370,7 +370,7 @@ final class OriginationServiceClientProvider
         argument: null,
         retry: null,
         name: r'originationServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -399,7 +399,7 @@ final class OriginationServiceClientProvider
 }
 
 String _$originationServiceClientHash() =>
-    r'c6e9e473d11de78ad9975fac6820bb10ede6591b';
+    r'1815a2feb9e1b611d005ccc50fbba286196ad0dc';
 
 @ProviderFor(loanManagementServiceClient)
 final loanManagementServiceClientProvider =
@@ -419,7 +419,7 @@ final class LoanManagementServiceClientProvider
         argument: null,
         retry: null,
         name: r'loanManagementServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -448,7 +448,7 @@ final class LoanManagementServiceClientProvider
 }
 
 String _$loanManagementServiceClientHash() =>
-    r'85327f6f805edb0dc53fb609393aa632ee85277c';
+    r'68df424c22f5fab0f312f764c5dbb563e39a63cc';
 
 @ProviderFor(savingsServiceClient)
 final savingsServiceClientProvider = SavingsServiceClientProvider._();
@@ -467,7 +467,7 @@ final class SavingsServiceClientProvider
         argument: null,
         retry: null,
         name: r'savingsServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -496,7 +496,7 @@ final class SavingsServiceClientProvider
 }
 
 String _$savingsServiceClientHash() =>
-    r'b233e19cc3eeeacfa98f074701df8062d13b4c98';
+    r'1711f76e7f3c6ebbe4c23b20ba29e118bfa7b180';
 
 @ProviderFor(fundingServiceClient)
 final fundingServiceClientProvider = FundingServiceClientProvider._();
@@ -515,7 +515,7 @@ final class FundingServiceClientProvider
         argument: null,
         retry: null,
         name: r'fundingServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -544,7 +544,7 @@ final class FundingServiceClientProvider
 }
 
 String _$fundingServiceClientHash() =>
-    r'd5585fb84c2b541b0a2ea6b52ab492c0c6fefcf2';
+    r'6244aff1cd978e0a70c7249e955d28128e94069a';
 
 @ProviderFor(operationsServiceClient)
 final operationsServiceClientProvider = OperationsServiceClientProvider._();
@@ -563,7 +563,7 @@ final class OperationsServiceClientProvider
         argument: null,
         retry: null,
         name: r'operationsServiceClientProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -592,4 +592,4 @@ final class OperationsServiceClientProvider
 }
 
 String _$operationsServiceClientHash() =>
-    r'a87acdf185dc21e1b1ed6c69aa0d37bbfffed6ea';
+    r'31dee88fd8a2f649f3d36f3c2ab1dfba85984860';
