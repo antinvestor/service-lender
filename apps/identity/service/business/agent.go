@@ -35,6 +35,7 @@ type agentBusiness struct {
 	maxAgentDepth int
 	branchRepo    repository.BranchRepository
 	agentRepo     repository.AgentRepository
+	notifier      *AgentNotifier
 }
 
 func NewAgentBusiness(
@@ -43,12 +44,14 @@ func NewAgentBusiness(
 	maxAgentDepth int,
 	branchRepo repository.BranchRepository,
 	agentRepo repository.AgentRepository,
+	notifier *AgentNotifier,
 ) AgentBusiness {
 	return &agentBusiness{
 		eventsMan:     eventsMan,
 		maxAgentDepth: maxAgentDepth,
 		branchRepo:    branchRepo,
 		agentRepo:     agentRepo,
+		notifier:      notifier,
 	}
 }
 
@@ -86,10 +89,44 @@ func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fi
 		agent.State = int32(commonv1.STATE_CREATED.Number())
 	}
 
+	isNew := obj.GetId() == ""
+
+	// If creating a new agent without a profile, attempt to create one via the
+	// profile service. The contact detail is expected in properties.
+	if isNew && agent.ProfileID == "" && b.notifier != nil {
+		contactDetail := ""
+		if agent.Properties != nil {
+			if v, ok := agent.Properties["contact_detail"]; ok {
+				contactDetail, _ = v.(string)
+			}
+		}
+		if contactDetail != "" {
+			profileID, profileErr := b.notifier.CreateOrLinkProfile(ctx, agent.Name, contactDetail)
+			if profileErr != nil {
+				logger.WithError(profileErr).Warn("could not create profile for agent, continuing without")
+			} else if profileID != "" {
+				agent.ProfileID = profileID
+			}
+		}
+	}
+
 	err := b.eventsMan.Emit(ctx, events.AgentSaveEvent, agent)
 	if err != nil {
 		logger.WithError(err).Error("could not emit agent save event")
 		return nil, err
+	}
+
+	// Send T&C onboarding notification for newly created agents.
+	if isNew && b.notifier != nil {
+		contactDetail := ""
+		if agent.Properties != nil {
+			if v, ok := agent.Properties["contact_detail"]; ok {
+				contactDetail, _ = v.(string)
+			}
+		}
+		if contactDetail != "" {
+			b.notifier.NotifyAgentOnboarded(ctx, contactDetail, agent.Name, agent.GetID())
+		}
 	}
 
 	return agent.ToAPI(), nil

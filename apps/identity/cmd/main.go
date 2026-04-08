@@ -8,6 +8,7 @@ import (
 	fieldpb "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identitypb "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
 	"connectrpc.com/connect"
@@ -78,6 +79,13 @@ func main() {
 	}
 	_ = partitionCli // Used for partition validation in future
 
+	notificationCli, notifErr := setupNotificationClient(ctx, cfg)
+	if notifErr != nil {
+		log.WithError(notifErr).
+			Warn("main -- Could not setup notification client, agent notifications will be disabled")
+	}
+	agentNotifier := business.NewAgentNotifier(notificationCli, profileCli, cfg.AgentOnboardingTemplate)
+
 	// Get database pool
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
@@ -86,7 +94,7 @@ func main() {
 	}
 
 	// Initialise repositories, business logic, handlers, and events
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, cfg)
+	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, cfg, agentNotifier)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -103,6 +111,7 @@ func setupServiceOptions(
 	dbPool pool.Pool,
 	workMan workerpool.Manager,
 	cfg aconfig.IdentityConfig,
+	agentNotifier *business.AgentNotifier,
 ) []frame.Option {
 	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
@@ -117,7 +126,7 @@ func setupServiceOptions(
 
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo)
 	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo)
-	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo)
+	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo, agentNotifier)
 	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, branchRepo, clcrRepo)
 	groupBusiness := business.NewGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
@@ -175,6 +184,17 @@ func setupProfileClient(
 		WorkloadAPITargetPath: cfg.ProfileServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_profile"},
 	}, profilev1connect.NewProfileServiceClient)
+}
+
+func setupNotificationClient(
+	ctx context.Context,
+	cfg aconfig.IdentityConfig,
+) (notificationv1connect.NotificationServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.NotificationServiceURI,
+		WorkloadAPITargetPath: cfg.NotificationServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_notification"},
+	}, notificationv1connect.NewNotificationServiceClient)
 }
 
 func setupTenancyClient(

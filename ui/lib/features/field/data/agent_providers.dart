@@ -4,6 +4,7 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../auth/data/agent_status_provider.dart';
 
 part 'agent_providers.g.dart';
 
@@ -38,5 +39,17 @@ class AgentNotifier extends _$AgentNotifier {
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(agentListProvider);
     });
+  }
+
+  /// Accept Terms & Conditions: fetch the agent, set state to ACTIVE, save.
+  Future<void> acceptTerms(String agentId) async {
+    final client = ref.read(fieldServiceClientProvider);
+    final response = await client.agentGet(AgentGetRequest(id: agentId));
+    final agent = response.data;
+    agent.state = STATE.ACTIVE;
+    await client.agentSave(AgentSaveRequest(data: agent));
+
+    // Invalidate so the router picks up the status change.
+    ref.invalidate(agentOnboardingStatusProvider);
   }
 }

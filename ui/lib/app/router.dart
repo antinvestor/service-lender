@@ -9,9 +9,11 @@ import '../core/navigation/app_shell.dart';
 import '../features/admin/ui/audit_log_screen.dart';
 import '../features/admin/ui/roles_screen.dart';
 import '../features/admin/ui/system_users_screen.dart';
+import '../features/auth/data/agent_status_provider.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
+import '../features/auth/ui/terms_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
 import '../features/field/ui/agent_create_screen.dart';
 import '../features/field/ui/agents_screen.dart';
@@ -47,6 +49,9 @@ class AuthChangeNotifier extends ChangeNotifier {
     ref.listen(authStateProvider, (previous, next) {
       notifyListeners();
     });
+    ref.listen(agentOnboardingStatusProvider, (previous, next) {
+      notifyListeners();
+    });
   }
 }
 
@@ -73,6 +78,7 @@ GoRouter router(Ref ref) {
       final location = state.matchedLocation;
       final isLoginRoute = location == '/login';
       final isAuthCallback = location == '/auth/callback';
+      final isTermsRoute = location == '/terms';
 
       // Synchronous check — avoids microtask delays on every navigation.
       // Cache is warm after the first login check.
@@ -92,6 +98,23 @@ GoRouter router(Ref ref) {
       if (!isLoggedIn && !isLoginRoute) return '/login';
       if (isLoggedIn && isLoginRoute) return '/';
 
+      // T&C check for authenticated users.
+      if (isLoggedIn) {
+        final agentStatus = ref.read(agentOnboardingStatusProvider);
+        final status = agentStatus.value;
+        if (status != null) {
+          if (!isTermsRoute &&
+              status == AgentOnboardingStatus.pendingTnc) {
+            return '/terms';
+          }
+          if (isTermsRoute &&
+              (status == AgentOnboardingStatus.active ||
+                  status == AgentOnboardingStatus.notAgent)) {
+            return '/';
+          }
+        }
+      }
+
       return null;
     },
     routes: [
@@ -102,6 +125,10 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/auth/callback',
         builder: (context, state) => const _AuthCallbackScreen(),
+      ),
+      GoRoute(
+        path: '/terms',
+        builder: (context, state) => const TermsScreen(),
       ),
 
       // All authenticated routes live inside the shell.
