@@ -62,10 +62,16 @@ class TenancyContext extends ChangeNotifier {
     }
   }
 
-  void selectBranch(String id, String name) {
+  void selectBranch(String id, String name,
+      {String? partitionId, String? partitionName}) {
     if (_branchId != id) {
       _branchId = id;
       _branchName = name;
+      // Update partition context when a branch is selected
+      if (partitionId != null && partitionId.isNotEmpty) {
+        _partitionId = partitionId;
+        _partitionName = partitionName ?? '';
+      }
       notifyListeners();
     }
   }

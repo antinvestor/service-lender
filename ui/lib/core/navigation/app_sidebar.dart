@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/auth_state_provider.dart';
+import '../../features/organization/data/branch_providers.dart';
+import '../../features/organization/data/organization_providers.dart';
+import '../auth/tenancy_context.dart';
 import '../theme/design_tokens.dart';
 import '../widgets/profile_badge.dart';
 import 'nav_items.dart';
@@ -56,7 +59,6 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
     final theme = Theme.of(context);
     final userInfoAsync = ref.watch(currentProfileIdProvider);
     final displayNameAsync = ref.watch(currentDisplayNameProvider);
-    final partitionIdAsync = ref.watch(currentPartitionIdProvider);
 
     return navItemsAsync.when(
       loading: () => const SizedBox(width: 260),
@@ -78,17 +80,9 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
               // Brand header
               const _BrandHeader(),
 
-              // Active partition indicator
-              _PartitionIndicator(
-                partitionId: partitionIdAsync.when(
-                  data: (id) => id,
-                  loading: () => null,
-                  error: (_, _) => null,
-                ),
-                onTap: () {
-                  context.go('/organization/organizations');
-                  widget.onNavigate?.call();
-                },
+              // Organization & branch context selector
+              _TenancyContextSelector(
+                onNavigate: widget.onNavigate,
               ),
 
               // Subtle separator
@@ -243,55 +237,206 @@ class _BrandHeader extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Partition indicator — shows active partition, taps to Organization view
+// Tenancy context selector — organization & branch picker
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _PartitionIndicator extends StatelessWidget {
-  const _PartitionIndicator({this.partitionId, required this.onTap});
-  final String? partitionId;
-  final VoidCallback onTap;
+class _TenancyContextSelector extends ConsumerWidget {
+  const _TenancyContextSelector({this.onNavigate});
+  final VoidCallback? onNavigate;
 
   @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        color: Colors.white.withAlpha(8),
-        child: Row(
-          children: [
-            Icon(
-              Icons.domain_outlined,
-              size: 16,
-              color: Colors.white.withAlpha(130),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                partitionId != null && partitionId!.isNotEmpty
-                    ? _shortId(partitionId!)
-                    : 'No partition',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withAlpha(130),
-                      fontSize: 11,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tenancy = ref.watch(tenancyContextProvider);
+
+    // Listen for changes from the ChangeNotifier
+    _useTenancyListener(context, ref, tenancy);
+
+    final orgName = tenancy.organizationName;
+    final branchName = tenancy.branchName;
+
+    return Container(
+      width: double.infinity,
+      color: Colors.white.withAlpha(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Organization row
+          InkWell(
+            onTap: () => _showOrganizationPicker(context, ref),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.business_outlined,
+                    size: 16,
+                    color: Colors.white.withAlpha(130),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      orgName.isNotEmpty ? orgName : 'Select Organization',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: orgName.isNotEmpty
+                                ? Colors.white.withAlpha(200)
+                                : Colors.white.withAlpha(100),
+                            fontSize: 11,
+                            fontWeight: orgName.isNotEmpty
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                          ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                overflow: TextOverflow.ellipsis,
+                  ),
+                  Icon(
+                    Icons.unfold_more,
+                    size: 14,
+                    color: Colors.white.withAlpha(80),
+                  ),
+                ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              size: 14,
-              color: Colors.white.withAlpha(80),
+          ),
+          // Branch row (only when org is selected)
+          if (tenancy.hasOrganization)
+            InkWell(
+              onTap: () => _showBranchPicker(context, ref, tenancy.organizationId),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    left: 40, right: 16, top: 2, bottom: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.store_outlined,
+                      size: 14,
+                      color: Colors.white.withAlpha(100),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        branchName.isNotEmpty ? branchName : 'Select Branch',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: branchName.isNotEmpty
+                                  ? Colors.white.withAlpha(180)
+                                  : Colors.white.withAlpha(80),
+                              fontSize: 10,
+                            ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(
+                      Icons.unfold_more,
+                      size: 12,
+                      color: Colors.white.withAlpha(60),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
-  String _shortId(String id) =>
-      id.length > 16 ? '${id.substring(0, 16)}...' : id;
+  void _useTenancyListener(
+      BuildContext context, WidgetRef ref, TenancyContext tenancy) {
+    // Force rebuild on TenancyContext changes via ChangeNotifier
+    // This is handled by watching the provider above since it's keepAlive.
+  }
+
+  void _showOrganizationPicker(BuildContext context, WidgetRef ref) {
+    final orgsAsync = ref.read(organizationListProvider(''));
+
+    final organizations = orgsAsync.value ?? [];
+    if (organizations.isEmpty) {
+      // Navigate to organizations screen if no orgs loaded yet
+      context.go('/organization/organizations');
+      onNavigate?.call();
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: const Text('Select Organization'),
+        children: [
+          for (final org in organizations)
+            SimpleDialogOption(
+              onPressed: () {
+                final tenancy = ref.read(tenancyContextProvider);
+                tenancy.selectOrganization(
+                  org.id,
+                  org.name,
+                  partitionId: org.partitionId,
+                );
+                Navigator.of(dialogContext).pop();
+              },
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor:
+                      Theme.of(dialogContext).colorScheme.primaryContainer,
+                  child: Text(
+                    org.name.isNotEmpty ? org.name[0].toUpperCase() : '?',
+                    style: TextStyle(
+                      color: Theme.of(dialogContext)
+                          .colorScheme
+                          .onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                title: Text(org.name.isNotEmpty ? org.name : org.id),
+                subtitle: org.code.isNotEmpty ? Text(org.code) : null,
+                dense: true,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showBranchPicker(
+      BuildContext context, WidgetRef ref, String organizationId) {
+    final branchesAsync = ref.read(branchListProvider('', organizationId));
+
+    final branches = branchesAsync.value ?? [];
+    if (branches.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No branches found for this organization.'),
+        ),
+      );
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: const Text('Select Branch'),
+        children: [
+          for (final branch in branches)
+            SimpleDialogOption(
+              onPressed: () {
+                final tenancy = ref.read(tenancyContextProvider);
+                tenancy.selectBranch(
+                  branch.id,
+                  branch.name,
+                  partitionId: branch.partitionId,
+                );
+                Navigator.of(dialogContext).pop();
+              },
+              child: ListTile(
+                leading: const Icon(Icons.store_outlined),
+                title:
+                    Text(branch.name.isNotEmpty ? branch.name : branch.id),
+                subtitle: branch.code.isNotEmpty ? Text(branch.code) : null,
+                dense: true,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

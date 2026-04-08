@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/tenancy_context.dart';
 import '../../../core/widgets/dynamic_form.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
@@ -161,6 +162,37 @@ class _ClientOnboardScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final tenancy = ref.watch(tenancyContextProvider);
+
+    if (!tenancy.hasBranch) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.store_outlined,
+                  size: 48,
+                  color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(height: 16),
+              Text(
+                'Select a branch first',
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Use the sidebar to select an organization and branch '
+                'before onboarding a client.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Column(
       children: [

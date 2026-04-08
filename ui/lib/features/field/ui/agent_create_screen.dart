@@ -13,6 +13,7 @@ import '../../../core/widgets/profile_badge.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../../core/auth/tenancy_context.dart';
 import '../../organization/data/branch_providers.dart';
 import '../../organization/data/organization_providers.dart';
 import '../data/agent_providers.dart';
@@ -35,6 +36,7 @@ class AgentCreateScreen extends ConsumerStatefulWidget {
 class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   int _step = 0; // 0=contact lookup, 1=placement
   bool _saving = false;
+  bool _tenancyInitialized = false;
 
   // Step 0: Contact lookup
   final _contactCtrl = TextEditingController();
@@ -61,6 +63,18 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     _descriptionCtrl.dispose();
     _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _initFromTenancy() {
+    if (_tenancyInitialized) return;
+    _tenancyInitialized = true;
+    final tenancy = ref.read(tenancyContextProvider);
+    if (tenancy.hasOrganization && _selectedOrgId.isEmpty) {
+      _selectedOrgId = tenancy.organizationId;
+    }
+    if (tenancy.hasBranch && _selectedBranchId.isEmpty) {
+      _selectedBranchId = tenancy.branchId;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -228,6 +242,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _initFromTenancy();
     final theme = Theme.of(context);
 
     return Scaffold(

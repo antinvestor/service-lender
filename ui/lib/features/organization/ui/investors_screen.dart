@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/role_provider.dart';
+import '../../../core/auth/tenancy_context.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
@@ -45,6 +46,38 @@ class _InvestorsScreenState extends ConsumerState<InvestorsScreen> {
   Widget build(BuildContext context) {
     final investorsAsync = ref.watch(investorListProvider(query: _query));
     final canManage = ref.watch(canManageInvestorsProvider).value ?? false;
+    final tenancy = ref.watch(tenancyContextProvider);
+    final hasOrg = tenancy.hasOrganization;
+
+    if (!hasOrg) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.business_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(height: 16),
+              Text(
+                'Select an organization first',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Use the organization selector in the sidebar to choose '
+                'which organization to manage investors for.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return EntityListPage<InvestorObject>(
       title: 'Investors',

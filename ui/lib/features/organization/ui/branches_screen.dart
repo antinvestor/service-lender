@@ -260,7 +260,6 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _codeController;
-  late final TextEditingController _partitionIdController;
   late final TextEditingController _geoIdController;
   late String _selectedOrganizationId;
   late STATE _selectedState;
@@ -271,9 +270,6 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
     final branch = widget.branch;
     _nameController = TextEditingController(text: branch?.name ?? '');
     _codeController = TextEditingController(text: branch?.code ?? '');
-    _partitionIdController = TextEditingController(
-      text: branch?.partitionId ?? '',
-    );
     _geoIdController = TextEditingController(text: branch?.geoId ?? '');
     _selectedOrganizationId = branch?.organizationId ?? '';
     _selectedState = branch?.state ?? STATE.CREATED;
@@ -283,7 +279,6 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
   void dispose() {
     _nameController.dispose();
     _codeController.dispose();
-    _partitionIdController.dispose();
     _geoIdController.dispose();
     super.dispose();
   }
@@ -407,19 +402,6 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
                   ),
                 ),
                 FormFieldCard(
-                  label: 'Partition ID',
-                  description:
-                      'Optional tenant partition for multi-tenancy isolation.',
-                  child: TextFormField(
-                    controller: _partitionIdController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. partition-001',
-                      prefixIcon: Icon(Icons.grid_view_outlined),
-                    ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                ),
-                FormFieldCard(
                   label: 'Geographic ID',
                   description:
                       'Optional geographic identifier for mapping and location services.',
@@ -483,7 +465,6 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
     final branch = BranchObject(
       id: widget.branch?.id ?? '',
       organizationId: _selectedOrganizationId,
-      partitionId: _partitionIdController.text.trim(),
       name: _nameController.text.trim(),
       code: _codeController.text.trim(),
       geoId: _geoIdController.text.trim(),
