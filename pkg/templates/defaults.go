@@ -23,7 +23,7 @@ func Defaults() []Template {
 	return all
 }
 
-func agentTemplates() []Template { //nolint:funlen // template definitions
+func agentTemplates() []Template {
 	return []Template{
 		// ── Agent Onboarding ─────────────────────────────────────────────
 		{
