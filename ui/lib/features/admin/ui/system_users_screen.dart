@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
@@ -378,7 +379,7 @@ class _SystemUserDialogState extends ConsumerState<_SystemUserDialog> {
     return AlertDialog(
       title: Text(_isEditing ? 'Edit System User' : 'Add System User'),
       content: SizedBox(
-        width: 400,
+        width: 480,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -386,100 +387,123 @@ class _SystemUserDialogState extends ConsumerState<_SystemUserDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Profile ID
-                TextFormField(
-                  controller: _profileIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Profile ID',
-                    hintText: 'Enter profile ID',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Profile ID is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Branch dropdown
-                branchesAsync.when(
-                  loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => Text('Failed to load branches: $e'),
-                  data: (branches) => DropdownButtonFormField<String>(
-                    initialValue: _selectedBranchId.isNotEmpty &&
-                            branches.any((b) => b.id == _selectedBranchId)
-                        ? _selectedBranchId
-                        : null,
+                FormFieldCard(
+                  label: 'Profile ID',
+                  description:
+                      'The platform profile ID of the user to grant system access',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _profileIdController,
                     decoration: const InputDecoration(
-                      labelText: 'Branch',
+                      hintText: 'Enter profile ID',
                     ),
-                    items: [
-                      for (final branch in branches)
-                        DropdownMenuItem(
-                          value: branch.id,
-                          child: Text(
-                            branch.name.isNotEmpty ? branch.name : branch.id,
-                          ),
-                        ),
-                    ],
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Branch is required';
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Profile ID is required';
                       }
                       return null;
                     },
+                  ),
+                ),
+
+                // Branch dropdown
+                FormFieldCard(
+                  label: 'Branch',
+                  description:
+                      'The branch this user will be assigned to for operations',
+                  isRequired: true,
+                  child: branchesAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) => Text('Failed to load branches: $e'),
+                    data: (branches) => DropdownButtonFormField<String>(
+                      initialValue: _selectedBranchId.isNotEmpty &&
+                              branches.any((b) => b.id == _selectedBranchId)
+                          ? _selectedBranchId
+                          : null,
+                      decoration: const InputDecoration(
+                        hintText: 'Select a branch',
+                      ),
+                      items: [
+                        for (final branch in branches)
+                          DropdownMenuItem(
+                            value: branch.id,
+                            child: Text(
+                              branch.name.isNotEmpty
+                                  ? branch.name
+                                  : branch.id,
+                            ),
+                          ),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Branch is required';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        setState(() => _selectedBranchId = value ?? '');
+                      },
+                    ),
+                  ),
+                ),
+
+                // Role dropdown
+                FormFieldCard(
+                  label: 'Role',
+                  description:
+                      'Determines what actions this user can perform in the system',
+                  isRequired: true,
+                  child: DropdownButtonFormField<SystemUserRole>(
+                    initialValue: _selectedRole,
+                    items: [
+                      for (final role in _selectableRoles)
+                        DropdownMenuItem(
+                          value: role,
+                          child: Text(systemUserRoleLabel(role)),
+                        ),
+                    ],
                     onChanged: (value) {
-                      setState(() => _selectedBranchId = value ?? '');
+                      if (value != null) {
+                        setState(() => _selectedRole = value);
+                      }
                     },
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Role dropdown
-                DropdownButtonFormField<SystemUserRole>(
-                  initialValue: _selectedRole,
-                  decoration: const InputDecoration(labelText: 'Role'),
-                  items: [
-                    for (final role in _selectableRoles)
-                      DropdownMenuItem(
-                        value: role,
-                        child: Text(systemUserRoleLabel(role)),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedRole = value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
 
                 // Service Account ID (optional)
-                TextFormField(
-                  controller: _serviceAccountIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Service Account ID (optional)',
-                    hintText: 'Enter service account ID',
+                FormFieldCard(
+                  label: 'Service Account ID',
+                  description:
+                      'Optional machine-to-machine account for automated operations',
+                  child: TextFormField(
+                    controller: _serviceAccountIdController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter service account ID',
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
 
                 // State dropdown
-                DropdownButtonFormField<STATE>(
-                  initialValue: _selectedState,
-                  decoration: const InputDecoration(labelText: 'State'),
-                  items: [
-                    for (final state in _selectableStates)
-                      DropdownMenuItem(
-                        value: state,
-                        child: Text(stateLabel(state)),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedState = value);
-                    }
-                  },
+                FormFieldCard(
+                  label: 'State',
+                  description:
+                      'The current lifecycle state of this system user record',
+                  isRequired: true,
+                  child: DropdownButtonFormField<STATE>(
+                    initialValue: _selectedState,
+                    items: [
+                      for (final state in _selectableStates)
+                        DropdownMenuItem(
+                          value: state,
+                          child: Text(stateLabel(state)),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedState = value);
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

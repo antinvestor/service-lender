@@ -6,10 +6,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../organization/data/organization_providers.dart';
 import '../data/loan_product_providers.dart';
 
 class LoanProductsScreen extends ConsumerStatefulWidget {
@@ -162,7 +164,7 @@ class _LoanProductCard extends StatelessWidget {
 // Loan Product create / edit dialog
 // ---------------------------------------------------------------------------
 
-class LoanProductFormDialog extends StatefulWidget {
+class LoanProductFormDialog extends ConsumerStatefulWidget {
   const LoanProductFormDialog({
     super.key,
     this.product,
@@ -173,10 +175,12 @@ class LoanProductFormDialog extends StatefulWidget {
   final Future<void> Function(LoanProductObject product) onSave;
 
   @override
-  State<LoanProductFormDialog> createState() => _LoanProductFormDialogState();
+  ConsumerState<LoanProductFormDialog> createState() =>
+      _LoanProductFormDialogState();
 }
 
-class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
+class _LoanProductFormDialogState
+    extends ConsumerState<LoanProductFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _codeCtrl;
@@ -195,6 +199,7 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
   late InterestMethod _interestMethod;
   late RepaymentFrequency _repaymentFrequency;
   late STATE _selectedState;
+  String? _selectedOrganizationId;
   bool _saving = false;
 
   bool get _isEditing => widget.product != null;
@@ -229,6 +234,8 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
     _repaymentFrequency =
         p?.repaymentFrequency ?? RepaymentFrequency.REPAYMENT_FREQUENCY_MONTHLY;
     _selectedState = p?.state ?? STATE.CREATED;
+    _selectedOrganizationId =
+        (p != null && p.hasOrganizationId()) ? p.organizationId : null;
   }
 
   @override
@@ -275,11 +282,17 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
       state: _selectedState,
     );
 
+    // Set organization ID from selection or preserve from existing product.
+    if (_selectedOrganizationId != null &&
+        _selectedOrganizationId!.isNotEmpty) {
+      product.organizationId = _selectedOrganizationId!;
+    } else if (widget.product != null &&
+        widget.product!.hasOrganizationId()) {
+      product.organizationId = widget.product!.organizationId;
+    }
+
     // Preserve backend-managed fields when editing.
     if (widget.product != null) {
-      if (widget.product!.hasOrganizationId()) {
-        product.organizationId = widget.product!.organizationId;
-      }
       if (widget.product!.hasProperties()) {
         product.properties = widget.product!.properties;
       }
@@ -358,6 +371,8 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final organizationsAsync = ref.watch(organizationListProvider(''));
+
     return AlertDialog(
       title: Text(_isEditing ? 'Edit Loan Product' : 'Add Loan Product'),
       content: SizedBox(
@@ -368,205 +383,364 @@ class _LoanProductFormDialogState extends State<LoanProductFormDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextFormField(
-                  controller: _nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Name is required'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _codeCtrl,
-                  decoration: const InputDecoration(labelText: 'Code'),
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Code is required'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _descriptionCtrl,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  textInputAction: TextInputAction.next,
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<LoanProductType>(
-                  initialValue: _productType,
-                  decoration: const InputDecoration(labelText: 'Product Type'),
-                  items: _productTypes
-                      .map((t) => DropdownMenuItem(
-                            value: t,
-                            child: Text(_productTypeLabel(t)),
-                          ))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setState(() => _productType = v);
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _currencyCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Currency (ISO 4217)'),
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.trim().length != 3)
-                      ? 'Enter a 3-letter currency code'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<InterestMethod>(
-                  initialValue: _interestMethod,
-                  decoration:
-                      const InputDecoration(labelText: 'Interest Method'),
-                  items: _interestMethods
-                      .map((m) => DropdownMenuItem(
-                            value: m,
-                            child: Text(_interestMethodLabel(m)),
-                          ))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setState(() => _interestMethod = v);
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<RepaymentFrequency>(
-                  initialValue: _repaymentFrequency,
-                  decoration:
-                      const InputDecoration(labelText: 'Repayment Frequency'),
-                  items: _repaymentFrequencies
-                      .map((f) => DropdownMenuItem(
-                            value: f,
-                            child: Text(_repaymentFrequencyLabel(f)),
-                          ))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setState(() => _repaymentFrequency = v);
-                  },
-                ),
-                const SizedBox(height: 12),
-                Row(
+                FormSection(
+                  title: 'Basic Information',
+                  description: 'Core product identity and classification',
                   children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _minAmountCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Min Amount'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _maxAmountCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Max Amount'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _minTermCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Min Term (days)'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _maxTermCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Max Term (days)'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _annualRateCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Annual Interest Rate %'),
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _processingFeeCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Processing Fee %'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _insuranceFeeCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Insurance Fee %'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _latePenaltyCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Late Penalty Rate'),
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _gracePeriodCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Grace Period (days)'),
-                        textInputAction: TextInputAction.done,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<STATE>(
-                  initialValue: _selectedState,
-                  decoration: const InputDecoration(labelText: 'State'),
-                  items: _editableStates
-                      .map(
-                        (s) => DropdownMenuItem(
-                          value: s,
-                          child: Text(stateLabel(s)),
+                    FormFieldCard(
+                      label: 'Organization',
+                      description:
+                          'The organization that owns this loan product',
+                      isRequired: true,
+                      child: organizationsAsync.when(
+                        loading: () => const LinearProgressIndicator(),
+                        error: (e, _) => Text('Failed to load organizations: $e'),
+                        data: (organizations) =>
+                            DropdownButtonFormField<String>(
+                          initialValue: _selectedOrganizationId != null &&
+                                  organizations.any(
+                                      (o) => o.id == _selectedOrganizationId)
+                              ? _selectedOrganizationId
+                              : null,
+                          decoration: const InputDecoration(
+                            hintText: 'Select an organization',
+                          ),
+                          items: [
+                            for (final org in organizations)
+                              DropdownMenuItem(
+                                value: org.id,
+                                child: Text(org.name.isNotEmpty
+                                    ? org.name
+                                    : org.id),
+                              ),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Organization is required';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            setState(
+                                () => _selectedOrganizationId = value);
+                          },
                         ),
-                      )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) {
-                      setState(() => _selectedState = v);
-                    }
-                  },
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Name',
+                      description:
+                          'The display name for this loan product',
+                      isRequired: true,
+                      child: TextFormField(
+                        controller: _nameCtrl,
+                        decoration: const InputDecoration(
+                          hintText: 'e.g. Personal Loan',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Name is required'
+                            : null,
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Code',
+                      description:
+                          'Unique product identifier for reports and integrations',
+                      isRequired: true,
+                      child: TextFormField(
+                        controller: _codeCtrl,
+                        decoration: const InputDecoration(
+                          hintText: 'e.g. PL-001',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Code is required'
+                            : null,
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Description',
+                      description:
+                          'A brief summary of what this loan product offers',
+                      child: TextFormField(
+                        controller: _descriptionCtrl,
+                        decoration: const InputDecoration(
+                          hintText: 'Describe the loan product',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        maxLines: 2,
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Product Type',
+                      description:
+                          'Determines the repayment structure of the loan',
+                      isRequired: true,
+                      child: DropdownButtonFormField<LoanProductType>(
+                        initialValue: _productType,
+                        items: _productTypes
+                            .map((t) => DropdownMenuItem(
+                                  value: t,
+                                  child: Text(_productTypeLabel(t)),
+                                ))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) setState(() => _productType = v);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                FormSection(
+                  title: 'Interest & Repayment',
+                  description: 'How interest is calculated and repaid',
+                  children: [
+                    FormFieldCard(
+                      label: 'Currency',
+                      description:
+                          'ISO 4217 currency code for this product',
+                      isRequired: true,
+                      child: TextFormField(
+                        controller: _currencyCtrl,
+                        decoration: const InputDecoration(
+                          hintText: 'e.g. KES',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: (v) =>
+                            (v == null || v.trim().length != 3)
+                                ? 'Enter a 3-letter currency code'
+                                : null,
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Interest Method',
+                      description:
+                          'How interest is computed over the loan term',
+                      isRequired: true,
+                      child: DropdownButtonFormField<InterestMethod>(
+                        initialValue: _interestMethod,
+                        items: _interestMethods
+                            .map((m) => DropdownMenuItem(
+                                  value: m,
+                                  child: Text(_interestMethodLabel(m)),
+                                ))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) {
+                            setState(() => _interestMethod = v);
+                          }
+                        },
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Repayment Frequency',
+                      description:
+                          'How often the borrower makes repayments',
+                      isRequired: true,
+                      child: DropdownButtonFormField<RepaymentFrequency>(
+                        initialValue: _repaymentFrequency,
+                        items: _repaymentFrequencies
+                            .map((f) => DropdownMenuItem(
+                                  value: f,
+                                  child:
+                                      Text(_repaymentFrequencyLabel(f)),
+                                ))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) {
+                            setState(() => _repaymentFrequency = v);
+                          }
+                        },
+                      ),
+                    ),
+                    FormFieldCard(
+                      label: 'Annual Interest Rate (%)',
+                      description:
+                          'The yearly interest rate applied to the loan',
+                      child: TextFormField(
+                        controller: _annualRateCtrl,
+                        decoration: const InputDecoration(
+                          hintText: 'e.g. 12.5',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+                FormSection(
+                  title: 'Loan Limits',
+                  description: 'Minimum and maximum amounts and terms',
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Min Amount',
+                            description: 'Smallest loan that can be issued',
+                            child: TextFormField(
+                              controller: _minAmountCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 1000',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Max Amount',
+                            description:
+                                'Largest loan that can be issued',
+                            child: TextFormField(
+                              controller: _maxAmountCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 500000',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Min Term (days)',
+                            description:
+                                'Shortest allowed loan duration',
+                            child: TextFormField(
+                              controller: _minTermCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 30',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Max Term (days)',
+                            description:
+                                'Longest allowed loan duration',
+                            child: TextFormField(
+                              controller: _maxTermCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 365',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                FormSection(
+                  title: 'Fees & Penalties',
+                  description: 'Additional charges and grace period settings',
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Processing Fee (%)',
+                            description:
+                                'One-time fee charged at disbursement',
+                            child: TextFormField(
+                              controller: _processingFeeCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 2.0',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Insurance Fee (%)',
+                            description:
+                                'Credit insurance premium percentage',
+                            child: TextFormField(
+                              controller: _insuranceFeeCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 1.0',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Late Penalty Rate',
+                            description:
+                                'Rate charged on overdue payments',
+                            child: TextFormField(
+                              controller: _latePenaltyCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 5.0',
+                              ),
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FormFieldCard(
+                            label: 'Grace Period (days)',
+                            description:
+                                'Days after due date before penalty applies',
+                            child: TextFormField(
+                              controller: _gracePeriodCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 7',
+                              ),
+                              textInputAction: TextInputAction.done,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                FormFieldCard(
+                  label: 'State',
+                  description:
+                      'The lifecycle state of this loan product',
+                  isRequired: true,
+                  child: DropdownButtonFormField<STATE>(
+                    initialValue: _selectedState,
+                    items: _editableStates
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(stateLabel(s)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        setState(() => _selectedState = v);
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

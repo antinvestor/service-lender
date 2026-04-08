@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
@@ -235,39 +236,60 @@ class _InvestorFormDialogState extends State<_InvestorFormDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
-                textInputAction: TextInputAction.next,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+              FormFieldCard(
+                label: 'Name',
+                description:
+                    'The full legal or display name of the investor',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _nameCtrl,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter investor name',
+                  ),
+                  textInputAction: TextInputAction.next,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty)
+                          ? 'Name is required'
+                          : null,
+                ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _profileIdCtrl,
-                decoration: const InputDecoration(labelText: 'Profile ID'),
-                textInputAction: TextInputAction.done,
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Profile ID is required'
-                    : null,
+              FormFieldCard(
+                label: 'Profile ID',
+                description:
+                    'The unique profile identifier from the user management system',
+                isRequired: true,
+                child: TextFormField(
+                  controller: _profileIdCtrl,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter profile ID',
+                  ),
+                  textInputAction: TextInputAction.done,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Profile ID is required'
+                      : null,
+                ),
               ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<STATE>(
-                initialValue: _selectedState,
-                decoration: const InputDecoration(labelText: 'State'),
-                items: _editableStates
-                    .map(
-                      (s) => DropdownMenuItem(
-                        value: s,
-                        child: Text(stateLabel(s)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() => _selectedState = v);
-                  }
-                },
+              FormFieldCard(
+                label: 'State',
+                description:
+                    'The current lifecycle state of this investor record',
+                isRequired: true,
+                child: DropdownButtonFormField<STATE>(
+                  initialValue: _selectedState,
+                  items: _editableStates
+                      .map(
+                        (s) => DropdownMenuItem(
+                          value: s,
+                          child: Text(stateLabel(s)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() => _selectedState = v);
+                    }
+                  },
+                ),
               ),
             ],
           ),

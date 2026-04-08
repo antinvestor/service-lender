@@ -7,7 +7,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_chip.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/form_field_card.dart';
 import '../../../sdk/src/savings/v1/savings.pb.dart';
+import '../../auth/data/auth_repository.dart';
+import '../../organization/data/organization_providers.dart';
 import '../data/savings_providers.dart';
 
 class SavingsAccountsScreen extends ConsumerStatefulWidget {
@@ -64,80 +67,260 @@ class _SavingsAccountsScreenState
   }
 
   void _showCreateDialog(BuildContext context) {
-    final clientIdCtrl = TextEditingController();
-    final productIdCtrl = TextEditingController();
-    var saving = false;
-
     showDialog<void>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Create Savings Account'),
-          content: SizedBox(
-            width: 400,
+      builder: (ctx) => _SavingsAccountCreateDialog(
+        onSave: (account) async {
+          try {
+            await ref
+                .read(savingsAccountProvider.notifier)
+                .create(account);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Savings account created')),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed: $e')),
+              );
+            }
+            rethrow;
+          }
+        },
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Savings Account create dialog
+// ---------------------------------------------------------------------------
+
+class _SavingsAccountCreateDialog extends ConsumerStatefulWidget {
+  const _SavingsAccountCreateDialog({required this.onSave});
+
+  final Future<void> Function(SavingsAccountObject account) onSave;
+
+  @override
+  ConsumerState<_SavingsAccountCreateDialog> createState() =>
+      _SavingsAccountCreateDialogState();
+}
+
+class _SavingsAccountCreateDialogState
+    extends ConsumerState<_SavingsAccountCreateDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _clientIdCtrl;
+  late final TextEditingController _productIdCtrl;
+  late final TextEditingController _currencyCodeCtrl;
+  String? _selectedOrganizationId;
+  SavingsAccountOwnerType _ownerType =
+      SavingsAccountOwnerType.SAVINGS_ACCOUNT_OWNER_TYPE_INDIVIDUAL;
+  bool _saving = false;
+
+  static const _ownerTypes = [
+    SavingsAccountOwnerType.SAVINGS_ACCOUNT_OWNER_TYPE_INDIVIDUAL,
+    SavingsAccountOwnerType.SAVINGS_ACCOUNT_OWNER_TYPE_GROUP,
+  ];
+
+  static String _ownerTypeLabel(SavingsAccountOwnerType type) {
+    return switch (type) {
+      SavingsAccountOwnerType.SAVINGS_ACCOUNT_OWNER_TYPE_INDIVIDUAL =>
+        'Individual',
+      SavingsAccountOwnerType.SAVINGS_ACCOUNT_OWNER_TYPE_GROUP => 'Group',
+      _ => 'Unspecified',
+    };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _clientIdCtrl = TextEditingController();
+    _productIdCtrl = TextEditingController();
+    _currencyCodeCtrl = TextEditingController(text: 'KES');
+  }
+
+  @override
+  void dispose() {
+    _clientIdCtrl.dispose();
+    _productIdCtrl.dispose();
+    _currencyCodeCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _saving = true);
+
+    final tenantId = ref.read(currentTenantIdProvider).value;
+
+    final account = SavingsAccountObject(
+      ownerId: _clientIdCtrl.text.trim(),
+      productId: _productIdCtrl.text.trim(),
+      ownerType: _ownerType,
+      currencyCode: _currencyCodeCtrl.text.trim().toUpperCase(),
+    );
+
+    if (_selectedOrganizationId != null &&
+        _selectedOrganizationId!.isNotEmpty) {
+      account.organizationId = _selectedOrganizationId!;
+    } else if (tenantId != null && tenantId.isNotEmpty) {
+      account.organizationId = tenantId;
+    }
+
+    try {
+      await widget.onSave(account);
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final organizationsAsync = ref.watch(organizationListProvider(''));
+
+    return AlertDialog(
+      title: const Text('Create Savings Account'),
+      content: SizedBox(
+        width: 480,
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: clientIdCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Client ID'),
+                FormFieldCard(
+                  label: 'Organization',
+                  description:
+                      'The organization this savings account belongs to',
+                  isRequired: true,
+                  child: organizationsAsync.when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, _) =>
+                        Text('Failed to load organizations: $e'),
+                    data: (organizations) =>
+                        DropdownButtonFormField<String>(
+                      initialValue: _selectedOrganizationId != null &&
+                              organizations.any(
+                                  (o) => o.id == _selectedOrganizationId)
+                          ? _selectedOrganizationId
+                          : null,
+                      decoration: const InputDecoration(
+                        hintText: 'Select an organization',
+                      ),
+                      items: [
+                        for (final org in organizations)
+                          DropdownMenuItem(
+                            value: org.id,
+                            child: Text(
+                                org.name.isNotEmpty ? org.name : org.id),
+                          ),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Organization is required';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        setState(
+                            () => _selectedOrganizationId = value);
+                      },
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: productIdCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'Savings Product ID'),
+                FormFieldCard(
+                  label: 'Client ID',
+                  description:
+                      'The unique identifier of the account owner (client or group)',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _clientIdCtrl,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter the client ID',
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Client ID is required'
+                        : null,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Owner Type',
+                  description:
+                      'Whether the account is owned by an individual or a group',
+                  isRequired: true,
+                  child: DropdownButtonFormField<SavingsAccountOwnerType>(
+                    initialValue: _ownerType,
+                    items: _ownerTypes
+                        .map((t) => DropdownMenuItem(
+                              value: t,
+                              child: Text(_ownerTypeLabel(t)),
+                            ))
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) setState(() => _ownerType = v);
+                    },
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Savings Product ID',
+                  description:
+                      'The savings product that defines the terms for this account',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _productIdCtrl,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter the savings product ID',
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Savings Product ID is required'
+                        : null,
+                  ),
+                ),
+                FormFieldCard(
+                  label: 'Currency Code',
+                  description:
+                      'ISO 4217 currency code for this account',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: _currencyCodeCtrl,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. KES',
+                    ),
+                    textInputAction: TextInputAction.done,
+                    validator: (v) =>
+                        (v == null || v.trim().length != 3)
+                            ? 'Enter a 3-letter currency code'
+                            : null,
+                  ),
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: saving ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: saving
-                  ? null
-                  : () async {
-                      setDialogState(() => saving = true);
-                      try {
-                        await ref
-                            .read(savingsAccountProvider.notifier)
-                            .create(SavingsAccountObject(
-                              ownerId: clientIdCtrl.text.trim(),
-                              productId: productIdCtrl.text.trim(),
-                            ));
-                        if (ctx.mounted) Navigator.of(ctx).pop();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Savings account created')),
-                          );
-                        }
-                      } catch (e) {
-                        setDialogState(() => saving = false);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed: $e')),
-                          );
-                        }
-                      }
-                    },
-              child: saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child:
-                          CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Create'),
-            ),
-          ],
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Create'),
+        ),
+      ],
     );
   }
 }
