@@ -18,8 +18,8 @@ class service_identity implements Namespace {
     member: profile_user[]
     service: (profile_user | tenancy_access)[]
 
-    granted_bank_view: (profile_user | service_identity)[]
-    granted_bank_manage: (profile_user | service_identity)[]
+    granted_organization_view: (profile_user | service_identity)[]
+    granted_organization_manage: (profile_user | service_identity)[]
     granted_branch_view: (profile_user | service_identity)[]
     granted_branch_manage: (profile_user | service_identity)[]
     granted_investor_view: (profile_user | service_identity)[]
@@ -29,21 +29,21 @@ class service_identity implements Namespace {
   }
 
   permits = {
-    bank_view: (ctx: Context): boolean =>
+    organization_view: (ctx: Context): boolean =>
       this.related.admin.includes(ctx.subject) ||
       this.related.member.includes(ctx.subject) ||
       this.related.operator.includes(ctx.subject) ||
       this.related.owner.includes(ctx.subject) ||
       this.related.service.includes(ctx.subject) ||
       this.related.viewer.includes(ctx.subject) ||
-      this.related.granted_bank_view.includes(ctx.subject),
+      this.related.granted_organization_view.includes(ctx.subject),
 
-    bank_manage: (ctx: Context): boolean =>
+    organization_manage: (ctx: Context): boolean =>
       this.related.admin.includes(ctx.subject) ||
       this.related.operator.includes(ctx.subject) ||
       this.related.owner.includes(ctx.subject) ||
       this.related.service.includes(ctx.subject) ||
-      this.related.granted_bank_manage.includes(ctx.subject),
+      this.related.granted_organization_manage.includes(ctx.subject),
 
     branch_view: (ctx: Context): boolean =>
       this.related.admin.includes(ctx.subject) ||
