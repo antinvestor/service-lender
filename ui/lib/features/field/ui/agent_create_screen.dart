@@ -79,11 +79,19 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
       return;
     }
 
-    setState(() => _searchState = _ProfileSearchState.searching);
+    // Only reset to idle — don't show spinner until search actually fires.
+    if (_searchState == _ProfileSearchState.found ||
+        _searchState == _ProfileSearchState.confirmed ||
+        _searchState == _ProfileSearchState.notFound) {
+      setState(() => _searchState = _ProfileSearchState.idle);
+    }
+  }
 
-    _searchDebounce = Timer(const Duration(milliseconds: 800), () {
-      _searchProfile(trimmed);
-    });
+  void _triggerSearch() {
+    final trimmed = _contactCtrl.text.trim();
+    if (trimmed.length < 3) return;
+    setState(() => _searchState = _ProfileSearchState.searching);
+    _searchProfile(trimmed);
   }
 
   Future<void> _searchProfile(String contact) async {
@@ -357,30 +365,50 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
         FormFieldCard(
           label: 'Email or Phone Number',
           description:
-              'Enter the agent\'s email address or phone number. '
-              'We\'ll check if they already have a profile on the platform.',
+              'Enter the agent\'s email address or phone number, then press '
+              'Search to check if they already have a profile on the platform.',
           isRequired: true,
-          child: TextFormField(
-            controller: _contactCtrl,
-            decoration: InputDecoration(
-              hintText: 'e.g. jane@example.com or +254 700 123456',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchState == _ProfileSearchState.searching
-                  ? const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : _searchState == _ProfileSearchState.found ||
-                          _searchState == _ProfileSearchState.confirmed
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : null,
-            ),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: _onContactChanged,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _contactCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. jane@example.com or +254 700 123456',
+                    prefixIcon: const Icon(Icons.alternate_email),
+                    suffixIcon: _searchState == _ProfileSearchState.found ||
+                            _searchState == _ProfileSearchState.confirmed
+                        ? const Icon(Icons.check_circle, color: Colors.green)
+                        : null,
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: _onContactChanged,
+                  onFieldSubmitted: (_) => _triggerSearch(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: FilledButton.icon(
+                  onPressed: _searchState == _ProfileSearchState.searching ||
+                          _contactCtrl.text.trim().length < 3
+                      ? null
+                      : _triggerSearch,
+                  icon: _searchState == _ProfileSearchState.searching
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.search, size: 20),
+                  label: const Text('Search'),
+                ),
+              ),
+            ],
           ),
         ),
 
