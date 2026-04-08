@@ -73,15 +73,13 @@ GoRouter router(Ref ref) {
       final isLoginRoute = location == '/login';
       final isAuthCallback = location == '/auth/callback';
 
-      // Auth callback: always let it through so the token exchange can
-      // complete. The LoginScreen handles the redirect result and
-      // transitions to authenticated state, which triggers a router
-      // refresh that sends the user to '/'.
-      if (isAuthCallback) return null;
-
       // Use sync cache for instant navigation when session is warm.
       final isLoggedIn =
           authRepository.isLoggedInSync ?? await authRepository.isLoggedIn();
+
+      // Auth callback: if already logged in, go straight to dashboard.
+      // Otherwise let the callback screen handle the token exchange.
+      if (isAuthCallback) return isLoggedIn ? '/' : null;
 
       if (!isLoggedIn && !isLoginRoute) return '/login';
       if (isLoggedIn && isLoginRoute) return '/';
