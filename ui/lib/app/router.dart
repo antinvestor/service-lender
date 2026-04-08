@@ -102,288 +102,230 @@ GoRouter router(Ref ref) {
       // All authenticated routes live inside the shell.
       // Each route is wrapped with RouteRoleGuard to enforce
       // permissions even when a user navigates via URL directly.
-      // All authenticated routes live inside the shell.
-      // Branches are grouped by section to minimize navigator stacks.
-      StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) =>
-            AppShell(navigationShell: navigationShell),
-        branches: [
-          // Dashboard
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/',
-                builder: (context, state) => const DashboardScreen(),
-              ),
-            ],
+      // All authenticated routes inside a lightweight ShellRoute.
+      // No StatefulShellBranch overhead — each page renders fresh inside
+      // the persistent sidebar shell.
+      ShellRoute(
+        builder: (context, state, child) =>
+            AppShellSimple(child: child),
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const DashboardScreen(),
           ),
-
-          // Organization (organizations + investors share a branch)
-          StatefulShellBranch(
+          GoRoute(
+            path: '/organization/organizations',
+            builder: (context, state) => _guarded(
+              '/organization/organizations',
+              const OrganizationsScreen(),
+            ),
             routes: [
               GoRoute(
-                path: '/organization/organizations',
+                path: ':organizationId',
                 builder: (context, state) => _guarded(
                   '/organization/organizations',
-                  const OrganizationsScreen(),
-                ),
-                routes: [
-                  GoRoute(
-                    path: ':organizationId',
-                    builder: (context, state) => _guarded(
-                      '/organization/organizations',
-                      OrganizationDetailScreen(
-                        organizationId:
-                            state.pathParameters['organizationId']!,
-                      ),
-                    ),
+                  OrganizationDetailScreen(
+                    organizationId:
+                        state.pathParameters['organizationId']!,
                   ),
-                ],
-              ),
-              GoRoute(
-                path: '/organization/investors',
-                builder: (context, state) => _guarded(
-                  '/organization/investors',
-                  const InvestorsScreen(),
                 ),
               ),
             ],
           ),
-
-          // Field Operations (agents, hierarchy, clients, reassignment)
-          StatefulShellBranch(
+          GoRoute(
+            path: '/organization/investors',
+            builder: (context, state) => _guarded(
+              '/organization/investors',
+              const InvestorsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/field/agents',
+            builder: (context, state) => _guarded(
+              '/field/agents',
+              const AgentsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/field/hierarchy',
+            builder: (context, state) => _guarded(
+              '/field/hierarchy',
+              const HierarchyScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/field/clients',
+            builder: (context, state) => _guarded(
+              '/field/clients',
+              const ClientsScreen(),
+            ),
             routes: [
               GoRoute(
-                path: '/field/agents',
-                builder: (context, state) => _guarded(
-                  '/field/agents',
-                  const AgentsScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/field/hierarchy',
-                builder: (context, state) => _guarded(
-                  '/field/hierarchy',
-                  const HierarchyScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/field/clients',
+                path: 'new',
                 builder: (context, state) => _guarded(
                   '/field/clients',
-                  const ClientsScreen(),
+                  const ClientOnboardScreen(),
                 ),
-                routes: [
-                  GoRoute(
-                    path: 'new',
-                    builder: (context, state) => _guarded(
-                      '/field/clients',
-                      const ClientOnboardScreen(),
-                    ),
-                  ),
-                  GoRoute(
-                    path: ':clientId',
-                    builder: (context, state) => _guarded(
-                      '/field/clients',
-                      ClientDetailScreen(
-                        clientId: state.pathParameters['clientId']!,
-                      ),
-                    ),
-                  ),
-                ],
               ),
               GoRoute(
-                path: '/field/reassignment',
+                path: ':clientId',
                 builder: (context, state) => _guarded(
-                  '/field/reassignment',
-                  const ReassignmentScreen(),
+                  '/field/clients',
+                  ClientDetailScreen(
+                    clientId: state.pathParameters['clientId']!,
+                  ),
                 ),
               ),
             ],
           ),
-
-          // Origination (pending cases + applications)
-          StatefulShellBranch(
+          GoRoute(
+            path: '/field/reassignment',
+            builder: (context, state) => _guarded(
+              '/field/reassignment',
+              const ReassignmentScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/origination/pending',
+            builder: (context, state) => _guarded(
+              '/origination/pending',
+              const PendingCasesScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/origination/applications',
+            builder: (context, state) => _guarded(
+              '/origination/applications',
+              const ApplicationsScreen(),
+            ),
             routes: [
               GoRoute(
-                path: '/origination/pending',
-                builder: (context, state) => _guarded(
-                  '/origination/pending',
-                  const PendingCasesScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/origination/applications',
+                path: 'new',
                 builder: (context, state) => _guarded(
                   '/origination/applications',
-                  const ApplicationsScreen(),
+                  ApplicationCreateScreen(
+                    clientId: state.uri.queryParameters['clientId'],
+                  ),
                 ),
-                routes: [
-                  GoRoute(
-                    path: 'new',
-                    builder: (context, state) => _guarded(
-                      '/origination/applications',
-                      ApplicationCreateScreen(
-                        clientId: state.uri.queryParameters['clientId'],
-                      ),
-                    ),
+              ),
+              GoRoute(
+                path: ':applicationId',
+                builder: (context, state) => _guarded(
+                  '/origination/applications',
+                  ApplicationDetailScreen(
+                    applicationId:
+                        state.pathParameters['applicationId']!,
                   ),
-                  GoRoute(
-                    path: ':applicationId',
-                    builder: (context, state) => _guarded(
-                      '/origination/applications',
-                      ApplicationDetailScreen(
-                        applicationId:
-                            state.pathParameters['applicationId']!,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-
-          // Loan Management (products + accounts)
-          StatefulShellBranch(
+          GoRoute(
+            path: '/loans/products',
+            builder: (context, state) => _guarded(
+              '/loans/products',
+              const LoanProductsScreen(),
+            ),
             routes: [
               GoRoute(
-                path: '/loans/products',
+                path: ':productId',
                 builder: (context, state) => _guarded(
                   '/loans/products',
-                  const LoanProductsScreen(),
-                ),
-                routes: [
-                  GoRoute(
-                    path: ':productId',
-                    builder: (context, state) => _guarded(
-                      '/loans/products',
-                      LoanProductDetailScreen(
-                        productId: state.pathParameters['productId']!,
-                      ),
-                    ),
+                  LoanProductDetailScreen(
+                    productId: state.pathParameters['productId']!,
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+          GoRoute(
+            path: '/loans',
+            builder: (context, state) => _guarded(
+              '/loans',
+              const LoanAccountsScreen(),
+            ),
+            routes: [
               GoRoute(
-                path: '/loans',
+                path: ':loanId',
                 builder: (context, state) => _guarded(
                   '/loans',
-                  const LoanAccountsScreen(),
-                ),
-                routes: [
-                  GoRoute(
-                    path: ':loanId',
-                    builder: (context, state) => _guarded(
-                      '/loans',
-                      LoanAccountDetailScreen(
-                        loanId: state.pathParameters['loanId']!,
-                      ),
-                    ),
+                  LoanAccountDetailScreen(
+                    loanId: state.pathParameters['loanId']!,
                   ),
-                ],
+                ),
               ),
             ],
           ),
-
-          // Savings
-          StatefulShellBranch(
+          GoRoute(
+            path: '/savings',
+            builder: (context, state) => _guarded(
+              '/savings',
+              const SavingsAccountsScreen(),
+            ),
             routes: [
               GoRoute(
-                path: '/savings',
+                path: ':accountId',
                 builder: (context, state) => _guarded(
                   '/savings',
-                  const SavingsAccountsScreen(),
-                ),
-                routes: [
-                  GoRoute(
-                    path: ':accountId',
-                    builder: (context, state) => _guarded(
-                      '/savings',
-                      SavingsAccountDetailScreen(
-                        accountId: state.pathParameters['accountId']!,
-                      ),
-                    ),
+                  SavingsAccountDetailScreen(
+                    accountId: state.pathParameters['accountId']!,
                   ),
-                ],
-              ),
-            ],
-          ),
-
-          // Reports (portfolio + loan book)
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/reports/portfolio',
-                builder: (context, state) => _guarded(
-                  '/reports/portfolio',
-                  const PortfolioSummaryScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/reports/loan-book',
-                builder: (context, state) => _guarded(
-                  '/reports/loan-book',
-                  const LoanBookScreen(),
                 ),
               ),
             ],
           ),
-
-          // Operations (disbursements + transfers)
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/operations/disbursements',
-                builder: (context, state) => _guarded(
-                  '/operations/disbursements',
-                  const DisbursementQueueScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/operations/transfers',
-                builder: (context, state) => _guarded(
-                  '/operations/transfers',
-                  const TransferOrdersScreen(),
-                ),
-              ),
-            ],
+          GoRoute(
+            path: '/reports/portfolio',
+            builder: (context, state) => _guarded(
+              '/reports/portfolio',
+              const PortfolioSummaryScreen(),
+            ),
           ),
-
-          // Administration (users + roles + audit)
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/admin/users',
-                builder: (context, state) => _guarded(
-                  '/admin/users',
-                  const SystemUsersScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/admin/roles',
-                builder: (context, state) => _guarded(
-                  '/admin/roles',
-                  const RolesScreen(),
-                ),
-              ),
-              GoRoute(
-                path: '/admin/audit',
-                builder: (context, state) => _guarded(
-                  '/admin/audit',
-                  const AuditLogScreen(),
-                ),
-              ),
-            ],
+          GoRoute(
+            path: '/reports/loan-book',
+            builder: (context, state) => _guarded(
+              '/reports/loan-book',
+              const LoanBookScreen(),
+            ),
           ),
-
-          // Settings
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/settings',
-                builder: (context, state) => const SettingsScreen(),
-              ),
-            ],
+          GoRoute(
+            path: '/operations/disbursements',
+            builder: (context, state) => _guarded(
+              '/operations/disbursements',
+              const DisbursementQueueScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/operations/transfers',
+            builder: (context, state) => _guarded(
+              '/operations/transfers',
+              const TransferOrdersScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/admin/users',
+            builder: (context, state) => _guarded(
+              '/admin/users',
+              const SystemUsersScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/admin/roles',
+            builder: (context, state) => _guarded(
+              '/admin/roles',
+              const RolesScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/admin/audit',
+            builder: (context, state) => _guarded(
+              '/admin/audit',
+              const AuditLogScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
           ),
         ],
       ),

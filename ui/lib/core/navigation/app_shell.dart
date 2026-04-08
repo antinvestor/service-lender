@@ -16,8 +16,7 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentRoute =
-        GoRouterState.of(context).matchedLocation;
+    final currentRoute = GoRouterState.of(context).matchedLocation;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -34,6 +33,31 @@ class AppShell extends StatelessWidget {
           currentRoute: currentRoute,
           child: navigationShell,
         );
+      },
+    );
+  }
+}
+
+/// Lightweight shell that takes a plain [Widget] child instead of
+/// [StatefulNavigationShell]. Used with [ShellRoute].
+class AppShellSimple extends StatelessWidget {
+  const AppShellSimple({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final currentRoute = GoRouterState.of(context).matchedLocation;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = AppBreakpoints.isMobile(constraints.maxWidth);
+
+        if (isMobile) {
+          return _MobileShell(currentRoute: currentRoute, child: child);
+        }
+
+        return _DesktopShell(currentRoute: currentRoute, child: child);
       },
     );
   }
