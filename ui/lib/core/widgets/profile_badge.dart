@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Creates a [ProfileAvatar] from any object that has a profileId and name.
+///
+/// Works with AgentObject, ClientObject, InvestorObject, SystemUserObject,
+/// or any object with `profileId` and `name` String fields.
+///
+/// Usage:
+/// ```dart
+/// ProfileAvatar.from(agent)            // avatar only
+/// ProfileBadge.from(agent)             // avatar + name
+/// ProfileBadge.from(agent, description: 'Field Agent')
+/// ```
+///
+
 /// A palette of pleasant, deterministic colors for profile avatars.
 const _avatarColors = [
   Color(0xFF2E7D5F), // teal
@@ -54,6 +67,25 @@ class ProfileAvatar extends StatefulWidget {
     this.size = 36,
     this.onPrimaryColor = Colors.white,
   });
+
+  /// Create from any proto object with `profileId` and `name` fields.
+  ///
+  /// Usage: `ProfileAvatar.of(profileId: agent.profileId, name: agent.name)`
+  /// or use the named constructor for common objects.
+  factory ProfileAvatar.of({
+    Key? key,
+    required String profileId,
+    required String name,
+    String? description,
+    double size = 36,
+  }) =>
+      ProfileAvatar(
+        key: key,
+        profileId: profileId,
+        name: name,
+        description: description,
+        size: size,
+      );
 
   final String profileId;
   final String name;
@@ -205,6 +237,32 @@ class ProfileBadge extends StatelessWidget {
     this.nameColor,
     this.descriptionColor,
   });
+
+  /// Create from any object with profileId and name fields.
+  ///
+  /// ```dart
+  /// ProfileBadge.of(
+  ///   profileId: agent.profileId,
+  ///   name: agent.name,
+  ///   description: 'Field Agent',
+  /// )
+  /// ```
+  factory ProfileBadge.of({
+    Key? key,
+    required String profileId,
+    required String name,
+    String? description,
+    double avatarSize = 40,
+    Widget? trailing,
+  }) =>
+      ProfileBadge(
+        key: key,
+        profileId: profileId,
+        name: name,
+        description: description,
+        avatarSize: avatarSize,
+        trailing: trailing,
+      );
 
   final String profileId;
   final String name;
