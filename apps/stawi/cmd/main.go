@@ -11,7 +11,11 @@ import (
 
 	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
-	// Group domain
+	// Identity domain (Group & Membership)
+	identityevents "github.com/antinvestor/service-fintech/apps/identity/service/events"
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
+
+	// Group domain (Tenure, Period, Motion, Infraction)
 	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	groupevents "github.com/antinvestor/service-fintech/apps/stawi/service/events"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/handlers"
@@ -74,9 +78,11 @@ func main() {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
-	// --- Group repositories ---
-	grpRepo := grouprepo.NewCustomerGroupRepository(ctx, dbPool, workMan)
-	memRepo := grouprepo.NewMembershipRepository(ctx, dbPool, workMan)
+	// --- Identity repositories (Group & Membership) ---
+	grpRepo := identityrepo.NewGroupRepository(ctx, dbPool, workMan)
+	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
+
+	// --- Group repositories (Tenure, Period, Motion, Infraction) ---
 	tenRepo := grouprepo.NewTenureRepository(ctx, dbPool, workMan)
 	perRepo := grouprepo.NewPeriodRepository(ctx, dbPool, workMan)
 	motRepo := grouprepo.NewMotionRepository(ctx, dbPool, workMan)
@@ -151,9 +157,10 @@ func main() {
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(mux),
 		frame.WithRegisterEvents(
-			// Group events
-			groupevents.NewCustomerGroupSave(ctx, grpRepo),
-			groupevents.NewMembershipSave(ctx, memRepo),
+			// Identity events (Group & Membership)
+			identityevents.NewGroupSave(ctx, grpRepo),
+			identityevents.NewMembershipSave(ctx, memRepo),
+			// Group events (Tenure, Period, Motion, Infraction)
 			groupevents.NewTenureSave(ctx, tenRepo),
 			groupevents.NewPeriodSave(ctx, perRepo),
 			groupevents.NewMotionSave(ctx, motRepo),

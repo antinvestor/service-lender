@@ -9,31 +9,31 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-fintech/apps/stawi/service/events"
-	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
-	"github.com/antinvestor/service-fintech/apps/stawi/service/repository"
+	identityevents "github.com/antinvestor/service-fintech/apps/identity/service/events"
+	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 type groupBusiness struct {
 	eventsMan fevents.Manager
-	grpRepo   repository.CustomerGroupRepository
-	memRepo   repository.MembershipRepository
+	grpRepo   identityrepo.GroupRepository
+	memRepo   identityrepo.MembershipRepository
 	clients   *clients.PlatformClients
 }
 
 func NewGroupBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	grpRepo repository.CustomerGroupRepository,
-	memRepo repository.MembershipRepository,
+	grpRepo identityrepo.GroupRepository,
+	memRepo identityrepo.MembershipRepository,
 	pc *clients.PlatformClients,
 ) GroupBusiness {
 	return &groupBusiness{eventsMan: eventsMan, grpRepo: grpRepo, memRepo: memRepo, clients: pc}
 }
 
-func (b *groupBusiness) Create(ctx context.Context, group *models.CustomerGroup) (*models.CustomerGroup, error) {
+func (b *groupBusiness) Create(ctx context.Context, group *identitymodels.Group) (*identitymodels.Group, error) {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.Create")
 
 	if group.State == 0 {
@@ -41,7 +41,7 @@ func (b *groupBusiness) Create(ctx context.Context, group *models.CustomerGroup)
 	}
 	group.GenID(ctx)
 
-	err := b.eventsMan.Emit(ctx, events.CustomerGroupSaveEvent, group)
+	err := b.eventsMan.Emit(ctx, identityevents.GroupSaveEvent, group)
 	if err != nil {
 		logger.WithError(err).Error("could not emit group save event")
 		return nil, err
@@ -50,7 +50,7 @@ func (b *groupBusiness) Create(ctx context.Context, group *models.CustomerGroup)
 	return group, nil
 }
 
-func (b *groupBusiness) Get(ctx context.Context, id string) (*models.CustomerGroup, error) {
+func (b *groupBusiness) Get(ctx context.Context, id string) (*identitymodels.Group, error) {
 	return b.grpRepo.GetByID(ctx, id)
 }
 
@@ -85,7 +85,7 @@ func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState
 	}
 
 	group.State = newState
-	err = b.eventsMan.Emit(ctx, events.CustomerGroupSaveEvent, group)
+	err = b.eventsMan.Emit(ctx, identityevents.GroupSaveEvent, group)
 	if err != nil {
 		logger.WithError(err).Error("could not emit group save event")
 		return err
@@ -105,21 +105,17 @@ func (b *groupBusiness) CheckFormation(ctx context.Context, groupID string) (map
 		return nil, fmt.Errorf("group not found: %w", err)
 	}
 
-	members, err := b.memRepo.GetByGroupID(ctx, groupID)
+	members, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
 	if err != nil {
 		logger.WithError(err).Error("could not get members")
 		return nil, err
 	}
 
 	memberCount := len(members)
-	// Default min: 5, get from group properties if set
+	// Use group's MinMembers field, default to 5
 	minMembers := 5
-	if group.Properties != nil {
-		if v, ok := group.Properties["min_members"]; ok {
-			if minVal, isFloat := v.(float64); isFloat {
-				minMembers = int(minVal)
-			}
-		}
+	if group.MinMembers > 0 {
+		minMembers = int(group.MinMembers)
 	}
 
 	formed := memberCount >= minMembers
@@ -199,7 +195,7 @@ func (b *groupBusiness) SetupLedgerAccounts(ctx context.Context, groupID string)
 		req := connect.NewRequest(&ledgerv1.CreateAccountRequest{
 			Id:       acctName,
 			LedgerId: groupID,
-			Currency: group.Currency,
+			Currency: group.CurrencyCode,
 		})
 
 		if _, createErr := b.clients.LedgerClient.CreateAccount(ctx, req); createErr != nil {
@@ -227,7 +223,7 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 		return nil
 	}
 
-	members, err := b.memRepo.GetByGroupID(ctx, groupID)
+	members, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
 	if err != nil {
 		return fmt.Errorf("could not get members: %w", err)
 	}
@@ -238,29 +234,24 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 	return nil
 }
 
-// groupAgentID extracts the agent ID from a group's properties.
-func groupAgentID(group *models.CustomerGroup) string {
-	if group.Properties == nil {
-		return ""
-	}
-	v, ok := group.Properties["agent_id"]
-	if !ok {
-		return ""
-	}
-	s, _ := v.(string)
-	return s
+// groupAgentID returns the agent ID from the group.
+func groupAgentID(group *identitymodels.Group) string {
+	return group.AgentID
 }
 
 // registerMembers registers unregistered members as clients in the Field service.
 func (b *groupBusiness) registerMembers(
 	ctx context.Context,
 	logger *util.LogEntry,
-	members []*models.Membership,
+	members []*identitymodels.Membership,
 	agentID string,
 ) {
 	for _, m := range members {
-		if m.IdentityClientID != "" {
-			continue
+		// Skip members already linked to a client
+		if m.Properties != nil {
+			if _, ok := m.Properties["client_id"]; ok {
+				continue
+			}
 		}
 
 		if agentID != "" {
@@ -268,11 +259,14 @@ func (b *groupBusiness) registerMembers(
 			if cliErr != nil {
 				logger.WithError(cliErr).WithField("local_membership_id", m.GetID()).Warn("could not register client")
 			} else {
-				m.IdentityClientID = clientID
+				if m.Properties == nil {
+					m.Properties = make(map[string]interface{})
+				}
+				m.Properties["client_id"] = clientID
 			}
 		}
 
-		if emitErr := b.eventsMan.Emit(ctx, events.MembershipSaveEvent, m); emitErr != nil {
+		if emitErr := b.eventsMan.Emit(ctx, identityevents.MembershipSaveEvent, m); emitErr != nil {
 			logger.WithError(emitErr).Error("could not save identity IDs on membership")
 		}
 	}

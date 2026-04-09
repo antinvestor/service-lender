@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"time"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
@@ -374,40 +375,100 @@ type CreditLimitChangeRequest struct {
 
 func (m *CreditLimitChangeRequest) TableName() string { return "credit_limit_change_requests" }
 
+// GroupType defines the type of customer group.
+type GroupType int32
+
+const (
+	GroupTypeUnspecified  GroupType = 0
+	GroupTypeProduct      GroupType = 1
+	GroupTypeGrameen      GroupType = 2
+	GroupTypeFunding      GroupType = 3
+	GroupTypeTemporary    GroupType = 4
+	GroupTypeMerryGoRound GroupType = 5
+	GroupTypeVoluntary    GroupType = 6
+)
+
+// GroupState defines the lifecycle state of a group.
+type GroupState int32
+
+const (
+	GroupStateJustCreated  GroupState = 1
+	GroupStateCheckCreated GroupState = 2
+	GroupStateActive       GroupState = 3
+	GroupStateInactive     GroupState = 4
+	GroupStateDeleted      GroupState = 5
+	GroupStateShutdown     GroupState = 6
+)
+
+// MembershipRole defines the role of a member in a group.
+type MembershipRole int32
+
+const (
+	MembershipRoleUnspecified MembershipRole = 0
+	MembershipRoleMember      MembershipRole = 1
+	MembershipRoleLeader      MembershipRole = 2
+	MembershipRoleAgent       MembershipRole = 3
+)
+
+// MembershipType defines the type of membership.
+type MembershipType int32
+
+const (
+	MembershipTypeUnspecified MembershipType = 0
+	MembershipTypeRegistra    MembershipType = 1
+	MembershipTypeAgent       MembershipType = 2
+	MembershipTypeMember      MembershipType = 3
+	MembershipTypeFunder      MembershipType = 4
+)
+
 // Group represents a collective entity (e.g. SACCO group) in the lending hierarchy.
 type Group struct {
 	data.BaseModel
-	AgentID      string `gorm:"type:varchar(50);index:idx_group_agent"`
-	BranchID     string `gorm:"type:varchar(50);index:idx_group_branch"`
-	ProfileID    string `gorm:"type:varchar(50)"`
-	Name         string `gorm:"type:varchar(255)"`
-	GroupType    int32
-	CurrencyCode string `gorm:"type:varchar(10)"`
-	SavingAmount int64
-	TimeZone     string `gorm:"type:varchar(50)"`
-	MinMembers   int32
-	MaxMembers   int32
-	State        int32
-	Properties   data.JSONMap
+	ProductID     string `gorm:"type:varchar(50);index:idx_group_product"`
+	ParentID      string `gorm:"type:varchar(50);index:idx_group_parent"`
+	AgentID       string `gorm:"type:varchar(50);index:idx_group_agent"`
+	BranchID      string `gorm:"type:varchar(50);index:idx_group_branch"`
+	ProfileID     string `gorm:"type:varchar(50)"`
+	Name          string `gorm:"type:varchar(255)"`
+	GroupType     int32
+	CurrencyCode  string `gorm:"type:varchar(10)"`
+	SavingAmount  int64
+	TimeZone      string `gorm:"type:varchar(50)"`
+	MinMembers    int32
+	MaxMembers    int32
+	DateActive    *time.Time
+	DateChecked   *time.Time
+	DateInspected *time.Time
+	State         int32
+	Properties    data.JSONMap
 }
 
 func (m *Group) TableName() string { return "groups" }
 
+// SetVersion implements the versioned model interface for event upsert.
+func (m *Group) SetVersion(v uint) { m.Version = v }
+
 // Membership tracks a profile's affiliation with a group.
 type Membership struct {
 	data.BaseModel
-	GroupID        string `gorm:"type:varchar(50);index:idx_membership_group"`
-	ProfileID      string `gorm:"type:varchar(50);index:idx_membership_profile"`
-	Name           string `gorm:"type:varchar(255)"`
-	Role           int32
-	MembershipType int32
-	OrderNo        int32
-	ContactID      string `gorm:"type:varchar(50)"`
-	State          int32
-	Properties     data.JSONMap
+	GroupID         string `gorm:"type:varchar(50);index:idx_membership_group"`
+	ProfileID       string `gorm:"type:varchar(50);index:idx_membership_profile"`
+	Name            string `gorm:"type:varchar(255)"`
+	ContactID       string `gorm:"type:varchar(50);index:idx_membership_contact"`
+	Role            int32
+	MembershipType  int32
+	OrderNo         int32
+	TimeZone        string `gorm:"type:varchar(50)"`
+	PrevLoanReqDate *time.Time
+	NextLoanReqDate *time.Time
+	State           int32
+	Properties      data.JSONMap
 }
 
 func (m *Membership) TableName() string { return "memberships" }
+
+// SetVersion implements the versioned model interface for event upsert.
+func (m *Membership) SetVersion(v uint) { m.Version = v }
 
 // ClientAssignmentHistory records client reassignment events.
 type ClientAssignmentHistory struct {

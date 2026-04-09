@@ -30,8 +30,9 @@ import (
 	// Funding repos used by transfer order execution (tranche redistribution)
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
-	// Group repos used by obligation business
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
+	// Group repos used by obligation business (Group & Membership from identity, Period from stawi)
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
+	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
@@ -110,10 +111,10 @@ func setupServiceOptions(
 	ftRepo := fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := fundingrepo.NewInvestorAccountRepository(ctx, dbPool, workMan)
 
-	// Group repositories (used by obligation business)
-	memRepo := grouprepo.NewMembershipRepository(ctx, dbPool, workMan)
-	grpRepo := grouprepo.NewCustomerGroupRepository(ctx, dbPool, workMan)
-	perRepo := grouprepo.NewPeriodRepository(ctx, dbPool, workMan)
+	// Group repositories (Group & Membership from identity, Period from stawi)
+	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
+	grpRepo := identityrepo.NewGroupRepository(ctx, dbPool, workMan)
+	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
 
 	// Business logic
 	prBiz := business.NewPaymentRoutingBusiness(ctx, evtsMan, ipRepo, toRepo, obRepo, arRepo, memRepo, platformClients)

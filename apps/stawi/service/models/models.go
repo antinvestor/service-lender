@@ -6,40 +6,6 @@ import (
 	"github.com/pitabwire/frame/data"
 )
 
-// GroupType defines the type of customer group.
-type GroupType int32
-
-const (
-	GroupTypeUnspecified  GroupType = 0
-	GroupTypeProduct      GroupType = 1
-	GroupTypeGrameen      GroupType = 2
-	GroupTypeFunding      GroupType = 3
-	GroupTypeTemporary    GroupType = 4
-	GroupTypeMerryGoRound GroupType = 5
-	GroupTypeVoluntary    GroupType = 6
-)
-
-// MembershipRole defines the role of a member in a group.
-type MembershipRole int32
-
-const (
-	MembershipRoleUnspecified MembershipRole = 0
-	MembershipRoleMember      MembershipRole = 1
-	MembershipRoleLeader      MembershipRole = 2
-	MembershipRoleAgent       MembershipRole = 3
-)
-
-// MembershipType defines the type of membership.
-type MembershipType int32
-
-const (
-	MembershipTypeUnspecified MembershipType = 0
-	MembershipTypeRegistra    MembershipType = 1
-	MembershipTypeAgent       MembershipType = 2
-	MembershipTypeMember      MembershipType = 3
-	MembershipTypeFunder      MembershipType = 4
-)
-
 // PeriodType defines the period frequency.
 type PeriodType int32
 
@@ -48,18 +14,6 @@ const (
 	PeriodTypeWeekly      PeriodType = 1
 	PeriodTypeBiweekly    PeriodType = 2
 	PeriodTypeMonthly     PeriodType = 3
-)
-
-// GroupState defines the lifecycle state of a group.
-type GroupState int32
-
-const (
-	GroupStateJustCreated  GroupState = 1
-	GroupStateCheckCreated GroupState = 2
-	GroupStateActive       GroupState = 3
-	GroupStateInactive     GroupState = 4
-	GroupStateDeleted      GroupState = 5
-	GroupStateShutdown     GroupState = 6
 )
 
 // InfractionType defines types of infractions.
@@ -75,49 +29,6 @@ const (
 	InfractionTypeLoanPaymentsNotAsExpected InfractionType = 6
 	InfractionTypeSystemError               InfractionType = 7
 )
-
-// CustomerGroup represents a SACCO savings/lending group.
-type CustomerGroup struct {
-	data.BaseModel
-	ProductID     string `gorm:"type:varchar(50);index:idx_grp_product"`
-	ParentID      string `gorm:"type:varchar(50);index:idx_grp_parent"`
-	Name          string `gorm:"type:varchar(255);not null"`
-	GroupType     int32  `gorm:"column:group_type"`
-	SavingAmount  int64  // minor units
-	Currency      string `gorm:"type:varchar(3)"`
-	TimeZone      string `gorm:"type:varchar(50)"`
-	State         int32
-	LenderGroupID string `gorm:"type:varchar(50)"` // cross-ref to Identity GroupObject
-	DateActive    *time.Time
-	DateChecked   *time.Time
-	DateInspected *time.Time
-	Properties    data.JSONMap
-}
-
-func (m *CustomerGroup) TableName() string { return "customer_groups" }
-func (m *CustomerGroup) SetVersion(v uint) { m.Version = v }
-
-// Membership represents a member's subscription to a group.
-type Membership struct {
-	data.BaseModel
-	Name                 string `gorm:"type:varchar(255)"`
-	ContactID            string `gorm:"type:varchar(50);index:idx_mem_contact"`
-	ProfileID            string `gorm:"type:varchar(50);index:idx_mem_profile"`
-	GroupID              string `gorm:"type:varchar(50);index:idx_mem_group;not null"`
-	MembershipType       int32  `gorm:"column:membership_type"`
-	Role                 int32
-	OrderNo              int32
-	TimeZone             string `gorm:"type:varchar(50)"`
-	State                int32
-	IdentityMembershipID string `gorm:"type:varchar(50)"` // cross-ref to Identity MembershipObject
-	IdentityClientID     string `gorm:"type:varchar(50)"` // cross-ref to Identity ClientObject
-	PrevLoanReqDate      *time.Time
-	NextLoanReqDate      *time.Time
-	Properties           data.JSONMap
-}
-
-func (m *Membership) TableName() string { return "memberships" }
-func (m *Membership) SetVersion(v uint) { m.Version = v }
 
 // Tenure represents a group's lifecycle period (e.g. 52 weeks).
 type Tenure struct {
@@ -231,30 +142,6 @@ type Occurrence struct {
 }
 
 func (m *Occurrence) TableName() string { return "occurrences" }
-
-// Report represents a system-generated report.
-type Report struct {
-	data.BaseModel
-	GroupID    string `gorm:"type:varchar(50);index:idx_rpt_group"`
-	ReportType int32
-	Title      string `gorm:"type:varchar(255)"`
-	Content    string `gorm:"type:text"`
-	State      int32
-	Properties data.JSONMap
-}
-
-func (m *Report) TableName() string { return "reports" }
-
-// ReportRecipient represents a recipient of a report.
-type ReportRecipient struct {
-	data.BaseModel
-	ReportID    string `gorm:"type:varchar(50);index:idx_rr_report;not null"`
-	RecipientID string `gorm:"type:varchar(50)"`
-	Channel     string `gorm:"type:varchar(50)"`
-	State       int32
-}
-
-func (m *ReportRecipient) TableName() string { return "report_recipients" }
 
 // RequestLog represents an audit log of API requests.
 type RequestLog struct {

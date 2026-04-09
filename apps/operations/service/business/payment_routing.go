@@ -11,11 +11,11 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
+	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
-	groupmodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
@@ -26,7 +26,7 @@ type paymentRoutingBusiness struct {
 	toRepo    repository.TransferOrderRepository
 	obRepo    repository.ObligationRepository
 	arRepo    repository.AccountRefRepository
-	memRepo   grouprepo.MembershipRepository
+	memRepo   identityrepo.MembershipRepository
 	clients   *clients.PlatformClients
 }
 
@@ -35,7 +35,7 @@ func NewPaymentRoutingBusiness(_ context.Context, eventsMan fevents.Manager,
 	toRepo repository.TransferOrderRepository,
 	obRepo repository.ObligationRepository,
 	arRepo repository.AccountRefRepository,
-	memRepo grouprepo.MembershipRepository,
+	memRepo identityrepo.MembershipRepository,
 	pc *clients.PlatformClients,
 ) PaymentRoutingBusiness {
 	return &paymentRoutingBusiness{
@@ -147,7 +147,7 @@ func (b *paymentRoutingBusiness) identifyByMembershipID(
 	if mem == nil || mem.GetID() == "" {
 		return nil, fmt.Errorf("membership not found for reference %s", ref)
 	}
-	if mem.State == int32(groupmodels.GroupStateDeleted) || mem.State == int32(groupmodels.GroupStateShutdown) {
+	if mem.State == int32(identitymodels.GroupStateDeleted) || mem.State == int32(identitymodels.GroupStateShutdown) {
 		return nil, fmt.Errorf("membership %s is not active", ref)
 	}
 	return &identificationResult{
@@ -163,7 +163,7 @@ func (b *paymentRoutingBusiness) identifyByProfileID(
 	ctx context.Context,
 	profileID string,
 ) (*identificationResult, error) {
-	members, err := b.memRepo.GetByProfileID(ctx, profileID)
+	members, err := b.memRepo.GetByProfileID(ctx, profileID, 0, 1000)
 	if err != nil {
 		return nil, err
 	}
@@ -187,18 +187,18 @@ func (b *paymentRoutingBusiness) identifyByFilteredMembership(
 	ctx context.Context,
 	profileID, scopeGroupID string,
 ) (*identificationResult, error) {
-	members, err := b.memRepo.GetByProfileID(ctx, profileID)
+	members, err := b.memRepo.GetByProfileID(ctx, profileID, 0, 1000)
 	if err != nil {
 		return nil, err
 	}
 
 	// Filter to MembershipTypeMember only (type 3), excluding registra, agent, funder.
-	var filtered []*groupmodels.Membership
+	var filtered []*identitymodels.Membership
 	for _, m := range members {
-		if m.MembershipType != int32(groupmodels.MembershipTypeMember) {
+		if m.MembershipType != int32(identitymodels.MembershipTypeMember) {
 			continue
 		}
-		if m.State == int32(groupmodels.GroupStateDeleted) || m.State == int32(groupmodels.GroupStateShutdown) {
+		if m.State == int32(identitymodels.GroupStateDeleted) || m.State == int32(identitymodels.GroupStateShutdown) {
 			continue
 		}
 		// If a group scope is provided, further restrict to that group.
@@ -233,14 +233,14 @@ func (b *paymentRoutingBusiness) identifyByContactID(
 	// When a group_id scope is available, search within the group's memberships for a
 	// contact_id match. This avoids a broad cross-group search.
 	if scopeGroupID != "" {
-		groupMembers, err := b.memRepo.GetByGroupID(ctx, scopeGroupID)
+		groupMembers, err := b.memRepo.GetByGroupID(ctx, scopeGroupID, 0, 1000)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get group members: %w", err)
 		}
 
-		var matched []*groupmodels.Membership
+		var matched []*identitymodels.Membership
 		for _, m := range groupMembers {
-			if m.ContactID == contactRef && m.State != int32(groupmodels.GroupStateDeleted) {
+			if m.ContactID == contactRef && m.State != int32(identitymodels.GroupStateDeleted) {
 				matched = append(matched, m)
 			}
 		}
@@ -258,7 +258,7 @@ func (b *paymentRoutingBusiness) identifyByContactID(
 
 	// Without a group scope, fall back to a profile-based contact lookup.
 	// Use the contactRef as a profile lookup -- the contact may be stored as a profile reference.
-	members, err := b.memRepo.GetByProfileID(ctx, contactRef)
+	members, err := b.memRepo.GetByProfileID(ctx, contactRef, 0, 1000)
 	if err != nil {
 		return nil, err
 	}
@@ -282,7 +282,7 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 	ctx context.Context,
 	payerName, groupID string,
 ) (*identificationResult, error) {
-	groupMembers, err := b.memRepo.GetByGroupID(ctx, groupID)
+	groupMembers, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get group members for name match: %w", err)
 	}
@@ -292,9 +292,9 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 		return nil, errors.New("payer name is empty after normalization")
 	}
 
-	var matched []*groupmodels.Membership
+	var matched []*identitymodels.Membership
 	for _, m := range groupMembers {
-		if m.State == int32(groupmodels.GroupStateDeleted) || m.State == int32(groupmodels.GroupStateShutdown) {
+		if m.State == int32(identitymodels.GroupStateDeleted) || m.State == int32(identitymodels.GroupStateShutdown) {
 			continue
 		}
 		normalizedMember := normalizeNameForComparison(m.Name)
@@ -631,10 +631,10 @@ func (b *paymentRoutingBusiness) creditAccountForBucket(bucket, membershipID str
 }
 
 // filterActiveMemberships returns only memberships that are not deleted or shut down.
-func filterActiveMemberships(members []*groupmodels.Membership) []*groupmodels.Membership {
-	var active []*groupmodels.Membership
+func filterActiveMemberships(members []*identitymodels.Membership) []*identitymodels.Membership {
+	var active []*identitymodels.Membership
 	for _, m := range members {
-		if m.State == int32(groupmodels.GroupStateDeleted) || m.State == int32(groupmodels.GroupStateShutdown) {
+		if m.State == int32(identitymodels.GroupStateDeleted) || m.State == int32(identitymodels.GroupStateShutdown) {
 			continue
 		}
 		active = append(active, m)

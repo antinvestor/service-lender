@@ -3,13 +3,14 @@ package business
 import (
 	"context"
 
+	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
 )
 
 // GroupBusiness handles customer group lifecycle operations.
 type GroupBusiness interface {
-	Create(ctx context.Context, group *models.CustomerGroup) (*models.CustomerGroup, error)
-	Get(ctx context.Context, id string) (*models.CustomerGroup, error)
+	Create(ctx context.Context, group *identitymodels.Group) (*identitymodels.Group, error)
+	Get(ctx context.Context, id string) (*identitymodels.Group, error)
 	Transition(ctx context.Context, groupID string, newState int32, reason string) error
 	CheckFormation(ctx context.Context, groupID string) (map[string]interface{}, error)
 	WelcomeGroup(ctx context.Context, groupID string) error
@@ -19,9 +20,9 @@ type GroupBusiness interface {
 
 // MembershipBusiness handles group membership operations.
 type MembershipBusiness interface {
-	Create(ctx context.Context, membership *models.Membership) (*models.Membership, error)
-	Get(ctx context.Context, id string) (*models.Membership, error)
-	GetByGroupID(ctx context.Context, groupID string) ([]*models.Membership, error)
+	Create(ctx context.Context, membership *identitymodels.Membership) (*identitymodels.Membership, error)
+	Get(ctx context.Context, id string) (*identitymodels.Membership, error)
+	GetByGroupID(ctx context.Context, groupID string) ([]*identitymodels.Membership, error)
 	UpdateRole(ctx context.Context, membershipID string, role int32) error
 	CheckPeriodicPayment(ctx context.Context, membershipID string) (map[string]interface{}, error)
 }

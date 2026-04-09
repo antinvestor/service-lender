@@ -8,6 +8,7 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/events"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/repository"
@@ -25,7 +26,7 @@ const (
 
 type tenureBusiness struct {
 	eventsMan fevents.Manager
-	grpRepo   repository.CustomerGroupRepository
+	grpRepo   identityrepo.GroupRepository
 	tenRepo   repository.TenureRepository
 	perRepo   repository.PeriodRepository
 }
@@ -33,7 +34,7 @@ type tenureBusiness struct {
 func NewTenureBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	grpRepo repository.CustomerGroupRepository,
+	grpRepo identityrepo.GroupRepository,
 	tenRepo repository.TenureRepository,
 	perRepo repository.PeriodRepository,
 ) TenureBusiness {

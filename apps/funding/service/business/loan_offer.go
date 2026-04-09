@@ -15,7 +15,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/events"
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
+	grouprepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
@@ -69,7 +69,7 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 	}
 
 	// Get all active members in the window's group
-	members, err := b.memRepo.GetByGroupID(ctx, window.GroupID)
+	members, err := b.memRepo.GetByGroupID(ctx, window.GroupID, 0, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("could not load memberships for group %s: %w", window.GroupID, err)
 	}

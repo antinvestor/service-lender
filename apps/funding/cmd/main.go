@@ -28,7 +28,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
 	// Group repos used by loan offer business
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
+	grouprepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )

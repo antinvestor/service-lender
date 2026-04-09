@@ -8,10 +8,10 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
+	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	opsmodels "github.com/antinvestor/service-fintech/apps/operations/service/models"
 	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
-	groupmodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
@@ -39,15 +39,15 @@ type Result struct {
 type Reconciler struct {
 	toRepo  opsrepo.TransferOrderRepository
 	arRepo  opsrepo.AccountRefRepository
-	memRepo grouprepo.MembershipRepository
-	grpRepo grouprepo.CustomerGroupRepository
+	memRepo identityrepo.MembershipRepository
+	grpRepo identityrepo.GroupRepository
 }
 
 func NewReconciler(
 	toRepo opsrepo.TransferOrderRepository,
 	arRepo opsrepo.AccountRefRepository,
-	memRepo grouprepo.MembershipRepository,
-	grpRepo grouprepo.CustomerGroupRepository,
+	memRepo identityrepo.MembershipRepository,
+	grpRepo identityrepo.GroupRepository,
 ) *Reconciler {
 	return &Reconciler{
 		toRepo:  toRepo,
@@ -65,7 +65,7 @@ func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Resul
 	}
 
 	// Get all members in the group
-	members, err := r.memRepo.GetByGroupID(ctx, groupID)
+	members, err := r.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("could not get group members: %w", err)
 	}
@@ -197,7 +197,7 @@ func (r *Reconciler) ReconcileAllActiveGroups(ctx context.Context) ([]*Result, e
 	}
 
 	var results []*Result
-	err = workerpool.ConsumeResultStream(ctx, groupResults, func(batch []*groupmodels.CustomerGroup) error {
+	err = workerpool.ConsumeResultStream(ctx, groupResults, func(batch []*identitymodels.Group) error {
 		for _, group := range batch {
 			result, reconcileErr := r.ReconcileGroup(ctx, group.GetID())
 			if reconcileErr != nil {

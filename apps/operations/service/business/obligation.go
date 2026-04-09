@@ -9,11 +9,12 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
+	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
+	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
-	groupmodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
+	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
@@ -33,18 +34,18 @@ type ScheduleEntryInfo struct {
 type obligationBusiness struct {
 	eventsMan fevents.Manager
 	obRepo    repository.ObligationRepository
-	memRepo   grouprepo.MembershipRepository
-	grpRepo   grouprepo.CustomerGroupRepository
-	perRepo   grouprepo.PeriodRepository
+	memRepo   identityrepo.MembershipRepository
+	grpRepo   identityrepo.GroupRepository
+	perRepo   stawirepo.PeriodRepository
 }
 
 func NewObligationBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	obRepo repository.ObligationRepository,
-	memRepo grouprepo.MembershipRepository,
-	grpRepo grouprepo.CustomerGroupRepository,
-	perRepo grouprepo.PeriodRepository,
+	memRepo identityrepo.MembershipRepository,
+	grpRepo identityrepo.GroupRepository,
+	perRepo stawirepo.PeriodRepository,
 ) ObligationBusiness {
 	return &obligationBusiness{
 		eventsMan: eventsMan,
@@ -84,7 +85,7 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 	logger.Info("calculating obligations for group")
 
 	// Get all active memberships
-	memberships, err := b.memRepo.GetByGroupID(ctx, groupID)
+	memberships, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
 	if err != nil {
 		return fmt.Errorf("could not load memberships for group %s: %w", groupID, err)
 	}
@@ -113,7 +114,7 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 		memberID := mem.GetID()
 
 		// Skip members that are not in a regular member role (agents, registrars)
-		if mem.MembershipType != int32(groupmodels.MembershipTypeMember) {
+		if mem.MembershipType != int32(identitymodels.MembershipTypeMember) {
 			continue
 		}
 
@@ -126,7 +127,7 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 				ObligationType: int32(models.ObligationTypePeriodic),
 				PeriodID:       period.GetID(),
 				Amount:         group.SavingAmount,
-				Currency:       group.Currency,
+				Currency:       group.CurrencyCode,
 				Deadline:       period.EndDate,
 				Description:    fmt.Sprintf("Periodic savings for period %d", period.Position),
 				State:          int32(constants.StateActive),
