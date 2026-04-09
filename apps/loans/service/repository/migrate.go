@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
-	opsmodels "github.com/antinvestor/service-fintech/apps/operations/service/models"
 )
 
 func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {
@@ -35,7 +34,6 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.LoanRestructure{},
 		&models.LoanStatusChange{},
 		&models.Reconciliation{},
-		&opsmodels.TransferOrder{},
 	)
 }
 
