@@ -6,8 +6,6 @@ import (
 
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingpb "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
-	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
-	operationspb "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
@@ -37,7 +35,6 @@ import (
 	// Operations domain
 	opsbusiness "github.com/antinvestor/service-fintech/apps/operations/service/business"
 	opsevents "github.com/antinvestor/service-fintech/apps/operations/service/events"
-	opshandlers "github.com/antinvestor/service-fintech/apps/operations/service/handlers"
 	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
 
 	// Platform clients
@@ -158,18 +155,16 @@ func main() {
 
 	// --- ConnectRPC + HTTP mux ---
 	sm := svc.SecurityManager()
-	mux := setupConnectServer(ctx, sm, toBiz, toRepo, iaBiz, lfBiz)
+	mux := setupConnectServer(ctx, sm, iaBiz, lfBiz)
 	handlers.RegisterWorkflowCallbacks(mux, grpBiz, memBiz, tenBiz, perBiz,
 		lwBiz, loBiz, lfBiz, prBiz, toBiz, obBiz, platformClients)
 
-	// Permission registration for both services
-	opsSD := operationspb.File_operations_v1_operations_proto.Services().ByName("OperationsService")
+	// Permission registration
 	fundingSD := fundingpb.File_funding_v1_funding_proto.Services().ByName("FundingService")
 
 	// --- Assemble service options ---
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(mux),
-		frame.WithPermissionRegistration(opsSD),
 		frame.WithPermissionRegistration(fundingSD),
 		frame.WithRegisterEvents(
 			// Group events
@@ -229,38 +224,17 @@ func handleDatabaseMigration(
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
-	toBiz opsbusiness.TransferOrderBusiness,
-	toRepo opsrepo.TransferOrderRepository,
 	iaBiz fundingbusiness.InvestorAccountBusiness,
 	faBiz fundingbusiness.FundingAllocationBusiness,
 ) *http.ServeMux {
 	auth := sm.GetAuthorizer(ctx)
 
-	// Tenancy access checker (shared across all services)
 	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, "tenancy_access")
 	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
 
 	stawiAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_stawi")
 
 	mux := http.NewServeMux()
-
-	// --- Operations service ---
-	opsHandler := opshandlers.NewOperationsServer(toBiz, toRepo)
-	opsSD := operationspb.File_operations_v1_operations_proto.Services().ByName("OperationsService")
-	opsProcMap := permissions.BuildProcedureMap(opsSD)
-	opsPerms := permissions.ForService(opsSD)
-	opsFunctionChecker := authorizer.NewFunctionChecker(auth, opsPerms.Namespace)
-	opsFunctionInterceptor := connectInterceptors.NewFunctionAccessInterceptor(opsFunctionChecker, opsProcMap)
-	opsInterceptors, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, opsFunctionInterceptor, stawiAuditInterceptor)
-	if err != nil {
-		util.Log(ctx).WithError(err).Fatal("main -- Could not create operations interceptors")
-	}
-	opsPath, opsServerHandler := operationsv1connect.NewOperationsServiceHandler(
-		opsHandler,
-		connect.WithInterceptors(opsInterceptors...),
-	)
-	mux.Handle(opsPath, opsServerHandler)
 
 	// --- Funding service ---
 	fundingHandler := fundinghandlers.NewFundingServer(iaBiz, faBiz)
