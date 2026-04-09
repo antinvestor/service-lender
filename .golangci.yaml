@@ -13,7 +13,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/antinvestor/service-lender
+        - github.com/antinvestor/service-fintech
 
     golines:
       max-len: 120
