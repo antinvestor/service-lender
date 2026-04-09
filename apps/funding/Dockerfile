@@ -14,6 +14,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY ./apps/funding ./apps/funding
+COPY ./apps/identity ./apps/identity
 COPY ./apps/stawi ./apps/stawi
 COPY ./pkg ./pkg
 
