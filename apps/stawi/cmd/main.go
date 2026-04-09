@@ -4,19 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
-	fundingpb "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
-	"connectrpc.com/connect"
-	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
-	"github.com/pitabwire/frame/security"
-	"github.com/pitabwire/frame/security/authorizer"
-	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
 	"github.com/pitabwire/util"
-
-	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
@@ -29,7 +20,6 @@ import (
 	// Funding domain
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
 	fundingevents "github.com/antinvestor/service-fintech/apps/funding/service/events"
-	fundinghandlers "github.com/antinvestor/service-fintech/apps/funding/service/handlers"
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
 	// Operations domain
@@ -66,7 +56,7 @@ func main() {
 	workMan := svc.WorkManager()
 	evtsMan := svc.EventsManager()
 
-	// Handle database migration if requested (all three domains)
+	// Handle database migration if requested (group domain only — funding and operations migrate independently)
 	if handleDatabaseMigration(ctx, dbManager, cfg) {
 		return
 	}
@@ -92,7 +82,7 @@ func main() {
 	motRepo := grouprepo.NewMotionRepository(ctx, dbPool, workMan)
 	infRepo := grouprepo.NewInfractionRepository(ctx, dbPool, workMan)
 
-	// --- Funding repositories ---
+	// --- Funding repositories (needed by workflow callbacks) ---
 	lwRepo := fundingrepo.NewLoanWindowRepository(ctx, dbPool, workMan)
 	loRepo := fundingrepo.NewLoanOfferRepository(ctx, dbPool, workMan)
 	lfRepo := fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan)
@@ -100,7 +90,7 @@ func main() {
 	ftRepo := fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := fundingrepo.NewInvestorAccountRepository(ctx, dbPool, workMan)
 
-	// --- Operations repositories ---
+	// --- Operations repositories (needed by workflow callbacks) ---
 	toRepo := opsrepo.NewTransferOrderRepository(ctx, dbPool, workMan)
 	obRepo := opsrepo.NewObligationRepository(ctx, dbPool, workMan)
 	ipRepo := opsrepo.NewIncomingPaymentRepository(ctx, dbPool, workMan)
@@ -114,7 +104,7 @@ func main() {
 	perBiz := groupbusiness.NewPeriodBusiness(ctx, evtsMan, tenRepo, perRepo)
 	_ = groupbusiness.NewMotionBusiness(ctx, evtsMan, motRepo)
 
-	// --- Funding business ---
+	// --- Funding business (for workflow callbacks) ---
 	lwBiz := fundingbusiness.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
 	loBiz := fundingbusiness.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, memRepo, platformClients)
 	lfBiz := fundingbusiness.NewFundingAllocationBusiness(
@@ -127,9 +117,8 @@ func main() {
 		ftRepo,
 		platformClients,
 	)
-	iaBiz := fundingbusiness.NewInvestorAccountBusiness(ctx, evtsMan, iaRepo)
 
-	// --- Operations business ---
+	// --- Operations business (for workflow callbacks) ---
 	prBiz := opsbusiness.NewPaymentRoutingBusiness(
 		ctx,
 		evtsMan,
@@ -153,19 +142,14 @@ func main() {
 	)
 	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, memRepo, grpRepo, perRepo)
 
-	// --- ConnectRPC + HTTP mux ---
-	sm := svc.SecurityManager()
-	mux := setupConnectServer(ctx, sm, iaBiz, lfBiz)
+	// --- HTTP mux with workflow callbacks only ---
+	mux := http.NewServeMux()
 	handlers.RegisterWorkflowCallbacks(mux, grpBiz, memBiz, tenBiz, perBiz,
 		lwBiz, loBiz, lfBiz, prBiz, toBiz, obBiz, platformClients)
-
-	// Permission registration
-	fundingSD := fundingpb.File_funding_v1_funding_proto.Services().ByName("FundingService")
 
 	// --- Assemble service options ---
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(mux),
-		frame.WithPermissionRegistration(fundingSD),
 		frame.WithRegisterEvents(
 			// Group events
 			groupevents.NewCustomerGroupSave(ctx, grpRepo),
@@ -209,53 +193,8 @@ func handleDatabaseMigration(
 		if err := grouprepo.Migrate(ctx, dbManager, migrationPath); err != nil {
 			util.Log(ctx).WithError(err).Fatal("main -- Could not migrate group tables")
 		}
-		if err := fundingrepo.Migrate(ctx, dbManager, migrationPath); err != nil {
-			util.Log(ctx).WithError(err).Fatal("main -- Could not migrate funding tables")
-		}
-		if err := opsrepo.Migrate(ctx, dbManager, migrationPath); err != nil {
-			util.Log(ctx).WithError(err).Fatal("main -- Could not migrate operations tables")
-		}
 
 		return true
 	}
 	return false
-}
-
-func setupConnectServer(
-	ctx context.Context,
-	sm security.Manager,
-	iaBiz fundingbusiness.InvestorAccountBusiness,
-	faBiz fundingbusiness.FundingAllocationBusiness,
-) *http.ServeMux {
-	auth := sm.GetAuthorizer(ctx)
-
-	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, "tenancy_access")
-	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
-
-	stawiAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_stawi")
-
-	mux := http.NewServeMux()
-
-	// --- Funding service ---
-	fundingHandler := fundinghandlers.NewFundingServer(iaBiz, faBiz)
-	fundingSD := fundingpb.File_funding_v1_funding_proto.Services().ByName("FundingService")
-	fundingProcMap := permissions.BuildProcedureMap(fundingSD)
-	fundingPerms := permissions.ForService(fundingSD)
-	fundingFunctionChecker := authorizer.NewFunctionChecker(auth, fundingPerms.Namespace)
-	fundingFunctionInterceptor := connectInterceptors.NewFunctionAccessInterceptor(
-		fundingFunctionChecker,
-		fundingProcMap,
-	)
-	fundingInterceptors, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, fundingFunctionInterceptor, stawiAuditInterceptor)
-	if err != nil {
-		util.Log(ctx).WithError(err).Fatal("main -- Could not create funding interceptors")
-	}
-	fundingPath, fundingServerHandler := fundingv1connect.NewFundingServiceHandler(
-		fundingHandler,
-		connect.WithInterceptors(fundingInterceptors...),
-	)
-	mux.Handle(fundingPath, fundingServerHandler)
-
-	return mux
 }

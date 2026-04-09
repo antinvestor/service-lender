@@ -1,6 +1,6 @@
 # Service-specific configuration
 SERVICE_NAME := fintech
-APP_DIRS     := apps/identity apps/origination apps/loans apps/savings apps/operations apps/stawi
+APP_DIRS     := apps/identity apps/origination apps/loans apps/savings apps/funding apps/operations apps/stawi
 HAS_UI       := true
 UI_DIR       := ui
 
