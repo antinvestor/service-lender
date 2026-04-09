@@ -40,6 +40,11 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
   $async.Future<$11.MembershipSaveResponse> membershipSave($pb.ServerContext ctx, $11.MembershipSaveRequest request);
   $async.Future<$11.MembershipGetResponse> membershipGet($pb.ServerContext ctx, $11.MembershipGetRequest request);
   $async.Future<$11.MembershipSearchResponse> membershipSearch($pb.ServerContext ctx, $11.MembershipSearchRequest request);
+  $async.Future<$11.InvestorAccountSaveResponse> investorAccountSave($pb.ServerContext ctx, $11.InvestorAccountSaveRequest request);
+  $async.Future<$11.InvestorAccountGetResponse> investorAccountGet($pb.ServerContext ctx, $11.InvestorAccountGetRequest request);
+  $async.Future<$11.InvestorAccountSearchResponse> investorAccountSearch($pb.ServerContext ctx, $11.InvestorAccountSearchRequest request);
+  $async.Future<$11.InvestorDepositResponse> investorDeposit($pb.ServerContext ctx, $11.InvestorDepositRequest request);
+  $async.Future<$11.InvestorWithdrawResponse> investorWithdraw($pb.ServerContext ctx, $11.InvestorWithdrawRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -61,6 +66,11 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'MembershipSave': return $11.MembershipSaveRequest();
       case 'MembershipGet': return $11.MembershipGetRequest();
       case 'MembershipSearch': return $11.MembershipSearchRequest();
+      case 'InvestorAccountSave': return $11.InvestorAccountSaveRequest();
+      case 'InvestorAccountGet': return $11.InvestorAccountGetRequest();
+      case 'InvestorAccountSearch': return $11.InvestorAccountSearchRequest();
+      case 'InvestorDeposit': return $11.InvestorDepositRequest();
+      case 'InvestorWithdraw': return $11.InvestorWithdrawRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -85,6 +95,11 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'MembershipSave': return this.membershipSave(ctx, request as $11.MembershipSaveRequest);
       case 'MembershipGet': return this.membershipGet(ctx, request as $11.MembershipGetRequest);
       case 'MembershipSearch': return this.membershipSearch(ctx, request as $11.MembershipSearchRequest);
+      case 'InvestorAccountSave': return this.investorAccountSave(ctx, request as $11.InvestorAccountSaveRequest);
+      case 'InvestorAccountGet': return this.investorAccountGet(ctx, request as $11.InvestorAccountGetRequest);
+      case 'InvestorAccountSearch': return this.investorAccountSearch(ctx, request as $11.InvestorAccountSearchRequest);
+      case 'InvestorDeposit': return this.investorDeposit(ctx, request as $11.InvestorDepositRequest);
+      case 'InvestorWithdraw': return this.investorWithdraw(ctx, request as $11.InvestorWithdrawRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

@@ -370,4 +370,130 @@ extension type OriginationServiceClient (connect.Transport _transport) {
       onTrailer: onTrailer,
     );
   }
+
+  /// FormTemplateSave creates or updates a form template.
+  Future<originationv1origination.FormTemplateSaveResponse> formTemplateSave(
+    originationv1origination.FormTemplateSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.OriginationService.formTemplateSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplateGet retrieves a form template by its ID.
+  Future<originationv1origination.FormTemplateGetResponse> formTemplateGet(
+    originationv1origination.FormTemplateGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.OriginationService.formTemplateGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplateSearch finds form templates matching search criteria.
+  Stream<originationv1origination.FormTemplateSearchResponse> formTemplateSearch(
+    originationv1origination.FormTemplateSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.OriginationService.formTemplateSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplatePublish publishes a draft form template, incrementing its version.
+  Future<originationv1origination.FormTemplatePublishResponse> formTemplatePublish(
+    originationv1origination.FormTemplatePublishRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.OriginationService.formTemplatePublish,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormSubmissionSave creates or updates a form submission.
+  Future<originationv1origination.FormSubmissionSaveResponse> formSubmissionSave(
+    originationv1origination.FormSubmissionSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.OriginationService.formSubmissionSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormSubmissionGet retrieves a form submission by its ID.
+  Future<originationv1origination.FormSubmissionGetResponse> formSubmissionGet(
+    originationv1origination.FormSubmissionGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.OriginationService.formSubmissionGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormSubmissionSearch finds form submissions matching search criteria.
+  Stream<originationv1origination.FormSubmissionSearchResponse> formSubmissionSearch(
+    originationv1origination.FormSubmissionSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.OriginationService.formSubmissionSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
 }

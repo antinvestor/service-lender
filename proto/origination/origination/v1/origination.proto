@@ -151,6 +151,43 @@ enum UnderwritingOutcome {
   UNDERWRITING_OUTCOME_COUNTER_OFFER = 4;
 }
 
+// FormFieldType defines the type of a form field.
+enum FormFieldType {
+  FORM_FIELD_TYPE_UNSPECIFIED = 0;
+  FORM_FIELD_TYPE_TEXT = 1;
+  FORM_FIELD_TYPE_NUMBER = 2;
+  FORM_FIELD_TYPE_CURRENCY = 3;
+  FORM_FIELD_TYPE_PHONE = 4;
+  FORM_FIELD_TYPE_EMAIL = 5;
+  FORM_FIELD_TYPE_DATE = 6;
+  FORM_FIELD_TYPE_SELECT = 7;
+  FORM_FIELD_TYPE_MULTI_SELECT = 8;
+  FORM_FIELD_TYPE_PHOTO = 9;
+  FORM_FIELD_TYPE_FILE = 10;
+  FORM_FIELD_TYPE_LOCATION = 11;
+  FORM_FIELD_TYPE_SIGNATURE = 12;
+  FORM_FIELD_TYPE_CHECKBOX = 13;
+  FORM_FIELD_TYPE_TEXTAREA = 14;
+}
+
+// FormFieldGroup categorizes fields for display and encryption.
+enum FormFieldGroup {
+  FORM_FIELD_GROUP_UNSPECIFIED = 0;
+  FORM_FIELD_GROUP_PERSONAL = 1;
+  FORM_FIELD_GROUP_FINANCIAL = 2;
+  FORM_FIELD_GROUP_LEGAL = 3;
+  FORM_FIELD_GROUP_DOCUMENTS = 4;
+  FORM_FIELD_GROUP_LOCATION = 5;
+}
+
+// FormTemplateStatus defines the lifecycle state of a form template.
+enum FormTemplateStatus {
+  FORM_TEMPLATE_STATUS_UNSPECIFIED = 0;
+  FORM_TEMPLATE_STATUS_DRAFT = 1;
+  FORM_TEMPLATE_STATUS_PUBLISHED = 2;
+  FORM_TEMPLATE_STATUS_ARCHIVED = 3;
+}
+
 // -----------------------------------------------------
 // Entity Messages
 // -----------------------------------------------------
@@ -309,6 +346,78 @@ message UnderwritingDecisionObject {
   google.protobuf.Struct scoring_details = 11;
   google.protobuf.Struct conditions = 12;
   google.protobuf.Struct properties = 13;
+}
+
+// FormFieldDefinition defines a single field in a form template.
+message FormFieldDefinition {
+  string key = 1;                    // Machine-readable key (e.g., "legal_name")
+  string label = 2;                  // Human-readable label (e.g., "Legal Entity Name")
+  FormFieldType field_type = 3;      // Field type
+  FormFieldGroup group = 4;          // Field group for categorization
+  bool required = 5;                 // Whether the field is mandatory
+  string description = 6;            // Help text shown below the field
+  string placeholder = 7;            // Placeholder text
+  string default_value = 8;          // Default value
+  string validation_pattern = 9;     // Regex validation pattern
+  string validation_message = 10;    // Custom validation error message
+  repeated string options = 11;      // Options for SELECT/MULTI_SELECT fields
+  int32 min_length = 12;             // Minimum length for text fields
+  int32 max_length = 13;             // Maximum length for text fields
+  string min_value = 14;             // Minimum value for number/currency fields
+  string max_value = 15;             // Maximum value for number/currency fields
+  int32 order = 16;                  // Display order within the section
+  string section = 17;               // Section name for grouping fields into steps
+  bool encrypted = 18;               // Whether the field value should be encrypted at rest
+  google.protobuf.Struct properties = 19; // Additional field configuration
+}
+
+// FormTemplateObject defines a reusable form schema.
+message FormTemplateObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 3 [(buf.validate.field).string.min_len = 1];
+  string description = 4;
+  int32 version = 5;
+  FormTemplateStatus status = 6;
+  repeated FormFieldDefinition fields = 7;
+  repeated string sections = 8;
+  google.protobuf.Struct validation_rules = 9;
+  google.protobuf.Struct properties = 10;
+}
+
+// FormSubmissionObject captures filled form data for an application.
+message FormSubmissionObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string application_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string template_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  int32 template_version = 4;
+  string submitted_by = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.protobuf.Struct data = 6;
+  google.protobuf.Struct file_refs = 7;
+  common.v1.STATE state = 8;
+  google.protobuf.Struct properties = 9;
 }
 
 // -----------------------------------------------------
@@ -578,6 +687,95 @@ message UnderwritingDecisionSearchResponse {
   repeated UnderwritingDecisionObject data = 1;
 }
 
+// --- FormTemplate ---
+
+message FormTemplateSaveRequest {
+  FormTemplateObject data = 1 [(buf.validate.field).required = true];
+}
+
+message FormTemplateSaveResponse {
+  FormTemplateObject data = 1;
+}
+
+message FormTemplateGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message FormTemplateGetResponse {
+  FormTemplateObject data = 1;
+}
+
+message FormTemplateSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  FormTemplateStatus status = 3;
+  common.v1.PageCursor cursor = 4;
+}
+
+message FormTemplateSearchResponse {
+  repeated FormTemplateObject data = 1;
+}
+
+message FormTemplatePublishRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message FormTemplatePublishResponse {
+  FormTemplateObject data = 1;
+}
+
+// --- FormSubmission ---
+
+message FormSubmissionSaveRequest {
+  FormSubmissionObject data = 1 [(buf.validate.field).required = true];
+}
+
+message FormSubmissionSaveResponse {
+  FormSubmissionObject data = 1;
+}
+
+message FormSubmissionGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message FormSubmissionGetResponse {
+  FormSubmissionObject data = 1;
+}
+
+message FormSubmissionSearchRequest {
+  string application_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string template_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 3;
+}
+
+message FormSubmissionSearchResponse {
+  repeated FormSubmissionObject data = 1;
+}
+
 // -----------------------------------------------------
 // Origination Service
 // -----------------------------------------------------
@@ -599,7 +797,11 @@ service OriginationService {
       "verification_view",
       "verification_manage",
       "underwriting_view",
-      "underwriting_manage"
+      "underwriting_manage",
+      "form_template_view",
+      "form_template_manage",
+      "form_submission_view",
+      "form_submission_manage"
     ]
     role_bindings: [
       {
@@ -615,7 +817,11 @@ service OriginationService {
           "verification_view",
           "verification_manage",
           "underwriting_view",
-          "underwriting_manage"
+          "underwriting_manage",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       },
       {
@@ -631,7 +837,11 @@ service OriginationService {
           "verification_view",
           "verification_manage",
           "underwriting_view",
-          "underwriting_manage"
+          "underwriting_manage",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       },
       {
@@ -644,7 +854,11 @@ service OriginationService {
           "application_document_view",
           "verification_view",
           "verification_manage",
-          "underwriting_view"
+          "underwriting_view",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       },
       {
@@ -654,7 +868,9 @@ service OriginationService {
           "application_view",
           "application_document_view",
           "verification_view",
-          "underwriting_view"
+          "underwriting_view",
+          "form_template_view",
+          "form_submission_view"
         ]
       },
       {
@@ -664,7 +880,9 @@ service OriginationService {
           "application_view",
           "application_document_view",
           "verification_view",
-          "underwriting_view"
+          "underwriting_view",
+          "form_template_view",
+          "form_submission_view"
         ]
       },
       {
@@ -680,7 +898,11 @@ service OriginationService {
           "verification_view",
           "verification_manage",
           "underwriting_view",
-          "underwriting_manage"
+          "underwriting_manage",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       }
     ]
@@ -953,6 +1175,105 @@ service OriginationService {
       summary: "Search underwriting decisions"
       description: "Searches for underwriting decisions for a given application."
       tags: "UnderwritingDecisions"
+    };
+  }
+
+  // --- FormTemplate RPCs ---
+
+  // FormTemplateSave creates or updates a form template.
+  rpc FormTemplateSave(FormTemplateSaveRequest) returns (FormTemplateSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplateSave"
+      summary: "Create or update a form template"
+      description: "Creates a new form template or updates an existing draft. Templates define reusable KYC/onboarding form schemas."
+      tags: "FormTemplates"
+    };
+  }
+
+  // FormTemplateGet retrieves a form template by its ID.
+  rpc FormTemplateGet(FormTemplateGetRequest) returns (FormTemplateGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplateGet"
+      summary: "Get a form template by ID"
+      description: "Retrieves a form template record by its unique identifier."
+      tags: "FormTemplates"
+    };
+  }
+
+  // FormTemplateSearch finds form templates matching search criteria.
+  rpc FormTemplateSearch(FormTemplateSearchRequest) returns (stream FormTemplateSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplateSearch"
+      summary: "Search form templates"
+      description: "Searches for form templates matching specified criteria. Supports filtering by organization and status."
+      tags: "FormTemplates"
+    };
+  }
+
+  // FormTemplatePublish publishes a draft form template, incrementing its version.
+  rpc FormTemplatePublish(FormTemplatePublishRequest) returns (FormTemplatePublishResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplatePublish"
+      summary: "Publish a form template"
+      description: "Transitions a draft form template to published status and increments its version number."
+      tags: "FormTemplates"
+    };
+  }
+
+  // --- FormSubmission RPCs ---
+
+  // FormSubmissionSave creates or updates a form submission.
+  rpc FormSubmissionSave(FormSubmissionSaveRequest) returns (FormSubmissionSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["form_submission_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formSubmissionSave"
+      summary: "Create or update a form submission"
+      description: "Creates a new form submission or updates an existing one for an application."
+      tags: "FormSubmissions"
+    };
+  }
+
+  // FormSubmissionGet retrieves a form submission by its ID.
+  rpc FormSubmissionGet(FormSubmissionGetRequest) returns (FormSubmissionGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_submission_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formSubmissionGet"
+      summary: "Get a form submission by ID"
+      description: "Retrieves a form submission record by its unique identifier."
+      tags: "FormSubmissions"
+    };
+  }
+
+  // FormSubmissionSearch finds form submissions matching search criteria.
+  rpc FormSubmissionSearch(FormSubmissionSearchRequest) returns (stream FormSubmissionSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_submission_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formSubmissionSearch"
+      summary: "Search form submissions"
+      description: "Searches for form submissions matching specified criteria. Supports filtering by application and template."
+      tags: "FormSubmissions"
     };
   }
 }

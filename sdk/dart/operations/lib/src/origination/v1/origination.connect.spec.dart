@@ -182,4 +182,64 @@ abstract final class OriginationService {
     originationv1origination.UnderwritingDecisionSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
+
+  /// FormTemplateSave creates or updates a form template.
+  static const formTemplateSave = connect.Spec(
+    '/$name/FormTemplateSave',
+    connect.StreamType.unary,
+    originationv1origination.FormTemplateSaveRequest.new,
+    originationv1origination.FormTemplateSaveResponse.new,
+  );
+
+  /// FormTemplateGet retrieves a form template by its ID.
+  static const formTemplateGet = connect.Spec(
+    '/$name/FormTemplateGet',
+    connect.StreamType.unary,
+    originationv1origination.FormTemplateGetRequest.new,
+    originationv1origination.FormTemplateGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormTemplateSearch finds form templates matching search criteria.
+  static const formTemplateSearch = connect.Spec(
+    '/$name/FormTemplateSearch',
+    connect.StreamType.server,
+    originationv1origination.FormTemplateSearchRequest.new,
+    originationv1origination.FormTemplateSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormTemplatePublish publishes a draft form template, incrementing its version.
+  static const formTemplatePublish = connect.Spec(
+    '/$name/FormTemplatePublish',
+    connect.StreamType.unary,
+    originationv1origination.FormTemplatePublishRequest.new,
+    originationv1origination.FormTemplatePublishResponse.new,
+  );
+
+  /// FormSubmissionSave creates or updates a form submission.
+  static const formSubmissionSave = connect.Spec(
+    '/$name/FormSubmissionSave',
+    connect.StreamType.unary,
+    originationv1origination.FormSubmissionSaveRequest.new,
+    originationv1origination.FormSubmissionSaveResponse.new,
+  );
+
+  /// FormSubmissionGet retrieves a form submission by its ID.
+  static const formSubmissionGet = connect.Spec(
+    '/$name/FormSubmissionGet',
+    connect.StreamType.unary,
+    originationv1origination.FormSubmissionGetRequest.new,
+    originationv1origination.FormSubmissionGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormSubmissionSearch finds form submissions matching search criteria.
+  static const formSubmissionSearch = connect.Spec(
+    '/$name/FormSubmissionSearch',
+    connect.StreamType.server,
+    originationv1origination.FormSubmissionSearchRequest.new,
+    originationv1origination.FormSubmissionSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
 }

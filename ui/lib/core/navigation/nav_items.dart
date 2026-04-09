@@ -208,6 +208,14 @@ List<NavItem> buildNavItems() => [
         route: '/origination/applications',
         requiredRoles: _allViewRoles,
       ),
+      NavItem(
+        id: 'form_templates',
+        label: 'Form Templates',
+        icon: Icons.dynamic_form_outlined,
+        activeIcon: Icons.dynamic_form,
+        route: '/origination/templates',
+        requiredRoles: _adminRoles,
+      ),
     ],
   ),
   NavItem(

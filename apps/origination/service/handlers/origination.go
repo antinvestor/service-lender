@@ -18,6 +18,8 @@ type OriginationServer struct {
 	docBusiness business.ApplicationDocumentBusiness
 	vtBusiness  business.VerificationTaskBusiness
 	udBusiness  business.UnderwritingDecisionBusiness
+	ftBusiness  business.FormTemplateBusiness
+	fsBusiness  business.FormSubmissionBusiness
 
 	originationv1connect.UnimplementedOriginationServiceHandler
 }
@@ -27,12 +29,16 @@ func NewOriginationServer(
 	docBusiness business.ApplicationDocumentBusiness,
 	vtBusiness business.VerificationTaskBusiness,
 	udBusiness business.UnderwritingDecisionBusiness,
+	ftBusiness business.FormTemplateBusiness,
+	fsBusiness business.FormSubmissionBusiness,
 ) originationv1connect.OriginationServiceHandler {
 	return &OriginationServer{
 		appBusiness: appBusiness,
 		docBusiness: docBusiness,
 		vtBusiness:  vtBusiness,
 		udBusiness:  udBusiness,
+		ftBusiness:  ftBusiness,
+		fsBusiness:  fsBusiness,
 	}
 }
 
@@ -240,6 +246,95 @@ func (s *OriginationServer) UnderwritingDecisionSearch(
 	err := s.udBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*originationv1.UnderwritingDecisionObject) error {
 			return stream.Send(&originationv1.UnderwritingDecisionSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- FormTemplate RPCs ---
+
+func (s *OriginationServer) FormTemplateSave(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormTemplateSaveRequest],
+) (*connect.Response[originationv1.FormTemplateSaveResponse], error) {
+	result, err := s.ftBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.FormTemplateSaveResponse{Data: result}), nil
+}
+
+func (s *OriginationServer) FormTemplateGet(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormTemplateGetRequest],
+) (*connect.Response[originationv1.FormTemplateGetResponse], error) {
+	result, err := s.ftBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.FormTemplateGetResponse{Data: result}), nil
+}
+
+func (s *OriginationServer) FormTemplateSearch(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormTemplateSearchRequest],
+	stream *connect.ServerStream[originationv1.FormTemplateSearchResponse],
+) error {
+	err := s.ftBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*originationv1.FormTemplateObject) error {
+			return stream.Send(&originationv1.FormTemplateSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *OriginationServer) FormTemplatePublish(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormTemplatePublishRequest],
+) (*connect.Response[originationv1.FormTemplatePublishResponse], error) {
+	result, err := s.ftBusiness.Publish(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.FormTemplatePublishResponse{Data: result}), nil
+}
+
+// --- FormSubmission RPCs ---
+
+func (s *OriginationServer) FormSubmissionSave(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormSubmissionSaveRequest],
+) (*connect.Response[originationv1.FormSubmissionSaveResponse], error) {
+	result, err := s.fsBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.FormSubmissionSaveResponse{Data: result}), nil
+}
+
+func (s *OriginationServer) FormSubmissionGet(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormSubmissionGetRequest],
+) (*connect.Response[originationv1.FormSubmissionGetResponse], error) {
+	result, err := s.fsBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.FormSubmissionGetResponse{Data: result}), nil
+}
+
+func (s *OriginationServer) FormSubmissionSearch(
+	ctx context.Context,
+	req *connect.Request[originationv1.FormSubmissionSearchRequest],
+	stream *connect.ServerStream[originationv1.FormSubmissionSearchResponse],
+) error {
+	err := s.fsBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*originationv1.FormSubmissionObject) error {
+			return stream.Send(&originationv1.FormSubmissionSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)

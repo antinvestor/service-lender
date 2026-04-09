@@ -41,6 +41,13 @@ abstract class OriginationServiceBase extends $pb.GeneratedService {
   $async.Future<$14.UnderwritingDecisionSaveResponse> underwritingDecisionSave($pb.ServerContext ctx, $14.UnderwritingDecisionSaveRequest request);
   $async.Future<$14.UnderwritingDecisionGetResponse> underwritingDecisionGet($pb.ServerContext ctx, $14.UnderwritingDecisionGetRequest request);
   $async.Future<$14.UnderwritingDecisionSearchResponse> underwritingDecisionSearch($pb.ServerContext ctx, $14.UnderwritingDecisionSearchRequest request);
+  $async.Future<$14.FormTemplateSaveResponse> formTemplateSave($pb.ServerContext ctx, $14.FormTemplateSaveRequest request);
+  $async.Future<$14.FormTemplateGetResponse> formTemplateGet($pb.ServerContext ctx, $14.FormTemplateGetRequest request);
+  $async.Future<$14.FormTemplateSearchResponse> formTemplateSearch($pb.ServerContext ctx, $14.FormTemplateSearchRequest request);
+  $async.Future<$14.FormTemplatePublishResponse> formTemplatePublish($pb.ServerContext ctx, $14.FormTemplatePublishRequest request);
+  $async.Future<$14.FormSubmissionSaveResponse> formSubmissionSave($pb.ServerContext ctx, $14.FormSubmissionSaveRequest request);
+  $async.Future<$14.FormSubmissionGetResponse> formSubmissionGet($pb.ServerContext ctx, $14.FormSubmissionGetRequest request);
+  $async.Future<$14.FormSubmissionSearchResponse> formSubmissionSearch($pb.ServerContext ctx, $14.FormSubmissionSearchRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -64,6 +71,13 @@ abstract class OriginationServiceBase extends $pb.GeneratedService {
       case 'UnderwritingDecisionSave': return $14.UnderwritingDecisionSaveRequest();
       case 'UnderwritingDecisionGet': return $14.UnderwritingDecisionGetRequest();
       case 'UnderwritingDecisionSearch': return $14.UnderwritingDecisionSearchRequest();
+      case 'FormTemplateSave': return $14.FormTemplateSaveRequest();
+      case 'FormTemplateGet': return $14.FormTemplateGetRequest();
+      case 'FormTemplateSearch': return $14.FormTemplateSearchRequest();
+      case 'FormTemplatePublish': return $14.FormTemplatePublishRequest();
+      case 'FormSubmissionSave': return $14.FormSubmissionSaveRequest();
+      case 'FormSubmissionGet': return $14.FormSubmissionGetRequest();
+      case 'FormSubmissionSearch': return $14.FormSubmissionSearchRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -90,6 +104,13 @@ abstract class OriginationServiceBase extends $pb.GeneratedService {
       case 'UnderwritingDecisionSave': return this.underwritingDecisionSave(ctx, request as $14.UnderwritingDecisionSaveRequest);
       case 'UnderwritingDecisionGet': return this.underwritingDecisionGet(ctx, request as $14.UnderwritingDecisionGetRequest);
       case 'UnderwritingDecisionSearch': return this.underwritingDecisionSearch(ctx, request as $14.UnderwritingDecisionSearchRequest);
+      case 'FormTemplateSave': return this.formTemplateSave(ctx, request as $14.FormTemplateSaveRequest);
+      case 'FormTemplateGet': return this.formTemplateGet(ctx, request as $14.FormTemplateGetRequest);
+      case 'FormTemplateSearch': return this.formTemplateSearch(ctx, request as $14.FormTemplateSearchRequest);
+      case 'FormTemplatePublish': return this.formTemplatePublish(ctx, request as $14.FormTemplatePublishRequest);
+      case 'FormSubmissionSave': return this.formSubmissionSave(ctx, request as $14.FormSubmissionSaveRequest);
+      case 'FormSubmissionGet': return this.formSubmissionGet(ctx, request as $14.FormSubmissionGetRequest);
+      case 'FormSubmissionSearch': return this.formSubmissionSearch(ctx, request as $14.FormSubmissionSearchRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

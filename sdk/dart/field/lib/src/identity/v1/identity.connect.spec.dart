@@ -168,4 +168,46 @@ abstract final class IdentityService {
     identityv1identity.MembershipSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
+
+  /// InvestorAccountSave creates or updates an investor capital account.
+  static const investorAccountSave = connect.Spec(
+    '/$name/InvestorAccountSave',
+    connect.StreamType.unary,
+    identityv1identity.InvestorAccountSaveRequest.new,
+    identityv1identity.InvestorAccountSaveResponse.new,
+  );
+
+  /// InvestorAccountGet retrieves an investor account by its ID.
+  static const investorAccountGet = connect.Spec(
+    '/$name/InvestorAccountGet',
+    connect.StreamType.unary,
+    identityv1identity.InvestorAccountGetRequest.new,
+    identityv1identity.InvestorAccountGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// InvestorAccountSearch finds investor accounts matching search criteria.
+  static const investorAccountSearch = connect.Spec(
+    '/$name/InvestorAccountSearch',
+    connect.StreamType.server,
+    identityv1identity.InvestorAccountSearchRequest.new,
+    identityv1identity.InvestorAccountSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// InvestorDeposit adds funds to an investor capital account.
+  static const investorDeposit = connect.Spec(
+    '/$name/InvestorDeposit',
+    connect.StreamType.unary,
+    identityv1identity.InvestorDepositRequest.new,
+    identityv1identity.InvestorDepositResponse.new,
+  );
+
+  /// InvestorWithdraw removes funds from an investor capital account.
+  static const investorWithdraw = connect.Spec(
+    '/$name/InvestorWithdraw',
+    connect.StreamType.unary,
+    identityv1identity.InvestorWithdrawRequest.new,
+    identityv1identity.InvestorWithdrawResponse.new,
+  );
 }

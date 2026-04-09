@@ -199,5 +199,91 @@ class UnderwritingOutcome extends $pb.ProtobufEnum {
   const UnderwritingOutcome._($core.int v, $core.String n) : super(v, n);
 }
 
+/// FormFieldType defines the type of a form field.
+class FormFieldType extends $pb.ProtobufEnum {
+  static const FormFieldType FORM_FIELD_TYPE_UNSPECIFIED = FormFieldType._(0, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_UNSPECIFIED');
+  static const FormFieldType FORM_FIELD_TYPE_TEXT = FormFieldType._(1, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_TEXT');
+  static const FormFieldType FORM_FIELD_TYPE_NUMBER = FormFieldType._(2, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_NUMBER');
+  static const FormFieldType FORM_FIELD_TYPE_CURRENCY = FormFieldType._(3, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_CURRENCY');
+  static const FormFieldType FORM_FIELD_TYPE_PHONE = FormFieldType._(4, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_PHONE');
+  static const FormFieldType FORM_FIELD_TYPE_EMAIL = FormFieldType._(5, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_EMAIL');
+  static const FormFieldType FORM_FIELD_TYPE_DATE = FormFieldType._(6, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_DATE');
+  static const FormFieldType FORM_FIELD_TYPE_SELECT = FormFieldType._(7, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_SELECT');
+  static const FormFieldType FORM_FIELD_TYPE_MULTI_SELECT = FormFieldType._(8, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_MULTI_SELECT');
+  static const FormFieldType FORM_FIELD_TYPE_PHOTO = FormFieldType._(9, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_PHOTO');
+  static const FormFieldType FORM_FIELD_TYPE_FILE = FormFieldType._(10, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_FILE');
+  static const FormFieldType FORM_FIELD_TYPE_LOCATION = FormFieldType._(11, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_LOCATION');
+  static const FormFieldType FORM_FIELD_TYPE_SIGNATURE = FormFieldType._(12, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_SIGNATURE');
+  static const FormFieldType FORM_FIELD_TYPE_CHECKBOX = FormFieldType._(13, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_CHECKBOX');
+  static const FormFieldType FORM_FIELD_TYPE_TEXTAREA = FormFieldType._(14, _omitEnumNames ? '' : 'FORM_FIELD_TYPE_TEXTAREA');
+
+  static const $core.List<FormFieldType> values = <FormFieldType> [
+    FORM_FIELD_TYPE_UNSPECIFIED,
+    FORM_FIELD_TYPE_TEXT,
+    FORM_FIELD_TYPE_NUMBER,
+    FORM_FIELD_TYPE_CURRENCY,
+    FORM_FIELD_TYPE_PHONE,
+    FORM_FIELD_TYPE_EMAIL,
+    FORM_FIELD_TYPE_DATE,
+    FORM_FIELD_TYPE_SELECT,
+    FORM_FIELD_TYPE_MULTI_SELECT,
+    FORM_FIELD_TYPE_PHOTO,
+    FORM_FIELD_TYPE_FILE,
+    FORM_FIELD_TYPE_LOCATION,
+    FORM_FIELD_TYPE_SIGNATURE,
+    FORM_FIELD_TYPE_CHECKBOX,
+    FORM_FIELD_TYPE_TEXTAREA,
+  ];
+
+  static final $core.Map<$core.int, FormFieldType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static FormFieldType? valueOf($core.int value) => _byValue[value];
+
+  const FormFieldType._($core.int v, $core.String n) : super(v, n);
+}
+
+/// FormFieldGroup categorizes fields for display and encryption.
+class FormFieldGroup extends $pb.ProtobufEnum {
+  static const FormFieldGroup FORM_FIELD_GROUP_UNSPECIFIED = FormFieldGroup._(0, _omitEnumNames ? '' : 'FORM_FIELD_GROUP_UNSPECIFIED');
+  static const FormFieldGroup FORM_FIELD_GROUP_PERSONAL = FormFieldGroup._(1, _omitEnumNames ? '' : 'FORM_FIELD_GROUP_PERSONAL');
+  static const FormFieldGroup FORM_FIELD_GROUP_FINANCIAL = FormFieldGroup._(2, _omitEnumNames ? '' : 'FORM_FIELD_GROUP_FINANCIAL');
+  static const FormFieldGroup FORM_FIELD_GROUP_LEGAL = FormFieldGroup._(3, _omitEnumNames ? '' : 'FORM_FIELD_GROUP_LEGAL');
+  static const FormFieldGroup FORM_FIELD_GROUP_DOCUMENTS = FormFieldGroup._(4, _omitEnumNames ? '' : 'FORM_FIELD_GROUP_DOCUMENTS');
+  static const FormFieldGroup FORM_FIELD_GROUP_LOCATION = FormFieldGroup._(5, _omitEnumNames ? '' : 'FORM_FIELD_GROUP_LOCATION');
+
+  static const $core.List<FormFieldGroup> values = <FormFieldGroup> [
+    FORM_FIELD_GROUP_UNSPECIFIED,
+    FORM_FIELD_GROUP_PERSONAL,
+    FORM_FIELD_GROUP_FINANCIAL,
+    FORM_FIELD_GROUP_LEGAL,
+    FORM_FIELD_GROUP_DOCUMENTS,
+    FORM_FIELD_GROUP_LOCATION,
+  ];
+
+  static final $core.Map<$core.int, FormFieldGroup> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static FormFieldGroup? valueOf($core.int value) => _byValue[value];
+
+  const FormFieldGroup._($core.int v, $core.String n) : super(v, n);
+}
+
+/// FormTemplateStatus defines the lifecycle state of a form template.
+class FormTemplateStatus extends $pb.ProtobufEnum {
+  static const FormTemplateStatus FORM_TEMPLATE_STATUS_UNSPECIFIED = FormTemplateStatus._(0, _omitEnumNames ? '' : 'FORM_TEMPLATE_STATUS_UNSPECIFIED');
+  static const FormTemplateStatus FORM_TEMPLATE_STATUS_DRAFT = FormTemplateStatus._(1, _omitEnumNames ? '' : 'FORM_TEMPLATE_STATUS_DRAFT');
+  static const FormTemplateStatus FORM_TEMPLATE_STATUS_PUBLISHED = FormTemplateStatus._(2, _omitEnumNames ? '' : 'FORM_TEMPLATE_STATUS_PUBLISHED');
+  static const FormTemplateStatus FORM_TEMPLATE_STATUS_ARCHIVED = FormTemplateStatus._(3, _omitEnumNames ? '' : 'FORM_TEMPLATE_STATUS_ARCHIVED');
+
+  static const $core.List<FormTemplateStatus> values = <FormTemplateStatus> [
+    FORM_TEMPLATE_STATUS_UNSPECIFIED,
+    FORM_TEMPLATE_STATUS_DRAFT,
+    FORM_TEMPLATE_STATUS_PUBLISHED,
+    FORM_TEMPLATE_STATUS_ARCHIVED,
+  ];
+
+  static final $core.Map<$core.int, FormTemplateStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static FormTemplateStatus? valueOf($core.int value) => _byValue[value];
+
+  const FormTemplateStatus._($core.int v, $core.String n) : super(v, n);
+}
+
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

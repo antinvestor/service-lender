@@ -87,6 +87,8 @@ func main() {
 	udRepo := repository.NewUnderwritingDecisionRepository(ctx, dbPool, workMan)
 	ashRepo := repository.NewApplicationStatusHistoryRepository(ctx, dbPool, workMan)
 	cpaRepo := repository.NewClientProductAccessRepository(ctx, dbPool, workMan)
+	ftRepo := repository.NewFormTemplateRepository(ctx, dbPool, workMan)
+	fsRepo := repository.NewFormSubmissionRepository(ctx, dbPool, workMan)
 
 	// Create business logic with all dependencies
 	appBusiness := business.NewApplicationBusiness(ctx, evtsMan, appRepo, cpaRepo, identityCli, loanMgmtCli)
@@ -100,10 +102,13 @@ func main() {
 		appBusiness,
 		cfg.OfferExpiryDays,
 	)
+	ftBusiness := business.NewFormTemplateBusiness(ctx, evtsMan, ftRepo)
+	fsBusiness := business.NewFormSubmissionBusiness(ctx, evtsMan, fsRepo)
 
 	// Setup Connect RPC servers + maintenance job HTTP handlers
 	connectHandler := setupConnectServer(ctx, sm,
 		appBusiness, docBusiness, vtBusiness, udBusiness,
+		ftBusiness, fsBusiness,
 		appRepo, cfg.DraftExpiryDays)
 
 	// Initialise the service with all options
@@ -118,6 +123,8 @@ func main() {
 			originationevents.NewVerificationTaskSave(ctx, vtRepo),
 			originationevents.NewUnderwritingDecisionSave(ctx, udRepo),
 			originationevents.NewApplicationStatusHistorySave(ctx, ashRepo),
+			originationevents.NewFormTemplateSave(ctx, ftRepo),
+			originationevents.NewFormSubmissionSave(ctx, fsRepo),
 		),
 	}
 
@@ -173,6 +180,8 @@ func setupConnectServer(
 	docBusiness business.ApplicationDocumentBusiness,
 	vtBusiness business.VerificationTaskBusiness,
 	udBusiness business.UnderwritingDecisionBusiness,
+	ftBusiness business.FormTemplateBusiness,
+	fsBusiness business.FormSubmissionBusiness,
 	appRepo repository.ApplicationRepository,
 	draftExpiryDays int,
 ) http.Handler {
@@ -182,6 +191,8 @@ func setupConnectServer(
 		docBusiness,
 		vtBusiness,
 		udBusiness,
+		ftBusiness,
+		fsBusiness,
 	)
 
 	auth := sm.GetAuthorizer(ctx)

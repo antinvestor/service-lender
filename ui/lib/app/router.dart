@@ -37,6 +37,8 @@ import '../features/origination/ui/application_create_screen.dart';
 import '../features/origination/ui/application_detail_screen.dart';
 import '../features/origination/ui/applications_screen.dart';
 import '../features/loan_management/ui/loan_products_screen.dart';
+import '../features/origination/ui/form_template_designer_screen.dart';
+import '../features/origination/ui/form_templates_screen.dart';
 import '../features/origination/ui/pending_cases_screen.dart';
 import '../features/operations/ui/disbursement_queue_screen.dart';
 import '../features/operations/ui/notification_templates_screen.dart';
@@ -249,6 +251,29 @@ GoRouter router(Ref ref) {
             path: '/origination/pending',
             builder: (context, state) =>
                 _guarded('/origination/pending', const PendingCasesScreen()),
+          ),
+          GoRoute(
+            path: '/origination/templates',
+            builder: (context, state) =>
+                _guarded('/origination/templates', const FormTemplatesScreen()),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => _guarded(
+                  '/origination/templates',
+                  const FormTemplateDesignerScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':templateId',
+                builder: (context, state) => _guarded(
+                  '/origination/templates',
+                  FormTemplateDesignerScreen(
+                    templateId: state.pathParameters['templateId'],
+                  ),
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: '/origination/applications',

@@ -45,4 +45,11 @@ var (
 		apperrors.BadGateway,
 		"could not verify client credit limit",
 	)
+
+	ErrFormTemplateNotFound = apperrors.NewError(apperrors.NotFound, "form template not found")
+	ErrFormTemplateNotDraft = apperrors.NewError(
+		apperrors.Unprocessable,
+		"form template is not in draft status and cannot be published",
+	)
+	ErrFormSubmissionNotFound = apperrors.NewError(apperrors.NotFound, "form submission not found")
 )

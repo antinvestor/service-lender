@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"github.com/pitabwire/frame/data"
 )
@@ -304,6 +305,127 @@ func UnderwritingDecisionFromAPI(
 	}
 	if obj.GetConditions() != nil {
 		model.Conditions = (&data.JSONMap{}).FromProtoStruct(obj.GetConditions())
+	}
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// FormTemplate defines a reusable form schema with field definitions.
+type FormTemplate struct {
+	data.BaseModel
+	OrganizationID  string `gorm:"type:varchar(50);index:idx_ft_org"`
+	Name            string `gorm:"type:varchar(255);not null"`
+	Description     string `gorm:"type:text"`
+	Version         int32
+	Status          int32        // 1=draft, 2=published, 3=archived
+	Fields          data.JSONMap // JSON array of field definitions keyed by index
+	Sections        data.JSONMap // Ordered section names keyed by index
+	ValidationRules data.JSONMap
+	Properties      data.JSONMap
+}
+
+func (m *FormTemplate) TableName() string { return "form_templates" }
+
+func (m *FormTemplate) ToAPI() *originationv1.FormTemplateObject {
+	return &originationv1.FormTemplateObject{
+		Id:              m.GetID(),
+		OrganizationId:  m.OrganizationID,
+		Name:            m.Name,
+		Description:     m.Description,
+		Version:         m.Version,
+		Status:          originationv1.FormTemplateStatus(m.Status),
+		Fields:          formFieldDefinitionsToAPI(m.Fields),
+		Sections:        jsonMapToStringSlice(m.Sections),
+		ValidationRules: m.ValidationRules.ToProtoStruct(),
+		Properties:      m.Properties.ToProtoStruct(),
+	}
+}
+
+func FormTemplateFromAPI(ctx context.Context, obj *originationv1.FormTemplateObject) *FormTemplate {
+	if obj == nil {
+		return nil
+	}
+
+	model := &FormTemplate{
+		OrganizationID: obj.GetOrganizationId(),
+		Name:           obj.GetName(),
+		Description:    obj.GetDescription(),
+		Version:        obj.GetVersion(),
+		Status:         int32(obj.GetStatus()),
+		Fields:         formFieldDefinitionsFromAPI(obj.GetFields()),
+		Sections:       stringSliceToJSONMap(obj.GetSections()),
+	}
+
+	if obj.GetValidationRules() != nil {
+		model.ValidationRules = (&data.JSONMap{}).FromProtoStruct(obj.GetValidationRules())
+	}
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// FormSubmission captures filled form data for an application.
+type FormSubmission struct {
+	data.BaseModel
+	ApplicationID   string `gorm:"type:varchar(50);index:idx_fs_app;not null"`
+	TemplateID      string `gorm:"type:varchar(50);index:idx_fs_template;not null"`
+	TemplateVersion int32
+	SubmittedBy     string       `gorm:"type:varchar(50)"`
+	Data            data.JSONMap // key->value form data
+	FileRefs        data.JSONMap // key->file_id references
+	State           int32
+	Properties      data.JSONMap
+}
+
+func (m *FormSubmission) TableName() string { return "form_submissions" }
+
+func (m *FormSubmission) ToAPI() *originationv1.FormSubmissionObject {
+	return &originationv1.FormSubmissionObject{
+		Id:              m.GetID(),
+		ApplicationId:   m.ApplicationID,
+		TemplateId:      m.TemplateID,
+		TemplateVersion: m.TemplateVersion,
+		SubmittedBy:     m.SubmittedBy,
+		Data:            m.Data.ToProtoStruct(),
+		FileRefs:        m.FileRefs.ToProtoStruct(),
+		State:           commonv1.STATE(m.State),
+		Properties:      m.Properties.ToProtoStruct(),
+	}
+}
+
+func FormSubmissionFromAPI(ctx context.Context, obj *originationv1.FormSubmissionObject) *FormSubmission {
+	if obj == nil {
+		return nil
+	}
+
+	model := &FormSubmission{
+		ApplicationID:   obj.GetApplicationId(),
+		TemplateID:      obj.GetTemplateId(),
+		TemplateVersion: obj.GetTemplateVersion(),
+		SubmittedBy:     obj.GetSubmittedBy(),
+		State:           int32(obj.GetState()),
+	}
+
+	if obj.GetData() != nil {
+		model.Data = (&data.JSONMap{}).FromProtoStruct(obj.GetData())
+	}
+	if obj.GetFileRefs() != nil {
+		model.FileRefs = (&data.JSONMap{}).FromProtoStruct(obj.GetFileRefs())
 	}
 	if obj.GetProperties() != nil {
 		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())

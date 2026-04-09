@@ -29,6 +29,7 @@ const Map<String, Set<LenderRole>> routePermissions = {
   // Origination — all operational roles
   '/origination/pending': _allViewRoles,
   '/origination/applications': _allViewRoles,
+  '/origination/templates': {LenderRole.owner, LenderRole.admin},
 
   // Loan Management — all operational roles
   '/loans/products': _allViewRoles,

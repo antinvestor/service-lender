@@ -334,4 +334,94 @@ extension type IdentityServiceClient (connect.Transport _transport) {
       onTrailer: onTrailer,
     );
   }
+
+  /// InvestorAccountSave creates or updates an investor capital account.
+  Future<identityv1identity.InvestorAccountSaveResponse> investorAccountSave(
+    identityv1identity.InvestorAccountSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.investorAccountSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// InvestorAccountGet retrieves an investor account by its ID.
+  Future<identityv1identity.InvestorAccountGetResponse> investorAccountGet(
+    identityv1identity.InvestorAccountGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.investorAccountGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// InvestorAccountSearch finds investor accounts matching search criteria.
+  Stream<identityv1identity.InvestorAccountSearchResponse> investorAccountSearch(
+    identityv1identity.InvestorAccountSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.investorAccountSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// InvestorDeposit adds funds to an investor capital account.
+  Future<identityv1identity.InvestorDepositResponse> investorDeposit(
+    identityv1identity.InvestorDepositRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.investorDeposit,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// InvestorWithdraw removes funds from an investor capital account.
+  Future<identityv1identity.InvestorWithdrawResponse> investorWithdraw(
+    identityv1identity.InvestorWithdrawRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.investorWithdraw,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
 }
