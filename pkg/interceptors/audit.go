@@ -149,7 +149,7 @@ func (a *AuditInterceptor) logEntry(
 		fields["request"] = requestBody
 	}
 
-	if resp != nil {
+	if resp != nil && resp.Any() != nil {
 		fields["response"] = marshalProtoMessage(resp.Any())
 	}
 
