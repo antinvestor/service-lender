@@ -8,7 +8,6 @@ import (
 	savingspb "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common/permissions"
-	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -16,6 +15,8 @@ import (
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
 	"github.com/pitabwire/util"
+
+	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/savings/config"
 	"github.com/antinvestor/service-fintech/apps/savings/service/authz"

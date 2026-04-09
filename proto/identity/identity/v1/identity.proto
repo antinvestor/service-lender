@@ -36,9 +36,9 @@ option java_multiple_files = true;
 option java_package = "identityv1";
 option (gnostic.openapi.v3.document) = {
   info: {
-    title: "Fintech Identity Service"
+    title: "Identity Service"
     version: "v1.0.0"
-    description: "The Fintech Identity Service manages the organizational backbone of the system including organizations, branches, and system users. Organizations map to partitions, branches represent sub-divisions with geographic areas, and system users are assigned roles for processing workflows."
+    description: "The Identity Service manages the organizational backbone of the system including organizations, branches, and system users. Organizations map to partitions, branches represent sub-divisions with geographic areas, and system users are assigned roles for processing workflows."
     contact: {
       name: "Ant Investor Ltd"
       url: "https://github.com/antinvestor/service-fintech"

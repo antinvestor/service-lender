@@ -38,9 +38,9 @@ option java_multiple_files = true;
 option java_package = "loansv1";
 option (gnostic.openapi.v3.document) = {
   info: {
-    title: "Fintech Loan Management Service"
+    title: "Loan Management Service"
     version: "v1.0.0"
-    description: "The Fintech Loan Management Service manages active loans, disbursements, repayments, repayment schedules, penalties, restructures, and payment reconciliation. It handles the full loan lifecycle from disbursement through to closure."
+    description: "The Loan Management Service manages active loans, disbursements, repayments, repayment schedules, penalties, restructures, and payment reconciliation. It handles the full loan lifecycle from disbursement through to closure."
     contact: {
       name: "Ant Investor Ltd"
       url: "https://github.com/antinvestor/service-fintech"
