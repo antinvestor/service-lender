@@ -8,10 +8,10 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
-	groupmodels "github.com/antinvestor/service-fintech/apps/group/service/models"
-	grouprepo "github.com/antinvestor/service-fintech/apps/group/service/repository"
 	opsmodels "github.com/antinvestor/service-fintech/apps/operations/service/models"
 	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
+	groupmodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
+	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 

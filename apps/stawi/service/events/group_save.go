@@ -6,8 +6,8 @@ import (
 
 	"github.com/pitabwire/frame/events"
 
-	"github.com/antinvestor/service-fintech/apps/group/service/models"
-	"github.com/antinvestor/service-fintech/apps/group/service/repository"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 )
 
 const CustomerGroupSaveEvent = "customer_group.save"

@@ -15,7 +15,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/events"
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
-	grouprepo "github.com/antinvestor/service-fintech/apps/group/service/repository"
+	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"

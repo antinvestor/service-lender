@@ -14,7 +14,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY ./apps/funding ./apps/funding
-COPY ./apps/group ./apps/group
+COPY ./apps/stawi ./apps/stawi
 COPY ./pkg ./pkg
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \

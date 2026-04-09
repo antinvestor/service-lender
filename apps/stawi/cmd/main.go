@@ -12,10 +12,10 @@ import (
 	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
 	// Group domain
-	groupbusiness "github.com/antinvestor/service-fintech/apps/group/service/business"
-	groupevents "github.com/antinvestor/service-fintech/apps/group/service/events"
-	"github.com/antinvestor/service-fintech/apps/group/service/handlers"
-	grouprepo "github.com/antinvestor/service-fintech/apps/group/service/repository"
+	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
+	groupevents "github.com/antinvestor/service-fintech/apps/stawi/service/events"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/handlers"
+	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
 	// Funding domain
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"

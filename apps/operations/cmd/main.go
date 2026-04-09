@@ -31,7 +31,7 @@ import (
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
 	// Group repos used by obligation business
-	grouprepo "github.com/antinvestor/service-fintech/apps/group/service/repository"
+	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )

@@ -8,7 +8,7 @@ import (
 	"github.com/pitabwire/util"
 
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
-	groupbusiness "github.com/antinvestor/service-fintech/apps/group/service/business"
+	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	opsbusiness "github.com/antinvestor/service-fintech/apps/operations/service/business"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
