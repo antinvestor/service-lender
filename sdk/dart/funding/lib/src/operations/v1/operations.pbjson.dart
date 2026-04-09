@@ -50,13 +50,14 @@ final $typed_data.Uint8List transferOrderObjectDescriptor = $convert.base64Decod
 const TransferOrderExecuteRequest$json = {
   '1': 'TransferOrderExecuteRequest',
   '2': [
-    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.operations.v1.TransferOrderObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `TransferOrderExecuteRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List transferOrderExecuteRequestDescriptor = $convert.base64Decode(
-    'ChtUcmFuc2Zlck9yZGVyRXhlY3V0ZVJlcXVlc3QSDgoCaWQYASABKAlSAmlk');
+    'ChtUcmFuc2Zlck9yZGVyRXhlY3V0ZVJlcXVlc3QSNgoEZGF0YRgBIAEoCzIiLm9wZXJhdGlvbn'
+    'MudjEuVHJhbnNmZXJPcmRlck9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use transferOrderExecuteResponseDescriptor instead')
 const TransferOrderExecuteResponse$json = {
@@ -112,13 +113,13 @@ const $core.Map<$core.String, $core.dynamic> OperationsServiceBase$json = {
 @$core.Deprecated('Use operationsServiceDescriptor instead')
 const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> OperationsServiceBase$messageJson = {
   '.operations.v1.TransferOrderExecuteRequest': TransferOrderExecuteRequest$json,
-  '.operations.v1.TransferOrderExecuteResponse': TransferOrderExecuteResponse$json,
   '.operations.v1.TransferOrderObject': TransferOrderObject$json,
   '.google.type.Money': $9.Money$json,
   '.google.protobuf.Struct': $6.Struct$json,
   '.google.protobuf.Struct.FieldsEntry': $6.Struct_FieldsEntry$json,
   '.google.protobuf.Value': $6.Value$json,
   '.google.protobuf.ListValue': $6.ListValue$json,
+  '.operations.v1.TransferOrderExecuteResponse': TransferOrderExecuteResponse$json,
   '.operations.v1.TransferOrderSearchRequest': TransferOrderSearchRequest$json,
   '.common.v1.PageCursor': $7.PageCursor$json,
   '.operations.v1.TransferOrderSearchResponse': TransferOrderSearchResponse$json,

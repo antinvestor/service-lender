@@ -7,9 +7,8 @@ import "package:connectrpc/connect.dart" as connect;
 import "operations.pb.dart" as operationsv1operations;
 import "operations.connect.spec.dart" as specs;
 
-extension type OperationsServiceClient(connect.Transport _transport) {
-  Future<operationsv1operations.TransferOrderExecuteResponse>
-  transferOrderExecute(
+extension type OperationsServiceClient (connect.Transport _transport) {
+  Future<operationsv1operations.TransferOrderExecuteResponse> transferOrderExecute(
     operationsv1operations.TransferOrderExecuteRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -26,8 +25,7 @@ extension type OperationsServiceClient(connect.Transport _transport) {
     );
   }
 
-  Stream<operationsv1operations.TransferOrderSearchResponse>
-  transferOrderSearch(
+  Stream<operationsv1operations.TransferOrderSearchResponse> transferOrderSearch(
     operationsv1operations.TransferOrderSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,

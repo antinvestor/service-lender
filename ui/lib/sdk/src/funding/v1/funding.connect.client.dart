@@ -7,7 +7,7 @@ import "package:connectrpc/connect.dart" as connect;
 import "funding.pb.dart" as fundingv1funding;
 import "funding.connect.spec.dart" as specs;
 
-extension type FundingServiceClient(connect.Transport _transport) {
+extension type FundingServiceClient (connect.Transport _transport) {
   Future<fundingv1funding.InvestorAccountSaveResponse> investorAccountSave(
     fundingv1funding.InvestorAccountSaveRequest input, {
     connect.Headers? headers,

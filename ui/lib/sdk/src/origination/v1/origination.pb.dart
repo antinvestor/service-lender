@@ -126,95 +126,62 @@ class LoanProductObject extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductObject._() : super();
-  factory LoanProductObject.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductObject.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductObject',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOS(3, _omitFieldNames ? '' : 'name')
     ..aOS(4, _omitFieldNames ? '' : 'code')
     ..aOS(5, _omitFieldNames ? '' : 'description')
-    ..e<LoanProductType>(
-        6, _omitFieldNames ? '' : 'productType', $pb.PbFieldType.OE,
-        defaultOrMaker: LoanProductType.LOAN_PRODUCT_TYPE_UNSPECIFIED,
-        valueOf: LoanProductType.valueOf,
-        enumValues: LoanProductType.values)
+    ..e<LoanProductType>(6, _omitFieldNames ? '' : 'productType', $pb.PbFieldType.OE, defaultOrMaker: LoanProductType.LOAN_PRODUCT_TYPE_UNSPECIFIED, valueOf: LoanProductType.valueOf, enumValues: LoanProductType.values)
     ..aOS(7, _omitFieldNames ? '' : 'currencyCode')
-    ..e<InterestMethod>(
-        8, _omitFieldNames ? '' : 'interestMethod', $pb.PbFieldType.OE,
-        defaultOrMaker: InterestMethod.INTEREST_METHOD_UNSPECIFIED,
-        valueOf: InterestMethod.valueOf,
-        enumValues: InterestMethod.values)
-    ..e<RepaymentFrequency>(
-        9, _omitFieldNames ? '' : 'repaymentFrequency', $pb.PbFieldType.OE,
-        defaultOrMaker: RepaymentFrequency.REPAYMENT_FREQUENCY_UNSPECIFIED,
-        valueOf: RepaymentFrequency.valueOf,
-        enumValues: RepaymentFrequency.values)
-    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'minAmount',
-        subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'maxAmount',
-        subBuilder: $9.Money.create)
+    ..e<InterestMethod>(8, _omitFieldNames ? '' : 'interestMethod', $pb.PbFieldType.OE, defaultOrMaker: InterestMethod.INTEREST_METHOD_UNSPECIFIED, valueOf: InterestMethod.valueOf, enumValues: InterestMethod.values)
+    ..e<RepaymentFrequency>(9, _omitFieldNames ? '' : 'repaymentFrequency', $pb.PbFieldType.OE, defaultOrMaker: RepaymentFrequency.REPAYMENT_FREQUENCY_UNSPECIFIED, valueOf: RepaymentFrequency.valueOf, enumValues: RepaymentFrequency.values)
+    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'minAmount', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'maxAmount', subBuilder: $9.Money.create)
     ..a<$core.int>(12, _omitFieldNames ? '' : 'minTermDays', $pb.PbFieldType.O3)
     ..a<$core.int>(13, _omitFieldNames ? '' : 'maxTermDays', $pb.PbFieldType.O3)
     ..aOS(14, _omitFieldNames ? '' : 'annualInterestRate')
     ..aOS(15, _omitFieldNames ? '' : 'processingFeePercent')
     ..aOS(16, _omitFieldNames ? '' : 'insuranceFeePercent')
     ..aOS(17, _omitFieldNames ? '' : 'latePenaltyRate')
-    ..a<$core.int>(
-        18, _omitFieldNames ? '' : 'gracePeriodDays', $pb.PbFieldType.O3)
-    ..aOM<$6.Struct>(19, _omitFieldNames ? '' : 'kycSchema',
-        subBuilder: $6.Struct.create)
-    ..aOM<$6.Struct>(20, _omitFieldNames ? '' : 'feeStructure',
-        subBuilder: $6.Struct.create)
-    ..aOM<$6.Struct>(21, _omitFieldNames ? '' : 'eligibilityCriteria',
-        subBuilder: $6.Struct.create)
+    ..a<$core.int>(18, _omitFieldNames ? '' : 'gracePeriodDays', $pb.PbFieldType.O3)
+    ..aOM<$6.Struct>(19, _omitFieldNames ? '' : 'kycSchema', subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(20, _omitFieldNames ? '' : 'feeStructure', subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(21, _omitFieldNames ? '' : 'eligibilityCriteria', subBuilder: $6.Struct.create)
     ..pPS(22, _omitFieldNames ? '' : 'requiredDocuments')
-    ..e<$7.STATE>(23, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE,
-        defaultOrMaker: $7.STATE.CREATED,
-        valueOf: $7.STATE.valueOf,
-        enumValues: $7.STATE.values)
-    ..aOM<$6.Struct>(24, _omitFieldNames ? '' : 'properties',
-        subBuilder: $6.Struct.create)
-    ..hasRequiredFields = false;
+    ..e<$7.STATE>(23, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..aOM<$6.Struct>(24, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   LoanProductObject clone() => LoanProductObject()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductObject copyWith(void Function(LoanProductObject) updates) =>
-      super.copyWith((message) => updates(message as LoanProductObject))
-          as LoanProductObject;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductObject copyWith(void Function(LoanProductObject) updates) => super.copyWith((message) => updates(message as LoanProductObject)) as LoanProductObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductObject create() => LoanProductObject._();
   LoanProductObject createEmptyInstance() => create();
-  static $pb.PbList<LoanProductObject> createRepeated() =>
-      $pb.PbList<LoanProductObject>();
+  static $pb.PbList<LoanProductObject> createRepeated() => $pb.PbList<LoanProductObject>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductObject getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductObject>(create);
+  static LoanProductObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductObject>(create);
   static LoanProductObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -223,10 +190,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set organizationId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
@@ -235,10 +199,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get name => $_getSZ(2);
   @$pb.TagNumber(3)
-  set name($core.String v) {
-    $_setString(2, v);
-  }
-
+  set name($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasName() => $_has(2);
   @$pb.TagNumber(3)
@@ -247,10 +208,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get code => $_getSZ(3);
   @$pb.TagNumber(4)
-  set code($core.String v) {
-    $_setString(3, v);
-  }
-
+  set code($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasCode() => $_has(3);
   @$pb.TagNumber(4)
@@ -259,10 +217,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get description => $_getSZ(4);
   @$pb.TagNumber(5)
-  set description($core.String v) {
-    $_setString(4, v);
-  }
-
+  set description($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
   $core.bool hasDescription() => $_has(4);
   @$pb.TagNumber(5)
@@ -271,10 +226,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   LoanProductType get productType => $_getN(5);
   @$pb.TagNumber(6)
-  set productType(LoanProductType v) {
-    setField(6, v);
-  }
-
+  set productType(LoanProductType v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasProductType() => $_has(5);
   @$pb.TagNumber(6)
@@ -283,10 +235,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.String get currencyCode => $_getSZ(6);
   @$pb.TagNumber(7)
-  set currencyCode($core.String v) {
-    $_setString(6, v);
-  }
-
+  set currencyCode($core.String v) { $_setString(6, v); }
   @$pb.TagNumber(7)
   $core.bool hasCurrencyCode() => $_has(6);
   @$pb.TagNumber(7)
@@ -295,10 +244,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   InterestMethod get interestMethod => $_getN(7);
   @$pb.TagNumber(8)
-  set interestMethod(InterestMethod v) {
-    setField(8, v);
-  }
-
+  set interestMethod(InterestMethod v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasInterestMethod() => $_has(7);
   @$pb.TagNumber(8)
@@ -307,10 +253,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   RepaymentFrequency get repaymentFrequency => $_getN(8);
   @$pb.TagNumber(9)
-  set repaymentFrequency(RepaymentFrequency v) {
-    setField(9, v);
-  }
-
+  set repaymentFrequency(RepaymentFrequency v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasRepaymentFrequency() => $_has(8);
   @$pb.TagNumber(9)
@@ -319,10 +262,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $9.Money get minAmount => $_getN(9);
   @$pb.TagNumber(10)
-  set minAmount($9.Money v) {
-    setField(10, v);
-  }
-
+  set minAmount($9.Money v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasMinAmount() => $_has(9);
   @$pb.TagNumber(10)
@@ -333,10 +273,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   $9.Money get maxAmount => $_getN(10);
   @$pb.TagNumber(11)
-  set maxAmount($9.Money v) {
-    setField(11, v);
-  }
-
+  set maxAmount($9.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasMaxAmount() => $_has(10);
   @$pb.TagNumber(11)
@@ -347,10 +284,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   $core.int get minTermDays => $_getIZ(11);
   @$pb.TagNumber(12)
-  set minTermDays($core.int v) {
-    $_setSignedInt32(11, v);
-  }
-
+  set minTermDays($core.int v) { $_setSignedInt32(11, v); }
   @$pb.TagNumber(12)
   $core.bool hasMinTermDays() => $_has(11);
   @$pb.TagNumber(12)
@@ -359,10 +293,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   $core.int get maxTermDays => $_getIZ(12);
   @$pb.TagNumber(13)
-  set maxTermDays($core.int v) {
-    $_setSignedInt32(12, v);
-  }
-
+  set maxTermDays($core.int v) { $_setSignedInt32(12, v); }
   @$pb.TagNumber(13)
   $core.bool hasMaxTermDays() => $_has(12);
   @$pb.TagNumber(13)
@@ -371,10 +302,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(14)
   $core.String get annualInterestRate => $_getSZ(13);
   @$pb.TagNumber(14)
-  set annualInterestRate($core.String v) {
-    $_setString(13, v);
-  }
-
+  set annualInterestRate($core.String v) { $_setString(13, v); }
   @$pb.TagNumber(14)
   $core.bool hasAnnualInterestRate() => $_has(13);
   @$pb.TagNumber(14)
@@ -383,10 +311,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   $core.String get processingFeePercent => $_getSZ(14);
   @$pb.TagNumber(15)
-  set processingFeePercent($core.String v) {
-    $_setString(14, v);
-  }
-
+  set processingFeePercent($core.String v) { $_setString(14, v); }
   @$pb.TagNumber(15)
   $core.bool hasProcessingFeePercent() => $_has(14);
   @$pb.TagNumber(15)
@@ -395,10 +320,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(16)
   $core.String get insuranceFeePercent => $_getSZ(15);
   @$pb.TagNumber(16)
-  set insuranceFeePercent($core.String v) {
-    $_setString(15, v);
-  }
-
+  set insuranceFeePercent($core.String v) { $_setString(15, v); }
   @$pb.TagNumber(16)
   $core.bool hasInsuranceFeePercent() => $_has(15);
   @$pb.TagNumber(16)
@@ -407,10 +329,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(17)
   $core.String get latePenaltyRate => $_getSZ(16);
   @$pb.TagNumber(17)
-  set latePenaltyRate($core.String v) {
-    $_setString(16, v);
-  }
-
+  set latePenaltyRate($core.String v) { $_setString(16, v); }
   @$pb.TagNumber(17)
   $core.bool hasLatePenaltyRate() => $_has(16);
   @$pb.TagNumber(17)
@@ -419,10 +338,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   $core.int get gracePeriodDays => $_getIZ(17);
   @$pb.TagNumber(18)
-  set gracePeriodDays($core.int v) {
-    $_setSignedInt32(17, v);
-  }
-
+  set gracePeriodDays($core.int v) { $_setSignedInt32(17, v); }
   @$pb.TagNumber(18)
   $core.bool hasGracePeriodDays() => $_has(17);
   @$pb.TagNumber(18)
@@ -431,10 +347,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(19)
   $6.Struct get kycSchema => $_getN(18);
   @$pb.TagNumber(19)
-  set kycSchema($6.Struct v) {
-    setField(19, v);
-  }
-
+  set kycSchema($6.Struct v) { setField(19, v); }
   @$pb.TagNumber(19)
   $core.bool hasKycSchema() => $_has(18);
   @$pb.TagNumber(19)
@@ -445,10 +358,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(20)
   $6.Struct get feeStructure => $_getN(19);
   @$pb.TagNumber(20)
-  set feeStructure($6.Struct v) {
-    setField(20, v);
-  }
-
+  set feeStructure($6.Struct v) { setField(20, v); }
   @$pb.TagNumber(20)
   $core.bool hasFeeStructure() => $_has(19);
   @$pb.TagNumber(20)
@@ -459,10 +369,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(21)
   $6.Struct get eligibilityCriteria => $_getN(20);
   @$pb.TagNumber(21)
-  set eligibilityCriteria($6.Struct v) {
-    setField(21, v);
-  }
-
+  set eligibilityCriteria($6.Struct v) { setField(21, v); }
   @$pb.TagNumber(21)
   $core.bool hasEligibilityCriteria() => $_has(20);
   @$pb.TagNumber(21)
@@ -476,10 +383,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(23)
   $7.STATE get state => $_getN(22);
   @$pb.TagNumber(23)
-  set state($7.STATE v) {
-    setField(23, v);
-  }
-
+  set state($7.STATE v) { setField(23, v); }
   @$pb.TagNumber(23)
   $core.bool hasState() => $_has(22);
   @$pb.TagNumber(23)
@@ -488,10 +392,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(24)
   $6.Struct get properties => $_getN(23);
   @$pb.TagNumber(24)
-  set properties($6.Struct v) {
-    setField(24, v);
-  }
-
+  set properties($6.Struct v) { setField(24, v); }
   @$pb.TagNumber(24)
   $core.bool hasProperties() => $_has(23);
   @$pb.TagNumber(24)
@@ -592,39 +493,23 @@ class ApplicationObject extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationObject._() : super();
-  factory ApplicationObject.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationObject.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationObject',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'productId')
     ..aOS(3, _omitFieldNames ? '' : 'clientId')
     ..aOS(4, _omitFieldNames ? '' : 'agentId')
     ..aOS(5, _omitFieldNames ? '' : 'branchId')
     ..aOS(6, _omitFieldNames ? '' : 'organizationId')
-    ..e<ApplicationStatus>(
-        7, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE,
-        defaultOrMaker: ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED,
-        valueOf: ApplicationStatus.valueOf,
-        enumValues: ApplicationStatus.values)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'requestedAmount',
-        subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'approvedAmount',
-        subBuilder: $9.Money.create)
-    ..a<$core.int>(
-        10, _omitFieldNames ? '' : 'requestedTermDays', $pb.PbFieldType.O3)
-    ..a<$core.int>(
-        11, _omitFieldNames ? '' : 'approvedTermDays', $pb.PbFieldType.O3)
+    ..e<ApplicationStatus>(7, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED, valueOf: ApplicationStatus.valueOf, enumValues: ApplicationStatus.values)
+    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'requestedAmount', subBuilder: $9.Money.create)
+    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'approvedAmount', subBuilder: $9.Money.create)
+    ..a<$core.int>(10, _omitFieldNames ? '' : 'requestedTermDays', $pb.PbFieldType.O3)
+    ..a<$core.int>(11, _omitFieldNames ? '' : 'approvedTermDays', $pb.PbFieldType.O3)
     ..aOS(12, _omitFieldNames ? '' : 'interestRate')
-    ..aOM<$6.Struct>(14, _omitFieldNames ? '' : 'kycData',
-        subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(14, _omitFieldNames ? '' : 'kycData', subBuilder: $6.Struct.create)
     ..aOS(15, _omitFieldNames ? '' : 'purpose')
     ..aOS(16, _omitFieldNames ? '' : 'rejectionReason')
     ..aOS(17, _omitFieldNames ? '' : 'workflowInstanceId')
@@ -632,40 +517,35 @@ class ApplicationObject extends $pb.GeneratedMessage {
     ..aOS(19, _omitFieldNames ? '' : 'submittedAt')
     ..aOS(20, _omitFieldNames ? '' : 'decidedAt')
     ..aOS(21, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$6.Struct>(22, _omitFieldNames ? '' : 'properties',
-        subBuilder: $6.Struct.create)
-    ..hasRequiredFields = false;
+    ..aOM<$6.Struct>(22, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   ApplicationObject clone() => ApplicationObject()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationObject copyWith(void Function(ApplicationObject) updates) =>
-      super.copyWith((message) => updates(message as ApplicationObject))
-          as ApplicationObject;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationObject copyWith(void Function(ApplicationObject) updates) => super.copyWith((message) => updates(message as ApplicationObject)) as ApplicationObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationObject create() => ApplicationObject._();
   ApplicationObject createEmptyInstance() => create();
-  static $pb.PbList<ApplicationObject> createRepeated() =>
-      $pb.PbList<ApplicationObject>();
+  static $pb.PbList<ApplicationObject> createRepeated() => $pb.PbList<ApplicationObject>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationObject getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationObject>(create);
+  static ApplicationObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationObject>(create);
   static ApplicationObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -674,10 +554,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get productId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set productId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set productId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasProductId() => $_has(1);
   @$pb.TagNumber(2)
@@ -686,10 +563,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get clientId => $_getSZ(2);
   @$pb.TagNumber(3)
-  set clientId($core.String v) {
-    $_setString(2, v);
-  }
-
+  set clientId($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasClientId() => $_has(2);
   @$pb.TagNumber(3)
@@ -698,10 +572,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get agentId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set agentId($core.String v) {
-    $_setString(3, v);
-  }
-
+  set agentId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasAgentId() => $_has(3);
   @$pb.TagNumber(4)
@@ -710,10 +581,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get branchId => $_getSZ(4);
   @$pb.TagNumber(5)
-  set branchId($core.String v) {
-    $_setString(4, v);
-  }
-
+  set branchId($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
   $core.bool hasBranchId() => $_has(4);
   @$pb.TagNumber(5)
@@ -722,10 +590,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get organizationId => $_getSZ(5);
   @$pb.TagNumber(6)
-  set organizationId($core.String v) {
-    $_setString(5, v);
-  }
-
+  set organizationId($core.String v) { $_setString(5, v); }
   @$pb.TagNumber(6)
   $core.bool hasOrganizationId() => $_has(5);
   @$pb.TagNumber(6)
@@ -734,10 +599,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   ApplicationStatus get status => $_getN(6);
   @$pb.TagNumber(7)
-  set status(ApplicationStatus v) {
-    setField(7, v);
-  }
-
+  set status(ApplicationStatus v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasStatus() => $_has(6);
   @$pb.TagNumber(7)
@@ -746,10 +608,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $9.Money get requestedAmount => $_getN(7);
   @$pb.TagNumber(8)
-  set requestedAmount($9.Money v) {
-    setField(8, v);
-  }
-
+  set requestedAmount($9.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasRequestedAmount() => $_has(7);
   @$pb.TagNumber(8)
@@ -760,10 +619,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $9.Money get approvedAmount => $_getN(8);
   @$pb.TagNumber(9)
-  set approvedAmount($9.Money v) {
-    setField(9, v);
-  }
-
+  set approvedAmount($9.Money v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasApprovedAmount() => $_has(8);
   @$pb.TagNumber(9)
@@ -774,10 +630,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.int get requestedTermDays => $_getIZ(9);
   @$pb.TagNumber(10)
-  set requestedTermDays($core.int v) {
-    $_setSignedInt32(9, v);
-  }
-
+  set requestedTermDays($core.int v) { $_setSignedInt32(9, v); }
   @$pb.TagNumber(10)
   $core.bool hasRequestedTermDays() => $_has(9);
   @$pb.TagNumber(10)
@@ -786,10 +639,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   $core.int get approvedTermDays => $_getIZ(10);
   @$pb.TagNumber(11)
-  set approvedTermDays($core.int v) {
-    $_setSignedInt32(10, v);
-  }
-
+  set approvedTermDays($core.int v) { $_setSignedInt32(10, v); }
   @$pb.TagNumber(11)
   $core.bool hasApprovedTermDays() => $_has(10);
   @$pb.TagNumber(11)
@@ -798,10 +648,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   $core.String get interestRate => $_getSZ(11);
   @$pb.TagNumber(12)
-  set interestRate($core.String v) {
-    $_setString(11, v);
-  }
-
+  set interestRate($core.String v) { $_setString(11, v); }
   @$pb.TagNumber(12)
   $core.bool hasInterestRate() => $_has(11);
   @$pb.TagNumber(12)
@@ -810,10 +657,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(14)
   $6.Struct get kycData => $_getN(12);
   @$pb.TagNumber(14)
-  set kycData($6.Struct v) {
-    setField(14, v);
-  }
-
+  set kycData($6.Struct v) { setField(14, v); }
   @$pb.TagNumber(14)
   $core.bool hasKycData() => $_has(12);
   @$pb.TagNumber(14)
@@ -824,10 +668,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   $core.String get purpose => $_getSZ(13);
   @$pb.TagNumber(15)
-  set purpose($core.String v) {
-    $_setString(13, v);
-  }
-
+  set purpose($core.String v) { $_setString(13, v); }
   @$pb.TagNumber(15)
   $core.bool hasPurpose() => $_has(13);
   @$pb.TagNumber(15)
@@ -836,10 +677,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(16)
   $core.String get rejectionReason => $_getSZ(14);
   @$pb.TagNumber(16)
-  set rejectionReason($core.String v) {
-    $_setString(14, v);
-  }
-
+  set rejectionReason($core.String v) { $_setString(14, v); }
   @$pb.TagNumber(16)
   $core.bool hasRejectionReason() => $_has(14);
   @$pb.TagNumber(16)
@@ -848,10 +686,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(17)
   $core.String get workflowInstanceId => $_getSZ(15);
   @$pb.TagNumber(17)
-  set workflowInstanceId($core.String v) {
-    $_setString(15, v);
-  }
-
+  set workflowInstanceId($core.String v) { $_setString(15, v); }
   @$pb.TagNumber(17)
   $core.bool hasWorkflowInstanceId() => $_has(15);
   @$pb.TagNumber(17)
@@ -860,10 +695,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   $core.String get offerExpiresAt => $_getSZ(16);
   @$pb.TagNumber(18)
-  set offerExpiresAt($core.String v) {
-    $_setString(16, v);
-  }
-
+  set offerExpiresAt($core.String v) { $_setString(16, v); }
   @$pb.TagNumber(18)
   $core.bool hasOfferExpiresAt() => $_has(16);
   @$pb.TagNumber(18)
@@ -872,10 +704,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(19)
   $core.String get submittedAt => $_getSZ(17);
   @$pb.TagNumber(19)
-  set submittedAt($core.String v) {
-    $_setString(17, v);
-  }
-
+  set submittedAt($core.String v) { $_setString(17, v); }
   @$pb.TagNumber(19)
   $core.bool hasSubmittedAt() => $_has(17);
   @$pb.TagNumber(19)
@@ -884,10 +713,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(20)
   $core.String get decidedAt => $_getSZ(18);
   @$pb.TagNumber(20)
-  set decidedAt($core.String v) {
-    $_setString(18, v);
-  }
-
+  set decidedAt($core.String v) { $_setString(18, v); }
   @$pb.TagNumber(20)
   $core.bool hasDecidedAt() => $_has(18);
   @$pb.TagNumber(20)
@@ -896,10 +722,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(21)
   $core.String get loanAccountId => $_getSZ(19);
   @$pb.TagNumber(21)
-  set loanAccountId($core.String v) {
-    $_setString(19, v);
-  }
-
+  set loanAccountId($core.String v) { $_setString(19, v); }
   @$pb.TagNumber(21)
   $core.bool hasLoanAccountId() => $_has(19);
   @$pb.TagNumber(21)
@@ -908,10 +731,7 @@ class ApplicationObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(22)
   $6.Struct get properties => $_getN(20);
   @$pb.TagNumber(22)
-  set properties($6.Struct v) {
-    setField(22, v);
-  }
-
+  set properties($6.Struct v) { setField(22, v); }
   @$pb.TagNumber(22)
   $core.bool hasProperties() => $_has(20);
   @$pb.TagNumber(22)
@@ -972,71 +792,49 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentObject._() : super();
-  factory ApplicationDocumentObject.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentObject.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentObject',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'applicationId')
-    ..e<DocumentType>(
-        3, _omitFieldNames ? '' : 'documentType', $pb.PbFieldType.OE,
-        defaultOrMaker: DocumentType.DOCUMENT_TYPE_UNSPECIFIED,
-        valueOf: DocumentType.valueOf,
-        enumValues: DocumentType.values)
+    ..e<DocumentType>(3, _omitFieldNames ? '' : 'documentType', $pb.PbFieldType.OE, defaultOrMaker: DocumentType.DOCUMENT_TYPE_UNSPECIFIED, valueOf: DocumentType.valueOf, enumValues: DocumentType.values)
     ..aOS(4, _omitFieldNames ? '' : 'fileId')
     ..aOS(5, _omitFieldNames ? '' : 'fileName')
     ..aOS(6, _omitFieldNames ? '' : 'mimeType')
-    ..e<VerificationStatus>(
-        7, _omitFieldNames ? '' : 'verificationStatus', $pb.PbFieldType.OE,
-        defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED,
-        valueOf: VerificationStatus.valueOf,
-        enumValues: VerificationStatus.values)
+    ..e<VerificationStatus>(7, _omitFieldNames ? '' : 'verificationStatus', $pb.PbFieldType.OE, defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED, valueOf: VerificationStatus.valueOf, enumValues: VerificationStatus.values)
     ..aOS(8, _omitFieldNames ? '' : 'verifiedBy')
     ..aOS(9, _omitFieldNames ? '' : 'verifiedAt')
     ..aOS(10, _omitFieldNames ? '' : 'rejectionReason')
-    ..aOM<$6.Struct>(11, _omitFieldNames ? '' : 'properties',
-        subBuilder: $6.Struct.create)
-    ..hasRequiredFields = false;
+    ..aOM<$6.Struct>(11, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentObject clone() =>
-      ApplicationDocumentObject()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentObject copyWith(
-          void Function(ApplicationDocumentObject) updates) =>
-      super.copyWith((message) => updates(message as ApplicationDocumentObject))
-          as ApplicationDocumentObject;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentObject clone() => ApplicationDocumentObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentObject copyWith(void Function(ApplicationDocumentObject) updates) => super.copyWith((message) => updates(message as ApplicationDocumentObject)) as ApplicationDocumentObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationDocumentObject create() => ApplicationDocumentObject._();
   ApplicationDocumentObject createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentObject> createRepeated() =>
-      $pb.PbList<ApplicationDocumentObject>();
+  static $pb.PbList<ApplicationDocumentObject> createRepeated() => $pb.PbList<ApplicationDocumentObject>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentObject getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentObject>(create);
+  static ApplicationDocumentObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentObject>(create);
   static ApplicationDocumentObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -1045,10 +843,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get applicationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set applicationId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set applicationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasApplicationId() => $_has(1);
   @$pb.TagNumber(2)
@@ -1057,10 +852,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   DocumentType get documentType => $_getN(2);
   @$pb.TagNumber(3)
-  set documentType(DocumentType v) {
-    setField(3, v);
-  }
-
+  set documentType(DocumentType v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasDocumentType() => $_has(2);
   @$pb.TagNumber(3)
@@ -1069,10 +861,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get fileId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set fileId($core.String v) {
-    $_setString(3, v);
-  }
-
+  set fileId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasFileId() => $_has(3);
   @$pb.TagNumber(4)
@@ -1081,10 +870,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get fileName => $_getSZ(4);
   @$pb.TagNumber(5)
-  set fileName($core.String v) {
-    $_setString(4, v);
-  }
-
+  set fileName($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
   $core.bool hasFileName() => $_has(4);
   @$pb.TagNumber(5)
@@ -1093,10 +879,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get mimeType => $_getSZ(5);
   @$pb.TagNumber(6)
-  set mimeType($core.String v) {
-    $_setString(5, v);
-  }
-
+  set mimeType($core.String v) { $_setString(5, v); }
   @$pb.TagNumber(6)
   $core.bool hasMimeType() => $_has(5);
   @$pb.TagNumber(6)
@@ -1105,10 +888,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   VerificationStatus get verificationStatus => $_getN(6);
   @$pb.TagNumber(7)
-  set verificationStatus(VerificationStatus v) {
-    setField(7, v);
-  }
-
+  set verificationStatus(VerificationStatus v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasVerificationStatus() => $_has(6);
   @$pb.TagNumber(7)
@@ -1117,10 +897,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.String get verifiedBy => $_getSZ(7);
   @$pb.TagNumber(8)
-  set verifiedBy($core.String v) {
-    $_setString(7, v);
-  }
-
+  set verifiedBy($core.String v) { $_setString(7, v); }
   @$pb.TagNumber(8)
   $core.bool hasVerifiedBy() => $_has(7);
   @$pb.TagNumber(8)
@@ -1129,10 +906,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $core.String get verifiedAt => $_getSZ(8);
   @$pb.TagNumber(9)
-  set verifiedAt($core.String v) {
-    $_setString(8, v);
-  }
-
+  set verifiedAt($core.String v) { $_setString(8, v); }
   @$pb.TagNumber(9)
   $core.bool hasVerifiedAt() => $_has(8);
   @$pb.TagNumber(9)
@@ -1141,10 +915,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.String get rejectionReason => $_getSZ(9);
   @$pb.TagNumber(10)
-  set rejectionReason($core.String v) {
-    $_setString(9, v);
-  }
-
+  set rejectionReason($core.String v) { $_setString(9, v); }
   @$pb.TagNumber(10)
   $core.bool hasRejectionReason() => $_has(9);
   @$pb.TagNumber(10)
@@ -1153,10 +924,7 @@ class ApplicationDocumentObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   $6.Struct get properties => $_getN(10);
   @$pb.TagNumber(11)
-  set properties($6.Struct v) {
-    setField(11, v);
-  }
-
+  set properties($6.Struct v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasProperties() => $_has(10);
   @$pb.TagNumber(11)
@@ -1213,68 +981,48 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskObject._() : super();
-  factory VerificationTaskObject.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskObject.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskObject',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'applicationId')
     ..aOS(3, _omitFieldNames ? '' : 'assignedTo')
     ..aOS(4, _omitFieldNames ? '' : 'verificationType')
-    ..e<VerificationStatus>(
-        5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE,
-        defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED,
-        valueOf: VerificationStatus.valueOf,
-        enumValues: VerificationStatus.values)
+    ..e<VerificationStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED, valueOf: VerificationStatus.valueOf, enumValues: VerificationStatus.values)
     ..aOS(6, _omitFieldNames ? '' : 'notes')
-    ..aOM<$6.Struct>(7, _omitFieldNames ? '' : 'checklist',
-        subBuilder: $6.Struct.create)
-    ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'results',
-        subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(7, _omitFieldNames ? '' : 'checklist', subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'results', subBuilder: $6.Struct.create)
     ..aOS(9, _omitFieldNames ? '' : 'completedAt')
-    ..aOM<$6.Struct>(10, _omitFieldNames ? '' : 'properties',
-        subBuilder: $6.Struct.create)
-    ..hasRequiredFields = false;
+    ..aOM<$6.Struct>(10, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskObject clone() =>
-      VerificationTaskObject()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskObject copyWith(
-          void Function(VerificationTaskObject) updates) =>
-      super.copyWith((message) => updates(message as VerificationTaskObject))
-          as VerificationTaskObject;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskObject clone() => VerificationTaskObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskObject copyWith(void Function(VerificationTaskObject) updates) => super.copyWith((message) => updates(message as VerificationTaskObject)) as VerificationTaskObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static VerificationTaskObject create() => VerificationTaskObject._();
   VerificationTaskObject createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskObject> createRepeated() =>
-      $pb.PbList<VerificationTaskObject>();
+  static $pb.PbList<VerificationTaskObject> createRepeated() => $pb.PbList<VerificationTaskObject>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskObject getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskObject>(create);
+  static VerificationTaskObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskObject>(create);
   static VerificationTaskObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -1283,10 +1031,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get applicationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set applicationId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set applicationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasApplicationId() => $_has(1);
   @$pb.TagNumber(2)
@@ -1295,10 +1040,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get assignedTo => $_getSZ(2);
   @$pb.TagNumber(3)
-  set assignedTo($core.String v) {
-    $_setString(2, v);
-  }
-
+  set assignedTo($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasAssignedTo() => $_has(2);
   @$pb.TagNumber(3)
@@ -1307,10 +1049,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get verificationType => $_getSZ(3);
   @$pb.TagNumber(4)
-  set verificationType($core.String v) {
-    $_setString(3, v);
-  }
-
+  set verificationType($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasVerificationType() => $_has(3);
   @$pb.TagNumber(4)
@@ -1319,10 +1058,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   VerificationStatus get status => $_getN(4);
   @$pb.TagNumber(5)
-  set status(VerificationStatus v) {
-    setField(5, v);
-  }
-
+  set status(VerificationStatus v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasStatus() => $_has(4);
   @$pb.TagNumber(5)
@@ -1331,10 +1067,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get notes => $_getSZ(5);
   @$pb.TagNumber(6)
-  set notes($core.String v) {
-    $_setString(5, v);
-  }
-
+  set notes($core.String v) { $_setString(5, v); }
   @$pb.TagNumber(6)
   $core.bool hasNotes() => $_has(5);
   @$pb.TagNumber(6)
@@ -1343,10 +1076,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $6.Struct get checklist => $_getN(6);
   @$pb.TagNumber(7)
-  set checklist($6.Struct v) {
-    setField(7, v);
-  }
-
+  set checklist($6.Struct v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasChecklist() => $_has(6);
   @$pb.TagNumber(7)
@@ -1357,10 +1087,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $6.Struct get results => $_getN(7);
   @$pb.TagNumber(8)
-  set results($6.Struct v) {
-    setField(8, v);
-  }
-
+  set results($6.Struct v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasResults() => $_has(7);
   @$pb.TagNumber(8)
@@ -1371,10 +1098,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $core.String get completedAt => $_getSZ(8);
   @$pb.TagNumber(9)
-  set completedAt($core.String v) {
-    $_setString(8, v);
-  }
-
+  set completedAt($core.String v) { $_setString(8, v); }
   @$pb.TagNumber(9)
   $core.bool hasCompletedAt() => $_has(8);
   @$pb.TagNumber(9)
@@ -1383,10 +1107,7 @@ class VerificationTaskObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $6.Struct get properties => $_getN(9);
   @$pb.TagNumber(10)
-  set properties($6.Struct v) {
-    setField(10, v);
-  }
-
+  set properties($6.Struct v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasProperties() => $_has(9);
   @$pb.TagNumber(10)
@@ -1455,74 +1176,51 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionObject._() : super();
-  factory UnderwritingDecisionObject.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionObject.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionObject',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'applicationId')
     ..aOS(3, _omitFieldNames ? '' : 'decidedBy')
-    ..e<UnderwritingOutcome>(
-        4, _omitFieldNames ? '' : 'outcome', $pb.PbFieldType.OE,
-        defaultOrMaker: UnderwritingOutcome.UNDERWRITING_OUTCOME_UNSPECIFIED,
-        valueOf: UnderwritingOutcome.valueOf,
-        enumValues: UnderwritingOutcome.values)
+    ..e<UnderwritingOutcome>(4, _omitFieldNames ? '' : 'outcome', $pb.PbFieldType.OE, defaultOrMaker: UnderwritingOutcome.UNDERWRITING_OUTCOME_UNSPECIFIED, valueOf: UnderwritingOutcome.valueOf, enumValues: UnderwritingOutcome.values)
     ..a<$core.int>(5, _omitFieldNames ? '' : 'creditScore', $pb.PbFieldType.O3)
     ..aOS(6, _omitFieldNames ? '' : 'riskGrade')
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'approvedAmount',
-        subBuilder: $9.Money.create)
-    ..a<$core.int>(
-        8, _omitFieldNames ? '' : 'approvedTermDays', $pb.PbFieldType.O3)
+    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'approvedAmount', subBuilder: $9.Money.create)
+    ..a<$core.int>(8, _omitFieldNames ? '' : 'approvedTermDays', $pb.PbFieldType.O3)
     ..aOS(9, _omitFieldNames ? '' : 'approvedRate')
     ..aOS(10, _omitFieldNames ? '' : 'reason')
-    ..aOM<$6.Struct>(11, _omitFieldNames ? '' : 'scoringDetails',
-        subBuilder: $6.Struct.create)
-    ..aOM<$6.Struct>(12, _omitFieldNames ? '' : 'conditions',
-        subBuilder: $6.Struct.create)
-    ..aOM<$6.Struct>(13, _omitFieldNames ? '' : 'properties',
-        subBuilder: $6.Struct.create)
-    ..hasRequiredFields = false;
+    ..aOM<$6.Struct>(11, _omitFieldNames ? '' : 'scoringDetails', subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(12, _omitFieldNames ? '' : 'conditions', subBuilder: $6.Struct.create)
+    ..aOM<$6.Struct>(13, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionObject clone() =>
-      UnderwritingDecisionObject()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionObject copyWith(
-          void Function(UnderwritingDecisionObject) updates) =>
-      super.copyWith(
-              (message) => updates(message as UnderwritingDecisionObject))
-          as UnderwritingDecisionObject;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionObject clone() => UnderwritingDecisionObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionObject copyWith(void Function(UnderwritingDecisionObject) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionObject)) as UnderwritingDecisionObject;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static UnderwritingDecisionObject create() => UnderwritingDecisionObject._();
   UnderwritingDecisionObject createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionObject> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionObject>();
+  static $pb.PbList<UnderwritingDecisionObject> createRepeated() => $pb.PbList<UnderwritingDecisionObject>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionObject getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionObject>(create);
+  static UnderwritingDecisionObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionObject>(create);
   static UnderwritingDecisionObject? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -1531,10 +1229,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get applicationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set applicationId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set applicationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasApplicationId() => $_has(1);
   @$pb.TagNumber(2)
@@ -1543,10 +1238,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get decidedBy => $_getSZ(2);
   @$pb.TagNumber(3)
-  set decidedBy($core.String v) {
-    $_setString(2, v);
-  }
-
+  set decidedBy($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasDecidedBy() => $_has(2);
   @$pb.TagNumber(3)
@@ -1555,10 +1247,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   UnderwritingOutcome get outcome => $_getN(3);
   @$pb.TagNumber(4)
-  set outcome(UnderwritingOutcome v) {
-    setField(4, v);
-  }
-
+  set outcome(UnderwritingOutcome v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasOutcome() => $_has(3);
   @$pb.TagNumber(4)
@@ -1567,10 +1256,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.int get creditScore => $_getIZ(4);
   @$pb.TagNumber(5)
-  set creditScore($core.int v) {
-    $_setSignedInt32(4, v);
-  }
-
+  set creditScore($core.int v) { $_setSignedInt32(4, v); }
   @$pb.TagNumber(5)
   $core.bool hasCreditScore() => $_has(4);
   @$pb.TagNumber(5)
@@ -1579,10 +1265,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get riskGrade => $_getSZ(5);
   @$pb.TagNumber(6)
-  set riskGrade($core.String v) {
-    $_setString(5, v);
-  }
-
+  set riskGrade($core.String v) { $_setString(5, v); }
   @$pb.TagNumber(6)
   $core.bool hasRiskGrade() => $_has(5);
   @$pb.TagNumber(6)
@@ -1591,10 +1274,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $9.Money get approvedAmount => $_getN(6);
   @$pb.TagNumber(7)
-  set approvedAmount($9.Money v) {
-    setField(7, v);
-  }
-
+  set approvedAmount($9.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasApprovedAmount() => $_has(6);
   @$pb.TagNumber(7)
@@ -1605,10 +1285,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.int get approvedTermDays => $_getIZ(7);
   @$pb.TagNumber(8)
-  set approvedTermDays($core.int v) {
-    $_setSignedInt32(7, v);
-  }
-
+  set approvedTermDays($core.int v) { $_setSignedInt32(7, v); }
   @$pb.TagNumber(8)
   $core.bool hasApprovedTermDays() => $_has(7);
   @$pb.TagNumber(8)
@@ -1617,10 +1294,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $core.String get approvedRate => $_getSZ(8);
   @$pb.TagNumber(9)
-  set approvedRate($core.String v) {
-    $_setString(8, v);
-  }
-
+  set approvedRate($core.String v) { $_setString(8, v); }
   @$pb.TagNumber(9)
   $core.bool hasApprovedRate() => $_has(8);
   @$pb.TagNumber(9)
@@ -1629,10 +1303,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.String get reason => $_getSZ(9);
   @$pb.TagNumber(10)
-  set reason($core.String v) {
-    $_setString(9, v);
-  }
-
+  set reason($core.String v) { $_setString(9, v); }
   @$pb.TagNumber(10)
   $core.bool hasReason() => $_has(9);
   @$pb.TagNumber(10)
@@ -1641,10 +1312,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   $6.Struct get scoringDetails => $_getN(10);
   @$pb.TagNumber(11)
-  set scoringDetails($6.Struct v) {
-    setField(11, v);
-  }
-
+  set scoringDetails($6.Struct v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasScoringDetails() => $_has(10);
   @$pb.TagNumber(11)
@@ -1655,10 +1323,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   $6.Struct get conditions => $_getN(11);
   @$pb.TagNumber(12)
-  set conditions($6.Struct v) {
-    setField(12, v);
-  }
-
+  set conditions($6.Struct v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasConditions() => $_has(11);
   @$pb.TagNumber(12)
@@ -1669,10 +1334,7 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   $6.Struct get properties => $_getN(12);
   @$pb.TagNumber(13)
-  set properties($6.Struct v) {
-    setField(13, v);
-  }
-
+  set properties($6.Struct v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasProperties() => $_has(12);
   @$pb.TagNumber(13)
@@ -1692,53 +1354,39 @@ class LoanProductSaveRequest extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductSaveRequest._() : super();
-  factory LoanProductSaveRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductSaveRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductSaveRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<LoanProductObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: LoanProductObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<LoanProductObject>(1, _omitFieldNames ? '' : 'data', subBuilder: LoanProductObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  LoanProductSaveRequest clone() =>
-      LoanProductSaveRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductSaveRequest copyWith(
-          void Function(LoanProductSaveRequest) updates) =>
-      super.copyWith((message) => updates(message as LoanProductSaveRequest))
-          as LoanProductSaveRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LoanProductSaveRequest clone() => LoanProductSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductSaveRequest copyWith(void Function(LoanProductSaveRequest) updates) => super.copyWith((message) => updates(message as LoanProductSaveRequest)) as LoanProductSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductSaveRequest create() => LoanProductSaveRequest._();
   LoanProductSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<LoanProductSaveRequest> createRepeated() =>
-      $pb.PbList<LoanProductSaveRequest>();
+  static $pb.PbList<LoanProductSaveRequest> createRepeated() => $pb.PbList<LoanProductSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductSaveRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductSaveRequest>(create);
+  static LoanProductSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductSaveRequest>(create);
   static LoanProductSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   LoanProductObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(LoanProductObject v) {
-    setField(1, v);
-  }
-
+  set data(LoanProductObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -1758,53 +1406,39 @@ class LoanProductSaveResponse extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductSaveResponse._() : super();
-  factory LoanProductSaveResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductSaveResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductSaveResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<LoanProductObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: LoanProductObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<LoanProductObject>(1, _omitFieldNames ? '' : 'data', subBuilder: LoanProductObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  LoanProductSaveResponse clone() =>
-      LoanProductSaveResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductSaveResponse copyWith(
-          void Function(LoanProductSaveResponse) updates) =>
-      super.copyWith((message) => updates(message as LoanProductSaveResponse))
-          as LoanProductSaveResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LoanProductSaveResponse clone() => LoanProductSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductSaveResponse copyWith(void Function(LoanProductSaveResponse) updates) => super.copyWith((message) => updates(message as LoanProductSaveResponse)) as LoanProductSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductSaveResponse create() => LoanProductSaveResponse._();
   LoanProductSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<LoanProductSaveResponse> createRepeated() =>
-      $pb.PbList<LoanProductSaveResponse>();
+  static $pb.PbList<LoanProductSaveResponse> createRepeated() => $pb.PbList<LoanProductSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductSaveResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductSaveResponse>(create);
+  static LoanProductSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductSaveResponse>(create);
   static LoanProductSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   LoanProductObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(LoanProductObject v) {
-    setField(1, v);
-  }
-
+  set data(LoanProductObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -1824,52 +1458,39 @@ class LoanProductGetRequest extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductGetRequest._() : super();
-  factory LoanProductGetRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductGetRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductGetRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  LoanProductGetRequest clone() =>
-      LoanProductGetRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductGetRequest copyWith(
-          void Function(LoanProductGetRequest) updates) =>
-      super.copyWith((message) => updates(message as LoanProductGetRequest))
-          as LoanProductGetRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LoanProductGetRequest clone() => LoanProductGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductGetRequest copyWith(void Function(LoanProductGetRequest) updates) => super.copyWith((message) => updates(message as LoanProductGetRequest)) as LoanProductGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductGetRequest create() => LoanProductGetRequest._();
   LoanProductGetRequest createEmptyInstance() => create();
-  static $pb.PbList<LoanProductGetRequest> createRepeated() =>
-      $pb.PbList<LoanProductGetRequest>();
+  static $pb.PbList<LoanProductGetRequest> createRepeated() => $pb.PbList<LoanProductGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductGetRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductGetRequest>(create);
+  static LoanProductGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductGetRequest>(create);
   static LoanProductGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -1887,53 +1508,39 @@ class LoanProductGetResponse extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductGetResponse._() : super();
-  factory LoanProductGetResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductGetResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductGetResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<LoanProductObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: LoanProductObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<LoanProductObject>(1, _omitFieldNames ? '' : 'data', subBuilder: LoanProductObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  LoanProductGetResponse clone() =>
-      LoanProductGetResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductGetResponse copyWith(
-          void Function(LoanProductGetResponse) updates) =>
-      super.copyWith((message) => updates(message as LoanProductGetResponse))
-          as LoanProductGetResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LoanProductGetResponse clone() => LoanProductGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductGetResponse copyWith(void Function(LoanProductGetResponse) updates) => super.copyWith((message) => updates(message as LoanProductGetResponse)) as LoanProductGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductGetResponse create() => LoanProductGetResponse._();
   LoanProductGetResponse createEmptyInstance() => create();
-  static $pb.PbList<LoanProductGetResponse> createRepeated() =>
-      $pb.PbList<LoanProductGetResponse>();
+  static $pb.PbList<LoanProductGetResponse> createRepeated() => $pb.PbList<LoanProductGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductGetResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductGetResponse>(create);
+  static LoanProductGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductGetResponse>(create);
   static LoanProductGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   LoanProductObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(LoanProductObject v) {
-    setField(1, v);
-  }
-
+  set data(LoanProductObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -1965,60 +1572,42 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductSearchRequest._() : super();
-  factory LoanProductSearchRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductSearchRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductSearchRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'organizationId')
-    ..e<LoanProductType>(
-        3, _omitFieldNames ? '' : 'productType', $pb.PbFieldType.OE,
-        defaultOrMaker: LoanProductType.LOAN_PRODUCT_TYPE_UNSPECIFIED,
-        valueOf: LoanProductType.valueOf,
-        enumValues: LoanProductType.values)
-    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor',
-        subBuilder: $7.PageCursor.create)
-    ..hasRequiredFields = false;
+    ..e<LoanProductType>(3, _omitFieldNames ? '' : 'productType', $pb.PbFieldType.OE, defaultOrMaker: LoanProductType.LOAN_PRODUCT_TYPE_UNSPECIFIED, valueOf: LoanProductType.valueOf, enumValues: LoanProductType.values)
+    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  LoanProductSearchRequest clone() =>
-      LoanProductSearchRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductSearchRequest copyWith(
-          void Function(LoanProductSearchRequest) updates) =>
-      super.copyWith((message) => updates(message as LoanProductSearchRequest))
-          as LoanProductSearchRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LoanProductSearchRequest clone() => LoanProductSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductSearchRequest copyWith(void Function(LoanProductSearchRequest) updates) => super.copyWith((message) => updates(message as LoanProductSearchRequest)) as LoanProductSearchRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductSearchRequest create() => LoanProductSearchRequest._();
   LoanProductSearchRequest createEmptyInstance() => create();
-  static $pb.PbList<LoanProductSearchRequest> createRepeated() =>
-      $pb.PbList<LoanProductSearchRequest>();
+  static $pb.PbList<LoanProductSearchRequest> createRepeated() => $pb.PbList<LoanProductSearchRequest>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductSearchRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductSearchRequest>(create);
+  static LoanProductSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductSearchRequest>(create);
   static LoanProductSearchRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get query => $_getSZ(0);
   @$pb.TagNumber(1)
-  set query($core.String v) {
-    $_setString(0, v);
-  }
-
+  set query($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasQuery() => $_has(0);
   @$pb.TagNumber(1)
@@ -2027,10 +1616,7 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set organizationId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
@@ -2039,10 +1625,7 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   LoanProductType get productType => $_getN(2);
   @$pb.TagNumber(3)
-  set productType(LoanProductType v) {
-    setField(3, v);
-  }
-
+  set productType(LoanProductType v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasProductType() => $_has(2);
   @$pb.TagNumber(3)
@@ -2051,10 +1634,7 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $7.PageCursor get cursor => $_getN(3);
   @$pb.TagNumber(4)
-  set cursor($7.PageCursor v) {
-    setField(4, v);
-  }
-
+  set cursor($7.PageCursor v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasCursor() => $_has(3);
   @$pb.TagNumber(4)
@@ -2074,45 +1654,33 @@ class LoanProductSearchResponse extends $pb.GeneratedMessage {
     return $result;
   }
   LoanProductSearchResponse._() : super();
-  factory LoanProductSearchResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory LoanProductSearchResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory LoanProductSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LoanProductSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'LoanProductSearchResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..pc<LoanProductObject>(
-        1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM,
-        subBuilder: LoanProductObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanProductSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..pc<LoanProductObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: LoanProductObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  LoanProductSearchResponse clone() =>
-      LoanProductSearchResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  LoanProductSearchResponse copyWith(
-          void Function(LoanProductSearchResponse) updates) =>
-      super.copyWith((message) => updates(message as LoanProductSearchResponse))
-          as LoanProductSearchResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LoanProductSearchResponse clone() => LoanProductSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LoanProductSearchResponse copyWith(void Function(LoanProductSearchResponse) updates) => super.copyWith((message) => updates(message as LoanProductSearchResponse)) as LoanProductSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LoanProductSearchResponse create() => LoanProductSearchResponse._();
   LoanProductSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<LoanProductSearchResponse> createRepeated() =>
-      $pb.PbList<LoanProductSearchResponse>();
+  static $pb.PbList<LoanProductSearchResponse> createRepeated() => $pb.PbList<LoanProductSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static LoanProductSearchResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LoanProductSearchResponse>(create);
+  static LoanProductSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LoanProductSearchResponse>(create);
   static LoanProductSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2130,53 +1698,39 @@ class ApplicationSaveRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationSaveRequest._() : super();
-  factory ApplicationSaveRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationSaveRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationSaveRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationSaveRequest clone() =>
-      ApplicationSaveRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationSaveRequest copyWith(
-          void Function(ApplicationSaveRequest) updates) =>
-      super.copyWith((message) => updates(message as ApplicationSaveRequest))
-          as ApplicationSaveRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationSaveRequest clone() => ApplicationSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationSaveRequest copyWith(void Function(ApplicationSaveRequest) updates) => super.copyWith((message) => updates(message as ApplicationSaveRequest)) as ApplicationSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationSaveRequest create() => ApplicationSaveRequest._();
   ApplicationSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationSaveRequest> createRepeated() =>
-      $pb.PbList<ApplicationSaveRequest>();
+  static $pb.PbList<ApplicationSaveRequest> createRepeated() => $pb.PbList<ApplicationSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationSaveRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationSaveRequest>(create);
+  static ApplicationSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationSaveRequest>(create);
   static ApplicationSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -2196,53 +1750,39 @@ class ApplicationSaveResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationSaveResponse._() : super();
-  factory ApplicationSaveResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationSaveResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationSaveResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationSaveResponse clone() =>
-      ApplicationSaveResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationSaveResponse copyWith(
-          void Function(ApplicationSaveResponse) updates) =>
-      super.copyWith((message) => updates(message as ApplicationSaveResponse))
-          as ApplicationSaveResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationSaveResponse clone() => ApplicationSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationSaveResponse copyWith(void Function(ApplicationSaveResponse) updates) => super.copyWith((message) => updates(message as ApplicationSaveResponse)) as ApplicationSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationSaveResponse create() => ApplicationSaveResponse._();
   ApplicationSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationSaveResponse> createRepeated() =>
-      $pb.PbList<ApplicationSaveResponse>();
+  static $pb.PbList<ApplicationSaveResponse> createRepeated() => $pb.PbList<ApplicationSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationSaveResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationSaveResponse>(create);
+  static ApplicationSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationSaveResponse>(create);
   static ApplicationSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -2262,52 +1802,39 @@ class ApplicationGetRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationGetRequest._() : super();
-  factory ApplicationGetRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationGetRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationGetRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationGetRequest clone() =>
-      ApplicationGetRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationGetRequest copyWith(
-          void Function(ApplicationGetRequest) updates) =>
-      super.copyWith((message) => updates(message as ApplicationGetRequest))
-          as ApplicationGetRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationGetRequest clone() => ApplicationGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationGetRequest copyWith(void Function(ApplicationGetRequest) updates) => super.copyWith((message) => updates(message as ApplicationGetRequest)) as ApplicationGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationGetRequest create() => ApplicationGetRequest._();
   ApplicationGetRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationGetRequest> createRepeated() =>
-      $pb.PbList<ApplicationGetRequest>();
+  static $pb.PbList<ApplicationGetRequest> createRepeated() => $pb.PbList<ApplicationGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationGetRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationGetRequest>(create);
+  static ApplicationGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationGetRequest>(create);
   static ApplicationGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -2325,53 +1852,39 @@ class ApplicationGetResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationGetResponse._() : super();
-  factory ApplicationGetResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationGetResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationGetResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationGetResponse clone() =>
-      ApplicationGetResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationGetResponse copyWith(
-          void Function(ApplicationGetResponse) updates) =>
-      super.copyWith((message) => updates(message as ApplicationGetResponse))
-          as ApplicationGetResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationGetResponse clone() => ApplicationGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationGetResponse copyWith(void Function(ApplicationGetResponse) updates) => super.copyWith((message) => updates(message as ApplicationGetResponse)) as ApplicationGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationGetResponse create() => ApplicationGetResponse._();
   ApplicationGetResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationGetResponse> createRepeated() =>
-      $pb.PbList<ApplicationGetResponse>();
+  static $pb.PbList<ApplicationGetResponse> createRepeated() => $pb.PbList<ApplicationGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationGetResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationGetResponse>(create);
+  static ApplicationGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationGetResponse>(create);
   static ApplicationGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -2415,63 +1928,45 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationSearchRequest._() : super();
-  factory ApplicationSearchRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationSearchRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationSearchRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'clientId')
     ..aOS(3, _omitFieldNames ? '' : 'agentId')
     ..aOS(4, _omitFieldNames ? '' : 'branchId')
     ..aOS(5, _omitFieldNames ? '' : 'organizationId')
-    ..e<ApplicationStatus>(
-        6, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE,
-        defaultOrMaker: ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED,
-        valueOf: ApplicationStatus.valueOf,
-        enumValues: ApplicationStatus.values)
-    ..aOM<$7.PageCursor>(7, _omitFieldNames ? '' : 'cursor',
-        subBuilder: $7.PageCursor.create)
-    ..hasRequiredFields = false;
+    ..e<ApplicationStatus>(6, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED, valueOf: ApplicationStatus.valueOf, enumValues: ApplicationStatus.values)
+    ..aOM<$7.PageCursor>(7, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationSearchRequest clone() =>
-      ApplicationSearchRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationSearchRequest copyWith(
-          void Function(ApplicationSearchRequest) updates) =>
-      super.copyWith((message) => updates(message as ApplicationSearchRequest))
-          as ApplicationSearchRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationSearchRequest clone() => ApplicationSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationSearchRequest copyWith(void Function(ApplicationSearchRequest) updates) => super.copyWith((message) => updates(message as ApplicationSearchRequest)) as ApplicationSearchRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationSearchRequest create() => ApplicationSearchRequest._();
   ApplicationSearchRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationSearchRequest> createRepeated() =>
-      $pb.PbList<ApplicationSearchRequest>();
+  static $pb.PbList<ApplicationSearchRequest> createRepeated() => $pb.PbList<ApplicationSearchRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationSearchRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationSearchRequest>(create);
+  static ApplicationSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationSearchRequest>(create);
   static ApplicationSearchRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get query => $_getSZ(0);
   @$pb.TagNumber(1)
-  set query($core.String v) {
-    $_setString(0, v);
-  }
-
+  set query($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasQuery() => $_has(0);
   @$pb.TagNumber(1)
@@ -2480,10 +1975,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get clientId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set clientId($core.String v) {
-    $_setString(1, v);
-  }
-
+  set clientId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasClientId() => $_has(1);
   @$pb.TagNumber(2)
@@ -2492,10 +1984,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get agentId => $_getSZ(2);
   @$pb.TagNumber(3)
-  set agentId($core.String v) {
-    $_setString(2, v);
-  }
-
+  set agentId($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasAgentId() => $_has(2);
   @$pb.TagNumber(3)
@@ -2504,10 +1993,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get branchId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set branchId($core.String v) {
-    $_setString(3, v);
-  }
-
+  set branchId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasBranchId() => $_has(3);
   @$pb.TagNumber(4)
@@ -2516,10 +2002,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get organizationId => $_getSZ(4);
   @$pb.TagNumber(5)
-  set organizationId($core.String v) {
-    $_setString(4, v);
-  }
-
+  set organizationId($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
   $core.bool hasOrganizationId() => $_has(4);
   @$pb.TagNumber(5)
@@ -2528,10 +2011,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   ApplicationStatus get status => $_getN(5);
   @$pb.TagNumber(6)
-  set status(ApplicationStatus v) {
-    setField(6, v);
-  }
-
+  set status(ApplicationStatus v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasStatus() => $_has(5);
   @$pb.TagNumber(6)
@@ -2540,10 +2020,7 @@ class ApplicationSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $7.PageCursor get cursor => $_getN(6);
   @$pb.TagNumber(7)
-  set cursor($7.PageCursor v) {
-    setField(7, v);
-  }
-
+  set cursor($7.PageCursor v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasCursor() => $_has(6);
   @$pb.TagNumber(7)
@@ -2563,45 +2040,33 @@ class ApplicationSearchResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationSearchResponse._() : super();
-  factory ApplicationSearchResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationSearchResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationSearchResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..pc<ApplicationObject>(
-        1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM,
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..pc<ApplicationObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationSearchResponse clone() =>
-      ApplicationSearchResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationSearchResponse copyWith(
-          void Function(ApplicationSearchResponse) updates) =>
-      super.copyWith((message) => updates(message as ApplicationSearchResponse))
-          as ApplicationSearchResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationSearchResponse clone() => ApplicationSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationSearchResponse copyWith(void Function(ApplicationSearchResponse) updates) => super.copyWith((message) => updates(message as ApplicationSearchResponse)) as ApplicationSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationSearchResponse create() => ApplicationSearchResponse._();
   ApplicationSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationSearchResponse> createRepeated() =>
-      $pb.PbList<ApplicationSearchResponse>();
+  static $pb.PbList<ApplicationSearchResponse> createRepeated() => $pb.PbList<ApplicationSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationSearchResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationSearchResponse>(create);
+  static ApplicationSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationSearchResponse>(create);
   static ApplicationSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2619,52 +2084,39 @@ class ApplicationSubmitRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationSubmitRequest._() : super();
-  factory ApplicationSubmitRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationSubmitRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationSubmitRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationSubmitRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationSubmitRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSubmitRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationSubmitRequest clone() =>
-      ApplicationSubmitRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationSubmitRequest copyWith(
-          void Function(ApplicationSubmitRequest) updates) =>
-      super.copyWith((message) => updates(message as ApplicationSubmitRequest))
-          as ApplicationSubmitRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationSubmitRequest clone() => ApplicationSubmitRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationSubmitRequest copyWith(void Function(ApplicationSubmitRequest) updates) => super.copyWith((message) => updates(message as ApplicationSubmitRequest)) as ApplicationSubmitRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationSubmitRequest create() => ApplicationSubmitRequest._();
   ApplicationSubmitRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationSubmitRequest> createRepeated() =>
-      $pb.PbList<ApplicationSubmitRequest>();
+  static $pb.PbList<ApplicationSubmitRequest> createRepeated() => $pb.PbList<ApplicationSubmitRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationSubmitRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationSubmitRequest>(create);
+  static ApplicationSubmitRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationSubmitRequest>(create);
   static ApplicationSubmitRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -2682,53 +2134,39 @@ class ApplicationSubmitResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationSubmitResponse._() : super();
-  factory ApplicationSubmitResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationSubmitResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationSubmitResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationSubmitResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationSubmitResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationSubmitResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationSubmitResponse clone() =>
-      ApplicationSubmitResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationSubmitResponse copyWith(
-          void Function(ApplicationSubmitResponse) updates) =>
-      super.copyWith((message) => updates(message as ApplicationSubmitResponse))
-          as ApplicationSubmitResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationSubmitResponse clone() => ApplicationSubmitResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationSubmitResponse copyWith(void Function(ApplicationSubmitResponse) updates) => super.copyWith((message) => updates(message as ApplicationSubmitResponse)) as ApplicationSubmitResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationSubmitResponse create() => ApplicationSubmitResponse._();
   ApplicationSubmitResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationSubmitResponse> createRepeated() =>
-      $pb.PbList<ApplicationSubmitResponse>();
+  static $pb.PbList<ApplicationSubmitResponse> createRepeated() => $pb.PbList<ApplicationSubmitResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationSubmitResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationSubmitResponse>(create);
+  static ApplicationSubmitResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationSubmitResponse>(create);
   static ApplicationSubmitResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -2752,53 +2190,40 @@ class ApplicationCancelRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationCancelRequest._() : super();
-  factory ApplicationCancelRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationCancelRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationCancelRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationCancelRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationCancelRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationCancelRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'reason')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationCancelRequest clone() =>
-      ApplicationCancelRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationCancelRequest copyWith(
-          void Function(ApplicationCancelRequest) updates) =>
-      super.copyWith((message) => updates(message as ApplicationCancelRequest))
-          as ApplicationCancelRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationCancelRequest clone() => ApplicationCancelRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationCancelRequest copyWith(void Function(ApplicationCancelRequest) updates) => super.copyWith((message) => updates(message as ApplicationCancelRequest)) as ApplicationCancelRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationCancelRequest create() => ApplicationCancelRequest._();
   ApplicationCancelRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationCancelRequest> createRepeated() =>
-      $pb.PbList<ApplicationCancelRequest>();
+  static $pb.PbList<ApplicationCancelRequest> createRepeated() => $pb.PbList<ApplicationCancelRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationCancelRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationCancelRequest>(create);
+  static ApplicationCancelRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationCancelRequest>(create);
   static ApplicationCancelRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -2807,10 +2232,7 @@ class ApplicationCancelRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get reason => $_getSZ(1);
   @$pb.TagNumber(2)
-  set reason($core.String v) {
-    $_setString(1, v);
-  }
-
+  set reason($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasReason() => $_has(1);
   @$pb.TagNumber(2)
@@ -2828,53 +2250,39 @@ class ApplicationCancelResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationCancelResponse._() : super();
-  factory ApplicationCancelResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationCancelResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationCancelResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationCancelResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationCancelResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationCancelResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationCancelResponse clone() =>
-      ApplicationCancelResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationCancelResponse copyWith(
-          void Function(ApplicationCancelResponse) updates) =>
-      super.copyWith((message) => updates(message as ApplicationCancelResponse))
-          as ApplicationCancelResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationCancelResponse clone() => ApplicationCancelResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationCancelResponse copyWith(void Function(ApplicationCancelResponse) updates) => super.copyWith((message) => updates(message as ApplicationCancelResponse)) as ApplicationCancelResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ApplicationCancelResponse create() => ApplicationCancelResponse._();
   ApplicationCancelResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationCancelResponse> createRepeated() =>
-      $pb.PbList<ApplicationCancelResponse>();
+  static $pb.PbList<ApplicationCancelResponse> createRepeated() => $pb.PbList<ApplicationCancelResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationCancelResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationCancelResponse>(create);
+  static ApplicationCancelResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationCancelResponse>(create);
   static ApplicationCancelResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -2894,54 +2302,39 @@ class ApplicationAcceptOfferRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationAcceptOfferRequest._() : super();
-  factory ApplicationAcceptOfferRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationAcceptOfferRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationAcceptOfferRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationAcceptOfferRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationAcceptOfferRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationAcceptOfferRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationAcceptOfferRequest clone() =>
-      ApplicationAcceptOfferRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationAcceptOfferRequest copyWith(
-          void Function(ApplicationAcceptOfferRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationAcceptOfferRequest))
-          as ApplicationAcceptOfferRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationAcceptOfferRequest clone() => ApplicationAcceptOfferRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationAcceptOfferRequest copyWith(void Function(ApplicationAcceptOfferRequest) updates) => super.copyWith((message) => updates(message as ApplicationAcceptOfferRequest)) as ApplicationAcceptOfferRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationAcceptOfferRequest create() =>
-      ApplicationAcceptOfferRequest._();
+  static ApplicationAcceptOfferRequest create() => ApplicationAcceptOfferRequest._();
   ApplicationAcceptOfferRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationAcceptOfferRequest> createRepeated() =>
-      $pb.PbList<ApplicationAcceptOfferRequest>();
+  static $pb.PbList<ApplicationAcceptOfferRequest> createRepeated() => $pb.PbList<ApplicationAcceptOfferRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationAcceptOfferRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationAcceptOfferRequest>(create);
+  static ApplicationAcceptOfferRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationAcceptOfferRequest>(create);
   static ApplicationAcceptOfferRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -2959,55 +2352,39 @@ class ApplicationAcceptOfferResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationAcceptOfferResponse._() : super();
-  factory ApplicationAcceptOfferResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationAcceptOfferResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationAcceptOfferResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationAcceptOfferResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationAcceptOfferResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationAcceptOfferResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationAcceptOfferResponse clone() =>
-      ApplicationAcceptOfferResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationAcceptOfferResponse copyWith(
-          void Function(ApplicationAcceptOfferResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationAcceptOfferResponse))
-          as ApplicationAcceptOfferResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationAcceptOfferResponse clone() => ApplicationAcceptOfferResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationAcceptOfferResponse copyWith(void Function(ApplicationAcceptOfferResponse) updates) => super.copyWith((message) => updates(message as ApplicationAcceptOfferResponse)) as ApplicationAcceptOfferResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationAcceptOfferResponse create() =>
-      ApplicationAcceptOfferResponse._();
+  static ApplicationAcceptOfferResponse create() => ApplicationAcceptOfferResponse._();
   ApplicationAcceptOfferResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationAcceptOfferResponse> createRepeated() =>
-      $pb.PbList<ApplicationAcceptOfferResponse>();
+  static $pb.PbList<ApplicationAcceptOfferResponse> createRepeated() => $pb.PbList<ApplicationAcceptOfferResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationAcceptOfferResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationAcceptOfferResponse>(create);
+  static ApplicationAcceptOfferResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationAcceptOfferResponse>(create);
   static ApplicationAcceptOfferResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3031,55 +2408,40 @@ class ApplicationDeclineOfferRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDeclineOfferRequest._() : super();
-  factory ApplicationDeclineOfferRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDeclineOfferRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDeclineOfferRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDeclineOfferRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDeclineOfferRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDeclineOfferRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'reason')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDeclineOfferRequest clone() =>
-      ApplicationDeclineOfferRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDeclineOfferRequest copyWith(
-          void Function(ApplicationDeclineOfferRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDeclineOfferRequest))
-          as ApplicationDeclineOfferRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDeclineOfferRequest clone() => ApplicationDeclineOfferRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDeclineOfferRequest copyWith(void Function(ApplicationDeclineOfferRequest) updates) => super.copyWith((message) => updates(message as ApplicationDeclineOfferRequest)) as ApplicationDeclineOfferRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDeclineOfferRequest create() =>
-      ApplicationDeclineOfferRequest._();
+  static ApplicationDeclineOfferRequest create() => ApplicationDeclineOfferRequest._();
   ApplicationDeclineOfferRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDeclineOfferRequest> createRepeated() =>
-      $pb.PbList<ApplicationDeclineOfferRequest>();
+  static $pb.PbList<ApplicationDeclineOfferRequest> createRepeated() => $pb.PbList<ApplicationDeclineOfferRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDeclineOfferRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDeclineOfferRequest>(create);
+  static ApplicationDeclineOfferRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDeclineOfferRequest>(create);
   static ApplicationDeclineOfferRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -3088,10 +2450,7 @@ class ApplicationDeclineOfferRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get reason => $_getSZ(1);
   @$pb.TagNumber(2)
-  set reason($core.String v) {
-    $_setString(1, v);
-  }
-
+  set reason($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasReason() => $_has(1);
   @$pb.TagNumber(2)
@@ -3109,56 +2468,39 @@ class ApplicationDeclineOfferResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDeclineOfferResponse._() : super();
-  factory ApplicationDeclineOfferResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDeclineOfferResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDeclineOfferResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDeclineOfferResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDeclineOfferResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDeclineOfferResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDeclineOfferResponse clone() =>
-      ApplicationDeclineOfferResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDeclineOfferResponse copyWith(
-          void Function(ApplicationDeclineOfferResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDeclineOfferResponse))
-          as ApplicationDeclineOfferResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDeclineOfferResponse clone() => ApplicationDeclineOfferResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDeclineOfferResponse copyWith(void Function(ApplicationDeclineOfferResponse) updates) => super.copyWith((message) => updates(message as ApplicationDeclineOfferResponse)) as ApplicationDeclineOfferResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDeclineOfferResponse create() =>
-      ApplicationDeclineOfferResponse._();
+  static ApplicationDeclineOfferResponse create() => ApplicationDeclineOfferResponse._();
   ApplicationDeclineOfferResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDeclineOfferResponse> createRepeated() =>
-      $pb.PbList<ApplicationDeclineOfferResponse>();
+  static $pb.PbList<ApplicationDeclineOfferResponse> createRepeated() => $pb.PbList<ApplicationDeclineOfferResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDeclineOfferResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDeclineOfferResponse>(
-          create);
+  static ApplicationDeclineOfferResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDeclineOfferResponse>(create);
   static ApplicationDeclineOfferResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3178,55 +2520,39 @@ class ApplicationDocumentSaveRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentSaveRequest._() : super();
-  factory ApplicationDocumentSaveRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentSaveRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentSaveRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationDocumentObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationDocumentObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSaveRequest clone() =>
-      ApplicationDocumentSaveRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSaveRequest copyWith(
-          void Function(ApplicationDocumentSaveRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDocumentSaveRequest))
-          as ApplicationDocumentSaveRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSaveRequest clone() => ApplicationDocumentSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSaveRequest copyWith(void Function(ApplicationDocumentSaveRequest) updates) => super.copyWith((message) => updates(message as ApplicationDocumentSaveRequest)) as ApplicationDocumentSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSaveRequest create() =>
-      ApplicationDocumentSaveRequest._();
+  static ApplicationDocumentSaveRequest create() => ApplicationDocumentSaveRequest._();
   ApplicationDocumentSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentSaveRequest> createRepeated() =>
-      $pb.PbList<ApplicationDocumentSaveRequest>();
+  static $pb.PbList<ApplicationDocumentSaveRequest> createRepeated() => $pb.PbList<ApplicationDocumentSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSaveRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSaveRequest>(create);
+  static ApplicationDocumentSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSaveRequest>(create);
   static ApplicationDocumentSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationDocumentObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationDocumentObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationDocumentObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3246,56 +2572,39 @@ class ApplicationDocumentSaveResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentSaveResponse._() : super();
-  factory ApplicationDocumentSaveResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentSaveResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentSaveResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationDocumentObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationDocumentObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSaveResponse clone() =>
-      ApplicationDocumentSaveResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSaveResponse copyWith(
-          void Function(ApplicationDocumentSaveResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDocumentSaveResponse))
-          as ApplicationDocumentSaveResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSaveResponse clone() => ApplicationDocumentSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSaveResponse copyWith(void Function(ApplicationDocumentSaveResponse) updates) => super.copyWith((message) => updates(message as ApplicationDocumentSaveResponse)) as ApplicationDocumentSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSaveResponse create() =>
-      ApplicationDocumentSaveResponse._();
+  static ApplicationDocumentSaveResponse create() => ApplicationDocumentSaveResponse._();
   ApplicationDocumentSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentSaveResponse> createRepeated() =>
-      $pb.PbList<ApplicationDocumentSaveResponse>();
+  static $pb.PbList<ApplicationDocumentSaveResponse> createRepeated() => $pb.PbList<ApplicationDocumentSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSaveResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSaveResponse>(
-          create);
+  static ApplicationDocumentSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSaveResponse>(create);
   static ApplicationDocumentSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationDocumentObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationDocumentObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationDocumentObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3315,54 +2624,39 @@ class ApplicationDocumentGetRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentGetRequest._() : super();
-  factory ApplicationDocumentGetRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentGetRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentGetRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentGetRequest clone() =>
-      ApplicationDocumentGetRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentGetRequest copyWith(
-          void Function(ApplicationDocumentGetRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDocumentGetRequest))
-          as ApplicationDocumentGetRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentGetRequest clone() => ApplicationDocumentGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentGetRequest copyWith(void Function(ApplicationDocumentGetRequest) updates) => super.copyWith((message) => updates(message as ApplicationDocumentGetRequest)) as ApplicationDocumentGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentGetRequest create() =>
-      ApplicationDocumentGetRequest._();
+  static ApplicationDocumentGetRequest create() => ApplicationDocumentGetRequest._();
   ApplicationDocumentGetRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentGetRequest> createRepeated() =>
-      $pb.PbList<ApplicationDocumentGetRequest>();
+  static $pb.PbList<ApplicationDocumentGetRequest> createRepeated() => $pb.PbList<ApplicationDocumentGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentGetRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentGetRequest>(create);
+  static ApplicationDocumentGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentGetRequest>(create);
   static ApplicationDocumentGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -3380,55 +2674,39 @@ class ApplicationDocumentGetResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentGetResponse._() : super();
-  factory ApplicationDocumentGetResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentGetResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentGetResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: ApplicationDocumentObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ApplicationDocumentObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentGetResponse clone() =>
-      ApplicationDocumentGetResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentGetResponse copyWith(
-          void Function(ApplicationDocumentGetResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDocumentGetResponse))
-          as ApplicationDocumentGetResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentGetResponse clone() => ApplicationDocumentGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentGetResponse copyWith(void Function(ApplicationDocumentGetResponse) updates) => super.copyWith((message) => updates(message as ApplicationDocumentGetResponse)) as ApplicationDocumentGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentGetResponse create() =>
-      ApplicationDocumentGetResponse._();
+  static ApplicationDocumentGetResponse create() => ApplicationDocumentGetResponse._();
   ApplicationDocumentGetResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentGetResponse> createRepeated() =>
-      $pb.PbList<ApplicationDocumentGetResponse>();
+  static $pb.PbList<ApplicationDocumentGetResponse> createRepeated() => $pb.PbList<ApplicationDocumentGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentGetResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentGetResponse>(create);
+  static ApplicationDocumentGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentGetResponse>(create);
   static ApplicationDocumentGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ApplicationDocumentObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(ApplicationDocumentObject v) {
-    setField(1, v);
-  }
-
+  set data(ApplicationDocumentObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3456,62 +2734,41 @@ class ApplicationDocumentSearchRequest extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentSearchRequest._() : super();
-  factory ApplicationDocumentSearchRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentSearchRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentSearchRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'applicationId')
-    ..e<DocumentType>(
-        2, _omitFieldNames ? '' : 'documentType', $pb.PbFieldType.OE,
-        defaultOrMaker: DocumentType.DOCUMENT_TYPE_UNSPECIFIED,
-        valueOf: DocumentType.valueOf,
-        enumValues: DocumentType.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor',
-        subBuilder: $7.PageCursor.create)
-    ..hasRequiredFields = false;
+    ..e<DocumentType>(2, _omitFieldNames ? '' : 'documentType', $pb.PbFieldType.OE, defaultOrMaker: DocumentType.DOCUMENT_TYPE_UNSPECIFIED, valueOf: DocumentType.valueOf, enumValues: DocumentType.values)
+    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSearchRequest clone() =>
-      ApplicationDocumentSearchRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSearchRequest copyWith(
-          void Function(ApplicationDocumentSearchRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as ApplicationDocumentSearchRequest))
-          as ApplicationDocumentSearchRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSearchRequest clone() => ApplicationDocumentSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSearchRequest copyWith(void Function(ApplicationDocumentSearchRequest) updates) => super.copyWith((message) => updates(message as ApplicationDocumentSearchRequest)) as ApplicationDocumentSearchRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSearchRequest create() =>
-      ApplicationDocumentSearchRequest._();
+  static ApplicationDocumentSearchRequest create() => ApplicationDocumentSearchRequest._();
   ApplicationDocumentSearchRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentSearchRequest> createRepeated() =>
-      $pb.PbList<ApplicationDocumentSearchRequest>();
+  static $pb.PbList<ApplicationDocumentSearchRequest> createRepeated() => $pb.PbList<ApplicationDocumentSearchRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSearchRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSearchRequest>(
-          create);
+  static ApplicationDocumentSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSearchRequest>(create);
   static ApplicationDocumentSearchRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get applicationId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set applicationId($core.String v) {
-    $_setString(0, v);
-  }
-
+  set applicationId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasApplicationId() => $_has(0);
   @$pb.TagNumber(1)
@@ -3520,10 +2777,7 @@ class ApplicationDocumentSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   DocumentType get documentType => $_getN(1);
   @$pb.TagNumber(2)
-  set documentType(DocumentType v) {
-    setField(2, v);
-  }
-
+  set documentType(DocumentType v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasDocumentType() => $_has(1);
   @$pb.TagNumber(2)
@@ -3532,10 +2786,7 @@ class ApplicationDocumentSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $7.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) {
-    setField(3, v);
-  }
-
+  set cursor($7.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
@@ -3555,48 +2806,33 @@ class ApplicationDocumentSearchResponse extends $pb.GeneratedMessage {
     return $result;
   }
   ApplicationDocumentSearchResponse._() : super();
-  factory ApplicationDocumentSearchResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory ApplicationDocumentSearchResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory ApplicationDocumentSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplicationDocumentSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ApplicationDocumentSearchResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..pc<ApplicationDocumentObject>(
-        1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM,
-        subBuilder: ApplicationDocumentObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ApplicationDocumentSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..pc<ApplicationDocumentObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: ApplicationDocumentObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSearchResponse clone() =>
-      ApplicationDocumentSearchResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  ApplicationDocumentSearchResponse copyWith(
-          void Function(ApplicationDocumentSearchResponse) updates) =>
-      super.copyWith((message) =>
-              updates(message as ApplicationDocumentSearchResponse))
-          as ApplicationDocumentSearchResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSearchResponse clone() => ApplicationDocumentSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplicationDocumentSearchResponse copyWith(void Function(ApplicationDocumentSearchResponse) updates) => super.copyWith((message) => updates(message as ApplicationDocumentSearchResponse)) as ApplicationDocumentSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSearchResponse create() =>
-      ApplicationDocumentSearchResponse._();
+  static ApplicationDocumentSearchResponse create() => ApplicationDocumentSearchResponse._();
   ApplicationDocumentSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<ApplicationDocumentSearchResponse> createRepeated() =>
-      $pb.PbList<ApplicationDocumentSearchResponse>();
+  static $pb.PbList<ApplicationDocumentSearchResponse> createRepeated() => $pb.PbList<ApplicationDocumentSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static ApplicationDocumentSearchResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSearchResponse>(
-          create);
+  static ApplicationDocumentSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplicationDocumentSearchResponse>(create);
   static ApplicationDocumentSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3614,55 +2850,39 @@ class VerificationTaskSaveRequest extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskSaveRequest._() : super();
-  factory VerificationTaskSaveRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskSaveRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskSaveRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: VerificationTaskObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data', subBuilder: VerificationTaskObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSaveRequest clone() =>
-      VerificationTaskSaveRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSaveRequest copyWith(
-          void Function(VerificationTaskSaveRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskSaveRequest))
-          as VerificationTaskSaveRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSaveRequest clone() => VerificationTaskSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSaveRequest copyWith(void Function(VerificationTaskSaveRequest) updates) => super.copyWith((message) => updates(message as VerificationTaskSaveRequest)) as VerificationTaskSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSaveRequest create() =>
-      VerificationTaskSaveRequest._();
+  static VerificationTaskSaveRequest create() => VerificationTaskSaveRequest._();
   VerificationTaskSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskSaveRequest> createRepeated() =>
-      $pb.PbList<VerificationTaskSaveRequest>();
+  static $pb.PbList<VerificationTaskSaveRequest> createRepeated() => $pb.PbList<VerificationTaskSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSaveRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskSaveRequest>(create);
+  static VerificationTaskSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskSaveRequest>(create);
   static VerificationTaskSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   VerificationTaskObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(VerificationTaskObject v) {
-    setField(1, v);
-  }
-
+  set data(VerificationTaskObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3682,55 +2902,39 @@ class VerificationTaskSaveResponse extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskSaveResponse._() : super();
-  factory VerificationTaskSaveResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskSaveResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskSaveResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: VerificationTaskObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data', subBuilder: VerificationTaskObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSaveResponse clone() =>
-      VerificationTaskSaveResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSaveResponse copyWith(
-          void Function(VerificationTaskSaveResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskSaveResponse))
-          as VerificationTaskSaveResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSaveResponse clone() => VerificationTaskSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSaveResponse copyWith(void Function(VerificationTaskSaveResponse) updates) => super.copyWith((message) => updates(message as VerificationTaskSaveResponse)) as VerificationTaskSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSaveResponse create() =>
-      VerificationTaskSaveResponse._();
+  static VerificationTaskSaveResponse create() => VerificationTaskSaveResponse._();
   VerificationTaskSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskSaveResponse> createRepeated() =>
-      $pb.PbList<VerificationTaskSaveResponse>();
+  static $pb.PbList<VerificationTaskSaveResponse> createRepeated() => $pb.PbList<VerificationTaskSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSaveResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskSaveResponse>(create);
+  static VerificationTaskSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskSaveResponse>(create);
   static VerificationTaskSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   VerificationTaskObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(VerificationTaskObject v) {
-    setField(1, v);
-  }
-
+  set data(VerificationTaskObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3750,53 +2954,39 @@ class VerificationTaskGetRequest extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskGetRequest._() : super();
-  factory VerificationTaskGetRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskGetRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskGetRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskGetRequest clone() =>
-      VerificationTaskGetRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskGetRequest copyWith(
-          void Function(VerificationTaskGetRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskGetRequest))
-          as VerificationTaskGetRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskGetRequest clone() => VerificationTaskGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskGetRequest copyWith(void Function(VerificationTaskGetRequest) updates) => super.copyWith((message) => updates(message as VerificationTaskGetRequest)) as VerificationTaskGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static VerificationTaskGetRequest create() => VerificationTaskGetRequest._();
   VerificationTaskGetRequest createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskGetRequest> createRepeated() =>
-      $pb.PbList<VerificationTaskGetRequest>();
+  static $pb.PbList<VerificationTaskGetRequest> createRepeated() => $pb.PbList<VerificationTaskGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskGetRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskGetRequest>(create);
+  static VerificationTaskGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskGetRequest>(create);
   static VerificationTaskGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -3814,55 +3004,39 @@ class VerificationTaskGetResponse extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskGetResponse._() : super();
-  factory VerificationTaskGetResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskGetResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskGetResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: VerificationTaskObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data', subBuilder: VerificationTaskObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskGetResponse clone() =>
-      VerificationTaskGetResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskGetResponse copyWith(
-          void Function(VerificationTaskGetResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskGetResponse))
-          as VerificationTaskGetResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskGetResponse clone() => VerificationTaskGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskGetResponse copyWith(void Function(VerificationTaskGetResponse) updates) => super.copyWith((message) => updates(message as VerificationTaskGetResponse)) as VerificationTaskGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskGetResponse create() =>
-      VerificationTaskGetResponse._();
+  static VerificationTaskGetResponse create() => VerificationTaskGetResponse._();
   VerificationTaskGetResponse createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskGetResponse> createRepeated() =>
-      $pb.PbList<VerificationTaskGetResponse>();
+  static $pb.PbList<VerificationTaskGetResponse> createRepeated() => $pb.PbList<VerificationTaskGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskGetResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskGetResponse>(create);
+  static VerificationTaskGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskGetResponse>(create);
   static VerificationTaskGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   VerificationTaskObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(VerificationTaskObject v) {
-    setField(1, v);
-  }
-
+  set data(VerificationTaskObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -3894,62 +3068,42 @@ class VerificationTaskSearchRequest extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskSearchRequest._() : super();
-  factory VerificationTaskSearchRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskSearchRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskSearchRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'applicationId')
     ..aOS(2, _omitFieldNames ? '' : 'assignedTo')
-    ..e<VerificationStatus>(
-        3, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE,
-        defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED,
-        valueOf: VerificationStatus.valueOf,
-        enumValues: VerificationStatus.values)
-    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor',
-        subBuilder: $7.PageCursor.create)
-    ..hasRequiredFields = false;
+    ..e<VerificationStatus>(3, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED, valueOf: VerificationStatus.valueOf, enumValues: VerificationStatus.values)
+    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSearchRequest clone() =>
-      VerificationTaskSearchRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSearchRequest copyWith(
-          void Function(VerificationTaskSearchRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskSearchRequest))
-          as VerificationTaskSearchRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSearchRequest clone() => VerificationTaskSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSearchRequest copyWith(void Function(VerificationTaskSearchRequest) updates) => super.copyWith((message) => updates(message as VerificationTaskSearchRequest)) as VerificationTaskSearchRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSearchRequest create() =>
-      VerificationTaskSearchRequest._();
+  static VerificationTaskSearchRequest create() => VerificationTaskSearchRequest._();
   VerificationTaskSearchRequest createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskSearchRequest> createRepeated() =>
-      $pb.PbList<VerificationTaskSearchRequest>();
+  static $pb.PbList<VerificationTaskSearchRequest> createRepeated() => $pb.PbList<VerificationTaskSearchRequest>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSearchRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskSearchRequest>(create);
+  static VerificationTaskSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskSearchRequest>(create);
   static VerificationTaskSearchRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get applicationId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set applicationId($core.String v) {
-    $_setString(0, v);
-  }
-
+  set applicationId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasApplicationId() => $_has(0);
   @$pb.TagNumber(1)
@@ -3958,10 +3112,7 @@ class VerificationTaskSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get assignedTo => $_getSZ(1);
   @$pb.TagNumber(2)
-  set assignedTo($core.String v) {
-    $_setString(1, v);
-  }
-
+  set assignedTo($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasAssignedTo() => $_has(1);
   @$pb.TagNumber(2)
@@ -3970,10 +3121,7 @@ class VerificationTaskSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   VerificationStatus get status => $_getN(2);
   @$pb.TagNumber(3)
-  set status(VerificationStatus v) {
-    setField(3, v);
-  }
-
+  set status(VerificationStatus v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasStatus() => $_has(2);
   @$pb.TagNumber(3)
@@ -3982,10 +3130,7 @@ class VerificationTaskSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $7.PageCursor get cursor => $_getN(3);
   @$pb.TagNumber(4)
-  set cursor($7.PageCursor v) {
-    setField(4, v);
-  }
-
+  set cursor($7.PageCursor v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasCursor() => $_has(3);
   @$pb.TagNumber(4)
@@ -4005,47 +3150,33 @@ class VerificationTaskSearchResponse extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskSearchResponse._() : super();
-  factory VerificationTaskSearchResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskSearchResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskSearchResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..pc<VerificationTaskObject>(
-        1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM,
-        subBuilder: VerificationTaskObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..pc<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: VerificationTaskObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSearchResponse clone() =>
-      VerificationTaskSearchResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskSearchResponse copyWith(
-          void Function(VerificationTaskSearchResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskSearchResponse))
-          as VerificationTaskSearchResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSearchResponse clone() => VerificationTaskSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskSearchResponse copyWith(void Function(VerificationTaskSearchResponse) updates) => super.copyWith((message) => updates(message as VerificationTaskSearchResponse)) as VerificationTaskSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSearchResponse create() =>
-      VerificationTaskSearchResponse._();
+  static VerificationTaskSearchResponse create() => VerificationTaskSearchResponse._();
   VerificationTaskSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskSearchResponse> createRepeated() =>
-      $pb.PbList<VerificationTaskSearchResponse>();
+  static $pb.PbList<VerificationTaskSearchResponse> createRepeated() => $pb.PbList<VerificationTaskSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskSearchResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskSearchResponse>(create);
+  static VerificationTaskSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskSearchResponse>(create);
   static VerificationTaskSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4075,63 +3206,42 @@ class VerificationTaskCompleteRequest extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskCompleteRequest._() : super();
-  factory VerificationTaskCompleteRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskCompleteRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskCompleteRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskCompleteRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskCompleteRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskCompleteRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..e<VerificationStatus>(
-        2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE,
-        defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED,
-        valueOf: VerificationStatus.valueOf,
-        enumValues: VerificationStatus.values)
+    ..e<VerificationStatus>(2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: VerificationStatus.VERIFICATION_STATUS_UNSPECIFIED, valueOf: VerificationStatus.valueOf, enumValues: VerificationStatus.values)
     ..aOS(3, _omitFieldNames ? '' : 'notes')
-    ..aOM<$6.Struct>(4, _omitFieldNames ? '' : 'results',
-        subBuilder: $6.Struct.create)
-    ..hasRequiredFields = false;
+    ..aOM<$6.Struct>(4, _omitFieldNames ? '' : 'results', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskCompleteRequest clone() =>
-      VerificationTaskCompleteRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskCompleteRequest copyWith(
-          void Function(VerificationTaskCompleteRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskCompleteRequest))
-          as VerificationTaskCompleteRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskCompleteRequest clone() => VerificationTaskCompleteRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskCompleteRequest copyWith(void Function(VerificationTaskCompleteRequest) updates) => super.copyWith((message) => updates(message as VerificationTaskCompleteRequest)) as VerificationTaskCompleteRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskCompleteRequest create() =>
-      VerificationTaskCompleteRequest._();
+  static VerificationTaskCompleteRequest create() => VerificationTaskCompleteRequest._();
   VerificationTaskCompleteRequest createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskCompleteRequest> createRepeated() =>
-      $pb.PbList<VerificationTaskCompleteRequest>();
+  static $pb.PbList<VerificationTaskCompleteRequest> createRepeated() => $pb.PbList<VerificationTaskCompleteRequest>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskCompleteRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskCompleteRequest>(
-          create);
+  static VerificationTaskCompleteRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskCompleteRequest>(create);
   static VerificationTaskCompleteRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -4140,10 +3250,7 @@ class VerificationTaskCompleteRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   VerificationStatus get status => $_getN(1);
   @$pb.TagNumber(2)
-  set status(VerificationStatus v) {
-    setField(2, v);
-  }
-
+  set status(VerificationStatus v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasStatus() => $_has(1);
   @$pb.TagNumber(2)
@@ -4152,10 +3259,7 @@ class VerificationTaskCompleteRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get notes => $_getSZ(2);
   @$pb.TagNumber(3)
-  set notes($core.String v) {
-    $_setString(2, v);
-  }
-
+  set notes($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasNotes() => $_has(2);
   @$pb.TagNumber(3)
@@ -4164,10 +3268,7 @@ class VerificationTaskCompleteRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $6.Struct get results => $_getN(3);
   @$pb.TagNumber(4)
-  set results($6.Struct v) {
-    setField(4, v);
-  }
-
+  set results($6.Struct v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasResults() => $_has(3);
   @$pb.TagNumber(4)
@@ -4187,56 +3288,39 @@ class VerificationTaskCompleteResponse extends $pb.GeneratedMessage {
     return $result;
   }
   VerificationTaskCompleteResponse._() : super();
-  factory VerificationTaskCompleteResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory VerificationTaskCompleteResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory VerificationTaskCompleteResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerificationTaskCompleteResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VerificationTaskCompleteResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: VerificationTaskObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerificationTaskCompleteResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<VerificationTaskObject>(1, _omitFieldNames ? '' : 'data', subBuilder: VerificationTaskObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  VerificationTaskCompleteResponse clone() =>
-      VerificationTaskCompleteResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  VerificationTaskCompleteResponse copyWith(
-          void Function(VerificationTaskCompleteResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as VerificationTaskCompleteResponse))
-          as VerificationTaskCompleteResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerificationTaskCompleteResponse clone() => VerificationTaskCompleteResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerificationTaskCompleteResponse copyWith(void Function(VerificationTaskCompleteResponse) updates) => super.copyWith((message) => updates(message as VerificationTaskCompleteResponse)) as VerificationTaskCompleteResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskCompleteResponse create() =>
-      VerificationTaskCompleteResponse._();
+  static VerificationTaskCompleteResponse create() => VerificationTaskCompleteResponse._();
   VerificationTaskCompleteResponse createEmptyInstance() => create();
-  static $pb.PbList<VerificationTaskCompleteResponse> createRepeated() =>
-      $pb.PbList<VerificationTaskCompleteResponse>();
+  static $pb.PbList<VerificationTaskCompleteResponse> createRepeated() => $pb.PbList<VerificationTaskCompleteResponse>();
   @$core.pragma('dart2js:noInline')
-  static VerificationTaskCompleteResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VerificationTaskCompleteResponse>(
-          create);
+  static VerificationTaskCompleteResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerificationTaskCompleteResponse>(create);
   static VerificationTaskCompleteResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   VerificationTaskObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(VerificationTaskObject v) {
-    setField(1, v);
-  }
-
+  set data(VerificationTaskObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -4256,56 +3340,39 @@ class UnderwritingDecisionSaveRequest extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionSaveRequest._() : super();
-  factory UnderwritingDecisionSaveRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionSaveRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionSaveRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: UnderwritingDecisionObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data', subBuilder: UnderwritingDecisionObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSaveRequest clone() =>
-      UnderwritingDecisionSaveRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSaveRequest copyWith(
-          void Function(UnderwritingDecisionSaveRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as UnderwritingDecisionSaveRequest))
-          as UnderwritingDecisionSaveRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSaveRequest clone() => UnderwritingDecisionSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSaveRequest copyWith(void Function(UnderwritingDecisionSaveRequest) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionSaveRequest)) as UnderwritingDecisionSaveRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSaveRequest create() =>
-      UnderwritingDecisionSaveRequest._();
+  static UnderwritingDecisionSaveRequest create() => UnderwritingDecisionSaveRequest._();
   UnderwritingDecisionSaveRequest createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionSaveRequest> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionSaveRequest>();
+  static $pb.PbList<UnderwritingDecisionSaveRequest> createRepeated() => $pb.PbList<UnderwritingDecisionSaveRequest>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSaveRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSaveRequest>(
-          create);
+  static UnderwritingDecisionSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSaveRequest>(create);
   static UnderwritingDecisionSaveRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   UnderwritingDecisionObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(UnderwritingDecisionObject v) {
-    setField(1, v);
-  }
-
+  set data(UnderwritingDecisionObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -4325,56 +3392,39 @@ class UnderwritingDecisionSaveResponse extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionSaveResponse._() : super();
-  factory UnderwritingDecisionSaveResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionSaveResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionSaveResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: UnderwritingDecisionObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data', subBuilder: UnderwritingDecisionObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSaveResponse clone() =>
-      UnderwritingDecisionSaveResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSaveResponse copyWith(
-          void Function(UnderwritingDecisionSaveResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as UnderwritingDecisionSaveResponse))
-          as UnderwritingDecisionSaveResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSaveResponse clone() => UnderwritingDecisionSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSaveResponse copyWith(void Function(UnderwritingDecisionSaveResponse) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionSaveResponse)) as UnderwritingDecisionSaveResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSaveResponse create() =>
-      UnderwritingDecisionSaveResponse._();
+  static UnderwritingDecisionSaveResponse create() => UnderwritingDecisionSaveResponse._();
   UnderwritingDecisionSaveResponse createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionSaveResponse> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionSaveResponse>();
+  static $pb.PbList<UnderwritingDecisionSaveResponse> createRepeated() => $pb.PbList<UnderwritingDecisionSaveResponse>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSaveResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSaveResponse>(
-          create);
+  static UnderwritingDecisionSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSaveResponse>(create);
   static UnderwritingDecisionSaveResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   UnderwritingDecisionObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(UnderwritingDecisionObject v) {
-    setField(1, v);
-  }
-
+  set data(UnderwritingDecisionObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -4394,54 +3444,39 @@ class UnderwritingDecisionGetRequest extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionGetRequest._() : super();
-  factory UnderwritingDecisionGetRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionGetRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionGetRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..hasRequiredFields = false;
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionGetRequest clone() =>
-      UnderwritingDecisionGetRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionGetRequest copyWith(
-          void Function(UnderwritingDecisionGetRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as UnderwritingDecisionGetRequest))
-          as UnderwritingDecisionGetRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionGetRequest clone() => UnderwritingDecisionGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionGetRequest copyWith(void Function(UnderwritingDecisionGetRequest) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionGetRequest)) as UnderwritingDecisionGetRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionGetRequest create() =>
-      UnderwritingDecisionGetRequest._();
+  static UnderwritingDecisionGetRequest create() => UnderwritingDecisionGetRequest._();
   UnderwritingDecisionGetRequest createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionGetRequest> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionGetRequest>();
+  static $pb.PbList<UnderwritingDecisionGetRequest> createRepeated() => $pb.PbList<UnderwritingDecisionGetRequest>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionGetRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionGetRequest>(create);
+  static UnderwritingDecisionGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionGetRequest>(create);
   static UnderwritingDecisionGetRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) {
-    $_setString(0, v);
-  }
-
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -4459,56 +3494,39 @@ class UnderwritingDecisionGetResponse extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionGetResponse._() : super();
-  factory UnderwritingDecisionGetResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionGetResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionGetResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..aOM<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data',
-        subBuilder: UnderwritingDecisionObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOM<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data', subBuilder: UnderwritingDecisionObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionGetResponse clone() =>
-      UnderwritingDecisionGetResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionGetResponse copyWith(
-          void Function(UnderwritingDecisionGetResponse) updates) =>
-      super.copyWith(
-              (message) => updates(message as UnderwritingDecisionGetResponse))
-          as UnderwritingDecisionGetResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionGetResponse clone() => UnderwritingDecisionGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionGetResponse copyWith(void Function(UnderwritingDecisionGetResponse) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionGetResponse)) as UnderwritingDecisionGetResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionGetResponse create() =>
-      UnderwritingDecisionGetResponse._();
+  static UnderwritingDecisionGetResponse create() => UnderwritingDecisionGetResponse._();
   UnderwritingDecisionGetResponse createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionGetResponse> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionGetResponse>();
+  static $pb.PbList<UnderwritingDecisionGetResponse> createRepeated() => $pb.PbList<UnderwritingDecisionGetResponse>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionGetResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionGetResponse>(
-          create);
+  static UnderwritingDecisionGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionGetResponse>(create);
   static UnderwritingDecisionGetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   UnderwritingDecisionObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data(UnderwritingDecisionObject v) {
-    setField(1, v);
-  }
-
+  set data(UnderwritingDecisionObject v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
@@ -4532,57 +3550,40 @@ class UnderwritingDecisionSearchRequest extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionSearchRequest._() : super();
-  factory UnderwritingDecisionSearchRequest.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionSearchRequest.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionSearchRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'applicationId')
-    ..aOM<$7.PageCursor>(2, _omitFieldNames ? '' : 'cursor',
-        subBuilder: $7.PageCursor.create)
-    ..hasRequiredFields = false;
+    ..aOM<$7.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSearchRequest clone() =>
-      UnderwritingDecisionSearchRequest()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSearchRequest copyWith(
-          void Function(UnderwritingDecisionSearchRequest) updates) =>
-      super.copyWith((message) =>
-              updates(message as UnderwritingDecisionSearchRequest))
-          as UnderwritingDecisionSearchRequest;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSearchRequest clone() => UnderwritingDecisionSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSearchRequest copyWith(void Function(UnderwritingDecisionSearchRequest) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionSearchRequest)) as UnderwritingDecisionSearchRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSearchRequest create() =>
-      UnderwritingDecisionSearchRequest._();
+  static UnderwritingDecisionSearchRequest create() => UnderwritingDecisionSearchRequest._();
   UnderwritingDecisionSearchRequest createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionSearchRequest> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionSearchRequest>();
+  static $pb.PbList<UnderwritingDecisionSearchRequest> createRepeated() => $pb.PbList<UnderwritingDecisionSearchRequest>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSearchRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSearchRequest>(
-          create);
+  static UnderwritingDecisionSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSearchRequest>(create);
   static UnderwritingDecisionSearchRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get applicationId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set applicationId($core.String v) {
-    $_setString(0, v);
-  }
-
+  set applicationId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasApplicationId() => $_has(0);
   @$pb.TagNumber(1)
@@ -4591,10 +3592,7 @@ class UnderwritingDecisionSearchRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $7.PageCursor get cursor => $_getN(1);
   @$pb.TagNumber(2)
-  set cursor($7.PageCursor v) {
-    setField(2, v);
-  }
-
+  set cursor($7.PageCursor v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasCursor() => $_has(1);
   @$pb.TagNumber(2)
@@ -4614,48 +3612,33 @@ class UnderwritingDecisionSearchResponse extends $pb.GeneratedMessage {
     return $result;
   }
   UnderwritingDecisionSearchResponse._() : super();
-  factory UnderwritingDecisionSearchResponse.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory UnderwritingDecisionSearchResponse.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
+  factory UnderwritingDecisionSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UnderwritingDecisionSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'UnderwritingDecisionSearchResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'),
-      createEmptyInstance: create)
-    ..pc<UnderwritingDecisionObject>(
-        1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM,
-        subBuilder: UnderwritingDecisionObject.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UnderwritingDecisionSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..pc<UnderwritingDecisionObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: UnderwritingDecisionObject.create)
+    ..hasRequiredFields = false
+  ;
 
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSearchResponse clone() =>
-      UnderwritingDecisionSearchResponse()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  UnderwritingDecisionSearchResponse copyWith(
-          void Function(UnderwritingDecisionSearchResponse) updates) =>
-      super.copyWith((message) =>
-              updates(message as UnderwritingDecisionSearchResponse))
-          as UnderwritingDecisionSearchResponse;
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSearchResponse clone() => UnderwritingDecisionSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UnderwritingDecisionSearchResponse copyWith(void Function(UnderwritingDecisionSearchResponse) updates) => super.copyWith((message) => updates(message as UnderwritingDecisionSearchResponse)) as UnderwritingDecisionSearchResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSearchResponse create() =>
-      UnderwritingDecisionSearchResponse._();
+  static UnderwritingDecisionSearchResponse create() => UnderwritingDecisionSearchResponse._();
   UnderwritingDecisionSearchResponse createEmptyInstance() => create();
-  static $pb.PbList<UnderwritingDecisionSearchResponse> createRepeated() =>
-      $pb.PbList<UnderwritingDecisionSearchResponse>();
+  static $pb.PbList<UnderwritingDecisionSearchResponse> createRepeated() => $pb.PbList<UnderwritingDecisionSearchResponse>();
   @$core.pragma('dart2js:noInline')
-  static UnderwritingDecisionSearchResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSearchResponse>(
-          create);
+  static UnderwritingDecisionSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UnderwritingDecisionSearchResponse>(create);
   static UnderwritingDecisionSearchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4666,116 +3649,68 @@ class OriginationServiceApi {
   $pb.RpcClient _client;
   OriginationServiceApi(this._client);
 
-  $async.Future<LoanProductSaveResponse> loanProductSave(
-          $pb.ClientContext? ctx, LoanProductSaveRequest request) =>
-      _client.invoke<LoanProductSaveResponse>(ctx, 'OriginationService',
-          'LoanProductSave', request, LoanProductSaveResponse());
-  $async.Future<LoanProductGetResponse> loanProductGet(
-          $pb.ClientContext? ctx, LoanProductGetRequest request) =>
-      _client.invoke<LoanProductGetResponse>(ctx, 'OriginationService',
-          'LoanProductGet', request, LoanProductGetResponse());
-  $async.Future<LoanProductSearchResponse> loanProductSearch(
-          $pb.ClientContext? ctx, LoanProductSearchRequest request) =>
-      _client.invoke<LoanProductSearchResponse>(ctx, 'OriginationService',
-          'LoanProductSearch', request, LoanProductSearchResponse());
-  $async.Future<ApplicationSaveResponse> applicationSave(
-          $pb.ClientContext? ctx, ApplicationSaveRequest request) =>
-      _client.invoke<ApplicationSaveResponse>(ctx, 'OriginationService',
-          'ApplicationSave', request, ApplicationSaveResponse());
-  $async.Future<ApplicationGetResponse> applicationGet(
-          $pb.ClientContext? ctx, ApplicationGetRequest request) =>
-      _client.invoke<ApplicationGetResponse>(ctx, 'OriginationService',
-          'ApplicationGet', request, ApplicationGetResponse());
-  $async.Future<ApplicationSearchResponse> applicationSearch(
-          $pb.ClientContext? ctx, ApplicationSearchRequest request) =>
-      _client.invoke<ApplicationSearchResponse>(ctx, 'OriginationService',
-          'ApplicationSearch', request, ApplicationSearchResponse());
-  $async.Future<ApplicationSubmitResponse> applicationSubmit(
-          $pb.ClientContext? ctx, ApplicationSubmitRequest request) =>
-      _client.invoke<ApplicationSubmitResponse>(ctx, 'OriginationService',
-          'ApplicationSubmit', request, ApplicationSubmitResponse());
-  $async.Future<ApplicationCancelResponse> applicationCancel(
-          $pb.ClientContext? ctx, ApplicationCancelRequest request) =>
-      _client.invoke<ApplicationCancelResponse>(ctx, 'OriginationService',
-          'ApplicationCancel', request, ApplicationCancelResponse());
-  $async.Future<ApplicationAcceptOfferResponse> applicationAcceptOffer(
-          $pb.ClientContext? ctx, ApplicationAcceptOfferRequest request) =>
-      _client.invoke<ApplicationAcceptOfferResponse>(ctx, 'OriginationService',
-          'ApplicationAcceptOffer', request, ApplicationAcceptOfferResponse());
-  $async.Future<ApplicationDeclineOfferResponse> applicationDeclineOffer(
-          $pb.ClientContext? ctx, ApplicationDeclineOfferRequest request) =>
-      _client.invoke<ApplicationDeclineOfferResponse>(
-          ctx,
-          'OriginationService',
-          'ApplicationDeclineOffer',
-          request,
-          ApplicationDeclineOfferResponse());
-  $async.Future<ApplicationDocumentSaveResponse> applicationDocumentSave(
-          $pb.ClientContext? ctx, ApplicationDocumentSaveRequest request) =>
-      _client.invoke<ApplicationDocumentSaveResponse>(
-          ctx,
-          'OriginationService',
-          'ApplicationDocumentSave',
-          request,
-          ApplicationDocumentSaveResponse());
-  $async.Future<ApplicationDocumentGetResponse> applicationDocumentGet(
-          $pb.ClientContext? ctx, ApplicationDocumentGetRequest request) =>
-      _client.invoke<ApplicationDocumentGetResponse>(ctx, 'OriginationService',
-          'ApplicationDocumentGet', request, ApplicationDocumentGetResponse());
-  $async.Future<ApplicationDocumentSearchResponse> applicationDocumentSearch(
-          $pb.ClientContext? ctx, ApplicationDocumentSearchRequest request) =>
-      _client.invoke<ApplicationDocumentSearchResponse>(
-          ctx,
-          'OriginationService',
-          'ApplicationDocumentSearch',
-          request,
-          ApplicationDocumentSearchResponse());
-  $async.Future<VerificationTaskSaveResponse> verificationTaskSave(
-          $pb.ClientContext? ctx, VerificationTaskSaveRequest request) =>
-      _client.invoke<VerificationTaskSaveResponse>(ctx, 'OriginationService',
-          'VerificationTaskSave', request, VerificationTaskSaveResponse());
-  $async.Future<VerificationTaskGetResponse> verificationTaskGet(
-          $pb.ClientContext? ctx, VerificationTaskGetRequest request) =>
-      _client.invoke<VerificationTaskGetResponse>(ctx, 'OriginationService',
-          'VerificationTaskGet', request, VerificationTaskGetResponse());
-  $async.Future<VerificationTaskSearchResponse> verificationTaskSearch(
-          $pb.ClientContext? ctx, VerificationTaskSearchRequest request) =>
-      _client.invoke<VerificationTaskSearchResponse>(ctx, 'OriginationService',
-          'VerificationTaskSearch', request, VerificationTaskSearchResponse());
-  $async.Future<VerificationTaskCompleteResponse> verificationTaskComplete(
-          $pb.ClientContext? ctx, VerificationTaskCompleteRequest request) =>
-      _client.invoke<VerificationTaskCompleteResponse>(
-          ctx,
-          'OriginationService',
-          'VerificationTaskComplete',
-          request,
-          VerificationTaskCompleteResponse());
-  $async.Future<UnderwritingDecisionSaveResponse> underwritingDecisionSave(
-          $pb.ClientContext? ctx, UnderwritingDecisionSaveRequest request) =>
-      _client.invoke<UnderwritingDecisionSaveResponse>(
-          ctx,
-          'OriginationService',
-          'UnderwritingDecisionSave',
-          request,
-          UnderwritingDecisionSaveResponse());
-  $async.Future<UnderwritingDecisionGetResponse> underwritingDecisionGet(
-          $pb.ClientContext? ctx, UnderwritingDecisionGetRequest request) =>
-      _client.invoke<UnderwritingDecisionGetResponse>(
-          ctx,
-          'OriginationService',
-          'UnderwritingDecisionGet',
-          request,
-          UnderwritingDecisionGetResponse());
-  $async.Future<UnderwritingDecisionSearchResponse> underwritingDecisionSearch(
-          $pb.ClientContext? ctx, UnderwritingDecisionSearchRequest request) =>
-      _client.invoke<UnderwritingDecisionSearchResponse>(
-          ctx,
-          'OriginationService',
-          'UnderwritingDecisionSearch',
-          request,
-          UnderwritingDecisionSearchResponse());
+  $async.Future<LoanProductSaveResponse> loanProductSave($pb.ClientContext? ctx, LoanProductSaveRequest request) =>
+    _client.invoke<LoanProductSaveResponse>(ctx, 'OriginationService', 'LoanProductSave', request, LoanProductSaveResponse())
+  ;
+  $async.Future<LoanProductGetResponse> loanProductGet($pb.ClientContext? ctx, LoanProductGetRequest request) =>
+    _client.invoke<LoanProductGetResponse>(ctx, 'OriginationService', 'LoanProductGet', request, LoanProductGetResponse())
+  ;
+  $async.Future<LoanProductSearchResponse> loanProductSearch($pb.ClientContext? ctx, LoanProductSearchRequest request) =>
+    _client.invoke<LoanProductSearchResponse>(ctx, 'OriginationService', 'LoanProductSearch', request, LoanProductSearchResponse())
+  ;
+  $async.Future<ApplicationSaveResponse> applicationSave($pb.ClientContext? ctx, ApplicationSaveRequest request) =>
+    _client.invoke<ApplicationSaveResponse>(ctx, 'OriginationService', 'ApplicationSave', request, ApplicationSaveResponse())
+  ;
+  $async.Future<ApplicationGetResponse> applicationGet($pb.ClientContext? ctx, ApplicationGetRequest request) =>
+    _client.invoke<ApplicationGetResponse>(ctx, 'OriginationService', 'ApplicationGet', request, ApplicationGetResponse())
+  ;
+  $async.Future<ApplicationSearchResponse> applicationSearch($pb.ClientContext? ctx, ApplicationSearchRequest request) =>
+    _client.invoke<ApplicationSearchResponse>(ctx, 'OriginationService', 'ApplicationSearch', request, ApplicationSearchResponse())
+  ;
+  $async.Future<ApplicationSubmitResponse> applicationSubmit($pb.ClientContext? ctx, ApplicationSubmitRequest request) =>
+    _client.invoke<ApplicationSubmitResponse>(ctx, 'OriginationService', 'ApplicationSubmit', request, ApplicationSubmitResponse())
+  ;
+  $async.Future<ApplicationCancelResponse> applicationCancel($pb.ClientContext? ctx, ApplicationCancelRequest request) =>
+    _client.invoke<ApplicationCancelResponse>(ctx, 'OriginationService', 'ApplicationCancel', request, ApplicationCancelResponse())
+  ;
+  $async.Future<ApplicationAcceptOfferResponse> applicationAcceptOffer($pb.ClientContext? ctx, ApplicationAcceptOfferRequest request) =>
+    _client.invoke<ApplicationAcceptOfferResponse>(ctx, 'OriginationService', 'ApplicationAcceptOffer', request, ApplicationAcceptOfferResponse())
+  ;
+  $async.Future<ApplicationDeclineOfferResponse> applicationDeclineOffer($pb.ClientContext? ctx, ApplicationDeclineOfferRequest request) =>
+    _client.invoke<ApplicationDeclineOfferResponse>(ctx, 'OriginationService', 'ApplicationDeclineOffer', request, ApplicationDeclineOfferResponse())
+  ;
+  $async.Future<ApplicationDocumentSaveResponse> applicationDocumentSave($pb.ClientContext? ctx, ApplicationDocumentSaveRequest request) =>
+    _client.invoke<ApplicationDocumentSaveResponse>(ctx, 'OriginationService', 'ApplicationDocumentSave', request, ApplicationDocumentSaveResponse())
+  ;
+  $async.Future<ApplicationDocumentGetResponse> applicationDocumentGet($pb.ClientContext? ctx, ApplicationDocumentGetRequest request) =>
+    _client.invoke<ApplicationDocumentGetResponse>(ctx, 'OriginationService', 'ApplicationDocumentGet', request, ApplicationDocumentGetResponse())
+  ;
+  $async.Future<ApplicationDocumentSearchResponse> applicationDocumentSearch($pb.ClientContext? ctx, ApplicationDocumentSearchRequest request) =>
+    _client.invoke<ApplicationDocumentSearchResponse>(ctx, 'OriginationService', 'ApplicationDocumentSearch', request, ApplicationDocumentSearchResponse())
+  ;
+  $async.Future<VerificationTaskSaveResponse> verificationTaskSave($pb.ClientContext? ctx, VerificationTaskSaveRequest request) =>
+    _client.invoke<VerificationTaskSaveResponse>(ctx, 'OriginationService', 'VerificationTaskSave', request, VerificationTaskSaveResponse())
+  ;
+  $async.Future<VerificationTaskGetResponse> verificationTaskGet($pb.ClientContext? ctx, VerificationTaskGetRequest request) =>
+    _client.invoke<VerificationTaskGetResponse>(ctx, 'OriginationService', 'VerificationTaskGet', request, VerificationTaskGetResponse())
+  ;
+  $async.Future<VerificationTaskSearchResponse> verificationTaskSearch($pb.ClientContext? ctx, VerificationTaskSearchRequest request) =>
+    _client.invoke<VerificationTaskSearchResponse>(ctx, 'OriginationService', 'VerificationTaskSearch', request, VerificationTaskSearchResponse())
+  ;
+  $async.Future<VerificationTaskCompleteResponse> verificationTaskComplete($pb.ClientContext? ctx, VerificationTaskCompleteRequest request) =>
+    _client.invoke<VerificationTaskCompleteResponse>(ctx, 'OriginationService', 'VerificationTaskComplete', request, VerificationTaskCompleteResponse())
+  ;
+  $async.Future<UnderwritingDecisionSaveResponse> underwritingDecisionSave($pb.ClientContext? ctx, UnderwritingDecisionSaveRequest request) =>
+    _client.invoke<UnderwritingDecisionSaveResponse>(ctx, 'OriginationService', 'UnderwritingDecisionSave', request, UnderwritingDecisionSaveResponse())
+  ;
+  $async.Future<UnderwritingDecisionGetResponse> underwritingDecisionGet($pb.ClientContext? ctx, UnderwritingDecisionGetRequest request) =>
+    _client.invoke<UnderwritingDecisionGetResponse>(ctx, 'OriginationService', 'UnderwritingDecisionGet', request, UnderwritingDecisionGetResponse())
+  ;
+  $async.Future<UnderwritingDecisionSearchResponse> underwritingDecisionSearch($pb.ClientContext? ctx, UnderwritingDecisionSearchRequest request) =>
+    _client.invoke<UnderwritingDecisionSearchResponse>(ctx, 'OriginationService', 'UnderwritingDecisionSearch', request, UnderwritingDecisionSearchResponse())
+  ;
 }
 
+
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const _omitMessageNames =
-    $core.bool.fromEnvironment('protobuf.omit_message_names');
+const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

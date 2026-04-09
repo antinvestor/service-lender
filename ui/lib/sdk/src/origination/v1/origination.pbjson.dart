@@ -181,149 +181,29 @@ const LoanProductObject$json = {
   '1': 'LoanProductObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {
-      '1': 'organization_id',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'organizationId'
-    },
+    {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
     {'1': 'name', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'name'},
     {'1': 'code', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'code'},
     {'1': 'description', '3': 5, '4': 1, '5': 9, '10': 'description'},
-    {
-      '1': 'product_type',
-      '3': 6,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.LoanProductType',
-      '10': 'productType'
-    },
-    {
-      '1': 'currency_code',
-      '3': 7,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'currencyCode'
-    },
-    {
-      '1': 'interest_method',
-      '3': 8,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.InterestMethod',
-      '10': 'interestMethod'
-    },
-    {
-      '1': 'repayment_frequency',
-      '3': 9,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.RepaymentFrequency',
-      '10': 'repaymentFrequency'
-    },
-    {
-      '1': 'min_amount',
-      '3': 10,
-      '4': 1,
-      '5': 11,
-      '6': '.google.type.Money',
-      '10': 'minAmount'
-    },
-    {
-      '1': 'max_amount',
-      '3': 11,
-      '4': 1,
-      '5': 11,
-      '6': '.google.type.Money',
-      '10': 'maxAmount'
-    },
+    {'1': 'product_type', '3': 6, '4': 1, '5': 14, '6': '.origination.v1.LoanProductType', '10': 'productType'},
+    {'1': 'currency_code', '3': 7, '4': 1, '5': 9, '8': {}, '10': 'currencyCode'},
+    {'1': 'interest_method', '3': 8, '4': 1, '5': 14, '6': '.origination.v1.InterestMethod', '10': 'interestMethod'},
+    {'1': 'repayment_frequency', '3': 9, '4': 1, '5': 14, '6': '.origination.v1.RepaymentFrequency', '10': 'repaymentFrequency'},
+    {'1': 'min_amount', '3': 10, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'minAmount'},
+    {'1': 'max_amount', '3': 11, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'maxAmount'},
     {'1': 'min_term_days', '3': 12, '4': 1, '5': 5, '10': 'minTermDays'},
     {'1': 'max_term_days', '3': 13, '4': 1, '5': 5, '10': 'maxTermDays'},
-    {
-      '1': 'annual_interest_rate',
-      '3': 14,
-      '4': 1,
-      '5': 9,
-      '10': 'annualInterestRate'
-    },
-    {
-      '1': 'processing_fee_percent',
-      '3': 15,
-      '4': 1,
-      '5': 9,
-      '10': 'processingFeePercent'
-    },
-    {
-      '1': 'insurance_fee_percent',
-      '3': 16,
-      '4': 1,
-      '5': 9,
-      '10': 'insuranceFeePercent'
-    },
-    {
-      '1': 'late_penalty_rate',
-      '3': 17,
-      '4': 1,
-      '5': 9,
-      '10': 'latePenaltyRate'
-    },
-    {
-      '1': 'grace_period_days',
-      '3': 18,
-      '4': 1,
-      '5': 5,
-      '10': 'gracePeriodDays'
-    },
-    {
-      '1': 'kyc_schema',
-      '3': 19,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'kycSchema'
-    },
-    {
-      '1': 'fee_structure',
-      '3': 20,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'feeStructure'
-    },
-    {
-      '1': 'eligibility_criteria',
-      '3': 21,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'eligibilityCriteria'
-    },
-    {
-      '1': 'required_documents',
-      '3': 22,
-      '4': 3,
-      '5': 9,
-      '10': 'requiredDocuments'
-    },
-    {
-      '1': 'state',
-      '3': 23,
-      '4': 1,
-      '5': 14,
-      '6': '.common.v1.STATE',
-      '10': 'state'
-    },
-    {
-      '1': 'properties',
-      '3': 24,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'properties'
-    },
+    {'1': 'annual_interest_rate', '3': 14, '4': 1, '5': 9, '10': 'annualInterestRate'},
+    {'1': 'processing_fee_percent', '3': 15, '4': 1, '5': 9, '10': 'processingFeePercent'},
+    {'1': 'insurance_fee_percent', '3': 16, '4': 1, '5': 9, '10': 'insuranceFeePercent'},
+    {'1': 'late_penalty_rate', '3': 17, '4': 1, '5': 9, '10': 'latePenaltyRate'},
+    {'1': 'grace_period_days', '3': 18, '4': 1, '5': 5, '10': 'gracePeriodDays'},
+    {'1': 'kyc_schema', '3': 19, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'kycSchema'},
+    {'1': 'fee_structure', '3': 20, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'feeStructure'},
+    {'1': 'eligibility_criteria', '3': 21, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'eligibilityCriteria'},
+    {'1': 'required_documents', '3': 22, '4': 3, '5': 9, '10': 'requiredDocuments'},
+    {'1': 'state', '3': 23, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
+    {'1': 'properties', '3': 24, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
   ],
 };
 
@@ -362,82 +242,22 @@ const ApplicationObject$json = {
     {'1': 'client_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
     {'1': 'agent_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
     {'1': 'branch_id', '3': 5, '4': 1, '5': 9, '8': {}, '10': 'branchId'},
-    {
-      '1': 'organization_id',
-      '3': 6,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'organizationId'
-    },
-    {
-      '1': 'status',
-      '3': 7,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.ApplicationStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'requested_amount',
-      '3': 8,
-      '4': 1,
-      '5': 11,
-      '6': '.google.type.Money',
-      '10': 'requestedAmount'
-    },
-    {
-      '1': 'approved_amount',
-      '3': 9,
-      '4': 1,
-      '5': 11,
-      '6': '.google.type.Money',
-      '10': 'approvedAmount'
-    },
-    {
-      '1': 'requested_term_days',
-      '3': 10,
-      '4': 1,
-      '5': 5,
-      '10': 'requestedTermDays'
-    },
-    {
-      '1': 'approved_term_days',
-      '3': 11,
-      '4': 1,
-      '5': 5,
-      '10': 'approvedTermDays'
-    },
+    {'1': 'organization_id', '3': 6, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
+    {'1': 'status', '3': 7, '4': 1, '5': 14, '6': '.origination.v1.ApplicationStatus', '10': 'status'},
+    {'1': 'requested_amount', '3': 8, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'requestedAmount'},
+    {'1': 'approved_amount', '3': 9, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'approvedAmount'},
+    {'1': 'requested_term_days', '3': 10, '4': 1, '5': 5, '10': 'requestedTermDays'},
+    {'1': 'approved_term_days', '3': 11, '4': 1, '5': 5, '10': 'approvedTermDays'},
     {'1': 'interest_rate', '3': 12, '4': 1, '5': 9, '10': 'interestRate'},
-    {
-      '1': 'kyc_data',
-      '3': 14,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'kycData'
-    },
+    {'1': 'kyc_data', '3': 14, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'kycData'},
     {'1': 'purpose', '3': 15, '4': 1, '5': 9, '10': 'purpose'},
     {'1': 'rejection_reason', '3': 16, '4': 1, '5': 9, '10': 'rejectionReason'},
-    {
-      '1': 'workflow_instance_id',
-      '3': 17,
-      '4': 1,
-      '5': 9,
-      '10': 'workflowInstanceId'
-    },
+    {'1': 'workflow_instance_id', '3': 17, '4': 1, '5': 9, '10': 'workflowInstanceId'},
     {'1': 'offer_expires_at', '3': 18, '4': 1, '5': 9, '10': 'offerExpiresAt'},
     {'1': 'submitted_at', '3': 19, '4': 1, '5': 9, '10': 'submittedAt'},
     {'1': 'decided_at', '3': 20, '4': 1, '5': 9, '10': 'decidedAt'},
     {'1': 'loan_account_id', '3': 21, '4': 1, '5': 9, '10': 'loanAccountId'},
-    {
-      '1': 'properties',
-      '3': 22,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'properties'
-    },
+    {'1': 'properties', '3': 22, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
   ],
 };
 
@@ -467,44 +287,16 @@ const ApplicationDocumentObject$json = {
   '1': 'ApplicationDocumentObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {
-      '1': 'application_id',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'applicationId'
-    },
-    {
-      '1': 'document_type',
-      '3': 3,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.DocumentType',
-      '10': 'documentType'
-    },
+    {'1': 'application_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
+    {'1': 'document_type', '3': 3, '4': 1, '5': 14, '6': '.origination.v1.DocumentType', '10': 'documentType'},
     {'1': 'file_id', '3': 4, '4': 1, '5': 9, '10': 'fileId'},
     {'1': 'file_name', '3': 5, '4': 1, '5': 9, '10': 'fileName'},
     {'1': 'mime_type', '3': 6, '4': 1, '5': 9, '10': 'mimeType'},
-    {
-      '1': 'verification_status',
-      '3': 7,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.VerificationStatus',
-      '10': 'verificationStatus'
-    },
+    {'1': 'verification_status', '3': 7, '4': 1, '5': 14, '6': '.origination.v1.VerificationStatus', '10': 'verificationStatus'},
     {'1': 'verified_by', '3': 8, '4': 1, '5': 9, '10': 'verifiedBy'},
     {'1': 'verified_at', '3': 9, '4': 1, '5': 9, '10': 'verifiedAt'},
     {'1': 'rejection_reason', '3': 10, '4': 1, '5': 9, '10': 'rejectionReason'},
-    {
-      '1': 'properties',
-      '3': 11,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'properties'
-    },
+    {'1': 'properties', '3': 11, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
   ],
 };
 
@@ -526,56 +318,15 @@ const VerificationTaskObject$json = {
   '1': 'VerificationTaskObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {
-      '1': 'application_id',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'applicationId'
-    },
+    {'1': 'application_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
     {'1': 'assigned_to', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'assignedTo'},
-    {
-      '1': 'verification_type',
-      '3': 4,
-      '4': 1,
-      '5': 9,
-      '10': 'verificationType'
-    },
-    {
-      '1': 'status',
-      '3': 5,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.VerificationStatus',
-      '10': 'status'
-    },
+    {'1': 'verification_type', '3': 4, '4': 1, '5': 9, '10': 'verificationType'},
+    {'1': 'status', '3': 5, '4': 1, '5': 14, '6': '.origination.v1.VerificationStatus', '10': 'status'},
     {'1': 'notes', '3': 6, '4': 1, '5': 9, '10': 'notes'},
-    {
-      '1': 'checklist',
-      '3': 7,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'checklist'
-    },
-    {
-      '1': 'results',
-      '3': 8,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'results'
-    },
+    {'1': 'checklist', '3': 7, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'checklist'},
+    {'1': 'results', '3': 8, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'results'},
     {'1': 'completed_at', '3': 9, '4': 1, '5': 9, '10': 'completedAt'},
-    {
-      '1': 'properties',
-      '3': 10,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'properties'
-    },
+    {'1': 'properties', '3': 10, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
   ],
 };
 
@@ -596,66 +347,18 @@ const UnderwritingDecisionObject$json = {
   '1': 'UnderwritingDecisionObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {
-      '1': 'application_id',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'applicationId'
-    },
+    {'1': 'application_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
     {'1': 'decided_by', '3': 3, '4': 1, '5': 9, '10': 'decidedBy'},
-    {
-      '1': 'outcome',
-      '3': 4,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.UnderwritingOutcome',
-      '10': 'outcome'
-    },
+    {'1': 'outcome', '3': 4, '4': 1, '5': 14, '6': '.origination.v1.UnderwritingOutcome', '10': 'outcome'},
     {'1': 'credit_score', '3': 5, '4': 1, '5': 5, '10': 'creditScore'},
     {'1': 'risk_grade', '3': 6, '4': 1, '5': 9, '10': 'riskGrade'},
-    {
-      '1': 'approved_amount',
-      '3': 7,
-      '4': 1,
-      '5': 11,
-      '6': '.google.type.Money',
-      '10': 'approvedAmount'
-    },
-    {
-      '1': 'approved_term_days',
-      '3': 8,
-      '4': 1,
-      '5': 5,
-      '10': 'approvedTermDays'
-    },
+    {'1': 'approved_amount', '3': 7, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'approvedAmount'},
+    {'1': 'approved_term_days', '3': 8, '4': 1, '5': 5, '10': 'approvedTermDays'},
     {'1': 'approved_rate', '3': 9, '4': 1, '5': 9, '10': 'approvedRate'},
     {'1': 'reason', '3': 10, '4': 1, '5': 9, '10': 'reason'},
-    {
-      '1': 'scoring_details',
-      '3': 11,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'scoringDetails'
-    },
-    {
-      '1': 'conditions',
-      '3': 12,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'conditions'
-    },
-    {
-      '1': 'properties',
-      '3': 13,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'properties'
-    },
+    {'1': 'scoring_details', '3': 11, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'scoringDetails'},
+    {'1': 'conditions', '3': 12, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'conditions'},
+    {'1': 'properties', '3': 13, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
   ],
 };
 
@@ -678,44 +381,27 @@ final $typed_data.Uint8List underwritingDecisionObjectDescriptor = $convert.base
 const LoanProductSaveRequest$json = {
   '1': 'LoanProductSaveRequest',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.LoanProductObject',
-      '8': {},
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.LoanProductObject', '8': {}, '10': 'data'},
   ],
 };
 
 /// Descriptor for `LoanProductSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List loanProductSaveRequestDescriptor =
-    $convert.base64Decode(
-        'ChZMb2FuUHJvZHVjdFNhdmVSZXF1ZXN0Ej0KBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
-        '5Mb2FuUHJvZHVjdE9iamVjdEIGukgDyAEBUgRkYXRh');
+final $typed_data.Uint8List loanProductSaveRequestDescriptor = $convert.base64Decode(
+    'ChZMb2FuUHJvZHVjdFNhdmVSZXF1ZXN0Ej0KBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
+    '5Mb2FuUHJvZHVjdE9iamVjdEIGukgDyAEBUgRkYXRh');
 
 @$core.Deprecated('Use loanProductSaveResponseDescriptor instead')
 const LoanProductSaveResponse$json = {
   '1': 'LoanProductSaveResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.LoanProductObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.LoanProductObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `LoanProductSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List loanProductSaveResponseDescriptor =
-    $convert.base64Decode(
-        'ChdMb2FuUHJvZHVjdFNhdmVSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEub3JpZ2luYXRpb24udj'
-        'EuTG9hblByb2R1Y3RPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List loanProductSaveResponseDescriptor = $convert.base64Decode(
+    'ChdMb2FuUHJvZHVjdFNhdmVSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEub3JpZ2luYXRpb24udj'
+    'EuTG9hblByb2R1Y3RPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use loanProductGetRequestDescriptor instead')
 const LoanProductGetRequest$json = {
@@ -734,52 +420,23 @@ final $typed_data.Uint8List loanProductGetRequestDescriptor = $convert.base64Dec
 const LoanProductGetResponse$json = {
   '1': 'LoanProductGetResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.LoanProductObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.LoanProductObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `LoanProductGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List loanProductGetResponseDescriptor =
-    $convert.base64Decode(
-        'ChZMb2FuUHJvZHVjdEdldFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
-        '5Mb2FuUHJvZHVjdE9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List loanProductGetResponseDescriptor = $convert.base64Decode(
+    'ChZMb2FuUHJvZHVjdEdldFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
+    '5Mb2FuUHJvZHVjdE9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use loanProductSearchRequestDescriptor instead')
 const LoanProductSearchRequest$json = {
   '1': 'LoanProductSearchRequest',
   '2': [
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
-    {
-      '1': 'organization_id',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'organizationId'
-    },
-    {
-      '1': 'product_type',
-      '3': 3,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.LoanProductType',
-      '10': 'productType'
-    },
-    {
-      '1': 'cursor',
-      '3': 4,
-      '4': 1,
-      '5': 11,
-      '6': '.common.v1.PageCursor',
-      '10': 'cursor'
-    },
+    {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
+    {'1': 'product_type', '3': 3, '4': 1, '5': 14, '6': '.origination.v1.LoanProductType', '10': 'productType'},
+    {'1': 'cursor', '3': 4, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
 };
 
@@ -794,65 +451,40 @@ final $typed_data.Uint8List loanProductSearchRequestDescriptor = $convert.base64
 const LoanProductSearchResponse$json = {
   '1': 'LoanProductSearchResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 3,
-      '5': 11,
-      '6': '.origination.v1.LoanProductObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.origination.v1.LoanProductObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `LoanProductSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List loanProductSearchResponseDescriptor =
-    $convert.base64Decode(
-        'ChlMb2FuUHJvZHVjdFNlYXJjaFJlc3BvbnNlEjUKBGRhdGEYASADKAsyIS5vcmlnaW5hdGlvbi'
-        '52MS5Mb2FuUHJvZHVjdE9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List loanProductSearchResponseDescriptor = $convert.base64Decode(
+    'ChlMb2FuUHJvZHVjdFNlYXJjaFJlc3BvbnNlEjUKBGRhdGEYASADKAsyIS5vcmlnaW5hdGlvbi'
+    '52MS5Mb2FuUHJvZHVjdE9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationSaveRequestDescriptor instead')
 const ApplicationSaveRequest$json = {
   '1': 'ApplicationSaveRequest',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '8': {},
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '8': {}, '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationSaveRequestDescriptor =
-    $convert.base64Decode(
-        'ChZBcHBsaWNhdGlvblNhdmVSZXF1ZXN0Ej0KBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
-        '5BcHBsaWNhdGlvbk9iamVjdEIGukgDyAEBUgRkYXRh');
+final $typed_data.Uint8List applicationSaveRequestDescriptor = $convert.base64Decode(
+    'ChZBcHBsaWNhdGlvblNhdmVSZXF1ZXN0Ej0KBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
+    '5BcHBsaWNhdGlvbk9iamVjdEIGukgDyAEBUgRkYXRh');
 
 @$core.Deprecated('Use applicationSaveResponseDescriptor instead')
 const ApplicationSaveResponse$json = {
   '1': 'ApplicationSaveResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationSaveResponseDescriptor =
-    $convert.base64Decode(
-        'ChdBcHBsaWNhdGlvblNhdmVSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEub3JpZ2luYXRpb24udj'
-        'EuQXBwbGljYXRpb25PYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List applicationSaveResponseDescriptor = $convert.base64Decode(
+    'ChdBcHBsaWNhdGlvblNhdmVSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEub3JpZ2luYXRpb24udj'
+    'EuQXBwbGljYXRpb25PYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use applicationGetRequestDescriptor instead')
 const ApplicationGetRequest$json = {
@@ -871,22 +503,14 @@ final $typed_data.Uint8List applicationGetRequestDescriptor = $convert.base64Dec
 const ApplicationGetResponse$json = {
   '1': 'ApplicationGetResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationGetResponseDescriptor =
-    $convert.base64Decode(
-        'ChZBcHBsaWNhdGlvbkdldFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
-        '5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List applicationGetResponseDescriptor = $convert.base64Decode(
+    'ChZBcHBsaWNhdGlvbkdldFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi52MS'
+    '5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationSearchRequestDescriptor instead')
 const ApplicationSearchRequest$json = {
@@ -896,30 +520,9 @@ const ApplicationSearchRequest$json = {
     {'1': 'client_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
     {'1': 'agent_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
     {'1': 'branch_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'branchId'},
-    {
-      '1': 'organization_id',
-      '3': 5,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'organizationId'
-    },
-    {
-      '1': 'status',
-      '3': 6,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.ApplicationStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'cursor',
-      '3': 7,
-      '4': 1,
-      '5': 11,
-      '6': '.common.v1.PageCursor',
-      '10': 'cursor'
-    },
+    {'1': 'organization_id', '3': 5, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
+    {'1': 'status', '3': 6, '4': 1, '5': 14, '6': '.origination.v1.ApplicationStatus', '10': 'status'},
+    {'1': 'cursor', '3': 7, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
 };
 
@@ -937,22 +540,14 @@ final $typed_data.Uint8List applicationSearchRequestDescriptor = $convert.base64
 const ApplicationSearchResponse$json = {
   '1': 'ApplicationSearchResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 3,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationSearchResponseDescriptor =
-    $convert.base64Decode(
-        'ChlBcHBsaWNhdGlvblNlYXJjaFJlc3BvbnNlEjUKBGRhdGEYASADKAsyIS5vcmlnaW5hdGlvbi'
-        '52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List applicationSearchResponseDescriptor = $convert.base64Decode(
+    'ChlBcHBsaWNhdGlvblNlYXJjaFJlc3BvbnNlEjUKBGRhdGEYASADKAsyIS5vcmlnaW5hdGlvbi'
+    '52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationSubmitRequestDescriptor instead')
 const ApplicationSubmitRequest$json = {
@@ -963,31 +558,22 @@ const ApplicationSubmitRequest$json = {
 };
 
 /// Descriptor for `ApplicationSubmitRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationSubmitRequestDescriptor =
-    $convert.base64Decode(
-        'ChhBcHBsaWNhdGlvblN1Ym1pdFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
-        'Etel8tXXszLDQwfVICaWQ=');
+final $typed_data.Uint8List applicationSubmitRequestDescriptor = $convert.base64Decode(
+    'ChhBcHBsaWNhdGlvblN1Ym1pdFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
+    'Etel8tXXszLDQwfVICaWQ=');
 
 @$core.Deprecated('Use applicationSubmitResponseDescriptor instead')
 const ApplicationSubmitResponse$json = {
   '1': 'ApplicationSubmitResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationSubmitResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationSubmitResponseDescriptor =
-    $convert.base64Decode(
-        'ChlBcHBsaWNhdGlvblN1Ym1pdFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi'
-        '52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List applicationSubmitResponseDescriptor = $convert.base64Decode(
+    'ChlBcHBsaWNhdGlvblN1Ym1pdFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi'
+    '52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationCancelRequestDescriptor instead')
 const ApplicationCancelRequest$json = {
@@ -999,31 +585,22 @@ const ApplicationCancelRequest$json = {
 };
 
 /// Descriptor for `ApplicationCancelRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationCancelRequestDescriptor =
-    $convert.base64Decode(
-        'ChhBcHBsaWNhdGlvbkNhbmNlbFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
-        'Etel8tXXszLDQwfVICaWQSFgoGcmVhc29uGAIgASgJUgZyZWFzb24=');
+final $typed_data.Uint8List applicationCancelRequestDescriptor = $convert.base64Decode(
+    'ChhBcHBsaWNhdGlvbkNhbmNlbFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
+    'Etel8tXXszLDQwfVICaWQSFgoGcmVhc29uGAIgASgJUgZyZWFzb24=');
 
 @$core.Deprecated('Use applicationCancelResponseDescriptor instead')
 const ApplicationCancelResponse$json = {
   '1': 'ApplicationCancelResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationCancelResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationCancelResponseDescriptor =
-    $convert.base64Decode(
-        'ChlBcHBsaWNhdGlvbkNhbmNlbFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi'
-        '52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List applicationCancelResponseDescriptor = $convert.base64Decode(
+    'ChlBcHBsaWNhdGlvbkNhbmNlbFJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW5hdGlvbi'
+    '52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationAcceptOfferRequestDescriptor instead')
 const ApplicationAcceptOfferRequest$json = {
@@ -1034,31 +611,22 @@ const ApplicationAcceptOfferRequest$json = {
 };
 
 /// Descriptor for `ApplicationAcceptOfferRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationAcceptOfferRequestDescriptor =
-    $convert.base64Decode(
-        'Ch1BcHBsaWNhdGlvbkFjY2VwdE9mZmVyUmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMh'
-        'BbMC05YS16Xy1dezMsNDB9UgJpZA==');
+final $typed_data.Uint8List applicationAcceptOfferRequestDescriptor = $convert.base64Decode(
+    'Ch1BcHBsaWNhdGlvbkFjY2VwdE9mZmVyUmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMh'
+    'BbMC05YS16Xy1dezMsNDB9UgJpZA==');
 
 @$core.Deprecated('Use applicationAcceptOfferResponseDescriptor instead')
 const ApplicationAcceptOfferResponse$json = {
   '1': 'ApplicationAcceptOfferResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationAcceptOfferResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationAcceptOfferResponseDescriptor =
-    $convert.base64Decode(
-        'Ch5BcHBsaWNhdGlvbkFjY2VwdE9mZmVyUmVzcG9uc2USNQoEZGF0YRgBIAEoCzIhLm9yaWdpbm'
-        'F0aW9uLnYxLkFwcGxpY2F0aW9uT2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List applicationAcceptOfferResponseDescriptor = $convert.base64Decode(
+    'Ch5BcHBsaWNhdGlvbkFjY2VwdE9mZmVyUmVzcG9uc2USNQoEZGF0YRgBIAEoCzIhLm9yaWdpbm'
+    'F0aW9uLnYxLkFwcGxpY2F0aW9uT2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use applicationDeclineOfferRequestDescriptor instead')
 const ApplicationDeclineOfferRequest$json = {
@@ -1070,74 +638,48 @@ const ApplicationDeclineOfferRequest$json = {
 };
 
 /// Descriptor for `ApplicationDeclineOfferRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDeclineOfferRequestDescriptor =
-    $convert.base64Decode(
-        'Ch5BcHBsaWNhdGlvbkRlY2xpbmVPZmZlclJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKD'
-        'IQWzAtOWEtel8tXXszLDQwfVICaWQSFgoGcmVhc29uGAIgASgJUgZyZWFzb24=');
+final $typed_data.Uint8List applicationDeclineOfferRequestDescriptor = $convert.base64Decode(
+    'Ch5BcHBsaWNhdGlvbkRlY2xpbmVPZmZlclJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKD'
+    'IQWzAtOWEtel8tXXszLDQwfVICaWQSFgoGcmVhc29uGAIgASgJUgZyZWFzb24=');
 
 @$core.Deprecated('Use applicationDeclineOfferResponseDescriptor instead')
 const ApplicationDeclineOfferResponse$json = {
   '1': 'ApplicationDeclineOfferResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationDeclineOfferResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDeclineOfferResponseDescriptor =
-    $convert.base64Decode(
-        'Ch9BcHBsaWNhdGlvbkRlY2xpbmVPZmZlclJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW'
-        '5hdGlvbi52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List applicationDeclineOfferResponseDescriptor = $convert.base64Decode(
+    'Ch9BcHBsaWNhdGlvbkRlY2xpbmVPZmZlclJlc3BvbnNlEjUKBGRhdGEYASABKAsyIS5vcmlnaW'
+    '5hdGlvbi52MS5BcHBsaWNhdGlvbk9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationDocumentSaveRequestDescriptor instead')
 const ApplicationDocumentSaveRequest$json = {
   '1': 'ApplicationDocumentSaveRequest',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationDocumentObject',
-      '8': {},
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationDocumentObject', '8': {}, '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationDocumentSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDocumentSaveRequestDescriptor =
-    $convert.base64Decode(
-        'Ch5BcHBsaWNhdGlvbkRvY3VtZW50U2F2ZVJlcXVlc3QSRQoEZGF0YRgBIAEoCzIpLm9yaWdpbm'
-        'F0aW9uLnYxLkFwcGxpY2F0aW9uRG9jdW1lbnRPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
+final $typed_data.Uint8List applicationDocumentSaveRequestDescriptor = $convert.base64Decode(
+    'Ch5BcHBsaWNhdGlvbkRvY3VtZW50U2F2ZVJlcXVlc3QSRQoEZGF0YRgBIAEoCzIpLm9yaWdpbm'
+    'F0aW9uLnYxLkFwcGxpY2F0aW9uRG9jdW1lbnRPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
 
 @$core.Deprecated('Use applicationDocumentSaveResponseDescriptor instead')
 const ApplicationDocumentSaveResponse$json = {
   '1': 'ApplicationDocumentSaveResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationDocumentObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationDocumentObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationDocumentSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDocumentSaveResponseDescriptor =
-    $convert.base64Decode(
-        'Ch9BcHBsaWNhdGlvbkRvY3VtZW50U2F2ZVJlc3BvbnNlEj0KBGRhdGEYASABKAsyKS5vcmlnaW'
-        '5hdGlvbi52MS5BcHBsaWNhdGlvbkRvY3VtZW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List applicationDocumentSaveResponseDescriptor = $convert.base64Decode(
+    'Ch9BcHBsaWNhdGlvbkRvY3VtZW50U2F2ZVJlc3BvbnNlEj0KBGRhdGEYASABKAsyKS5vcmlnaW'
+    '5hdGlvbi52MS5BcHBsaWNhdGlvbkRvY3VtZW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use applicationDocumentGetRequestDescriptor instead')
 const ApplicationDocumentGetRequest$json = {
@@ -1148,134 +690,78 @@ const ApplicationDocumentGetRequest$json = {
 };
 
 /// Descriptor for `ApplicationDocumentGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDocumentGetRequestDescriptor =
-    $convert.base64Decode(
-        'Ch1BcHBsaWNhdGlvbkRvY3VtZW50R2V0UmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMh'
-        'BbMC05YS16Xy1dezMsNDB9UgJpZA==');
+final $typed_data.Uint8List applicationDocumentGetRequestDescriptor = $convert.base64Decode(
+    'Ch1BcHBsaWNhdGlvbkRvY3VtZW50R2V0UmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMh'
+    'BbMC05YS16Xy1dezMsNDB9UgJpZA==');
 
 @$core.Deprecated('Use applicationDocumentGetResponseDescriptor instead')
 const ApplicationDocumentGetResponse$json = {
   '1': 'ApplicationDocumentGetResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.ApplicationDocumentObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.ApplicationDocumentObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationDocumentGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDocumentGetResponseDescriptor =
-    $convert.base64Decode(
-        'Ch5BcHBsaWNhdGlvbkRvY3VtZW50R2V0UmVzcG9uc2USPQoEZGF0YRgBIAEoCzIpLm9yaWdpbm'
-        'F0aW9uLnYxLkFwcGxpY2F0aW9uRG9jdW1lbnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List applicationDocumentGetResponseDescriptor = $convert.base64Decode(
+    'Ch5BcHBsaWNhdGlvbkRvY3VtZW50R2V0UmVzcG9uc2USPQoEZGF0YRgBIAEoCzIpLm9yaWdpbm'
+    'F0aW9uLnYxLkFwcGxpY2F0aW9uRG9jdW1lbnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use applicationDocumentSearchRequestDescriptor instead')
 const ApplicationDocumentSearchRequest$json = {
   '1': 'ApplicationDocumentSearchRequest',
   '2': [
-    {
-      '1': 'application_id',
-      '3': 1,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'applicationId'
-    },
-    {
-      '1': 'document_type',
-      '3': 2,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.DocumentType',
-      '10': 'documentType'
-    },
-    {
-      '1': 'cursor',
-      '3': 3,
-      '4': 1,
-      '5': 11,
-      '6': '.common.v1.PageCursor',
-      '10': 'cursor'
-    },
+    {'1': 'application_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
+    {'1': 'document_type', '3': 2, '4': 1, '5': 14, '6': '.origination.v1.DocumentType', '10': 'documentType'},
+    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
 };
 
 /// Descriptor for `ApplicationDocumentSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDocumentSearchRequestDescriptor =
-    $convert.base64Decode(
-        'CiBBcHBsaWNhdGlvbkRvY3VtZW50U2VhcmNoUmVxdWVzdBIwCg5hcHBsaWNhdGlvbl9pZBgBIA'
-        'EoCUIJukgGcgQQAxgoUg1hcHBsaWNhdGlvbklkEkEKDWRvY3VtZW50X3R5cGUYAiABKA4yHC5v'
-        'cmlnaW5hdGlvbi52MS5Eb2N1bWVudFR5cGVSDGRvY3VtZW50VHlwZRItCgZjdXJzb3IYAyABKA'
-        'syFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
+final $typed_data.Uint8List applicationDocumentSearchRequestDescriptor = $convert.base64Decode(
+    'CiBBcHBsaWNhdGlvbkRvY3VtZW50U2VhcmNoUmVxdWVzdBIwCg5hcHBsaWNhdGlvbl9pZBgBIA'
+    'EoCUIJukgGcgQQAxgoUg1hcHBsaWNhdGlvbklkEkEKDWRvY3VtZW50X3R5cGUYAiABKA4yHC5v'
+    'cmlnaW5hdGlvbi52MS5Eb2N1bWVudFR5cGVSDGRvY3VtZW50VHlwZRItCgZjdXJzb3IYAyABKA'
+    'syFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
 
 @$core.Deprecated('Use applicationDocumentSearchResponseDescriptor instead')
 const ApplicationDocumentSearchResponse$json = {
   '1': 'ApplicationDocumentSearchResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 3,
-      '5': 11,
-      '6': '.origination.v1.ApplicationDocumentObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.origination.v1.ApplicationDocumentObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `ApplicationDocumentSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applicationDocumentSearchResponseDescriptor =
-    $convert.base64Decode(
-        'CiFBcHBsaWNhdGlvbkRvY3VtZW50U2VhcmNoUmVzcG9uc2USPQoEZGF0YRgBIAMoCzIpLm9yaW'
-        'dpbmF0aW9uLnYxLkFwcGxpY2F0aW9uRG9jdW1lbnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List applicationDocumentSearchResponseDescriptor = $convert.base64Decode(
+    'CiFBcHBsaWNhdGlvbkRvY3VtZW50U2VhcmNoUmVzcG9uc2USPQoEZGF0YRgBIAMoCzIpLm9yaW'
+    'dpbmF0aW9uLnYxLkFwcGxpY2F0aW9uRG9jdW1lbnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use verificationTaskSaveRequestDescriptor instead')
 const VerificationTaskSaveRequest$json = {
   '1': 'VerificationTaskSaveRequest',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.VerificationTaskObject',
-      '8': {},
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.VerificationTaskObject', '8': {}, '10': 'data'},
   ],
 };
 
 /// Descriptor for `VerificationTaskSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskSaveRequestDescriptor =
-    $convert.base64Decode(
-        'ChtWZXJpZmljYXRpb25UYXNrU2F2ZVJlcXVlc3QSQgoEZGF0YRgBIAEoCzImLm9yaWdpbmF0aW'
-        '9uLnYxLlZlcmlmaWNhdGlvblRhc2tPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
+final $typed_data.Uint8List verificationTaskSaveRequestDescriptor = $convert.base64Decode(
+    'ChtWZXJpZmljYXRpb25UYXNrU2F2ZVJlcXVlc3QSQgoEZGF0YRgBIAEoCzImLm9yaWdpbmF0aW'
+    '9uLnYxLlZlcmlmaWNhdGlvblRhc2tPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
 
 @$core.Deprecated('Use verificationTaskSaveResponseDescriptor instead')
 const VerificationTaskSaveResponse$json = {
   '1': 'VerificationTaskSaveResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.VerificationTaskObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.VerificationTaskObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `VerificationTaskSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskSaveResponseDescriptor =
-    $convert.base64Decode(
-        'ChxWZXJpZmljYXRpb25UYXNrU2F2ZVJlc3BvbnNlEjoKBGRhdGEYASABKAsyJi5vcmlnaW5hdG'
-        'lvbi52MS5WZXJpZmljYXRpb25UYXNrT2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List verificationTaskSaveResponseDescriptor = $convert.base64Decode(
+    'ChxWZXJpZmljYXRpb25UYXNrU2F2ZVJlc3BvbnNlEjoKBGRhdGEYASABKAsyJi5vcmlnaW5hdG'
+    'lvbi52MS5WZXJpZmljYXRpb25UYXNrT2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use verificationTaskGetRequestDescriptor instead')
 const VerificationTaskGetRequest$json = {
@@ -1286,61 +772,31 @@ const VerificationTaskGetRequest$json = {
 };
 
 /// Descriptor for `VerificationTaskGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskGetRequestDescriptor =
-    $convert.base64Decode(
-        'ChpWZXJpZmljYXRpb25UYXNrR2V0UmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMhBbMC'
-        '05YS16Xy1dezMsNDB9UgJpZA==');
+final $typed_data.Uint8List verificationTaskGetRequestDescriptor = $convert.base64Decode(
+    'ChpWZXJpZmljYXRpb25UYXNrR2V0UmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMhBbMC'
+    '05YS16Xy1dezMsNDB9UgJpZA==');
 
 @$core.Deprecated('Use verificationTaskGetResponseDescriptor instead')
 const VerificationTaskGetResponse$json = {
   '1': 'VerificationTaskGetResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.VerificationTaskObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.VerificationTaskObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `VerificationTaskGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskGetResponseDescriptor =
-    $convert.base64Decode(
-        'ChtWZXJpZmljYXRpb25UYXNrR2V0UmVzcG9uc2USOgoEZGF0YRgBIAEoCzImLm9yaWdpbmF0aW'
-        '9uLnYxLlZlcmlmaWNhdGlvblRhc2tPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List verificationTaskGetResponseDescriptor = $convert.base64Decode(
+    'ChtWZXJpZmljYXRpb25UYXNrR2V0UmVzcG9uc2USOgoEZGF0YRgBIAEoCzImLm9yaWdpbmF0aW'
+    '9uLnYxLlZlcmlmaWNhdGlvblRhc2tPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use verificationTaskSearchRequestDescriptor instead')
 const VerificationTaskSearchRequest$json = {
   '1': 'VerificationTaskSearchRequest',
   '2': [
-    {
-      '1': 'application_id',
-      '3': 1,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'applicationId'
-    },
+    {'1': 'application_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
     {'1': 'assigned_to', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'assignedTo'},
-    {
-      '1': 'status',
-      '3': 3,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.VerificationStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'cursor',
-      '3': 4,
-      '4': 1,
-      '5': 11,
-      '6': '.common.v1.PageCursor',
-      '10': 'cursor'
-    },
+    {'1': 'status', '3': 3, '4': 1, '5': 14, '6': '.origination.v1.VerificationStatus', '10': 'status'},
+    {'1': 'cursor', '3': 4, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
 };
 
@@ -1356,119 +812,71 @@ final $typed_data.Uint8List verificationTaskSearchRequestDescriptor = $convert.b
 const VerificationTaskSearchResponse$json = {
   '1': 'VerificationTaskSearchResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 3,
-      '5': 11,
-      '6': '.origination.v1.VerificationTaskObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.origination.v1.VerificationTaskObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `VerificationTaskSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskSearchResponseDescriptor =
-    $convert.base64Decode(
-        'Ch5WZXJpZmljYXRpb25UYXNrU2VhcmNoUmVzcG9uc2USOgoEZGF0YRgBIAMoCzImLm9yaWdpbm'
-        'F0aW9uLnYxLlZlcmlmaWNhdGlvblRhc2tPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List verificationTaskSearchResponseDescriptor = $convert.base64Decode(
+    'Ch5WZXJpZmljYXRpb25UYXNrU2VhcmNoUmVzcG9uc2USOgoEZGF0YRgBIAMoCzImLm9yaWdpbm'
+    'F0aW9uLnYxLlZlcmlmaWNhdGlvblRhc2tPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use verificationTaskCompleteRequestDescriptor instead')
 const VerificationTaskCompleteRequest$json = {
   '1': 'VerificationTaskCompleteRequest',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {
-      '1': 'status',
-      '3': 2,
-      '4': 1,
-      '5': 14,
-      '6': '.origination.v1.VerificationStatus',
-      '10': 'status'
-    },
+    {'1': 'status', '3': 2, '4': 1, '5': 14, '6': '.origination.v1.VerificationStatus', '10': 'status'},
     {'1': 'notes', '3': 3, '4': 1, '5': 9, '10': 'notes'},
-    {
-      '1': 'results',
-      '3': 4,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Struct',
-      '10': 'results'
-    },
+    {'1': 'results', '3': 4, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'results'},
   ],
 };
 
 /// Descriptor for `VerificationTaskCompleteRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskCompleteRequestDescriptor =
-    $convert.base64Decode(
-        'Ch9WZXJpZmljYXRpb25UYXNrQ29tcGxldGVSZXF1ZXN0EisKAmlkGAEgASgJQhu6SBhyFhADGC'
-        'gyEFswLTlhLXpfLV17Myw0MH1SAmlkEjoKBnN0YXR1cxgCIAEoDjIiLm9yaWdpbmF0aW9uLnYx'
-        'LlZlcmlmaWNhdGlvblN0YXR1c1IGc3RhdHVzEhQKBW5vdGVzGAMgASgJUgVub3RlcxIxCgdyZX'
-        'N1bHRzGAQgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIHcmVzdWx0cw==');
+final $typed_data.Uint8List verificationTaskCompleteRequestDescriptor = $convert.base64Decode(
+    'Ch9WZXJpZmljYXRpb25UYXNrQ29tcGxldGVSZXF1ZXN0EisKAmlkGAEgASgJQhu6SBhyFhADGC'
+    'gyEFswLTlhLXpfLV17Myw0MH1SAmlkEjoKBnN0YXR1cxgCIAEoDjIiLm9yaWdpbmF0aW9uLnYx'
+    'LlZlcmlmaWNhdGlvblN0YXR1c1IGc3RhdHVzEhQKBW5vdGVzGAMgASgJUgVub3RlcxIxCgdyZX'
+    'N1bHRzGAQgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIHcmVzdWx0cw==');
 
 @$core.Deprecated('Use verificationTaskCompleteResponseDescriptor instead')
 const VerificationTaskCompleteResponse$json = {
   '1': 'VerificationTaskCompleteResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.VerificationTaskObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.VerificationTaskObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `VerificationTaskCompleteResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verificationTaskCompleteResponseDescriptor =
-    $convert.base64Decode(
-        'CiBWZXJpZmljYXRpb25UYXNrQ29tcGxldGVSZXNwb25zZRI6CgRkYXRhGAEgASgLMiYub3JpZ2'
-        'luYXRpb24udjEuVmVyaWZpY2F0aW9uVGFza09iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List verificationTaskCompleteResponseDescriptor = $convert.base64Decode(
+    'CiBWZXJpZmljYXRpb25UYXNrQ29tcGxldGVSZXNwb25zZRI6CgRkYXRhGAEgASgLMiYub3JpZ2'
+    'luYXRpb24udjEuVmVyaWZpY2F0aW9uVGFza09iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use underwritingDecisionSaveRequestDescriptor instead')
 const UnderwritingDecisionSaveRequest$json = {
   '1': 'UnderwritingDecisionSaveRequest',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.UnderwritingDecisionObject',
-      '8': {},
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.UnderwritingDecisionObject', '8': {}, '10': 'data'},
   ],
 };
 
 /// Descriptor for `UnderwritingDecisionSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List underwritingDecisionSaveRequestDescriptor =
-    $convert.base64Decode(
-        'Ch9VbmRlcndyaXRpbmdEZWNpc2lvblNhdmVSZXF1ZXN0EkYKBGRhdGEYASABKAsyKi5vcmlnaW'
-        '5hdGlvbi52MS5VbmRlcndyaXRpbmdEZWNpc2lvbk9iamVjdEIGukgDyAEBUgRkYXRh');
+final $typed_data.Uint8List underwritingDecisionSaveRequestDescriptor = $convert.base64Decode(
+    'Ch9VbmRlcndyaXRpbmdEZWNpc2lvblNhdmVSZXF1ZXN0EkYKBGRhdGEYASABKAsyKi5vcmlnaW'
+    '5hdGlvbi52MS5VbmRlcndyaXRpbmdEZWNpc2lvbk9iamVjdEIGukgDyAEBUgRkYXRh');
 
 @$core.Deprecated('Use underwritingDecisionSaveResponseDescriptor instead')
 const UnderwritingDecisionSaveResponse$json = {
   '1': 'UnderwritingDecisionSaveResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.UnderwritingDecisionObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.UnderwritingDecisionObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `UnderwritingDecisionSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List underwritingDecisionSaveResponseDescriptor =
-    $convert.base64Decode(
-        'CiBVbmRlcndyaXRpbmdEZWNpc2lvblNhdmVSZXNwb25zZRI+CgRkYXRhGAEgASgLMioub3JpZ2'
-        'luYXRpb24udjEuVW5kZXJ3cml0aW5nRGVjaXNpb25PYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List underwritingDecisionSaveResponseDescriptor = $convert.base64Decode(
+    'CiBVbmRlcndyaXRpbmdEZWNpc2lvblNhdmVSZXNwb25zZRI+CgRkYXRhGAEgASgLMioub3JpZ2'
+    'luYXRpb24udjEuVW5kZXJ3cml0aW5nRGVjaXNpb25PYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use underwritingDecisionGetRequestDescriptor instead')
 const UnderwritingDecisionGetRequest$json = {
@@ -1479,92 +887,55 @@ const UnderwritingDecisionGetRequest$json = {
 };
 
 /// Descriptor for `UnderwritingDecisionGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List underwritingDecisionGetRequestDescriptor =
-    $convert.base64Decode(
-        'Ch5VbmRlcndyaXRpbmdEZWNpc2lvbkdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKD'
-        'IQWzAtOWEtel8tXXszLDQwfVICaWQ=');
+final $typed_data.Uint8List underwritingDecisionGetRequestDescriptor = $convert.base64Decode(
+    'Ch5VbmRlcndyaXRpbmdEZWNpc2lvbkdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKD'
+    'IQWzAtOWEtel8tXXszLDQwfVICaWQ=');
 
 @$core.Deprecated('Use underwritingDecisionGetResponseDescriptor instead')
 const UnderwritingDecisionGetResponse$json = {
   '1': 'UnderwritingDecisionGetResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.origination.v1.UnderwritingDecisionObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.origination.v1.UnderwritingDecisionObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `UnderwritingDecisionGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List underwritingDecisionGetResponseDescriptor =
-    $convert.base64Decode(
-        'Ch9VbmRlcndyaXRpbmdEZWNpc2lvbkdldFJlc3BvbnNlEj4KBGRhdGEYASABKAsyKi5vcmlnaW'
-        '5hdGlvbi52MS5VbmRlcndyaXRpbmdEZWNpc2lvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List underwritingDecisionGetResponseDescriptor = $convert.base64Decode(
+    'Ch9VbmRlcndyaXRpbmdEZWNpc2lvbkdldFJlc3BvbnNlEj4KBGRhdGEYASABKAsyKi5vcmlnaW'
+    '5hdGlvbi52MS5VbmRlcndyaXRpbmdEZWNpc2lvbk9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use underwritingDecisionSearchRequestDescriptor instead')
 const UnderwritingDecisionSearchRequest$json = {
   '1': 'UnderwritingDecisionSearchRequest',
   '2': [
-    {
-      '1': 'application_id',
-      '3': 1,
-      '4': 1,
-      '5': 9,
-      '8': {},
-      '10': 'applicationId'
-    },
-    {
-      '1': 'cursor',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.common.v1.PageCursor',
-      '10': 'cursor'
-    },
+    {'1': 'application_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
+    {'1': 'cursor', '3': 2, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
   ],
 };
 
 /// Descriptor for `UnderwritingDecisionSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List underwritingDecisionSearchRequestDescriptor =
-    $convert.base64Decode(
-        'CiFVbmRlcndyaXRpbmdEZWNpc2lvblNlYXJjaFJlcXVlc3QSMAoOYXBwbGljYXRpb25faWQYAS'
-        'ABKAlCCbpIBnIEEAMYKFINYXBwbGljYXRpb25JZBItCgZjdXJzb3IYAiABKAsyFS5jb21tb24u'
-        'djEuUGFnZUN1cnNvclIGY3Vyc29y');
+final $typed_data.Uint8List underwritingDecisionSearchRequestDescriptor = $convert.base64Decode(
+    'CiFVbmRlcndyaXRpbmdEZWNpc2lvblNlYXJjaFJlcXVlc3QSMAoOYXBwbGljYXRpb25faWQYAS'
+    'ABKAlCCbpIBnIEEAMYKFINYXBwbGljYXRpb25JZBItCgZjdXJzb3IYAiABKAsyFS5jb21tb24u'
+    'djEuUGFnZUN1cnNvclIGY3Vyc29y');
 
 @$core.Deprecated('Use underwritingDecisionSearchResponseDescriptor instead')
 const UnderwritingDecisionSearchResponse$json = {
   '1': 'UnderwritingDecisionSearchResponse',
   '2': [
-    {
-      '1': 'data',
-      '3': 1,
-      '4': 3,
-      '5': 11,
-      '6': '.origination.v1.UnderwritingDecisionObject',
-      '10': 'data'
-    },
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.origination.v1.UnderwritingDecisionObject', '10': 'data'},
   ],
 };
 
 /// Descriptor for `UnderwritingDecisionSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List underwritingDecisionSearchResponseDescriptor =
-    $convert.base64Decode(
-        'CiJVbmRlcndyaXRpbmdEZWNpc2lvblNlYXJjaFJlc3BvbnNlEj4KBGRhdGEYASADKAsyKi5vcm'
-        'lnaW5hdGlvbi52MS5VbmRlcndyaXRpbmdEZWNpc2lvbk9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List underwritingDecisionSearchResponseDescriptor = $convert.base64Decode(
+    'CiJVbmRlcndyaXRpbmdEZWNpc2lvblNlYXJjaFJlc3BvbnNlEj4KBGRhdGEYASADKAsyKi5vcm'
+    'lnaW5hdGlvbi52MS5VbmRlcndyaXRpbmdEZWNpc2lvbk9iamVjdFIEZGF0YQ==');
 
 const $core.Map<$core.String, $core.dynamic> OriginationServiceBase$json = {
   '1': 'OriginationService',
   '2': [
-    {
-      '1': 'LoanProductSave',
-      '2': '.origination.v1.LoanProductSaveRequest',
-      '3': '.origination.v1.LoanProductSaveResponse',
-      '4': {}
-    },
+    {'1': 'LoanProductSave', '2': '.origination.v1.LoanProductSaveRequest', '3': '.origination.v1.LoanProductSaveResponse', '4': {}},
     {
       '1': 'LoanProductGet',
       '2': '.origination.v1.LoanProductGetRequest',
@@ -1578,12 +949,7 @@ const $core.Map<$core.String, $core.dynamic> OriginationServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {
-      '1': 'ApplicationSave',
-      '2': '.origination.v1.ApplicationSaveRequest',
-      '3': '.origination.v1.ApplicationSaveResponse',
-      '4': {}
-    },
+    {'1': 'ApplicationSave', '2': '.origination.v1.ApplicationSaveRequest', '3': '.origination.v1.ApplicationSaveResponse', '4': {}},
     {
       '1': 'ApplicationGet',
       '2': '.origination.v1.ApplicationGetRequest',
@@ -1597,36 +963,11 @@ const $core.Map<$core.String, $core.dynamic> OriginationServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {
-      '1': 'ApplicationSubmit',
-      '2': '.origination.v1.ApplicationSubmitRequest',
-      '3': '.origination.v1.ApplicationSubmitResponse',
-      '4': {}
-    },
-    {
-      '1': 'ApplicationCancel',
-      '2': '.origination.v1.ApplicationCancelRequest',
-      '3': '.origination.v1.ApplicationCancelResponse',
-      '4': {}
-    },
-    {
-      '1': 'ApplicationAcceptOffer',
-      '2': '.origination.v1.ApplicationAcceptOfferRequest',
-      '3': '.origination.v1.ApplicationAcceptOfferResponse',
-      '4': {}
-    },
-    {
-      '1': 'ApplicationDeclineOffer',
-      '2': '.origination.v1.ApplicationDeclineOfferRequest',
-      '3': '.origination.v1.ApplicationDeclineOfferResponse',
-      '4': {}
-    },
-    {
-      '1': 'ApplicationDocumentSave',
-      '2': '.origination.v1.ApplicationDocumentSaveRequest',
-      '3': '.origination.v1.ApplicationDocumentSaveResponse',
-      '4': {}
-    },
+    {'1': 'ApplicationSubmit', '2': '.origination.v1.ApplicationSubmitRequest', '3': '.origination.v1.ApplicationSubmitResponse', '4': {}},
+    {'1': 'ApplicationCancel', '2': '.origination.v1.ApplicationCancelRequest', '3': '.origination.v1.ApplicationCancelResponse', '4': {}},
+    {'1': 'ApplicationAcceptOffer', '2': '.origination.v1.ApplicationAcceptOfferRequest', '3': '.origination.v1.ApplicationAcceptOfferResponse', '4': {}},
+    {'1': 'ApplicationDeclineOffer', '2': '.origination.v1.ApplicationDeclineOfferRequest', '3': '.origination.v1.ApplicationDeclineOfferResponse', '4': {}},
+    {'1': 'ApplicationDocumentSave', '2': '.origination.v1.ApplicationDocumentSaveRequest', '3': '.origination.v1.ApplicationDocumentSaveResponse', '4': {}},
     {
       '1': 'ApplicationDocumentGet',
       '2': '.origination.v1.ApplicationDocumentGetRequest',
@@ -1640,12 +981,7 @@ const $core.Map<$core.String, $core.dynamic> OriginationServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {
-      '1': 'VerificationTaskSave',
-      '2': '.origination.v1.VerificationTaskSaveRequest',
-      '3': '.origination.v1.VerificationTaskSaveResponse',
-      '4': {}
-    },
+    {'1': 'VerificationTaskSave', '2': '.origination.v1.VerificationTaskSaveRequest', '3': '.origination.v1.VerificationTaskSaveResponse', '4': {}},
     {
       '1': 'VerificationTaskGet',
       '2': '.origination.v1.VerificationTaskGetRequest',
@@ -1659,18 +995,8 @@ const $core.Map<$core.String, $core.dynamic> OriginationServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {
-      '1': 'VerificationTaskComplete',
-      '2': '.origination.v1.VerificationTaskCompleteRequest',
-      '3': '.origination.v1.VerificationTaskCompleteResponse',
-      '4': {}
-    },
-    {
-      '1': 'UnderwritingDecisionSave',
-      '2': '.origination.v1.UnderwritingDecisionSaveRequest',
-      '3': '.origination.v1.UnderwritingDecisionSaveResponse',
-      '4': {}
-    },
+    {'1': 'VerificationTaskComplete', '2': '.origination.v1.VerificationTaskCompleteRequest', '3': '.origination.v1.VerificationTaskCompleteResponse', '4': {}},
+    {'1': 'UnderwritingDecisionSave', '2': '.origination.v1.UnderwritingDecisionSaveRequest', '3': '.origination.v1.UnderwritingDecisionSaveResponse', '4': {}},
     {
       '1': 'UnderwritingDecisionGet',
       '2': '.origination.v1.UnderwritingDecisionGetRequest',
@@ -1689,8 +1015,7 @@ const $core.Map<$core.String, $core.dynamic> OriginationServiceBase$json = {
 };
 
 @$core.Deprecated('Use originationServiceDescriptor instead')
-const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
-    OriginationServiceBase$messageJson = {
+const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> OriginationServiceBase$messageJson = {
   '.origination.v1.LoanProductSaveRequest': LoanProductSaveRequest$json,
   '.origination.v1.LoanProductObject': LoanProductObject$json,
   '.google.type.Money': $9.Money$json,
@@ -1715,56 +1040,33 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
   '.origination.v1.ApplicationSubmitResponse': ApplicationSubmitResponse$json,
   '.origination.v1.ApplicationCancelRequest': ApplicationCancelRequest$json,
   '.origination.v1.ApplicationCancelResponse': ApplicationCancelResponse$json,
-  '.origination.v1.ApplicationAcceptOfferRequest':
-      ApplicationAcceptOfferRequest$json,
-  '.origination.v1.ApplicationAcceptOfferResponse':
-      ApplicationAcceptOfferResponse$json,
-  '.origination.v1.ApplicationDeclineOfferRequest':
-      ApplicationDeclineOfferRequest$json,
-  '.origination.v1.ApplicationDeclineOfferResponse':
-      ApplicationDeclineOfferResponse$json,
-  '.origination.v1.ApplicationDocumentSaveRequest':
-      ApplicationDocumentSaveRequest$json,
+  '.origination.v1.ApplicationAcceptOfferRequest': ApplicationAcceptOfferRequest$json,
+  '.origination.v1.ApplicationAcceptOfferResponse': ApplicationAcceptOfferResponse$json,
+  '.origination.v1.ApplicationDeclineOfferRequest': ApplicationDeclineOfferRequest$json,
+  '.origination.v1.ApplicationDeclineOfferResponse': ApplicationDeclineOfferResponse$json,
+  '.origination.v1.ApplicationDocumentSaveRequest': ApplicationDocumentSaveRequest$json,
   '.origination.v1.ApplicationDocumentObject': ApplicationDocumentObject$json,
-  '.origination.v1.ApplicationDocumentSaveResponse':
-      ApplicationDocumentSaveResponse$json,
-  '.origination.v1.ApplicationDocumentGetRequest':
-      ApplicationDocumentGetRequest$json,
-  '.origination.v1.ApplicationDocumentGetResponse':
-      ApplicationDocumentGetResponse$json,
-  '.origination.v1.ApplicationDocumentSearchRequest':
-      ApplicationDocumentSearchRequest$json,
-  '.origination.v1.ApplicationDocumentSearchResponse':
-      ApplicationDocumentSearchResponse$json,
-  '.origination.v1.VerificationTaskSaveRequest':
-      VerificationTaskSaveRequest$json,
+  '.origination.v1.ApplicationDocumentSaveResponse': ApplicationDocumentSaveResponse$json,
+  '.origination.v1.ApplicationDocumentGetRequest': ApplicationDocumentGetRequest$json,
+  '.origination.v1.ApplicationDocumentGetResponse': ApplicationDocumentGetResponse$json,
+  '.origination.v1.ApplicationDocumentSearchRequest': ApplicationDocumentSearchRequest$json,
+  '.origination.v1.ApplicationDocumentSearchResponse': ApplicationDocumentSearchResponse$json,
+  '.origination.v1.VerificationTaskSaveRequest': VerificationTaskSaveRequest$json,
   '.origination.v1.VerificationTaskObject': VerificationTaskObject$json,
-  '.origination.v1.VerificationTaskSaveResponse':
-      VerificationTaskSaveResponse$json,
+  '.origination.v1.VerificationTaskSaveResponse': VerificationTaskSaveResponse$json,
   '.origination.v1.VerificationTaskGetRequest': VerificationTaskGetRequest$json,
-  '.origination.v1.VerificationTaskGetResponse':
-      VerificationTaskGetResponse$json,
-  '.origination.v1.VerificationTaskSearchRequest':
-      VerificationTaskSearchRequest$json,
-  '.origination.v1.VerificationTaskSearchResponse':
-      VerificationTaskSearchResponse$json,
-  '.origination.v1.VerificationTaskCompleteRequest':
-      VerificationTaskCompleteRequest$json,
-  '.origination.v1.VerificationTaskCompleteResponse':
-      VerificationTaskCompleteResponse$json,
-  '.origination.v1.UnderwritingDecisionSaveRequest':
-      UnderwritingDecisionSaveRequest$json,
+  '.origination.v1.VerificationTaskGetResponse': VerificationTaskGetResponse$json,
+  '.origination.v1.VerificationTaskSearchRequest': VerificationTaskSearchRequest$json,
+  '.origination.v1.VerificationTaskSearchResponse': VerificationTaskSearchResponse$json,
+  '.origination.v1.VerificationTaskCompleteRequest': VerificationTaskCompleteRequest$json,
+  '.origination.v1.VerificationTaskCompleteResponse': VerificationTaskCompleteResponse$json,
+  '.origination.v1.UnderwritingDecisionSaveRequest': UnderwritingDecisionSaveRequest$json,
   '.origination.v1.UnderwritingDecisionObject': UnderwritingDecisionObject$json,
-  '.origination.v1.UnderwritingDecisionSaveResponse':
-      UnderwritingDecisionSaveResponse$json,
-  '.origination.v1.UnderwritingDecisionGetRequest':
-      UnderwritingDecisionGetRequest$json,
-  '.origination.v1.UnderwritingDecisionGetResponse':
-      UnderwritingDecisionGetResponse$json,
-  '.origination.v1.UnderwritingDecisionSearchRequest':
-      UnderwritingDecisionSearchRequest$json,
-  '.origination.v1.UnderwritingDecisionSearchResponse':
-      UnderwritingDecisionSearchResponse$json,
+  '.origination.v1.UnderwritingDecisionSaveResponse': UnderwritingDecisionSaveResponse$json,
+  '.origination.v1.UnderwritingDecisionGetRequest': UnderwritingDecisionGetRequest$json,
+  '.origination.v1.UnderwritingDecisionGetResponse': UnderwritingDecisionGetResponse$json,
+  '.origination.v1.UnderwritingDecisionSearchRequest': UnderwritingDecisionSearchRequest$json,
+  '.origination.v1.UnderwritingDecisionSearchResponse': UnderwritingDecisionSearchResponse$json,
 };
 
 /// Descriptor for `OriginationService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -1901,3 +1203,4 @@ final $typed_data.Uint8List originationServiceDescriptor = $convert.base64Decode
     'lvbl9kb2N1bWVudF92aWV3EhthcHBsaWNhdGlvbl9kb2N1bWVudF9tYW5hZ2USEXZlcmlmaWNh'
     'dGlvbl92aWV3EhN2ZXJpZmljYXRpb25fbWFuYWdlEhF1bmRlcndyaXRpbmdfdmlldxITdW5kZX'
     'J3cml0aW5nX21hbmFnZQ==');
+

@@ -187,11 +187,11 @@ class TransferOrderObject extends $pb.GeneratedMessage {
 
 class TransferOrderExecuteRequest extends $pb.GeneratedMessage {
   factory TransferOrderExecuteRequest({
-    $core.String? id,
+    TransferOrderObject? data,
   }) {
     final $result = create();
-    if (id != null) {
-      $result.id = id;
+    if (data != null) {
+      $result.data = data;
     }
     return $result;
   }
@@ -200,7 +200,7 @@ class TransferOrderExecuteRequest extends $pb.GeneratedMessage {
   factory TransferOrderExecuteRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TransferOrderExecuteRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'operations.v1'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOM<TransferOrderObject>(1, _omitFieldNames ? '' : 'data', subBuilder: TransferOrderObject.create)
     ..hasRequiredFields = false
   ;
 
@@ -226,13 +226,15 @@ class TransferOrderExecuteRequest extends $pb.GeneratedMessage {
   static TransferOrderExecuteRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  TransferOrderObject get data => $_getN(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set data(TransferOrderObject v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  TransferOrderObject ensureData() => $_ensure(0);
 }
 
 class TransferOrderExecuteResponse extends $pb.GeneratedMessage {
