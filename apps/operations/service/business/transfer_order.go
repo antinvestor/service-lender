@@ -65,6 +65,15 @@ func NewTransferOrderBusiness(
 	}
 }
 
+// Save persists a transfer order via the event system.
+func (b *transferOrderBusiness) Save(ctx context.Context, order *models.TransferOrder) error {
+	if order.State == 0 {
+		order.State = int32(constants.StateJustCreated)
+	}
+	order.GenID(ctx)
+	return b.eventsMan.Emit(ctx, events.TransferOrderSaveEvent, order)
+}
+
 // Execute processes a transfer order based on its type.
 // The execution flow is:
 //  1. Load the transfer order from the repository

@@ -8,6 +8,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/business"
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
@@ -85,10 +86,57 @@ func (s *FieldServer) AgentHierarchy(
 }
 
 // --- Agent Branch RPCs ---
-// NOTE: AgentBranchSave, AgentBranchDelete, AgentBranchList handlers will be
-// added after the field proto is pushed to BSR and the Go generated types are
-// updated. The business layer (AgentBusiness.SaveBranch, DeleteBranch,
-// ListBranchesByAgent, ListBranchesByBranch) is ready.
+
+func (s *FieldServer) AgentBranchSave(
+	ctx context.Context,
+	req *connect.Request[fieldv1.AgentBranchSaveRequest],
+) (*connect.Response[fieldv1.AgentBranchSaveResponse], error) {
+	model := models.AgentBranchFromAPI(ctx, req.Msg.GetData())
+	result, err := s.agentBusiness.SaveBranch(ctx, model)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&fieldv1.AgentBranchSaveResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *FieldServer) AgentBranchDelete(
+	ctx context.Context,
+	req *connect.Request[fieldv1.AgentBranchDeleteRequest],
+) (*connect.Response[fieldv1.AgentBranchDeleteResponse], error) {
+	if err := s.agentBusiness.DeleteBranch(ctx, req.Msg.GetId()); err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&fieldv1.AgentBranchDeleteResponse{}), nil
+}
+
+func (s *FieldServer) AgentBranchList(
+	ctx context.Context,
+	req *connect.Request[fieldv1.AgentBranchListRequest],
+	stream *connect.ServerStream[fieldv1.AgentBranchListResponse],
+) error {
+	var results []*models.AgentBranch
+	var err error
+
+	switch {
+	case req.Msg.GetAgentId() != "":
+		results, err = s.agentBusiness.ListBranchesByAgent(ctx, req.Msg.GetAgentId())
+	case req.Msg.GetBranchId() != "":
+		results, err = s.agentBusiness.ListBranchesByBranch(ctx, req.Msg.GetBranchId())
+	default:
+		return apperrors.CleanErr(apperrors.ErrInvalidInput.Extend("agent_id or branch_id is required"))
+	}
+
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+
+	var apiResults []*fieldv1.AgentBranchObject
+	for _, ab := range results {
+		apiResults = append(apiResults, ab.ToAPI())
+	}
+
+	return stream.Send(&fieldv1.AgentBranchListResponse{Data: apiResults})
+}
 
 // --- Client RPCs ---
 

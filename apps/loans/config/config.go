@@ -22,6 +22,8 @@ type LoanManagementConfig struct {
 	ProfileServiceWorkloadAPITargetPath      string `envDefault:"/ns/profile/sa/service-profile"           env:"PROFILE_SERVICE_WORKLOAD_API_TARGET_PATH"`
 	TenancyServiceURI                        string `envDefault:"127.0.0.1:7003"                           env:"TENANCY_SERVICE_URI"`
 	TenancyServiceWorkloadAPITargetPath      string `envDefault:"/ns/auth/sa/service-tenancy"              env:"TENANCY_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	OperationsServiceURI                     string `envDefault:"127.0.0.1:7060"                           env:"OPERATIONS_SERVICE_URI"`
+	OperationsServiceWorkloadAPITargetPath   string `envDefault:"/ns/fintech/sa/service-stawi"             env:"OPERATIONS_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
 	DefaultGracePeriodDays   int `envDefault:"3"  env:"DEFAULT_GRACE_PERIOD_DAYS"`
 	DelinquencyThresholdDays int `envDefault:"7"  env:"DELINQUENCY_THRESHOLD_DAYS"`

@@ -2,6 +2,8 @@ package business
 
 import (
 	"context"
+
+	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 )
 
 // PaymentRoutingBusiness handles payment identification and allocation.
@@ -10,8 +12,9 @@ type PaymentRoutingBusiness interface {
 	AllocatePayment(ctx context.Context, paymentID string) (map[string]interface{}, error)
 }
 
-// TransferOrderBusiness handles transfer order execution.
+// TransferOrderBusiness handles transfer order creation and execution.
 type TransferOrderBusiness interface {
+	Save(ctx context.Context, order *models.TransferOrder) error
 	Execute(ctx context.Context, orderID string) error
 }
 

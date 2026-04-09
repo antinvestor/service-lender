@@ -7,15 +7,17 @@ import (
 	"time"
 
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
+	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
+	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
+	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	moneyx "github.com/pitabwire/util/money"
 
 	"github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
-	opsevents "github.com/antinvestor/service-fintech/apps/operations/service/events"
-	opsmodels "github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
@@ -37,6 +39,7 @@ type repaymentBusiness struct {
 	scheduleEntryRepo repository.ScheduleEntryRepository
 	loanBalanceRepo   repository.LoanBalanceRepository
 	notifier          *LoanNotifier
+	operationsCli     operationsv1connect.OperationsServiceClient
 }
 
 func NewRepaymentBusiness(
@@ -48,6 +51,7 @@ func NewRepaymentBusiness(
 	scheduleEntryRepo repository.ScheduleEntryRepository,
 	loanBalanceRepo repository.LoanBalanceRepository,
 	notifier *LoanNotifier,
+	operationsCli operationsv1connect.OperationsServiceClient,
 ) RepaymentBusiness {
 	return &repaymentBusiness{
 		eventsMan:         eventsMan,
@@ -57,6 +61,7 @@ func NewRepaymentBusiness(
 		scheduleEntryRepo: scheduleEntryRepo,
 		loanBalanceRepo:   loanBalanceRepo,
 		notifier:          notifier,
+		operationsCli:     operationsCli,
 	}
 }
 
@@ -271,7 +276,7 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 	}
 }
 
-// emitTransferOrder creates and emits a single transfer order.
+// emitTransferOrder creates and executes a transfer order via the operations service SDK.
 func (b *repaymentBusiness) emitTransferOrder(
 	ctx context.Context,
 	logger *util.LogEntry,
@@ -281,22 +286,27 @@ func (b *repaymentBusiness) emitTransferOrder(
 	orderType int,
 	reference, description string,
 ) {
-	to := &opsmodels.TransferOrder{
-		DebitAccountRef:  debitAccount,
-		CreditAccountRef: creditAccount,
-		Amount:           amount,
-		Currency:         currency,
-		OrderType:        constants.SafeInt32FromInt(orderType),
-		Reference:        reference,
-		Description:      description,
-		State:            int32(constants.StateJustCreated),
+	if b.operationsCli == nil {
+		logger.WithField("reference", reference).
+			Warn("operations client not available, transfer order skipped")
+		return
 	}
-	to.GenID(ctx)
 
-	if emitErr := b.eventsMan.Emit(ctx, opsevents.TransferOrderSaveEvent, to); emitErr != nil {
-		logger.WithError(emitErr).
+	req := connect.NewRequest(&operationsv1.TransferOrderExecuteRequest{
+		Data: &operationsv1.TransferOrderObject{
+			DebitAccountRef:  debitAccount,
+			CreditAccountRef: creditAccount,
+			Amount:           moneyx.FromSmallestUnit(currency, amount, 2),
+			OrderType:        constants.SafeInt32FromInt(orderType),
+			Reference:        reference,
+			Description:      description,
+		},
+	})
+
+	if _, execErr := b.operationsCli.TransferOrderExecute(ctx, req); execErr != nil {
+		logger.WithError(execErr).
 			WithField("reference", reference).
-			Error("could not emit transfer order for repayment")
+			Error("could not execute transfer order for repayment")
 	}
 }
 

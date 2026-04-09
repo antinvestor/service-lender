@@ -7,6 +7,7 @@ import (
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	loanspb "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
+	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common"
@@ -31,8 +32,6 @@ import (
 	lmevents "github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
-	opsevents "github.com/antinvestor/service-fintech/apps/operations/service/events"
-	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
 )
 
 func main() {
@@ -80,6 +79,12 @@ func main() {
 	}
 	loanNotifier := business.NewLoanNotifier(notificationCli)
 
+	operationsCli, opsErr := setupOperationsClient(ctx, cfg)
+	if opsErr != nil {
+		log.WithError(opsErr).
+			Warn("main -- Could not setup operations client, transfer orders will be disabled")
+	}
+
 	// Get database pool
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
@@ -87,7 +92,16 @@ func main() {
 		return
 	}
 
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, originationCli, loanNotifier)
+	serviceOptions := setupServiceOptions(
+		ctx,
+		sm,
+		evtsMan,
+		dbPool,
+		workMan,
+		originationCli,
+		loanNotifier,
+		operationsCli,
+	)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -105,6 +119,7 @@ func setupServiceOptions(
 	workMan workerpool.Manager,
 	originationCli originationv1connect.OriginationServiceClient,
 	loanNotifier *business.LoanNotifier,
+	operationsCli operationsv1connect.OperationsServiceClient,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 	laRepo := repository.NewLoanAccountRepository(ctx, dbPool, workMan)
@@ -116,7 +131,6 @@ func setupServiceOptions(
 	lrRepo := repository.NewLoanRestructureRepository(ctx, dbPool, workMan)
 	lscRepo := repository.NewLoanStatusChangeRepository(ctx, dbPool, workMan)
 	reconRepo := repository.NewReconciliationRepository(ctx, dbPool, workMan)
-	toRepo := opsrepo.NewTransferOrderRepository(ctx, dbPool, workMan)
 
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
@@ -124,7 +138,17 @@ func setupServiceOptions(
 		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, penRepo,
 		originationCli, scheduleBusiness,
 	)
-	repBusiness := business.NewRepaymentBusiness(ctx, evtsMan, laRepo, repRepo, rsRepo, seRepo, lbRepo, loanNotifier)
+	repBusiness := business.NewRepaymentBusiness(
+		ctx,
+		evtsMan,
+		laRepo,
+		repRepo,
+		rsRepo,
+		seRepo,
+		lbRepo,
+		loanNotifier,
+		operationsCli,
+	)
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
@@ -151,7 +175,6 @@ func setupServiceOptions(
 			lmevents.NewLoanRestructureSave(ctx, lrRepo),
 			lmevents.NewLoanStatusChangeSave(ctx, lscRepo),
 			lmevents.NewReconciliationSave(ctx, reconRepo),
-			opsevents.NewTransferOrderSave(ctx, toRepo),
 		),
 	}
 }
@@ -191,6 +214,17 @@ func setupNotificationClient(
 		WorkloadAPITargetPath: cfg.NotificationServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_notification"},
 	}, notificationv1connect.NewNotificationServiceClient)
+}
+
+func setupOperationsClient(
+	ctx context.Context,
+	cfg aconfig.LoanManagementConfig,
+) (operationsv1connect.OperationsServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.OperationsServiceURI,
+		WorkloadAPITargetPath: cfg.OperationsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_operations"},
+	}, operationsv1connect.NewOperationsServiceClient)
 }
 
 func setupConnectServer(

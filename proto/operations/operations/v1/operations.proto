@@ -38,7 +38,7 @@ message TransferOrderObject {
 }
 
 message TransferOrderExecuteRequest {
-  string id = 1;
+  TransferOrderObject data = 1;
 }
 message TransferOrderExecuteResponse {
   TransferOrderObject data = 1;

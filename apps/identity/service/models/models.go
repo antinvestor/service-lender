@@ -184,16 +184,16 @@ func (m *Agent) TableName() string { return "agents" }
 
 func (m *Agent) ToAPI() *fieldv1.AgentObject {
 	return &fieldv1.AgentObject{
-		Id:            m.GetID(),
-		BranchId:      m.OrganizationID, // field 2 repurposed as organization_id until proto is regenerated
-		ParentAgentId: m.ParentAgentID,
-		ProfileId:     m.ProfileID,
-		AgentType:     fieldv1.AgentType(m.AgentType),
-		Name:          m.Name,
-		GeoId:         m.GeoID,
-		Depth:         m.Depth,
-		State:         commonv1.STATE(m.State),
-		Properties:    m.Properties.ToProtoStruct(),
+		Id:             m.GetID(),
+		OrganizationId: m.OrganizationID,
+		ParentAgentId:  m.ParentAgentID,
+		ProfileId:      m.ProfileID,
+		AgentType:      fieldv1.AgentType(m.AgentType),
+		Name:           m.Name,
+		GeoId:          m.GeoID,
+		Depth:          m.Depth,
+		State:          commonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
 
@@ -203,7 +203,7 @@ func AgentFromAPI(ctx context.Context, obj *fieldv1.AgentObject) *Agent {
 	}
 
 	model := &Agent{
-		OrganizationID: obj.GetBranchId(), // field 2 repurposed as organization_id until proto is regenerated
+		OrganizationID: obj.GetOrganizationId(),
 		ParentAgentID:  obj.GetParentAgentId(),
 		ProfileID:      obj.GetProfileId(),
 		AgentType:      int32(obj.GetAgentType()),
@@ -236,6 +236,39 @@ type AgentBranch struct {
 }
 
 func (m *AgentBranch) TableName() string { return "agent_branches" }
+
+func (m *AgentBranch) ToAPI() *fieldv1.AgentBranchObject {
+	return &fieldv1.AgentBranchObject{
+		Id:         m.GetID(),
+		AgentId:    m.AgentID,
+		BranchId:   m.BranchID,
+		State:      commonv1.STATE(m.State),
+		Properties: m.Properties.ToProtoStruct(),
+	}
+}
+
+func AgentBranchFromAPI(ctx context.Context, obj *fieldv1.AgentBranchObject) *AgentBranch {
+	if obj == nil {
+		return nil
+	}
+
+	model := &AgentBranch{
+		AgentID:  obj.GetAgentId(),
+		BranchID: obj.GetBranchId(),
+		State:    int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
 
 // Client represents a loan recipient always assigned to an agent.
 // Clients exist independently of groups. Product-level code links
