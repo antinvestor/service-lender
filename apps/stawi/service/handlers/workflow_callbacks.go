@@ -8,15 +8,15 @@ import (
 	"github.com/pitabwire/util"
 
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
-	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	opsbusiness "github.com/antinvestor/service-fintech/apps/operations/service/business"
+	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
 
 // RegisterWorkflowCallbacks registers all workflow callback HTTP endpoints.
 func RegisterWorkflowCallbacks(
 	mux *http.ServeMux,
-	grpBusiness groupbusiness.GroupBusiness,
+	grpBusiness groupbusiness.ClientGroupBusiness,
 	memBusiness groupbusiness.MembershipBusiness,
 	tenBusiness groupbusiness.TenureBusiness,
 	perBusiness groupbusiness.PeriodBusiness,
@@ -88,7 +88,7 @@ func RegisterWorkflowCallbacks(
 // 4. Returns JSON response or error
 
 func handleCheckFormation(
-	grpBusiness groupbusiness.GroupBusiness,
+	grpBusiness groupbusiness.ClientGroupBusiness,
 	_ groupbusiness.MembershipBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +108,7 @@ func handleCheckFormation(
 }
 
 func handleWelcomeGroup(
-	grpBusiness groupbusiness.GroupBusiness,
+	grpBusiness groupbusiness.ClientGroupBusiness,
 	_ groupbusiness.MembershipBusiness,
 	_ groupbusiness.TenureBusiness,
 	_ groupbusiness.PeriodBusiness,
@@ -131,7 +131,7 @@ func handleWelcomeGroup(
 }
 
 func handleSetupLedger(
-	grpBusiness groupbusiness.GroupBusiness,
+	grpBusiness groupbusiness.ClientGroupBusiness,
 	_ groupbusiness.MembershipBusiness,
 	_ *clients.PlatformClients,
 ) http.HandlerFunc {
@@ -169,7 +169,7 @@ func handleCreateTenure(tenBusiness groupbusiness.TenureBusiness) http.HandlerFu
 }
 
 func handleRegisterLender(
-	grpBusiness groupbusiness.GroupBusiness,
+	grpBusiness groupbusiness.ClientGroupBusiness,
 	_ groupbusiness.MembershipBusiness,
 	_ *clients.PlatformClients,
 ) http.HandlerFunc {
@@ -246,7 +246,7 @@ func handleCalculateObligations(
 	}
 }
 
-func handleGroupTransition(grpBusiness groupbusiness.GroupBusiness) http.HandlerFunc {
+func handleGroupTransition(grpBusiness groupbusiness.ClientGroupBusiness) http.HandlerFunc {
 	type transitionReq struct {
 		State  int32  `json:"state"`
 		Reason string `json:"reason"`

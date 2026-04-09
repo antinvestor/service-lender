@@ -122,7 +122,7 @@ func setupServiceOptions(
 	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
 	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
 	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
-	groupRepo := repository.NewGroupRepository(ctx, dbPool, workMan)
+	groupRepo := repository.NewClientGroupRepository(ctx, dbPool, workMan)
 	membershipRepo := repository.NewMembershipRepository(ctx, dbPool, workMan)
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
@@ -140,7 +140,7 @@ func setupServiceOptions(
 		agentNotifier,
 	)
 	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, clcrRepo)
-	groupBusiness := business.NewGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
+	groupBusiness := business.NewClientGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
@@ -170,7 +170,7 @@ func setupServiceOptions(
 			identityevents.NewBranchSave(ctx, branchRepo),
 			identityevents.NewAgentSave(ctx, agentRepo),
 			identityevents.NewClientSave(ctx, clientRepo),
-			identityevents.NewGroupSave(ctx, groupRepo),
+			identityevents.NewClientGroupSave(ctx, groupRepo),
 			identityevents.NewMembershipSave(ctx, membershipRepo),
 			identityevents.NewInvestorSave(ctx, investorRepo),
 			identityevents.NewSystemUserSave(ctx, systemUserRepo),
@@ -234,8 +234,8 @@ func setupConnectServer(
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
-	_ business.GroupBusiness,
-	_ business.MembershipBusiness,
+	groupBusiness business.ClientGroupBusiness,
+	membershipBusiness business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 	loginClientBusiness business.LoginClientBusiness,
@@ -244,6 +244,8 @@ func setupConnectServer(
 	identityHandler := handlers.NewIdentityServer(
 		organizationBusiness,
 		branchBusiness,
+		groupBusiness,
+		membershipBusiness,
 		investorBusiness,
 		suBusiness,
 	)

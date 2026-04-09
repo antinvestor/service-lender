@@ -26,7 +26,7 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.Organization{}, &models.Branch{}, &models.Agent{}, &models.AgentBranch{},
 		&models.Client{}, &models.ClientAssignmentHistory{}, &models.CreditLimitChangeRequest{},
-		&models.Group{}, &models.Membership{},
+		&models.ClientGroup{}, &models.Membership{},
 		&models.Investor{}, &models.SystemUser{})
 }
 
@@ -67,6 +67,14 @@ func preMigrate(ctx context.Context, dbPool pool.Pool) error {
 		if err := db.Exec(
 			"ALTER TABLE organizations ADD COLUMN IF NOT EXISTS organization_type integer DEFAULT 0",
 		).Error; err != nil {
+			return err
+		}
+	}
+
+	// Rename groups → client_groups if the old table exists
+	if migrator.HasTable("groups") && !migrator.HasTable("client_groups") {
+		util.Log(ctx).Info("preMigrate -- renaming 'groups' table to 'client_groups'")
+		if err := db.Exec("ALTER TABLE groups RENAME TO client_groups").Error; err != nil {
 			return err
 		}
 	}

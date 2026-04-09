@@ -9,6 +9,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/business"
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
@@ -17,6 +18,8 @@ import (
 type IdentityServer struct {
 	organizationBusiness business.OrganizationBusiness
 	branchBusiness       business.BranchBusiness
+	clientGroupBusiness  business.ClientGroupBusiness
+	membershipBusiness   business.MembershipBusiness
 	investorBusiness     business.InvestorBusiness
 	suBusiness           business.SystemUserBusiness
 
@@ -26,12 +29,16 @@ type IdentityServer struct {
 func NewIdentityServer(
 	organizationBusiness business.OrganizationBusiness,
 	branchBusiness business.BranchBusiness,
+	clientGroupBusiness business.ClientGroupBusiness,
+	membershipBusiness business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 ) identityv1connect.IdentityServiceHandler {
 	return &IdentityServer{
 		organizationBusiness: organizationBusiness,
 		branchBusiness:       branchBusiness,
+		clientGroupBusiness:  clientGroupBusiness,
+		membershipBusiness:   membershipBusiness,
 		investorBusiness:     investorBusiness,
 		suBusiness:           suBusiness,
 	}
@@ -186,6 +193,96 @@ func (s *IdentityServer) SystemUserSearch(
 	err := s.suBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.SystemUserObject) error {
 			return stream.Send(&identityv1.SystemUserSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- ClientGroup RPCs ---
+
+func (s *IdentityServer) ClientGroupSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientGroupSaveRequest],
+) (*connect.Response[identityv1.ClientGroupSaveResponse], error) {
+	group := models.ClientGroupFromAPI(ctx, req.Msg.GetData())
+	result, err := s.clientGroupBusiness.Save(ctx, group)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientGroupSaveResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientGroupGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientGroupGetRequest],
+) (*connect.Response[identityv1.ClientGroupGetResponse], error) {
+	result, err := s.clientGroupBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientGroupGetResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientGroupSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientGroupSearchRequest],
+	stream *connect.ServerStream[identityv1.ClientGroupSearchResponse],
+) error {
+	err := s.clientGroupBusiness.Search(ctx,
+		req.Msg.GetQuery(), req.Msg.GetAgentId(), req.Msg.GetBranchId(), 0, nil,
+		func(_ context.Context, batch []*models.ClientGroup) error {
+			var apiResults []*identityv1.ClientGroupObject
+			for _, g := range batch {
+				apiResults = append(apiResults, g.ToAPI())
+			}
+			return stream.Send(&identityv1.ClientGroupSearchResponse{Data: apiResults})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- Membership RPCs ---
+
+func (s *IdentityServer) MembershipSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.MembershipSaveRequest],
+) (*connect.Response[identityv1.MembershipSaveResponse], error) {
+	membership := models.MembershipFromAPI(ctx, req.Msg.GetData())
+	result, err := s.membershipBusiness.Save(ctx, membership)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.MembershipSaveResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) MembershipGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.MembershipGetRequest],
+) (*connect.Response[identityv1.MembershipGetResponse], error) {
+	result, err := s.membershipBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.MembershipGetResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) MembershipSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.MembershipSearchRequest],
+	stream *connect.ServerStream[identityv1.MembershipSearchResponse],
+) error {
+	err := s.membershipBusiness.Search(ctx,
+		req.Msg.GetQuery(), req.Msg.GetGroupId(), req.Msg.GetProfileId(), 0, 0,
+		func(_ context.Context, batch []*models.Membership) error {
+			var apiResults []*identityv1.MembershipObject
+			for _, m := range batch {
+				apiResults = append(apiResults, m.ToAPI())
+			}
+			return stream.Send(&identityv1.MembershipSearchResponse{Data: apiResults})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)

@@ -116,4 +116,56 @@ abstract final class IdentityService {
     identityv1identity.SystemUserSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
+
+  /// ClientGroupSave creates or updates a client group record.
+  static const clientGroupSave = connect.Spec(
+    '/$name/ClientGroupSave',
+    connect.StreamType.unary,
+    identityv1identity.ClientGroupSaveRequest.new,
+    identityv1identity.ClientGroupSaveResponse.new,
+  );
+
+  /// ClientGroupGet retrieves a client group by its ID.
+  static const clientGroupGet = connect.Spec(
+    '/$name/ClientGroupGet',
+    connect.StreamType.unary,
+    identityv1identity.ClientGroupGetRequest.new,
+    identityv1identity.ClientGroupGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// ClientGroupSearch finds client groups matching search criteria.
+  static const clientGroupSearch = connect.Spec(
+    '/$name/ClientGroupSearch',
+    connect.StreamType.server,
+    identityv1identity.ClientGroupSearchRequest.new,
+    identityv1identity.ClientGroupSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// MembershipSave creates or updates a membership record.
+  static const membershipSave = connect.Spec(
+    '/$name/MembershipSave',
+    connect.StreamType.unary,
+    identityv1identity.MembershipSaveRequest.new,
+    identityv1identity.MembershipSaveResponse.new,
+  );
+
+  /// MembershipGet retrieves a membership by its ID.
+  static const membershipGet = connect.Spec(
+    '/$name/MembershipGet',
+    connect.StreamType.unary,
+    identityv1identity.MembershipGetRequest.new,
+    identityv1identity.MembershipGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// MembershipSearch finds memberships matching search criteria.
+  static const membershipSearch = connect.Spec(
+    '/$name/MembershipSearch',
+    connect.StreamType.server,
+    identityv1identity.MembershipSearchRequest.new,
+    identityv1identity.MembershipSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
 }

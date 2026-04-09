@@ -35,7 +35,7 @@ type obligationBusiness struct {
 	eventsMan fevents.Manager
 	obRepo    repository.ObligationRepository
 	memRepo   identityrepo.MembershipRepository
-	grpRepo   identityrepo.GroupRepository
+	grpRepo   identityrepo.ClientGroupRepository
 	perRepo   stawirepo.PeriodRepository
 }
 
@@ -44,7 +44,7 @@ func NewObligationBusiness(
 	eventsMan fevents.Manager,
 	obRepo repository.ObligationRepository,
 	memRepo identityrepo.MembershipRepository,
-	grpRepo identityrepo.GroupRepository,
+	grpRepo identityrepo.ClientGroupRepository,
 	perRepo stawirepo.PeriodRepository,
 ) ObligationBusiness {
 	return &obligationBusiness{

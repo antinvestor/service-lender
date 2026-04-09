@@ -113,7 +113,7 @@ func setupServiceOptions(
 
 	// Group repositories (Group & Membership from identity, Period from stawi)
 	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
-	grpRepo := identityrepo.NewGroupRepository(ctx, dbPool, workMan)
+	grpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
 	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
 
 	// Business logic

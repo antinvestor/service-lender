@@ -7,10 +7,10 @@ import (
 	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
 )
 
-// GroupBusiness handles customer group lifecycle operations.
-type GroupBusiness interface {
-	Create(ctx context.Context, group *identitymodels.Group) (*identitymodels.Group, error)
-	Get(ctx context.Context, id string) (*identitymodels.Group, error)
+// ClientGroupBusiness handles customer group lifecycle operations.
+type ClientGroupBusiness interface {
+	Create(ctx context.Context, group *identitymodels.ClientGroup) (*identitymodels.ClientGroup, error)
+	Get(ctx context.Context, id string) (*identitymodels.ClientGroup, error)
 	Transition(ctx context.Context, groupID string, newState int32, reason string) error
 	CheckFormation(ctx context.Context, groupID string) (map[string]interface{}, error)
 	WelcomeGroup(ctx context.Context, groupID string) error

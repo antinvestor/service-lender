@@ -79,7 +79,7 @@ func main() {
 	}
 
 	// --- Identity repositories (Group & Membership) ---
-	grpRepo := identityrepo.NewGroupRepository(ctx, dbPool, workMan)
+	grpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
 	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
 
 	// --- Group repositories (Tenure, Period, Motion, Infraction) ---
@@ -104,7 +104,7 @@ func main() {
 	csRepo := opsrepo.NewCBSSyncRecordRepository(ctx, dbPool, workMan)
 
 	// --- Group business ---
-	grpBiz := groupbusiness.NewGroupBusiness(ctx, evtsMan, grpRepo, memRepo, platformClients)
+	grpBiz := groupbusiness.NewClientGroupBusiness(ctx, evtsMan, grpRepo, memRepo, platformClients)
 	memBiz := groupbusiness.NewMembershipBusiness(ctx, evtsMan, memRepo, platformClients)
 	tenBiz := groupbusiness.NewTenureBusiness(ctx, evtsMan, grpRepo, tenRepo, perRepo)
 	perBiz := groupbusiness.NewPeriodBusiness(ctx, evtsMan, tenRepo, perRepo)
@@ -158,7 +158,7 @@ func main() {
 		frame.WithHTTPHandler(mux),
 		frame.WithRegisterEvents(
 			// Identity events (Group & Membership)
-			identityevents.NewGroupSave(ctx, grpRepo),
+			identityevents.NewClientGroupSave(ctx, grpRepo),
 			identityevents.NewMembershipSave(ctx, memRepo),
 			// Group events (Tenure, Period, Motion, Infraction)
 			groupevents.NewTenureSave(ctx, tenRepo),

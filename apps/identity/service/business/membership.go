@@ -26,14 +26,14 @@ type MembershipBusiness interface {
 
 type membershipBusiness struct {
 	eventsMan      fevents.Manager
-	groupRepo      repository.GroupRepository
+	groupRepo      repository.ClientGroupRepository
 	membershipRepo repository.MembershipRepository
 }
 
 func NewMembershipBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	groupRepo repository.GroupRepository,
+	groupRepo repository.ClientGroupRepository,
 	membershipRepo repository.MembershipRepository,
 ) MembershipBusiness {
 	return &membershipBusiness{

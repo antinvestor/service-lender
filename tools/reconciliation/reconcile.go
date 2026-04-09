@@ -40,14 +40,14 @@ type Reconciler struct {
 	toRepo  opsrepo.TransferOrderRepository
 	arRepo  opsrepo.AccountRefRepository
 	memRepo identityrepo.MembershipRepository
-	grpRepo identityrepo.GroupRepository
+	grpRepo identityrepo.ClientGroupRepository
 }
 
 func NewReconciler(
 	toRepo opsrepo.TransferOrderRepository,
 	arRepo opsrepo.AccountRefRepository,
 	memRepo identityrepo.MembershipRepository,
-	grpRepo identityrepo.GroupRepository,
+	grpRepo identityrepo.ClientGroupRepository,
 ) *Reconciler {
 	return &Reconciler{
 		toRepo:  toRepo,
@@ -197,7 +197,7 @@ func (r *Reconciler) ReconcileAllActiveGroups(ctx context.Context) ([]*Result, e
 	}
 
 	var results []*Result
-	err = workerpool.ConsumeResultStream(ctx, groupResults, func(batch []*identitymodels.Group) error {
+	err = workerpool.ConsumeResultStream(ctx, groupResults, func(batch []*identitymodels.ClientGroup) error {
 		for _, group := range batch {
 			result, reconcileErr := r.ReconcileGroup(ctx, group.GetID())
 			if reconcileErr != nil {

@@ -10,29 +10,29 @@ import (
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 )
 
-type GroupRepository interface {
-	datastore.BaseRepository[*models.Group]
-	GetByAgentID(ctx context.Context, agentID string, offset, limit int) ([]*models.Group, error)
+type ClientGroupRepository interface {
+	datastore.BaseRepository[*models.ClientGroup]
+	GetByAgentID(ctx context.Context, agentID string, offset, limit int) ([]*models.ClientGroup, error)
 }
 
-type groupRepository struct {
-	datastore.BaseRepository[*models.Group]
+type clientGroupRepository struct {
+	datastore.BaseRepository[*models.ClientGroup]
 }
 
-func NewGroupRepository(ctx context.Context, dbPool pool.Pool, workMan workerpool.Manager) GroupRepository {
-	return &groupRepository{
-		BaseRepository: datastore.NewBaseRepository[*models.Group](
-			ctx, dbPool, workMan, func() *models.Group { return &models.Group{} },
+func NewClientGroupRepository(ctx context.Context, dbPool pool.Pool, workMan workerpool.Manager) ClientGroupRepository {
+	return &clientGroupRepository{
+		BaseRepository: datastore.NewBaseRepository[*models.ClientGroup](
+			ctx, dbPool, workMan, func() *models.ClientGroup { return &models.ClientGroup{} },
 		),
 	}
 }
 
-func (repo *groupRepository) GetByAgentID(
+func (repo *clientGroupRepository) GetByAgentID(
 	ctx context.Context,
 	agentID string,
 	offset, limit int,
-) ([]*models.Group, error) {
-	var groups []*models.Group
+) ([]*models.ClientGroup, error) {
+	var groups []*models.ClientGroup
 	err := repo.Pool().DB(ctx, true).
 		Where("agent_id = ?", agentID).
 		Offset(offset).Limit(limit).

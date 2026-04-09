@@ -332,6 +332,155 @@ message SystemUserSearchResponse {
 }
 
 // -----------------------------------------------------
+// ClientGroup Messages
+// -----------------------------------------------------
+
+// ClientGroupObject represents a collective entity (e.g. SACCO group) in the lending hierarchy.
+message ClientGroupObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string product_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string parent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string profile_id = 6 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 7 [(buf.validate.field).string.min_len = 1];
+  int32 group_type = 8;
+  string currency_code = 9;
+  int64 saving_amount = 10;
+  string time_zone = 11;
+  int32 min_members = 12;
+  int32 max_members = 13;
+  common.v1.STATE state = 14;
+  google.protobuf.Struct properties = 15;
+}
+
+message ClientGroupSaveRequest {
+  ClientGroupObject data = 1 [(buf.validate.field).required = true];
+}
+
+message ClientGroupSaveResponse {
+  ClientGroupObject data = 1;
+}
+
+message ClientGroupGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message ClientGroupGetResponse {
+  ClientGroupObject data = 1;
+}
+
+message ClientGroupSearchRequest {
+  string query = 1;
+  string agent_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 4;
+}
+
+message ClientGroupSearchResponse {
+  repeated ClientGroupObject data = 1;
+}
+
+// -----------------------------------------------------
+// Membership Messages
+// -----------------------------------------------------
+
+// MembershipObject tracks a profile's affiliation with a client group.
+message MembershipObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string group_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string profile_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 4 [(buf.validate.field).string.min_len = 1];
+  string contact_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  int32 role = 6;
+  int32 membership_type = 7;
+  int32 order_no = 8;
+  common.v1.STATE state = 9;
+  google.protobuf.Struct properties = 10;
+}
+
+message MembershipSaveRequest {
+  MembershipObject data = 1 [(buf.validate.field).required = true];
+}
+
+message MembershipSaveResponse {
+  MembershipObject data = 1;
+}
+
+message MembershipGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message MembershipGetResponse {
+  MembershipObject data = 1;
+}
+
+message MembershipSearchRequest {
+  string query = 1;
+  string group_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string profile_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 4;
+}
+
+message MembershipSearchResponse {
+  repeated MembershipObject data = 1;
+}
+
+// -----------------------------------------------------
 // Identity Service
 // -----------------------------------------------------
 
@@ -348,7 +497,11 @@ service IdentityService {
       "investor_view",
       "investor_manage",
       "system_user_view",
-      "system_user_manage"
+      "system_user_manage",
+      "client_group_view",
+      "client_group_manage",
+      "membership_view",
+      "membership_manage"
     ]
     role_bindings: [
       {
@@ -361,7 +514,11 @@ service IdentityService {
           "investor_view",
           "investor_manage",
           "system_user_view",
-          "system_user_manage"
+          "system_user_manage",
+          "client_group_view",
+          "client_group_manage",
+          "membership_view",
+          "membership_manage"
         ]
       },
       {
@@ -374,7 +531,11 @@ service IdentityService {
           "investor_view",
           "investor_manage",
           "system_user_view",
-          "system_user_manage"
+          "system_user_manage",
+          "client_group_view",
+          "client_group_manage",
+          "membership_view",
+          "membership_manage"
         ]
       },
       {
@@ -385,7 +546,11 @@ service IdentityService {
           "branch_view",
           "branch_manage",
           "investor_view",
-          "system_user_view"
+          "system_user_view",
+          "client_group_view",
+          "client_group_manage",
+          "membership_view",
+          "membership_manage"
         ]
       },
       {
@@ -394,7 +559,9 @@ service IdentityService {
           "organization_view",
           "branch_view",
           "investor_view",
-          "system_user_view"
+          "system_user_view",
+          "client_group_view",
+          "membership_view"
         ]
       },
       {
@@ -403,7 +570,9 @@ service IdentityService {
           "organization_view",
           "branch_view",
           "investor_view",
-          "system_user_view"
+          "system_user_view",
+          "client_group_view",
+          "membership_view"
         ]
       },
       {
@@ -416,7 +585,11 @@ service IdentityService {
           "investor_view",
           "investor_manage",
           "system_user_view",
-          "system_user_manage"
+          "system_user_manage",
+          "client_group_view",
+          "client_group_manage",
+          "membership_view",
+          "membership_manage"
         ]
       }
     ]
@@ -583,6 +756,88 @@ service IdentityService {
       summary: "Search system users"
       description: "Searches for system users matching specified criteria. Supports filtering by role and branch. Returns a stream of matching system user records."
       tags: "SystemUsers"
+    };
+  }
+
+  // ClientGroupSave creates or updates a client group record.
+  rpc ClientGroupSave(ClientGroupSaveRequest) returns (ClientGroupSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_group_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientGroupSave"
+      summary: "Create or update a client group"
+      description: "Creates a new client group or updates an existing one. Client groups represent collective entities such as SACCO groups in the lending hierarchy."
+      tags: "ClientGroups"
+    };
+  }
+
+  // ClientGroupGet retrieves a client group by its ID.
+  rpc ClientGroupGet(ClientGroupGetRequest) returns (ClientGroupGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_group_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientGroupGet"
+      summary: "Get a client group by ID"
+      description: "Retrieves a client group record by its unique identifier."
+      tags: "ClientGroups"
+    };
+  }
+
+  // ClientGroupSearch finds client groups matching search criteria.
+  rpc ClientGroupSearch(ClientGroupSearchRequest) returns (stream ClientGroupSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_group_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientGroupSearch"
+      summary: "Search client groups"
+      description: "Searches for client groups matching specified criteria. Supports filtering by agent and branch. Returns a stream of matching client group records."
+      tags: "ClientGroups"
+    };
+  }
+
+  // MembershipSave creates or updates a membership record.
+  rpc MembershipSave(MembershipSaveRequest) returns (MembershipSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["membership_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "membershipSave"
+      summary: "Create or update a membership"
+      description: "Creates a new membership or updates an existing one. Memberships track a profile's affiliation with a client group."
+      tags: "Memberships"
+    };
+  }
+
+  // MembershipGet retrieves a membership by its ID.
+  rpc MembershipGet(MembershipGetRequest) returns (MembershipGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["membership_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "membershipGet"
+      summary: "Get a membership by ID"
+      description: "Retrieves a membership record by its unique identifier."
+      tags: "Memberships"
+    };
+  }
+
+  // MembershipSearch finds memberships matching search criteria.
+  rpc MembershipSearch(MembershipSearchRequest) returns (stream MembershipSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["membership_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "membershipSearch"
+      summary: "Search memberships"
+      description: "Searches for memberships matching specified criteria. Supports filtering by group and profile. Returns a stream of matching membership records."
+      tags: "Memberships"
     };
   }
 }

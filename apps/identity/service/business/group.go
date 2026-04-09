@@ -13,39 +13,39 @@ import (
 	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
-type GroupBusiness interface {
-	Save(ctx context.Context, group *models.Group) (*models.Group, error)
-	Get(ctx context.Context, id string) (*models.Group, error)
+type ClientGroupBusiness interface {
+	Save(ctx context.Context, group *models.ClientGroup) (*models.ClientGroup, error)
+	Get(ctx context.Context, id string) (*models.ClientGroup, error)
 	Search(
 		ctx context.Context,
 		query, agentID, branchID string,
 		groupType int32,
 		cursor *data.SearchQuery,
-		consumer func(ctx context.Context, batch []*models.Group) error,
+		consumer func(ctx context.Context, batch []*models.ClientGroup) error,
 	) error
 }
 
-type groupBusiness struct {
+type clientGroupBusiness struct {
 	eventsMan fevents.Manager
 	agentRepo repository.AgentRepository
-	groupRepo repository.GroupRepository
+	groupRepo repository.ClientGroupRepository
 }
 
-func NewGroupBusiness(
+func NewClientGroupBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	agentRepo repository.AgentRepository,
-	groupRepo repository.GroupRepository,
-) GroupBusiness {
-	return &groupBusiness{
+	groupRepo repository.ClientGroupRepository,
+) ClientGroupBusiness {
+	return &clientGroupBusiness{
 		eventsMan: eventsMan,
 		agentRepo: agentRepo,
 		groupRepo: groupRepo,
 	}
 }
 
-func (b *groupBusiness) Save(ctx context.Context, group *models.Group) (*models.Group, error) {
-	logger := util.Log(ctx).WithField("method", "GroupBusiness.Save")
+func (b *clientGroupBusiness) Save(ctx context.Context, group *models.ClientGroup) (*models.ClientGroup, error) {
+	logger := util.Log(ctx).WithField("method", "ClientGroupBusiness.Save")
 
 	// Validate agent exists and is active
 	agent, err := b.agentRepo.GetByID(ctx, group.AgentID)
@@ -69,16 +69,16 @@ func (b *groupBusiness) Save(ctx context.Context, group *models.Group) (*models.
 		group.GenID(ctx)
 	}
 
-	err = b.eventsMan.Emit(ctx, events.GroupSaveEvent, group)
+	err = b.eventsMan.Emit(ctx, events.ClientGroupSaveEvent, group)
 	if err != nil {
-		logger.WithError(err).Error("could not emit group save event")
+		logger.WithError(err).Error("could not emit client group save event")
 		return nil, err
 	}
 
 	return group, nil
 }
 
-func (b *groupBusiness) Get(ctx context.Context, id string) (*models.Group, error) {
+func (b *clientGroupBusiness) Get(ctx context.Context, id string) (*models.ClientGroup, error) {
 	group, err := b.groupRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrGroupNotFound
@@ -86,14 +86,14 @@ func (b *groupBusiness) Get(ctx context.Context, id string) (*models.Group, erro
 	return group, nil
 }
 
-func (b *groupBusiness) Search(
+func (b *clientGroupBusiness) Search(
 	ctx context.Context,
 	query, agentID, branchID string,
 	groupType int32,
 	_ *data.SearchQuery,
-	consumer func(ctx context.Context, batch []*models.Group) error,
+	consumer func(ctx context.Context, batch []*models.ClientGroup) error,
 ) error {
-	logger := util.Log(ctx).WithField("method", "GroupBusiness.Search")
+	logger := util.Log(ctx).WithField("method", "ClientGroupBusiness.Search")
 
 	var searchOpts []data.SearchOption
 
@@ -123,11 +123,11 @@ func (b *groupBusiness) Search(
 	sq := data.NewSearchQuery(searchOpts...)
 	results, err := b.groupRepo.Search(ctx, sq)
 	if err != nil {
-		logger.WithError(err).Error("failed to search groups")
+		logger.WithError(err).Error("failed to search client groups")
 		return err
 	}
 
-	return workerpoolConsumeStream(ctx, results, func(res []*models.Group) error {
+	return workerpoolConsumeStream(ctx, results, func(res []*models.ClientGroup) error {
 		return consumer(ctx, res)
 	})
 }

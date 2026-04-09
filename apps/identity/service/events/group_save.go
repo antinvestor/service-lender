@@ -11,23 +11,23 @@ import (
 	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
-const GroupSaveEvent = "group.save"
+const ClientGroupSaveEvent = "client_group.save"
 
-type GroupSave struct {
-	groupRepo repository.GroupRepository
+type ClientGroupSave struct {
+	clientGroupRepo repository.ClientGroupRepository
 }
 
-func NewGroupSave(_ context.Context, groupRepo repository.GroupRepository) *GroupSave {
-	return &GroupSave{groupRepo: groupRepo}
+func NewClientGroupSave(_ context.Context, clientGroupRepo repository.ClientGroupRepository) *ClientGroupSave {
+	return &ClientGroupSave{clientGroupRepo: clientGroupRepo}
 }
 
-func (e *GroupSave) Name() string     { return GroupSaveEvent }
-func (e *GroupSave) PayloadType() any { return &models.Group{} }
+func (e *ClientGroupSave) Name() string     { return ClientGroupSaveEvent }
+func (e *ClientGroupSave) PayloadType() any { return &models.ClientGroup{} }
 
-func (e *GroupSave) Validate(_ context.Context, payload any) error {
-	group, ok := payload.(*models.Group)
+func (e *ClientGroupSave) Validate(_ context.Context, payload any) error {
+	group, ok := payload.(*models.ClientGroup)
 	if !ok {
-		return errors.New("payload is not of type models.Group")
+		return errors.New("payload is not of type models.ClientGroup")
 	}
 	if group.GetID() == "" {
 		return errors.New("group ID should already have been set")
@@ -35,26 +35,26 @@ func (e *GroupSave) Validate(_ context.Context, payload any) error {
 	return nil
 }
 
-func (e *GroupSave) Execute(ctx context.Context, payload any) error {
-	group, ok := payload.(*models.Group)
+func (e *ClientGroupSave) Execute(ctx context.Context, payload any) error {
+	group, ok := payload.(*models.ClientGroup)
 	if !ok {
-		return errors.New("payload is not of type models.Group")
+		return errors.New("payload is not of type models.ClientGroup")
 	}
 
 	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "group_id": group.GetID()})
 	defer logger.Release()
 
-	existing, getErr := e.groupRepo.GetByID(ctx, group.GetID())
+	existing, getErr := e.clientGroupRepo.GetByID(ctx, group.GetID())
 	if getErr == nil && existing != nil {
-		if _, err := e.groupRepo.Update(ctx, group); err != nil {
-			logger.WithError(err).Error("could not update group in db")
+		if _, err := e.clientGroupRepo.Update(ctx, group); err != nil {
+			logger.WithError(err).Error("could not update client group in db")
 			return err
 		}
 		return nil
 	}
 
-	if err := e.groupRepo.Create(ctx, group); err != nil && !data.ErrorIsDuplicateKey(err) {
-		logger.WithError(err).Error("could not create group in db")
+	if err := e.clientGroupRepo.Create(ctx, group); err != nil && !data.ErrorIsDuplicateKey(err) {
+		logger.WithError(err).Error("could not create client group in db")
 		return err
 	}
 

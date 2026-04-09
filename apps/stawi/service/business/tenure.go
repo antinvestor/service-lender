@@ -26,7 +26,7 @@ const (
 
 type tenureBusiness struct {
 	eventsMan fevents.Manager
-	grpRepo   identityrepo.GroupRepository
+	grpRepo   identityrepo.ClientGroupRepository
 	tenRepo   repository.TenureRepository
 	perRepo   repository.PeriodRepository
 }
@@ -34,7 +34,7 @@ type tenureBusiness struct {
 func NewTenureBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	grpRepo identityrepo.GroupRepository,
+	grpRepo identityrepo.ClientGroupRepository,
 	tenRepo repository.TenureRepository,
 	perRepo repository.PeriodRepository,
 ) TenureBusiness {

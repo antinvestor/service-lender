@@ -34,6 +34,12 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
   $async.Future<$11.SystemUserSaveResponse> systemUserSave($pb.ServerContext ctx, $11.SystemUserSaveRequest request);
   $async.Future<$11.SystemUserGetResponse> systemUserGet($pb.ServerContext ctx, $11.SystemUserGetRequest request);
   $async.Future<$11.SystemUserSearchResponse> systemUserSearch($pb.ServerContext ctx, $11.SystemUserSearchRequest request);
+  $async.Future<$11.ClientGroupSaveResponse> clientGroupSave($pb.ServerContext ctx, $11.ClientGroupSaveRequest request);
+  $async.Future<$11.ClientGroupGetResponse> clientGroupGet($pb.ServerContext ctx, $11.ClientGroupGetRequest request);
+  $async.Future<$11.ClientGroupSearchResponse> clientGroupSearch($pb.ServerContext ctx, $11.ClientGroupSearchRequest request);
+  $async.Future<$11.MembershipSaveResponse> membershipSave($pb.ServerContext ctx, $11.MembershipSaveRequest request);
+  $async.Future<$11.MembershipGetResponse> membershipGet($pb.ServerContext ctx, $11.MembershipGetRequest request);
+  $async.Future<$11.MembershipSearchResponse> membershipSearch($pb.ServerContext ctx, $11.MembershipSearchRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -49,6 +55,12 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'SystemUserSave': return $11.SystemUserSaveRequest();
       case 'SystemUserGet': return $11.SystemUserGetRequest();
       case 'SystemUserSearch': return $11.SystemUserSearchRequest();
+      case 'ClientGroupSave': return $11.ClientGroupSaveRequest();
+      case 'ClientGroupGet': return $11.ClientGroupGetRequest();
+      case 'ClientGroupSearch': return $11.ClientGroupSearchRequest();
+      case 'MembershipSave': return $11.MembershipSaveRequest();
+      case 'MembershipGet': return $11.MembershipGetRequest();
+      case 'MembershipSearch': return $11.MembershipSearchRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -67,6 +79,12 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'SystemUserSave': return this.systemUserSave(ctx, request as $11.SystemUserSaveRequest);
       case 'SystemUserGet': return this.systemUserGet(ctx, request as $11.SystemUserGetRequest);
       case 'SystemUserSearch': return this.systemUserSearch(ctx, request as $11.SystemUserSearchRequest);
+      case 'ClientGroupSave': return this.clientGroupSave(ctx, request as $11.ClientGroupSaveRequest);
+      case 'ClientGroupGet': return this.clientGroupGet(ctx, request as $11.ClientGroupGetRequest);
+      case 'ClientGroupSearch': return this.clientGroupSearch(ctx, request as $11.ClientGroupSearchRequest);
+      case 'MembershipSave': return this.membershipSave(ctx, request as $11.MembershipSaveRequest);
+      case 'MembershipGet': return this.membershipGet(ctx, request as $11.MembershipGetRequest);
+      case 'MembershipSearch': return this.membershipSearch(ctx, request as $11.MembershipSearchRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

@@ -226,4 +226,112 @@ extension type IdentityServiceClient (connect.Transport _transport) {
       onTrailer: onTrailer,
     );
   }
+
+  /// ClientGroupSave creates or updates a client group record.
+  Future<identityv1identity.ClientGroupSaveResponse> clientGroupSave(
+    identityv1identity.ClientGroupSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.clientGroupSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientGroupGet retrieves a client group by its ID.
+  Future<identityv1identity.ClientGroupGetResponse> clientGroupGet(
+    identityv1identity.ClientGroupGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.clientGroupGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientGroupSearch finds client groups matching search criteria.
+  Stream<identityv1identity.ClientGroupSearchResponse> clientGroupSearch(
+    identityv1identity.ClientGroupSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.clientGroupSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// MembershipSave creates or updates a membership record.
+  Future<identityv1identity.MembershipSaveResponse> membershipSave(
+    identityv1identity.MembershipSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.membershipSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// MembershipGet retrieves a membership by its ID.
+  Future<identityv1identity.MembershipGetResponse> membershipGet(
+    identityv1identity.MembershipGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.membershipGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// MembershipSearch finds memberships matching search criteria.
+  Stream<identityv1identity.MembershipSearchResponse> membershipSearch(
+    identityv1identity.MembershipSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.membershipSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
 }

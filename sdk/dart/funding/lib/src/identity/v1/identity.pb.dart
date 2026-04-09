@@ -12,6 +12,7 @@
 import 'dart:async' as $async;
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import '../../common/v1/common.pb.dart' as $7;
@@ -1844,6 +1845,1122 @@ class SystemUserSearchResponse extends $pb.GeneratedMessage {
   $core.List<SystemUserObject> get data => $_getList(0);
 }
 
+/// ClientGroupObject represents a collective entity (e.g. SACCO group) in the lending hierarchy.
+class ClientGroupObject extends $pb.GeneratedMessage {
+  factory ClientGroupObject({
+    $core.String? id,
+    $core.String? productId,
+    $core.String? parentId,
+    $core.String? agentId,
+    $core.String? branchId,
+    $core.String? profileId,
+    $core.String? name,
+    $core.int? groupType,
+    $core.String? currencyCode,
+    $fixnum.Int64? savingAmount,
+    $core.String? timeZone,
+    $core.int? minMembers,
+    $core.int? maxMembers,
+    $7.STATE? state,
+    $6.Struct? properties,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (productId != null) {
+      $result.productId = productId;
+    }
+    if (parentId != null) {
+      $result.parentId = parentId;
+    }
+    if (agentId != null) {
+      $result.agentId = agentId;
+    }
+    if (branchId != null) {
+      $result.branchId = branchId;
+    }
+    if (profileId != null) {
+      $result.profileId = profileId;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (groupType != null) {
+      $result.groupType = groupType;
+    }
+    if (currencyCode != null) {
+      $result.currencyCode = currencyCode;
+    }
+    if (savingAmount != null) {
+      $result.savingAmount = savingAmount;
+    }
+    if (timeZone != null) {
+      $result.timeZone = timeZone;
+    }
+    if (minMembers != null) {
+      $result.minMembers = minMembers;
+    }
+    if (maxMembers != null) {
+      $result.maxMembers = maxMembers;
+    }
+    if (state != null) {
+      $result.state = state;
+    }
+    if (properties != null) {
+      $result.properties = properties;
+    }
+    return $result;
+  }
+  ClientGroupObject._() : super();
+  factory ClientGroupObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'productId')
+    ..aOS(3, _omitFieldNames ? '' : 'parentId')
+    ..aOS(4, _omitFieldNames ? '' : 'agentId')
+    ..aOS(5, _omitFieldNames ? '' : 'branchId')
+    ..aOS(6, _omitFieldNames ? '' : 'profileId')
+    ..aOS(7, _omitFieldNames ? '' : 'name')
+    ..a<$core.int>(8, _omitFieldNames ? '' : 'groupType', $pb.PbFieldType.O3)
+    ..aOS(9, _omitFieldNames ? '' : 'currencyCode')
+    ..aInt64(10, _omitFieldNames ? '' : 'savingAmount')
+    ..aOS(11, _omitFieldNames ? '' : 'timeZone')
+    ..a<$core.int>(12, _omitFieldNames ? '' : 'minMembers', $pb.PbFieldType.O3)
+    ..a<$core.int>(13, _omitFieldNames ? '' : 'maxMembers', $pb.PbFieldType.O3)
+    ..e<$7.STATE>(14, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..aOM<$6.Struct>(15, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupObject clone() => ClientGroupObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupObject copyWith(void Function(ClientGroupObject) updates) => super.copyWith((message) => updates(message as ClientGroupObject)) as ClientGroupObject;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupObject create() => ClientGroupObject._();
+  ClientGroupObject createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupObject> createRepeated() => $pb.PbList<ClientGroupObject>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupObject>(create);
+  static ClientGroupObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get productId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set productId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasProductId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearProductId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get parentId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set parentId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasParentId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearParentId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get agentId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set agentId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasAgentId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearAgentId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get branchId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set branchId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasBranchId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearBranchId() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get profileId => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set profileId($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasProfileId() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearProfileId() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get name => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set name($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasName() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearName() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.int get groupType => $_getIZ(7);
+  @$pb.TagNumber(8)
+  set groupType($core.int v) { $_setSignedInt32(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasGroupType() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearGroupType() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get currencyCode => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set currencyCode($core.String v) { $_setString(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasCurrencyCode() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearCurrencyCode() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $fixnum.Int64 get savingAmount => $_getI64(9);
+  @$pb.TagNumber(10)
+  set savingAmount($fixnum.Int64 v) { $_setInt64(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasSavingAmount() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearSavingAmount() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.String get timeZone => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set timeZone($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasTimeZone() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearTimeZone() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.int get minMembers => $_getIZ(11);
+  @$pb.TagNumber(12)
+  set minMembers($core.int v) { $_setSignedInt32(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasMinMembers() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearMinMembers() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.int get maxMembers => $_getIZ(12);
+  @$pb.TagNumber(13)
+  set maxMembers($core.int v) { $_setSignedInt32(12, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasMaxMembers() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearMaxMembers() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $7.STATE get state => $_getN(13);
+  @$pb.TagNumber(14)
+  set state($7.STATE v) { setField(14, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasState() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearState() => clearField(14);
+
+  @$pb.TagNumber(15)
+  $6.Struct get properties => $_getN(14);
+  @$pb.TagNumber(15)
+  set properties($6.Struct v) { setField(15, v); }
+  @$pb.TagNumber(15)
+  $core.bool hasProperties() => $_has(14);
+  @$pb.TagNumber(15)
+  void clearProperties() => clearField(15);
+  @$pb.TagNumber(15)
+  $6.Struct ensureProperties() => $_ensure(14);
+}
+
+class ClientGroupSaveRequest extends $pb.GeneratedMessage {
+  factory ClientGroupSaveRequest({
+    ClientGroupObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientGroupSaveRequest._() : super();
+  factory ClientGroupSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientGroupObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientGroupObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupSaveRequest clone() => ClientGroupSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupSaveRequest copyWith(void Function(ClientGroupSaveRequest) updates) => super.copyWith((message) => updates(message as ClientGroupSaveRequest)) as ClientGroupSaveRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSaveRequest create() => ClientGroupSaveRequest._();
+  ClientGroupSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupSaveRequest> createRepeated() => $pb.PbList<ClientGroupSaveRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupSaveRequest>(create);
+  static ClientGroupSaveRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientGroupObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientGroupObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientGroupObject ensureData() => $_ensure(0);
+}
+
+class ClientGroupSaveResponse extends $pb.GeneratedMessage {
+  factory ClientGroupSaveResponse({
+    ClientGroupObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientGroupSaveResponse._() : super();
+  factory ClientGroupSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientGroupObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientGroupObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupSaveResponse clone() => ClientGroupSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupSaveResponse copyWith(void Function(ClientGroupSaveResponse) updates) => super.copyWith((message) => updates(message as ClientGroupSaveResponse)) as ClientGroupSaveResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSaveResponse create() => ClientGroupSaveResponse._();
+  ClientGroupSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupSaveResponse> createRepeated() => $pb.PbList<ClientGroupSaveResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupSaveResponse>(create);
+  static ClientGroupSaveResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientGroupObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientGroupObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientGroupObject ensureData() => $_ensure(0);
+}
+
+class ClientGroupGetRequest extends $pb.GeneratedMessage {
+  factory ClientGroupGetRequest({
+    $core.String? id,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    return $result;
+  }
+  ClientGroupGetRequest._() : super();
+  factory ClientGroupGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupGetRequest clone() => ClientGroupGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupGetRequest copyWith(void Function(ClientGroupGetRequest) updates) => super.copyWith((message) => updates(message as ClientGroupGetRequest)) as ClientGroupGetRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupGetRequest create() => ClientGroupGetRequest._();
+  ClientGroupGetRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupGetRequest> createRepeated() => $pb.PbList<ClientGroupGetRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupGetRequest>(create);
+  static ClientGroupGetRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+}
+
+class ClientGroupGetResponse extends $pb.GeneratedMessage {
+  factory ClientGroupGetResponse({
+    ClientGroupObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientGroupGetResponse._() : super();
+  factory ClientGroupGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientGroupObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientGroupObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupGetResponse clone() => ClientGroupGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupGetResponse copyWith(void Function(ClientGroupGetResponse) updates) => super.copyWith((message) => updates(message as ClientGroupGetResponse)) as ClientGroupGetResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupGetResponse create() => ClientGroupGetResponse._();
+  ClientGroupGetResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupGetResponse> createRepeated() => $pb.PbList<ClientGroupGetResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupGetResponse>(create);
+  static ClientGroupGetResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientGroupObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientGroupObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientGroupObject ensureData() => $_ensure(0);
+}
+
+class ClientGroupSearchRequest extends $pb.GeneratedMessage {
+  factory ClientGroupSearchRequest({
+    $core.String? query,
+    $core.String? agentId,
+    $core.String? branchId,
+    $7.PageCursor? cursor,
+  }) {
+    final $result = create();
+    if (query != null) {
+      $result.query = query;
+    }
+    if (agentId != null) {
+      $result.agentId = agentId;
+    }
+    if (branchId != null) {
+      $result.branchId = branchId;
+    }
+    if (cursor != null) {
+      $result.cursor = cursor;
+    }
+    return $result;
+  }
+  ClientGroupSearchRequest._() : super();
+  factory ClientGroupSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'query')
+    ..aOS(2, _omitFieldNames ? '' : 'agentId')
+    ..aOS(3, _omitFieldNames ? '' : 'branchId')
+    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupSearchRequest clone() => ClientGroupSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupSearchRequest copyWith(void Function(ClientGroupSearchRequest) updates) => super.copyWith((message) => updates(message as ClientGroupSearchRequest)) as ClientGroupSearchRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSearchRequest create() => ClientGroupSearchRequest._();
+  ClientGroupSearchRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupSearchRequest> createRepeated() => $pb.PbList<ClientGroupSearchRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupSearchRequest>(create);
+  static ClientGroupSearchRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get query => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set query($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasQuery() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearQuery() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get agentId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set agentId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasAgentId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAgentId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get branchId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set branchId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasBranchId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearBranchId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $7.PageCursor get cursor => $_getN(3);
+  @$pb.TagNumber(4)
+  set cursor($7.PageCursor v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCursor() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCursor() => clearField(4);
+  @$pb.TagNumber(4)
+  $7.PageCursor ensureCursor() => $_ensure(3);
+}
+
+class ClientGroupSearchResponse extends $pb.GeneratedMessage {
+  factory ClientGroupSearchResponse({
+    $core.Iterable<ClientGroupObject>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data.addAll(data);
+    }
+    return $result;
+  }
+  ClientGroupSearchResponse._() : super();
+  factory ClientGroupSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientGroupSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientGroupSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..pc<ClientGroupObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: ClientGroupObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientGroupSearchResponse clone() => ClientGroupSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientGroupSearchResponse copyWith(void Function(ClientGroupSearchResponse) updates) => super.copyWith((message) => updates(message as ClientGroupSearchResponse)) as ClientGroupSearchResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSearchResponse create() => ClientGroupSearchResponse._();
+  ClientGroupSearchResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientGroupSearchResponse> createRepeated() => $pb.PbList<ClientGroupSearchResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientGroupSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientGroupSearchResponse>(create);
+  static ClientGroupSearchResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<ClientGroupObject> get data => $_getList(0);
+}
+
+/// MembershipObject tracks a profile's affiliation with a client group.
+class MembershipObject extends $pb.GeneratedMessage {
+  factory MembershipObject({
+    $core.String? id,
+    $core.String? groupId,
+    $core.String? profileId,
+    $core.String? name,
+    $core.String? contactId,
+    $core.int? role,
+    $core.int? membershipType,
+    $core.int? orderNo,
+    $7.STATE? state,
+    $6.Struct? properties,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (groupId != null) {
+      $result.groupId = groupId;
+    }
+    if (profileId != null) {
+      $result.profileId = profileId;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (contactId != null) {
+      $result.contactId = contactId;
+    }
+    if (role != null) {
+      $result.role = role;
+    }
+    if (membershipType != null) {
+      $result.membershipType = membershipType;
+    }
+    if (orderNo != null) {
+      $result.orderNo = orderNo;
+    }
+    if (state != null) {
+      $result.state = state;
+    }
+    if (properties != null) {
+      $result.properties = properties;
+    }
+    return $result;
+  }
+  MembershipObject._() : super();
+  factory MembershipObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'groupId')
+    ..aOS(3, _omitFieldNames ? '' : 'profileId')
+    ..aOS(4, _omitFieldNames ? '' : 'name')
+    ..aOS(5, _omitFieldNames ? '' : 'contactId')
+    ..a<$core.int>(6, _omitFieldNames ? '' : 'role', $pb.PbFieldType.O3)
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'membershipType', $pb.PbFieldType.O3)
+    ..a<$core.int>(8, _omitFieldNames ? '' : 'orderNo', $pb.PbFieldType.O3)
+    ..e<$7.STATE>(9, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..aOM<$6.Struct>(10, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipObject clone() => MembershipObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipObject copyWith(void Function(MembershipObject) updates) => super.copyWith((message) => updates(message as MembershipObject)) as MembershipObject;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipObject create() => MembershipObject._();
+  MembershipObject createEmptyInstance() => create();
+  static $pb.PbList<MembershipObject> createRepeated() => $pb.PbList<MembershipObject>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipObject>(create);
+  static MembershipObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get groupId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set groupId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGroupId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGroupId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get profileId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set profileId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasProfileId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearProfileId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get name => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set name($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasName() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearName() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get contactId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set contactId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasContactId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearContactId() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get role => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set role($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasRole() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearRole() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get membershipType => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set membershipType($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasMembershipType() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearMembershipType() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.int get orderNo => $_getIZ(7);
+  @$pb.TagNumber(8)
+  set orderNo($core.int v) { $_setSignedInt32(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasOrderNo() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearOrderNo() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $7.STATE get state => $_getN(8);
+  @$pb.TagNumber(9)
+  set state($7.STATE v) { setField(9, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasState() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearState() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $6.Struct get properties => $_getN(9);
+  @$pb.TagNumber(10)
+  set properties($6.Struct v) { setField(10, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasProperties() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearProperties() => clearField(10);
+  @$pb.TagNumber(10)
+  $6.Struct ensureProperties() => $_ensure(9);
+}
+
+class MembershipSaveRequest extends $pb.GeneratedMessage {
+  factory MembershipSaveRequest({
+    MembershipObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  MembershipSaveRequest._() : super();
+  factory MembershipSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<MembershipObject>(1, _omitFieldNames ? '' : 'data', subBuilder: MembershipObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipSaveRequest clone() => MembershipSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipSaveRequest copyWith(void Function(MembershipSaveRequest) updates) => super.copyWith((message) => updates(message as MembershipSaveRequest)) as MembershipSaveRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipSaveRequest create() => MembershipSaveRequest._();
+  MembershipSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<MembershipSaveRequest> createRepeated() => $pb.PbList<MembershipSaveRequest>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipSaveRequest>(create);
+  static MembershipSaveRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  MembershipObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(MembershipObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  MembershipObject ensureData() => $_ensure(0);
+}
+
+class MembershipSaveResponse extends $pb.GeneratedMessage {
+  factory MembershipSaveResponse({
+    MembershipObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  MembershipSaveResponse._() : super();
+  factory MembershipSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<MembershipObject>(1, _omitFieldNames ? '' : 'data', subBuilder: MembershipObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipSaveResponse clone() => MembershipSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipSaveResponse copyWith(void Function(MembershipSaveResponse) updates) => super.copyWith((message) => updates(message as MembershipSaveResponse)) as MembershipSaveResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipSaveResponse create() => MembershipSaveResponse._();
+  MembershipSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<MembershipSaveResponse> createRepeated() => $pb.PbList<MembershipSaveResponse>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipSaveResponse>(create);
+  static MembershipSaveResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  MembershipObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(MembershipObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  MembershipObject ensureData() => $_ensure(0);
+}
+
+class MembershipGetRequest extends $pb.GeneratedMessage {
+  factory MembershipGetRequest({
+    $core.String? id,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    return $result;
+  }
+  MembershipGetRequest._() : super();
+  factory MembershipGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipGetRequest clone() => MembershipGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipGetRequest copyWith(void Function(MembershipGetRequest) updates) => super.copyWith((message) => updates(message as MembershipGetRequest)) as MembershipGetRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipGetRequest create() => MembershipGetRequest._();
+  MembershipGetRequest createEmptyInstance() => create();
+  static $pb.PbList<MembershipGetRequest> createRepeated() => $pb.PbList<MembershipGetRequest>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipGetRequest>(create);
+  static MembershipGetRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+}
+
+class MembershipGetResponse extends $pb.GeneratedMessage {
+  factory MembershipGetResponse({
+    MembershipObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  MembershipGetResponse._() : super();
+  factory MembershipGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<MembershipObject>(1, _omitFieldNames ? '' : 'data', subBuilder: MembershipObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipGetResponse clone() => MembershipGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipGetResponse copyWith(void Function(MembershipGetResponse) updates) => super.copyWith((message) => updates(message as MembershipGetResponse)) as MembershipGetResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipGetResponse create() => MembershipGetResponse._();
+  MembershipGetResponse createEmptyInstance() => create();
+  static $pb.PbList<MembershipGetResponse> createRepeated() => $pb.PbList<MembershipGetResponse>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipGetResponse>(create);
+  static MembershipGetResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  MembershipObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(MembershipObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  MembershipObject ensureData() => $_ensure(0);
+}
+
+class MembershipSearchRequest extends $pb.GeneratedMessage {
+  factory MembershipSearchRequest({
+    $core.String? query,
+    $core.String? groupId,
+    $core.String? profileId,
+    $7.PageCursor? cursor,
+  }) {
+    final $result = create();
+    if (query != null) {
+      $result.query = query;
+    }
+    if (groupId != null) {
+      $result.groupId = groupId;
+    }
+    if (profileId != null) {
+      $result.profileId = profileId;
+    }
+    if (cursor != null) {
+      $result.cursor = cursor;
+    }
+    return $result;
+  }
+  MembershipSearchRequest._() : super();
+  factory MembershipSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'query')
+    ..aOS(2, _omitFieldNames ? '' : 'groupId')
+    ..aOS(3, _omitFieldNames ? '' : 'profileId')
+    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipSearchRequest clone() => MembershipSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipSearchRequest copyWith(void Function(MembershipSearchRequest) updates) => super.copyWith((message) => updates(message as MembershipSearchRequest)) as MembershipSearchRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipSearchRequest create() => MembershipSearchRequest._();
+  MembershipSearchRequest createEmptyInstance() => create();
+  static $pb.PbList<MembershipSearchRequest> createRepeated() => $pb.PbList<MembershipSearchRequest>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipSearchRequest>(create);
+  static MembershipSearchRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get query => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set query($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasQuery() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearQuery() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get groupId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set groupId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGroupId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGroupId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get profileId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set profileId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasProfileId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearProfileId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $7.PageCursor get cursor => $_getN(3);
+  @$pb.TagNumber(4)
+  set cursor($7.PageCursor v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCursor() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCursor() => clearField(4);
+  @$pb.TagNumber(4)
+  $7.PageCursor ensureCursor() => $_ensure(3);
+}
+
+class MembershipSearchResponse extends $pb.GeneratedMessage {
+  factory MembershipSearchResponse({
+    $core.Iterable<MembershipObject>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data.addAll(data);
+    }
+    return $result;
+  }
+  MembershipSearchResponse._() : super();
+  factory MembershipSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MembershipSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MembershipSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..pc<MembershipObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: MembershipObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MembershipSearchResponse clone() => MembershipSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MembershipSearchResponse copyWith(void Function(MembershipSearchResponse) updates) => super.copyWith((message) => updates(message as MembershipSearchResponse)) as MembershipSearchResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MembershipSearchResponse create() => MembershipSearchResponse._();
+  MembershipSearchResponse createEmptyInstance() => create();
+  static $pb.PbList<MembershipSearchResponse> createRepeated() => $pb.PbList<MembershipSearchResponse>();
+  @$core.pragma('dart2js:noInline')
+  static MembershipSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MembershipSearchResponse>(create);
+  static MembershipSearchResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<MembershipObject> get data => $_getList(0);
+}
+
 class IdentityServiceApi {
   $pb.RpcClient _client;
   IdentityServiceApi(this._client);
@@ -1883,6 +3000,24 @@ class IdentityServiceApi {
   ;
   $async.Future<SystemUserSearchResponse> systemUserSearch($pb.ClientContext? ctx, SystemUserSearchRequest request) =>
     _client.invoke<SystemUserSearchResponse>(ctx, 'IdentityService', 'SystemUserSearch', request, SystemUserSearchResponse())
+  ;
+  $async.Future<ClientGroupSaveResponse> clientGroupSave($pb.ClientContext? ctx, ClientGroupSaveRequest request) =>
+    _client.invoke<ClientGroupSaveResponse>(ctx, 'IdentityService', 'ClientGroupSave', request, ClientGroupSaveResponse())
+  ;
+  $async.Future<ClientGroupGetResponse> clientGroupGet($pb.ClientContext? ctx, ClientGroupGetRequest request) =>
+    _client.invoke<ClientGroupGetResponse>(ctx, 'IdentityService', 'ClientGroupGet', request, ClientGroupGetResponse())
+  ;
+  $async.Future<ClientGroupSearchResponse> clientGroupSearch($pb.ClientContext? ctx, ClientGroupSearchRequest request) =>
+    _client.invoke<ClientGroupSearchResponse>(ctx, 'IdentityService', 'ClientGroupSearch', request, ClientGroupSearchResponse())
+  ;
+  $async.Future<MembershipSaveResponse> membershipSave($pb.ClientContext? ctx, MembershipSaveRequest request) =>
+    _client.invoke<MembershipSaveResponse>(ctx, 'IdentityService', 'MembershipSave', request, MembershipSaveResponse())
+  ;
+  $async.Future<MembershipGetResponse> membershipGet($pb.ClientContext? ctx, MembershipGetRequest request) =>
+    _client.invoke<MembershipGetResponse>(ctx, 'IdentityService', 'MembershipGet', request, MembershipGetResponse())
+  ;
+  $async.Future<MembershipSearchResponse> membershipSearch($pb.ClientContext? ctx, MembershipSearchRequest request) =>
+    _client.invoke<MembershipSearchResponse>(ctx, 'IdentityService', 'MembershipSearch', request, MembershipSearchResponse())
   ;
 }
 

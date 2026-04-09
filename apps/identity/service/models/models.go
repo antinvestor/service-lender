@@ -421,8 +421,8 @@ const (
 	MembershipTypeFunder      MembershipType = 4
 )
 
-// Group represents a collective entity (e.g. SACCO group) in the lending hierarchy.
-type Group struct {
+// ClientGroup represents a collective entity (e.g. SACCO group) in the lending hierarchy.
+type ClientGroup struct {
 	data.BaseModel
 	ProductID     string `gorm:"type:varchar(50);index:idx_group_product"`
 	ParentID      string `gorm:"type:varchar(50);index:idx_group_parent"`
@@ -443,10 +443,63 @@ type Group struct {
 	Properties    data.JSONMap
 }
 
-func (m *Group) TableName() string { return "groups" }
+func (m *ClientGroup) TableName() string { return "client_groups" }
 
 // SetVersion implements the versioned model interface for event upsert.
-func (m *Group) SetVersion(v uint) { m.Version = v }
+func (m *ClientGroup) SetVersion(v uint) { m.Version = v }
+
+func (m *ClientGroup) ToAPI() *identityv1.ClientGroupObject {
+	return &identityv1.ClientGroupObject{
+		Id:           m.GetID(),
+		ProductId:    m.ProductID,
+		ParentId:     m.ParentID,
+		AgentId:      m.AgentID,
+		BranchId:     m.BranchID,
+		ProfileId:    m.ProfileID,
+		Name:         m.Name,
+		GroupType:    m.GroupType,
+		CurrencyCode: m.CurrencyCode,
+		SavingAmount: m.SavingAmount,
+		TimeZone:     m.TimeZone,
+		MinMembers:   m.MinMembers,
+		MaxMembers:   m.MaxMembers,
+		State:        commonv1.STATE(m.State),
+		Properties:   m.Properties.ToProtoStruct(),
+	}
+}
+
+func ClientGroupFromAPI(ctx context.Context, obj *identityv1.ClientGroupObject) *ClientGroup {
+	if obj == nil {
+		return nil
+	}
+
+	model := &ClientGroup{
+		ProductID:    obj.GetProductId(),
+		ParentID:     obj.GetParentId(),
+		AgentID:      obj.GetAgentId(),
+		BranchID:     obj.GetBranchId(),
+		ProfileID:    obj.GetProfileId(),
+		Name:         obj.GetName(),
+		GroupType:    obj.GetGroupType(),
+		CurrencyCode: obj.GetCurrencyCode(),
+		SavingAmount: obj.GetSavingAmount(),
+		TimeZone:     obj.GetTimeZone(),
+		MinMembers:   obj.GetMinMembers(),
+		MaxMembers:   obj.GetMaxMembers(),
+		State:        int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
 
 // Membership tracks a profile's affiliation with a group.
 type Membership struct {
@@ -469,6 +522,49 @@ func (m *Membership) TableName() string { return "memberships" }
 
 // SetVersion implements the versioned model interface for event upsert.
 func (m *Membership) SetVersion(v uint) { m.Version = v }
+
+func (m *Membership) ToAPI() *identityv1.MembershipObject {
+	return &identityv1.MembershipObject{
+		Id:             m.GetID(),
+		GroupId:        m.GroupID,
+		ProfileId:      m.ProfileID,
+		Name:           m.Name,
+		ContactId:      m.ContactID,
+		Role:           m.Role,
+		MembershipType: m.MembershipType,
+		OrderNo:        m.OrderNo,
+		State:          commonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
+	}
+}
+
+func MembershipFromAPI(ctx context.Context, obj *identityv1.MembershipObject) *Membership {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Membership{
+		GroupID:        obj.GetGroupId(),
+		ProfileID:      obj.GetProfileId(),
+		Name:           obj.GetName(),
+		ContactID:      obj.GetContactId(),
+		Role:           obj.GetRole(),
+		MembershipType: obj.GetMembershipType(),
+		OrderNo:        obj.GetOrderNo(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
 
 // ClientAssignmentHistory records client reassignment events.
 type ClientAssignmentHistory struct {

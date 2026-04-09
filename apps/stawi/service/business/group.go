@@ -18,22 +18,25 @@ import (
 
 type groupBusiness struct {
 	eventsMan fevents.Manager
-	grpRepo   identityrepo.GroupRepository
+	grpRepo   identityrepo.ClientGroupRepository
 	memRepo   identityrepo.MembershipRepository
 	clients   *clients.PlatformClients
 }
 
-func NewGroupBusiness(
+func NewClientGroupBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	grpRepo identityrepo.GroupRepository,
+	grpRepo identityrepo.ClientGroupRepository,
 	memRepo identityrepo.MembershipRepository,
 	pc *clients.PlatformClients,
-) GroupBusiness {
+) ClientGroupBusiness {
 	return &groupBusiness{eventsMan: eventsMan, grpRepo: grpRepo, memRepo: memRepo, clients: pc}
 }
 
-func (b *groupBusiness) Create(ctx context.Context, group *identitymodels.Group) (*identitymodels.Group, error) {
+func (b *groupBusiness) Create(
+	ctx context.Context,
+	group *identitymodels.ClientGroup,
+) (*identitymodels.ClientGroup, error) {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.Create")
 
 	if group.State == 0 {
@@ -41,7 +44,7 @@ func (b *groupBusiness) Create(ctx context.Context, group *identitymodels.Group)
 	}
 	group.GenID(ctx)
 
-	err := b.eventsMan.Emit(ctx, identityevents.GroupSaveEvent, group)
+	err := b.eventsMan.Emit(ctx, identityevents.ClientGroupSaveEvent, group)
 	if err != nil {
 		logger.WithError(err).Error("could not emit group save event")
 		return nil, err
@@ -50,7 +53,7 @@ func (b *groupBusiness) Create(ctx context.Context, group *identitymodels.Group)
 	return group, nil
 }
 
-func (b *groupBusiness) Get(ctx context.Context, id string) (*identitymodels.Group, error) {
+func (b *groupBusiness) Get(ctx context.Context, id string) (*identitymodels.ClientGroup, error) {
 	return b.grpRepo.GetByID(ctx, id)
 }
 
@@ -85,7 +88,7 @@ func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState
 	}
 
 	group.State = newState
-	err = b.eventsMan.Emit(ctx, identityevents.GroupSaveEvent, group)
+	err = b.eventsMan.Emit(ctx, identityevents.ClientGroupSaveEvent, group)
 	if err != nil {
 		logger.WithError(err).Error("could not emit group save event")
 		return err
@@ -235,7 +238,7 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 }
 
 // groupAgentID returns the agent ID from the group.
-func groupAgentID(group *identitymodels.Group) string {
+func groupAgentID(group *identitymodels.ClientGroup) string {
 	return group.AgentID
 }
 
