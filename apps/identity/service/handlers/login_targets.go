@@ -43,7 +43,7 @@ func (h *LoginTargetsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
+	if encErr := json.NewEncoder(w).Encode(resp); encErr != nil {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 	}
 }

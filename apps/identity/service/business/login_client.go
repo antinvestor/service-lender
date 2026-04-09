@@ -14,6 +14,9 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 )
 
+// maxLoginTargets is the maximum number of child login targets returned per drill-down.
+const maxLoginTargets = 100
+
 // LoginClientBusiness manages OAuth client creation for partition-scoped login.
 // This is independent from org/branch creation — clients can be enabled or disabled separately.
 type LoginClientBusiness interface {
@@ -191,7 +194,7 @@ func (b *loginClientBusiness) GetLoginTargets(ctx context.Context, clientID stri
 		response.Current.Name = org.Name
 		response.Current.Type = "organization"
 
-		branches, brErr := b.branchRepo.GetByOrganizationID(ctx, org.GetID(), 0, 100)
+		branches, brErr := b.branchRepo.GetByOrganizationID(ctx, org.GetID(), 0, maxLoginTargets)
 		if brErr != nil {
 			logger.WithError(brErr).Warn("failed to fetch branches")
 			return response, nil
@@ -216,7 +219,7 @@ func (b *loginClientBusiness) GetLoginTargets(ctx context.Context, clientID stri
 	response.Current.Name = partitionName
 	response.Current.Type = "root"
 
-	orgs, orgErr := b.organizationRepo.GetByTenantID(ctx, partition.GetTenantId(), 0, 100)
+	orgs, orgErr := b.organizationRepo.GetByTenantID(ctx, partition.GetTenantId(), 0, maxLoginTargets)
 	if orgErr != nil {
 		logger.WithError(orgErr).Warn("failed to fetch organizations")
 		return response, nil
