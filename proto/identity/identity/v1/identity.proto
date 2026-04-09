@@ -30,6 +30,7 @@ import "common/v1/common.proto";
 import "common/v1/permissions.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/struct.proto";
+import "google/type/money.proto";
 
 option go_package = "github.com/antinvestor/apis/go/identity/v1;identityv1";
 option java_multiple_files = true;
@@ -481,6 +482,89 @@ message MembershipSearchResponse {
 }
 
 // -----------------------------------------------------
+// InvestorAccount Messages
+// -----------------------------------------------------
+
+// InvestorAccountObject represents a pre-funded investor capital account.
+message InvestorAccountObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string investor_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string account_name = 3;
+  reserved 4;
+  google.type.Money available_balance = 5;
+  google.type.Money reserved_balance = 6;
+  google.type.Money total_deployed = 7;
+  google.type.Money total_returned = 8;
+  google.type.Money max_exposure = 9;
+  string min_interest_rate = 10;
+  google.protobuf.Struct allowed_products = 11;
+  google.protobuf.Struct allowed_regions = 12;
+  google.protobuf.Struct group_affiliations = 13;
+  common.v1.STATE state = 14;
+  google.protobuf.Struct properties = 15;
+}
+
+message InvestorAccountSaveRequest {
+  InvestorAccountObject data = 1 [(buf.validate.field).required = true];
+}
+message InvestorAccountSaveResponse {
+  InvestorAccountObject data = 1;
+}
+message InvestorAccountGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+message InvestorAccountGetResponse {
+  InvestorAccountObject data = 1;
+}
+message InvestorAccountSearchRequest {
+  string investor_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string currency_code = 2;
+  common.v1.PageCursor cursor = 3;
+}
+message InvestorAccountSearchResponse {
+  repeated InvestorAccountObject data = 1;
+}
+
+message InvestorDepositRequest {
+  string account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 2 [(buf.validate.field).required = true];
+  reserved 3;
+}
+message InvestorDepositResponse {
+  InvestorAccountObject data = 1;
+}
+
+message InvestorWithdrawRequest {
+  string account_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.type.Money amount = 2 [(buf.validate.field).required = true];
+}
+message InvestorWithdrawResponse {
+  InvestorAccountObject data = 1;
+}
+
+// -----------------------------------------------------
 // Identity Service
 // -----------------------------------------------------
 
@@ -501,7 +585,9 @@ service IdentityService {
       "client_group_view",
       "client_group_manage",
       "membership_view",
-      "membership_manage"
+      "membership_manage",
+      "investor_account_view",
+      "investor_account_manage"
     ]
     role_bindings: [
       {
@@ -518,7 +604,9 @@ service IdentityService {
           "client_group_view",
           "client_group_manage",
           "membership_view",
-          "membership_manage"
+          "membership_manage",
+          "investor_account_view",
+          "investor_account_manage"
         ]
       },
       {
@@ -535,7 +623,9 @@ service IdentityService {
           "client_group_view",
           "client_group_manage",
           "membership_view",
-          "membership_manage"
+          "membership_manage",
+          "investor_account_view",
+          "investor_account_manage"
         ]
       },
       {
@@ -546,6 +636,7 @@ service IdentityService {
           "branch_view",
           "branch_manage",
           "investor_view",
+          "investor_account_view",
           "system_user_view",
           "client_group_view",
           "client_group_manage",
@@ -559,6 +650,7 @@ service IdentityService {
           "organization_view",
           "branch_view",
           "investor_view",
+          "investor_account_view",
           "system_user_view",
           "client_group_view",
           "membership_view"
@@ -570,6 +662,7 @@ service IdentityService {
           "organization_view",
           "branch_view",
           "investor_view",
+          "investor_account_view",
           "system_user_view",
           "client_group_view",
           "membership_view"
@@ -589,7 +682,9 @@ service IdentityService {
           "client_group_view",
           "client_group_manage",
           "membership_view",
-          "membership_manage"
+          "membership_manage",
+          "investor_account_view",
+          "investor_account_manage"
         ]
       }
     ]
@@ -838,6 +933,75 @@ service IdentityService {
       summary: "Search memberships"
       description: "Searches for memberships matching specified criteria. Supports filtering by group and profile. Returns a stream of matching membership records."
       tags: "Memberships"
+    };
+  }
+
+  // --- InvestorAccount RPCs ---
+
+  // InvestorAccountSave creates or updates an investor capital account.
+  rpc InvestorAccountSave(InvestorAccountSaveRequest) returns (InvestorAccountSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorAccountSave"
+      summary: "Create or update an investor account"
+      description: "Creates a new investor capital account or updates an existing one. Investor accounts track pre-funded capital available for loan deployment."
+      tags: "InvestorAccounts"
+    };
+  }
+
+  // InvestorAccountGet retrieves an investor account by its ID.
+  rpc InvestorAccountGet(InvestorAccountGetRequest) returns (InvestorAccountGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorAccountGet"
+      summary: "Get an investor account by ID"
+      description: "Retrieves an investor capital account by its unique identifier."
+      tags: "InvestorAccounts"
+    };
+  }
+
+  // InvestorAccountSearch finds investor accounts matching search criteria.
+  rpc InvestorAccountSearch(InvestorAccountSearchRequest) returns (stream InvestorAccountSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorAccountSearch"
+      summary: "Search investor accounts"
+      description: "Searches for investor accounts matching specified criteria. Supports filtering by investor ID and currency code."
+      tags: "InvestorAccounts"
+    };
+  }
+
+  // InvestorDeposit adds funds to an investor capital account.
+  rpc InvestorDeposit(InvestorDepositRequest) returns (InvestorDepositResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorDeposit"
+      summary: "Deposit funds into an investor account"
+      description: "Adds capital to an investor account, increasing the available balance for loan deployment."
+      tags: "InvestorAccounts"
+    };
+  }
+
+  // InvestorWithdraw removes funds from an investor capital account.
+  rpc InvestorWithdraw(InvestorWithdrawRequest) returns (InvestorWithdrawResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["investor_account_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "investorWithdraw"
+      summary: "Withdraw funds from an investor account"
+      description: "Removes capital from an investor account if sufficient unreserved balance is available."
+      tags: "InvestorAccounts"
     };
   }
 }
