@@ -24,8 +24,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Setup Buf
         uses: bufbuild/buf-action@v1
@@ -37,7 +35,11 @@ jobs:
 
       - name: Check for breaking changes
         if: github.event_name == 'pull_request'
-        run: buf breaking proto --against '.git#branch=main,subdir=proto'
+        run: |
+          cd proto
+          buf breaking --against "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git#branch=main,subdir=proto"
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
 
   push:
     name: Push to BSR
