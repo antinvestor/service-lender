@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/api/api_provider.dart' show resetAuthFailureGuard;
+import '../core/auth/tenancy_context.dart';
 import '../core/auth/role_guard.dart';
 import '../core/auth/route_permissions.dart';
 import '../core/navigation/app_shell.dart';
@@ -438,6 +439,10 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
       // Reset the auth failure guard so API calls don't get blocked
       // by a stale logout from a previous session.
       resetAuthFailureGuard();
+
+      // Determine login level from the JWT partition and initialize tenancy context.
+      await _initializeTenancyFromJwt(ref);
+
       // Invalidate auth state so the router picks up the new session.
       // Also invalidate agent status so it re-evaluates with fresh tokens
       // instead of using stale results from before the OAuth redirect.
@@ -447,6 +452,36 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
 
     // Navigate to root — the router redirect handles the rest.
     context.go('/');
+  }
+
+  /// Initialize tenancy context from the stored login selection.
+  Future<void> _initializeTenancyFromJwt(WidgetRef ref) async {
+    try {
+      final authRepo = ref.read(authRepositoryProvider);
+      final partitionId = await authRepo.getCurrentPartitionId();
+      final tenancy = ref.read(tenancyContextProvider);
+      final loginContext = await authRepo.getStoredLoginContext();
+
+      if (loginContext != null) {
+        tenancy.initializeFromLogin(
+          loginContext.level,
+          partitionId: partitionId,
+          orgId: loginContext.orgId,
+          orgName: loginContext.orgName,
+          branchId: loginContext.branchId,
+          branchName: loginContext.branchName,
+        );
+      } else {
+        // No stored context — default to root level
+        tenancy.initializeFromLogin(
+          LoginLevel.root,
+          partitionId: partitionId,
+        );
+      }
+    } catch (e) {
+      // Non-critical — tenancy defaults to root level
+      debugPrint('Failed to initialize tenancy: $e');
+    }
   }
 
   @override

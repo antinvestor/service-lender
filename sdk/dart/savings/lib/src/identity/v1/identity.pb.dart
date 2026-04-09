@@ -34,6 +34,7 @@ class OrganizationObject extends $pb.GeneratedMessage {
     $7.STATE? state,
     OrganizationType? organizationType,
     $6.Struct? properties,
+    $core.String? clientId,
   }) {
     final $result = create();
     if (id != null) {
@@ -60,6 +61,9 @@ class OrganizationObject extends $pb.GeneratedMessage {
     if (properties != null) {
       $result.properties = properties;
     }
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
     return $result;
   }
   OrganizationObject._() : super();
@@ -75,6 +79,7 @@ class OrganizationObject extends $pb.GeneratedMessage {
     ..e<$7.STATE>(6, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
     ..e<OrganizationType>(7, _omitFieldNames ? '' : 'organizationType', $pb.PbFieldType.OE, defaultOrMaker: OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED, valueOf: OrganizationType.valueOf, enumValues: OrganizationType.values)
     ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..aOS(9, _omitFieldNames ? '' : 'clientId')
     ..hasRequiredFields = false
   ;
 
@@ -172,6 +177,15 @@ class OrganizationObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(8);
   @$pb.TagNumber(8)
   $6.Struct ensureProperties() => $_ensure(7);
+
+  @$pb.TagNumber(9)
+  $core.String get clientId => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set clientId($core.String v) { $_setString(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasClientId() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearClientId() => clearField(9);
 }
 
 /// BranchObject represents a branch within an organization, mapped to a child partition with a geographic area.
@@ -185,6 +199,7 @@ class BranchObject extends $pb.GeneratedMessage {
     $core.String? geoId,
     $7.STATE? state,
     $6.Struct? properties,
+    $core.String? clientId,
   }) {
     final $result = create();
     if (id != null) {
@@ -211,6 +226,9 @@ class BranchObject extends $pb.GeneratedMessage {
     if (properties != null) {
       $result.properties = properties;
     }
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
     return $result;
   }
   BranchObject._() : super();
@@ -226,6 +244,7 @@ class BranchObject extends $pb.GeneratedMessage {
     ..aOS(6, _omitFieldNames ? '' : 'geoId')
     ..e<$7.STATE>(7, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
     ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..aOS(9, _omitFieldNames ? '' : 'clientId')
     ..hasRequiredFields = false
   ;
 
@@ -323,6 +342,15 @@ class BranchObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(8);
   @$pb.TagNumber(8)
   $6.Struct ensureProperties() => $_ensure(7);
+
+  @$pb.TagNumber(9)
+  $core.String get clientId => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set clientId($core.String v) { $_setString(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasClientId() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearClientId() => clearField(9);
 }
 
 /// InvestorObject represents an independent investor with a profile link.

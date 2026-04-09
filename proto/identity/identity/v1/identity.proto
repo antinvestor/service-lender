@@ -121,6 +121,10 @@ message OrganizationObject {
   common.v1.STATE state = 6; // Current state
   OrganizationType organization_type = 7; // Type of organization
   google.protobuf.Struct properties = 8; // Additional metadata
+  string client_id = 9 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // OAuth client ID for partition-scoped login (synced to Hydra)
 }
 
 // BranchObject represents a branch within an organization, mapped to a child partition with a geographic area.
@@ -148,6 +152,10 @@ message BranchObject {
   ]; // Geographic area identifier
   common.v1.STATE state = 7; // Current state
   google.protobuf.Struct properties = 8; // Additional metadata
+  string client_id = 9 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // OAuth client ID for partition-scoped login (synced to Hydra)
 }
 
 // InvestorObject represents an independent investor with a profile link.

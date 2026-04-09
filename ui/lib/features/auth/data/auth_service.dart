@@ -16,11 +16,13 @@ class AuthService {
     required String issuerUrl,
     required String clientId,
   })  : _issuerUrl = issuerUrl,
-        _clientId = clientId;
+        _activeClientId = clientId,
+        _defaultClientId = clientId;
 
   final FlutterSecureStorage _storage;
   final String _issuerUrl;
-  final String _clientId;
+  final String _defaultClientId;
+  String _activeClientId;
   final AuthPlatform _platform = getAuthPlatform();
 
   static const _defaultTokenLifetime = Duration(hours: 1);
@@ -38,8 +40,29 @@ class AuthService {
   // ── Initialization ───────────────────────────────────────────────────────
 
   Future<void> _ensureInitialized() async {
-    await _platform.initialize(_issuerUrl, _clientId);
+    await _platform.initialize(_issuerUrl, _activeClientId);
   }
+
+  /// Switch to a different OAuth client for login.
+  /// Reinitializes the OIDC client and persists the selection.
+  Future<void> switchClient(String clientId) async {
+    if (clientId == _activeClientId) return;
+    _activeClientId = clientId;
+    // Force reinitialize with the new client_id
+    _platform.reset();
+    await _storage.write(key: 'selected_client_id', value: clientId);
+  }
+
+  /// Restore the previously selected client_id from storage.
+  Future<void> restoreSelectedClient() async {
+    final stored = await _storage.read(key: 'selected_client_id');
+    if (stored != null && stored.isNotEmpty) {
+      _activeClientId = stored;
+    }
+  }
+
+  /// The currently active client_id.
+  String get activeClientId => _activeClientId;
 
   // ── Authentication ───────────────────────────────────────────────────────
 
@@ -378,5 +401,19 @@ class AuthService {
     await _storage.delete(key: 'refresh_token');
     await _storage.delete(key: 'id_token');
     await _storage.delete(key: 'token_expires_at');
+    await _storage.delete(key: 'selected_client_id');
+    await _storage.delete(key: 'login_context');
+    _activeClientId = _defaultClientId;
+    _platform.reset();
+  }
+
+  /// Store the login context JSON for session restoration.
+  Future<void> storeLoginContext(String json) async {
+    await _storage.write(key: 'login_context', value: json);
+  }
+
+  /// Retrieve the stored login context JSON.
+  Future<String?> getStoredLoginContext() async {
+    return _storage.read(key: 'login_context');
   }
 }

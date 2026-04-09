@@ -11,4 +11,7 @@ abstract class AuthPlatform {
   /// Returns true if the current URL contains OAuth callback parameters.
   /// This is a fast, synchronous check that doesn't require network access.
   bool hasRedirectResult() => false;
+
+  /// Reset the platform client so the next initialize() uses a fresh client_id.
+  void reset() {}
 }

@@ -64,6 +64,7 @@ type Organization struct {
 	Name       string `gorm:"type:varchar(255)"`
 	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
 	ProfileID  string `gorm:"type:varchar(50)"`
+	ClientID   string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
 	State      int32
 	Properties data.JSONMap
 }
@@ -79,6 +80,7 @@ func (m *Organization) ToAPI() *identityv1.OrganizationObject {
 		ProfileId:   m.ProfileID,
 		State:       commonv1.STATE(m.State),
 		Properties:  m.Properties.ToProtoStruct(),
+		ClientId:    m.ClientID,
 	}
 }
 
@@ -91,6 +93,7 @@ func OrganizationFromAPI(ctx context.Context, obj *identityv1.OrganizationObject
 		Name:      obj.GetName(),
 		Code:      obj.GetCode(),
 		ProfileID: obj.GetProfileId(),
+		ClientID:  obj.GetClientId(),
 		State:     int32(obj.GetState()),
 	}
 
@@ -114,6 +117,7 @@ type Branch struct {
 	Name           string `gorm:"type:varchar(255)"`
 	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
 	GeoID          string `gorm:"type:varchar(50)"`
+	ClientID       string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
 	State          int32
 	Properties     data.JSONMap
 }
@@ -130,6 +134,7 @@ func (m *Branch) ToAPI() *identityv1.BranchObject {
 		GeoId:          m.GeoID,
 		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
+		ClientId:       m.ClientID,
 	}
 }
 
@@ -143,6 +148,7 @@ func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
 		Name:           obj.GetName(),
 		Code:           obj.GetCode(),
 		GeoID:          obj.GetGeoId(),
+		ClientID:       obj.GetClientId(),
 		State:          int32(obj.GetState()),
 	}
 

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
 	fieldpb "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
@@ -133,10 +134,17 @@ func setupServiceOptions(
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 
+	oauthRedirectURIs := strings.Split(cfg.OAuthRedirectURIs, ",")
+	oauthAudiences := strings.Split(cfg.OAuthAudiences, ",")
+	loginClientBusiness := business.NewLoginClientBusiness(
+		ctx, evtsMan, organizationRepo, branchRepo, partitionCli, oauthRedirectURIs, oauthAudiences,
+	)
+
 	connectHandler := setupConnectServer(
 		ctx, sm,
 		organizationBusiness, branchBusiness, agentBusiness, clientBusiness,
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
+		loginClientBusiness,
 	)
 
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
@@ -219,6 +227,7 @@ func setupConnectServer(
 	_ business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
+	loginClientBusiness business.LoginClientBusiness,
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
@@ -289,9 +298,13 @@ func setupConnectServer(
 	)
 	fieldPath, fieldServerHandler := fieldv1connect.NewFieldServiceHandler(fieldHandler, fieldInterceptorOption)
 
+	// Login targets endpoint — unauthenticated, no interceptors
+	loginTargetsHandler := handlers.NewLoginTargetsHandler(loginClientBusiness)
+
 	mux := http.NewServeMux()
 	mux.Handle(identityPath, identityServerHandler)
 	mux.Handle(fieldPath, fieldServerHandler)
+	mux.Handle("/api/v1/login-targets/", loginTargetsHandler)
 
 	return mux
 }

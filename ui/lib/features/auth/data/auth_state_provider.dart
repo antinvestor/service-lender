@@ -30,14 +30,14 @@ class AuthStateNotifier extends _$AuthStateNotifier {
     return AuthState.unauthenticated;
   }
 
-  Future<void> login() async {
+  Future<void> login({String? clientId}) async {
     state = const AsyncValue.loading();
 
     try {
       final authRepo = ref.read(authRepositoryProvider);
       // On web, this triggers a full-page redirect and never returns.
       // On desktop/mobile, this blocks until the OAuth flow completes.
-      await authRepo.login();
+      await authRepo.login(clientId: clientId);
 
       if (!ref.mounted) return;
 

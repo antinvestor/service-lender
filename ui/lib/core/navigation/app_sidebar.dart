@@ -254,16 +254,92 @@ class _TenancyContextSelector extends ConsumerWidget {
     final orgName = tenancy.organizationName;
     final branchName = tenancy.branchName;
 
+    // Hide entire selector when fully scoped at branch level
+    if (!tenancy.canSelectOrganization && !tenancy.canSelectBranch) {
+      // Branch-level login: show fixed context label instead of selectors
+      return Container(
+        width: double.infinity,
+        color: Colors.white.withAlpha(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (orgName.isNotEmpty)
+                Text(
+                  orgName,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withAlpha(200),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              if (branchName.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    branchName,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withAlpha(160),
+                          fontSize: 10,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       width: double.infinity,
       color: Colors.white.withAlpha(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Organization row
-          InkWell(
-            onTap: () => _showOrganizationPicker(context, ref),
-            child: Padding(
+          // Organization row (only when user can select org)
+          if (tenancy.canSelectOrganization)
+            InkWell(
+              onTap: () => _showOrganizationPicker(context, ref),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.business_outlined,
+                      size: 16,
+                      color: Colors.white.withAlpha(130),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        orgName.isNotEmpty ? orgName : 'Select Organization',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: orgName.isNotEmpty
+                                  ? Colors.white.withAlpha(200)
+                                  : Colors.white.withAlpha(100),
+                              fontSize: 11,
+                              fontWeight: orgName.isNotEmpty
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(
+                      Icons.unfold_more,
+                      size: 14,
+                      color: Colors.white.withAlpha(80),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          // Fixed org name when logged in at org level
+          if (!tenancy.canSelectOrganization && orgName.isNotEmpty)
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
@@ -275,30 +351,20 @@ class _TenancyContextSelector extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      orgName.isNotEmpty ? orgName : 'Select Organization',
+                      orgName,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: orgName.isNotEmpty
-                                ? Colors.white.withAlpha(200)
-                                : Colors.white.withAlpha(100),
+                            color: Colors.white.withAlpha(200),
                             fontSize: 11,
-                            fontWeight: orgName.isNotEmpty
-                                ? FontWeight.w600
-                                : FontWeight.w400,
+                            fontWeight: FontWeight.w600,
                           ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Icon(
-                    Icons.unfold_more,
-                    size: 14,
-                    color: Colors.white.withAlpha(80),
-                  ),
                 ],
               ),
             ),
-          ),
-          // Branch row (only when org is selected)
-          if (tenancy.hasOrganization)
+          // Branch row (when org is selected and user can select branch)
+          if (tenancy.hasOrganization && tenancy.canSelectBranch)
             InkWell(
               onTap: () => _showBranchPicker(context, ref, tenancy.organizationId),
               child: Padding(

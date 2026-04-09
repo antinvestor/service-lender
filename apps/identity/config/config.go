@@ -16,4 +16,9 @@ type IdentityConfig struct {
 	AgentOnboardingTemplate                  string `envDefault:"template.fintech.agent.onboarding"         env:"AGENT_ONBOARDING_TEMPLATE"`
 
 	MaxAgentDepth int `envDefault:"5" env:"MAX_AGENT_DEPTH"`
+
+	// OAuthRedirectURIs are the allowed redirect URIs for partition-scoped OAuth clients.
+	OAuthRedirectURIs string `envDefault:"http://localhost:5174/auth/callback,com.antinvestor.app://auth/callback" env:"OAUTH_REDIRECT_URIS"`
+	// OAuthAudiences are the service audiences that partition-scoped OAuth clients can access.
+	OAuthAudiences string `envDefault:"service_identity,service_field"                                          env:"OAUTH_AUDIENCES"`
 }

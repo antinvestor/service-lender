@@ -223,6 +223,12 @@ class AuthPlatformIO implements AuthPlatform {
   }
 
   @override
+  void reset() {
+    _client = null;
+    _initCompleter = null;
+  }
+
+  @override
   Future<void> initialize(String issuerUrl, String clientId) async {
     if (_issuer != null && _client != null) return;
     // Guard against concurrent initialization — only one discovery at a time.
