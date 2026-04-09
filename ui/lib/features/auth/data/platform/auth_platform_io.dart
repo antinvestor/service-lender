@@ -206,6 +206,7 @@ class AuthPlatformIO implements AuthPlatform {
 
   Issuer? _issuer;
   Client? _client;
+  Completer<void>? _initCompleter;
   _DesktopAuthenticator? _desktopAuthenticator;
   _MobileAuthenticator? _mobileAuthenticator;
 
@@ -223,11 +224,22 @@ class AuthPlatformIO implements AuthPlatform {
 
   @override
   Future<void> initialize(String issuerUrl, String clientId) async {
-    if (_issuer == null || _client == null) {
+    if (_issuer != null && _client != null) return;
+    // Guard against concurrent initialization — only one discovery at a time.
+    if (_initCompleter != null && !_initCompleter!.isCompleted) {
+      return _initCompleter!.future;
+    }
+    _initCompleter = Completer<void>();
+    try {
       _issuer = await Issuer.discover(
         Uri.parse(issuerUrl),
       ).timeout(const Duration(seconds: 15));
       _client = Client(_issuer!, clientId);
+      _initCompleter!.complete();
+    } catch (e) {
+      _initCompleter!.complete();
+      _initCompleter = null;
+      rethrow;
     }
   }
 

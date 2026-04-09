@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/auth_state_provider.dart';
+import '../logging/app_logger.dart';
 import '../../sdk/src/identity/v1/identity.connect.client.dart';
 import '../../sdk/src/field/v1/field.connect.client.dart';
 import '../../sdk/src/origination/v1/origination.connect.client.dart';
@@ -81,13 +82,24 @@ const _tenancyUrl = String.fromEnvironment(
 ///
 /// Strategy:
 /// 1. Before request: get a valid token (refresh proactively if near expiry).
-/// 2. If request fails with unauthenticated/permissionDenied: force-refresh
-///    and retry exactly once.
-/// 3. If retry also fails: trigger logout so user is redirected to login.
+/// 2. If request fails with unauthenticated: force-refresh and retry once.
+///    permissionDenied is an authorization error (valid token, missing role)
+///    and must NOT trigger token refresh or logout.
+/// 3. If retry also fails with unauthenticated: trigger logout so user is
+///    redirected to login.
 class AuthInterceptor {
   AuthInterceptor(this._authRepository, this._onAuthFailure);
   final AuthRepository _authRepository;
   final void Function() _onAuthFailure;
+  bool _authFailureFired = false;
+
+  void _triggerAuthFailure() {
+    // Only fire once — multiple concurrent API calls can all fail after
+    // the first logout clears the token, but we only need to redirect once.
+    if (_authFailureFired) return;
+    _authFailureFired = true;
+    _onAuthFailure();
+  }
 
   AnyFn<I, O> call<I extends Object, O extends Object>(AnyFn<I, O> next) {
     return (req) async {
@@ -99,25 +111,41 @@ class AuthInterceptor {
       try {
         return await next(req);
       } on ConnectException catch (e) {
-        if (e.code != Code.unauthenticated &&
-            e.code != Code.permissionDenied) {
+        // Only retry on unauthenticated (token expired/invalid).
+        // permissionDenied means the token is valid but the user lacks
+        // the required role — retrying with a new token won't help.
+        if (e.code != Code.unauthenticated) {
           rethrow;
         }
+
+        AppLogger.warning(
+          'Token rejected (unauthenticated), attempting refresh',
+          data: {'code': '${e.code}'},
+        );
+
         // Token was rejected by the server — force a fresh token from the
         // OAuth server (ignores cached expiry) and retry once.
         final newToken = await _authRepository.forceRefreshAccessToken();
         if (newToken == null) {
-          _onAuthFailure();
+          // Refresh token is dead — session is truly over.
+          AppLogger.error('Token refresh failed (no refresh token) — logging out');
+          _triggerAuthFailure();
           rethrow;
         }
         req.headers['authorization'] = 'Bearer $newToken';
         try {
           return await next(req);
         } on ConnectException catch (retryError) {
-          // Retry also failed — session is truly dead.
-          if (retryError.code == Code.unauthenticated ||
-              retryError.code == Code.permissionDenied) {
-            _onAuthFailure();
+          // Retry with a freshly obtained token also failed.
+          // Do NOT log out — the refresh token is still valid (we just used it),
+          // so the issue is server-side (audience mismatch, token format, etc.).
+          // Logging out and re-logging in would get the same kind of token.
+          // Let the error propagate to the UI layer.
+          if (retryError.code == Code.unauthenticated) {
+            AppLogger.warning(
+              'Retry with fresh token also rejected — server may not accept this token type',
+              data: {'code': '${retryError.code}'},
+            );
           }
           rethrow;
         }
@@ -126,10 +154,20 @@ class AuthInterceptor {
   }
 }
 
+/// Global guard: ensures logout fires at most once across all transports.
+/// Reset when the auth state is invalidated (e.g. after a new login).
+bool _globalAuthFailureFired = false;
+
+/// Reset the global auth failure guard after a successful login.
+void resetAuthFailureGuard() => _globalAuthFailureFired = false;
+
 /// Creates a Connect RPC transport for the given [baseUrl].
 Transport _createTransport(Ref ref, String baseUrl) {
   final authRepo = ref.watch(authRepositoryProvider);
   final authInterceptor = AuthInterceptor(authRepo, () {
+    if (_globalAuthFailureFired) return;
+    _globalAuthFailureFired = true;
+    AppLogger.error('Auth failure — logging out and redirecting to login');
     authRepo.logout();
     ref.invalidate(authStateProvider);
   });

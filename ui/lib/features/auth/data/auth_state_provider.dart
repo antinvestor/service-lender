@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/api/api_provider.dart' show resetAuthFailureGuard;
 import '../../../core/logging/app_logger.dart';
 import 'auth_repository.dart';
 
@@ -15,6 +16,9 @@ class AuthStateNotifier extends _$AuthStateNotifier {
     final isLoggedIn = await authRepo.isLoggedIn();
 
     if (isLoggedIn) {
+      // Reset the auth failure guard on every successful auth check
+      // so API calls work after re-login.
+      resetAuthFailureGuard();
       final token = await authRepo.ensureValidAccessToken();
       if (token != null) {
         return AuthState.authenticated;

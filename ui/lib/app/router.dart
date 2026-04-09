@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/api/api_provider.dart' show resetAuthFailureGuard;
 import '../core/auth/role_guard.dart';
 import '../core/auth/route_permissions.dart';
 import '../core/navigation/app_shell.dart';
@@ -434,8 +435,14 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
     if (!mounted) return;
 
     if (loggedIn) {
+      // Reset the auth failure guard so API calls don't get blocked
+      // by a stale logout from a previous session.
+      resetAuthFailureGuard();
       // Invalidate auth state so the router picks up the new session.
+      // Also invalidate agent status so it re-evaluates with fresh tokens
+      // instead of using stale results from before the OAuth redirect.
       ref.invalidate(authStateProvider);
+      ref.invalidate(agentOnboardingStatusProvider);
     }
 
     // Navigate to root — the router redirect handles the rest.

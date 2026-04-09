@@ -6,6 +6,7 @@ import '../../../core/logging/app_logger.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import 'auth_repository.dart';
+import 'auth_state_provider.dart';
 
 part 'agent_status_provider.g.dart';
 
@@ -13,6 +14,14 @@ enum AgentOnboardingStatus { notAgent, pendingTnc, active, loading, error }
 
 @Riverpod(keepAlive: true)
 Future<AgentOnboardingStatus> agentOnboardingStatus(Ref ref) async {
+  // Wait for auth to be fully established before making API calls.
+  // This prevents races where old tokens trigger logout during the
+  // OAuth redirect flow.
+  final authState = await ref.watch(authStateProvider.future);
+  if (authState != AuthState.authenticated) {
+    return AgentOnboardingStatus.notAgent;
+  }
+
   final authRepo = ref.watch(authRepositoryProvider);
   final profileId = await authRepo.getCurrentProfileId();
   if (profileId == null || profileId.isEmpty) {
