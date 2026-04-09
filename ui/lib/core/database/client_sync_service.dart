@@ -16,10 +16,7 @@ import 'app_database.dart';
 /// - Pushes locally-created/modified clients to the backend.
 /// - Pulls backend clients into the local database for offline access.
 class ClientSyncService {
-  ClientSyncService({
-    required this.db,
-    required this.apiClient,
-  });
+  ClientSyncService({required this.db, required this.apiClient});
 
   final AppDatabase db;
   final FieldServiceClient apiClient;
@@ -38,7 +35,9 @@ class ClientSyncService {
       final validationError = _validateLocal(local);
       if (validationError != null) {
         await db.markClientSyncFailed(
-            local.rowId, 'Validation: $validationError');
+          local.rowId,
+          'Validation: $validationError',
+        );
         continue;
       }
 
@@ -204,7 +203,9 @@ class ClientSyncService {
   }
 
   static void _populateStruct(
-      struct_pb.Struct struct, Map<String, dynamic> map) {
+    struct_pb.Struct struct,
+    Map<String, dynamic> map,
+  ) {
     for (final entry in map.entries) {
       struct.fields[entry.key] = _objectToValue(entry.value);
     }
@@ -223,8 +224,9 @@ class ClientSyncService {
       _populateStruct(nested, obj);
       v.structValue = nested;
     } else if (obj is List) {
-      v.listValue =
-          struct_pb.ListValue(values: obj.map(_objectToValue).toList());
+      v.listValue = struct_pb.ListValue(
+        values: obj.map(_objectToValue).toList(),
+      );
     } else {
       v.nullValue = struct_enum.NullValue.NULL_VALUE;
     }

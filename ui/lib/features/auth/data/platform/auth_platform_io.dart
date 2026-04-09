@@ -223,6 +223,12 @@ class AuthPlatformIO implements AuthPlatform {
   }
 
   @override
+  void reset() {
+    _client = null;
+    _initCompleter = null;
+  }
+
+  @override
   Future<void> initialize(String issuerUrl, String clientId) async {
     if (_issuer != null && _client != null) return;
     // Guard against concurrent initialization — only one discovery at a time.
@@ -255,7 +261,10 @@ class AuthPlatformIO implements AuthPlatform {
 
     Future<void> urlLauncher(String url) async {
       final uri = Uri.parse(url);
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
       if (!launched) {
         throw Exception('Could not launch authentication URL');
       }

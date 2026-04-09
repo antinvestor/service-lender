@@ -14,15 +14,9 @@ Future<List<InvestorObject>> investorList(
 }) async {
   final client = ref.watch(identityServiceClientProvider);
   final stream = client.investorSearch(
-    InvestorSearchRequest(
-      query: query,
-      cursor: PageCursor(limit: 50),
-    ),
+    InvestorSearchRequest(query: query, cursor: PageCursor(limit: 50)),
   );
-  return collectStream(
-    stream,
-    extract: (response) => response.data,
-  );
+  return collectStream(stream, extract: (response) => response.data);
 }
 
 @riverpod

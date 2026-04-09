@@ -37,12 +37,12 @@ option java_multiple_files = true;
 option java_package = "originationv1";
 option (gnostic.openapi.v3.document) = {
   info: {
-    title: "Lender Origination Service"
+    title: "Origination Service"
     version: "v1.0.0"
-    description: "The Lender Origination Service manages loan products, applications, documents, verification tasks, and underwriting decisions. It handles the full loan application lifecycle from draft through to loan creation."
+    description: "The Origination Service manages loan products, applications, documents, verification tasks, and underwriting decisions. It handles the full loan application lifecycle from draft through to loan creation."
     contact: {
       name: "Ant Investor Ltd"
-      url: "https://github.com/antinvestor/service-lender"
+      url: "https://github.com/antinvestor/service-fintech"
       email: "info@antinvestor.com"
     }
     license: {

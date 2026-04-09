@@ -34,25 +34,34 @@ class RoleBinding extends $pb.GeneratedMessage {
     return $result;
   }
   RoleBinding._() : super();
-  factory RoleBinding.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RoleBinding.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RoleBinding.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory RoleBinding.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RoleBinding', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
-    ..e<StandardRole>(1, _omitFieldNames ? '' : 'role', $pb.PbFieldType.OE, defaultOrMaker: StandardRole.ROLE_UNSPECIFIED, valueOf: StandardRole.valueOf, enumValues: StandardRole.values)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RoleBinding',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
+    ..e<StandardRole>(1, _omitFieldNames ? '' : 'role', $pb.PbFieldType.OE,
+        defaultOrMaker: StandardRole.ROLE_UNSPECIFIED,
+        valueOf: StandardRole.valueOf,
+        enumValues: StandardRole.values)
     ..pPS(2, _omitFieldNames ? '' : 'permissions')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   RoleBinding clone() => RoleBinding()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RoleBinding copyWith(void Function(RoleBinding) updates) => super.copyWith((message) => updates(message as RoleBinding)) as RoleBinding;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  RoleBinding copyWith(void Function(RoleBinding) updates) =>
+      super.copyWith((message) => updates(message as RoleBinding))
+          as RoleBinding;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -61,14 +70,18 @@ class RoleBinding extends $pb.GeneratedMessage {
   RoleBinding createEmptyInstance() => create();
   static $pb.PbList<RoleBinding> createRepeated() => $pb.PbList<RoleBinding>();
   @$core.pragma('dart2js:noInline')
-  static RoleBinding getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RoleBinding>(create);
+  static RoleBinding getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RoleBinding>(create);
   static RoleBinding? _defaultInstance;
 
   /// The role being granted permissions.
   @$pb.TagNumber(1)
   StandardRole get role => $_getN(0);
   @$pb.TagNumber(1)
-  set role(StandardRole v) { setField(1, v); }
+  set role(StandardRole v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasRole() => $_has(0);
   @$pb.TagNumber(1)
@@ -95,34 +108,42 @@ class MethodPermissions extends $pb.GeneratedMessage {
     return $result;
   }
   MethodPermissions._() : super();
-  factory MethodPermissions.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory MethodPermissions.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MethodPermissions.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory MethodPermissions.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MethodPermissions', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MethodPermissions',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'permissions')
     ..aOB(2, _omitFieldNames ? '' : 'allowUnauthenticated')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   MethodPermissions clone() => MethodPermissions()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  MethodPermissions copyWith(void Function(MethodPermissions) updates) => super.copyWith((message) => updates(message as MethodPermissions)) as MethodPermissions;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  MethodPermissions copyWith(void Function(MethodPermissions) updates) =>
+      super.copyWith((message) => updates(message as MethodPermissions))
+          as MethodPermissions;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static MethodPermissions create() => MethodPermissions._();
   MethodPermissions createEmptyInstance() => create();
-  static $pb.PbList<MethodPermissions> createRepeated() => $pb.PbList<MethodPermissions>();
+  static $pb.PbList<MethodPermissions> createRepeated() =>
+      $pb.PbList<MethodPermissions>();
   @$core.pragma('dart2js:noInline')
-  static MethodPermissions getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MethodPermissions>(create);
+  static MethodPermissions getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MethodPermissions>(create);
   static MethodPermissions? _defaultInstance;
 
   /// Permissions required to call this method, e.g. "profile_view", "contact_manage".
@@ -134,7 +155,10 @@ class MethodPermissions extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get allowUnauthenticated => $_getBF(1);
   @$pb.TagNumber(2)
-  set allowUnauthenticated($core.bool v) { $_setBool(1, v); }
+  set allowUnauthenticated($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasAllowUnauthenticated() => $_has(1);
   @$pb.TagNumber(2)
@@ -163,35 +187,45 @@ class ServicePermissions extends $pb.GeneratedMessage {
     return $result;
   }
   ServicePermissions._() : super();
-  factory ServicePermissions.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ServicePermissions.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ServicePermissions.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ServicePermissions.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ServicePermissions', package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ServicePermissions',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'common.v1'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'namespace')
     ..pPS(2, _omitFieldNames ? '' : 'permissions')
-    ..pc<RoleBinding>(3, _omitFieldNames ? '' : 'roleBindings', $pb.PbFieldType.PM, subBuilder: RoleBinding.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<RoleBinding>(
+        3, _omitFieldNames ? '' : 'roleBindings', $pb.PbFieldType.PM,
+        subBuilder: RoleBinding.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ServicePermissions clone() => ServicePermissions()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ServicePermissions copyWith(void Function(ServicePermissions) updates) => super.copyWith((message) => updates(message as ServicePermissions)) as ServicePermissions;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ServicePermissions copyWith(void Function(ServicePermissions) updates) =>
+      super.copyWith((message) => updates(message as ServicePermissions))
+          as ServicePermissions;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ServicePermissions create() => ServicePermissions._();
   ServicePermissions createEmptyInstance() => create();
-  static $pb.PbList<ServicePermissions> createRepeated() => $pb.PbList<ServicePermissions>();
+  static $pb.PbList<ServicePermissions> createRepeated() =>
+      $pb.PbList<ServicePermissions>();
   @$core.pragma('dart2js:noInline')
-  static ServicePermissions getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServicePermissions>(create);
+  static ServicePermissions getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ServicePermissions>(create);
   static ServicePermissions? _defaultInstance;
 
   /// Namespace for this service's permissions, used for OPL namespace generation
@@ -200,7 +234,10 @@ class ServicePermissions extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.String get namespace => $_getSZ(0);
   @$pb.TagNumber(1)
-  set namespace($core.String v) { $_setString(0, v); }
+  set namespace($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasNamespace() => $_has(0);
   @$pb.TagNumber(1)
@@ -217,14 +254,26 @@ class ServicePermissions extends $pb.GeneratedMessage {
 }
 
 class Permissions {
-  static final methodPermissions = $pb.Extension<MethodPermissions>(_omitMessageNames ? '' : 'google.protobuf.MethodOptions', _omitFieldNames ? '' : 'methodPermissions', 50000, $pb.PbFieldType.OM, defaultOrMaker: MethodPermissions.getDefault, subBuilder: MethodPermissions.create);
-  static final servicePermissions = $pb.Extension<ServicePermissions>(_omitMessageNames ? '' : 'google.protobuf.ServiceOptions', _omitFieldNames ? '' : 'servicePermissions', 50000, $pb.PbFieldType.OM, defaultOrMaker: ServicePermissions.getDefault, subBuilder: ServicePermissions.create);
+  static final methodPermissions = $pb.Extension<MethodPermissions>(
+      _omitMessageNames ? '' : 'google.protobuf.MethodOptions',
+      _omitFieldNames ? '' : 'methodPermissions',
+      50000,
+      $pb.PbFieldType.OM,
+      defaultOrMaker: MethodPermissions.getDefault,
+      subBuilder: MethodPermissions.create);
+  static final servicePermissions = $pb.Extension<ServicePermissions>(
+      _omitMessageNames ? '' : 'google.protobuf.ServiceOptions',
+      _omitFieldNames ? '' : 'servicePermissions',
+      50000,
+      $pb.PbFieldType.OM,
+      defaultOrMaker: ServicePermissions.getDefault,
+      subBuilder: ServicePermissions.create);
   static void registerAllExtensions($pb.ExtensionRegistry registry) {
     registry.add(methodPermissions);
     registry.add(servicePermissions);
   }
 }
 
-
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');
+const _omitMessageNames =
+    $core.bool.fromEnvironment('protobuf.omit_message_names');

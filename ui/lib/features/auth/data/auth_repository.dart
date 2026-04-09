@@ -1,16 +1,62 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/auth/tenancy_context.dart';
 import '../../../core/config/app_config.dart';
 import 'auth_service.dart';
 
 part 'auth_repository.g.dart';
 
+/// Stores the login context (level + selected org/branch) for session restoration.
+class StoredLoginContext {
+  const StoredLoginContext({
+    required this.level,
+    this.orgId,
+    this.orgName,
+    this.branchId,
+    this.branchName,
+  });
+
+  factory StoredLoginContext.fromJson(Map<String, dynamic> json) {
+    return StoredLoginContext(
+      level: LoginLevel.values.firstWhere(
+        (l) => l.name == json['level'],
+        orElse: () => LoginLevel.root,
+      ),
+      orgId: json['org_id'] as String?,
+      orgName: json['org_name'] as String?,
+      branchId: json['branch_id'] as String?,
+      branchName: json['branch_name'] as String?,
+    );
+  }
+
+  final LoginLevel level;
+  final String? orgId;
+  final String? orgName;
+  final String? branchId;
+  final String? branchName;
+
+  Map<String, dynamic> toJson() => {
+    'level': level.name,
+    'org_id': orgId,
+    'org_name': orgName,
+    'branch_id': branchId,
+    'branch_name': branchName,
+  };
+}
+
 class AuthRepository {
   AuthRepository(this._authService);
   final AuthService _authService;
 
-  Future<void> login() async {
+  /// Log in with an optional partition-scoped client_id.
+  /// If [clientId] is provided and differs from the current client, switches first.
+  Future<void> login({String? clientId}) async {
+    if (clientId != null) {
+      await _authService.switchClient(clientId);
+    }
     // On web, authenticate() initiates a redirect and returns null.
     // The token exchange happens on redirect back via isLoggedIn() → _handleRedirectResult().
     await _authService.authenticate();
@@ -77,6 +123,24 @@ class AuthRepository {
     return claims?['name'] as String? ??
         claims?['preferred_username'] as String?;
   }
+
+  /// Store the login context (level + org/branch selection) for session restoration.
+  Future<void> storeLoginContext(StoredLoginContext context) async {
+    await _authService.storeLoginContext(jsonEncode(context.toJson()));
+  }
+
+  /// Retrieve the stored login context.
+  Future<StoredLoginContext?> getStoredLoginContext() async {
+    final json = await _authService.getStoredLoginContext();
+    if (json == null) return null;
+    try {
+      return StoredLoginContext.fromJson(
+        jsonDecode(json) as Map<String, dynamic>,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -90,6 +154,10 @@ AuthRepository authRepository(Ref ref) {
     issuerUrl: issuerUrl,
     clientId: clientId,
   );
+
+  // Restore previously selected client_id (e.g., after app restart).
+  // Fire-and-forget: if it fails, the default client is used.
+  authService.restoreSelectedClient().ignore();
 
   return AuthRepository(authService);
 }

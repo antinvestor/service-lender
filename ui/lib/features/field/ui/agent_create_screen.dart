@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:antinvestor_api_profile/antinvestor_api_profile.dart' as profile_api;
+import 'package:antinvestor_api_profile/antinvestor_api_profile.dart'
+    as profile_api;
 import 'package:connectrpc/connect.dart' show Code, ConnectException;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -224,9 +225,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   dynamic _buildProperties() {
     // Build a Struct with contact and new profile info for backend processing
     // The backend AgentNotifier.CreateOrLinkProfile reads these
-    final map = <String, dynamic>{
-      'contact_detail': _contactCtrl.text.trim(),
-    };
+    final map = <String, dynamic>{'contact_detail': _contactCtrl.text.trim()};
     if (_nameCtrl.text.trim().isNotEmpty) {
       map['display_name'] = _nameCtrl.text.trim();
     }
@@ -262,8 +261,10 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                         onPressed: () => context.go('/field/agents'),
                       ),
                       const SizedBox(width: 8),
-                      Icon(Icons.person_add_outlined,
-                          color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.person_add_outlined,
+                        color: theme.colorScheme.primary,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -271,8 +272,9 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                           children: [
                             Text(
                               'Register New Agent',
-                              style: theme.textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             Text(
                               'Find an existing user or create a new profile for the agent.',
@@ -318,8 +320,9 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                   children: [
                     if (_step > 0)
                       TextButton(
-                        onPressed:
-                            _saving ? null : () => setState(() => _step = 0),
+                        onPressed: _saving
+                            ? null
+                            : () => setState(() => _step = 0),
                         child: const Text('Back'),
                       ),
                     const SizedBox(width: 12),
@@ -360,12 +363,20 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   Widget _buildStepIndicator(ThemeData theme) {
     return Row(
       children: [
-        _StepDot(label: '1. Find Profile', isActive: _step == 0, isCompleted: _step > 0),
+        _StepDot(
+          label: '1. Find Profile',
+          isActive: _step == 0,
+          isCompleted: _step > 0,
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Container(width: 32, height: 1, color: theme.dividerColor),
         ),
-        _StepDot(label: '2. Placement', isActive: _step == 1, isCompleted: false),
+        _StepDot(
+          label: '2. Placement',
+          isActive: _step == 1,
+          isCompleted: false,
+        ),
       ],
     );
   }
@@ -393,7 +404,8 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                   decoration: InputDecoration(
                     hintText: 'e.g. jane@example.com or +254 700 123456',
                     prefixIcon: const Icon(Icons.alternate_email),
-                    suffixIcon: _searchState == _ProfileSearchState.found ||
+                    suffixIcon:
+                        _searchState == _ProfileSearchState.found ||
                             _searchState == _ProfileSearchState.confirmed
                         ? const Icon(Icons.check_circle, color: Colors.green)
                         : null,
@@ -407,7 +419,8 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: FilledButton.icon(
-                  onPressed: _searchState == _ProfileSearchState.searching ||
+                  onPressed:
+                      _searchState == _ProfileSearchState.searching ||
                           _contactCtrl.text.trim().length < 3
                       ? null
                       : _triggerSearch,
@@ -454,8 +467,11 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.person_search,
-                    color: theme.colorScheme.primary, size: 20),
+                Icon(
+                  Icons.person_search,
+                  color: theme.colorScheme.primary,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Profile Found',
@@ -510,11 +526,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            ProfileAvatar(
-              profileId: _profileId,
-              name: _profileName,
-              size: 48,
-            ),
+            ProfileAvatar(profileId: _profileId, name: _profileName, size: 48),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -522,8 +534,9 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                 children: [
                   Text(
                     _profileName,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     'Linked to existing profile',
@@ -552,8 +565,11 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                Icon(Icons.info_outline,
-                    size: 20, color: theme.colorScheme.onTertiaryContainer),
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: theme.colorScheme.onTertiaryContainer,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -616,8 +632,9 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                       children: [
                         Text(
                           _nameCtrl.text.trim(),
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         if (_descriptionCtrl.text.trim().isNotEmpty)
                           Text(
@@ -635,8 +652,10 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.person_add_outlined,
-                      color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.person_add_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
                 ],
               ),
             ),
@@ -679,18 +698,15 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                     children: [
                       Text(
                         _agentName,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       Text(
                         _contactCtrl.text.trim(),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -708,17 +724,18 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Failed to load: $e'),
             data: (orgs) => DropdownButtonFormField<String>(
-              initialValue:
-                  _selectedOrgId.isNotEmpty ? _selectedOrgId : null,
+              initialValue: _selectedOrgId.isNotEmpty ? _selectedOrgId : null,
               decoration: const InputDecoration(
                 hintText: 'Select organization',
                 prefixIcon: Icon(Icons.business_outlined),
               ),
               items: orgs
-                  .map((o) => DropdownMenuItem(
+                  .map(
+                    (o) => DropdownMenuItem(
                       value: o.id,
-                      child:
-                          Text(o.name.isNotEmpty ? o.name : o.id)))
+                      child: Text(o.name.isNotEmpty ? o.name : o.id),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) => setState(() {
                 _selectedOrgId = v ?? '';
@@ -737,9 +754,10 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             error: (e, _) => Text('Failed to load: $e'),
             data: (branches) {
               if (_selectedOrgId.isEmpty) {
-                return Text('Select an organization first',
-                    style: TextStyle(
-                        color: Theme.of(context).hintColor));
+                return Text(
+                  'Select an organization first',
+                  style: TextStyle(color: Theme.of(context).hintColor),
+                );
               }
               return DropdownButtonFormField<String>(
                 initialValue: _selectedBranchId.isNotEmpty
@@ -750,10 +768,12 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                   prefixIcon: Icon(Icons.store_outlined),
                 ),
                 items: branches
-                    .map((b) => DropdownMenuItem(
+                    .map(
+                      (b) => DropdownMenuItem(
                         value: b.id,
-                        child: Text(
-                            b.name.isNotEmpty ? b.name : b.id)))
+                        child: Text(b.name.isNotEmpty ? b.name : b.id),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() {
                   _selectedBranchId = v ?? '';
@@ -773,12 +793,12 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             error: (e, _) => Text('Failed to load: $e'),
             data: (agents) {
               if (_selectedBranchId.isEmpty) {
-                return Text('Select a branch first',
-                    style: TextStyle(
-                        color: Theme.of(context).hintColor));
+                return Text(
+                  'Select a branch first',
+                  style: TextStyle(color: Theme.of(context).hintColor),
+                );
               }
-              final topLevel =
-                  agents.where((a) => a.depth <= 0).toList();
+              final topLevel = agents.where((a) => a.depth <= 0).toList();
               return DropdownButtonFormField<String>(
                 initialValue: _selectedParentAgentId.isNotEmpty
                     ? _selectedParentAgentId
@@ -789,14 +809,18 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                 ),
                 items: [
                   const DropdownMenuItem(
-                      value: '', child: Text('None (top-level agent)')),
-                  ...topLevel.map((a) => DropdownMenuItem(
+                    value: '',
+                    child: Text('None (top-level agent)'),
+                  ),
+                  ...topLevel.map(
+                    (a) => DropdownMenuItem(
                       value: a.id,
-                      child:
-                          Text(a.name.isNotEmpty ? a.name : a.id))),
+                      child: Text(a.name.isNotEmpty ? a.name : a.id),
+                    ),
+                  ),
                 ],
-                onChanged: (v) => setState(
-                    () => _selectedParentAgentId = v ?? ''),
+                onChanged: (v) =>
+                    setState(() => _selectedParentAgentId = v ?? ''),
               );
             },
           ),
@@ -835,20 +859,18 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.info_outline,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSecondaryContainer),
+                Icon(
+                  Icons.info_outline,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'The agent will receive a notification at ${_contactCtrl.text.trim()} '
                     'to accept Terms & Conditions. Their account activates after acceptance.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                        ),
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
                   ),
                 ),
               ],
@@ -883,8 +905,8 @@ class _StepDot extends StatelessWidget {
     final color = isActive
         ? theme.colorScheme.primary
         : isCompleted
-            ? theme.colorScheme.primary.withAlpha(180)
-            : theme.colorScheme.onSurfaceVariant;
+        ? theme.colorScheme.primary.withAlpha(180)
+        : theme.colorScheme.onSurfaceVariant;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

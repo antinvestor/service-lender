@@ -35,4 +35,9 @@ var (
 		apperrors.Unprocessable,
 		"credit limit change request is not in pending status",
 	)
+
+	ErrLoginClientCreationFailed = apperrors.NewError(
+		apperrors.Unprocessable,
+		"failed to create login client for partition",
+	)
 )

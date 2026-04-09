@@ -87,9 +87,7 @@ class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
                 width: 180,
                 child: DropdownButtonFormField<int?>(
                   initialValue: _orderTypeFilter,
-                  decoration: const InputDecoration(
-                    labelText: 'Order Type',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Order Type'),
                   items: const [
                     DropdownMenuItem(value: null, child: Text('All')),
                     DropdownMenuItem(value: 1, child: Text('Disbursement')),
@@ -107,10 +105,12 @@ class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
               const SizedBox(width: 12),
               FilledButton.tonalIcon(
                 onPressed: () {
-                  ref.invalidate(transferOrderListProvider(
-                    query: _query,
-                    orderType: _orderTypeFilter,
-                  ));
+                  ref.invalidate(
+                    transferOrderListProvider(
+                      query: _query,
+                      orderType: _orderTypeFilter,
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('Refresh'),
@@ -127,8 +127,11 @@ class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 48, color: theme.colorScheme.error),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
                   const SizedBox(height: 16),
                   Text('Error: $error'),
                   const SizedBox(height: 8),
@@ -156,8 +159,10 @@ class _TransferOrdersScreenState extends ConsumerState<TransferOrdersScreen> {
                 );
               }
               return ListView.separated(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 itemCount: orders.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) =>
@@ -184,9 +189,7 @@ class _TransferOrderCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -196,8 +199,7 @@ class _TransferOrderCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor:
-                      theme.colorScheme.primaryContainer,
+                  backgroundColor: theme.colorScheme.primaryContainer,
                   child: Icon(
                     Icons.swap_horiz,
                     size: 20,
@@ -227,8 +229,10 @@ class _TransferOrderCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: stateColor.withAlpha(20),
                     borderRadius: BorderRadius.circular(4),
@@ -277,9 +281,7 @@ class _TransferOrderCard extends StatelessWidget {
                 Expanded(
                   child: _DetailItem(
                     label: 'Reference',
-                    value: order.reference.isNotEmpty
-                        ? order.reference
-                        : '-',
+                    value: order.reference.isNotEmpty ? order.reference : '-',
                   ),
                 ),
               ],

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
 	fieldpb "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
@@ -15,7 +16,6 @@ import (
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
 	"github.com/antinvestor/common/permissions"
-	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -26,6 +26,8 @@ import (
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
+
+	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/identity/config"
 	"github.com/antinvestor/service-fintech/apps/identity/service/authz"
@@ -133,10 +135,17 @@ func setupServiceOptions(
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 
+	oauthRedirectURIs := strings.Split(cfg.OAuthRedirectURIs, ",")
+	oauthAudiences := strings.Split(cfg.OAuthAudiences, ",")
+	loginClientBusiness := business.NewLoginClientBusiness(
+		ctx, evtsMan, organizationRepo, branchRepo, partitionCli, oauthRedirectURIs, oauthAudiences,
+	)
+
 	connectHandler := setupConnectServer(
 		ctx, sm,
 		organizationBusiness, branchBusiness, agentBusiness, clientBusiness,
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
+		loginClientBusiness,
 	)
 
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
@@ -219,6 +228,7 @@ func setupConnectServer(
 	_ business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
+	loginClientBusiness business.LoginClientBusiness,
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
@@ -289,9 +299,13 @@ func setupConnectServer(
 	)
 	fieldPath, fieldServerHandler := fieldv1connect.NewFieldServiceHandler(fieldHandler, fieldInterceptorOption)
 
+	// Login targets endpoint — unauthenticated, no interceptors
+	loginTargetsHandler := handlers.NewLoginTargetsHandler(loginClientBusiness)
+
 	mux := http.NewServeMux()
 	mux.Handle(identityPath, identityServerHandler)
 	mux.Handle(fieldPath, fieldServerHandler)
+	mux.Handle("/api/v1/login-targets/", loginTargetsHandler)
 
 	return mux
 }

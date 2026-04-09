@@ -81,15 +81,10 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
               const _BrandHeader(),
 
               // Organization & branch context selector
-              _TenancyContextSelector(
-                onNavigate: widget.onNavigate,
-              ),
+              _TenancyContextSelector(onNavigate: widget.onNavigate),
 
               // Subtle separator
-              Container(
-                height: 1,
-                color: Colors.white.withAlpha(15),
-              ),
+              Container(height: 1, color: Colors.white.withAlpha(15)),
 
               // Navigation items
               Expanded(
@@ -100,21 +95,13 @@ class _AppSidebarState extends ConsumerState<AppSidebar> {
                   ),
                   children: [
                     for (final item in items)
-                      _buildNavItem(
-                        context,
-                        item,
-                        _expansionState,
-                        depth: 0,
-                      ),
+                      _buildNavItem(context, item, _expansionState, depth: 0),
                   ],
                 ),
               ),
 
               // Subtle separator
-              Container(
-                height: 1,
-                color: Colors.white.withAlpha(15),
-              ),
+              Container(height: 1, color: Colors.white.withAlpha(15)),
               // User section
               _UserFooter(
                 displayName: displayNameAsync.when(
@@ -213,19 +200,19 @@ class _BrandHeader extends StatelessWidget {
                 Text(
                   'AntInvestor',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                        height: 1.2,
-                        color: Colors.white,
-                      ),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                    height: 1.2,
+                    color: Colors.white,
+                  ),
                 ),
                 Text(
                   'Lender Platform',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withAlpha(130),
-                        fontSize: 11,
-                        height: 1.3,
-                      ),
+                    color: Colors.white.withAlpha(130),
+                    fontSize: 11,
+                    height: 1.3,
+                  ),
                 ),
               ],
             ),
@@ -254,16 +241,95 @@ class _TenancyContextSelector extends ConsumerWidget {
     final orgName = tenancy.organizationName;
     final branchName = tenancy.branchName;
 
+    // Hide entire selector when fully scoped at branch level
+    if (!tenancy.canSelectOrganization && !tenancy.canSelectBranch) {
+      // Branch-level login: show fixed context label instead of selectors
+      return Container(
+        width: double.infinity,
+        color: Colors.white.withAlpha(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (orgName.isNotEmpty)
+                Text(
+                  orgName,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withAlpha(200),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              if (branchName.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    branchName,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withAlpha(160),
+                      fontSize: 10,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       width: double.infinity,
       color: Colors.white.withAlpha(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Organization row
-          InkWell(
-            onTap: () => _showOrganizationPicker(context, ref),
-            child: Padding(
+          // Organization row (only when user can select org)
+          if (tenancy.canSelectOrganization)
+            InkWell(
+              onTap: () => _showOrganizationPicker(context, ref),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.business_outlined,
+                      size: 16,
+                      color: Colors.white.withAlpha(130),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        orgName.isNotEmpty ? orgName : 'Select Organization',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: orgName.isNotEmpty
+                              ? Colors.white.withAlpha(200)
+                              : Colors.white.withAlpha(100),
+                          fontSize: 11,
+                          fontWeight: orgName.isNotEmpty
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(
+                      Icons.unfold_more,
+                      size: 14,
+                      color: Colors.white.withAlpha(80),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          // Fixed org name when logged in at org level
+          if (!tenancy.canSelectOrganization && orgName.isNotEmpty)
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
@@ -275,35 +341,30 @@ class _TenancyContextSelector extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      orgName.isNotEmpty ? orgName : 'Select Organization',
+                      orgName,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: orgName.isNotEmpty
-                                ? Colors.white.withAlpha(200)
-                                : Colors.white.withAlpha(100),
-                            fontSize: 11,
-                            fontWeight: orgName.isNotEmpty
-                                ? FontWeight.w600
-                                : FontWeight.w400,
-                          ),
+                        color: Colors.white.withAlpha(200),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  Icon(
-                    Icons.unfold_more,
-                    size: 14,
-                    color: Colors.white.withAlpha(80),
                   ),
                 ],
               ),
             ),
-          ),
-          // Branch row (only when org is selected)
-          if (tenancy.hasOrganization)
+          // Branch row (when org is selected and user can select branch)
+          if (tenancy.hasOrganization && tenancy.canSelectBranch)
             InkWell(
-              onTap: () => _showBranchPicker(context, ref, tenancy.organizationId),
+              onTap: () =>
+                  _showBranchPicker(context, ref, tenancy.organizationId),
               child: Padding(
                 padding: const EdgeInsets.only(
-                    left: 40, right: 16, top: 2, bottom: 8),
+                  left: 40,
+                  right: 16,
+                  top: 2,
+                  bottom: 8,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -316,11 +377,11 @@ class _TenancyContextSelector extends ConsumerWidget {
                       child: Text(
                         branchName.isNotEmpty ? branchName : 'Select Branch',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: branchName.isNotEmpty
-                                  ? Colors.white.withAlpha(180)
-                                  : Colors.white.withAlpha(80),
-                              fontSize: 10,
-                            ),
+                          color: branchName.isNotEmpty
+                              ? Colors.white.withAlpha(180)
+                              : Colors.white.withAlpha(80),
+                          fontSize: 10,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -339,7 +400,10 @@ class _TenancyContextSelector extends ConsumerWidget {
   }
 
   void _useTenancyListener(
-      BuildContext context, WidgetRef ref, TenancyContext tenancy) {
+    BuildContext context,
+    WidgetRef ref,
+    TenancyContext tenancy,
+  ) {
     // Force rebuild on TenancyContext changes via ChangeNotifier
     // This is handled by watching the provider above since it's keepAlive.
   }
@@ -373,14 +437,15 @@ class _TenancyContextSelector extends ConsumerWidget {
               },
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor:
-                      Theme.of(dialogContext).colorScheme.primaryContainer,
+                  backgroundColor: Theme.of(
+                    dialogContext,
+                  ).colorScheme.primaryContainer,
                   child: Text(
                     org.name.isNotEmpty ? org.name[0].toUpperCase() : '?',
                     style: TextStyle(
-                      color: Theme.of(dialogContext)
-                          .colorScheme
-                          .onPrimaryContainer,
+                      color: Theme.of(
+                        dialogContext,
+                      ).colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -396,7 +461,10 @@ class _TenancyContextSelector extends ConsumerWidget {
   }
 
   void _showBranchPicker(
-      BuildContext context, WidgetRef ref, String organizationId) {
+    BuildContext context,
+    WidgetRef ref,
+    String organizationId,
+  ) {
     final branchesAsync = ref.read(branchListProvider('', organizationId));
 
     final branches = branchesAsync.value ?? [];
@@ -427,8 +495,7 @@ class _TenancyContextSelector extends ConsumerWidget {
               },
               child: ListTile(
                 leading: const Icon(Icons.store_outlined),
-                title:
-                    Text(branch.name.isNotEmpty ? branch.name : branch.id),
+                title: Text(branch.name.isNotEmpty ? branch.name : branch.id),
                 subtitle: branch.code.isNotEmpty ? Text(branch.code) : null,
                 dense: true,
               ),
@@ -482,30 +549,26 @@ class _SectionTile extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color:
-                  isActive ? Colors.white.withAlpha(18) : Colors.transparent,
+              color: isActive ? Colors.white.withAlpha(18) : Colors.transparent,
             ),
             child: Row(
               children: [
                 Icon(
                   isActive ? (item.activeIcon ?? item.icon) : item.icon,
                   size: 20,
-                  color: isActive
-                      ? Colors.white
-                      : Colors.white.withAlpha(180),
+                  color: isActive ? Colors.white : Colors.white.withAlpha(180),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     item.label,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight:
-                              isActive ? FontWeight.w600 : FontWeight.w500,
-                          color: isActive
-                              ? Colors.white
-                              : Colors.white.withAlpha(180),
-                          fontSize: 13,
-                        ),
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                      color: isActive
+                          ? Colors.white
+                          : Colors.white.withAlpha(180),
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 AnimatedRotation(
@@ -530,8 +593,9 @@ class _SectionTile extends StatelessWidget {
             ),
           ),
           secondChild: const SizedBox.shrink(),
-          crossFadeState:
-              isExpanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          crossFadeState: isExpanded
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
           duration: const Duration(milliseconds: 200),
           sizeCurve: Curves.easeInOut,
         ),
@@ -582,8 +646,7 @@ class _LeafTile extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color:
-                  isActive ? Colors.white.withAlpha(20) : Colors.transparent,
+              color: isActive ? Colors.white.withAlpha(20) : Colors.transparent,
             ),
             child: Row(
               children: [
@@ -601,22 +664,19 @@ class _LeafTile extends StatelessWidget {
                 Icon(
                   isActive ? (item.activeIcon ?? item.icon) : item.icon,
                   size: 18,
-                  color: isActive
-                      ? Colors.white
-                      : Colors.white.withAlpha(140),
+                  color: isActive ? Colors.white : Colors.white.withAlpha(140),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     item.label,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight:
-                              isActive ? FontWeight.w600 : FontWeight.w400,
-                          color: isActive
-                              ? Colors.white
-                              : Colors.white.withAlpha(180),
-                          fontSize: 13,
-                        ),
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                      color: isActive
+                          ? Colors.white
+                          : Colors.white.withAlpha(180),
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 if (item.badge != null)
@@ -652,11 +712,7 @@ class _LeafTile extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _UserFooter extends StatelessWidget {
-  const _UserFooter({
-    this.displayName,
-    this.profileId,
-    required this.onLogout,
-  });
+  const _UserFooter({this.displayName, this.profileId, required this.onLogout});
   final String? displayName;
   final String? profileId;
   final VoidCallback onLogout;

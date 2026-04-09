@@ -39,12 +39,12 @@ option java_multiple_files = true;
 option java_package = "savingsv1";
 option (gnostic.openapi.v3.document) = {
   info: {
-    title: "Lender Savings Service"
+    title: "Savings Service"
     version: "v1.0.0"
-    description: "The Lender Savings Service manages savings products, accounts, deposits, withdrawals, and interest accruals. It supports individual and group savings accounts with configurable product terms."
+    description: "The Savings Service manages savings products, accounts, deposits, withdrawals, and interest accruals. It supports individual and group savings accounts with configurable product terms."
     contact: {
       name: "Ant Investor Ltd"
-      url: "https://github.com/antinvestor/service-lender"
+      url: "https://github.com/antinvestor/service-fintech"
       email: "info@antinvestor.com"
     }
     license: {

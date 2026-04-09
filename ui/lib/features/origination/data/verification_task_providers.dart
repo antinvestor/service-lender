@@ -34,8 +34,9 @@ class VerificationTaskNotifier extends _$VerificationTaskNotifier {
 
   Future<VerificationTaskObject> save(VerificationTaskObject task) async {
     final client = ref.read(originationServiceClientProvider);
-    final response = await client
-        .verificationTaskSave(VerificationTaskSaveRequest(data: task));
+    final response = await client.verificationTaskSave(
+      VerificationTaskSaveRequest(data: task),
+    );
 
     ref.invalidate(verificationTaskListProvider);
 
@@ -57,8 +58,7 @@ class VerificationTaskNotifier extends _$VerificationTaskNotifier {
     if (results != null) {
       request.results = results;
     }
-    final response =
-        await client.verificationTaskComplete(request);
+    final response = await client.verificationTaskComplete(request);
 
     ref.invalidate(verificationTaskListProvider);
 

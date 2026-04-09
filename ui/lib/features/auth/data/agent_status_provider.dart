@@ -31,10 +31,7 @@ Future<AgentOnboardingStatus> agentOnboardingStatus(Ref ref) async {
   try {
     final client = ref.watch(fieldServiceClientProvider);
     final stream = client.agentSearch(
-      AgentSearchRequest(
-        query: profileId,
-        cursor: PageCursor(limit: 10),
-      ),
+      AgentSearchRequest(query: profileId, cursor: PageCursor(limit: 10)),
     );
 
     final agents = await collectStream(

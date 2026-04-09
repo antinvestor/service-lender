@@ -91,9 +91,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Client Reassignment'),
-      ),
+      appBar: AppBar(title: const Text('Client Reassignment')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -104,10 +102,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Transfer a Client',
-                    style: theme.textTheme.titleLarge,
-                  ),
+                  Text('Transfer a Client', style: theme.textTheme.titleLarge),
                   const SizedBox(height: 4),
                   Text(
                     'Move a client from their current agent to a new agent.',
@@ -118,10 +113,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                   const SizedBox(height: 24),
 
                   // Client selector
-                  Text(
-                    'Client',
-                    style: theme.textTheme.titleSmall,
-                  ),
+                  Text('Client', style: theme.textTheme.titleSmall),
                   const SizedBox(height: 8),
                   Autocomplete<ClientObject>(
                     displayStringForOption: (client) => client.name,
@@ -138,9 +130,9 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                         data: (clients) {
                           if (query.isEmpty) return clients;
                           return clients.where(
-                            (b) => b.name
-                                .toLowerCase()
-                                .contains(query.toLowerCase()),
+                            (b) => b.name.toLowerCase().contains(
+                              query.toLowerCase(),
+                            ),
                           );
                         },
                         loading: () => <ClientObject>[],
@@ -150,41 +142,37 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                     onSelected: (client) {
                       setState(() => _selectedClient = client);
                     },
-                    fieldViewBuilder: (
-                      context,
-                      controller,
-                      focusNode,
-                      onFieldSubmitted,
-                    ) {
-                      return TextFormField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          hintText: 'Search clients...',
-                          prefixIcon: const Icon(Icons.person_search),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: clientsAsync.isLoading
-                              ? const Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                )
-                              : null,
-                        ),
-                        validator: (_) {
-                          if (_selectedClient == null) {
-                            return 'Please select a client';
-                          }
-                          return null;
+                    fieldViewBuilder:
+                        (context, controller, focusNode, onFieldSubmitted) {
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Search clients...',
+                              prefixIcon: const Icon(Icons.person_search),
+                              border: const OutlineInputBorder(),
+                              suffixIcon: clientsAsync.isLoading
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            validator: (_) {
+                              if (_selectedClient == null) {
+                                return 'Please select a client';
+                              }
+                              return null;
+                            },
+                            onFieldSubmitted: (_) => onFieldSubmitted(),
+                          );
                         },
-                        onFieldSubmitted: (_) => onFieldSubmitted(),
-                      );
-                    },
                     optionsViewBuilder: (context, onSelected, options) {
                       return Align(
                         alignment: Alignment.topLeft,
@@ -226,10 +214,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                   const SizedBox(height: 24),
 
                   // New Agent selector
-                  Text(
-                    'New Agent',
-                    style: theme.textTheme.titleSmall,
-                  ),
+                  Text('New Agent', style: theme.textTheme.titleSmall),
                   const SizedBox(height: 8),
                   Autocomplete<AgentObject>(
                     displayStringForOption: (agent) => agent.name,
@@ -246,9 +231,9 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                         data: (agents) {
                           if (query.isEmpty) return agents;
                           return agents.where(
-                            (a) => a.name
-                                .toLowerCase()
-                                .contains(query.toLowerCase()),
+                            (a) => a.name.toLowerCase().contains(
+                              query.toLowerCase(),
+                            ),
                           );
                         },
                         loading: () => <AgentObject>[],
@@ -258,41 +243,37 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                     onSelected: (agent) {
                       setState(() => _selectedAgent = agent);
                     },
-                    fieldViewBuilder: (
-                      context,
-                      controller,
-                      focusNode,
-                      onFieldSubmitted,
-                    ) {
-                      return TextFormField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          hintText: 'Search agents...',
-                          prefixIcon: const Icon(Icons.support_agent),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: agentsAsync.isLoading
-                              ? const Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                )
-                              : null,
-                        ),
-                        validator: (_) {
-                          if (_selectedAgent == null) {
-                            return 'Please select an agent';
-                          }
-                          return null;
+                    fieldViewBuilder:
+                        (context, controller, focusNode, onFieldSubmitted) {
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Search agents...',
+                              prefixIcon: const Icon(Icons.support_agent),
+                              border: const OutlineInputBorder(),
+                              suffixIcon: agentsAsync.isLoading
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            validator: (_) {
+                              if (_selectedAgent == null) {
+                                return 'Please select an agent';
+                              }
+                              return null;
+                            },
+                            onFieldSubmitted: (_) => onFieldSubmitted(),
+                          );
                         },
-                        onFieldSubmitted: (_) => onFieldSubmitted(),
-                      );
-                    },
                     optionsViewBuilder: (context, onSelected, options) {
                       return Align(
                         alignment: Alignment.topLeft,
@@ -334,10 +315,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                   const SizedBox(height: 24),
 
                   // Reason field
-                  Text(
-                    'Reason',
-                    style: theme.textTheme.titleSmall,
-                  ),
+                  Text('Reason', style: theme.textTheme.titleSmall),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _reasonController,
@@ -404,9 +382,7 @@ class _SelectionChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer.withAlpha(80),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.primaryContainer,
-        ),
+        border: Border.all(color: theme.colorScheme.primaryContainer),
       ),
       child: Row(
         children: [

@@ -55,9 +55,7 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
       icon: Icons.store_outlined,
       items: branchesAsync.value ?? [],
       isLoading: branchesAsync.isLoading,
-      error: branchesAsync.hasError
-          ? branchesAsync.error.toString()
-          : null,
+      error: branchesAsync.hasError ? branchesAsync.error.toString() : null,
       onRetry: () => ref.invalidate(
         branchListProvider(_searchQuery, _selectedOrganizationId),
       ),
@@ -74,10 +72,10 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
           organizationName: organization?.name,
           onTap: (canManage.value ?? false)
               ? () => _showBranchDialog(
-                    context,
-                    branch: branch,
-                    organizations: organizations,
-                  )
+                  context,
+                  branch: branch,
+                  organizations: organizations,
+                )
               : null,
         );
       },
@@ -110,10 +108,8 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
   }) async {
     final result = await showDialog<BranchObject>(
       context: context,
-      builder: (context) => _BranchFormDialog(
-        branch: branch,
-        organizations: organizations,
-      ),
+      builder: (context) =>
+          _BranchFormDialog(branch: branch, organizations: organizations),
     );
     if (result == null || !mounted) return;
 
@@ -142,11 +138,7 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
 }
 
 class _BranchCard extends StatelessWidget {
-  const _BranchCard({
-    required this.branch,
-    this.organizationName,
-    this.onTap,
-  });
+  const _BranchCard({required this.branch, this.organizationName, this.onTap});
 
   final BranchObject branch;
   final String? organizationName;
@@ -200,7 +192,8 @@ class _BranchCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                         ],
-                        if (organizationName != null && organizationName!.isNotEmpty) ...[
+                        if (organizationName != null &&
+                            organizationName!.isNotEmpty) ...[
                           Icon(
                             Icons.account_balance_outlined,
                             size: 12,
@@ -244,10 +237,7 @@ class _BranchCard extends StatelessWidget {
 }
 
 class _BranchFormDialog extends StatefulWidget {
-  const _BranchFormDialog({
-    this.branch,
-    required this.organizations,
-  });
+  const _BranchFormDialog({this.branch, required this.organizations});
 
   final BranchObject? branch;
   final List<OrganizationObject> organizations;
@@ -311,8 +301,9 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
               children: [
                 Text(
                   isEditing ? 'Edit Branch' : 'New Branch',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 Text(
                   isEditing
@@ -416,8 +407,7 @@ class _BranchFormDialogState extends State<_BranchFormDialog> {
                 ),
                 FormFieldCard(
                   label: 'State',
-                  description:
-                      'The operational status of this branch.',
+                  description: 'The operational status of this branch.',
                   isRequired: true,
                   child: DropdownButtonFormField<STATE>(
                     initialValue: _selectedState,

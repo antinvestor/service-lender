@@ -14,9 +14,7 @@ Future<List<TransferOrderObject>> transferOrderList(
   int? orderType,
 }) async {
   final client = ref.watch(operationsServiceClientProvider);
-  final request = TransferOrderSearchRequest(
-    cursor: PageCursor(limit: 100),
-  );
+  final request = TransferOrderSearchRequest(cursor: PageCursor(limit: 100));
   if (query.isNotEmpty) {
     request.query = query;
   }

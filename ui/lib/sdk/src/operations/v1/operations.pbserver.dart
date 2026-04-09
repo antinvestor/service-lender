@@ -21,26 +21,38 @@ import 'operations.pbjson.dart';
 export 'operations.pb.dart';
 
 abstract class OperationsServiceBase extends $pb.GeneratedService {
-  $async.Future<$13.TransferOrderExecuteResponse> transferOrderExecute($pb.ServerContext ctx, $13.TransferOrderExecuteRequest request);
-  $async.Future<$13.TransferOrderSearchResponse> transferOrderSearch($pb.ServerContext ctx, $13.TransferOrderSearchRequest request);
+  $async.Future<$13.TransferOrderExecuteResponse> transferOrderExecute(
+      $pb.ServerContext ctx, $13.TransferOrderExecuteRequest request);
+  $async.Future<$13.TransferOrderSearchResponse> transferOrderSearch(
+      $pb.ServerContext ctx, $13.TransferOrderSearchRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
-      case 'TransferOrderExecute': return $13.TransferOrderExecuteRequest();
-      case 'TransferOrderSearch': return $13.TransferOrderSearchRequest();
-      default: throw $core.ArgumentError('Unknown method: $methodName');
+      case 'TransferOrderExecute':
+        return $13.TransferOrderExecuteRequest();
+      case 'TransferOrderSearch':
+        return $13.TransferOrderSearchRequest();
+      default:
+        throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
 
-  $async.Future<$pb.GeneratedMessage> handleCall($pb.ServerContext ctx, $core.String methodName, $pb.GeneratedMessage request) {
+  $async.Future<$pb.GeneratedMessage> handleCall($pb.ServerContext ctx,
+      $core.String methodName, $pb.GeneratedMessage request) {
     switch (methodName) {
-      case 'TransferOrderExecute': return this.transferOrderExecute(ctx, request as $13.TransferOrderExecuteRequest);
-      case 'TransferOrderSearch': return this.transferOrderSearch(ctx, request as $13.TransferOrderSearchRequest);
-      default: throw $core.ArgumentError('Unknown method: $methodName');
+      case 'TransferOrderExecute':
+        return this.transferOrderExecute(
+            ctx, request as $13.TransferOrderExecuteRequest);
+      case 'TransferOrderSearch':
+        return this.transferOrderSearch(
+            ctx, request as $13.TransferOrderSearchRequest);
+      default:
+        throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
 
-  $core.Map<$core.String, $core.dynamic> get $json => OperationsServiceBase$json;
-  $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> get $messageJson => OperationsServiceBase$messageJson;
+  $core.Map<$core.String, $core.dynamic> get $json =>
+      OperationsServiceBase$json;
+  $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
+      get $messageJson => OperationsServiceBase$messageJson;
 }
-

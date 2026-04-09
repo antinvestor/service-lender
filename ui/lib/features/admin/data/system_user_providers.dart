@@ -37,8 +37,9 @@ class SystemUserNotifier extends _$SystemUserNotifier {
 
   Future<SystemUserObject> save(SystemUserObject user) async {
     final client = ref.read(identityServiceClientProvider);
-    final response =
-        await client.systemUserSave(SystemUserSaveRequest(data: user));
+    final response = await client.systemUserSave(
+      SystemUserSaveRequest(data: user),
+    );
 
     // Delay the list refresh slightly to allow the async event handler
     // to commit to the database before we query.

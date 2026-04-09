@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:lender_ui/core/widgets/dynamic_form.dart';
-import 'package:lender_ui/sdk/src/google/protobuf/struct.pb.dart'
-    as struct_pb;
+import 'package:lender_ui/sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 
 void main() {
   group('parseKycSchema', () {
@@ -18,36 +17,31 @@ void main() {
     test('parses schema from "schema" key', () {
       final schema = struct_pb.Struct();
       schema.fields['schema'] = struct_pb.Value(
-        listValue: struct_pb.ListValue(values: [
-          struct_pb.Value(
-            structValue: struct_pb.Struct()
-              ..fields['key'] =
-                  struct_pb.Value(stringValue: 'monthly_income')
-              ..fields['label'] =
-                  struct_pb.Value(stringValue: 'Monthly Income')
-              ..fields['type'] =
-                  struct_pb.Value(stringValue: 'number')
-              ..fields['required'] =
-                  struct_pb.Value(boolValue: true)
-              ..fields['group'] =
-                  struct_pb.Value(stringValue: 'financial')
-              ..fields['hint'] = struct_pb.Value(
-                  stringValue: 'Gross monthly income in KES'),
-          ),
-          struct_pb.Value(
-            structValue: struct_pb.Struct()
-              ..fields['key'] =
-                  struct_pb.Value(stringValue: 'full_name')
-              ..fields['label'] =
-                  struct_pb.Value(stringValue: 'Full Name')
-              ..fields['type'] =
-                  struct_pb.Value(stringValue: 'text')
-              ..fields['required'] =
-                  struct_pb.Value(boolValue: true)
-              ..fields['group'] =
-                  struct_pb.Value(stringValue: 'personal'),
-          ),
-        ]),
+        listValue: struct_pb.ListValue(
+          values: [
+            struct_pb.Value(
+              structValue: struct_pb.Struct()
+                ..fields['key'] = struct_pb.Value(stringValue: 'monthly_income')
+                ..fields['label'] = struct_pb.Value(
+                  stringValue: 'Monthly Income',
+                )
+                ..fields['type'] = struct_pb.Value(stringValue: 'number')
+                ..fields['required'] = struct_pb.Value(boolValue: true)
+                ..fields['group'] = struct_pb.Value(stringValue: 'financial')
+                ..fields['hint'] = struct_pb.Value(
+                  stringValue: 'Gross monthly income in KES',
+                ),
+            ),
+            struct_pb.Value(
+              structValue: struct_pb.Struct()
+                ..fields['key'] = struct_pb.Value(stringValue: 'full_name')
+                ..fields['label'] = struct_pb.Value(stringValue: 'Full Name')
+                ..fields['type'] = struct_pb.Value(stringValue: 'text')
+                ..fields['required'] = struct_pb.Value(boolValue: true)
+                ..fields['group'] = struct_pb.Value(stringValue: 'personal'),
+            ),
+          ],
+        ),
       );
 
       final fields = parseKycSchema(schema);
@@ -65,24 +59,25 @@ void main() {
     test('parses select field with options', () {
       final schema = struct_pb.Struct();
       schema.fields['schema'] = struct_pb.Value(
-        listValue: struct_pb.ListValue(values: [
-          struct_pb.Value(
-            structValue: struct_pb.Struct()
-              ..fields['key'] =
-                  struct_pb.Value(stringValue: 'gender')
-              ..fields['label'] =
-                  struct_pb.Value(stringValue: 'Gender')
-              ..fields['type'] =
-                  struct_pb.Value(stringValue: 'select')
-              ..fields['options'] = struct_pb.Value(
-                listValue: struct_pb.ListValue(values: [
-                  struct_pb.Value(stringValue: 'Male'),
-                  struct_pb.Value(stringValue: 'Female'),
-                  struct_pb.Value(stringValue: 'Other'),
-                ]),
-              ),
-          ),
-        ]),
+        listValue: struct_pb.ListValue(
+          values: [
+            struct_pb.Value(
+              structValue: struct_pb.Struct()
+                ..fields['key'] = struct_pb.Value(stringValue: 'gender')
+                ..fields['label'] = struct_pb.Value(stringValue: 'Gender')
+                ..fields['type'] = struct_pb.Value(stringValue: 'select')
+                ..fields['options'] = struct_pb.Value(
+                  listValue: struct_pb.ListValue(
+                    values: [
+                      struct_pb.Value(stringValue: 'Male'),
+                      struct_pb.Value(stringValue: 'Female'),
+                      struct_pb.Value(stringValue: 'Other'),
+                    ],
+                  ),
+                ),
+            ),
+          ],
+        ),
       );
 
       final fields = parseKycSchema(schema);
@@ -94,15 +89,15 @@ void main() {
     test('defaults type to text when missing', () {
       final schema = struct_pb.Struct();
       schema.fields['schema'] = struct_pb.Value(
-        listValue: struct_pb.ListValue(values: [
-          struct_pb.Value(
-            structValue: struct_pb.Struct()
-              ..fields['key'] =
-                  struct_pb.Value(stringValue: 'notes')
-              ..fields['label'] =
-                  struct_pb.Value(stringValue: 'Notes'),
-          ),
-        ]),
+        listValue: struct_pb.ListValue(
+          values: [
+            struct_pb.Value(
+              structValue: struct_pb.Struct()
+                ..fields['key'] = struct_pb.Value(stringValue: 'notes')
+                ..fields['label'] = struct_pb.Value(stringValue: 'Notes'),
+            ),
+          ],
+        ),
       );
 
       final fields = parseKycSchema(schema);
@@ -114,14 +109,23 @@ void main() {
     test('groups by group value', () {
       final fields = [
         const DynamicFieldDef(
-            key: 'name', label: 'Name', type: 'text', group: 'personal'),
+          key: 'name',
+          label: 'Name',
+          type: 'text',
+          group: 'personal',
+        ),
         const DynamicFieldDef(
-            key: 'income',
-            label: 'Income',
-            type: 'number',
-            group: 'financial'),
+          key: 'income',
+          label: 'Income',
+          type: 'number',
+          group: 'financial',
+        ),
         const DynamicFieldDef(
-            key: 'dob', label: 'DOB', type: 'date', group: 'personal'),
+          key: 'dob',
+          label: 'DOB',
+          type: 'date',
+          group: 'personal',
+        ),
       ];
 
       final groups = groupFields(fields);
@@ -132,8 +136,7 @@ void main() {
 
     test('empty group goes to General', () {
       final fields = [
-        const DynamicFieldDef(
-            key: 'notes', label: 'Notes', type: 'text'),
+        const DynamicFieldDef(key: 'notes', label: 'Notes', type: 'text'),
       ];
 
       final groups = groupFields(fields);
@@ -193,19 +196,13 @@ void main() {
           type: 'text',
           required: true,
         ),
-        DynamicFieldDef(
-          key: 'email',
-          label: 'Email',
-          type: 'text',
-        ),
+        DynamicFieldDef(key: 'email', label: 'Email', type: 'text'),
       ];
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: DynamicForm(fields: fields),
-            ),
+            body: SingleChildScrollView(child: DynamicForm(fields: fields)),
           ),
         ),
       );
@@ -228,9 +225,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: DynamicForm(fields: fields),
-            ),
+            body: SingleChildScrollView(child: DynamicForm(fields: fields)),
           ),
         ),
       );
@@ -241,19 +236,13 @@ void main() {
 
     testWidgets('renders boolean field as switch', (tester) async {
       const fields = [
-        DynamicFieldDef(
-          key: 'consent',
-          label: 'I agree',
-          type: 'boolean',
-        ),
+        DynamicFieldDef(key: 'consent', label: 'I agree', type: 'boolean'),
       ];
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: DynamicForm(fields: fields),
-            ),
+            body: SingleChildScrollView(child: DynamicForm(fields: fields)),
           ),
         ),
       );
@@ -265,11 +254,7 @@ void main() {
 
     testWidgets('pre-fills initial values', (tester) async {
       const fields = [
-        DynamicFieldDef(
-          key: 'name',
-          label: 'Name',
-          type: 'text',
-        ),
+        DynamicFieldDef(key: 'name', label: 'Name', type: 'text'),
       ];
 
       await tester.pumpWidget(
@@ -338,9 +323,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: DynamicForm(fields: fields),
-            ),
+            body: SingleChildScrollView(child: DynamicForm(fields: fields)),
           ),
         ),
       );

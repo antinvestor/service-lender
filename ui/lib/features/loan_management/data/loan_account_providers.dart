@@ -41,9 +41,7 @@ Future<LoanAccountObject> loanAccountDetail(
   required String id,
 }) async {
   final client = ref.watch(loanManagementServiceClientProvider);
-  final response = await client.loanAccountGet(
-    LoanAccountGetRequest(id: id),
-  );
+  final response = await client.loanAccountGet(LoanAccountGetRequest(id: id));
   return response.data;
 }
 
@@ -64,8 +62,7 @@ class LoanAccountNotifier extends _$LoanAccountNotifier {
   @override
   FutureOr<void> build() {}
 
-  Future<LoanAccountObject> createFromApplication(
-      String applicationId) async {
+  Future<LoanAccountObject> createFromApplication(String applicationId) async {
     final client = ref.read(loanManagementServiceClientProvider);
     final response = await client.loanAccountCreate(
       LoanAccountCreateRequest(applicationId: applicationId),

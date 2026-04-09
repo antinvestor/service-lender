@@ -67,16 +67,25 @@ class EntityChip extends ConsumerWidget {
   }
 
   String _resolveName(WidgetRef ref) {
-    final fallback =
-        id.length > 12 ? '${id.substring(0, 12)}...' : id;
+    final fallback = id.length > 12 ? '${id.substring(0, 12)}...' : id;
 
     return switch (type) {
-      EntityType.client => ref
-          .watch(clientNameProvider(id))
-          .when(data: (n) => n, loading: () => fallback, error: (_, _) => fallback),
-      EntityType.product => ref
-          .watch(productNameProvider(id))
-          .when(data: (n) => n, loading: () => fallback, error: (_, _) => fallback),
+      EntityType.client =>
+        ref
+            .watch(clientNameProvider(id))
+            .when(
+              data: (n) => n,
+              loading: () => fallback,
+              error: (_, _) => fallback,
+            ),
+      EntityType.product =>
+        ref
+            .watch(productNameProvider(id))
+            .when(
+              data: (n) => n,
+              loading: () => fallback,
+              error: (_, _) => fallback,
+            ),
       _ => fallback,
     };
   }

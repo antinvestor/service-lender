@@ -186,9 +186,9 @@ class _SystemUsersScreenState extends ConsumerState<SystemUsersScreen> {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save system user: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save system user: $e')));
     }
   }
 }
@@ -209,9 +209,7 @@ class _UserCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
@@ -304,10 +302,8 @@ class _BranchFilterDropdown extends ConsumerWidget {
     final branchesAsync = ref.watch(branchListProvider('', ''));
 
     return branchesAsync.when(
-      loading: () => const SizedBox(
-        width: 120,
-        child: LinearProgressIndicator(),
-      ),
+      loading: () =>
+          const SizedBox(width: 120, child: LinearProgressIndicator()),
       error: (_, _) => const SizedBox.shrink(),
       data: (branches) => DropdownButton<String>(
         value: selectedBranchId,
@@ -416,7 +412,8 @@ class _SystemUserDialogState extends ConsumerState<_SystemUserDialog> {
                     loading: () => const LinearProgressIndicator(),
                     error: (e, _) => Text('Failed to load branches: $e'),
                     data: (branches) => DropdownButtonFormField<String>(
-                      initialValue: _selectedBranchId.isNotEmpty &&
+                      initialValue:
+                          _selectedBranchId.isNotEmpty &&
                               branches.any((b) => b.id == _selectedBranchId)
                           ? _selectedBranchId
                           : null,
@@ -428,9 +425,7 @@ class _SystemUserDialogState extends ConsumerState<_SystemUserDialog> {
                           DropdownMenuItem(
                             value: branch.id,
                             child: Text(
-                              branch.name.isNotEmpty
-                                  ? branch.name
-                                  : branch.id,
+                              branch.name.isNotEmpty ? branch.name : branch.id,
                             ),
                           ),
                       ],

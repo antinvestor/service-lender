@@ -1,9 +1,9 @@
 name: antinvestor_api_operations
 description: Dart client library for Ant Investor Operations Service
 version: 0.1.0
-repository: https://github.com/antinvestor/service-lender
-homepage: https://github.com/antinvestor/service-lender
-issue_tracker: https://github.com/antinvestor/service-lender/issues
+repository: https://github.com/antinvestor/service-fintech
+homepage: https://github.com/antinvestor/service-fintech
+issue_tracker: https://github.com/antinvestor/service-fintech/issues
 
 environment:
   sdk: ^3.3.0

@@ -23,7 +23,7 @@ class STATE extends $pb.ProtobufEnum {
   static const STATE INACTIVE = STATE._(3, _omitEnumNames ? '' : 'INACTIVE');
   static const STATE DELETED = STATE._(4, _omitEnumNames ? '' : 'DELETED');
 
-  static const $core.List<STATE> values = <STATE> [
+  static const $core.List<STATE> values = <STATE>[
     CREATED,
     CHECKED,
     ACTIVE,
@@ -31,7 +31,8 @@ class STATE extends $pb.ProtobufEnum {
     DELETED,
   ];
 
-  static final $core.Map<$core.int, STATE> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, STATE> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static STATE? valueOf($core.int value) => _byValue[value];
 
   const STATE._($core.int v, $core.String n) : super(v, n);
@@ -43,11 +44,13 @@ class STATE extends $pb.ProtobufEnum {
 class STATUS extends $pb.ProtobufEnum {
   static const STATUS UNKNOWN = STATUS._(0, _omitEnumNames ? '' : 'UNKNOWN');
   static const STATUS QUEUED = STATUS._(1, _omitEnumNames ? '' : 'QUEUED');
-  static const STATUS IN_PROCESS = STATUS._(2, _omitEnumNames ? '' : 'IN_PROCESS');
+  static const STATUS IN_PROCESS =
+      STATUS._(2, _omitEnumNames ? '' : 'IN_PROCESS');
   static const STATUS FAILED = STATUS._(3, _omitEnumNames ? '' : 'FAILED');
-  static const STATUS SUCCESSFUL = STATUS._(4, _omitEnumNames ? '' : 'SUCCESSFUL');
+  static const STATUS SUCCESSFUL =
+      STATUS._(4, _omitEnumNames ? '' : 'SUCCESSFUL');
 
-  static const $core.List<STATUS> values = <STATUS> [
+  static const $core.List<STATUS> values = <STATUS>[
     UNKNOWN,
     QUEUED,
     IN_PROCESS,
@@ -55,11 +58,11 @@ class STATUS extends $pb.ProtobufEnum {
     SUCCESSFUL,
   ];
 
-  static final $core.Map<$core.int, STATUS> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, STATUS> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static STATUS? valueOf($core.int value) => _byValue[value];
 
   const STATUS._($core.int v, $core.String n) : super(v, n);
 }
-
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

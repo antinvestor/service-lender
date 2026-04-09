@@ -18,9 +18,7 @@ class _Permission {
 
   @override
   bool operator ==(Object other) =>
-      other is _Permission &&
-      other.entity == entity &&
-      other.action == action;
+      other is _Permission && other.entity == entity && other.action == action;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -103,7 +101,10 @@ const _entityColumns = <(_Entity, List<_Action>)>[
   (_Entity.organization, [_Action.manage, _Action.view]),
   (_Entity.branch, [_Action.manage, _Action.view]),
   (_Entity.agent, [_Action.create, _Action.manage, _Action.view]),
-  (_Entity.client, [_Action.create, _Action.manage, _Action.view, _Action.reassign]),
+  (
+    _Entity.client,
+    [_Action.create, _Action.manage, _Action.view, _Action.reassign],
+  ),
   (_Entity.investor, [_Action.create, _Action.manage, _Action.view]),
   (_Entity.systemUser, [_Action.manage, _Action.view]),
 ];
@@ -113,20 +114,20 @@ const _entityColumns = <(_Entity, List<_Action>)>[
 // ─────────────────────────────────────────────────────────────────────────────
 
 String _entityLabel(_Entity e) => switch (e) {
-      _Entity.organization => 'Organization',
-      _Entity.branch => 'Branch',
-      _Entity.agent => 'Agent',
-      _Entity.client => 'Client',
-      _Entity.investor => 'Investor',
-      _Entity.systemUser => 'System User',
-    };
+  _Entity.organization => 'Organization',
+  _Entity.branch => 'Branch',
+  _Entity.agent => 'Agent',
+  _Entity.client => 'Client',
+  _Entity.investor => 'Investor',
+  _Entity.systemUser => 'System User',
+};
 
 String _actionLabel(_Action a) => switch (a) {
-      _Action.create => 'Create',
-      _Action.manage => 'Manage',
-      _Action.view => 'View',
-      _Action.reassign => 'Reassign',
-    };
+  _Action.create => 'Create',
+  _Action.manage => 'Manage',
+  _Action.view => 'View',
+  _Action.reassign => 'Reassign',
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Screen
@@ -347,8 +348,9 @@ class _PermissionTable extends StatelessWidget {
     ColorScheme colorScheme, {
     required bool isEven,
   }) {
-    final bgColor =
-        isEven ? Colors.transparent : colorScheme.surfaceContainerHighest.withAlpha(25);
+    final bgColor = isEven
+        ? Colors.transparent
+        : colorScheme.surfaceContainerHighest.withAlpha(25);
 
     final cells = <Widget>[
       Container(
@@ -372,11 +374,7 @@ class _PermissionTable extends StatelessWidget {
             color: bgColor,
             child: Center(
               child: hasPermission
-                  ? Icon(
-                      Icons.check,
-                      size: 18,
-                      color: colorScheme.primary,
-                    )
+                  ? Icon(Icons.check, size: 18, color: colorScheme.primary)
                   : Text(
                       '\u2014',
                       style: TextStyle(

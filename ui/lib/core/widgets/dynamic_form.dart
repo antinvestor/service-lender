@@ -50,8 +50,7 @@ List<DynamicFieldDef> parseKycSchema(struct_pb.Struct? schema) {
 
   // If the struct has a ListValue at any key, try that
   for (final entry in schema.fields.entries) {
-    if (entry.value.hasListValue() &&
-        entry.value.listValue.values.isNotEmpty) {
+    if (entry.value.hasListValue() && entry.value.listValue.values.isNotEmpty) {
       final first = entry.value.listValue.values.first;
       if (first.hasStructValue() &&
           first.structValue.fields.containsKey('key')) {
@@ -116,8 +115,7 @@ DynamicFieldDef _parseOneField(struct_pb.Struct s) {
 
 /// Groups field definitions by their `group` value.
 /// Empty-group fields are placed in "General".
-Map<String, List<DynamicFieldDef>> groupFields(
-    List<DynamicFieldDef> fields) {
+Map<String, List<DynamicFieldDef>> groupFields(List<DynamicFieldDef> fields) {
   final groups = <String, List<DynamicFieldDef>>{};
   for (final f in fields) {
     final key = f.group.isNotEmpty ? f.group : 'General';
@@ -240,8 +238,9 @@ class DynamicFormState extends State<DynamicForm> {
       textInputAction: TextInputAction.next,
       onChanged: (v) => _onFieldChanged(field.key, v),
       validator: field.required
-          ? (v) =>
-              (v == null || v.trim().isEmpty) ? '${field.label} is required' : null
+          ? (v) => (v == null || v.trim().isEmpty)
+                ? '${field.label} is required'
+                : null
           : null,
     );
   }
@@ -255,12 +254,9 @@ class DynamicFormState extends State<DynamicForm> {
       ),
       readOnly: widget.readOnly,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))],
       textInputAction: TextInputAction.next,
-      onChanged: (v) =>
-          _onFieldChanged(field.key, double.tryParse(v) ?? v),
+      onChanged: (v) => _onFieldChanged(field.key, double.tryParse(v) ?? v),
       validator: field.required
           ? (v) {
               if (v == null || v.trim().isEmpty) {
@@ -321,15 +317,16 @@ class DynamicFormState extends State<DynamicForm> {
       readOnly: true,
       onTap: widget.readOnly ? null : () => _pickDate(field),
       validator: field.required
-          ? (v) =>
-              (v == null || v.trim().isEmpty) ? '${field.label} is required' : null
+          ? (v) => (v == null || v.trim().isEmpty)
+                ? '${field.label} is required'
+                : null
           : null,
     );
   }
 
   Future<void> _pickDate(DynamicFieldDef field) async {
-    final initial = DateTime.tryParse(
-            _textControllers[field.key]?.text ?? '') ??
+    final initial =
+        DateTime.tryParse(_textControllers[field.key]?.text ?? '') ??
         DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -362,7 +359,7 @@ class DynamicFormState extends State<DynamicForm> {
           : (v) => setState(() => _onFieldChanged(field.key, v)),
       validator: field.required
           ? (v) =>
-              (v == null || v.isEmpty) ? '${field.label} is required' : null
+                (v == null || v.isEmpty) ? '${field.label} is required' : null
           : null,
     );
   }
@@ -371,8 +368,7 @@ class DynamicFormState extends State<DynamicForm> {
     final current = _values[field.key] == true;
     return SwitchListTile(
       title: Text(field.label),
-      subtitle:
-          field.hint.isNotEmpty ? Text(field.hint) : null,
+      subtitle: field.hint.isNotEmpty ? Text(field.hint) : null,
       value: current,
       onChanged: widget.readOnly
           ? null
@@ -385,9 +381,9 @@ class DynamicFormState extends State<DynamicForm> {
     return group
         .replaceAll('_', ' ')
         .split(' ')
-        .map((w) => w.isNotEmpty
-            ? '${w[0].toUpperCase()}${w.substring(1)}'
-            : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
   }
 }
@@ -466,9 +462,7 @@ struct_pb.Value _nativeToValue(dynamic v) {
   } else if (v is bool) {
     val.boolValue = v;
   } else if (v is List) {
-    val.listValue = struct_pb.ListValue(
-      values: v.map(_nativeToValue).toList(),
-    );
+    val.listValue = struct_pb.ListValue(values: v.map(_nativeToValue).toList());
   } else if (v is Map<String, dynamic>) {
     val.structValue = mapToStruct(v);
   } else {

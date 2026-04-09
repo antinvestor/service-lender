@@ -52,8 +52,7 @@ class ApplicationDetail extends _$ApplicationDetail {
   @override
   Future<ApplicationObject> build(String id) async {
     final client = ref.watch(originationServiceClientProvider);
-    final response =
-        await client.applicationGet(ApplicationGetRequest(id: id));
+    final response = await client.applicationGet(ApplicationGetRequest(id: id));
     return response.data;
   }
 }
@@ -67,8 +66,9 @@ class ApplicationNotifier extends _$ApplicationNotifier {
 
   Future<ApplicationObject> save(ApplicationObject app) async {
     final client = ref.read(originationServiceClientProvider);
-    final response =
-        await client.applicationSave(ApplicationSaveRequest(data: app));
+    final response = await client.applicationSave(
+      ApplicationSaveRequest(data: app),
+    );
 
     // Delay the list refresh slightly to allow the async event handler
     // to commit to the database before we query.
@@ -82,8 +82,9 @@ class ApplicationNotifier extends _$ApplicationNotifier {
 
   Future<ApplicationObject> submit(String id) async {
     final client = ref.read(originationServiceClientProvider);
-    final response =
-        await client.applicationSubmit(ApplicationSubmitRequest(id: id));
+    final response = await client.applicationSubmit(
+      ApplicationSubmitRequest(id: id),
+    );
 
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(applicationListProvider);
@@ -95,8 +96,9 @@ class ApplicationNotifier extends _$ApplicationNotifier {
 
   Future<ApplicationObject> cancel(String id, String reason) async {
     final client = ref.read(originationServiceClientProvider);
-    final response = await client
-        .applicationCancel(ApplicationCancelRequest(id: id, reason: reason));
+    final response = await client.applicationCancel(
+      ApplicationCancelRequest(id: id, reason: reason),
+    );
 
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(applicationListProvider);
@@ -108,8 +110,9 @@ class ApplicationNotifier extends _$ApplicationNotifier {
 
   Future<ApplicationObject> acceptOffer(String id) async {
     final client = ref.read(originationServiceClientProvider);
-    final response = await client
-        .applicationAcceptOffer(ApplicationAcceptOfferRequest(id: id));
+    final response = await client.applicationAcceptOffer(
+      ApplicationAcceptOfferRequest(id: id),
+    );
 
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(applicationListProvider);
@@ -122,7 +125,8 @@ class ApplicationNotifier extends _$ApplicationNotifier {
   Future<ApplicationObject> declineOffer(String id, String reason) async {
     final client = ref.read(originationServiceClientProvider);
     final response = await client.applicationDeclineOffer(
-        ApplicationDeclineOfferRequest(id: id, reason: reason));
+      ApplicationDeclineOfferRequest(id: id, reason: reason),
+    );
 
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(applicationListProvider);

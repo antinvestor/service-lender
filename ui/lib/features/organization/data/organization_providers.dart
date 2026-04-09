@@ -12,10 +12,7 @@ class OrganizationList extends _$OrganizationList {
   @override
   Future<List<OrganizationObject>> build(String query) async {
     final client = ref.watch(identityServiceClientProvider);
-    final request = SearchRequest(
-      query: query,
-      cursor: PageCursor(limit: 50),
-    );
+    final request = SearchRequest(query: query, cursor: PageCursor(limit: 50));
 
     return collectStream(
       client.organizationSearch(request),
@@ -33,8 +30,9 @@ class OrganizationNotifier extends _$OrganizationNotifier {
 
   Future<OrganizationObject> save(OrganizationObject organization) async {
     final client = ref.read(identityServiceClientProvider);
-    final response =
-        await client.organizationSave(OrganizationSaveRequest(data: organization));
+    final response = await client.organizationSave(
+      OrganizationSaveRequest(data: organization),
+    );
 
     // Delay the list refresh slightly to allow the async event handler
     // to commit to the database before we query.

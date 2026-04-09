@@ -48,13 +48,19 @@ class AuditTrailEntry extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // What + When
-                  Text(action,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    action,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(timestamp,
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  Text(
+                    timestamp,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
 
                   // Who
                   if (performedBy != null && performedBy!.isNotEmpty) ...[
@@ -71,9 +77,14 @@ class AuditTrailEntry extends StatelessWidget {
                   // Coordinates
                   if (coordinates != null && coordinates!.isNotEmpty) ...[
                     const SizedBox(height: 2),
-                    _iconRow(Icons.gps_fixed, coordinates!, theme,
-                        color: theme.colorScheme.onSurfaceVariant
-                            .withValues(alpha: 0.6)),
+                    _iconRow(
+                      Icons.gps_fixed,
+                      coordinates!,
+                      theme,
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.6,
+                      ),
+                    ),
                   ],
 
                   // Why
@@ -82,13 +93,18 @@ class AuditTrailEntry extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.notes_outlined,
-                            size: 14,
-                            color: theme.colorScheme.onSurfaceVariant),
+                        Icon(
+                          Icons.notes_outlined,
+                          size: 14,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
-                            child: Text('Reason: $reason',
-                                style: theme.textTheme.bodySmall)),
+                          child: Text(
+                            'Reason: $reason',
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -100,13 +116,17 @@ class AuditTrailEntry extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 4,
                       children: details!.entries
-                          .map((e) => Chip(
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                visualDensity: VisualDensity.compact,
-                                label: Text('${e.key}: ${e.value}',
-                                    style: theme.textTheme.labelSmall),
-                              ))
+                          .map(
+                            (e) => Chip(
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                              label: Text(
+                                '${e.key}: ${e.value}',
+                                style: theme.textTheme.labelSmall,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ],
@@ -119,16 +139,26 @@ class AuditTrailEntry extends StatelessWidget {
     );
   }
 
-  Widget _iconRow(IconData iconData, String text, ThemeData theme,
-      {Color? color}) {
+  Widget _iconRow(
+    IconData iconData,
+    String text,
+    ThemeData theme, {
+    Color? color,
+  }) {
     return Row(
       children: [
-        Icon(iconData,
-            size: 14, color: color ?? theme.colorScheme.onSurfaceVariant),
+        Icon(
+          iconData,
+          size: 14,
+          color: color ?? theme.colorScheme.onSurfaceVariant,
+        ),
         const SizedBox(width: 4),
         Expanded(
-            child: Text(text,
-                style: theme.textTheme.bodySmall?.copyWith(color: color))),
+          child: Text(
+            text,
+            style: theme.textTheme.bodySmall?.copyWith(color: color),
+          ),
+        ),
       ],
     );
   }
@@ -151,9 +181,12 @@ class AuditTrailList extends StatelessWidget {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('No activity recorded yet',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          child: Text(
+            'No activity recorded yet',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
       );
     }

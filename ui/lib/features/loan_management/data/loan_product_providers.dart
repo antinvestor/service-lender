@@ -25,10 +25,7 @@ class LoanProductList extends _$LoanProductList {
 }
 
 @riverpod
-Future<LoanProductObject> loanProductDetail(
-  Ref ref,
-  String productId,
-) async {
+Future<LoanProductObject> loanProductDetail(Ref ref, String productId) async {
   final client = ref.watch(originationServiceClientProvider);
   final response = await client.loanProductGet(
     LoanProductGetRequest(id: productId),
@@ -45,8 +42,9 @@ class LoanProductNotifier extends _$LoanProductNotifier {
 
   Future<LoanProductObject> save(LoanProductObject product) async {
     final client = ref.read(originationServiceClientProvider);
-    final response =
-        await client.loanProductSave(LoanProductSaveRequest(data: product));
+    final response = await client.loanProductSave(
+      LoanProductSaveRequest(data: product),
+    );
 
     // Delay the list refresh slightly to allow the async event handler
     // to commit to the database before we query.

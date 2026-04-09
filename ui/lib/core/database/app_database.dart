@@ -31,23 +31,20 @@ class LocalClients extends Table {
   IntColumn get state => integer().withDefault(const Constant(0))();
 
   /// JSON-encoded properties (google.protobuf.Struct equivalent).
-  TextColumn get propertiesJson =>
-      text().withDefault(const Constant('{}'))();
+  TextColumn get propertiesJson => text().withDefault(const Constant('{}'))();
 
   /// Sync status: synced, pending, or failed.
-  IntColumn get syncStatus => intEnum<SyncStatus>()
-      .withDefault(Constant(SyncStatus.pending.index))();
+  IntColumn get syncStatus =>
+      intEnum<SyncStatus>().withDefault(Constant(SyncStatus.pending.index))();
 
   /// Last sync error message (null if no error).
   TextColumn get syncError => text().nullable()();
 
   /// When this record was created locally.
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   /// When this record was last modified locally.
-  DateTimeColumn get updatedAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 @DriftDatabase(tables: [LocalClients])
@@ -88,18 +85,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Get all clients, optionally filtered by agent and/or search query.
-  Future<List<LocalClient>> getClients({
-    String? agentId,
-    String? query,
-  }) {
+  Future<List<LocalClient>> getClients({String? agentId, String? query}) {
     final q = select(localClients);
     if (agentId != null && agentId.isNotEmpty) {
       q.where((c) => c.agentId.equals(agentId));
     }
     if (query != null && query.isNotEmpty) {
-      q.where(
-        (c) => c.name.like('%$query%') | c.profileId.like('%$query%'),
-      );
+      q.where((c) => c.name.like('%$query%') | c.profileId.like('%$query%'));
     }
     q.orderBy([(c) => OrderingTerm.desc(c.updatedAt)]);
     return q.get();
@@ -107,22 +99,22 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get a single client by backend ID.
   Future<LocalClient?> getClientById(String id) {
-    return (select(localClients)..where((c) => c.id.equals(id)))
-        .getSingleOrNull();
+    return (select(
+      localClients,
+    )..where((c) => c.id.equals(id))).getSingleOrNull();
   }
 
   /// Get a single client by local row ID.
   Future<LocalClient?> getClientByRowId(int rowId) {
-    return (select(localClients)..where((c) => c.rowId.equals(rowId)))
-        .getSingleOrNull();
+    return (select(
+      localClients,
+    )..where((c) => c.rowId.equals(rowId))).getSingleOrNull();
   }
 
   /// Get all clients pending sync.
   Future<List<LocalClient>> getPendingSyncClients() {
     return (select(localClients)
-          ..where(
-            (c) => c.syncStatus.equalsValue(SyncStatus.pending),
-          )
+          ..where((c) => c.syncStatus.equalsValue(SyncStatus.pending))
           ..orderBy([(c) => OrderingTerm.asc(c.createdAt)]))
         .get();
   }

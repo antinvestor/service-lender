@@ -10,7 +10,7 @@ import "loans.connect.spec.dart" as specs;
 /// LoanManagementService manages active loans, disbursements, repayments,
 /// schedules, penalties, restructures, and reconciliation.
 /// All RPCs require authentication via Bearer token.
-extension type LoanManagementServiceClient (connect.Transport _transport) {
+extension type LoanManagementServiceClient(connect.Transport _transport) {
   /// LoanAccountCreate creates a new loan account from an approved application.
   Future<loansv1loans.LoanAccountCreateResponse> loanAccountCreate(
     loansv1loans.LoanAccountCreateRequest input, {

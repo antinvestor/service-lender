@@ -25,8 +25,7 @@ class ClientOnboardScreen extends ConsumerStatefulWidget {
       _ClientOnboardScreenState();
 }
 
-class _ClientOnboardScreenState
-    extends ConsumerState<ClientOnboardScreen> {
+class _ClientOnboardScreenState extends ConsumerState<ClientOnboardScreen> {
   int _currentStep = 0;
   bool _saving = false;
 
@@ -128,8 +127,7 @@ class _ClientOnboardScreenState
     final errorColor = Theme.of(context).colorScheme.error;
 
     try {
-      final profileId =
-          ref.read(currentProfileIdProvider).value ?? '';
+      final profileId = ref.read(currentProfileIdProvider).value ?? '';
       final propsMap = _buildProperties();
 
       final client = ClientObject(
@@ -143,8 +141,7 @@ class _ClientOnboardScreenState
       await ref.read(clientProvider.notifier).save(client);
 
       messenger.showSnackBar(
-        const SnackBar(
-            content: Text('Client onboarded successfully')),
+        const SnackBar(content: Text('Client onboarded successfully')),
       );
       if (mounted) context.go('/field/clients');
     } catch (e) {
@@ -171,22 +168,21 @@ class _ClientOnboardScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.store_outlined,
-                  size: 48,
-                  color: theme.colorScheme.onSurfaceVariant),
-              const SizedBox(height: 16),
-              Text(
-                'Select a branch first',
-                style: theme.textTheme.titleMedium,
+              Icon(
+                Icons.store_outlined,
+                size: 48,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
+              const SizedBox(height: 16),
+              Text('Select a branch first', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               Text(
                 'Use the sidebar to select an organization and branch '
                 'before onboarding a client.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -275,7 +271,8 @@ class _ClientOnboardScreenState
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
-                  color: theme.colorScheme.outlineVariant.withAlpha(60)),
+                color: theme.colorScheme.outlineVariant.withAlpha(60),
+              ),
             ),
           ),
           child: Row(
@@ -299,7 +296,9 @@ class _ClientOnboardScreenState
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Icon(Icons.check, size: 18),
                   label: const Text('Save & Onboard'),
@@ -363,8 +362,7 @@ class _ClientOnboardScreenState
               if (v == null || v.trim().isEmpty) {
                 return 'Phone number is required';
               }
-              final cleaned =
-                  v.trim().replaceAll(RegExp(r'[\s\-]'), '');
+              final cleaned = v.trim().replaceAll(RegExp(r'[\s\-]'), '');
               if (cleaned.length < 7 || cleaned.length > 15) {
                 return 'Enter a valid phone number';
               }
@@ -374,13 +372,13 @@ class _ClientOnboardScreenState
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             initialValue: _idType,
-            decoration:
-                const InputDecoration(labelText: 'ID Type *'),
+            decoration: const InputDecoration(labelText: 'ID Type *'),
             items: const [
               DropdownMenuItem(
-                  value: 'National ID', child: Text('National ID')),
-              DropdownMenuItem(
-                  value: 'Passport', child: Text('Passport')),
+                value: 'National ID',
+                child: Text('National ID'),
+              ),
+              DropdownMenuItem(value: 'Passport', child: Text('Passport')),
               DropdownMenuItem(value: 'Other', child: Text('Other')),
             ],
             onChanged: (v) => setState(() => _idType = v ?? _idType),
@@ -388,8 +386,7 @@ class _ClientOnboardScreenState
           const SizedBox(height: 16),
           TextFormField(
             controller: _idNumberCtrl,
-            decoration:
-                const InputDecoration(labelText: 'ID Number *'),
+            decoration: const InputDecoration(labelText: 'ID Number *'),
             textInputAction: TextInputAction.next,
             validator: (v) => (v == null || v.trim().isEmpty)
                 ? 'ID number is required'
@@ -407,8 +404,9 @@ class _ClientOnboardScreenState
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
-                initialDate:
-                    DateTime.now().subtract(const Duration(days: 365 * 25)),
+                initialDate: DateTime.now().subtract(
+                  const Duration(days: 365 * 25),
+                ),
                 firstDate: DateTime(1920),
                 lastDate: DateTime.now(),
               );
@@ -477,9 +475,7 @@ class _ClientOnboardScreenState
           const SizedBox(height: 16),
           TextFormField(
             controller: _landmarkCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Nearest Landmark',
-            ),
+            decoration: const InputDecoration(labelText: 'Nearest Landmark'),
             textInputAction: TextInputAction.done,
           ),
         ],
@@ -493,57 +489,52 @@ class _ClientOnboardScreenState
     final showEmployer = _employmentStatus == 'Employed';
     final showBusiness =
         _employmentStatus == 'Self-Employed' ||
-            _employmentStatus == 'Business Owner';
+        _employmentStatus == 'Business Owner';
 
     return Form(
       key: _step3Key,
       child: Column(
         children: [
           DropdownButtonFormField<String>(
-            initialValue:
-                _employmentStatus.isNotEmpty ? _employmentStatus : null,
-            decoration: const InputDecoration(
-              labelText: 'Employment Status',
-            ),
+            initialValue: _employmentStatus.isNotEmpty
+                ? _employmentStatus
+                : null,
+            decoration: const InputDecoration(labelText: 'Employment Status'),
             items: const [
+              DropdownMenuItem(value: 'Employed', child: Text('Employed')),
               DropdownMenuItem(
-                  value: 'Employed', child: Text('Employed')),
+                value: 'Self-Employed',
+                child: Text('Self-Employed'),
+              ),
               DropdownMenuItem(
-                  value: 'Self-Employed', child: Text('Self-Employed')),
-              DropdownMenuItem(
-                  value: 'Business Owner', child: Text('Business Owner')),
-              DropdownMenuItem(
-                  value: 'Unemployed', child: Text('Unemployed')),
-              DropdownMenuItem(
-                  value: 'Retired', child: Text('Retired')),
+                value: 'Business Owner',
+                child: Text('Business Owner'),
+              ),
+              DropdownMenuItem(value: 'Unemployed', child: Text('Unemployed')),
+              DropdownMenuItem(value: 'Retired', child: Text('Retired')),
             ],
-            onChanged: (v) =>
-                setState(() => _employmentStatus = v ?? ''),
+            onChanged: (v) => setState(() => _employmentStatus = v ?? ''),
           ),
           const SizedBox(height: 16),
           if (showEmployer)
             TextFormField(
               controller: _employerCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Employer Name'),
+              decoration: const InputDecoration(labelText: 'Employer Name'),
               textInputAction: TextInputAction.next,
             ),
           if (showBusiness)
             TextFormField(
               controller: _businessTypeCtrl,
-              decoration: const InputDecoration(
-                  labelText: 'Business Type'),
+              decoration: const InputDecoration(labelText: 'Business Type'),
               textInputAction: TextInputAction.next,
             ),
-          if (showEmployer || showBusiness)
-            const SizedBox(height: 16),
+          if (showEmployer || showBusiness) const SizedBox(height: 16),
           TextFormField(
             controller: _monthlyIncomeCtrl,
             decoration: const InputDecoration(
               labelText: 'Monthly Income Estimate',
             ),
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
             ],
@@ -552,22 +543,20 @@ class _ClientOnboardScreenState
           const SizedBox(height: 24),
           Text(
             'Next of Kin',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: _nextOfKinNameCtrl,
-            decoration:
-                const InputDecoration(labelText: 'Name'),
+            decoration: const InputDecoration(labelText: 'Name'),
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _nextOfKinPhoneCtrl,
-            decoration:
-                const InputDecoration(labelText: 'Phone Number'),
+            decoration: const InputDecoration(labelText: 'Phone Number'),
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.done,
           ),
@@ -590,9 +579,12 @@ class _ClientOnboardScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Basic Information',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Basic Information',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _ReviewRow('Name', _nameCtrl.text),
                 _ReviewRow('Phone', _phoneCtrl.text),
@@ -611,9 +603,12 @@ class _ClientOnboardScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Address',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Address',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _ReviewRow('Address', _addressCtrl.text),
                 _ReviewRow('County', _countyCtrl.text),
@@ -630,17 +625,19 @@ class _ClientOnboardScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Financial',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Financial',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _ReviewRow('Employment', _employmentStatus),
                 _ReviewRow('Employer', _employerCtrl.text),
                 _ReviewRow('Business Type', _businessTypeCtrl.text),
                 _ReviewRow('Monthly Income', _monthlyIncomeCtrl.text),
                 _ReviewRow('Next of Kin', _nextOfKinNameCtrl.text),
-                _ReviewRow(
-                    'Next of Kin Phone', _nextOfKinPhoneCtrl.text),
+                _ReviewRow('Next of Kin Phone', _nextOfKinPhoneCtrl.text),
               ],
             ),
           ),
@@ -655,13 +652,15 @@ class _ClientOnboardScreenState
               decoration: BoxDecoration(
                 color: Colors.orange.withAlpha(20),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color: Colors.orange.withAlpha(60)),
+                border: Border.all(color: Colors.orange.withAlpha(60)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline,
-                      color: Colors.orange, size: 20),
+                  const Icon(
+                    Icons.info_outline,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -710,9 +709,7 @@ class _ReviewRow extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
-            child: Text(value, style: theme.textTheme.bodyMedium),
-          ),
+          Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
         ],
       ),
     );

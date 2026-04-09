@@ -24,19 +24,16 @@ class ApplicationWorkflowStepper extends StatelessWidget {
       ApplicationStatus.APPLICATION_STATUS_SUBMITTED => 1,
       ApplicationStatus.APPLICATION_STATUS_KYC_PENDING ||
       ApplicationStatus.APPLICATION_STATUS_DOCUMENTS_PENDING ||
-      ApplicationStatus.APPLICATION_STATUS_VERIFICATION =>
-        2,
+      ApplicationStatus.APPLICATION_STATUS_VERIFICATION => 2,
       ApplicationStatus.APPLICATION_STATUS_UNDERWRITING => 3,
       ApplicationStatus.APPLICATION_STATUS_APPROVED ||
       ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED ||
-      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED =>
-        4,
+      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => 4,
       ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => 5,
       ApplicationStatus.APPLICATION_STATUS_REJECTED ||
       ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED ||
       ApplicationStatus.APPLICATION_STATUS_CANCELLED ||
-      ApplicationStatus.APPLICATION_STATUS_EXPIRED =>
-        -1, // Terminal/rejected
+      ApplicationStatus.APPLICATION_STATUS_EXPIRED => -1, // Terminal/rejected
       _ => 0,
     };
   }
@@ -56,8 +53,11 @@ class ApplicationWorkflowStepper extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.cancel_outlined,
-                color: theme.colorScheme.error, size: 20),
+            Icon(
+              Icons.cancel_outlined,
+              color: theme.colorScheme.error,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Text(
               _terminalLabel,
@@ -99,13 +99,12 @@ class ApplicationWorkflowStepper extends StatelessWidget {
   }
 
   String get _terminalLabel => switch (status) {
-        ApplicationStatus.APPLICATION_STATUS_REJECTED => 'Rejected',
-        ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED =>
-          'Offer Declined',
-        ApplicationStatus.APPLICATION_STATUS_CANCELLED => 'Cancelled',
-        ApplicationStatus.APPLICATION_STATUS_EXPIRED => 'Expired',
-        _ => 'Closed',
-      };
+    ApplicationStatus.APPLICATION_STATUS_REJECTED => 'Rejected',
+    ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => 'Offer Declined',
+    ApplicationStatus.APPLICATION_STATUS_CANCELLED => 'Cancelled',
+    ApplicationStatus.APPLICATION_STATUS_EXPIRED => 'Expired',
+    _ => 'Closed',
+  };
 }
 
 class _StepDot extends StatelessWidget {
@@ -137,25 +136,25 @@ class _StepDot extends StatelessWidget {
             color: isCompleted
                 ? color
                 : isCurrent
-                    ? color.withAlpha(30)
-                    : Colors.transparent,
+                ? color.withAlpha(30)
+                : Colors.transparent,
             border: Border.all(color: color, width: 2),
             shape: BoxShape.circle,
           ),
           child: isCompleted
               ? const Icon(Icons.check, size: 14, color: Colors.white)
               : isCurrent
-                  ? Center(
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    )
-                  : null,
+              ? Center(
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                )
+              : null,
         ),
         const SizedBox(height: 4),
         Text(

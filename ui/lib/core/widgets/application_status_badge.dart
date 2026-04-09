@@ -31,32 +31,52 @@ class ApplicationStatusBadge extends StatelessWidget {
   static (String, Color) _statusInfo(ApplicationStatus status) {
     return switch (status) {
       ApplicationStatus.APPLICATION_STATUS_DRAFT => ('Draft', Colors.grey),
-      ApplicationStatus.APPLICATION_STATUS_SUBMITTED =>
-        ('Submitted', Colors.blue),
-      ApplicationStatus.APPLICATION_STATUS_KYC_PENDING =>
-        ('KYC Pending', Colors.orange),
-      ApplicationStatus.APPLICATION_STATUS_DOCUMENTS_PENDING =>
-        ('Documents Pending', Colors.orange),
-      ApplicationStatus.APPLICATION_STATUS_VERIFICATION =>
-        ('Verification', Colors.purple),
-      ApplicationStatus.APPLICATION_STATUS_UNDERWRITING =>
-        ('Underwriting', Colors.indigo),
-      ApplicationStatus.APPLICATION_STATUS_APPROVED =>
-        ('Approved', Colors.teal),
-      ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED =>
-        ('Offer Generated', Colors.teal),
-      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED =>
-        ('Offer Accepted', Colors.green),
-      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED =>
-        ('Loan Created', Colors.green),
-      ApplicationStatus.APPLICATION_STATUS_REJECTED =>
-        ('Rejected', Colors.red),
-      ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED =>
-        ('Offer Declined', Colors.red),
-      ApplicationStatus.APPLICATION_STATUS_CANCELLED =>
-        ('Cancelled', Colors.red),
-      ApplicationStatus.APPLICATION_STATUS_EXPIRED =>
-        ('Expired', Colors.red),
+      ApplicationStatus.APPLICATION_STATUS_SUBMITTED => (
+        'Submitted',
+        Colors.blue,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_KYC_PENDING => (
+        'KYC Pending',
+        Colors.orange,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_DOCUMENTS_PENDING => (
+        'Documents Pending',
+        Colors.orange,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_VERIFICATION => (
+        'Verification',
+        Colors.purple,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_UNDERWRITING => (
+        'Underwriting',
+        Colors.indigo,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_APPROVED => (
+        'Approved',
+        Colors.teal,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED => (
+        'Offer Generated',
+        Colors.teal,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => (
+        'Offer Accepted',
+        Colors.green,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => (
+        'Loan Created',
+        Colors.green,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_REJECTED => ('Rejected', Colors.red),
+      ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => (
+        'Offer Declined',
+        Colors.red,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_CANCELLED => (
+        'Cancelled',
+        Colors.red,
+      ),
+      ApplicationStatus.APPLICATION_STATUS_EXPIRED => ('Expired', Colors.red),
       _ => ('Unknown', Colors.grey),
     };
   }

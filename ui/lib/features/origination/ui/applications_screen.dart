@@ -17,8 +17,7 @@ class ApplicationsScreen extends ConsumerStatefulWidget {
   const ApplicationsScreen({super.key});
 
   @override
-  ConsumerState<ApplicationsScreen> createState() =>
-      _ApplicationsScreenState();
+  ConsumerState<ApplicationsScreen> createState() => _ApplicationsScreenState();
 }
 
 class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
@@ -53,8 +52,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
       items: [
         const DropdownMenuItem(value: '', child: Text('All Statuses')),
         ...ApplicationStatus.values
-            .where((s) =>
-                s != ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED)
+            .where((s) => s != ApplicationStatus.APPLICATION_STATUS_UNSPECIFIED)
             .map(
               (s) => DropdownMenuItem(
                 value: s.name,
@@ -73,7 +71,8 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
   @override
   Widget build(BuildContext context) {
     final appsAsync = ref.watch(
-        applicationListProvider(_query, statusFilter: _statusFilter));
+      applicationListProvider(_query, statusFilter: _statusFilter),
+    );
     final canCreate = ref.watch(canCreateApplicationsProvider).value ?? false;
 
     final items = appsAsync.value ?? [];
@@ -85,7 +84,8 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
       hasMore: items.length >= kDefaultPagedResultLimit,
       error: appsAsync.hasError ? appsAsync.error.toString() : null,
       onRetry: () => ref.invalidate(
-          applicationListProvider(_query, statusFilter: _statusFilter)),
+        applicationListProvider(_query, statusFilter: _statusFilter),
+      ),
       searchHint: 'Search applications...',
       onSearchChanged: _onSearchChanged,
       actionLabel: 'New Application',
@@ -98,7 +98,6 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
       ),
     );
   }
-
 }
 
 class _ApplicationCard extends ConsumerWidget {
@@ -113,13 +112,9 @@ class _ApplicationCard extends ConsumerWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Icon(
@@ -224,7 +219,9 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
       branchId: _branchIdCtrl.text.trim(),
       organizationId: _organizationIdCtrl.text.trim(),
       requestedAmount: moneyFromString(
-          _amountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
+        _amountCtrl.text.trim(),
+        _currencyCtrl.text.trim().toUpperCase(),
+      ),
       requestedTermDays: int.tryParse(_termCtrl.text.trim()) ?? 0,
       purpose: _purposeCtrl.text.trim(),
       status: ApplicationStatus.APPLICATION_STATUS_DRAFT,
@@ -274,21 +271,25 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _agentIdCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Agent ID (optional)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Agent ID (optional)',
+                  ),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _branchIdCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Branch ID (optional)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Branch ID (optional)',
+                  ),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _organizationIdCtrl,
-                  decoration: const InputDecoration(labelText: 'Organization ID'),
+                  decoration: const InputDecoration(
+                    labelText: 'Organization ID',
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? 'Organization ID is required'
@@ -301,10 +302,12 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                       child: TextFormField(
                         controller: _amountCtrl,
                         decoration: const InputDecoration(
-                            labelText: 'Requested Amount'),
+                          labelText: 'Requested Amount',
+                        ),
                         textInputAction: TextInputAction.next,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         validator: validateAmount,
                       ),
                     ),
@@ -312,8 +315,9 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _currencyCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Currency Code'),
+                        decoration: const InputDecoration(
+                          labelText: 'Currency Code',
+                        ),
                         textInputAction: TextInputAction.next,
                         textCapitalization: TextCapitalization.characters,
                         validator: validateCurrency,
@@ -325,7 +329,8 @@ class _ApplicationCreateDialogState extends State<ApplicationCreateDialog> {
                 TextFormField(
                   controller: _termCtrl,
                   decoration: const InputDecoration(
-                      labelText: 'Requested Term (days)'),
+                    labelText: 'Requested Term (days)',
+                  ),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
                   validator: (v) {

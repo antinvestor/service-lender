@@ -7,13 +7,13 @@ import 'package:lender_ui/core/auth/role_provider.dart';
 
 void main() {
   group('RoleGuard', () {
-    testWidgets('shows child when user has required role',
-        (tester) async {
+    testWidgets('shows child when user has required role', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            currentUserRolesProvider
-                .overrideWith((_) async => {LenderRole.admin}),
+            currentUserRolesProvider.overrideWith(
+              (_) async => {LenderRole.admin},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -29,13 +29,13 @@ void main() {
       expect(find.text('Admin Content'), findsOneWidget);
     });
 
-    testWidgets('hides child when user lacks required role',
-        (tester) async {
+    testWidgets('hides child when user lacks required role', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            currentUserRolesProvider
-                .overrideWith((_) async => {LenderRole.agent}),
+            currentUserRolesProvider.overrideWith(
+              (_) async => {LenderRole.agent},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -55,8 +55,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            currentUserRolesProvider
-                .overrideWith((_) async => {LenderRole.viewer}),
+            currentUserRolesProvider.overrideWith(
+              (_) async => {LenderRole.viewer},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -74,20 +75,19 @@ void main() {
       expect(find.text('No Access'), findsOneWidget);
     });
 
-    testWidgets('shows child when requiredRoles is empty (any role)',
-        (tester) async {
+    testWidgets('shows child when requiredRoles is empty (any role)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            currentUserRolesProvider
-                .overrideWith((_) async => {LenderRole.viewer}),
+            currentUserRolesProvider.overrideWith(
+              (_) async => {LenderRole.viewer},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
-              body: RoleGuard(
-                requiredRoles: {},
-                child: Text('Public Content'),
-              ),
+              body: RoleGuard(requiredRoles: {}, child: Text('Public Content')),
             ),
           ),
         ),
@@ -101,7 +101,8 @@ void main() {
         ProviderScope(
           overrides: [
             currentUserRolesProvider.overrideWith(
-                (_) async => {LenderRole.agent, LenderRole.verifier}),
+              (_) async => {LenderRole.agent, LenderRole.verifier},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -119,13 +120,13 @@ void main() {
   });
 
   group('RouteRoleGuard', () {
-    testWidgets('shows Access Denied when user lacks role',
-        (tester) async {
+    testWidgets('shows Access Denied when user lacks role', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            currentUserRolesProvider
-                .overrideWith((_) async => {LenderRole.agent}),
+            currentUserRolesProvider.overrideWith(
+              (_) async => {LenderRole.agent},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -146,8 +147,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            currentUserRolesProvider
-                .overrideWith((_) async => {LenderRole.admin}),
+            currentUserRolesProvider.overrideWith(
+              (_) async => {LenderRole.admin},
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(

@@ -15,21 +15,24 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 /// AgentType defines whether an agent is an individual or an organization.
 class AgentType extends $pb.ProtobufEnum {
-  static const AgentType AGENT_TYPE_UNSPECIFIED = AgentType._(0, _omitEnumNames ? '' : 'AGENT_TYPE_UNSPECIFIED');
-  static const AgentType AGENT_TYPE_INDIVIDUAL = AgentType._(1, _omitEnumNames ? '' : 'AGENT_TYPE_INDIVIDUAL');
-  static const AgentType AGENT_TYPE_ORGANIZATION = AgentType._(2, _omitEnumNames ? '' : 'AGENT_TYPE_ORGANIZATION');
+  static const AgentType AGENT_TYPE_UNSPECIFIED =
+      AgentType._(0, _omitEnumNames ? '' : 'AGENT_TYPE_UNSPECIFIED');
+  static const AgentType AGENT_TYPE_INDIVIDUAL =
+      AgentType._(1, _omitEnumNames ? '' : 'AGENT_TYPE_INDIVIDUAL');
+  static const AgentType AGENT_TYPE_ORGANIZATION =
+      AgentType._(2, _omitEnumNames ? '' : 'AGENT_TYPE_ORGANIZATION');
 
-  static const $core.List<AgentType> values = <AgentType> [
+  static const $core.List<AgentType> values = <AgentType>[
     AGENT_TYPE_UNSPECIFIED,
     AGENT_TYPE_INDIVIDUAL,
     AGENT_TYPE_ORGANIZATION,
   ];
 
-  static final $core.Map<$core.int, AgentType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, AgentType> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static AgentType? valueOf($core.int value) => _byValue[value];
 
   const AgentType._($core.int v, $core.String n) : super(v, n);
 }
-
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

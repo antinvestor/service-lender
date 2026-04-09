@@ -33,27 +33,20 @@ class AgentDetailScreen extends ConsumerWidget {
         if (agent == null) {
           return const Center(child: Text('Agent not found'));
         }
-        return _AgentDetailContent(
-          agent: agent,
-          canManage: canManage,
-        );
+        return _AgentDetailContent(agent: agent, canManage: canManage);
       },
     );
   }
 
   Future<AgentObject> _loadAgent(WidgetRef ref) async {
     final client = ref.read(fieldServiceClientProvider);
-    final response =
-        await client.agentGet(AgentGetRequest(id: agentId));
+    final response = await client.agentGet(AgentGetRequest(id: agentId));
     return response.data;
   }
 }
 
 class _AgentDetailContent extends ConsumerStatefulWidget {
-  const _AgentDetailContent({
-    required this.agent,
-    required this.canManage,
-  });
+  const _AgentDetailContent({required this.agent, required this.canManage});
 
   final AgentObject agent;
   final bool canManage;
@@ -63,8 +56,7 @@ class _AgentDetailContent extends ConsumerStatefulWidget {
       _AgentDetailContentState();
 }
 
-class _AgentDetailContentState
-    extends ConsumerState<_AgentDetailContent> {
+class _AgentDetailContentState extends ConsumerState<_AgentDetailContent> {
   late AgentObject _agent;
 
   @override
@@ -84,10 +76,12 @@ class _AgentDetailContentState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final clientsAsync =
-        ref.watch(clientListProvider(query: '', agentId: _agent.id));
-    final subAgentsAsync =
-        ref.watch(agentListProvider(query: '', branchId: _agent.branchId));
+    final clientsAsync = ref.watch(
+      clientListProvider(query: '', agentId: _agent.id),
+    );
+    final subAgentsAsync = ref.watch(
+      agentListProvider(query: '', branchId: _agent.branchId),
+    );
 
     return CustomScrollView(
       slivers: [
@@ -135,22 +129,21 @@ class _AgentDetailContentState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Agent Details',
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      'Agent Details',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     _InfoRow(label: 'Agent ID', value: _agent.id),
-                    _InfoRow(
-                        label: 'Profile ID', value: _agent.profileId),
-                    _InfoRow(
-                        label: 'Branch ID', value: _agent.branchId),
+                    _InfoRow(label: 'Profile ID', value: _agent.profileId),
+                    _InfoRow(label: 'Branch ID', value: _agent.branchId),
                     _InfoRow(
                       label: 'Agent Type',
                       value: _agentTypeLabel(_agent.agentType),
                     ),
-                    _InfoRow(
-                        label: 'Depth',
-                        value: _agent.depth.toString()),
+                    _InfoRow(label: 'Depth', value: _agent.depth.toString()),
                     if (_agent.geoId.isNotEmpty)
                       _InfoRow(label: 'Geo ID', value: _agent.geoId),
                     if (_agent.parentAgentId.isNotEmpty)
@@ -183,8 +176,11 @@ class _AgentDetailContentState
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
                     child: Row(
                       children: [
-                        Icon(Icons.supervisor_account_outlined,
-                            size: 20, color: theme.colorScheme.primary),
+                        Icon(
+                          Icons.supervisor_account_outlined,
+                          size: 20,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Sub-Agents',
@@ -198,15 +194,14 @@ class _AgentDetailContentState
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 4),
+                    horizontal: 24,
+                    vertical: 4,
+                  ),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final sub = subAgents[index];
-                        return _SubAgentCard(agent: sub);
-                      },
-                      childCount: subAgents.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final sub = subAgents[index];
+                      return _SubAgentCard(agent: sub);
+                    }, childCount: subAgents.length),
                   ),
                 ),
               ],
@@ -220,8 +215,11 @@ class _AgentDetailContentState
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Row(
               children: [
-                Icon(Icons.people_outline,
-                    size: 20, color: theme.colorScheme.primary),
+                Icon(
+                  Icons.people_outline,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -262,8 +260,7 @@ class _AgentDetailContentState
                     const SizedBox(height: 8),
                     FilledButton.tonal(
                       onPressed: () => ref.invalidate(
-                        clientListProvider(
-                            query: '', agentId: _agent.id),
+                        clientListProvider(query: '', agentId: _agent.id),
                       ),
                       child: const Text('Retry'),
                     ),
@@ -283,23 +280,19 @@ class _AgentDetailContentState
                         Icon(
                           Icons.people_outline,
                           size: 48,
-                          color:
-                              theme.colorScheme.onSurface.withAlpha(80),
+                          color: theme.colorScheme.onSurface.withAlpha(80),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No clients for this agent',
-                          style:
-                              theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withAlpha(140),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withAlpha(140),
                           ),
                         ),
                         if (widget.canManage) ...[
                           const SizedBox(height: 12),
                           FilledButton.icon(
-                            onPressed: () =>
-                                context.go('/field/clients/new'),
+                            onPressed: () => context.go('/field/clients/new'),
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Onboard Client'),
                           ),
@@ -312,16 +305,12 @@ class _AgentDetailContentState
             }
 
             return SliverPadding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 24, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final client = clients[index];
-                    return _ClientCard(client: client);
-                  },
-                  childCount: clients.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final client = clients[index];
+                  return _ClientCard(client: client);
+                }, childCount: clients.length),
               ),
             );
           },
@@ -412,8 +401,7 @@ class _SubAgentCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         onTap: () => context.go('/field/agents/${agent.id}'),
         leading: ProfileAvatar(
           profileId: agent.profileId,
@@ -422,11 +410,14 @@ class _SubAgentCard extends StatelessWidget {
         ),
         title: Text(
           agent.name,
-          style: theme.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        subtitle: Text('Depth: ${agent.depth}',
-            style: theme.textTheme.bodySmall),
+        subtitle: Text(
+          'Depth: ${agent.depth}',
+          style: theme.textTheme.bodySmall,
+        ),
         trailing: StateBadge(state: agent.state),
       ),
     );
@@ -448,15 +439,12 @@ class _ClientCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         onTap: () => context.go('/field/clients/${client.id}'),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Text(
-            client.name.isNotEmpty
-                ? client.name[0].toUpperCase()
-                : '?',
+            client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
             style: TextStyle(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w600,
@@ -465,8 +453,9 @@ class _ClientCard extends StatelessWidget {
         ),
         title: Text(
           client.name.isNotEmpty ? client.name : 'Unnamed',
-          style: theme.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: Text(
           'ID: ${client.id}',
@@ -527,8 +516,11 @@ class _AgentEditDialogState extends State<_AgentEditDialog> {
               color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.person_pin_outlined,
-                color: theme.colorScheme.primary, size: 22),
+            child: Icon(
+              Icons.person_pin_outlined,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -537,8 +529,9 @@ class _AgentEditDialogState extends State<_AgentEditDialog> {
               children: [
                 Text(
                   'Edit Agent',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 Text(
                   'Update the agent details below.',
@@ -586,11 +579,14 @@ class _AgentEditDialogState extends State<_AgentEditDialog> {
                 ),
                 items: const [
                   DropdownMenuItem(
-                      value: STATE.CREATED, child: Text('Created')),
+                    value: STATE.CREATED,
+                    child: Text('Created'),
+                  ),
+                  DropdownMenuItem(value: STATE.ACTIVE, child: Text('Active')),
                   DropdownMenuItem(
-                      value: STATE.ACTIVE, child: Text('Active')),
-                  DropdownMenuItem(
-                      value: STATE.INACTIVE, child: Text('Inactive')),
+                    value: STATE.INACTIVE,
+                    child: Text('Inactive'),
+                  ),
                 ],
                 onChanged: (v) {
                   if (v != null) setState(() => _selectedState = v);
@@ -605,10 +601,7 @@ class _AgentEditDialogState extends State<_AgentEditDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: _onSave,
-          child: const Text('Update'),
-        ),
+        FilledButton(onPressed: _onSave, child: const Text('Update')),
       ],
     );
   }

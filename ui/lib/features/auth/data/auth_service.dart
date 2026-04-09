@@ -15,12 +15,14 @@ class AuthService {
     this._storage, {
     required String issuerUrl,
     required String clientId,
-  })  : _issuerUrl = issuerUrl,
-        _clientId = clientId;
+  }) : _issuerUrl = issuerUrl,
+       _activeClientId = clientId,
+       _defaultClientId = clientId;
 
   final FlutterSecureStorage _storage;
   final String _issuerUrl;
-  final String _clientId;
+  final String _defaultClientId;
+  String _activeClientId;
   final AuthPlatform _platform = getAuthPlatform();
 
   static const _defaultTokenLifetime = Duration(hours: 1);
@@ -38,8 +40,29 @@ class AuthService {
   // ── Initialization ───────────────────────────────────────────────────────
 
   Future<void> _ensureInitialized() async {
-    await _platform.initialize(_issuerUrl, _clientId);
+    await _platform.initialize(_issuerUrl, _activeClientId);
   }
+
+  /// Switch to a different OAuth client for login.
+  /// Reinitializes the OIDC client and persists the selection.
+  Future<void> switchClient(String clientId) async {
+    if (clientId == _activeClientId) return;
+    _activeClientId = clientId;
+    // Force reinitialize with the new client_id
+    _platform.reset();
+    await _storage.write(key: 'selected_client_id', value: clientId);
+  }
+
+  /// Restore the previously selected client_id from storage.
+  Future<void> restoreSelectedClient() async {
+    final stored = await _storage.read(key: 'selected_client_id');
+    if (stored != null && stored.isNotEmpty) {
+      _activeClientId = stored;
+    }
+  }
+
+  /// The currently active client_id.
+  String get activeClientId => _activeClientId;
 
   // ── Authentication ───────────────────────────────────────────────────────
 
@@ -62,8 +85,11 @@ class AuthService {
       }
       return null;
     } catch (e, stackTrace) {
-      AppLogger.error('Authentication failed',
-          error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'Authentication failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -106,8 +132,9 @@ class AuthService {
   /// Schedules a background refresh 2 minutes before the token expires.
   void _scheduleRefresh(DateTime expiresAt) {
     _refreshTimer?.cancel();
-    final refreshAt =
-        expiresAt.subtract(const Duration(minutes: 2)).difference(DateTime.now());
+    final refreshAt = expiresAt
+        .subtract(const Duration(minutes: 2))
+        .difference(DateTime.now());
     if (refreshAt.isNegative) {
       // Already past the refresh window — refresh immediately.
       refreshToken();
@@ -134,8 +161,9 @@ class AuthService {
 
   bool _isTokenExpiredSync() {
     if (_cachedExpiresAt == null) return true;
-    return DateTime.now()
-        .isAfter(_cachedExpiresAt!.subtract(const Duration(minutes: 2)));
+    return DateTime.now().isAfter(
+      _cachedExpiresAt!.subtract(const Duration(minutes: 2)),
+    );
   }
 
   Future<bool> isTokenExpired({
@@ -200,8 +228,7 @@ class AuthService {
       _refreshCompleter!.complete(newCredential);
       return newCredential;
     } catch (e, stackTrace) {
-      AppLogger.error('Token refresh failed',
-          error: e, stackTrace: stackTrace);
+      AppLogger.error('Token refresh failed', error: e, stackTrace: stackTrace);
 
       final errorStr = e.toString().toLowerCase();
       final isPermanent = _isPermanentRefreshError(errorStr);
@@ -222,16 +249,29 @@ class AuthService {
 
   bool _isPermanentRefreshError(String errorStr) {
     const transientPatterns = [
-      'timeout', 'connection refused', 'connection reset',
-      'network is unreachable', 'host not found', 'dns', 'socket',
-      '500', '502', '503', '504', '429', 'service unavailable',
+      'timeout',
+      'connection refused',
+      'connection reset',
+      'network is unreachable',
+      'host not found',
+      'dns',
+      'socket',
+      '500',
+      '502',
+      '503',
+      '504',
+      '429',
+      'service unavailable',
     ];
     for (final pattern in transientPatterns) {
       if (errorStr.contains(pattern)) return false;
     }
 
     const permanentErrors = [
-      'invalid_grant', 'invalid_client', 'unauthorized_client', 'access_denied',
+      'invalid_grant',
+      'invalid_client',
+      'unauthorized_client',
+      'access_denied',
     ];
     for (final error in permanentErrors) {
       if (errorStr.contains(error)) return true;
@@ -326,8 +366,11 @@ class AuthService {
       _redirectCompleter!.complete(false);
       return false;
     } catch (e, stackTrace) {
-      AppLogger.error('Redirect result handling failed',
-          error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'Redirect result handling failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
       _redirectCompleter!.complete(false);
       return false;
     } finally {
@@ -378,5 +421,19 @@ class AuthService {
     await _storage.delete(key: 'refresh_token');
     await _storage.delete(key: 'id_token');
     await _storage.delete(key: 'token_expires_at');
+    await _storage.delete(key: 'selected_client_id');
+    await _storage.delete(key: 'login_context');
+    _activeClientId = _defaultClientId;
+    _platform.reset();
+  }
+
+  /// Store the login context JSON for session restoration.
+  Future<void> storeLoginContext(String json) async {
+    await _storage.write(key: 'login_context', value: json);
+  }
+
+  /// Retrieve the stored login context JSON.
+  Future<String?> getStoredLoginContext() async {
+    return _storage.read(key: 'login_context');
   }
 }

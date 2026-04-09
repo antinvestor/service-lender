@@ -1,4 +1,4 @@
-package repository //nolint:dupl // similar repository patterns for different entity types
+package repository
 
 import (
 	"context"
@@ -13,6 +13,8 @@ import (
 type OrganizationRepository interface {
 	datastore.BaseRepository[*models.Organization]
 	GetByCode(ctx context.Context, code string) (*models.Organization, error)
+	GetByPartitionID(ctx context.Context, partitionID string) (*models.Organization, error)
+	GetByTenantID(ctx context.Context, tenantID string, offset, limit int) ([]*models.Organization, error)
 }
 
 type organizationRepository struct {
@@ -38,4 +40,32 @@ func (repo *organizationRepository) GetByCode(ctx context.Context, code string) 
 		return nil, err
 	}
 	return &organization, nil
+}
+
+func (repo *organizationRepository) GetByPartitionID(
+	ctx context.Context,
+	partitionID string,
+) (*models.Organization, error) {
+	organization := models.Organization{}
+	err := repo.Pool().DB(ctx, true).First(&organization, "partition_id = ?", partitionID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &organization, nil
+}
+
+func (repo *organizationRepository) GetByTenantID(
+	ctx context.Context,
+	tenantID string,
+	offset, limit int,
+) ([]*models.Organization, error) {
+	var orgs []*models.Organization
+	err := repo.Pool().DB(ctx, true).
+		Where("tenant_id = ?", tenantID).
+		Offset(offset).Limit(limit).
+		Find(&orgs).Error
+	if err != nil {
+		return nil, err
+	}
+	return orgs, nil
 }

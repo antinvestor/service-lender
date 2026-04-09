@@ -64,8 +64,7 @@ Future<bool> canManageOrganizations(Ref ref) async {
 Future<bool> canManageAgents(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) =>
-        [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
+    (r) => [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
   );
 }
 
@@ -87,9 +86,7 @@ Future<bool> canManageClients(Ref ref) async {
 @riverpod
 Future<bool> canManageInvestors(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
-  return roles.any(
-    (r) => [LenderRole.owner, LenderRole.admin].contains(r),
-  );
+  return roles.any((r) => [LenderRole.owner, LenderRole.admin].contains(r));
 }
 
 /// Whether the current user can create loan applications
@@ -110,9 +107,7 @@ Future<bool> canCreateApplications(Ref ref) async {
 @riverpod
 Future<bool> canManageLoanProducts(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
-  return roles.any(
-    (r) => [LenderRole.owner, LenderRole.admin].contains(r),
-  );
+  return roles.any((r) => [LenderRole.owner, LenderRole.admin].contains(r));
 }
 
 /// Whether the current user can manage verification tasks
@@ -120,11 +115,8 @@ Future<bool> canManageLoanProducts(Ref ref) async {
 Future<bool> canManageVerification(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) => [
-      LenderRole.owner,
-      LenderRole.admin,
-      LenderRole.verifier,
-    ].contains(r),
+    (r) =>
+        [LenderRole.owner, LenderRole.admin, LenderRole.verifier].contains(r),
   );
 }
 
@@ -133,11 +125,8 @@ Future<bool> canManageVerification(Ref ref) async {
 Future<bool> canManageUnderwriting(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) => [
-      LenderRole.owner,
-      LenderRole.admin,
-      LenderRole.approver,
-    ].contains(r),
+    (r) =>
+        [LenderRole.owner, LenderRole.admin, LenderRole.approver].contains(r),
   );
 }
 
@@ -146,11 +135,7 @@ Future<bool> canManageUnderwriting(Ref ref) async {
 Future<bool> canManageLoans(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) => [
-      LenderRole.owner,
-      LenderRole.admin,
-      LenderRole.manager,
-    ].contains(r),
+    (r) => [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
   );
 }
 
@@ -159,11 +144,7 @@ Future<bool> canManageLoans(Ref ref) async {
 Future<bool> canRecordRepayments(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) => [
-      LenderRole.owner,
-      LenderRole.admin,
-      LenderRole.manager,
-    ].contains(r),
+    (r) => [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
   );
 }
 
@@ -179,11 +160,7 @@ Future<bool> canManageSystemUsers(Ref ref) async {
 Future<bool> canManagePenalties(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) => [
-      LenderRole.owner,
-      LenderRole.admin,
-      LenderRole.manager,
-    ].contains(r),
+    (r) => [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
   );
 }
 
@@ -192,10 +169,6 @@ Future<bool> canManagePenalties(Ref ref) async {
 Future<bool> canManageRestructuring(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
-    (r) => [
-      LenderRole.owner,
-      LenderRole.admin,
-      LenderRole.manager,
-    ].contains(r),
+    (r) => [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
   );
 }

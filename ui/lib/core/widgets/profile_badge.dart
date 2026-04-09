@@ -78,14 +78,13 @@ class ProfileAvatar extends StatefulWidget {
     required String name,
     String? description,
     double size = 36,
-  }) =>
-      ProfileAvatar(
-        key: key,
-        profileId: profileId,
-        name: name,
-        description: description,
-        size: size,
-      );
+  }) => ProfileAvatar(
+    key: key,
+    profileId: profileId,
+    name: name,
+    description: description,
+    size: size,
+  );
 
   final String profileId;
   final String name;
@@ -155,10 +154,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           child: Container(
             width: widget.size,
             height: widget.size,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
             alignment: Alignment.center,
             child: Text(
               initials,
@@ -254,15 +250,14 @@ class ProfileBadge extends StatelessWidget {
     String? description,
     double avatarSize = 40,
     Widget? trailing,
-  }) =>
-      ProfileBadge(
-        key: key,
-        profileId: profileId,
-        name: name,
-        description: description,
-        avatarSize: avatarSize,
-        trailing: trailing,
-      );
+  }) => ProfileBadge(
+    key: key,
+    profileId: profileId,
+    name: name,
+    description: description,
+    avatarSize: avatarSize,
+    trailing: trailing,
+  );
 
   final String profileId;
   final String name;
@@ -310,8 +305,8 @@ class ProfileBadge extends StatelessWidget {
                 Text(
                   description!,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: descriptionColor ??
-                        theme.colorScheme.onSurfaceVariant,
+                    color:
+                        descriptionColor ?? theme.colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -371,11 +366,7 @@ class ProfilePopupCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  ProfileAvatar(
-                    profileId: profileId,
-                    name: name,
-                    size: 48,
-                  ),
+                  ProfileAvatar(profileId: profileId, name: name, size: 48),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

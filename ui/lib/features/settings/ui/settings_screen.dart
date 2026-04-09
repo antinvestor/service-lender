@@ -19,8 +19,9 @@ class SettingsScreen extends ConsumerWidget {
       children: [
         Text(
           'Settings',
-          style: theme.textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 24),
 
@@ -31,15 +32,17 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Account',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Account',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 16),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: theme.colorScheme.primaryContainer,
-                    child: Icon(Icons.person,
-                        color: theme.colorScheme.primary),
+                    child: Icon(Icons.person, color: theme.colorScheme.primary),
                   ),
                   title: profileIdAsync.when(
                     data: (id) => Text(id ?? 'Unknown'),
@@ -50,8 +53,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 ListTile(
-                  leading: Icon(Icons.security_outlined,
-                      color: theme.colorScheme.onSurfaceVariant),
+                  leading: Icon(
+                    Icons.security_outlined,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   title: const Text('Roles'),
                   subtitle: rolesAsync.when(
                     data: (roles) => Text(
@@ -76,19 +81,26 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Application',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Application',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 16),
                 ListTile(
-                  leading: Icon(Icons.info_outline,
-                      color: theme.colorScheme.onSurfaceVariant),
+                  leading: Icon(
+                    Icons.info_outline,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   title: const Text('Version'),
                   subtitle: const Text('1.0.0'),
                 ),
                 ListTile(
-                  leading: Icon(Icons.account_balance_outlined,
-                      color: theme.colorScheme.onSurfaceVariant),
+                  leading: Icon(
+                    Icons.account_balance_outlined,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   title: const Text('Platform'),
                   subtitle: const Text('AntInvestor Lender'),
                 ),
@@ -107,8 +119,10 @@ class SettingsScreen extends ConsumerWidget {
               ref.read(authStateProvider.notifier).logout();
             },
             icon: Icon(Icons.logout, color: theme.colorScheme.error),
-            label: Text('Sign Out',
-                style: TextStyle(color: theme.colorScheme.error)),
+            label: Text(
+              'Sign Out',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: theme.colorScheme.error.withAlpha(60)),
               padding: const EdgeInsets.symmetric(vertical: 14),

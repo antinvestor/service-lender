@@ -35,7 +35,11 @@ jobs:
 
       - name: Check for breaking changes
         if: github.event_name == 'pull_request'
-        run: cd proto && buf breaking --against 'buf.build/antinvestor/lender'
+        run: |
+          cd proto
+          buf breaking --against "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git#branch=main,subdir=proto"
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
 
   push:
     name: Push to BSR

@@ -10,7 +10,7 @@ import "savings.connect.spec.dart" as specs;
 /// SavingsService manages savings products, accounts, deposits, withdrawals,
 /// and interest accruals.
 /// All RPCs require authentication via Bearer token.
-extension type SavingsServiceClient (connect.Transport _transport) {
+extension type SavingsServiceClient(connect.Transport _transport) {
   /// SavingsProductSave creates or updates a savings product.
   Future<savingsv1savings.SavingsProductSaveResponse> savingsProductSave(
     savingsv1savings.SavingsProductSaveRequest input, {

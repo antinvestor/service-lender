@@ -85,12 +85,12 @@ class _ApplicationDetailContentState
   }
 
   bool get _isTerminal => {
-        ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED,
-        ApplicationStatus.APPLICATION_STATUS_REJECTED,
-        ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED,
-        ApplicationStatus.APPLICATION_STATUS_CANCELLED,
-        ApplicationStatus.APPLICATION_STATUS_EXPIRED,
-      }.contains(_app.status);
+    ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED,
+    ApplicationStatus.APPLICATION_STATUS_REJECTED,
+    ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED,
+    ApplicationStatus.APPLICATION_STATUS_CANCELLED,
+    ApplicationStatus.APPLICATION_STATUS_EXPIRED,
+  }.contains(_app.status);
 
   @override
   Widget build(BuildContext context) {
@@ -124,16 +124,13 @@ class _ApplicationDetailContentState
                       spacing: 6,
                       runSpacing: 4,
                       children: [
+                        EntityChip(type: EntityType.client, id: _app.clientId),
                         EntityChip(
-                            type: EntityType.client,
-                            id: _app.clientId),
-                        EntityChip(
-                            type: EntityType.product,
-                            id: _app.productId),
+                          type: EntityType.product,
+                          id: _app.productId,
+                        ),
                         if (_app.agentId.isNotEmpty)
-                          EntityChip(
-                              type: EntityType.agent,
-                              id: _app.agentId),
+                          EntityChip(type: EntityType.agent, id: _app.agentId),
                       ],
                     ),
                   ],
@@ -153,9 +150,7 @@ class _ApplicationDetailContentState
         // Action buttons — role-gated
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          child: Row(
-            children: _buildActionButtons(context, ref),
-          ),
+          child: Row(children: _buildActionButtons(context, ref)),
         ),
 
         // Info section
@@ -225,41 +220,49 @@ class _ApplicationDetailContentState
 
     switch (_app.status) {
       case ApplicationStatus.APPLICATION_STATUS_DRAFT:
-        buttons.add(RoleGuard(
-          requiredRoles: _editRoles,
-          child: FilledButton.icon(
-            onPressed: () => _confirmSubmit(context),
-            icon: const Icon(Icons.send, size: 18),
-            label: const Text('Submit'),
+        buttons.add(
+          RoleGuard(
+            requiredRoles: _editRoles,
+            child: FilledButton.icon(
+              onPressed: () => _confirmSubmit(context),
+              icon: const Icon(Icons.send, size: 18),
+              label: const Text('Submit'),
+            ),
           ),
-        ));
+        );
         buttons.add(const SizedBox(width: 8));
-        buttons.add(RoleGuard(
-          requiredRoles: _editRoles,
-          child: OutlinedButton.icon(
-            onPressed: () => _showEditDialog(context),
-            icon: const Icon(Icons.edit, size: 18),
-            label: const Text('Edit'),
+        buttons.add(
+          RoleGuard(
+            requiredRoles: _editRoles,
+            child: OutlinedButton.icon(
+              onPressed: () => _showEditDialog(context),
+              icon: const Icon(Icons.edit, size: 18),
+              label: const Text('Edit'),
+            ),
           ),
-        ));
+        );
       case ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED:
-        buttons.add(RoleGuard(
-          requiredRoles: _offerRoles,
-          child: FilledButton.icon(
-            onPressed: () => _confirmAcceptOffer(context),
-            icon: const Icon(Icons.check_circle, size: 18),
-            label: const Text('Accept Offer'),
+        buttons.add(
+          RoleGuard(
+            requiredRoles: _offerRoles,
+            child: FilledButton.icon(
+              onPressed: () => _confirmAcceptOffer(context),
+              icon: const Icon(Icons.check_circle, size: 18),
+              label: const Text('Accept Offer'),
+            ),
           ),
-        ));
+        );
         buttons.add(const SizedBox(width: 8));
-        buttons.add(RoleGuard(
-          requiredRoles: _offerRoles,
-          child: OutlinedButton.icon(
-            onPressed: () => _confirmDeclineOffer(context),
-            icon: const Icon(Icons.cancel, size: 18),
-            label: const Text('Decline Offer'),
+        buttons.add(
+          RoleGuard(
+            requiredRoles: _offerRoles,
+            child: OutlinedButton.icon(
+              onPressed: () => _confirmDeclineOffer(context),
+              icon: const Icon(Icons.cancel, size: 18),
+              label: const Text('Decline Offer'),
+            ),
           ),
-        ));
+        );
       default:
         break;
     }
@@ -269,16 +272,23 @@ class _ApplicationDetailContentState
         _app.status != ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED &&
         _app.status != ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED) {
       if (buttons.isNotEmpty) buttons.add(const SizedBox(width: 8));
-      buttons.add(RoleGuard(
-        requiredRoles: _cancelRoles,
-        child: OutlinedButton.icon(
-          onPressed: () => _confirmCancel(context),
-          icon: Icon(Icons.block, size: 18,
-              color: Theme.of(context).colorScheme.error),
-          label: Text('Cancel',
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+      buttons.add(
+        RoleGuard(
+          requiredRoles: _cancelRoles,
+          child: OutlinedButton.icon(
+            onPressed: () => _confirmCancel(context),
+            icon: Icon(
+              Icons.block,
+              size: 18,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            label: Text(
+              'Cancel',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
         ),
-      ));
+      );
     }
 
     return buttons;
@@ -287,9 +297,7 @@ class _ApplicationDetailContentState
   Widget _buildInfoSection(BuildContext context, ThemeData theme) {
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -297,42 +305,48 @@ class _ApplicationDetailContentState
             Row(
               children: [
                 _InfoTile(
-                    label: 'Requested Amount',
-                    value: formatMoney(_app.requestedAmount)),
+                  label: 'Requested Amount',
+                  value: formatMoney(_app.requestedAmount),
+                ),
                 _InfoTile(
-                    label: 'Requested Term',
-                    value: '${_app.requestedTermDays} days'),
+                  label: 'Requested Term',
+                  value: '${_app.requestedTermDays} days',
+                ),
                 _InfoTile(
-                    label: 'Approved Amount',
-                    value: _app.hasApprovedAmount()
-                        ? formatMoney(_app.approvedAmount)
-                        : '-'),
+                  label: 'Approved Amount',
+                  value: _app.hasApprovedAmount()
+                      ? formatMoney(_app.approvedAmount)
+                      : '-',
+                ),
                 _InfoTile(
-                    label: 'Approved Term',
-                    value: _app.approvedTermDays > 0
-                        ? '${_app.approvedTermDays} days'
-                        : '-'),
+                  label: 'Approved Term',
+                  value: _app.approvedTermDays > 0
+                      ? '${_app.approvedTermDays} days'
+                      : '-',
+                ),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 _InfoTile(
-                    label: 'Interest Rate',
-                    value: _app.interestRate.isNotEmpty
-                        ? '${_app.interestRate}%'
-                        : '-'),
+                  label: 'Interest Rate',
+                  value: _app.interestRate.isNotEmpty
+                      ? '${_app.interestRate}%'
+                      : '-',
+                ),
                 _InfoTile(
-                    label: 'Purpose',
-                    value:
-                        _app.purpose.isNotEmpty ? _app.purpose : '-'),
+                  label: 'Purpose',
+                  value: _app.purpose.isNotEmpty ? _app.purpose : '-',
+                ),
                 _InfoTile(
-                    label: 'Agent',
-                    value: _app.agentId.isNotEmpty ? _app.agentId : '-'),
+                  label: 'Agent',
+                  value: _app.agentId.isNotEmpty ? _app.agentId : '-',
+                ),
                 _InfoTile(
-                    label: 'Branch',
-                    value:
-                        _app.branchId.isNotEmpty ? _app.branchId : '-'),
+                  label: 'Branch',
+                  value: _app.branchId.isNotEmpty ? _app.branchId : '-',
+                ),
               ],
             ),
             if (_app.submittedAt.isNotEmpty ||
@@ -342,20 +356,19 @@ class _ApplicationDetailContentState
               Row(
                 children: [
                   _InfoTile(
-                      label: 'Submitted At',
-                      value: _app.submittedAt.isNotEmpty
-                          ? _app.submittedAt
-                          : '-'),
+                    label: 'Submitted At',
+                    value: _app.submittedAt.isNotEmpty ? _app.submittedAt : '-',
+                  ),
                   _InfoTile(
-                      label: 'Decided At',
-                      value: _app.decidedAt.isNotEmpty
-                          ? _app.decidedAt
-                          : '-'),
+                    label: 'Decided At',
+                    value: _app.decidedAt.isNotEmpty ? _app.decidedAt : '-',
+                  ),
                   if (_app.rejectionReason.isNotEmpty)
                     Expanded(
                       child: _InfoTile(
-                          label: 'Rejection Reason',
-                          value: _app.rejectionReason),
+                        label: 'Rejection Reason',
+                        value: _app.rejectionReason,
+                      ),
                     ),
                 ],
               ),
@@ -377,7 +390,8 @@ class _ApplicationDetailContentState
 
     // Check for risk_flags (expected as a ListValue of Structs with 'label' and 'severity')
     final riskFlagsValue = fields['risk_flags'];
-    final hasFlags = riskFlagsValue != null &&
+    final hasFlags =
+        riskFlagsValue != null &&
         riskFlagsValue.hasListValue() &&
         riskFlagsValue.listValue.values.isNotEmpty;
 
@@ -425,16 +439,16 @@ class _ApplicationDetailContentState
                   label: Text(
                     label,
                     style: TextStyle(
-                        color: chipFg,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600),
+                      color: chipFg,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   backgroundColor: chipColor,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  labelPadding:
-                      const EdgeInsets.symmetric(horizontal: 8),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
               );
             }),
@@ -449,7 +463,8 @@ class _ApplicationDetailContentState
       builder: (ctx) => AlertDialog(
         title: const Text('Submit Application'),
         content: const Text(
-            'Are you sure you want to submit this application? This will trigger the origination workflow.'),
+          'Are you sure you want to submit this application? This will trigger the origination workflow.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -468,7 +483,8 @@ class _ApplicationDetailContentState
                   setState(() => _app = updated);
                   messenger.showSnackBar(
                     const SnackBar(
-                        content: Text('Application submitted successfully')),
+                      content: Text('Application submitted successfully'),
+                    ),
                   );
                 }
               } catch (e) {
@@ -502,8 +518,9 @@ class _ApplicationDetailContentState
               const SizedBox(height: 12),
               TextField(
                 controller: reasonCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Reason for cancellation'),
+                decoration: const InputDecoration(
+                  labelText: 'Reason for cancellation',
+                ),
                 maxLines: 2,
               ),
             ],
@@ -526,8 +543,7 @@ class _ApplicationDetailContentState
                 if (mounted) {
                   setState(() => _app = updated);
                   messenger.showSnackBar(
-                    const SnackBar(
-                        content: Text('Application cancelled')),
+                    const SnackBar(content: Text('Application cancelled')),
                   );
                 }
               } catch (e) {
@@ -552,7 +568,8 @@ class _ApplicationDetailContentState
       builder: (ctx) => AlertDialog(
         title: const Text('Accept Offer'),
         content: const Text(
-            'Are you sure you want to accept this loan offer? This will trigger loan account creation.'),
+          'Are you sure you want to accept this loan offer? This will trigger loan account creation.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -604,8 +621,9 @@ class _ApplicationDetailContentState
               const SizedBox(height: 12),
               TextField(
                 controller: reasonCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Reason for declining'),
+                decoration: const InputDecoration(
+                  labelText: 'Reason for declining',
+                ),
                 maxLines: 2,
               ),
             ],
@@ -650,8 +668,7 @@ class _ApplicationDetailContentState
   void _showEditDialog(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) =>
-          ApplicationCreateDialog(
+      builder: (dialogContext) => ApplicationCreateDialog(
         onSave: (updated) async {
           final messenger = ScaffoldMessenger.of(context);
           final errorColor = Theme.of(context).colorScheme.error;
@@ -665,7 +682,8 @@ class _ApplicationDetailContentState
               setState(() => _app = saved);
               messenger.showSnackBar(
                 const SnackBar(
-                    content: Text('Application updated successfully')),
+                  content: Text('Application updated successfully'),
+                ),
               );
             }
           } catch (e) {
@@ -787,11 +805,12 @@ class _DocumentsTab extends ConsumerWidget {
                           elevation: 0,
                           child: ListTile(
                             leading: const Icon(Icons.attach_file),
-                            title: Text(doc.fileName.isNotEmpty
-                                ? doc.fileName
-                                : doc.id),
+                            title: Text(
+                              doc.fileName.isNotEmpty ? doc.fileName : doc.id,
+                            ),
                             subtitle: Text(
-                                '${_documentTypeLabel(doc.documentType)} \u2022 ${_verificationStatusLabel(doc.verificationStatus)}'),
+                              '${_documentTypeLabel(doc.documentType)} \u2022 ${_verificationStatusLabel(doc.verificationStatus)}',
+                            ),
                           ),
                         );
                       },
@@ -803,8 +822,7 @@ class _DocumentsTab extends ConsumerWidget {
     );
   }
 
-  Future<List<ApplicationDocumentObject>> _loadDocuments(
-      dynamic client) async {
+  Future<List<ApplicationDocumentObject>> _loadDocuments(dynamic client) async {
     final results = <ApplicationDocumentObject>[];
     var pages = 0;
     await for (final response in client.applicationDocumentSearch(
@@ -834,15 +852,15 @@ class _DocumentsTab extends ConsumerWidget {
               children: [
                 DropdownButtonFormField<DocumentType>(
                   initialValue: docType,
-                  decoration:
-                      const InputDecoration(labelText: 'Document Type'),
+                  decoration: const InputDecoration(labelText: 'Document Type'),
                   items: DocumentType.values
-                      .where((d) =>
-                          d != DocumentType.DOCUMENT_TYPE_UNSPECIFIED)
-                      .map((d) => DropdownMenuItem(
-                            value: d,
-                            child: Text(_documentTypeLabel(d)),
-                          ))
+                      .where((d) => d != DocumentType.DOCUMENT_TYPE_UNSPECIFIED)
+                      .map(
+                        (d) => DropdownMenuItem(
+                          value: d,
+                          child: Text(_documentTypeLabel(d)),
+                        ),
+                      )
                       .toList(),
                   onChanged: (v) {
                     if (v != null) setDialogState(() => docType = v);
@@ -872,8 +890,9 @@ class _DocumentsTab extends ConsumerWidget {
                   : () async {
                       setDialogState(() => saving = true);
                       try {
-                        final client =
-                            ref.read(originationServiceClientProvider);
+                        final client = ref.read(
+                          originationServiceClientProvider,
+                        );
                         await client.applicationDocumentSave(
                           ApplicationDocumentSaveRequest(
                             data: ApplicationDocumentObject(
@@ -888,7 +907,8 @@ class _DocumentsTab extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('Document added successfully')),
+                              content: Text('Document added successfully'),
+                            ),
                           );
                         }
                       } catch (e) {
@@ -897,8 +917,9 @@ class _DocumentsTab extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Failed to add document: $e'),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
                             ),
                           );
                         }
@@ -1002,7 +1023,8 @@ class _VerificationTab extends ConsumerWidget {
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
-                  final isPending = task.status ==
+                  final isPending =
+                      task.status ==
                           VerificationStatus.VERIFICATION_STATUS_PENDING ||
                       task.status ==
                           VerificationStatus.VERIFICATION_STATUS_IN_PROGRESS;
@@ -1013,23 +1035,24 @@ class _VerificationTab extends ConsumerWidget {
                         isPending
                             ? Icons.pending_outlined
                             : task.status ==
-                                    VerificationStatus
-                                        .VERIFICATION_STATUS_PASSED
-                                ? Icons.check_circle
-                                : Icons.cancel,
+                                  VerificationStatus.VERIFICATION_STATUS_PASSED
+                            ? Icons.check_circle
+                            : Icons.cancel,
                         color: isPending
                             ? Colors.orange
                             : task.status ==
-                                    VerificationStatus
-                                        .VERIFICATION_STATUS_PASSED
-                                ? Colors.green
-                                : Colors.red,
+                                  VerificationStatus.VERIFICATION_STATUS_PASSED
+                            ? Colors.green
+                            : Colors.red,
                       ),
-                      title: Text(task.verificationType.isNotEmpty
-                          ? task.verificationType
-                          : task.id),
+                      title: Text(
+                        task.verificationType.isNotEmpty
+                            ? task.verificationType
+                            : task.id,
+                      ),
                       subtitle: Text(
-                          '${_verificationStatusLabel(task.status)} \u2022 Assigned: ${task.assignedTo.isNotEmpty ? task.assignedTo : "Unassigned"}'),
+                        '${_verificationStatusLabel(task.status)} \u2022 Assigned: ${task.assignedTo.isNotEmpty ? task.assignedTo : "Unassigned"}',
+                      ),
                       trailing: isPending
                           ? RoleGuard(
                               requiredRoles: const {
@@ -1040,8 +1063,8 @@ class _VerificationTab extends ConsumerWidget {
                               child: IconButton(
                                 icon: const Icon(Icons.done_all),
                                 tooltip: 'Complete Task',
-                                onPressed: () => _showCompleteDialog(
-                                    context, ref, task),
+                                onPressed: () =>
+                                    _showCompleteDialog(context, ref, task),
                               ),
                             )
                           : null,
@@ -1075,13 +1098,15 @@ class _VerificationTab extends ConsumerWidget {
                 TextField(
                   controller: typeCtrl,
                   decoration: const InputDecoration(
-                      labelText: 'Verification Type'),
+                    labelText: 'Verification Type',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: assignedToCtrl,
                   decoration: const InputDecoration(
-                      labelText: 'Assigned To (optional)'),
+                    labelText: 'Assigned To (optional)',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -1108,8 +1133,8 @@ class _VerificationTab extends ConsumerWidget {
                           verificationType: typeCtrl.text.trim(),
                           assignedTo: assignedToCtrl.text.trim(),
                           notes: notesCtrl.text.trim(),
-                          status: VerificationStatus
-                              .VERIFICATION_STATUS_PENDING,
+                          status:
+                              VerificationStatus.VERIFICATION_STATUS_PENDING,
                         );
                         await ref
                             .read(verificationTaskProvider.notifier)
@@ -1118,8 +1143,8 @@ class _VerificationTab extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content:
-                                    Text('Verification task added')),
+                              content: Text('Verification task added'),
+                            ),
                           );
                         }
                       } catch (e) {
@@ -1128,8 +1153,9 @@ class _VerificationTab extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Failed to add task: $e'),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
                             ),
                           );
                         }
@@ -1150,7 +1176,10 @@ class _VerificationTab extends ConsumerWidget {
   }
 
   void _showCompleteDialog(
-      BuildContext context, WidgetRef ref, VerificationTaskObject task) {
+    BuildContext context,
+    WidgetRef ref,
+    VerificationTaskObject task,
+  ) {
     final notesCtrl = TextEditingController();
     var selectedStatus = VerificationStatus.VERIFICATION_STATUS_PASSED;
     var saving = false;
@@ -1186,16 +1215,20 @@ class _VerificationTab extends ConsumerWidget {
                   DropdownButtonFormField<VerificationStatus>(
                     initialValue: selectedStatus,
                     decoration: const InputDecoration(labelText: 'Result'),
-                    items: [
-                      VerificationStatus.VERIFICATION_STATUS_PASSED,
-                      VerificationStatus.VERIFICATION_STATUS_FAILED,
-                      VerificationStatus.VERIFICATION_STATUS_NEEDS_REVIEW,
-                    ]
-                        .map((s) => DropdownMenuItem(
-                              value: s,
-                              child: Text(_verificationStatusLabel(s)),
-                            ))
-                        .toList(),
+                    items:
+                        [
+                              VerificationStatus.VERIFICATION_STATUS_PASSED,
+                              VerificationStatus.VERIFICATION_STATUS_FAILED,
+                              VerificationStatus
+                                  .VERIFICATION_STATUS_NEEDS_REVIEW,
+                            ]
+                            .map(
+                              (s) => DropdownMenuItem(
+                                value: s,
+                                child: Text(_verificationStatusLabel(s)),
+                              ),
+                            )
+                            .toList(),
                     onChanged: (v) {
                       if (v != null) {
                         setDialogState(() => selectedStatus = v);
@@ -1223,17 +1256,19 @@ class _VerificationTab extends ConsumerWidget {
                         setDialogState(() => saving = true);
                         try {
                           // Get audit context and embed in results
-                          final auditCtx =
-                              await ref.read(auditContextProvider.future);
+                          final auditCtx = await ref.read(
+                            auditContextProvider.future,
+                          );
                           final auditMap = auditCtx.toMap();
                           final resultsStruct = struct_pb.Struct();
                           resultsStruct.fields['completed_by'] =
                               struct_pb.Value(
-                                  stringValue: auditCtx.displayLabel);
+                                stringValue: auditCtx.displayLabel,
+                              );
                           for (final entry in auditMap.entries) {
-                            resultsStruct.fields[entry.key] =
-                                struct_pb.Value(
-                                    stringValue: entry.value);
+                            resultsStruct.fields[entry.key] = struct_pb.Value(
+                              stringValue: entry.value,
+                            );
                           }
 
                           await ref
@@ -1247,8 +1282,7 @@ class _VerificationTab extends ConsumerWidget {
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Task completed')),
+                              const SnackBar(content: Text('Task completed')),
                             );
                           }
                         } catch (e) {
@@ -1256,10 +1290,10 @@ class _VerificationTab extends ConsumerWidget {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content:
-                                    Text('Failed to complete task: $e'),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
+                                content: Text('Failed to complete task: $e'),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                               ),
                             );
                           }
@@ -1270,8 +1304,8 @@ class _VerificationTab extends ConsumerWidget {
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Complete'),
+                      )
+                    : const Text('Complete'),
               ),
             ],
           );
@@ -1303,8 +1337,9 @@ class _UnderwritingTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final decisionsAsync =
-        ref.watch(underwritingDecisionListProvider(applicationId));
+    final decisionsAsync = ref.watch(
+      underwritingDecisionListProvider(applicationId),
+    );
     final theme = Theme.of(context);
 
     return Column(
@@ -1357,9 +1392,11 @@ class _UnderwritingTab extends ConsumerWidget {
                         color: _outcomeColor(decision.outcome),
                       ),
                       title: Text(
-                          '${_outcomeLabel(decision.outcome)} \u2022 Score: ${decision.creditScore}'),
+                        '${_outcomeLabel(decision.outcome)} \u2022 Score: ${decision.creditScore}',
+                      ),
                       subtitle: Text(
-                          'Risk: ${decision.riskGrade.isNotEmpty ? decision.riskGrade : "-"} \u2022 By: ${decision.decidedBy.isNotEmpty ? decision.decidedBy : "-"}${decision.hasApprovedAmount() ? " \u2022 Approved: ${formatMoney(decision.approvedAmount)}" : ""}'),
+                        'Risk: ${decision.riskGrade.isNotEmpty ? decision.riskGrade : "-"} \u2022 By: ${decision.decidedBy.isNotEmpty ? decision.decidedBy : "-"}${decision.hasApprovedAmount() ? " \u2022 Approved: ${formatMoney(decision.approvedAmount)}" : ""}',
+                      ),
                     ),
                   );
                 },
@@ -1400,17 +1437,20 @@ class _UnderwritingTab extends ConsumerWidget {
                   children: [
                     DropdownButtonFormField<UnderwritingOutcome>(
                       initialValue: outcome,
-                      decoration:
-                          const InputDecoration(labelText: 'Outcome'),
+                      decoration: const InputDecoration(labelText: 'Outcome'),
                       items: UnderwritingOutcome.values
-                          .where((o) =>
-                              o !=
-                              UnderwritingOutcome
-                                  .UNDERWRITING_OUTCOME_UNSPECIFIED)
-                          .map((o) => DropdownMenuItem(
-                                value: o,
-                                child: Text(_outcomeLabel(o)),
-                              ))
+                          .where(
+                            (o) =>
+                                o !=
+                                UnderwritingOutcome
+                                    .UNDERWRITING_OUTCOME_UNSPECIFIED,
+                          )
+                          .map(
+                            (o) => DropdownMenuItem(
+                              value: o,
+                              child: Text(_outcomeLabel(o)),
+                            ),
+                          )
                           .toList(),
                       onChanged: (v) {
                         if (v != null) setDialogState(() => outcome = v);
@@ -1421,8 +1461,7 @@ class _UnderwritingTab extends ConsumerWidget {
                     InputDecorator(
                       decoration: const InputDecoration(
                         labelText: 'Decided By',
-                        suffixIcon:
-                            Icon(Icons.lock_outline, size: 18),
+                        suffixIcon: Icon(Icons.lock_outline, size: 18),
                       ),
                       child: Text(
                         auditLabel ?? 'Loading...',
@@ -1436,7 +1475,8 @@ class _UnderwritingTab extends ConsumerWidget {
                           child: TextField(
                             controller: creditScoreCtrl,
                             decoration: const InputDecoration(
-                                labelText: 'Credit Score'),
+                              labelText: 'Credit Score',
+                            ),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -1445,7 +1485,8 @@ class _UnderwritingTab extends ConsumerWidget {
                           child: TextField(
                             controller: riskGradeCtrl,
                             decoration: const InputDecoration(
-                                labelText: 'Risk Grade'),
+                              labelText: 'Risk Grade',
+                            ),
                           ),
                         ),
                       ],
@@ -1457,7 +1498,8 @@ class _UnderwritingTab extends ConsumerWidget {
                           child: TextField(
                             controller: approvedAmountCtrl,
                             decoration: const InputDecoration(
-                                labelText: 'Approved Amount'),
+                              labelText: 'Approved Amount',
+                            ),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -1466,7 +1508,8 @@ class _UnderwritingTab extends ConsumerWidget {
                           child: TextField(
                             controller: approvedTermCtrl,
                             decoration: const InputDecoration(
-                                labelText: 'Approved Term (days)'),
+                              labelText: 'Approved Term (days)',
+                            ),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -1476,14 +1519,14 @@ class _UnderwritingTab extends ConsumerWidget {
                     TextField(
                       controller: approvedRateCtrl,
                       decoration: const InputDecoration(
-                          labelText: 'Approved Rate %'),
+                        labelText: 'Approved Rate %',
+                      ),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: reasonCtrl,
-                      decoration:
-                          const InputDecoration(labelText: 'Reason'),
+                      decoration: const InputDecoration(labelText: 'Reason'),
                       maxLines: 2,
                     ),
                   ],
@@ -1500,25 +1543,29 @@ class _UnderwritingTab extends ConsumerWidget {
                     ? null
                     : () async {
                         // Validate inputs before saving
-                        final creditScore =
-                            int.tryParse(creditScoreCtrl.text.trim());
+                        final creditScore = int.tryParse(
+                          creditScoreCtrl.text.trim(),
+                        );
                         if (creditScore != null &&
                             (creditScore < 0 || creditScore > 999)) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text(
-                                    'Credit score must be between 0 and 999')),
+                              content: Text(
+                                'Credit score must be between 0 and 999',
+                              ),
+                            ),
                           );
                           return;
                         }
 
-                        final rate =
-                            double.tryParse(approvedRateCtrl.text.trim());
+                        final rate = double.tryParse(
+                          approvedRateCtrl.text.trim(),
+                        );
                         if (rate != null && (rate < 0 || rate > 100)) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content:
-                                    Text('Rate must be between 0 and 100')),
+                              content: Text('Rate must be between 0 and 100'),
+                            ),
                           );
                           return;
                         }
@@ -1530,14 +1577,21 @@ class _UnderwritingTab extends ConsumerWidget {
                                 UnderwritingOutcome
                                     .UNDERWRITING_OUTCOME_COUNTER_OFFER) {
                           final amount = double.tryParse(
-                              approvedAmountCtrl.text.trim());
-                          final term =
-                              int.tryParse(approvedTermCtrl.text.trim());
-                          if (amount == null || amount <= 0 || term == null || term <= 0) {
+                            approvedAmountCtrl.text.trim(),
+                          );
+                          final term = int.tryParse(
+                            approvedTermCtrl.text.trim(),
+                          );
+                          if (amount == null ||
+                              amount <= 0 ||
+                              term == null ||
+                              term <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text(
-                                      'Approved amount and term are required for approval')),
+                                content: Text(
+                                  'Approved amount and term are required for approval',
+                                ),
+                              ),
                             );
                             return;
                           }
@@ -1546,16 +1600,17 @@ class _UnderwritingTab extends ConsumerWidget {
                         setDialogState(() => saving = true);
                         try {
                           // Get the audit context for decidedBy and properties
-                          final auditCtx =
-                              await ref.read(auditContextProvider.future);
+                          final auditCtx = await ref.read(
+                            auditContextProvider.future,
+                          );
 
                           // Build properties Struct from audit context
                           final auditMap = auditCtx.toMap();
                           final propsStruct = struct_pb.Struct();
                           for (final entry in auditMap.entries) {
-                            propsStruct.fields[entry.key] =
-                                struct_pb.Value(
-                                    stringValue: entry.value);
+                            propsStruct.fields[entry.key] = struct_pb.Value(
+                              stringValue: entry.value,
+                            );
                           }
 
                           final decision = UnderwritingDecisionObject(
@@ -1563,27 +1618,25 @@ class _UnderwritingTab extends ConsumerWidget {
                             outcome: outcome,
                             decidedBy: auditCtx.displayLabel,
                             creditScore:
-                                int.tryParse(creditScoreCtrl.text.trim()) ??
-                                    0,
+                                int.tryParse(creditScoreCtrl.text.trim()) ?? 0,
                             riskGrade: riskGradeCtrl.text.trim(),
                             approvedAmount: moneyFromString(
-                                approvedAmountCtrl.text.trim(), ''),
+                              approvedAmountCtrl.text.trim(),
+                              '',
+                            ),
                             approvedTermDays:
-                                int.tryParse(approvedTermCtrl.text.trim()) ??
-                                    0,
+                                int.tryParse(approvedTermCtrl.text.trim()) ?? 0,
                             approvedRate: approvedRateCtrl.text.trim(),
                             reason: reasonCtrl.text.trim(),
                             properties: propsStruct,
                           );
                           await ref
-                              .read(
-                                  underwritingDecisionProvider.notifier)
+                              .read(underwritingDecisionProvider.notifier)
                               .save(decision);
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Decision added')),
+                              const SnackBar(content: Text('Decision added')),
                             );
                           }
                         } catch (e) {
@@ -1591,10 +1644,10 @@ class _UnderwritingTab extends ConsumerWidget {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content:
-                                    Text('Failed to add decision: $e'),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
+                                content: Text('Failed to add decision: $e'),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                               ),
                             );
                           }
@@ -1604,8 +1657,7 @@ class _UnderwritingTab extends ConsumerWidget {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child:
-                            CircularProgressIndicator(strokeWidth: 2),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Text('Add'),
               ),
@@ -1621,8 +1673,7 @@ class _UnderwritingTab extends ConsumerWidget {
       UnderwritingOutcome.UNDERWRITING_OUTCOME_APPROVE => 'Approve',
       UnderwritingOutcome.UNDERWRITING_OUTCOME_REJECT => 'Reject',
       UnderwritingOutcome.UNDERWRITING_OUTCOME_REFER => 'Refer',
-      UnderwritingOutcome.UNDERWRITING_OUTCOME_COUNTER_OFFER =>
-        'Counter Offer',
+      UnderwritingOutcome.UNDERWRITING_OUTCOME_COUNTER_OFFER => 'Counter Offer',
       _ => 'Unknown',
     };
   }
@@ -1666,57 +1717,62 @@ class _TimelineTab extends ConsumerWidget {
 
     // Status-based events we can infer
     if (app.submittedAt.isNotEmpty) {
-      events.add(_TimelineEvent(
-        timestamp: app.submittedAt,
-        title: 'Application Submitted',
-        subtitle: 'Entered origination pipeline',
-        icon: Icons.send,
-        color: Colors.blue,
-      ));
+      events.add(
+        _TimelineEvent(
+          timestamp: app.submittedAt,
+          title: 'Application Submitted',
+          subtitle: 'Entered origination pipeline',
+          icon: Icons.send,
+          color: Colors.blue,
+        ),
+      );
     }
 
     if (app.decidedAt.isNotEmpty) {
       final isApproved =
           app.status == ApplicationStatus.APPLICATION_STATUS_APPROVED ||
-              app.status ==
-                  ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED ||
-              app.status ==
-                  ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED ||
-              app.status ==
-                  ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED;
-      events.add(_TimelineEvent(
-        timestamp: app.decidedAt,
-        title: isApproved ? 'Application Approved' : 'Decision Made',
-        subtitle: app.rejectionReason.isNotEmpty
-            ? 'Reason: ${app.rejectionReason}'
-            : 'Underwriting decision recorded',
-        icon: isApproved ? Icons.check_circle : Icons.gavel,
-        color: isApproved ? Colors.green : Colors.orange,
-      ));
+          app.status == ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED ||
+          app.status == ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED ||
+          app.status == ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED;
+      events.add(
+        _TimelineEvent(
+          timestamp: app.decidedAt,
+          title: isApproved ? 'Application Approved' : 'Decision Made',
+          subtitle: app.rejectionReason.isNotEmpty
+              ? 'Reason: ${app.rejectionReason}'
+              : 'Underwriting decision recorded',
+          icon: isApproved ? Icons.check_circle : Icons.gavel,
+          color: isApproved ? Colors.green : Colors.orange,
+        ),
+      );
     }
 
     if (app.rejectionReason.isNotEmpty &&
         (app.status == ApplicationStatus.APPLICATION_STATUS_REJECTED ||
             app.status == ApplicationStatus.APPLICATION_STATUS_CANCELLED)) {
-      events.add(_TimelineEvent(
-        timestamp: app.decidedAt.isNotEmpty ? app.decidedAt : '',
-        title: app.status == ApplicationStatus.APPLICATION_STATUS_CANCELLED
-            ? 'Application Cancelled'
-            : 'Application Rejected',
-        subtitle: app.rejectionReason,
-        icon: Icons.cancel,
-        color: Colors.red,
-      ));
+      events.add(
+        _TimelineEvent(
+          timestamp: app.decidedAt.isNotEmpty ? app.decidedAt : '',
+          title: app.status == ApplicationStatus.APPLICATION_STATUS_CANCELLED
+              ? 'Application Cancelled'
+              : 'Application Rejected',
+          subtitle: app.rejectionReason,
+          icon: Icons.cancel,
+          color: Colors.red,
+        ),
+      );
     }
 
     // Current status
-    events.add(_TimelineEvent(
-      timestamp: '',
-      title: 'Current Status',
-      subtitle: applicationStatusLabel(app.status),
-      icon: Icons.circle,
-      color: theme.colorScheme.primary,
-    ));
+    events.add(
+      _TimelineEvent(
+        timestamp: '',
+        title: 'Current Status',
+        subtitle: applicationStatusLabel(app.status),
+        icon: Icons.circle,
+        color: theme.colorScheme.primary,
+      ),
+    );
 
     // Sort by timestamp (most recent first), empty timestamps last
     events.sort((a, b) {
@@ -1805,8 +1861,7 @@ class _TimelineTab extends ConsumerWidget {
                         Text(
                           event.timestamp,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color:
-                                theme.colorScheme.onSurface.withAlpha(100),
+                            color: theme.colorScheme.onSurface.withAlpha(100),
                             fontSize: 11,
                           ),
                         ),
@@ -1838,4 +1893,3 @@ class _TimelineEvent {
   final IconData icon;
   final Color color;
 }
-

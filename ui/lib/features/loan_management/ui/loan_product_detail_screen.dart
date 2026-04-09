@@ -22,8 +22,11 @@ class LoanProductDetailScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text('Failed to load product: $error'),
             const SizedBox(height: 16),
@@ -138,15 +141,20 @@ class _TermsTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Product Information',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Product Information',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _DetailRow('Name', product.name),
                 _DetailRow('Code', product.code),
                 _DetailRow('Description', product.description),
-                _DetailRow('Product Type',
-                    _productTypeLabel(product.productType)),
+                _DetailRow(
+                  'Product Type',
+                  _productTypeLabel(product.productType),
+                ),
                 _DetailRow('Currency', product.currencyCode),
                 _DetailRow('State', product.state.name),
               ],
@@ -160,16 +168,18 @@ class _TermsTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Loan Limits',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Loan Limits',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _DetailRow('Min Amount', formatMoney(product.minAmount)),
                 _DetailRow('Max Amount', formatMoney(product.maxAmount)),
                 _DetailRow('Min Term', '${product.minTermDays} days'),
                 _DetailRow('Max Term', '${product.maxTermDays} days'),
-                _DetailRow('Grace Period',
-                    '${product.gracePeriodDays} days'),
+                _DetailRow('Grace Period', '${product.gracePeriodDays} days'),
               ],
             ),
           ),
@@ -181,22 +191,31 @@ class _TermsTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Rates & Fees',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Rates & Fees',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
-                _DetailRow('Annual Interest Rate',
-                    '${product.annualInterestRate}%'),
-                _DetailRow('Interest Method',
-                    _interestMethodLabel(product.interestMethod)),
-                _DetailRow('Repayment Frequency',
-                    _frequencyLabel(product.repaymentFrequency)),
-                _DetailRow('Processing Fee',
-                    '${product.processingFeePercent}%'),
-                _DetailRow('Insurance Fee',
-                    '${product.insuranceFeePercent}%'),
-                _DetailRow('Late Penalty Rate',
-                    '${product.latePenaltyRate}%'),
+                _DetailRow(
+                  'Annual Interest Rate',
+                  '${product.annualInterestRate}%',
+                ),
+                _DetailRow(
+                  'Interest Method',
+                  _interestMethodLabel(product.interestMethod),
+                ),
+                _DetailRow(
+                  'Repayment Frequency',
+                  _frequencyLabel(product.repaymentFrequency),
+                ),
+                _DetailRow(
+                  'Processing Fee',
+                  '${product.processingFeePercent}%',
+                ),
+                _DetailRow('Insurance Fee', '${product.insuranceFeePercent}%'),
+                _DetailRow('Late Penalty Rate', '${product.latePenaltyRate}%'),
               ],
             ),
           ),
@@ -218,8 +237,7 @@ class _TermsTab extends StatelessWidget {
   static String _interestMethodLabel(InterestMethod m) {
     return switch (m) {
       InterestMethod.INTEREST_METHOD_FLAT => 'Flat',
-      InterestMethod.INTEREST_METHOD_REDUCING_BALANCE =>
-        'Reducing Balance',
+      InterestMethod.INTEREST_METHOD_REDUCING_BALANCE => 'Reducing Balance',
       InterestMethod.INTEREST_METHOD_COMPOUND => 'Compound',
       _ => 'Unspecified',
     };
@@ -257,14 +275,18 @@ class _KycSchemaTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.list_alt_outlined,
-                size: 48,
-                color: theme.colorScheme.onSurface.withAlpha(100)),
+            Icon(
+              Icons.list_alt_outlined,
+              size: 48,
+              color: theme.colorScheme.onSurface.withAlpha(100),
+            ),
             const SizedBox(height: 16),
-            Text('No KYC schema configured',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                )),
+            Text(
+              'No KYC schema configured',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -292,15 +314,17 @@ class _KycSchemaTab extends StatelessWidget {
                 children: [
                   Text(
                     _humanize(entry.key),
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
-                      headingTextStyle: theme.textTheme.bodySmall
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      headingTextStyle: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                       dataTextStyle: theme.textTheme.bodySmall,
                       columnSpacing: 20,
                       columns: const [
@@ -310,20 +334,26 @@ class _KycSchemaTab extends StatelessWidget {
                         DataColumn(label: Text('Required')),
                       ],
                       rows: entry.value
-                          .map((f) => DataRow(cells: [
+                          .map(
+                            (f) => DataRow(
+                              cells: [
                                 DataCell(Text(f.key)),
                                 DataCell(Text(f.label)),
                                 DataCell(_TypeChip(type: f.type)),
-                                DataCell(Icon(
-                                  f.required
-                                      ? Icons.check_circle
-                                      : Icons.circle_outlined,
-                                  size: 16,
-                                  color: f.required
-                                      ? Colors.green
-                                      : Colors.grey,
-                                )),
-                              ]))
+                                DataCell(
+                                  Icon(
+                                    f.required
+                                        ? Icons.check_circle
+                                        : Icons.circle_outlined,
+                                    size: 16,
+                                    color: f.required
+                                        ? Colors.green
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -344,8 +374,11 @@ class _KycSchemaTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.preview,
-                        size: 18, color: theme.colorScheme.primary),
+                    Icon(
+                      Icons.preview,
+                      size: 18,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Form Preview',
@@ -370,8 +403,9 @@ class _KycSchemaTab extends StatelessWidget {
     return s
         .replaceAll('_', ' ')
         .split(' ')
-        .map((w) =>
-            w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
   }
 }
@@ -403,7 +437,10 @@ class _TypeChip extends StatelessWidget {
       child: Text(
         type,
         style: TextStyle(
-            fontSize: 11, fontWeight: FontWeight.w600, color: color),
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
       ),
     );
   }
@@ -427,14 +464,18 @@ class _DocumentsTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.folder_off_outlined,
-                size: 48,
-                color: theme.colorScheme.onSurface.withAlpha(100)),
+            Icon(
+              Icons.folder_off_outlined,
+              size: 48,
+              color: theme.colorScheme.onSurface.withAlpha(100),
+            ),
             const SizedBox(height: 16),
-            Text('No required documents configured',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                )),
+            Text(
+              'No required documents configured',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -459,8 +500,7 @@ class _DocumentsTab extends StatelessWidget {
                   ListTile(
                     leading: CircleAvatar(
                       radius: 16,
-                      backgroundColor:
-                          theme.colorScheme.primaryContainer,
+                      backgroundColor: theme.colorScheme.primaryContainer,
                       child: Text(
                         '${i + 1}',
                         style: TextStyle(
@@ -476,8 +516,11 @@ class _DocumentsTab extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    trailing: Icon(Icons.check_circle,
-                        size: 18, color: Colors.green.withAlpha(160)),
+                    trailing: Icon(
+                      Icons.check_circle,
+                      size: 18,
+                      color: Colors.green.withAlpha(160),
+                    ),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                   ),
@@ -494,8 +537,11 @@ class _DocumentsTab extends StatelessWidget {
         .replaceAll('_', ' ')
         .replaceAll('DOCUMENT TYPE ', '')
         .split(' ')
-        .map((w) =>
-            w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}' : '')
+        .map(
+          (w) => w.isNotEmpty
+              ? '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}'
+              : '',
+        )
         .join(' ');
   }
 }
@@ -518,14 +564,18 @@ class _EligibilityTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.rule_outlined,
-                size: 48,
-                color: theme.colorScheme.onSurface.withAlpha(100)),
+            Icon(
+              Icons.rule_outlined,
+              size: 48,
+              color: theme.colorScheme.onSurface.withAlpha(100),
+            ),
             const SizedBox(height: 16),
-            Text('No eligibility criteria configured',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                )),
+            Text(
+              'No eligibility criteria configured',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -550,8 +600,9 @@ class _EligibilityTab extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                headingTextStyle: theme.textTheme.bodySmall
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                headingTextStyle: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
                 dataTextStyle: theme.textTheme.bodySmall,
                 columnSpacing: 20,
                 columns: const [
@@ -561,20 +612,26 @@ class _EligibilityTab extends StatelessWidget {
                   DataColumn(label: Text('Blocking')),
                 ],
                 rows: criteria
-                    .map((rule) => DataRow(cells: [
+                    .map(
+                      (rule) => DataRow(
+                        cells: [
                           DataCell(Text(rule['field'] ?? '')),
                           DataCell(Text(rule['op'] ?? '')),
                           DataCell(Text('${rule['value'] ?? ''}')),
-                          DataCell(Icon(
-                            rule['blocking'] == true
-                                ? Icons.block
-                                : Icons.warning_amber,
-                            size: 16,
-                            color: rule['blocking'] == true
-                                ? Colors.red
-                                : Colors.orange,
-                          )),
-                        ]))
+                          DataCell(
+                            Icon(
+                              rule['blocking'] == true
+                                  ? Icons.block
+                                  : Icons.warning_amber,
+                              size: 16,
+                              color: rule['blocking'] == true
+                                  ? Colors.red
+                                  : Colors.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -584,8 +641,7 @@ class _EligibilityTab extends StatelessWidget {
     );
   }
 
-  List<Map<String, dynamic>> _parseCriteria(
-      dynamic eligibilityCriteria) {
+  List<Map<String, dynamic>> _parseCriteria(dynamic eligibilityCriteria) {
     try {
       final struct = eligibilityCriteria;
       // Look for a list in common keys

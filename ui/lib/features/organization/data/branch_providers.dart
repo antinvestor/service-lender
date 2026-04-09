@@ -21,10 +21,7 @@ Future<List<BranchObject>> branchList(
       cursor: PageCursor(limit: 50),
     ),
   );
-  return collectStream(
-    stream,
-    extract: (response) => response.data,
-  );
+  return collectStream(stream, extract: (response) => response.data);
 }
 
 @riverpod

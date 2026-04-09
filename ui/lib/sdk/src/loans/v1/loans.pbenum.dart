@@ -15,17 +15,26 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 /// LoanStatus defines the current status of a loan account.
 class LoanStatus extends $pb.ProtobufEnum {
-  static const LoanStatus LOAN_STATUS_UNSPECIFIED = LoanStatus._(0, _omitEnumNames ? '' : 'LOAN_STATUS_UNSPECIFIED');
-  static const LoanStatus LOAN_STATUS_PENDING_DISBURSEMENT = LoanStatus._(1, _omitEnumNames ? '' : 'LOAN_STATUS_PENDING_DISBURSEMENT');
-  static const LoanStatus LOAN_STATUS_ACTIVE = LoanStatus._(2, _omitEnumNames ? '' : 'LOAN_STATUS_ACTIVE');
-  static const LoanStatus LOAN_STATUS_DELINQUENT = LoanStatus._(3, _omitEnumNames ? '' : 'LOAN_STATUS_DELINQUENT');
-  static const LoanStatus LOAN_STATUS_DEFAULT = LoanStatus._(4, _omitEnumNames ? '' : 'LOAN_STATUS_DEFAULT');
-  static const LoanStatus LOAN_STATUS_PAID_OFF = LoanStatus._(5, _omitEnumNames ? '' : 'LOAN_STATUS_PAID_OFF');
-  static const LoanStatus LOAN_STATUS_RESTRUCTURED = LoanStatus._(6, _omitEnumNames ? '' : 'LOAN_STATUS_RESTRUCTURED');
-  static const LoanStatus LOAN_STATUS_WRITTEN_OFF = LoanStatus._(7, _omitEnumNames ? '' : 'LOAN_STATUS_WRITTEN_OFF');
-  static const LoanStatus LOAN_STATUS_CLOSED = LoanStatus._(8, _omitEnumNames ? '' : 'LOAN_STATUS_CLOSED');
+  static const LoanStatus LOAN_STATUS_UNSPECIFIED =
+      LoanStatus._(0, _omitEnumNames ? '' : 'LOAN_STATUS_UNSPECIFIED');
+  static const LoanStatus LOAN_STATUS_PENDING_DISBURSEMENT =
+      LoanStatus._(1, _omitEnumNames ? '' : 'LOAN_STATUS_PENDING_DISBURSEMENT');
+  static const LoanStatus LOAN_STATUS_ACTIVE =
+      LoanStatus._(2, _omitEnumNames ? '' : 'LOAN_STATUS_ACTIVE');
+  static const LoanStatus LOAN_STATUS_DELINQUENT =
+      LoanStatus._(3, _omitEnumNames ? '' : 'LOAN_STATUS_DELINQUENT');
+  static const LoanStatus LOAN_STATUS_DEFAULT =
+      LoanStatus._(4, _omitEnumNames ? '' : 'LOAN_STATUS_DEFAULT');
+  static const LoanStatus LOAN_STATUS_PAID_OFF =
+      LoanStatus._(5, _omitEnumNames ? '' : 'LOAN_STATUS_PAID_OFF');
+  static const LoanStatus LOAN_STATUS_RESTRUCTURED =
+      LoanStatus._(6, _omitEnumNames ? '' : 'LOAN_STATUS_RESTRUCTURED');
+  static const LoanStatus LOAN_STATUS_WRITTEN_OFF =
+      LoanStatus._(7, _omitEnumNames ? '' : 'LOAN_STATUS_WRITTEN_OFF');
+  static const LoanStatus LOAN_STATUS_CLOSED =
+      LoanStatus._(8, _omitEnumNames ? '' : 'LOAN_STATUS_CLOSED');
 
-  static const $core.List<LoanStatus> values = <LoanStatus> [
+  static const $core.List<LoanStatus> values = <LoanStatus>[
     LOAN_STATUS_UNSPECIFIED,
     LOAN_STATUS_PENDING_DISBURSEMENT,
     LOAN_STATUS_ACTIVE,
@@ -37,7 +46,8 @@ class LoanStatus extends $pb.ProtobufEnum {
     LOAN_STATUS_CLOSED,
   ];
 
-  static final $core.Map<$core.int, LoanStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, LoanStatus> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static LoanStatus? valueOf($core.int value) => _byValue[value];
 
   const LoanStatus._($core.int v, $core.String n) : super(v, n);
@@ -45,14 +55,26 @@ class LoanStatus extends $pb.ProtobufEnum {
 
 /// DisbursementStatus defines the status of a loan disbursement.
 class DisbursementStatus extends $pb.ProtobufEnum {
-  static const DisbursementStatus DISBURSEMENT_STATUS_UNSPECIFIED = DisbursementStatus._(0, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_UNSPECIFIED');
-  static const DisbursementStatus DISBURSEMENT_STATUS_PENDING = DisbursementStatus._(1, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_PENDING');
-  static const DisbursementStatus DISBURSEMENT_STATUS_PROCESSING = DisbursementStatus._(2, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_PROCESSING');
-  static const DisbursementStatus DISBURSEMENT_STATUS_COMPLETED = DisbursementStatus._(3, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_COMPLETED');
-  static const DisbursementStatus DISBURSEMENT_STATUS_FAILED = DisbursementStatus._(4, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_FAILED');
-  static const DisbursementStatus DISBURSEMENT_STATUS_REVERSED = DisbursementStatus._(5, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_REVERSED');
+  static const DisbursementStatus DISBURSEMENT_STATUS_UNSPECIFIED =
+      DisbursementStatus._(
+          0, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_UNSPECIFIED');
+  static const DisbursementStatus DISBURSEMENT_STATUS_PENDING =
+      DisbursementStatus._(
+          1, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_PENDING');
+  static const DisbursementStatus DISBURSEMENT_STATUS_PROCESSING =
+      DisbursementStatus._(
+          2, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_PROCESSING');
+  static const DisbursementStatus DISBURSEMENT_STATUS_COMPLETED =
+      DisbursementStatus._(
+          3, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_COMPLETED');
+  static const DisbursementStatus DISBURSEMENT_STATUS_FAILED =
+      DisbursementStatus._(
+          4, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_FAILED');
+  static const DisbursementStatus DISBURSEMENT_STATUS_REVERSED =
+      DisbursementStatus._(
+          5, _omitEnumNames ? '' : 'DISBURSEMENT_STATUS_REVERSED');
 
-  static const $core.List<DisbursementStatus> values = <DisbursementStatus> [
+  static const $core.List<DisbursementStatus> values = <DisbursementStatus>[
     DISBURSEMENT_STATUS_UNSPECIFIED,
     DISBURSEMENT_STATUS_PENDING,
     DISBURSEMENT_STATUS_PROCESSING,
@@ -61,7 +83,8 @@ class DisbursementStatus extends $pb.ProtobufEnum {
     DISBURSEMENT_STATUS_REVERSED,
   ];
 
-  static final $core.Map<$core.int, DisbursementStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, DisbursementStatus> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static DisbursementStatus? valueOf($core.int value) => _byValue[value];
 
   const DisbursementStatus._($core.int v, $core.String n) : super(v, n);
@@ -69,14 +92,20 @@ class DisbursementStatus extends $pb.ProtobufEnum {
 
 /// RepaymentStatus defines the status of a repayment record.
 class RepaymentStatus extends $pb.ProtobufEnum {
-  static const RepaymentStatus REPAYMENT_STATUS_UNSPECIFIED = RepaymentStatus._(0, _omitEnumNames ? '' : 'REPAYMENT_STATUS_UNSPECIFIED');
-  static const RepaymentStatus REPAYMENT_STATUS_PENDING = RepaymentStatus._(1, _omitEnumNames ? '' : 'REPAYMENT_STATUS_PENDING');
-  static const RepaymentStatus REPAYMENT_STATUS_MATCHED = RepaymentStatus._(2, _omitEnumNames ? '' : 'REPAYMENT_STATUS_MATCHED');
-  static const RepaymentStatus REPAYMENT_STATUS_PARTIAL = RepaymentStatus._(3, _omitEnumNames ? '' : 'REPAYMENT_STATUS_PARTIAL');
-  static const RepaymentStatus REPAYMENT_STATUS_OVERPAYMENT = RepaymentStatus._(4, _omitEnumNames ? '' : 'REPAYMENT_STATUS_OVERPAYMENT');
-  static const RepaymentStatus REPAYMENT_STATUS_REVERSED = RepaymentStatus._(5, _omitEnumNames ? '' : 'REPAYMENT_STATUS_REVERSED');
+  static const RepaymentStatus REPAYMENT_STATUS_UNSPECIFIED = RepaymentStatus._(
+      0, _omitEnumNames ? '' : 'REPAYMENT_STATUS_UNSPECIFIED');
+  static const RepaymentStatus REPAYMENT_STATUS_PENDING =
+      RepaymentStatus._(1, _omitEnumNames ? '' : 'REPAYMENT_STATUS_PENDING');
+  static const RepaymentStatus REPAYMENT_STATUS_MATCHED =
+      RepaymentStatus._(2, _omitEnumNames ? '' : 'REPAYMENT_STATUS_MATCHED');
+  static const RepaymentStatus REPAYMENT_STATUS_PARTIAL =
+      RepaymentStatus._(3, _omitEnumNames ? '' : 'REPAYMENT_STATUS_PARTIAL');
+  static const RepaymentStatus REPAYMENT_STATUS_OVERPAYMENT = RepaymentStatus._(
+      4, _omitEnumNames ? '' : 'REPAYMENT_STATUS_OVERPAYMENT');
+  static const RepaymentStatus REPAYMENT_STATUS_REVERSED =
+      RepaymentStatus._(5, _omitEnumNames ? '' : 'REPAYMENT_STATUS_REVERSED');
 
-  static const $core.List<RepaymentStatus> values = <RepaymentStatus> [
+  static const $core.List<RepaymentStatus> values = <RepaymentStatus>[
     REPAYMENT_STATUS_UNSPECIFIED,
     REPAYMENT_STATUS_PENDING,
     REPAYMENT_STATUS_MATCHED,
@@ -85,7 +114,8 @@ class RepaymentStatus extends $pb.ProtobufEnum {
     REPAYMENT_STATUS_REVERSED,
   ];
 
-  static final $core.Map<$core.int, RepaymentStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, RepaymentStatus> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static RepaymentStatus? valueOf($core.int value) => _byValue[value];
 
   const RepaymentStatus._($core.int v, $core.String n) : super(v, n);
@@ -93,15 +123,29 @@ class RepaymentStatus extends $pb.ProtobufEnum {
 
 /// ScheduleEntryStatus defines the status of a repayment schedule entry.
 class ScheduleEntryStatus extends $pb.ProtobufEnum {
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_UNSPECIFIED = ScheduleEntryStatus._(0, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_UNSPECIFIED');
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_UPCOMING = ScheduleEntryStatus._(1, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_UPCOMING');
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_DUE = ScheduleEntryStatus._(2, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_DUE');
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_PAID = ScheduleEntryStatus._(3, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_PAID');
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_PARTIAL = ScheduleEntryStatus._(4, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_PARTIAL');
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_OVERDUE = ScheduleEntryStatus._(5, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_OVERDUE');
-  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_WAIVED = ScheduleEntryStatus._(6, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_WAIVED');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_UNSPECIFIED =
+      ScheduleEntryStatus._(
+          0, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_UNSPECIFIED');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_UPCOMING =
+      ScheduleEntryStatus._(
+          1, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_UPCOMING');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_DUE =
+      ScheduleEntryStatus._(
+          2, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_DUE');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_PAID =
+      ScheduleEntryStatus._(
+          3, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_PAID');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_PARTIAL =
+      ScheduleEntryStatus._(
+          4, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_PARTIAL');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_OVERDUE =
+      ScheduleEntryStatus._(
+          5, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_OVERDUE');
+  static const ScheduleEntryStatus SCHEDULE_ENTRY_STATUS_WAIVED =
+      ScheduleEntryStatus._(
+          6, _omitEnumNames ? '' : 'SCHEDULE_ENTRY_STATUS_WAIVED');
 
-  static const $core.List<ScheduleEntryStatus> values = <ScheduleEntryStatus> [
+  static const $core.List<ScheduleEntryStatus> values = <ScheduleEntryStatus>[
     SCHEDULE_ENTRY_STATUS_UNSPECIFIED,
     SCHEDULE_ENTRY_STATUS_UPCOMING,
     SCHEDULE_ENTRY_STATUS_DUE,
@@ -111,7 +155,8 @@ class ScheduleEntryStatus extends $pb.ProtobufEnum {
     SCHEDULE_ENTRY_STATUS_WAIVED,
   ];
 
-  static final $core.Map<$core.int, ScheduleEntryStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, ScheduleEntryStatus> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static ScheduleEntryStatus? valueOf($core.int value) => _byValue[value];
 
   const ScheduleEntryStatus._($core.int v, $core.String n) : super(v, n);
@@ -119,13 +164,18 @@ class ScheduleEntryStatus extends $pb.ProtobufEnum {
 
 /// PenaltyType defines the type of penalty applied to a loan.
 class PenaltyType extends $pb.ProtobufEnum {
-  static const PenaltyType PENALTY_TYPE_UNSPECIFIED = PenaltyType._(0, _omitEnumNames ? '' : 'PENALTY_TYPE_UNSPECIFIED');
-  static const PenaltyType PENALTY_TYPE_LATE_PAYMENT = PenaltyType._(1, _omitEnumNames ? '' : 'PENALTY_TYPE_LATE_PAYMENT');
-  static const PenaltyType PENALTY_TYPE_DEFAULT = PenaltyType._(2, _omitEnumNames ? '' : 'PENALTY_TYPE_DEFAULT');
-  static const PenaltyType PENALTY_TYPE_EARLY_REPAYMENT = PenaltyType._(3, _omitEnumNames ? '' : 'PENALTY_TYPE_EARLY_REPAYMENT');
-  static const PenaltyType PENALTY_TYPE_BOUNCED_PAYMENT = PenaltyType._(4, _omitEnumNames ? '' : 'PENALTY_TYPE_BOUNCED_PAYMENT');
+  static const PenaltyType PENALTY_TYPE_UNSPECIFIED =
+      PenaltyType._(0, _omitEnumNames ? '' : 'PENALTY_TYPE_UNSPECIFIED');
+  static const PenaltyType PENALTY_TYPE_LATE_PAYMENT =
+      PenaltyType._(1, _omitEnumNames ? '' : 'PENALTY_TYPE_LATE_PAYMENT');
+  static const PenaltyType PENALTY_TYPE_DEFAULT =
+      PenaltyType._(2, _omitEnumNames ? '' : 'PENALTY_TYPE_DEFAULT');
+  static const PenaltyType PENALTY_TYPE_EARLY_REPAYMENT =
+      PenaltyType._(3, _omitEnumNames ? '' : 'PENALTY_TYPE_EARLY_REPAYMENT');
+  static const PenaltyType PENALTY_TYPE_BOUNCED_PAYMENT =
+      PenaltyType._(4, _omitEnumNames ? '' : 'PENALTY_TYPE_BOUNCED_PAYMENT');
 
-  static const $core.List<PenaltyType> values = <PenaltyType> [
+  static const $core.List<PenaltyType> values = <PenaltyType>[
     PENALTY_TYPE_UNSPECIFIED,
     PENALTY_TYPE_LATE_PAYMENT,
     PENALTY_TYPE_DEFAULT,
@@ -133,7 +183,8 @@ class PenaltyType extends $pb.ProtobufEnum {
     PENALTY_TYPE_BOUNCED_PAYMENT,
   ];
 
-  static final $core.Map<$core.int, PenaltyType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, PenaltyType> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static PenaltyType? valueOf($core.int value) => _byValue[value];
 
   const PenaltyType._($core.int v, $core.String n) : super(v, n);
@@ -141,14 +192,21 @@ class PenaltyType extends $pb.ProtobufEnum {
 
 /// RestructureType defines the type of loan restructure.
 class RestructureType extends $pb.ProtobufEnum {
-  static const RestructureType RESTRUCTURE_TYPE_UNSPECIFIED = RestructureType._(0, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_UNSPECIFIED');
-  static const RestructureType RESTRUCTURE_TYPE_RESCHEDULE = RestructureType._(1, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_RESCHEDULE');
-  static const RestructureType RESTRUCTURE_TYPE_REFINANCE = RestructureType._(2, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_REFINANCE');
-  static const RestructureType RESTRUCTURE_TYPE_RATE_CHANGE = RestructureType._(3, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_RATE_CHANGE');
-  static const RestructureType RESTRUCTURE_TYPE_PARTIAL_WAIVER = RestructureType._(4, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_PARTIAL_WAIVER');
-  static const RestructureType RESTRUCTURE_TYPE_WRITE_OFF = RestructureType._(5, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_WRITE_OFF');
+  static const RestructureType RESTRUCTURE_TYPE_UNSPECIFIED = RestructureType._(
+      0, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_UNSPECIFIED');
+  static const RestructureType RESTRUCTURE_TYPE_RESCHEDULE =
+      RestructureType._(1, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_RESCHEDULE');
+  static const RestructureType RESTRUCTURE_TYPE_REFINANCE =
+      RestructureType._(2, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_REFINANCE');
+  static const RestructureType RESTRUCTURE_TYPE_RATE_CHANGE = RestructureType._(
+      3, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_RATE_CHANGE');
+  static const RestructureType RESTRUCTURE_TYPE_PARTIAL_WAIVER =
+      RestructureType._(
+          4, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_PARTIAL_WAIVER');
+  static const RestructureType RESTRUCTURE_TYPE_WRITE_OFF =
+      RestructureType._(5, _omitEnumNames ? '' : 'RESTRUCTURE_TYPE_WRITE_OFF');
 
-  static const $core.List<RestructureType> values = <RestructureType> [
+  static const $core.List<RestructureType> values = <RestructureType>[
     RESTRUCTURE_TYPE_UNSPECIFIED,
     RESTRUCTURE_TYPE_RESCHEDULE,
     RESTRUCTURE_TYPE_REFINANCE,
@@ -157,7 +215,8 @@ class RestructureType extends $pb.ProtobufEnum {
     RESTRUCTURE_TYPE_WRITE_OFF,
   ];
 
-  static final $core.Map<$core.int, RestructureType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, RestructureType> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static RestructureType? valueOf($core.int value) => _byValue[value];
 
   const RestructureType._($core.int v, $core.String n) : super(v, n);
@@ -165,13 +224,23 @@ class RestructureType extends $pb.ProtobufEnum {
 
 /// ReconciliationStatus defines the status of a payment reconciliation.
 class ReconciliationStatus extends $pb.ProtobufEnum {
-  static const ReconciliationStatus RECONCILIATION_STATUS_UNSPECIFIED = ReconciliationStatus._(0, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_UNSPECIFIED');
-  static const ReconciliationStatus RECONCILIATION_STATUS_PENDING = ReconciliationStatus._(1, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_PENDING');
-  static const ReconciliationStatus RECONCILIATION_STATUS_MATCHED = ReconciliationStatus._(2, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_MATCHED');
-  static const ReconciliationStatus RECONCILIATION_STATUS_UNMATCHED = ReconciliationStatus._(3, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_UNMATCHED');
-  static const ReconciliationStatus RECONCILIATION_STATUS_DISPUTED = ReconciliationStatus._(4, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_DISPUTED');
+  static const ReconciliationStatus RECONCILIATION_STATUS_UNSPECIFIED =
+      ReconciliationStatus._(
+          0, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_UNSPECIFIED');
+  static const ReconciliationStatus RECONCILIATION_STATUS_PENDING =
+      ReconciliationStatus._(
+          1, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_PENDING');
+  static const ReconciliationStatus RECONCILIATION_STATUS_MATCHED =
+      ReconciliationStatus._(
+          2, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_MATCHED');
+  static const ReconciliationStatus RECONCILIATION_STATUS_UNMATCHED =
+      ReconciliationStatus._(
+          3, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_UNMATCHED');
+  static const ReconciliationStatus RECONCILIATION_STATUS_DISPUTED =
+      ReconciliationStatus._(
+          4, _omitEnumNames ? '' : 'RECONCILIATION_STATUS_DISPUTED');
 
-  static const $core.List<ReconciliationStatus> values = <ReconciliationStatus> [
+  static const $core.List<ReconciliationStatus> values = <ReconciliationStatus>[
     RECONCILIATION_STATUS_UNSPECIFIED,
     RECONCILIATION_STATUS_PENDING,
     RECONCILIATION_STATUS_MATCHED,
@@ -179,7 +248,8 @@ class ReconciliationStatus extends $pb.ProtobufEnum {
     RECONCILIATION_STATUS_DISPUTED,
   ];
 
-  static final $core.Map<$core.int, ReconciliationStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, ReconciliationStatus> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static ReconciliationStatus? valueOf($core.int value) => _byValue[value];
 
   const ReconciliationStatus._($core.int v, $core.String n) : super(v, n);
@@ -188,19 +258,25 @@ class ReconciliationStatus extends $pb.ProtobufEnum {
 /// InterestMethod defines how interest is calculated on a loan.
 /// Duplicated from origination.v1 for module independence.
 class InterestMethod extends $pb.ProtobufEnum {
-  static const InterestMethod INTEREST_METHOD_UNSPECIFIED = InterestMethod._(0, _omitEnumNames ? '' : 'INTEREST_METHOD_UNSPECIFIED');
-  static const InterestMethod INTEREST_METHOD_FLAT = InterestMethod._(1, _omitEnumNames ? '' : 'INTEREST_METHOD_FLAT');
-  static const InterestMethod INTEREST_METHOD_REDUCING_BALANCE = InterestMethod._(2, _omitEnumNames ? '' : 'INTEREST_METHOD_REDUCING_BALANCE');
-  static const InterestMethod INTEREST_METHOD_COMPOUND = InterestMethod._(3, _omitEnumNames ? '' : 'INTEREST_METHOD_COMPOUND');
+  static const InterestMethod INTEREST_METHOD_UNSPECIFIED =
+      InterestMethod._(0, _omitEnumNames ? '' : 'INTEREST_METHOD_UNSPECIFIED');
+  static const InterestMethod INTEREST_METHOD_FLAT =
+      InterestMethod._(1, _omitEnumNames ? '' : 'INTEREST_METHOD_FLAT');
+  static const InterestMethod INTEREST_METHOD_REDUCING_BALANCE =
+      InterestMethod._(
+          2, _omitEnumNames ? '' : 'INTEREST_METHOD_REDUCING_BALANCE');
+  static const InterestMethod INTEREST_METHOD_COMPOUND =
+      InterestMethod._(3, _omitEnumNames ? '' : 'INTEREST_METHOD_COMPOUND');
 
-  static const $core.List<InterestMethod> values = <InterestMethod> [
+  static const $core.List<InterestMethod> values = <InterestMethod>[
     INTEREST_METHOD_UNSPECIFIED,
     INTEREST_METHOD_FLAT,
     INTEREST_METHOD_REDUCING_BALANCE,
     INTEREST_METHOD_COMPOUND,
   ];
 
-  static final $core.Map<$core.int, InterestMethod> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, InterestMethod> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static InterestMethod? valueOf($core.int value) => _byValue[value];
 
   const InterestMethod._($core.int v, $core.String n) : super(v, n);
@@ -209,14 +285,26 @@ class InterestMethod extends $pb.ProtobufEnum {
 /// RepaymentFrequency defines the repayment schedule frequency.
 /// Duplicated from origination.v1 for module independence.
 class RepaymentFrequency extends $pb.ProtobufEnum {
-  static const RepaymentFrequency REPAYMENT_FREQUENCY_UNSPECIFIED = RepaymentFrequency._(0, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_UNSPECIFIED');
-  static const RepaymentFrequency REPAYMENT_FREQUENCY_DAILY = RepaymentFrequency._(1, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_DAILY');
-  static const RepaymentFrequency REPAYMENT_FREQUENCY_WEEKLY = RepaymentFrequency._(2, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_WEEKLY');
-  static const RepaymentFrequency REPAYMENT_FREQUENCY_BIWEEKLY = RepaymentFrequency._(3, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_BIWEEKLY');
-  static const RepaymentFrequency REPAYMENT_FREQUENCY_MONTHLY = RepaymentFrequency._(4, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_MONTHLY');
-  static const RepaymentFrequency REPAYMENT_FREQUENCY_QUARTERLY = RepaymentFrequency._(5, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_QUARTERLY');
+  static const RepaymentFrequency REPAYMENT_FREQUENCY_UNSPECIFIED =
+      RepaymentFrequency._(
+          0, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_UNSPECIFIED');
+  static const RepaymentFrequency REPAYMENT_FREQUENCY_DAILY =
+      RepaymentFrequency._(
+          1, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_DAILY');
+  static const RepaymentFrequency REPAYMENT_FREQUENCY_WEEKLY =
+      RepaymentFrequency._(
+          2, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_WEEKLY');
+  static const RepaymentFrequency REPAYMENT_FREQUENCY_BIWEEKLY =
+      RepaymentFrequency._(
+          3, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_BIWEEKLY');
+  static const RepaymentFrequency REPAYMENT_FREQUENCY_MONTHLY =
+      RepaymentFrequency._(
+          4, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_MONTHLY');
+  static const RepaymentFrequency REPAYMENT_FREQUENCY_QUARTERLY =
+      RepaymentFrequency._(
+          5, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_QUARTERLY');
 
-  static const $core.List<RepaymentFrequency> values = <RepaymentFrequency> [
+  static const $core.List<RepaymentFrequency> values = <RepaymentFrequency>[
     REPAYMENT_FREQUENCY_UNSPECIFIED,
     REPAYMENT_FREQUENCY_DAILY,
     REPAYMENT_FREQUENCY_WEEKLY,
@@ -225,11 +313,11 @@ class RepaymentFrequency extends $pb.ProtobufEnum {
     REPAYMENT_FREQUENCY_QUARTERLY,
   ];
 
-  static final $core.Map<$core.int, RepaymentFrequency> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, RepaymentFrequency> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static RepaymentFrequency? valueOf($core.int value) => _byValue[value];
 
   const RepaymentFrequency._($core.int v, $core.String n) : super(v, n);
 }
-
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

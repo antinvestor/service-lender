@@ -128,7 +128,9 @@ class AuthInterceptor {
         final newToken = await _authRepository.forceRefreshAccessToken();
         if (newToken == null) {
           // Refresh token is dead — session is truly over.
-          AppLogger.error('Token refresh failed (no refresh token) — logging out');
+          AppLogger.error(
+            'Token refresh failed (no refresh token) — logging out',
+          );
           _triggerAuthFailure();
           rethrow;
         }
@@ -193,20 +195,16 @@ Transport originationTransport(Ref ref) =>
     _createTransport(ref, _originationUrl);
 
 @Riverpod(keepAlive: true)
-Transport identityTransport(Ref ref) =>
-    _createTransport(ref, _identityUrl);
+Transport identityTransport(Ref ref) => _createTransport(ref, _identityUrl);
 
 @Riverpod(keepAlive: true)
-Transport savingsTransport(Ref ref) =>
-    _createTransport(ref, _savingsUrl);
+Transport savingsTransport(Ref ref) => _createTransport(ref, _savingsUrl);
 
 @Riverpod(keepAlive: true)
-Transport fundingTransport(Ref ref) =>
-    _createTransport(ref, _fundingUrl);
+Transport fundingTransport(Ref ref) => _createTransport(ref, _fundingUrl);
 
 @Riverpod(keepAlive: true)
-Transport operationsTransport(Ref ref) =>
-    _createTransport(ref, _operationsUrl);
+Transport operationsTransport(Ref ref) => _createTransport(ref, _operationsUrl);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Service clients

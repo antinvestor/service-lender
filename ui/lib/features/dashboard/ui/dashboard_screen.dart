@@ -30,15 +30,16 @@ enum _DashboardVariant { agent, creditTeam, manager }
 
 _DashboardVariant _variant(Set<LenderRole> roles) {
   // Manager/admin/owner get the full dashboard
-  if (roles.any((r) =>
-      r == LenderRole.owner ||
-      r == LenderRole.admin ||
-      r == LenderRole.manager)) {
+  if (roles.any(
+    (r) =>
+        r == LenderRole.owner ||
+        r == LenderRole.admin ||
+        r == LenderRole.manager,
+  )) {
     return _DashboardVariant.manager;
   }
   // Credit team (verifier, approver) get credit-focused dashboard
-  if (roles.any(
-      (r) => r == LenderRole.verifier || r == LenderRole.approver)) {
+  if (roles.any((r) => r == LenderRole.verifier || r == LenderRole.approver)) {
     return _DashboardVariant.creditTeam;
   }
   // Default: agent dashboard (also for viewer, auditor, service)
@@ -57,8 +58,9 @@ class _RoleDashboard extends ConsumerWidget {
       builder: (context, constraints) {
         final isMobile = AppBreakpoints.isMobile(constraints.maxWidth);
         final padding = isMobile ? 16.0 : 24.0;
-        final crossAxisCount =
-            isMobile ? 2 : (constraints.maxWidth > 900 ? 3 : 2);
+        final crossAxisCount = isMobile
+            ? 2
+            : (constraints.maxWidth > 900 ? 3 : 2);
 
         return RefreshIndicator(
           onRefresh: () async {
@@ -84,20 +86,15 @@ class _RoleDashboard extends ConsumerWidget {
                     children: [
                       Text(
                         _greetingTitle(variant),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
+                        style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _greetingSubtitle(variant),
-                        style:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -130,9 +127,7 @@ class _RoleDashboard extends ConsumerWidget {
                 ),
                 SliverPadding(
                   padding: EdgeInsets.fromLTRB(padding, 0, padding, 16),
-                  sliver: SliverToBoxAdapter(
-                    child: _PortfolioHealthRow(),
-                  ),
+                  sliver: SliverToBoxAdapter(child: _PortfolioHealthRow()),
                 ),
               ],
 
@@ -190,109 +185,109 @@ class _RoleDashboard extends ConsumerWidget {
   ) {
     return switch (variant) {
       _DashboardVariant.agent => [
-          _MetricCard(
-            label: 'Active Loans',
-            icon: Icons.account_balance_wallet_outlined,
-            accentColor: Colors.green,
-            countAsync: ref.watch(activeLoansCountProvider),
-            onTap: () => context.go('/loans'),
-          ),
-          _MetricCard(
-            label: 'Pending Disbursement',
-            icon: Icons.payments_outlined,
-            accentColor: Colors.orange,
-            countAsync: ref.watch(pendingDisbursementCountProvider),
-            onTap: () => context.go('/loans'),
-          ),
-          _MetricCard(
-            label: 'Delinquent Loans',
-            icon: Icons.warning_amber_outlined,
-            accentColor: Colors.red,
-            countAsync: ref.watch(delinquentLoansCountProvider),
-            onTap: () => context.go('/loans'),
-          ),
-          _MetricCard(
-            label: 'Offer Pending',
-            icon: Icons.local_offer_outlined,
-            accentColor: Colors.teal,
-            countAsync: ref.watch(offerPendingCountProvider),
-            onTap: () => context.go('/origination/applications'),
-          ),
-        ],
+        _MetricCard(
+          label: 'Active Loans',
+          icon: Icons.account_balance_wallet_outlined,
+          accentColor: Colors.green,
+          countAsync: ref.watch(activeLoansCountProvider),
+          onTap: () => context.go('/loans'),
+        ),
+        _MetricCard(
+          label: 'Pending Disbursement',
+          icon: Icons.payments_outlined,
+          accentColor: Colors.orange,
+          countAsync: ref.watch(pendingDisbursementCountProvider),
+          onTap: () => context.go('/loans'),
+        ),
+        _MetricCard(
+          label: 'Delinquent Loans',
+          icon: Icons.warning_amber_outlined,
+          accentColor: Colors.red,
+          countAsync: ref.watch(delinquentLoansCountProvider),
+          onTap: () => context.go('/loans'),
+        ),
+        _MetricCard(
+          label: 'Offer Pending',
+          icon: Icons.local_offer_outlined,
+          accentColor: Colors.teal,
+          countAsync: ref.watch(offerPendingCountProvider),
+          onTap: () => context.go('/origination/applications'),
+        ),
+      ],
       _DashboardVariant.creditTeam => [
-          _MetricCard(
-            label: 'Pending Verification',
-            icon: Icons.verified_user_outlined,
-            accentColor: Colors.purple,
-            countAsync: ref.watch(pendingVerificationCountProvider),
-            onTap: () => context.go('/origination/pending'),
-          ),
-          _MetricCard(
-            label: 'Pending Underwriting',
-            icon: Icons.gavel_outlined,
-            accentColor: Colors.indigo,
-            countAsync: ref.watch(pendingUnderwritingCountProvider),
-            onTap: () => context.go('/origination/pending'),
-          ),
-          _MetricCard(
-            label: 'Offer Pending',
-            icon: Icons.local_offer_outlined,
-            accentColor: Colors.teal,
-            countAsync: ref.watch(offerPendingCountProvider),
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _MetricCard(
-            label: 'Active Loans',
-            icon: Icons.account_balance_wallet_outlined,
-            accentColor: Colors.green,
-            countAsync: ref.watch(activeLoansCountProvider),
-            onTap: () => context.go('/loans'),
-          ),
-        ],
+        _MetricCard(
+          label: 'Pending Verification',
+          icon: Icons.verified_user_outlined,
+          accentColor: Colors.purple,
+          countAsync: ref.watch(pendingVerificationCountProvider),
+          onTap: () => context.go('/origination/pending'),
+        ),
+        _MetricCard(
+          label: 'Pending Underwriting',
+          icon: Icons.gavel_outlined,
+          accentColor: Colors.indigo,
+          countAsync: ref.watch(pendingUnderwritingCountProvider),
+          onTap: () => context.go('/origination/pending'),
+        ),
+        _MetricCard(
+          label: 'Offer Pending',
+          icon: Icons.local_offer_outlined,
+          accentColor: Colors.teal,
+          countAsync: ref.watch(offerPendingCountProvider),
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _MetricCard(
+          label: 'Active Loans',
+          icon: Icons.account_balance_wallet_outlined,
+          accentColor: Colors.green,
+          countAsync: ref.watch(activeLoansCountProvider),
+          onTap: () => context.go('/loans'),
+        ),
+      ],
       _DashboardVariant.manager => [
-          _MetricCard(
-            label: 'Pending Verification',
-            icon: Icons.verified_user_outlined,
-            accentColor: Colors.purple,
-            countAsync: ref.watch(pendingVerificationCountProvider),
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _MetricCard(
-            label: 'Pending Underwriting',
-            icon: Icons.gavel_outlined,
-            accentColor: Colors.indigo,
-            countAsync: ref.watch(pendingUnderwritingCountProvider),
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _MetricCard(
-            label: 'Offer Pending',
-            icon: Icons.local_offer_outlined,
-            accentColor: Colors.teal,
-            countAsync: ref.watch(offerPendingCountProvider),
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _MetricCard(
-            label: 'Active Loans',
-            icon: Icons.account_balance_wallet_outlined,
-            accentColor: Colors.green,
-            countAsync: ref.watch(activeLoansCountProvider),
-            onTap: () => context.go('/loans'),
-          ),
-          _MetricCard(
-            label: 'Pending Disbursement',
-            icon: Icons.payments_outlined,
-            accentColor: Colors.orange,
-            countAsync: ref.watch(pendingDisbursementCountProvider),
-            onTap: () => context.go('/operations/disbursements'),
-          ),
-          _MetricCard(
-            label: 'Delinquent Loans',
-            icon: Icons.warning_amber_outlined,
-            accentColor: Colors.red,
-            countAsync: ref.watch(delinquentLoansCountProvider),
-            onTap: () => context.go('/loans'),
-          ),
-        ],
+        _MetricCard(
+          label: 'Pending Verification',
+          icon: Icons.verified_user_outlined,
+          accentColor: Colors.purple,
+          countAsync: ref.watch(pendingVerificationCountProvider),
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _MetricCard(
+          label: 'Pending Underwriting',
+          icon: Icons.gavel_outlined,
+          accentColor: Colors.indigo,
+          countAsync: ref.watch(pendingUnderwritingCountProvider),
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _MetricCard(
+          label: 'Offer Pending',
+          icon: Icons.local_offer_outlined,
+          accentColor: Colors.teal,
+          countAsync: ref.watch(offerPendingCountProvider),
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _MetricCard(
+          label: 'Active Loans',
+          icon: Icons.account_balance_wallet_outlined,
+          accentColor: Colors.green,
+          countAsync: ref.watch(activeLoansCountProvider),
+          onTap: () => context.go('/loans'),
+        ),
+        _MetricCard(
+          label: 'Pending Disbursement',
+          icon: Icons.payments_outlined,
+          accentColor: Colors.orange,
+          countAsync: ref.watch(pendingDisbursementCountProvider),
+          onTap: () => context.go('/operations/disbursements'),
+        ),
+        _MetricCard(
+          label: 'Delinquent Loans',
+          icon: Icons.warning_amber_outlined,
+          accentColor: Colors.red,
+          countAsync: ref.watch(delinquentLoansCountProvider),
+          onTap: () => context.go('/loans'),
+        ),
+      ],
     };
   }
 
@@ -302,83 +297,83 @@ class _RoleDashboard extends ConsumerWidget {
   ) {
     return switch (variant) {
       _DashboardVariant.agent => [
-          _QuickActionCard(
-            icon: Icons.people_outline,
-            label: 'My Clients',
-            subtitle: 'View and onboard clients',
-            onTap: () => context.go('/field/clients'),
-          ),
-          _QuickActionCard(
-            icon: Icons.description_outlined,
-            label: 'Applications',
-            subtitle: 'Create and track applications',
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _QuickActionCard(
-            icon: Icons.credit_score_outlined,
-            label: 'Loan Accounts',
-            subtitle: 'View active loans',
-            onTap: () => context.go('/loans'),
-          ),
-        ],
+        _QuickActionCard(
+          icon: Icons.people_outline,
+          label: 'My Clients',
+          subtitle: 'View and onboard clients',
+          onTap: () => context.go('/field/clients'),
+        ),
+        _QuickActionCard(
+          icon: Icons.description_outlined,
+          label: 'Applications',
+          subtitle: 'Create and track applications',
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _QuickActionCard(
+          icon: Icons.credit_score_outlined,
+          label: 'Loan Accounts',
+          subtitle: 'View active loans',
+          onTap: () => context.go('/loans'),
+        ),
+      ],
       _DashboardVariant.creditTeam => [
-          _QuickActionCard(
-            icon: Icons.assignment_late_outlined,
-            label: 'Pending Cases',
-            subtitle: 'Cases requiring your action',
-            onTap: () => context.go('/origination/pending'),
-          ),
-          _QuickActionCard(
-            icon: Icons.description_outlined,
-            label: 'All Applications',
-            subtitle: 'Browse & manage applications',
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _QuickActionCard(
-            icon: Icons.credit_score_outlined,
-            label: 'Loan Accounts',
-            subtitle: 'View loan accounts',
-            onTap: () => context.go('/loans'),
-          ),
-        ],
+        _QuickActionCard(
+          icon: Icons.assignment_late_outlined,
+          label: 'Pending Cases',
+          subtitle: 'Cases requiring your action',
+          onTap: () => context.go('/origination/pending'),
+        ),
+        _QuickActionCard(
+          icon: Icons.description_outlined,
+          label: 'All Applications',
+          subtitle: 'Browse & manage applications',
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _QuickActionCard(
+          icon: Icons.credit_score_outlined,
+          label: 'Loan Accounts',
+          subtitle: 'View loan accounts',
+          onTap: () => context.go('/loans'),
+        ),
+      ],
       _DashboardVariant.manager => [
-          _QuickActionCard(
-            icon: Icons.assignment_late_outlined,
-            label: 'Pending Cases',
-            subtitle: 'View all cases requiring action',
-            onTap: () => context.go('/origination/pending'),
-          ),
-          _QuickActionCard(
-            icon: Icons.description_outlined,
-            label: 'All Applications',
-            subtitle: 'Browse & manage applications',
-            onTap: () => context.go('/origination/applications'),
-          ),
-          _QuickActionCard(
-            icon: Icons.credit_score_outlined,
-            label: 'Loan Accounts',
-            subtitle: 'Manage active loan accounts',
-            onTap: () => context.go('/loans'),
-          ),
-          _QuickActionCard(
-            icon: Icons.send_outlined,
-            label: 'Disbursement Queue',
-            subtitle: 'Pending disbursements',
-            onTap: () => context.go('/operations/disbursements'),
-          ),
-          _QuickActionCard(
-            icon: Icons.pie_chart_outline,
-            label: 'Portfolio Summary',
-            subtitle: 'Portfolio health & metrics',
-            onTap: () => context.go('/reports/portfolio'),
-          ),
-          _QuickActionCard(
-            icon: Icons.history_outlined,
-            label: 'Audit Log',
-            subtitle: 'Review status change history',
-            onTap: () => context.go('/admin/audit'),
-          ),
-        ],
+        _QuickActionCard(
+          icon: Icons.assignment_late_outlined,
+          label: 'Pending Cases',
+          subtitle: 'View all cases requiring action',
+          onTap: () => context.go('/origination/pending'),
+        ),
+        _QuickActionCard(
+          icon: Icons.description_outlined,
+          label: 'All Applications',
+          subtitle: 'Browse & manage applications',
+          onTap: () => context.go('/origination/applications'),
+        ),
+        _QuickActionCard(
+          icon: Icons.credit_score_outlined,
+          label: 'Loan Accounts',
+          subtitle: 'Manage active loan accounts',
+          onTap: () => context.go('/loans'),
+        ),
+        _QuickActionCard(
+          icon: Icons.send_outlined,
+          label: 'Disbursement Queue',
+          subtitle: 'Pending disbursements',
+          onTap: () => context.go('/operations/disbursements'),
+        ),
+        _QuickActionCard(
+          icon: Icons.pie_chart_outline,
+          label: 'Portfolio Summary',
+          subtitle: 'Portfolio health & metrics',
+          onTap: () => context.go('/reports/portfolio'),
+        ),
+        _QuickActionCard(
+          icon: Icons.history_outlined,
+          label: 'Audit Log',
+          subtitle: 'Review status change history',
+          onTap: () => context.go('/admin/audit'),
+        ),
+      ],
     };
   }
 }
@@ -396,10 +391,10 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       label,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            letterSpacing: 0.8,
-          ),
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        letterSpacing: 0.8,
+      ),
     );
   }
 }
@@ -476,8 +471,7 @@ class _MetricCard extends StatelessWidget {
                             loading: () => const SizedBox(
                               width: 20,
                               height: 20,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                             error: (_, _) => Icon(
                               Icons.error_outline,
@@ -543,11 +537,7 @@ class _QuickActionCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: 24,
-                color: theme.colorScheme.secondary,
-              ),
+              Icon(icon, size: 24, color: theme.colorScheme.secondary),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -632,9 +622,7 @@ class _PortfolioHealthRow extends ConsumerWidget {
       ),
       error: (_, _) => const SizedBox(
         height: 80,
-        child: Center(
-          child: Text('Portfolio data unavailable'),
-        ),
+        child: Center(child: Text('Portfolio data unavailable')),
       ),
     );
   }

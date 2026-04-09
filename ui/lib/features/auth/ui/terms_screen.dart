@@ -42,10 +42,7 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
       // Search for the agent by profile ID.
       final client = ref.read(fieldServiceClientProvider);
       final stream = client.agentSearch(
-        AgentSearchRequest(
-          query: profileId,
-          cursor: PageCursor(limit: 10),
-        ),
+        AgentSearchRequest(query: profileId, cursor: PageCursor(limit: 10)),
       );
       final agents = await collectStream(
         stream,
@@ -217,7 +214,7 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
                               onChanged: _isSubmitting
                                   ? null
                                   : (v) =>
-                                      setState(() => _accepted = v ?? false),
+                                        setState(() => _accepted = v ?? false),
                             ),
                           ),
                           const SizedBox(width: 12),

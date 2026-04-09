@@ -11,4 +11,3 @@
 // ignore_for_file: unnecessary_import, unnecessary_this, unused_import
 
 export 'openapiv3.pb.dart';
-

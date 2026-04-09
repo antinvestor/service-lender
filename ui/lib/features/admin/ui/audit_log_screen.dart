@@ -69,8 +69,11 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           child: Row(
             children: [
-              Icon(Icons.history_outlined,
-                  size: 28, color: theme.colorScheme.primary),
+              Icon(
+                Icons.history_outlined,
+                size: 28,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -84,8 +87,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
               IconButton(
                 icon: const Icon(Icons.refresh),
                 tooltip: 'Refresh',
-                onPressed: () =>
-                    ref.invalidate(loanStatusChangeListProvider()),
+                onPressed: () => ref.invalidate(loanStatusChangeListProvider()),
               ),
             ],
           ),
@@ -107,17 +109,21 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
         // Content
         Expanded(
           child: entriesAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, _) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 48, color: theme.colorScheme.error),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
                   const SizedBox(height: 16),
-                  Text('Failed to load audit log: $error',
-                      style: theme.textTheme.bodyLarge),
+                  Text(
+                    'Failed to load audit log: $error',
+                    style: theme.textTheme.bodyLarge,
+                  ),
                   const SizedBox(height: 16),
                   FilledButton.tonal(
                     onPressed: () =>
@@ -147,15 +153,15 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                         width: 64,
                         height: 64,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer
-                              .withAlpha(60),
+                          color: theme.colorScheme.primaryContainer.withAlpha(
+                            60,
+                          ),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
                           Icons.history_outlined,
                           size: 28,
-                          color:
-                              theme.colorScheme.primary.withAlpha(160),
+                          color: theme.colorScheme.primary.withAlpha(160),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -164,8 +170,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                             ? 'No matching entries found'
                             : 'No audit entries yet',
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withAlpha(140),
+                          color: theme.colorScheme.onSurface.withAlpha(140),
                         ),
                       ),
                     ],
@@ -175,12 +180,13 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
 
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 8),
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 itemCount: entries.length,
                 itemBuilder: (context, index) {
                   final entry = entries[index];
-                  final fromLabel =
-                      _loanStatusName(entry.fromStatus);
+                  final fromLabel = _loanStatusName(entry.fromStatus);
                   final toLabel = _loanStatusName(entry.toStatus);
 
                   return AuditTrailEntry(
@@ -191,9 +197,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                     performedBy: entry.changedBy.isNotEmpty
                         ? entry.changedBy
                         : null,
-                    reason: entry.reason.isNotEmpty
-                        ? entry.reason
-                        : null,
+                    reason: entry.reason.isNotEmpty ? entry.reason : null,
                     icon: Icons.swap_horiz,
                     details: {
                       'Entity': 'Loan Account',

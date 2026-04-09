@@ -12,7 +12,6 @@ import (
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
 	"github.com/antinvestor/common/permissions"
-	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -20,6 +19,8 @@ import (
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
 	"github.com/pitabwire/util"
+
+	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/origination/config"
 	"github.com/antinvestor/service-fintech/apps/origination/service/authz"
