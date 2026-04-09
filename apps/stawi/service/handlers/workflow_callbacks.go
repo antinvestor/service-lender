@@ -7,8 +7,6 @@ import (
 
 	"github.com/pitabwire/util"
 
-	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
-	opsbusiness "github.com/antinvestor/service-fintech/apps/operations/service/business"
 	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
@@ -20,12 +18,12 @@ func RegisterWorkflowCallbacks(
 	memBusiness groupbusiness.MembershipBusiness,
 	tenBusiness groupbusiness.TenureBusiness,
 	perBusiness groupbusiness.PeriodBusiness,
-	lwBusiness fundingbusiness.LoanWindowBusiness,
-	loBusiness fundingbusiness.LoanOfferBusiness,
-	lfBusiness fundingbusiness.FundingAllocationBusiness,
-	prBusiness opsbusiness.PaymentRoutingBusiness,
-	toBusiness opsbusiness.TransferOrderBusiness,
-	obBusiness opsbusiness.ObligationBusiness,
+	lwBusiness LoanWindowBusiness,
+	loBusiness LoanOfferBusiness,
+	lfBusiness FundingAllocationBusiness,
+	prBusiness PaymentRoutingBusiness,
+	toBusiness TransferOrderBusiness,
+	obBusiness ObligationBusiness,
 	platformClients *clients.PlatformClients,
 ) {
 	// Group lifecycle callbacks
@@ -207,7 +205,7 @@ func handleOpenPeriod(perBusiness groupbusiness.PeriodBusiness) http.HandlerFunc
 }
 
 func handleEvaluateLoanWindow(
-	lwBusiness fundingbusiness.LoanWindowBusiness,
+	lwBusiness LoanWindowBusiness,
 	_ groupbusiness.PeriodBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -227,7 +225,7 @@ func handleEvaluateLoanWindow(
 }
 
 func handleCalculateObligations(
-	obBusiness opsbusiness.ObligationBusiness,
+	obBusiness ObligationBusiness,
 	_ groupbusiness.MembershipBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -276,7 +274,7 @@ func handleGroupTransition(grpBusiness groupbusiness.ClientGroupBusiness) http.H
 func handleClosePeriod(
 	perBusiness groupbusiness.PeriodBusiness,
 	_ groupbusiness.MembershipBusiness,
-	_ opsbusiness.ObligationBusiness,
+	_ ObligationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -296,7 +294,7 @@ func handleClosePeriod(
 
 func handleCheckPeriodicPayment(
 	memBusiness groupbusiness.MembershipBusiness,
-	_ opsbusiness.ObligationBusiness,
+	_ ObligationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -316,8 +314,8 @@ func handleCheckPeriodicPayment(
 }
 
 func handleGenerateOffers(
-	_ fundingbusiness.LoanWindowBusiness,
-	loBusiness fundingbusiness.LoanOfferBusiness,
+	_ LoanWindowBusiness,
+	loBusiness LoanOfferBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -336,8 +334,8 @@ func handleGenerateOffers(
 }
 
 func handleSourceFunding(
-	_ fundingbusiness.LoanOfferBusiness,
-	lfBusiness fundingbusiness.FundingAllocationBusiness,
+	_ LoanOfferBusiness,
+	lfBusiness FundingAllocationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -356,7 +354,7 @@ func handleSourceFunding(
 }
 
 func handleCreateLoanAccount(
-	loBusiness fundingbusiness.LoanOfferBusiness,
+	loBusiness LoanOfferBusiness,
 	_ *clients.PlatformClients,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -391,7 +389,7 @@ func handleDisburse(_ *clients.PlatformClients) http.HandlerFunc {
 	}
 }
 
-func handleIdentifyPayment(prBusiness opsbusiness.PaymentRoutingBusiness) http.HandlerFunc {
+func handleIdentifyPayment(prBusiness PaymentRoutingBusiness) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		log := util.Log(ctx).WithField("handler", "identify-payment")
@@ -414,9 +412,9 @@ func handleIdentifyPayment(prBusiness opsbusiness.PaymentRoutingBusiness) http.H
 }
 
 func handleAllocatePayment(
-	prBusiness opsbusiness.PaymentRoutingBusiness,
-	_ opsbusiness.TransferOrderBusiness,
-	_ opsbusiness.ObligationBusiness,
+	prBusiness PaymentRoutingBusiness,
+	_ TransferOrderBusiness,
+	_ ObligationBusiness,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -434,7 +432,7 @@ func handleAllocatePayment(
 	}
 }
 
-func handleExecuteTransferOrder(toBusiness opsbusiness.TransferOrderBusiness) http.HandlerFunc {
+func handleExecuteTransferOrder(toBusiness TransferOrderBusiness) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		orderID := r.PathValue("id")
@@ -451,7 +449,7 @@ func handleExecuteTransferOrder(toBusiness opsbusiness.TransferOrderBusiness) ht
 	}
 }
 
-func handleObligationStatus(obBusiness opsbusiness.ObligationBusiness) http.HandlerFunc {
+func handleObligationStatus(obBusiness ObligationBusiness) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		obligationID := r.PathValue("id")

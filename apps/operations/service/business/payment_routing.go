@@ -11,8 +11,6 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
@@ -26,7 +24,7 @@ type paymentRoutingBusiness struct {
 	toRepo    repository.TransferOrderRepository
 	obRepo    repository.ObligationRepository
 	arRepo    repository.AccountRefRepository
-	memRepo   identityrepo.MembershipRepository
+	memRepo   MembershipReader
 	clients   *clients.PlatformClients
 }
 
@@ -35,7 +33,7 @@ func NewPaymentRoutingBusiness(_ context.Context, eventsMan fevents.Manager,
 	toRepo repository.TransferOrderRepository,
 	obRepo repository.ObligationRepository,
 	arRepo repository.AccountRefRepository,
-	memRepo identityrepo.MembershipRepository,
+	memRepo MembershipReader,
 	pc *clients.PlatformClients,
 ) PaymentRoutingBusiness {
 	return &paymentRoutingBusiness{
@@ -147,7 +145,7 @@ func (b *paymentRoutingBusiness) identifyByMembershipID(
 	if mem == nil || mem.GetID() == "" {
 		return nil, fmt.Errorf("membership not found for reference %s", ref)
 	}
-	if mem.State == int32(identitymodels.GroupStateDeleted) || mem.State == int32(identitymodels.GroupStateShutdown) {
+	if mem.State == GroupStateDeleted || mem.State == GroupStateShutdown {
 		return nil, fmt.Errorf("membership %s is not active", ref)
 	}
 	return &identificationResult{
@@ -193,12 +191,12 @@ func (b *paymentRoutingBusiness) identifyByFilteredMembership(
 	}
 
 	// Filter to MembershipTypeMember only (type 3), excluding registra, agent, funder.
-	var filtered []*identitymodels.Membership
+	var filtered []*MemberInfo
 	for _, m := range members {
-		if m.MembershipType != int32(identitymodels.MembershipTypeMember) {
+		if m.MembershipType != MembershipTypeMember {
 			continue
 		}
-		if m.State == int32(identitymodels.GroupStateDeleted) || m.State == int32(identitymodels.GroupStateShutdown) {
+		if m.State == GroupStateDeleted || m.State == GroupStateShutdown {
 			continue
 		}
 		// If a group scope is provided, further restrict to that group.
@@ -238,9 +236,9 @@ func (b *paymentRoutingBusiness) identifyByContactID(
 			return nil, fmt.Errorf("failed to get group members: %w", err)
 		}
 
-		var matched []*identitymodels.Membership
+		var matched []*MemberInfo
 		for _, m := range groupMembers {
-			if m.ContactID == contactRef && m.State != int32(identitymodels.GroupStateDeleted) {
+			if m.ContactID == contactRef && m.State != GroupStateDeleted {
 				matched = append(matched, m)
 			}
 		}
@@ -292,9 +290,9 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 		return nil, errors.New("payer name is empty after normalization")
 	}
 
-	var matched []*identitymodels.Membership
+	var matched []*MemberInfo
 	for _, m := range groupMembers {
-		if m.State == int32(identitymodels.GroupStateDeleted) || m.State == int32(identitymodels.GroupStateShutdown) {
+		if m.State == GroupStateDeleted || m.State == GroupStateShutdown {
 			continue
 		}
 		normalizedMember := normalizeNameForComparison(m.Name)
@@ -631,10 +629,10 @@ func (b *paymentRoutingBusiness) creditAccountForBucket(bucket, membershipID str
 }
 
 // filterActiveMemberships returns only memberships that are not deleted or shut down.
-func filterActiveMemberships(members []*identitymodels.Membership) []*identitymodels.Membership {
-	var active []*identitymodels.Membership
+func filterActiveMemberships(members []*MemberInfo) []*MemberInfo {
+	var active []*MemberInfo
 	for _, m := range members {
-		if m.State == int32(identitymodels.GroupStateDeleted) || m.State == int32(identitymodels.GroupStateShutdown) {
+		if m.State == GroupStateDeleted || m.State == GroupStateShutdown {
 			continue
 		}
 		active = append(active, m)

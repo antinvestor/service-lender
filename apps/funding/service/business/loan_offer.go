@@ -15,7 +15,6 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/events"
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
-	grouprepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
@@ -34,7 +33,7 @@ type loanOfferBusiness struct {
 	eventsMan fevents.Manager
 	loRepo    repository.LoanOfferRepository
 	lwRepo    repository.LoanWindowRepository
-	memRepo   grouprepo.MembershipRepository
+	memRepo   MembershipReader
 	clients   *clients.PlatformClients
 }
 
@@ -43,7 +42,7 @@ func NewLoanOfferBusiness(
 	eventsMan fevents.Manager,
 	loRepo repository.LoanOfferRepository,
 	lwRepo repository.LoanWindowRepository,
-	memRepo grouprepo.MembershipRepository,
+	memRepo MembershipReader,
 	pc *clients.PlatformClients,
 ) LoanOfferBusiness {
 	return &loanOfferBusiness{

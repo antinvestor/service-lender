@@ -108,7 +108,7 @@ func setupServiceOptions(
 
 	// Business logic
 	_ = business.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
-	_ = business.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, memRepo, platformClients)
+	_ = business.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, &membershipAdapter{repo: memRepo}, platformClients)
 	faBiz := business.NewFundingAllocationBusiness(
 		ctx,
 		evtsMan,

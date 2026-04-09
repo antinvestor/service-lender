@@ -9,12 +9,9 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
-	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
@@ -34,18 +31,18 @@ type ScheduleEntryInfo struct {
 type obligationBusiness struct {
 	eventsMan fevents.Manager
 	obRepo    repository.ObligationRepository
-	memRepo   identityrepo.MembershipRepository
-	grpRepo   identityrepo.ClientGroupRepository
-	perRepo   stawirepo.PeriodRepository
+	memRepo   MembershipReader
+	grpRepo   GroupReader
+	perRepo   PeriodReader
 }
 
 func NewObligationBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	obRepo repository.ObligationRepository,
-	memRepo identityrepo.MembershipRepository,
-	grpRepo identityrepo.ClientGroupRepository,
-	perRepo stawirepo.PeriodRepository,
+	memRepo MembershipReader,
+	grpRepo GroupReader,
+	perRepo PeriodReader,
 ) ObligationBusiness {
 	return &obligationBusiness{
 		eventsMan: eventsMan,
@@ -114,7 +111,7 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 		memberID := mem.GetID()
 
 		// Skip members that are not in a regular member role (agents, registrars)
-		if mem.MembershipType != int32(identitymodels.MembershipTypeMember) {
+		if mem.MembershipType != MembershipTypeMember {
 			continue
 		}
 

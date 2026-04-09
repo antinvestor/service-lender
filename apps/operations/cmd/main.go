@@ -27,10 +27,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/operations/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
 
-	// Funding repos used by transfer order execution (tranche redistribution)
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
-
-	// Group repos used by obligation business (Group & Membership from identity, Period from stawi)
 	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
@@ -106,30 +103,47 @@ func setupServiceOptions(
 	arRepo := repository.NewAccountRefRepository(ctx, dbPool, workMan)
 	csRepo := repository.NewCBSSyncRecordRepository(ctx, dbPool, workMan)
 
-	// Funding repositories (used by transfer order execution for tranche redistribution)
+	// Funding repositories (adapted to local interfaces)
 	lfRepo := fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan)
 	ftRepo := fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := fundingrepo.NewInvestorAccountRepository(ctx, dbPool, workMan)
 
-	// Group repositories (Group & Membership from identity, Period from stawi)
+	// Group repositories (adapted to local interfaces)
 	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
 	grpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
 	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
 
+	// Wrap external repos in adapters so the business layer stays decoupled.
+	memAdapter := &membershipAdapter{repo: memRepo}
+	grpAdapter := &groupAdapter{repo: grpRepo}
+	perAdapter := &periodAdapter{repo: perRepo}
+	lfAdapter := &loanFundingAdapter{repo: lfRepo}
+	ftAdapter := &fundingTrancheAdapter{repo: ftRepo, eventsMan: evtsMan}
+	iaAdapter := &investorAccountAdapter{repo: iaRepo, eventsMan: evtsMan}
+
 	// Business logic
-	prBiz := business.NewPaymentRoutingBusiness(ctx, evtsMan, ipRepo, toRepo, obRepo, arRepo, memRepo, platformClients)
+	prBiz := business.NewPaymentRoutingBusiness(
+		ctx,
+		evtsMan,
+		ipRepo,
+		toRepo,
+		obRepo,
+		arRepo,
+		memAdapter,
+		platformClients,
+	)
 	toBiz := business.NewTransferOrderBusiness(
 		ctx,
 		evtsMan,
 		toRepo,
 		csRepo,
 		arRepo,
-		lfRepo,
-		ftRepo,
-		iaRepo,
+		lfAdapter,
+		ftAdapter,
+		iaAdapter,
 		platformClients,
 	)
-	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, memRepo, grpRepo, perRepo)
+	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, memAdapter, grpAdapter, perAdapter)
 	_ = prBiz // used via workflow callbacks, not directly in ConnectRPC
 
 	// ConnectRPC handler

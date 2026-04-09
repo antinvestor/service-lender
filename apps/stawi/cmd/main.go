@@ -120,7 +120,14 @@ func main() {
 
 	// --- Funding business (for workflow callbacks) ---
 	lwBiz := fundingbusiness.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
-	loBiz := fundingbusiness.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, identityMemRepo, platformClients)
+	loBiz := fundingbusiness.NewLoanOfferBusiness(
+		ctx,
+		evtsMan,
+		loRepo,
+		lwRepo,
+		&fundingMembershipAdapter{repo: identityMemRepo},
+		platformClients,
+	)
 	lfBiz := fundingbusiness.NewFundingAllocationBusiness(
 		ctx,
 		evtsMan,
@@ -132,6 +139,14 @@ func main() {
 		platformClients,
 	)
 
+	// --- Adapters wrapping external repos for operations business interfaces ---
+	memAdapter := &membershipAdapter{repo: identityMemRepo}
+	grpAdapter := &groupAdapter{repo: identityGrpRepo}
+	perAdapter := &periodAdapter{repo: perRepo}
+	lfAdapter := &loanFundingAdapter{repo: lfRepo}
+	ftAdapter := &fundingTrancheAdapter{repo: ftRepo, eventsMan: evtsMan}
+	iaAdapter := &investorAccountAdapter{repo: iaRepo, eventsMan: evtsMan}
+
 	// --- Operations business (for workflow callbacks) ---
 	prBiz := opsbusiness.NewPaymentRoutingBusiness(
 		ctx,
@@ -140,7 +155,7 @@ func main() {
 		toRepo,
 		obRepo,
 		arRepo,
-		identityMemRepo,
+		memAdapter,
 		platformClients,
 	)
 	toBiz := opsbusiness.NewTransferOrderBusiness(
@@ -149,12 +164,12 @@ func main() {
 		toRepo,
 		csRepo,
 		arRepo,
-		lfRepo,
-		ftRepo,
-		iaRepo,
+		lfAdapter,
+		ftAdapter,
+		iaAdapter,
 		platformClients,
 	)
-	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, identityMemRepo, identityGrpRepo, perRepo)
+	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, memAdapter, grpAdapter, perAdapter)
 
 	// --- HTTP mux with workflow callbacks only ---
 	mux := http.NewServeMux()

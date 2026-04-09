@@ -14,8 +14,6 @@ import (
 	utilmoney "github.com/pitabwire/util/money"
 	"google.golang.org/genproto/googleapis/type/money"
 
-	fundingmodels "github.com/antinvestor/service-fintech/apps/funding/service/models"
-	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
@@ -36,9 +34,9 @@ type transferOrderBusiness struct {
 	toRepo    repository.TransferOrderRepository
 	csRepo    repository.CBSSyncRecordRepository
 	arRepo    repository.AccountRefRepository
-	lfRepo    fundingrepo.LoanFundingRepository
-	ftRepo    fundingrepo.FundingTrancheRepository
-	iaRepo    fundingrepo.InvestorAccountRepository
+	lfRepo    LoanFundingReader
+	ftRepo    FundingTrancheManager
+	iaRepo    InvestorAccountManager
 	clients   *clients.PlatformClients
 }
 
@@ -48,9 +46,9 @@ func NewTransferOrderBusiness(
 	toRepo repository.TransferOrderRepository,
 	csRepo repository.CBSSyncRecordRepository,
 	arRepo repository.AccountRefRepository,
-	lfRepo fundingrepo.LoanFundingRepository,
-	ftRepo fundingrepo.FundingTrancheRepository,
-	iaRepo fundingrepo.InvestorAccountRepository,
+	lfRepo LoanFundingReader,
+	ftRepo FundingTrancheManager,
+	iaRepo InvestorAccountManager,
 	pc *clients.PlatformClients,
 ) TransferOrderBusiness {
 	return &transferOrderBusiness{
@@ -443,9 +441,9 @@ func (b *transferOrderBusiness) redistributeRepayment(
 // loadTrancheMap loads the first tranche for each funding record into a lookup map.
 func (b *transferOrderBusiness) loadTrancheMap(
 	ctx context.Context,
-	fundings []*fundingmodels.LoanFunding,
-) map[string]*fundingmodels.FundingTranche {
-	result := make(map[string]*fundingmodels.FundingTranche)
+	fundings []*LoanFundingInfo,
+) map[string]*FundingTrancheInfo {
+	result := make(map[string]*FundingTrancheInfo)
 	if b.ftRepo == nil {
 		return result
 	}
@@ -480,25 +478,25 @@ func extractFeeRates(order *models.TransferOrder) (int64, int64) {
 func (b *transferOrderBusiness) redistributeToFundingSource(
 	ctx context.Context,
 	sourceOrder *models.TransferOrder,
-	funding *fundingmodels.LoanFunding,
+	funding *LoanFundingInfo,
 	share int64,
 	repaymentType string,
 	transferType int,
 	isInterest bool,
 	platformFeeBP, taxBP int64,
-	tranchesByFunding map[string]*fundingmodels.FundingTranche,
+	tranchesByFunding map[string]*FundingTrancheInfo,
 	logger *util.LogEntry,
 ) {
 	var creditAccount string
 	actualTransferType := transferType
 	actualAmount := share
 
-	switch fundingmodels.FundingSource(funding.FundingType) {
-	case fundingmodels.FundingSourceGroupSavings:
+	switch FundingSource(funding.FundingType) {
+	case FundingSourceGroupSavings:
 		creditAccount = constants.MemberPeriodicSavingsAccount(funding.OwnerID)
-	case fundingmodels.FundingSourceGroupIncome:
+	case FundingSourceGroupIncome:
 		creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
-	case fundingmodels.FundingSourceInvestorAffiliated, fundingmodels.FundingSourceInvestorGeneral:
+	case FundingSourceInvestorAffiliated, FundingSourceInvestorGeneral:
 		creditAccount = constants.InvestorCapitalAccount(funding.OwnerID)
 		if isInterest {
 			actualTransferType = constants.TransferTypeInvestorIncomeDistribution
@@ -525,9 +523,9 @@ func (b *transferOrderBusiness) redistributeToFundingSource(
 		} else {
 			actualTransferType = constants.TransferTypeInvestorPrincipalReturn
 		}
-	case fundingmodels.FundingSourcePlatformReserve:
+	case FundingSourcePlatformReserve:
 		creditAccount = constants.PlatformFirstLossAccount("default")
-	case fundingmodels.FundingSourceUnspecified:
+	case FundingSourceUnspecified:
 		creditAccount = constants.GroupInterestIncomeAccount(funding.OwnerID)
 	}
 
@@ -543,14 +541,14 @@ func (b *transferOrderBusiness) redistributeToFundingSource(
 		} else {
 			tranche.PrincipalRepaid += share
 		}
-		if ftErr := b.eventsMan.Emit(ctx, "funding_tranche.save", tranche); ftErr != nil {
+		if ftErr := b.ftRepo.Save(ctx, tranche); ftErr != nil {
 			logger.WithError(ftErr).Warn("could not update funding tranche")
 		}
 	}
 
 	if !isInterest && b.iaRepo != nil &&
-		(fundingmodels.FundingSource(funding.FundingType) == fundingmodels.FundingSourceInvestorAffiliated ||
-			fundingmodels.FundingSource(funding.FundingType) == fundingmodels.FundingSourceInvestorGeneral) {
+		(FundingSource(funding.FundingType) == FundingSourceInvestorAffiliated ||
+			FundingSource(funding.FundingType) == FundingSourceInvestorGeneral) {
 		b.releaseInvestorBalance(ctx, funding.OwnerID, share)
 	}
 }
@@ -605,8 +603,8 @@ func (b *transferOrderBusiness) releaseInvestorBalance(ctx context.Context, inve
 	account.AvailableBalance += amount
 	account.TotalReturned += amount
 
-	if emitErr := b.eventsMan.Emit(ctx, "investor_account.save", account); emitErr != nil {
-		util.Log(ctx).WithError(emitErr).Warn("could not update investor account after balance release")
+	if saveErr := b.iaRepo.Save(ctx, account); saveErr != nil {
+		util.Log(ctx).WithError(saveErr).Warn("could not update investor account after balance release")
 	}
 }
 
