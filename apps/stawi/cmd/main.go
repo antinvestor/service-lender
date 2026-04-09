@@ -9,7 +9,7 @@ import (
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/util"
 
-	aconfig "github.com/antinvestor/service-fintech/apps/group/config"
+	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
 	// Group domain
 	groupbusiness "github.com/antinvestor/service-fintech/apps/group/service/business"
@@ -34,14 +34,14 @@ import (
 func main() {
 	tmpCtx := context.Background()
 
-	cfg, err := config.LoadWithOIDC[aconfig.GroupConfig](tmpCtx)
+	cfg, err := config.LoadWithOIDC[aconfig.StawiConfig](tmpCtx)
 	if err != nil {
 		util.Log(tmpCtx).With("err", err).Error("could not process configs")
 		return
 	}
 
 	if cfg.Name() == "" {
-		cfg.ServiceName = "service_group"
+		cfg.ServiceName = "service_stawi"
 	}
 
 	ctx, svc := frame.NewServiceWithContext(
@@ -186,7 +186,7 @@ func main() {
 func handleDatabaseMigration(
 	ctx context.Context,
 	dbManager datastore.Manager,
-	cfg aconfig.GroupConfig,
+	cfg aconfig.StawiConfig,
 ) bool {
 	if cfg.DoDatabaseMigrate() {
 		migrationPath := cfg.GetDatabaseMigrationPath()

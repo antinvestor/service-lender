@@ -5,7 +5,7 @@ import (
 	"github.com/pitabwire/frame/config"
 )
 
-type GroupConfig struct {
+type StawiConfig struct {
 	config.ConfigurationDefault
 
 	// Identity service
@@ -50,7 +50,7 @@ type GroupConfig struct {
 }
 
 // ServiceEndpoints returns a clients.ServiceEndpoints populated from the config.
-func (c *GroupConfig) ServiceEndpoints() clients.ServiceEndpoints {
+func (c *StawiConfig) ServiceEndpoints() clients.ServiceEndpoints {
 	return clients.ServiceEndpoints{
 		IdentityURI:     c.IdentityServiceURI,
 		OriginationURI:  c.OriginationServiceURI,

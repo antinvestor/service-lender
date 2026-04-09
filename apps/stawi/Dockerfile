@@ -13,6 +13,7 @@ ARG BUILDTIME
 COPY go.mod go.sum ./
 RUN go mod download
 
+COPY ./apps/stawi ./apps/stawi
 COPY ./apps/group ./apps/group
 COPY ./apps/funding ./apps/funding
 COPY ./apps/operations ./apps/operations
@@ -25,7 +26,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
 	-X github.com/pitabwire/frame/version.Version=${VERSION} \
 	-X github.com/pitabwire/frame/version.Commit=${REVISION} \
 	-X github.com/pitabwire/frame/version.Date=${BUILDTIME}" \
-	-o /app/binary ./apps/group/cmd/main.go
+	-o /app/binary ./apps/stawi/cmd/main.go
 
 # ---------- Final ----------
 FROM cgr.dev/chainguard/static:latest
