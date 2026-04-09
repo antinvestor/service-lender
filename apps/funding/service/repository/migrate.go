@@ -17,8 +17,6 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationsDirPath
 
 func migratePool(ctx context.Context, dbPool pool.Pool, migrationsDirPath string) error {
 	return dbPool.Migrate(ctx, migrationsDirPath,
-		&models.LoanWindow{},
-		&models.LoanOffer{},
 		&models.LoanFunding{},
 		&models.FundingAllocation{},
 		&models.InvestorAccount{},

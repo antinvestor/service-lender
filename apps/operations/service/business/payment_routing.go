@@ -8,6 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
@@ -19,13 +22,13 @@ import (
 )
 
 type paymentRoutingBusiness struct {
-	eventsMan fevents.Manager
-	ipRepo    repository.IncomingPaymentRepository
-	toRepo    repository.TransferOrderRepository
-	obRepo    repository.ObligationRepository
-	arRepo    repository.AccountRefRepository
-	memRepo   MembershipReader
-	clients   *clients.PlatformClients
+	eventsMan   fevents.Manager
+	ipRepo      repository.IncomingPaymentRepository
+	toRepo      repository.TransferOrderRepository
+	obRepo      repository.ObligationRepository
+	arRepo      repository.AccountRefRepository
+	identityCli identityv1connect.IdentityServiceClient
+	clients     *clients.PlatformClients
 }
 
 func NewPaymentRoutingBusiness(_ context.Context, eventsMan fevents.Manager,
@@ -33,17 +36,17 @@ func NewPaymentRoutingBusiness(_ context.Context, eventsMan fevents.Manager,
 	toRepo repository.TransferOrderRepository,
 	obRepo repository.ObligationRepository,
 	arRepo repository.AccountRefRepository,
-	memRepo MembershipReader,
+	identityCli identityv1connect.IdentityServiceClient,
 	pc *clients.PlatformClients,
 ) PaymentRoutingBusiness {
 	return &paymentRoutingBusiness{
-		eventsMan: eventsMan,
-		ipRepo:    ipRepo,
-		toRepo:    toRepo,
-		obRepo:    obRepo,
-		arRepo:    arRepo,
-		memRepo:   memRepo,
-		clients:   pc,
+		eventsMan:   eventsMan,
+		ipRepo:      ipRepo,
+		toRepo:      toRepo,
+		obRepo:      obRepo,
+		arRepo:      arRepo,
+		identityCli: identityCli,
+		clients:     pc,
 	}
 }
 
@@ -55,16 +58,6 @@ type identificationResult struct {
 	ProfileID    string
 }
 
-// IdentifyPayment tries to match an incoming payment to a member using 5 strategies.
-// The strategies are tried in order -- first match wins.
-//
-// Strategy 1: Direct membership ID in payment reference
-// Strategy 2: Profile ID match with single membership
-// Strategy 3: Filter member subscriptions (exclude non-member types like registra, agent, funder)
-// Strategy 4: Contact ID match within group members
-// Strategy 5: Customer group name match via payer name
-//
-// If no match is found the payment is routed to the product's unidentified account.
 // identificationStrategy defines one step in the payment identification pipeline.
 type identificationStrategy struct {
 	name    string
@@ -138,21 +131,25 @@ func (b *paymentRoutingBusiness) identifyByMembershipID(
 	ctx context.Context,
 	ref string,
 ) (*identificationResult, error) {
-	mem, err := b.memRepo.GetByID(ctx, ref)
+	resp, err := b.identityCli.MembershipGet(ctx, connect.NewRequest(
+		&identityv1.MembershipGetRequest{Id: ref},
+	))
 	if err != nil {
 		return nil, err
 	}
-	if mem == nil || mem.GetID() == "" {
+	mem := resp.Msg.GetData()
+	if mem == nil || mem.GetId() == "" {
 		return nil, fmt.Errorf("membership not found for reference %s", ref)
 	}
-	if mem.State == GroupStateDeleted || mem.State == GroupStateShutdown {
+	state := int32(mem.GetState())
+	if state == GroupStateDeleted || state == GroupStateShutdown {
 		return nil, fmt.Errorf("membership %s is not active", ref)
 	}
 	return &identificationResult{
 		Strategy:     "direct_membership_id",
-		MembershipID: mem.GetID(),
-		GroupID:      mem.GroupID,
-		ProfileID:    mem.ProfileID,
+		MembershipID: mem.GetId(),
+		GroupID:      mem.GetGroupId(),
+		ProfileID:    mem.GetProfileId(),
 	}, nil
 }
 
@@ -161,12 +158,12 @@ func (b *paymentRoutingBusiness) identifyByProfileID(
 	ctx context.Context,
 	profileID string,
 ) (*identificationResult, error) {
-	members, err := b.memRepo.GetByProfileID(ctx, profileID, 0, 1000)
+	members, err := b.getMembersByProfileID(ctx, profileID)
 	if err != nil {
 		return nil, err
 	}
 
-	active := filterActiveMemberships(members)
+	active := filterActiveProtoMemberships(members)
 	if len(active) != 1 {
 		return nil, fmt.Errorf("expected exactly 1 active membership for profile %s, got %d", profileID, len(active))
 	}
@@ -174,9 +171,9 @@ func (b *paymentRoutingBusiness) identifyByProfileID(
 	mem := active[0]
 	return &identificationResult{
 		Strategy:     "profile_id",
-		MembershipID: mem.GetID(),
-		GroupID:      mem.GroupID,
-		ProfileID:    mem.ProfileID,
+		MembershipID: mem.GetId(),
+		GroupID:      mem.GetGroupId(),
+		ProfileID:    mem.GetProfileId(),
 	}, nil
 }
 
@@ -185,22 +182,23 @@ func (b *paymentRoutingBusiness) identifyByFilteredMembership(
 	ctx context.Context,
 	profileID, scopeGroupID string,
 ) (*identificationResult, error) {
-	members, err := b.memRepo.GetByProfileID(ctx, profileID, 0, 1000)
+	members, err := b.getMembersByProfileID(ctx, profileID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Filter to MembershipTypeMember only (type 3), excluding registra, agent, funder.
-	var filtered []*MemberInfo
+	var filtered []*identityv1.MembershipObject
 	for _, m := range members {
-		if m.MembershipType != MembershipTypeMember {
+		if m.GetMembershipType() != MembershipTypeMember {
 			continue
 		}
-		if m.State == GroupStateDeleted || m.State == GroupStateShutdown {
+		state := int32(m.GetState())
+		if state == GroupStateDeleted || state == GroupStateShutdown {
 			continue
 		}
 		// If a group scope is provided, further restrict to that group.
-		if scopeGroupID != "" && m.GroupID != scopeGroupID {
+		if scopeGroupID != "" && m.GetGroupId() != scopeGroupID {
 			continue
 		}
 		filtered = append(filtered, m)
@@ -217,9 +215,9 @@ func (b *paymentRoutingBusiness) identifyByFilteredMembership(
 	mem := filtered[0]
 	return &identificationResult{
 		Strategy:     "filtered_membership_type",
-		MembershipID: mem.GetID(),
-		GroupID:      mem.GroupID,
-		ProfileID:    mem.ProfileID,
+		MembershipID: mem.GetId(),
+		GroupID:      mem.GetGroupId(),
+		ProfileID:    mem.GetProfileId(),
 	}, nil
 }
 
@@ -229,16 +227,16 @@ func (b *paymentRoutingBusiness) identifyByContactID(
 	contactRef, scopeGroupID string,
 ) (*identificationResult, error) {
 	// When a group_id scope is available, search within the group's memberships for a
-	// contact_id match. This avoids a broad cross-group search.
+	// contact_id match.
 	if scopeGroupID != "" {
-		groupMembers, err := b.memRepo.GetByGroupID(ctx, scopeGroupID, 0, 1000)
+		groupMembers, err := b.getMembersByGroupID(ctx, scopeGroupID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get group members: %w", err)
 		}
 
-		var matched []*MemberInfo
+		var matched []*identityv1.MembershipObject
 		for _, m := range groupMembers {
-			if m.ContactID == contactRef && m.State != GroupStateDeleted {
+			if m.GetContactId() == contactRef && int32(m.GetState()) != GroupStateDeleted {
 				matched = append(matched, m)
 			}
 		}
@@ -247,28 +245,27 @@ func (b *paymentRoutingBusiness) identifyByContactID(
 			mem := matched[0]
 			return &identificationResult{
 				Strategy:     "contact_id",
-				MembershipID: mem.GetID(),
-				GroupID:      mem.GroupID,
-				ProfileID:    mem.ProfileID,
+				MembershipID: mem.GetId(),
+				GroupID:      mem.GetGroupId(),
+				ProfileID:    mem.GetProfileId(),
 			}, nil
 		}
 	}
 
 	// Without a group scope, fall back to a profile-based contact lookup.
-	// Use the contactRef as a profile lookup -- the contact may be stored as a profile reference.
-	members, err := b.memRepo.GetByProfileID(ctx, contactRef, 0, 1000)
+	members, err := b.getMembersByProfileID(ctx, contactRef)
 	if err != nil {
 		return nil, err
 	}
 
-	active := filterActiveMemberships(members)
+	active := filterActiveProtoMemberships(members)
 	if len(active) == 1 {
 		mem := active[0]
 		return &identificationResult{
 			Strategy:     "contact_id",
-			MembershipID: mem.GetID(),
-			GroupID:      mem.GroupID,
-			ProfileID:    mem.ProfileID,
+			MembershipID: mem.GetId(),
+			GroupID:      mem.GetGroupId(),
+			ProfileID:    mem.GetProfileId(),
 		}, nil
 	}
 
@@ -280,7 +277,7 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 	ctx context.Context,
 	payerName, groupID string,
 ) (*identificationResult, error) {
-	groupMembers, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
+	groupMembers, err := b.getMembersByGroupID(ctx, groupID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get group members for name match: %w", err)
 	}
@@ -290,12 +287,13 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 		return nil, errors.New("payer name is empty after normalization")
 	}
 
-	var matched []*MemberInfo
+	var matched []*identityv1.MembershipObject
 	for _, m := range groupMembers {
-		if m.State == GroupStateDeleted || m.State == GroupStateShutdown {
+		state := int32(m.GetState())
+		if state == GroupStateDeleted || state == GroupStateShutdown {
 			continue
 		}
-		normalizedMember := normalizeNameForComparison(m.Name)
+		normalizedMember := normalizeNameForComparison(m.GetName())
 		if normalizedMember == "" {
 			continue
 		}
@@ -314,9 +312,9 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 	mem := matched[0]
 	return &identificationResult{
 		Strategy:     "payer_name",
-		MembershipID: mem.GetID(),
-		GroupID:      mem.GroupID,
-		ProfileID:    mem.ProfileID,
+		MembershipID: mem.GetId(),
+		GroupID:      mem.GetGroupId(),
+		ProfileID:    mem.GetProfileId(),
 	}, nil
 }
 
@@ -337,16 +335,7 @@ type allocationBucket struct {
 	filter    func(o *models.Obligation) bool
 }
 
-// AllocatePayment allocates an identified payment to obligations in priority order:
-//  1. Overdue loan repayments (oldest first)
-//  2. Current loan interest repayment
-//  3. Current loan insurance repayment
-//  4. Outstanding penalties
-//  5. Periodic savings obligation
-//  6. Registration fee (if unpaid, one-time)
-//  7. Service fee
-//
-// Any remaining amount after all obligations are satisfied stays in the member's suspense account.
+// AllocatePayment allocates an identified payment to obligations in priority order.
 func (b *paymentRoutingBusiness) AllocatePayment(
 	ctx context.Context,
 	paymentID string,
@@ -361,7 +350,6 @@ func (b *paymentRoutingBusiness) AllocatePayment(
 
 	// Idempotency + concurrency guard: only allocate payments in initial state.
 	if payment.State != int32(constants.StateJustCreated) && payment.State != int32(constants.StateCheckCreated) {
-		// Already being processed or completed -- return current state.
 		return map[string]interface{}{
 			"payment_id": paymentID,
 			"status":     "already_processed",
@@ -391,8 +379,7 @@ func (b *paymentRoutingBusiness) AllocatePayment(
 		obligations = nil
 	}
 
-	// Sort obligations by deadline (oldest first) so overdue obligations are allocated first
-	// within each bucket.
+	// Sort obligations by deadline (oldest first)
 	sort.Slice(obligations, func(i, j int) bool {
 		di := obligationDeadline(obligations[i])
 		dj := obligationDeadline(obligations[j])
@@ -476,7 +463,6 @@ func obligationMatcherCurrent(activeState int32, causeType string) func(*models.
 }
 
 // runAllocationBuckets walks priority buckets and allocates funds from the payment.
-// Returns the remaining amount and all allocation records.
 func (b *paymentRoutingBusiness) runAllocationBuckets(
 	ctx context.Context,
 	logger *util.LogEntry,
@@ -515,9 +501,7 @@ func resolvePaymentState(remaining, allocated int64) int32 {
 	}
 }
 
-// allocateBucket processes a single priority bucket against obligations, creating
-// transfer orders and updating obligation state. Returns total allocated amount
-// and the updated allocations slice.
+// allocateBucket processes a single priority bucket against obligations.
 func (b *paymentRoutingBusiness) allocateBucket(
 	ctx context.Context,
 	logger *util.LogEntry,
@@ -598,10 +582,9 @@ func (b *paymentRoutingBusiness) allocateBucket(
 }
 
 // creditAccountForBucket returns the appropriate credit account reference for a given
-// allocation bucket and obligation. Interest, fees and penalties are routed to
-// group-level income accounts while principal goes to the member's loans account.
+// allocation bucket and obligation.
 func (b *paymentRoutingBusiness) creditAccountForBucket(bucket, membershipID string, obl *models.Obligation) string {
-	groupID := "" // derive from obligation properties
+	groupID := ""
 	if obl.Properties != nil {
 		if gid, ok := obl.Properties["group_id"]; ok {
 			groupID, _ = gid.(string)
@@ -628,11 +611,12 @@ func (b *paymentRoutingBusiness) creditAccountForBucket(bucket, membershipID str
 	}
 }
 
-// filterActiveMemberships returns only memberships that are not deleted or shut down.
-func filterActiveMemberships(members []*MemberInfo) []*MemberInfo {
-	var active []*MemberInfo
+// filterActiveProtoMemberships returns only memberships that are not deleted or shut down.
+func filterActiveProtoMemberships(members []*identityv1.MembershipObject) []*identityv1.MembershipObject {
+	var active []*identityv1.MembershipObject
 	for _, m := range members {
-		if m.State == GroupStateDeleted || m.State == GroupStateShutdown {
+		state := int32(m.GetState())
+		if state == GroupStateDeleted || state == GroupStateShutdown {
 			continue
 		}
 		active = append(active, m)
@@ -653,14 +637,68 @@ func obligationDeadline(o *models.Obligation) time.Time {
 	if o.Deadline != nil {
 		return *o.Deadline
 	}
-	// Obligations without a deadline sort last.
 	return time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 }
 
 // normalizeNameForComparison lowercases and collapses whitespace for fuzzy name matching.
 func normalizeNameForComparison(name string) string {
 	name = strings.ToLower(strings.TrimSpace(name))
-	// Collapse consecutive spaces.
 	parts := strings.Fields(name)
 	return strings.Join(parts, " ")
+}
+
+// getMembersByGroupID fetches group memberships via the identity SDK.
+func (b *paymentRoutingBusiness) getMembersByGroupID(
+	ctx context.Context,
+	groupID string,
+) ([]*identityv1.MembershipObject, error) {
+	if b.identityCli == nil {
+		return nil, fmt.Errorf("identity client not available")
+	}
+
+	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
+		&identityv1.MembershipSearchRequest{GroupId: groupID},
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	var members []*identityv1.MembershipObject
+	for stream.Receive() {
+		msg := stream.Msg()
+		members = append(members, msg.GetData()...)
+	}
+	if err := stream.Err(); err != nil {
+		return nil, err
+	}
+
+	return members, nil
+}
+
+// getMembersByProfileID fetches memberships for a profile via the identity SDK.
+func (b *paymentRoutingBusiness) getMembersByProfileID(
+	ctx context.Context,
+	profileID string,
+) ([]*identityv1.MembershipObject, error) {
+	if b.identityCli == nil {
+		return nil, fmt.Errorf("identity client not available")
+	}
+
+	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
+		&identityv1.MembershipSearchRequest{ProfileId: profileID},
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	var members []*identityv1.MembershipObject
+	for stream.Receive() {
+		msg := stream.Msg()
+		members = append(members, msg.GetData()...)
+	}
+	if err := stream.Err(); err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }

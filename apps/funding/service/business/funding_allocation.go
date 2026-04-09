@@ -31,7 +31,7 @@ type fundingAllocationBusiness struct {
 	eventsMan fevents.Manager
 	lfRepo    repository.LoanFundingRepository
 	faRepo    repository.FundingAllocationRepository
-	loRepo    repository.LoanOfferRepository
+	loReader  LoanOfferReader
 	iaRepo    repository.InvestorAccountRepository
 	ftRepo    repository.FundingTrancheRepository
 	clients   *clients.PlatformClients
@@ -42,7 +42,7 @@ func NewFundingAllocationBusiness(
 	eventsMan fevents.Manager,
 	lfRepo repository.LoanFundingRepository,
 	faRepo repository.FundingAllocationRepository,
-	loRepo repository.LoanOfferRepository,
+	loReader LoanOfferReader,
 	iaRepo repository.InvestorAccountRepository,
 	ftRepo repository.FundingTrancheRepository,
 	pc *clients.PlatformClients,
@@ -51,7 +51,7 @@ func NewFundingAllocationBusiness(
 		eventsMan: eventsMan,
 		lfRepo:    lfRepo,
 		faRepo:    faRepo,
-		loRepo:    loRepo,
+		loReader:  loReader,
 		iaRepo:    iaRepo,
 		ftRepo:    ftRepo,
 		clients:   pc,
@@ -66,7 +66,10 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 	logger := util.Log(ctx).WithField("method", "FundingAllocationBusiness.SourceForOffer")
 
 	// Load the offer to get amount and details
-	offer, err := b.loRepo.GetByID(ctx, offerID)
+	if b.loReader == nil {
+		return nil, fmt.Errorf("loan offer reader not configured")
+	}
+	offer, err := b.loReader.GetByID(ctx, offerID)
 	if err != nil {
 		return nil, fmt.Errorf("offer not found: %w", err)
 	}
@@ -211,7 +214,7 @@ func buildFundingTrancheRecord(
 }
 
 // buildFundingRequest extracts loan parameters from offer properties into a FundingRequest.
-func buildFundingRequest(offer *models.LoanOffer, loanAmount decimalx.Decimal) calculation.FundingRequest {
+func buildFundingRequest(offer *LoanOfferInfo, loanAmount decimalx.Decimal) calculation.FundingRequest {
 	var (
 		isGroupLoan  bool
 		groupID      string

@@ -4,9 +4,12 @@ import (
 	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationspb "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
 	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
@@ -27,8 +30,8 @@ import (
 	"github.com/antinvestor/service-fintech/apps/operations/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
 
+	fundingmodels "github.com/antinvestor/service-fintech/apps/funding/service/models"
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/clients"
@@ -72,13 +75,19 @@ func main() {
 		return
 	}
 
+	// Identity SDK client
+	identityCli, idErr := setupIdentityClient(ctx, cfg)
+	if idErr != nil {
+		log.WithError(idErr).Warn("main -- Could not setup identity client")
+	}
+
 	// Platform clients for transfer order execution (ledger, payment, etc.)
 	platformClients, pcErr := clients.NewPlatformClients(ctx, &cfg, cfg.ServiceEndpoints())
 	if pcErr != nil {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, platformClients)
+	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, identityCli, platformClients)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -94,6 +103,7 @@ func setupServiceOptions(
 	evtsMan fevents.Manager,
 	dbPool pool.Pool,
 	workMan workerpool.Manager,
+	identityCli identityv1connect.IdentityServiceClient,
 	platformClients *clients.PlatformClients,
 ) []frame.Option {
 	// Operations repositories
@@ -103,25 +113,21 @@ func setupServiceOptions(
 	arRepo := repository.NewAccountRefRepository(ctx, dbPool, workMan)
 	csRepo := repository.NewCBSSyncRecordRepository(ctx, dbPool, workMan)
 
-	// Funding repositories (adapted to local interfaces)
+	// Funding repositories (shared database, adapted to local interfaces)
 	lfRepo := fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan)
 	ftRepo := fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := fundingrepo.NewInvestorAccountRepository(ctx, dbPool, workMan)
 
-	// Group repositories (adapted to local interfaces)
-	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
-	grpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
+	// Stawi period repository (shared database)
 	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
 
-	// Wrap external repos in adapters so the business layer stays decoupled.
-	memAdapter := &membershipAdapter{repo: memRepo}
-	grpAdapter := &groupAdapter{repo: grpRepo}
+	// Wrap cross-domain repos in adapters for the business layer.
 	perAdapter := &periodAdapter{repo: perRepo}
 	lfAdapter := &loanFundingAdapter{repo: lfRepo}
 	ftAdapter := &fundingTrancheAdapter{repo: ftRepo, eventsMan: evtsMan}
 	iaAdapter := &investorAccountAdapter{repo: iaRepo, eventsMan: evtsMan}
 
-	// Business logic
+	// Business logic (identity lookups use SDK client directly)
 	prBiz := business.NewPaymentRoutingBusiness(
 		ctx,
 		evtsMan,
@@ -129,7 +135,7 @@ func setupServiceOptions(
 		toRepo,
 		obRepo,
 		arRepo,
-		memAdapter,
+		identityCli,
 		platformClients,
 	)
 	toBiz := business.NewTransferOrderBusiness(
@@ -143,7 +149,7 @@ func setupServiceOptions(
 		iaAdapter,
 		platformClients,
 	)
-	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, memAdapter, grpAdapter, perAdapter)
+	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
 	_ = prBiz // used via workflow callbacks, not directly in ConnectRPC
 
 	// ConnectRPC handler
@@ -177,6 +183,16 @@ func handleDatabaseMigration(
 		return true
 	}
 	return false
+}
+
+func setupIdentityClient(
+	ctx context.Context,
+	cfg aconfig.OperationsConfig,
+) (identityv1connect.IdentityServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:  cfg.IdentityServiceURI,
+		Audiences: []string{"service_identity"},
+	}, identityv1connect.NewIdentityServiceClient)
 }
 
 func setupConnectServer(
@@ -213,4 +229,116 @@ func setupConnectServer(
 	mux.Handle(opsPath, opsServerHandler)
 
 	return mux
+}
+
+// ---------------------------------------------------------------------------
+// Cross-domain adapters (stawi period, funding repos)
+// ---------------------------------------------------------------------------
+
+type periodAdapter struct {
+	repo stawirepo.PeriodRepository
+}
+
+func (a *periodAdapter) GetCurrentByGroupID(ctx context.Context, groupID string) (*business.PeriodInfo, error) {
+	p, err := a.repo.GetCurrentByGroupID(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil {
+		return nil, nil
+	}
+	info := &business.PeriodInfo{
+		EndDate:  p.EndDate,
+		Position: p.Position,
+	}
+	info.BaseModel = p.BaseModel
+	return info, nil
+}
+
+type loanFundingAdapter struct {
+	repo fundingrepo.LoanFundingRepository
+}
+
+func (a *loanFundingAdapter) GetByLoanOfferID(
+	ctx context.Context,
+	loanOfferID string,
+) ([]*business.LoanFundingInfo, error) {
+	fundings, err := a.repo.GetByLoanOfferID(ctx, loanOfferID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*business.LoanFundingInfo, len(fundings))
+	for i, f := range fundings {
+		info := &business.LoanFundingInfo{
+			OwnerID:     f.OwnerID,
+			FundingType: f.FundingType,
+			Proportion:  f.Proportion,
+		}
+		info.BaseModel = f.BaseModel
+		result[i] = info
+	}
+	return result, nil
+}
+
+type fundingTrancheAdapter struct {
+	repo      fundingrepo.FundingTrancheRepository
+	eventsMan fevents.Manager
+}
+
+func (a *fundingTrancheAdapter) GetByLoanFundingID(
+	ctx context.Context,
+	loanFundingID string,
+) ([]*business.FundingTrancheInfo, error) {
+	tranches, err := a.repo.GetByLoanFundingID(ctx, loanFundingID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*business.FundingTrancheInfo, len(tranches))
+	for i, t := range tranches {
+		info := &business.FundingTrancheInfo{
+			PrincipalRepaid: t.PrincipalRepaid,
+			InterestEarned:  t.InterestEarned,
+		}
+		info.BaseModel = t.BaseModel
+		result[i] = info
+	}
+	return result, nil
+}
+
+func (a *fundingTrancheAdapter) Save(ctx context.Context, tranche *business.FundingTrancheInfo) error {
+	model := &fundingmodels.FundingTranche{
+		PrincipalRepaid: tranche.PrincipalRepaid,
+		InterestEarned:  tranche.InterestEarned,
+	}
+	model.BaseModel = tranche.BaseModel
+	return a.eventsMan.Emit(ctx, "funding_tranche.save", model)
+}
+
+type investorAccountAdapter struct {
+	repo      fundingrepo.InvestorAccountRepository
+	eventsMan fevents.Manager
+}
+
+func (a *investorAccountAdapter) GetByID(ctx context.Context, id string) (*business.InvestorAccountInfo, error) {
+	acct, err := a.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	info := &business.InvestorAccountInfo{
+		ReservedBalance:  acct.ReservedBalance,
+		AvailableBalance: acct.AvailableBalance,
+		TotalReturned:    acct.TotalReturned,
+	}
+	info.BaseModel = acct.BaseModel
+	return info, nil
+}
+
+func (a *investorAccountAdapter) Save(ctx context.Context, account *business.InvestorAccountInfo) error {
+	model := &fundingmodels.InvestorAccount{
+		ReservedBalance:  account.ReservedBalance,
+		AvailableBalance: account.AvailableBalance,
+		TotalReturned:    account.TotalReturned,
+	}
+	model.BaseModel = account.BaseModel
+	return a.eventsMan.Emit(ctx, "investor_account.save", model)
 }

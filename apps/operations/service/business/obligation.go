@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -28,49 +32,57 @@ type ScheduleEntryInfo struct {
 	DueDate      *time.Time
 }
 
+// Identity state/type constants used by payment routing and obligation logic.
+const (
+	MembershipTypeMember int32 = 3 // identityv1.MembershipType_MEMBERSHIP_TYPE_MEMBER
+	GroupStateDeleted    int32 = 5
+	GroupStateShutdown   int32 = 6
+)
+
 type obligationBusiness struct {
-	eventsMan fevents.Manager
-	obRepo    repository.ObligationRepository
-	memRepo   MembershipReader
-	grpRepo   GroupReader
-	perRepo   PeriodReader
+	eventsMan   fevents.Manager
+	obRepo      repository.ObligationRepository
+	identityCli identityv1connect.IdentityServiceClient
+	perRepo     PeriodReader
 }
 
 func NewObligationBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	obRepo repository.ObligationRepository,
-	memRepo MembershipReader,
-	grpRepo GroupReader,
+	identityCli identityv1connect.IdentityServiceClient,
 	perRepo PeriodReader,
 ) ObligationBusiness {
 	return &obligationBusiness{
-		eventsMan: eventsMan,
-		obRepo:    obRepo,
-		memRepo:   memRepo,
-		grpRepo:   grpRepo,
-		perRepo:   perRepo,
+		eventsMan:   eventsMan,
+		obRepo:      obRepo,
+		identityCli: identityCli,
+		perRepo:     perRepo,
 	}
 }
 
 // CalculateForGroup computes financial obligations for all active members of
-// the given group in the current period. For each member, it creates obligation
-// records for periodic savings contributions, loan repayments, and any other
-// dues based on the group's configuration.
+// the given group in the current period.
 func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID string) error {
 	logger := util.Log(ctx).WithField("method", "ObligationBusiness.CalculateForGroup").
 		WithField("group_id", groupID)
 
 	// Load the group to get saving amount and currency
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	grpResp, err := b.identityCli.ClientGroupGet(ctx, connect.NewRequest(
+		&identityv1.ClientGroupGetRequest{Id: groupID},
+	))
 	if err != nil {
 		return fmt.Errorf("group not found: %w", err)
 	}
+	group := grpResp.Msg.GetData()
 
-	if group.State != int32(constants.StateActive) {
+	if group.GetState() != commonv1.STATE_ACTIVE {
 		logger.Warn("group is not active, skipping obligation calculation")
 		return nil
 	}
+
+	savingAmount := group.GetSavingAmount()
+	currencyCode := group.GetCurrencyCode()
 
 	// Get the current period for the group
 	period, err := b.perRepo.GetCurrentByGroupID(ctx, groupID)
@@ -81,8 +93,8 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 	logger = logger.WithField("period_id", period.GetID())
 	logger.Info("calculating obligations for group")
 
-	// Get all active memberships
-	memberships, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
+	// Get all active memberships via identity SDK
+	memberships, err := b.getMembersByGroupID(ctx, groupID)
 	if err != nil {
 		return fmt.Errorf("could not load memberships for group %s: %w", groupID, err)
 	}
@@ -108,29 +120,29 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 
 	var created int
 	for _, mem := range memberships {
-		memberID := mem.GetID()
+		memberID := mem.GetId()
 
 		// Skip members that are not in a regular member role (agents, registrars)
-		if mem.MembershipType != MembershipTypeMember {
+		if mem.GetMembershipType() != MembershipTypeMember {
 			continue
 		}
 
 		// Periodic savings obligation
-		if !existingByMember[memberID]["periodic_saving"] && group.SavingAmount > 0 {
+		if !existingByMember[memberID]["periodic_saving"] && savingAmount > 0 {
 			ob := &models.Obligation{
 				MembershipID:   memberID,
 				CauseType:      "periodic_saving",
 				CauseID:        groupID,
 				ObligationType: int32(models.ObligationTypePeriodic),
 				PeriodID:       period.GetID(),
-				Amount:         group.SavingAmount,
-				Currency:       group.CurrencyCode,
+				Amount:         savingAmount,
+				Currency:       currencyCode,
 				Deadline:       period.EndDate,
 				Description:    fmt.Sprintf("Periodic savings for period %d", period.Position),
 				State:          int32(constants.StateActive),
 			}
 			ob.GenID(ctx)
-			ob.CopyPartitionInfo(&mem.BaseModel)
+			// Partition info is set from the request context by the frame middleware.
 
 			if emitErr := b.eventsMan.Emit(ctx, events.ObligationSaveEvent, ob); emitErr != nil {
 				logger.WithError(emitErr).
@@ -153,8 +165,6 @@ func (b *obligationBusiness) CalculateForGroup(ctx context.Context, groupID stri
 }
 
 // CreateLoanObligations creates obligations for due schedule entries.
-// Called periodically (e.g. daily) or when a loan is disbursed and the schedule is generated.
-// Each schedule entry produces up to three obligations: principal, interest, and fees.
 func (b *obligationBusiness) CreateLoanObligations(
 	ctx context.Context,
 	loanAccountID string,
@@ -263,8 +273,7 @@ func (b *obligationBusiness) CreateLoanObligations(
 	return nil
 }
 
-// GetStatus returns the current status of a specific obligation, including
-// how much has been paid against it and whether it is fulfilled.
+// GetStatus returns the current status of a specific obligation.
 func (b *obligationBusiness) GetStatus(ctx context.Context, obligationID string) (map[string]interface{}, error) {
 	logger := util.Log(ctx).WithField("method", "ObligationBusiness.GetStatus").
 		WithField("obligation_id", obligationID)
@@ -310,4 +319,32 @@ func (b *obligationBusiness) GetStatus(ctx context.Context, obligationID string)
 	}
 
 	return status, nil
+}
+
+// getMembersByGroupID fetches group memberships via the identity SDK.
+func (b *obligationBusiness) getMembersByGroupID(
+	ctx context.Context,
+	groupID string,
+) ([]*identityv1.MembershipObject, error) {
+	if b.identityCli == nil {
+		return nil, fmt.Errorf("identity client not available")
+	}
+
+	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
+		&identityv1.MembershipSearchRequest{GroupId: groupID},
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	var members []*identityv1.MembershipObject
+	for stream.Receive() {
+		msg := stream.Msg()
+		members = append(members, msg.GetData()...)
+	}
+	if err := stream.Err(); err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }

@@ -26,5 +26,7 @@ func migratePool(ctx context.Context, dbPool pool.Pool, migrationsDirPath string
 		&models.MemberScore{},
 		&models.Occurrence{},
 		&models.RequestLog{},
+		&models.LoanWindow{},
+		&models.LoanOffer{},
 	)
 }

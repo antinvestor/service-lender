@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"time"
 
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	"github.com/pitabwire/util/decimalx"
+	money "google.golang.org/genproto/googleapis/type/money"
 
-	"github.com/antinvestor/service-fintech/apps/funding/service/events"
-	"github.com/antinvestor/service-fintech/apps/funding/service/models"
-	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/events"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
@@ -27,14 +30,29 @@ const (
 	decimalPrecisionOffer = 2
 	// membershipTypeMember is the membership type value for regular members.
 	membershipTypeMember = int32(3)
+	// percentageDivisor is the number of minor units per major currency unit.
+	percentageDivisor = 100
+	// moneyNanosFactor converts minor-unit remainders to protobuf nanos (1e9 / 100).
+	moneyNanosFactor = 10_000_000
 )
 
+// minorUnitsToMoney converts minor units and a currency code to a *money.Money.
+func minorUnitsToMoney(v int64, currencyCode string) *money.Money {
+	units := v / percentageDivisor
+	nanos := (v % percentageDivisor) * moneyNanosFactor
+	return &money.Money{
+		CurrencyCode: currencyCode,
+		Units:        units,
+		Nanos:        int32(nanos),
+	}
+}
+
 type loanOfferBusiness struct {
-	eventsMan fevents.Manager
-	loRepo    repository.LoanOfferRepository
-	lwRepo    repository.LoanWindowRepository
-	memRepo   MembershipReader
-	clients   *clients.PlatformClients
+	eventsMan   fevents.Manager
+	loRepo      repository.LoanOfferRepository
+	lwRepo      repository.LoanWindowRepository
+	identityCli identityv1connect.IdentityServiceClient
+	clients     *clients.PlatformClients
 }
 
 func NewLoanOfferBusiness(
@@ -42,15 +60,15 @@ func NewLoanOfferBusiness(
 	eventsMan fevents.Manager,
 	loRepo repository.LoanOfferRepository,
 	lwRepo repository.LoanWindowRepository,
-	memRepo MembershipReader,
+	identityCli identityv1connect.IdentityServiceClient,
 	pc *clients.PlatformClients,
 ) LoanOfferBusiness {
 	return &loanOfferBusiness{
-		eventsMan: eventsMan,
-		loRepo:    loRepo,
-		lwRepo:    lwRepo,
-		memRepo:   memRepo,
-		clients:   pc,
+		eventsMan:   eventsMan,
+		loRepo:      loRepo,
+		lwRepo:      lwRepo,
+		identityCli: identityCli,
+		clients:     pc,
 	}
 }
 
@@ -67,8 +85,8 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 		return nil, fmt.Errorf("loan window is not active (state=%d)", window.State)
 	}
 
-	// Get all active members in the window's group
-	members, err := b.memRepo.GetByGroupID(ctx, window.GroupID, 0, 1000)
+	// Get all active members in the window's group via identity SDK
+	members, err := b.getMembersByGroupID(ctx, window.GroupID)
 	if err != nil {
 		return nil, fmt.Errorf("could not load memberships for group %s: %w", window.GroupID, err)
 	}
@@ -87,10 +105,10 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 	expiryTime := time.Now().Add(offerExpiryHours * time.Hour)
 
 	for _, mem := range members {
-		memberID := mem.GetID()
+		memberID := mem.GetId()
 
 		// Skip non-regular members (agents, registrars)
-		if mem.MembershipType != membershipTypeMember {
+		if mem.GetMembershipType() != membershipTypeMember {
 			continue
 		}
 
@@ -101,7 +119,6 @@ func (b *loanOfferBusiness) GenerateForWindow(ctx context.Context, windowID stri
 		}
 
 		// Calculate max loan amount using the window's leverage and periodic amount
-		// The periodic amount represents the member's savings balance for the window
 		periodicDec := decimalx.FromMinorUnits(window.PeriodicAmount, decimalPrecisionOffer)
 		maxLoanDec := calculation.CalculateMaxLoanAmount(periodicDec, window.Leverage)
 		maxLoan := maxLoanDec.ToMinorUnits(decimalPrecisionOffer)
@@ -220,7 +237,7 @@ func (b *loanOfferBusiness) createLoanFromOffer(
 		return
 	}
 
-	offerMoney := models.MinorUnitsToMoney(offer.Amount, offer.Currency)
+	offerMoney := minorUnitsToMoney(offer.Amount, offer.Currency)
 	appObj := &originationv1.ApplicationObject{
 		RequestedAmount: offerMoney,
 		ApprovedAmount:  offerMoney,
@@ -255,4 +272,32 @@ func (b *loanOfferBusiness) createLoanFromOffer(
 		offer.LoanAccountID = loanResp.Msg.GetData().GetId()
 		result["loan_account_id"] = offer.LoanAccountID
 	}
+}
+
+// getMembersByGroupID fetches group memberships via the identity SDK.
+func (b *loanOfferBusiness) getMembersByGroupID(
+	ctx context.Context,
+	groupID string,
+) ([]*identityv1.MembershipObject, error) {
+	if b.identityCli == nil {
+		return nil, fmt.Errorf("identity client not available")
+	}
+
+	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
+		&identityv1.MembershipSearchRequest{GroupId: groupID},
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	var members []*identityv1.MembershipObject
+	for stream.Receive() {
+		msg := stream.Msg()
+		members = append(members, msg.GetData()...)
+	}
+	if err := stream.Err(); err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }

@@ -4,18 +4,21 @@ import (
 	"context"
 
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
+	"github.com/pitabwire/frame/data"
 )
 
-// LoanWindowBusiness handles loan window operations.
-type LoanWindowBusiness interface {
-	Evaluate(ctx context.Context, groupID string) (map[string]interface{}, error)
+// LoanOfferInfo is a lightweight projection of the loan offer for funding allocation.
+type LoanOfferInfo struct {
+	data.BaseModel
+	Amount     int64
+	Currency   string
+	Properties data.JSONMap
 }
 
-// LoanOfferBusiness handles loan offer operations.
-type LoanOfferBusiness interface {
-	GenerateForWindow(ctx context.Context, windowID string) (interface{}, error)
-	Respond(ctx context.Context, offerID string, response int32) error
-	CreateLoanAccount(ctx context.Context, offerID string) (map[string]interface{}, error)
+// LoanOfferReader provides read access to loan offer data.
+// Implemented by adapters in cmd/ that wrap stawi repos or SDK clients.
+type LoanOfferReader interface {
+	GetByID(ctx context.Context, id string) (*LoanOfferInfo, error)
 }
 
 // FundingAllocationBusiness handles funding allocation operations.

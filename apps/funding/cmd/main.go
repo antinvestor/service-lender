@@ -27,8 +27,8 @@ import (
 	fundinghandlers "github.com/antinvestor/service-fintech/apps/funding/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
-	// Group repos used by loan offer business
-	grouprepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
+	stawimodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
+	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
@@ -96,25 +96,21 @@ func setupServiceOptions(
 	platformClients *clients.PlatformClients,
 ) []frame.Option {
 	// Funding repositories
-	lwRepo := repository.NewLoanWindowRepository(ctx, dbPool, workMan)
-	loRepo := repository.NewLoanOfferRepository(ctx, dbPool, workMan)
 	lfRepo := repository.NewLoanFundingRepository(ctx, dbPool, workMan)
 	faRepo := repository.NewFundingAllocationRepository(ctx, dbPool, workMan)
 	ftRepo := repository.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := repository.NewInvestorAccountRepository(ctx, dbPool, workMan)
 
-	// Group repositories (used by loan offer business)
-	memRepo := grouprepo.NewMembershipRepository(ctx, dbPool, workMan)
+	// Stawi loan offer repository (shared database, needed for FundLoan RPC)
+	loRepo := stawirepo.NewLoanOfferRepository(ctx, dbPool, workMan)
 
 	// Business logic
-	_ = business.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
-	_ = business.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, &membershipAdapter{repo: memRepo}, platformClients)
 	faBiz := business.NewFundingAllocationBusiness(
 		ctx,
 		evtsMan,
 		lfRepo,
 		faRepo,
-		loRepo,
+		&loanOfferAdapter{repo: loRepo},
 		iaRepo,
 		ftRepo,
 		platformClients,
@@ -130,8 +126,6 @@ func setupServiceOptions(
 		frame.WithHTTPHandler(connectHandler),
 		frame.WithPermissionRegistration(sd),
 		frame.WithRegisterEvents(
-			fundingevents.NewLoanWindowSave(ctx, lwRepo),
-			fundingevents.NewLoanOfferSave(ctx, loRepo),
 			fundingevents.NewLoanFundingSave(ctx, lfRepo),
 			fundingevents.NewFundingAllocationSave(ctx, faRepo),
 			fundingevents.NewFundingTrancheSave(ctx, ftRepo),
@@ -153,6 +147,32 @@ func handleDatabaseMigration(
 		return true
 	}
 	return false
+}
+
+// loanOfferAdapter wraps stawi's LoanOfferRepository to satisfy business.LoanOfferReader.
+type loanOfferAdapter struct {
+	repo stawirepo.LoanOfferRepository
+}
+
+func (a *loanOfferAdapter) GetByID(ctx context.Context, id string) (*business.LoanOfferInfo, error) {
+	offer, err := a.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return loanOfferToInfo(offer), nil
+}
+
+func loanOfferToInfo(o *stawimodels.LoanOffer) *business.LoanOfferInfo {
+	if o == nil {
+		return nil
+	}
+	info := &business.LoanOfferInfo{
+		Amount:     o.Amount,
+		Currency:   o.Currency,
+		Properties: o.Properties,
+	}
+	info.BaseModel = o.BaseModel
+	return info
 }
 
 func setupConnectServer(

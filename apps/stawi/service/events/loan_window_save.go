@@ -6,15 +6,15 @@ import (
 
 	"github.com/pitabwire/frame/events"
 
-	"github.com/antinvestor/service-fintech/apps/funding/service/models"
-	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
+	"github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 )
 
 const LoanWindowSaveEvent = "loan_window.save"
 
 // NewLoanWindowSave creates a new loan window save event handler.
 func NewLoanWindowSave(_ context.Context, repo repository.LoanWindowRepository) events.EventI {
-	return &eventHandler[*models.LoanWindow]{
+	return &baseEventHandler[*models.LoanWindow]{
 		name:    LoanWindowSaveEvent,
 		factory: func() *models.LoanWindow { return &models.LoanWindow{} },
 		validate: func(_ context.Context, lw *models.LoanWindow) error {

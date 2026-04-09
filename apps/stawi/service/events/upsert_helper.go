@@ -2,11 +2,13 @@ package events
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 )
 
 // versionedModel extends data.BaseModelI with a settable Version field.
@@ -101,4 +103,70 @@ func (e *eventHandler[T]) Execute(ctx context.Context, payload any) error {
 		return fmt.Errorf("invalid payload type for %s", e.name)
 	}
 	return upsertVersioned(ctx, e.repo, entity, e.name)
+}
+
+// upsertByID is a generic helper that executes an ID-based upsert for models
+// that do not implement SetVersion (e.g. LoanWindow, LoanOffer).
+func upsertByID[T data.BaseModelI](
+	ctx context.Context,
+	repo datastore.BaseRepository[T],
+	entity T,
+	eventName string,
+) error {
+	log := util.Log(ctx)
+
+	existing, err := repo.GetByID(ctx, entity.GetID())
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.WithError(err).Error(fmt.Sprintf("%s -- failed to check existing record", eventName))
+		return err
+	}
+
+	if err == nil && existing.GetID() != "" {
+		_, err = repo.Update(ctx, entity)
+		if err != nil {
+			log.WithError(err).Error(fmt.Sprintf("%s -- failed to update record", eventName))
+			return err
+		}
+		return nil
+	}
+
+	err = repo.Create(ctx, entity)
+	if err != nil {
+		log.WithError(err).Error(fmt.Sprintf("%s -- failed to create record", eventName))
+		return err
+	}
+	return nil
+}
+
+// baseEventHandler is a generic event handler for models that use data.BaseModelI
+// (without SetVersion), using upsertByID instead of upsertVersioned.
+type baseEventHandler[T data.BaseModelI] struct {
+	name     string
+	factory  func() T
+	validate func(context.Context, T) error
+	repo     datastore.BaseRepository[T]
+}
+
+func (e *baseEventHandler[T]) Name() string {
+	return e.name
+}
+
+func (e *baseEventHandler[T]) PayloadType() any {
+	return e.factory()
+}
+
+func (e *baseEventHandler[T]) Validate(ctx context.Context, payload any) error {
+	entity, ok := payload.(T)
+	if !ok {
+		return fmt.Errorf("invalid payload type for %s", e.name)
+	}
+	return e.validate(ctx, entity)
+}
+
+func (e *baseEventHandler[T]) Execute(ctx context.Context, payload any) error {
+	entity, ok := payload.(T)
+	if !ok {
+		return fmt.Errorf("invalid payload type for %s", e.name)
+	}
+	return upsertByID(ctx, e.repo, entity, e.name)
 }

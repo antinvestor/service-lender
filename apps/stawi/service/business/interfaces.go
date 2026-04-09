@@ -47,3 +47,15 @@ type MotionBusiness interface {
 	Create(ctx context.Context, motion *models.Motion) (*models.Motion, error)
 	Vote(ctx context.Context, motionID, membershipID string, choice int32) error
 }
+
+// LoanWindowBusiness handles loan window operations.
+type LoanWindowBusiness interface {
+	Evaluate(ctx context.Context, groupID string) (map[string]interface{}, error)
+}
+
+// LoanOfferBusiness handles loan offer operations.
+type LoanOfferBusiness interface {
+	GenerateForWindow(ctx context.Context, windowID string) (interface{}, error)
+	Respond(ctx context.Context, offerID string, response int32) error
+	CreateLoanAccount(ctx context.Context, offerID string) (map[string]interface{}, error)
+}

@@ -6,6 +6,67 @@ import (
 	"github.com/pitabwire/frame/data"
 )
 
+// LoanOfferResponse defines a member's response to a loan offer.
+type LoanOfferResponse int32
+
+const (
+	LoanOfferResponseNone   LoanOfferResponse = 0
+	LoanOfferResponseAccept LoanOfferResponse = 1
+	LoanOfferResponseReject LoanOfferResponse = 2
+	LoanOfferResponseHalf   LoanOfferResponse = 3
+	LoanOfferResponseBlock  LoanOfferResponse = 4
+	LoanOfferResponseCustom LoanOfferResponse = 5
+)
+
+// LoanOfferType defines whether a loan was offered or self-initiated.
+type LoanOfferType int32
+
+const (
+	LoanOfferTypeUnspecified   LoanOfferType = 0
+	LoanOfferTypeOffered       LoanOfferType = 1
+	LoanOfferTypeSelfInitiated LoanOfferType = 2
+)
+
+// LoanWindow represents a lending window for a member within a group cycle.
+type LoanWindow struct {
+	data.BaseModel
+	GroupID        string `gorm:"type:varchar(50);index:idx_lw_group;not null"`
+	MembershipID   string `gorm:"type:varchar(50);index:idx_lw_member;not null"`
+	TenureID       string `gorm:"type:varchar(50);index:idx_lw_tenure;not null"`
+	PeriodID       string `gorm:"type:varchar(50);index:idx_lw_period;not null"`
+	GracePeriod    int32
+	LoanTenure     int32
+	Position       int32
+	PeriodicAmount int64  // minor units
+	Leverage       int64  // basis points (e.g. 190 = 1.90x)
+	Currency       string `gorm:"type:varchar(3)"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *LoanWindow) TableName() string { return "loan_windows" }
+
+// LoanOffer represents a loan offer to a member (maps from Java LoanRequest).
+type LoanOffer struct {
+	data.BaseModel
+	MembershipID   string `gorm:"type:varchar(50);index:idx_lo_member;not null"`
+	LoanWindowID   string `gorm:"type:varchar(50);index:idx_lo_window;not null"`
+	PeriodID       string `gorm:"type:varchar(50);index:idx_lo_period;not null"`
+	Amount         int64  // minor units - offered amount
+	Currency       string `gorm:"type:varchar(3)"`
+	OfferType      int32  `gorm:"column:offer_type"`
+	Response       int32  // LoanOfferResponse
+	ExpiryDate     *time.Time
+	NotificationID string `gorm:"type:varchar(50)"`
+	Description    string `gorm:"type:text"`
+	LoanAccountID  string `gorm:"type:varchar(50)"` // cross-ref to Lender LoanAccountObject
+	ApplicationID  string `gorm:"type:varchar(50)"` // cross-ref to Lender ApplicationObject
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *LoanOffer) TableName() string { return "loan_offers" }
+
 // PeriodType defines the period frequency.
 type PeriodType int32
 

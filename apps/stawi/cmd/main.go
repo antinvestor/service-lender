@@ -14,18 +14,17 @@ import (
 
 	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
-	// Identity repos (still needed by funding/operations business within workflow callbacks)
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
-
-	// Stawi domain (Tenure, Period, Motion, Infraction)
+	// Stawi domain (Tenure, Period, Motion, Infraction, LoanWindow, LoanOffer)
 	stawibusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	stawievents "github.com/antinvestor/service-fintech/apps/stawi/service/events"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/handlers"
+	stawimodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
 	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
-	// Funding domain
+	// Funding domain (LoanFunding, FundingAllocation, InvestorAccount, FundingTranche)
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
 	fundingevents "github.com/antinvestor/service-fintech/apps/funding/service/events"
+	fundingmodels "github.com/antinvestor/service-fintech/apps/funding/service/models"
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
 	// Operations domain
@@ -35,6 +34,8 @@ import (
 
 	// Platform clients
 	"github.com/antinvestor/service-fintech/pkg/clients"
+
+	fevents "github.com/pitabwire/frame/events"
 )
 
 func main() {
@@ -86,15 +87,15 @@ func main() {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
-	// --- Stawi repositories (Tenure, Period, Motion, Infraction) ---
+	// --- Stawi repositories (Tenure, Period, Motion, Infraction, LoanWindow, LoanOffer) ---
 	tenRepo := stawirepo.NewTenureRepository(ctx, dbPool, workMan)
 	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
 	motRepo := stawirepo.NewMotionRepository(ctx, dbPool, workMan)
 	infRepo := stawirepo.NewInfractionRepository(ctx, dbPool, workMan)
+	lwRepo := stawirepo.NewLoanWindowRepository(ctx, dbPool, workMan)
+	loRepo := stawirepo.NewLoanOfferRepository(ctx, dbPool, workMan)
 
 	// --- Funding repositories (needed by workflow callbacks) ---
-	lwRepo := fundingrepo.NewLoanWindowRepository(ctx, dbPool, workMan)
-	loRepo := fundingrepo.NewLoanOfferRepository(ctx, dbPool, workMan)
 	lfRepo := fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan)
 	faRepo := fundingrepo.NewFundingAllocationRepository(ctx, dbPool, workMan)
 	ftRepo := fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan)
@@ -114,40 +115,29 @@ func main() {
 	perBiz := stawibusiness.NewPeriodBusiness(ctx, evtsMan, tenRepo, perRepo)
 	_ = stawibusiness.NewMotionBusiness(ctx, evtsMan, motRepo)
 
-	// --- Identity repos (still needed by funding/operations business for workflow callbacks) ---
-	identityMemRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
-	identityGrpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
+	// --- Stawi loan window/offer business ---
+	lwBiz := stawibusiness.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
+	loBiz := stawibusiness.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, identityCli, platformClients)
 
 	// --- Funding business (for workflow callbacks) ---
-	lwBiz := fundingbusiness.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
-	loBiz := fundingbusiness.NewLoanOfferBusiness(
-		ctx,
-		evtsMan,
-		loRepo,
-		lwRepo,
-		&fundingMembershipAdapter{repo: identityMemRepo},
-		platformClients,
-	)
 	lfBiz := fundingbusiness.NewFundingAllocationBusiness(
 		ctx,
 		evtsMan,
 		lfRepo,
 		faRepo,
-		loRepo,
+		&loanOfferAdapter{repo: loRepo},
 		iaRepo,
 		ftRepo,
 		platformClients,
 	)
 
-	// --- Adapters wrapping external repos for operations business interfaces ---
-	memAdapter := &membershipAdapter{repo: identityMemRepo}
-	grpAdapter := &groupAdapter{repo: identityGrpRepo}
+	// --- Cross-domain adapters for operations business ---
 	perAdapter := &periodAdapter{repo: perRepo}
 	lfAdapter := &loanFundingAdapter{repo: lfRepo}
 	ftAdapter := &fundingTrancheAdapter{repo: ftRepo, eventsMan: evtsMan}
 	iaAdapter := &investorAccountAdapter{repo: iaRepo, eventsMan: evtsMan}
 
-	// --- Operations business (for workflow callbacks) ---
+	// --- Operations business (for workflow callbacks, uses identity SDK directly) ---
 	prBiz := opsbusiness.NewPaymentRoutingBusiness(
 		ctx,
 		evtsMan,
@@ -155,7 +145,7 @@ func main() {
 		toRepo,
 		obRepo,
 		arRepo,
-		memAdapter,
+		identityCli,
 		platformClients,
 	)
 	toBiz := opsbusiness.NewTransferOrderBusiness(
@@ -169,7 +159,7 @@ func main() {
 		iaAdapter,
 		platformClients,
 	)
-	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, memAdapter, grpAdapter, perAdapter)
+	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
 
 	// --- HTTP mux with workflow callbacks only ---
 	mux := http.NewServeMux()
@@ -180,14 +170,14 @@ func main() {
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(mux),
 		frame.WithRegisterEvents(
-			// Stawi events (lifecycle)
+			// Stawi events (lifecycle + loan window/offer)
 			stawievents.NewTenureSave(ctx, tenRepo),
 			stawievents.NewPeriodSave(ctx, perRepo),
 			stawievents.NewMotionSave(ctx, motRepo),
 			stawievents.NewInfractionSave(ctx, infRepo),
+			stawievents.NewLoanWindowSave(ctx, lwRepo),
+			stawievents.NewLoanOfferSave(ctx, loRepo),
 			// Funding events
-			fundingevents.NewLoanWindowSave(ctx, lwRepo),
-			fundingevents.NewLoanOfferSave(ctx, loRepo),
 			fundingevents.NewLoanFundingSave(ctx, lfRepo),
 			fundingevents.NewFundingAllocationSave(ctx, faRepo),
 			fundingevents.NewFundingTrancheSave(ctx, ftRepo),
@@ -232,4 +222,144 @@ func setupIdentityClient(
 		Endpoint:  cfg.IdentityServiceURI,
 		Audiences: []string{"service_identity"},
 	}, identityv1connect.NewIdentityServiceClient)
+}
+
+// ---------------------------------------------------------------------------
+// Cross-domain adapters (funding repos, stawi period, stawi loan offer)
+// ---------------------------------------------------------------------------
+
+// loanOfferAdapter wraps stawi's LoanOfferRepository for funding's LoanOfferReader.
+type loanOfferAdapter struct {
+	repo stawirepo.LoanOfferRepository
+}
+
+func (a *loanOfferAdapter) GetByID(ctx context.Context, id string) (*fundingbusiness.LoanOfferInfo, error) {
+	offer, err := a.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return loanOfferToInfo(offer), nil
+}
+
+func loanOfferToInfo(o *stawimodels.LoanOffer) *fundingbusiness.LoanOfferInfo {
+	if o == nil {
+		return nil
+	}
+	info := &fundingbusiness.LoanOfferInfo{
+		Amount:     o.Amount,
+		Currency:   o.Currency,
+		Properties: o.Properties,
+	}
+	info.BaseModel = o.BaseModel
+	return info
+}
+
+// periodAdapter wraps stawi's PeriodRepository for operations' PeriodReader.
+type periodAdapter struct {
+	repo stawirepo.PeriodRepository
+}
+
+func (a *periodAdapter) GetCurrentByGroupID(ctx context.Context, groupID string) (*opsbusiness.PeriodInfo, error) {
+	p, err := a.repo.GetCurrentByGroupID(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil {
+		return nil, nil
+	}
+	info := &opsbusiness.PeriodInfo{
+		EndDate:  p.EndDate,
+		Position: p.Position,
+	}
+	info.BaseModel = p.BaseModel
+	return info, nil
+}
+
+// loanFundingAdapter wraps funding's LoanFundingRepository for operations' LoanFundingReader.
+type loanFundingAdapter struct {
+	repo fundingrepo.LoanFundingRepository
+}
+
+func (a *loanFundingAdapter) GetByLoanOfferID(
+	ctx context.Context,
+	loanOfferID string,
+) ([]*opsbusiness.LoanFundingInfo, error) {
+	fundings, err := a.repo.GetByLoanOfferID(ctx, loanOfferID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*opsbusiness.LoanFundingInfo, len(fundings))
+	for i, f := range fundings {
+		info := &opsbusiness.LoanFundingInfo{
+			OwnerID:     f.OwnerID,
+			FundingType: f.FundingType,
+			Proportion:  f.Proportion,
+		}
+		info.BaseModel = f.BaseModel
+		result[i] = info
+	}
+	return result, nil
+}
+
+type fundingTrancheAdapter struct {
+	repo      fundingrepo.FundingTrancheRepository
+	eventsMan fevents.Manager
+}
+
+func (a *fundingTrancheAdapter) GetByLoanFundingID(
+	ctx context.Context,
+	loanFundingID string,
+) ([]*opsbusiness.FundingTrancheInfo, error) {
+	tranches, err := a.repo.GetByLoanFundingID(ctx, loanFundingID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*opsbusiness.FundingTrancheInfo, len(tranches))
+	for i, t := range tranches {
+		info := &opsbusiness.FundingTrancheInfo{
+			PrincipalRepaid: t.PrincipalRepaid,
+			InterestEarned:  t.InterestEarned,
+		}
+		info.BaseModel = t.BaseModel
+		result[i] = info
+	}
+	return result, nil
+}
+
+func (a *fundingTrancheAdapter) Save(ctx context.Context, tranche *opsbusiness.FundingTrancheInfo) error {
+	model := &fundingmodels.FundingTranche{
+		PrincipalRepaid: tranche.PrincipalRepaid,
+		InterestEarned:  tranche.InterestEarned,
+	}
+	model.BaseModel = tranche.BaseModel
+	return a.eventsMan.Emit(ctx, "funding_tranche.save", model)
+}
+
+type investorAccountAdapter struct {
+	repo      fundingrepo.InvestorAccountRepository
+	eventsMan fevents.Manager
+}
+
+func (a *investorAccountAdapter) GetByID(ctx context.Context, id string) (*opsbusiness.InvestorAccountInfo, error) {
+	acct, err := a.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	info := &opsbusiness.InvestorAccountInfo{
+		ReservedBalance:  acct.ReservedBalance,
+		AvailableBalance: acct.AvailableBalance,
+		TotalReturned:    acct.TotalReturned,
+	}
+	info.BaseModel = acct.BaseModel
+	return info, nil
+}
+
+func (a *investorAccountAdapter) Save(ctx context.Context, account *opsbusiness.InvestorAccountInfo) error {
+	model := &fundingmodels.InvestorAccount{
+		ReservedBalance:  account.ReservedBalance,
+		AvailableBalance: account.AvailableBalance,
+		TotalReturned:    account.TotalReturned,
+	}
+	model.BaseModel = account.BaseModel
+	return a.eventsMan.Emit(ctx, "investor_account.save", model)
 }

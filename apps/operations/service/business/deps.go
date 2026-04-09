@@ -1,8 +1,9 @@
 package business
 
-// deps.go defines local interfaces and lightweight data types for external
-// service dependencies. Implementations are injected by cmd/main.go so the
-// business layer never imports identity, stawi, or funding packages directly.
+// deps.go defines local interfaces and lightweight data types for cross-domain
+// dependencies that lack SDK RPCs. Identity lookups use the SDK client directly;
+// funding and stawi period data still use local repo interfaces since they share
+// the same database and have no dedicated RPCs yet.
 
 import (
 	"context"
@@ -10,49 +11,6 @@ import (
 
 	"github.com/pitabwire/frame/data"
 )
-
-// ---------------------------------------------------------------------------
-// Identity: groups & memberships
-// ---------------------------------------------------------------------------
-
-// MembershipState / type constants used by payment routing and obligation logic.
-const (
-	MembershipTypeMember int32 = 3 // identitymodels.MembershipTypeMember
-	GroupStateDeleted    int32 = 5 // identitymodels.GroupStateDeleted
-	GroupStateShutdown   int32 = 6 // identitymodels.GroupStateShutdown
-)
-
-// MemberInfo is a lightweight projection of identity's Membership model.
-// Only the fields that the operations business layer accesses are included.
-type MemberInfo struct {
-	data.BaseModel
-	GroupID        string
-	ProfileID      string
-	Name           string
-	ContactID      string
-	MembershipType int32
-	State          int32
-}
-
-// GroupInfo is a lightweight projection of identity's ClientGroup model.
-type GroupInfo struct {
-	data.BaseModel
-	SavingAmount int64
-	CurrencyCode string
-	State        int32
-}
-
-// MembershipReader provides read access to membership data.
-type MembershipReader interface {
-	GetByID(ctx context.Context, id string) (*MemberInfo, error)
-	GetByGroupID(ctx context.Context, groupID string, offset, limit int) ([]*MemberInfo, error)
-	GetByProfileID(ctx context.Context, profileID string, offset, limit int) ([]*MemberInfo, error)
-}
-
-// GroupReader provides read access to client group data.
-type GroupReader interface {
-	GetByID(ctx context.Context, id string) (*GroupInfo, error)
-}
 
 // ---------------------------------------------------------------------------
 // Stawi: periods
