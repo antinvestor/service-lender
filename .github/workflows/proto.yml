@@ -35,7 +35,7 @@ jobs:
 
       - name: Check for breaking changes
         if: github.event_name == 'pull_request'
-        run: cd proto && buf breaking --against '.git#branch=main'
+        run: cd proto && buf breaking --against '../.git#branch=main,subdir=proto'
 
   push:
     name: Push to BSR
