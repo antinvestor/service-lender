@@ -80,7 +80,7 @@ class _AgentDetailContentState extends ConsumerState<_AgentDetailContent> {
       clientListProvider(query: '', agentId: _agent.id),
     );
     final subAgentsAsync = ref.watch(
-      agentListProvider(query: '', branchId: _agent.branchId),
+      agentListProvider(query: '', branchId: ''),
     );
 
     return CustomScrollView(
@@ -93,7 +93,7 @@ class _AgentDetailContentState extends ConsumerState<_AgentDetailContent> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.go('/field/agents'),
+                  onPressed: () => context.go('/organization/agents'),
                   tooltip: 'Back to Agents',
                 ),
                 const SizedBox(width: 8),
@@ -138,7 +138,7 @@ class _AgentDetailContentState extends ConsumerState<_AgentDetailContent> {
                     const SizedBox(height: 12),
                     _InfoRow(label: 'Agent ID', value: _agent.id),
                     _InfoRow(label: 'Profile ID', value: _agent.profileId),
-                    _InfoRow(label: 'Branch ID', value: _agent.branchId),
+                    _InfoRow(label: 'Organization ID', value: _agent.organizationId),
                     _InfoRow(
                       label: 'Agent Type',
                       value: _agentTypeLabel(_agent.agentType),
@@ -402,7 +402,7 @@ class _SubAgentCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        onTap: () => context.go('/field/agents/${agent.id}'),
+        onTap: () => context.go('/organization/agents/${agent.id}'),
         leading: ProfileAvatar(
           profileId: agent.profileId,
           name: agent.name,
@@ -611,7 +611,7 @@ class _AgentEditDialogState extends State<_AgentEditDialog> {
 
     final updated = AgentObject(
       id: widget.agent.id,
-      branchId: widget.agent.branchId,
+      organizationId: widget.agent.organizationId,
       parentAgentId: widget.agent.parentAgentId,
       profileId: widget.agent.profileId,
       agentType: widget.agent.agentType,

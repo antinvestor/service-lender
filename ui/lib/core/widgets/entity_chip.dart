@@ -106,7 +106,7 @@ class EntityChip extends ConsumerWidget {
       EntityType.product => '/loans/products',
       EntityType.application => '/origination/applications/$id',
       EntityType.loan => '/loans/$id',
-      EntityType.agent => '/field/agents',
+      EntityType.agent => '/organization/agents',
     };
     context.go(route);
   }

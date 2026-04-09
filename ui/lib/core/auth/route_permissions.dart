@@ -17,11 +17,12 @@ const Map<String, Set<LenderRole>> routePermissions = {
 
   // Organization — all view roles (not bare agents)
   '/organization/organizations': _viewRoles,
+  '/organization/branches': _viewRoles,
   '/organization/investors': _viewRoles,
 
   // Field Operations — broad access but reassignment restricted
   '/field/reassignment': _fieldMgmtRoles,
-  '/field/agents': _allViewRoles,
+  '/organization/agents': _allViewRoles,
   '/field/hierarchy': _allViewRoles,
   '/field/clients': _allViewRoles,
 

@@ -69,9 +69,9 @@ void main() {
     });
 
     test('longest prefix wins for nested routes', () {
-      // /field/clients should match /field/clients, not /field/agents
+      // /field/clients should match /field/clients, not /organization/agents
       final clientRoles = requiredRolesForRoute('/field/clients/detail');
-      final agentRoles = requiredRolesForRoute('/field/agents');
+      final agentRoles = requiredRolesForRoute('/organization/agents');
       // Both should be the all-view set
       expect(clientRoles, agentRoles);
     });

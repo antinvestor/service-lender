@@ -128,10 +128,18 @@ List<NavItem> buildNavItems() => [
     children: [
       NavItem(
         id: 'organizations',
-        label: 'Organizations & Branches',
+        label: 'Organizations',
         icon: Icons.account_balance_outlined,
         activeIcon: Icons.account_balance,
         route: '/organization/organizations',
+        requiredRoles: _viewRoles,
+      ),
+      NavItem(
+        id: 'branches',
+        label: 'Branches',
+        icon: Icons.store_outlined,
+        activeIcon: Icons.store,
+        route: '/organization/branches',
         requiredRoles: _viewRoles,
       ),
       NavItem(
@@ -139,7 +147,7 @@ List<NavItem> buildNavItems() => [
         label: 'Agents',
         icon: Icons.person_pin_outlined,
         activeIcon: Icons.person_pin,
-        route: '/field/agents',
+        route: '/organization/agents',
         requiredRoles: _allViewRoles,
       ),
       NavItem(

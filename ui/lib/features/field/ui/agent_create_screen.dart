@@ -179,14 +179,14 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   }
 
   Future<void> _submit() async {
-    if (_selectedBranchId.isEmpty || _agentName.isEmpty) return;
+    if (_selectedOrgId.isEmpty || _agentName.isEmpty) return;
 
     setState(() => _saving = true);
 
     final agent = AgentObject(
       name: _agentName,
       profileId: _profileId,
-      branchId: _selectedBranchId,
+      organizationId: _selectedOrgId,
       parentAgentId: _selectedParentAgentId,
       agentType: _agentType,
       state: STATE.CREATED,
@@ -207,7 +207,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             ),
           ),
         );
-        context.go('/field/agents');
+        context.go('/organization/agents');
       }
     } catch (e) {
       if (mounted) {
@@ -258,7 +258,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        onPressed: () => context.go('/field/agents'),
+                        onPressed: () => context.go('/organization/agents'),
                       ),
                       const SizedBox(width: 8),
                       Icon(
@@ -335,7 +335,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                       ),
                     if (_step == 1)
                       FilledButton.icon(
-                        onPressed: _saving || _selectedBranchId.isEmpty
+                        onPressed: _saving || _selectedOrgId.isEmpty
                             ? null
                             : _submit,
                         icon: _saving
@@ -746,9 +746,9 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
           ),
         ),
         FormFieldCard(
-          label: 'Branch',
-          description: 'The branch office where this agent will operate.',
-          isRequired: true,
+          label: 'Initial Branch',
+          description:
+              'Optional. Assign the agent to a branch. More branches can be added later.',
           child: branchesAsync.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Failed to load: $e'),

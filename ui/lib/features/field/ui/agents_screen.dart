@@ -48,7 +48,7 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
       onSearchChanged: (value) => setState(() => _searchQuery = value),
       actionLabel: 'Register Agent',
       canAction: canManage.value ?? false,
-      onAction: () => context.go('/field/agents/new'),
+      onAction: () => context.go('/organization/agents/new'),
       filterWidget: _buildFilters(orgsAsync, branchesAsync),
       itemBuilder: (context, agent) => _AgentCard(
         agent: agent,
@@ -160,7 +160,7 @@ class _AgentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final subtitle = [
-      if (agent.branchId.isNotEmpty) 'Branch: ${agent.branchId}',
+      if (agent.organizationId.isNotEmpty) 'Org: ${agent.organizationId}',
       if (agent.parentAgentId.isNotEmpty) 'Parent: ${agent.parentAgentId}',
       if (agent.depth > 0) 'Depth: ${agent.depth}',
     ].join(' \u00b7 ');
@@ -170,7 +170,7 @@ class _AgentCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        onTap: () => context.go('/field/agents/${agent.id}'),
+        onTap: () => context.go('/organization/agents/${agent.id}'),
         leading: ProfileAvatar(
           profileId: agent.profileId,
           name: agent.name,
@@ -234,8 +234,8 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
     _nameController = TextEditingController(text: a?.name ?? '');
     _profileIdController = TextEditingController(text: a?.profileId ?? '');
     _geoIdController = TextEditingController(text: a?.geoId ?? '');
-    _selectedOrgId = '';
-    _selectedBranchId = a?.branchId ?? '';
+    _selectedOrgId = a?.organizationId ?? '';
+    _selectedBranchId = '';
     _selectedParentAgentId = a?.parentAgentId ?? '';
     _agentType = a?.agentType ?? AgentType.AGENT_TYPE_INDIVIDUAL;
     _state = a?.state ?? STATE.CREATED;
@@ -384,9 +384,9 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                   ),
                 ),
                 FormFieldCard(
-                  label: 'Branch',
-                  description: 'The branch office this agent operates from.',
-                  isRequired: true,
+                  label: 'Initial Branch',
+                  description:
+                      'Optional. Assign to a branch. More branches can be added later.',
                   child: branchesAsync.when(
                     loading: () => const LinearProgressIndicator(),
                     error: (e, _) => Text('Failed to load: $e'),
@@ -415,9 +415,6 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                               ),
                             )
                             .toList(),
-                        validator: (v) => (v == null || v.isEmpty)
-                            ? 'Branch is required'
-                            : null,
                         onChanged: (v) => setState(() {
                           _selectedBranchId = v ?? '';
                           _selectedParentAgentId = ''; // Reset parent
@@ -571,7 +568,7 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
         id: widget.agent?.id ?? '',
         name: _nameController.text.trim(),
         profileId: _profileIdController.text.trim(),
-        branchId: _selectedBranchId,
+        organizationId: _selectedOrgId,
         parentAgentId: _selectedParentAgentId,
         agentType: _agentType,
         geoId: _geoIdController.text.trim(),

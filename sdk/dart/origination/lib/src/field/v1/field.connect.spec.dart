@@ -47,6 +47,31 @@ abstract final class FieldService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
+  /// AgentBranchSave assigns or updates an agent-branch link.
+  static const agentBranchSave = connect.Spec(
+    '/$name/AgentBranchSave',
+    connect.StreamType.unary,
+    fieldv1field.AgentBranchSaveRequest.new,
+    fieldv1field.AgentBranchSaveResponse.new,
+  );
+
+  /// AgentBranchDelete removes an agent-branch link.
+  static const agentBranchDelete = connect.Spec(
+    '/$name/AgentBranchDelete',
+    connect.StreamType.unary,
+    fieldv1field.AgentBranchDeleteRequest.new,
+    fieldv1field.AgentBranchDeleteResponse.new,
+  );
+
+  /// AgentBranchList lists agent-branch assignments.
+  static const agentBranchList = connect.Spec(
+    '/$name/AgentBranchList',
+    connect.StreamType.server,
+    fieldv1field.AgentBranchListRequest.new,
+    fieldv1field.AgentBranchListResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
   /// ClientSave onboards or updates a client record.
   static const clientSave = connect.Spec(
     '/$name/ClientSave',

@@ -28,30 +28,43 @@ type AgentBusiness interface {
 		req *fieldv1.AgentHierarchyRequest,
 		consumer func(ctx context.Context, batch []*fieldv1.AgentObject) error,
 	) error
+
+	// Branch assignment management
+	SaveBranch(ctx context.Context, ab *models.AgentBranch) (*models.AgentBranch, error)
+	DeleteBranch(ctx context.Context, id string) error
+	ListBranchesByAgent(ctx context.Context, agentID string) ([]*models.AgentBranch, error)
+	ListBranchesByBranch(ctx context.Context, branchID string) ([]*models.AgentBranch, error)
+	GetBranchIDsForAgent(ctx context.Context, agentID string) ([]string, error)
 }
 
 type agentBusiness struct {
-	eventsMan     fevents.Manager
-	maxAgentDepth int
-	branchRepo    repository.BranchRepository
-	agentRepo     repository.AgentRepository
-	notifier      *AgentNotifier
+	eventsMan        fevents.Manager
+	maxAgentDepth    int
+	organizationRepo repository.OrganizationRepository
+	branchRepo       repository.BranchRepository
+	agentRepo        repository.AgentRepository
+	agentBranchRepo  repository.AgentBranchRepository
+	notifier         *AgentNotifier
 }
 
 func NewAgentBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	maxAgentDepth int,
+	organizationRepo repository.OrganizationRepository,
 	branchRepo repository.BranchRepository,
 	agentRepo repository.AgentRepository,
+	agentBranchRepo repository.AgentBranchRepository,
 	notifier *AgentNotifier,
 ) AgentBusiness {
 	return &agentBusiness{
-		eventsMan:     eventsMan,
-		maxAgentDepth: maxAgentDepth,
-		branchRepo:    branchRepo,
-		agentRepo:     agentRepo,
-		notifier:      notifier,
+		eventsMan:        eventsMan,
+		maxAgentDepth:    maxAgentDepth,
+		organizationRepo: organizationRepo,
+		branchRepo:       branchRepo,
+		agentRepo:        agentRepo,
+		agentBranchRepo:  agentBranchRepo,
+		notifier:         notifier,
 	}
 }
 
@@ -60,7 +73,7 @@ func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fi
 
 	agent := models.AgentFromAPI(ctx, obj)
 
-	// If parent agent is set, inherit branch and calculate depth
+	// If parent agent is set, inherit organization and calculate depth
 	if obj.GetParentAgentId() != "" {
 		parent, err := b.agentRepo.GetByID(ctx, obj.GetParentAgentId())
 		if err != nil {
@@ -68,7 +81,7 @@ func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fi
 			return nil, ErrAgentNotFound.Extend("parent agent not found")
 		}
 
-		agent.BranchID = parent.BranchID
+		agent.OrganizationID = parent.OrganizationID
 		agent.Depth = parent.Depth + 1
 
 		if int(agent.Depth) > b.maxAgentDepth {
@@ -76,11 +89,10 @@ func (b *agentBusiness) Save(ctx context.Context, obj *fieldv1.AgentObject) (*fi
 			return nil, ErrAgentDepthExceeded
 		}
 	} else {
-		// Top-level agent, validate branch exists
-		_, err := b.branchRepo.GetByID(ctx, obj.GetBranchId())
-		if err != nil {
-			logger.WithError(err).Warn("branch not found for agent")
-			return nil, ErrBranchNotFound
+		// Top-level agent — validate organization exists
+		if _, err := b.organizationRepo.GetByID(ctx, agent.OrganizationID); err != nil {
+			logger.WithError(err).Warn("organization not found for agent")
+			return nil, ErrOrganizationNotFound
 		}
 		agent.Depth = 0
 	}
@@ -181,7 +193,8 @@ func (b *agentBusiness) Search(
 
 	andQueryVal := map[string]any{}
 	if req.GetBranchId() != "" {
-		andQueryVal["branch_id = ?"] = req.GetBranchId()
+		// Filter agents by branch through the join table
+		andQueryVal["id IN (SELECT agent_id FROM agent_branches WHERE branch_id = ?)"] = req.GetBranchId()
 	}
 	if req.GetParentAgentId() != "" {
 		andQueryVal["parent_agent_id = ?"] = req.GetParentAgentId()
@@ -231,4 +244,93 @@ func (b *agentBusiness) Hierarchy(
 	}
 
 	return consumer(ctx, apiResults)
+}
+
+// --- Agent Branch Assignment ---
+
+func (b *agentBusiness) SaveBranch(ctx context.Context, ab *models.AgentBranch) (*models.AgentBranch, error) {
+	logger := util.Log(ctx).WithField("method", "AgentBusiness.SaveBranch")
+
+	// Validate agent exists
+	agent, err := b.agentRepo.GetByID(ctx, ab.AgentID)
+	if err != nil {
+		return nil, ErrAgentNotFound
+	}
+
+	// Validate branch exists and belongs to agent's organization
+	branch, err := b.branchRepo.GetByID(ctx, ab.BranchID)
+	if err != nil {
+		return nil, ErrBranchNotFound
+	}
+	if branch.OrganizationID != agent.OrganizationID {
+		return nil, ErrBranchNotInOrganization
+	}
+
+	// For sub-agents, validate that the parent has this branch assigned
+	if agent.ParentAgentID != "" {
+		parentBranches, err := b.agentBranchRepo.GetByAgentID(ctx, agent.ParentAgentID)
+		if err != nil {
+			return nil, err
+		}
+
+		parentHasBranch := false
+		for _, pb := range parentBranches {
+			if pb.BranchID == ab.BranchID {
+				parentHasBranch = true
+				break
+			}
+		}
+		if !parentHasBranch {
+			return nil, ErrAgentBranchNotInParent
+		}
+	}
+
+	if ab.State == 0 {
+		ab.State = int32(commonv1.STATE_ACTIVE.Number())
+	}
+
+	ab.GenID(ctx)
+
+	// Check if assignment already exists — update if so
+	existing, getErr := b.agentBranchRepo.GetByAgentAndBranch(ctx, ab.AgentID, ab.BranchID)
+	if getErr == nil && existing != nil {
+		ab.ID = existing.ID
+		if _, err := b.agentBranchRepo.Update(ctx, ab); err != nil {
+			logger.WithError(err).Error("could not update agent branch assignment")
+			return nil, err
+		}
+		return ab, nil
+	}
+
+	if err := b.agentBranchRepo.Create(ctx, ab); err != nil {
+		logger.WithError(err).Error("could not create agent branch assignment")
+		return nil, err
+	}
+
+	return ab, nil
+}
+
+func (b *agentBusiness) DeleteBranch(ctx context.Context, id string) error {
+	return b.agentBranchRepo.DeleteByID(ctx, id)
+}
+
+func (b *agentBusiness) ListBranchesByAgent(ctx context.Context, agentID string) ([]*models.AgentBranch, error) {
+	return b.agentBranchRepo.GetByAgentID(ctx, agentID)
+}
+
+func (b *agentBusiness) ListBranchesByBranch(ctx context.Context, branchID string) ([]*models.AgentBranch, error) {
+	return b.agentBranchRepo.GetByBranchID(ctx, branchID)
+}
+
+func (b *agentBusiness) GetBranchIDsForAgent(ctx context.Context, agentID string) ([]string, error) {
+	branches, err := b.agentBranchRepo.GetByAgentID(ctx, agentID)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]string, 0, len(branches))
+	for _, ab := range branches {
+		ids = append(ids, ab.BranchID)
+	}
+	return ids, nil
 }

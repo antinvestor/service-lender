@@ -82,6 +82,60 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
+  /// AgentBranchSave assigns or updates an agent-branch link.
+  Future<fieldv1field.AgentBranchSaveResponse> agentBranchSave(
+    fieldv1field.AgentBranchSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.agentBranchSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// AgentBranchDelete removes an agent-branch link.
+  Future<fieldv1field.AgentBranchDeleteResponse> agentBranchDelete(
+    fieldv1field.AgentBranchDeleteRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.agentBranchDelete,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// AgentBranchList lists agent-branch assignments.
+  Stream<fieldv1field.AgentBranchListResponse> agentBranchList(
+    fieldv1field.AgentBranchListRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.FieldService.agentBranchList,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
   /// ClientSave onboards or updates a client record.
   Future<fieldv1field.ClientSaveResponse> clientSave(
     fieldv1field.ClientSaveRequest input, {

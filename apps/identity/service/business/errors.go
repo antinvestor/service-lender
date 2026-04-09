@@ -12,7 +12,12 @@ var (
 	ErrInvestorNotFound     = apperrors.NewError(apperrors.NotFound, "investor not found")
 	ErrSystemUserNotFound   = apperrors.NewError(apperrors.NotFound, "system user not found")
 
-	ErrAgentDepthExceeded        = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
+	ErrAgentDepthExceeded      = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
+	ErrAgentBranchNotInParent  = apperrors.NewError(apperrors.BadRequest, "branch is not assigned to parent agent")
+	ErrBranchNotInOrganization = apperrors.NewError(
+		apperrors.BadRequest,
+		"branch does not belong to agent's organization",
+	)
 	ErrAgentInactive             = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
 	ErrClientAlreadyExists       = apperrors.NewError(apperrors.Conflict, "client with this profile already exists")
 	ErrReassignSameAgent         = apperrors.NewError(apperrors.BadRequest, "client is already assigned to this agent")

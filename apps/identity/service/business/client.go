@@ -42,13 +42,13 @@ type clientBusiness struct {
 	agentRepo  repository.AgentRepository
 	clientRepo repository.ClientRepository
 	cahRepo    repository.ClientAssignmentHistoryRepository
-	branchRepo repository.BranchRepository
 	clcrRepo   repository.CreditLimitChangeRequestRepository
 }
 
 func NewClientBusiness(_ context.Context, eventsMan fevents.Manager,
-	agentRepo repository.AgentRepository, clientRepo repository.ClientRepository,
-	cahRepo repository.ClientAssignmentHistoryRepository, branchRepo repository.BranchRepository,
+	agentRepo repository.AgentRepository,
+	clientRepo repository.ClientRepository,
+	cahRepo repository.ClientAssignmentHistoryRepository,
 	clcrRepo repository.CreditLimitChangeRequestRepository,
 ) ClientBusiness {
 	return &clientBusiness{
@@ -56,7 +56,6 @@ func NewClientBusiness(_ context.Context, eventsMan fevents.Manager,
 		agentRepo:  agentRepo,
 		clientRepo: clientRepo,
 		cahRepo:    cahRepo,
-		branchRepo: branchRepo,
 		clcrRepo:   clcrRepo,
 	}
 }
@@ -179,18 +178,7 @@ func (b *clientBusiness) Reassign(
 	if err != nil {
 		return nil, ErrAgentNotFound.Extend("current agent not found")
 	}
-
-	oldBranch, err := b.branchRepo.GetByID(ctx, oldAgent.BranchID)
-	if err != nil {
-		return nil, ErrBranchNotFound
-	}
-
-	newBranch, err := b.branchRepo.GetByID(ctx, newAgent.BranchID)
-	if err != nil {
-		return nil, ErrBranchNotFound
-	}
-
-	if oldBranch.OrganizationID != newBranch.OrganizationID {
+	if oldAgent.OrganizationID != newAgent.OrganizationID {
 		return nil, ErrReassignCrossOrganization
 	}
 

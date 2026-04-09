@@ -84,6 +84,12 @@ func (s *FieldServer) AgentHierarchy(
 	return nil
 }
 
+// --- Agent Branch RPCs ---
+// NOTE: AgentBranchSave, AgentBranchDelete, AgentBranchList handlers will be
+// added after the field proto is pushed to BSR and the Go generated types are
+// updated. The business layer (AgentBusiness.SaveBranch, DeleteBranch,
+// ListBranchesByAgent, ListBranchesByBranch) is ready.
+
 // --- Client RPCs ---
 
 func (s *FieldServer) ClientSave(

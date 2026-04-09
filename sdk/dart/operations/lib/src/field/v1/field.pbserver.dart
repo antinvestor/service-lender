@@ -25,6 +25,9 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
   $async.Future<$8.AgentGetResponse> agentGet($pb.ServerContext ctx, $8.AgentGetRequest request);
   $async.Future<$8.AgentSearchResponse> agentSearch($pb.ServerContext ctx, $8.AgentSearchRequest request);
   $async.Future<$8.AgentHierarchyResponse> agentHierarchy($pb.ServerContext ctx, $8.AgentHierarchyRequest request);
+  $async.Future<$8.AgentBranchSaveResponse> agentBranchSave($pb.ServerContext ctx, $8.AgentBranchSaveRequest request);
+  $async.Future<$8.AgentBranchDeleteResponse> agentBranchDelete($pb.ServerContext ctx, $8.AgentBranchDeleteRequest request);
+  $async.Future<$8.AgentBranchListResponse> agentBranchList($pb.ServerContext ctx, $8.AgentBranchListRequest request);
   $async.Future<$8.ClientSaveResponse> clientSave($pb.ServerContext ctx, $8.ClientSaveRequest request);
   $async.Future<$8.ClientGetResponse> clientGet($pb.ServerContext ctx, $8.ClientGetRequest request);
   $async.Future<$8.ClientSearchResponse> clientSearch($pb.ServerContext ctx, $8.ClientSearchRequest request);
@@ -36,6 +39,9 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'AgentGet': return $8.AgentGetRequest();
       case 'AgentSearch': return $8.AgentSearchRequest();
       case 'AgentHierarchy': return $8.AgentHierarchyRequest();
+      case 'AgentBranchSave': return $8.AgentBranchSaveRequest();
+      case 'AgentBranchDelete': return $8.AgentBranchDeleteRequest();
+      case 'AgentBranchList': return $8.AgentBranchListRequest();
       case 'ClientSave': return $8.ClientSaveRequest();
       case 'ClientGet': return $8.ClientGetRequest();
       case 'ClientSearch': return $8.ClientSearchRequest();
@@ -50,6 +56,9 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'AgentGet': return this.agentGet(ctx, request as $8.AgentGetRequest);
       case 'AgentSearch': return this.agentSearch(ctx, request as $8.AgentSearchRequest);
       case 'AgentHierarchy': return this.agentHierarchy(ctx, request as $8.AgentHierarchyRequest);
+      case 'AgentBranchSave': return this.agentBranchSave(ctx, request as $8.AgentBranchSaveRequest);
+      case 'AgentBranchDelete': return this.agentBranchDelete(ctx, request as $8.AgentBranchDeleteRequest);
+      case 'AgentBranchList': return this.agentBranchList(ctx, request as $8.AgentBranchListRequest);
       case 'ClientSave': return this.clientSave(ctx, request as $8.ClientSaveRequest);
       case 'ClientGet': return this.clientGet(ctx, request as $8.ClientGetRequest);
       case 'ClientSearch': return this.clientSearch(ctx, request as $8.ClientSearchRequest);

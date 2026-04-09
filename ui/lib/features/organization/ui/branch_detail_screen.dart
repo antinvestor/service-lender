@@ -194,7 +194,7 @@ class _BranchDetailContentState extends ConsumerState<_BranchDetailContent> {
                 ),
                 if (widget.canManage)
                   FilledButton.icon(
-                    onPressed: () => context.go('/field/agents/new'),
+                    onPressed: () => context.go('/organization/agents/new'),
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Register Agent'),
                   ),
@@ -255,7 +255,7 @@ class _BranchDetailContentState extends ConsumerState<_BranchDetailContent> {
                         if (widget.canManage) ...[
                           const SizedBox(height: 12),
                           FilledButton.icon(
-                            onPressed: () => context.go('/field/agents/new'),
+                            onPressed: () => context.go('/organization/agents/new'),
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Register Agent'),
                           ),
@@ -331,7 +331,7 @@ class _AgentCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        onTap: () => context.go('/field/agents/${agent.id}'),
+        onTap: () => context.go('/organization/agents/${agent.id}'),
         leading: ProfileAvatar(
           profileId: agent.profileId,
           name: agent.name,

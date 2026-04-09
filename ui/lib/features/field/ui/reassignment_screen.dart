@@ -293,7 +293,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                                 return ListTile(
                                   leading: const Icon(Icons.support_agent),
                                   title: Text(agent.name),
-                                  subtitle: Text(agent.branchId),
+                                  subtitle: Text(agent.organizationId),
                                   onTap: () => onSelected(agent),
                                 );
                               },
@@ -307,7 +307,7 @@ class _ReassignmentScreenState extends ConsumerState<ReassignmentScreen> {
                     const SizedBox(height: 8),
                     _SelectionChip(
                       label: _selectedAgent!.name,
-                      detail: 'Branch: ${_selectedAgent!.branchId}',
+                      detail: 'Org: ${_selectedAgent!.organizationId}',
                       icon: Icons.support_agent,
                       onClear: () => setState(() => _selectedAgent = null),
                     ),

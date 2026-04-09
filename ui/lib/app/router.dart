@@ -26,6 +26,7 @@ import '../features/field/ui/clients_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
 import '../features/organization/ui/branch_detail_screen.dart';
+import '../features/organization/ui/branches_screen.dart';
 import '../features/organization/ui/organization_detail_screen.dart';
 import '../features/organization/ui/organizations_screen.dart';
 import '../features/organization/ui/investors_screen.dart';
@@ -173,24 +174,41 @@ GoRouter router(Ref ref) {
             ],
           ),
           GoRoute(
+            path: '/organization/branches',
+            builder: (context, state) =>
+                _guarded('/organization/branches', const BranchesScreen()),
+            routes: [
+              GoRoute(
+                path: ':branchId',
+                builder: (context, state) => _guarded(
+                  '/organization/branches',
+                  BranchDetailScreen(
+                    branchId: state.pathParameters['branchId']!,
+                    organizationId: '',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
             path: '/organization/investors',
             builder: (context, state) =>
                 _guarded('/organization/investors', const InvestorsScreen()),
           ),
           GoRoute(
-            path: '/field/agents',
+            path: '/organization/agents',
             builder: (context, state) =>
-                _guarded('/field/agents', const AgentsScreen()),
+                _guarded('/organization/agents', const AgentsScreen()),
             routes: [
               GoRoute(
                 path: 'new',
                 builder: (context, state) =>
-                    _guarded('/field/agents', const AgentCreateScreen()),
+                    _guarded('/organization/agents', const AgentCreateScreen()),
               ),
               GoRoute(
                 path: ':agentId',
                 builder: (context, state) => _guarded(
-                  '/field/agents',
+                  '/organization/agents',
                   AgentDetailScreen(agentId: state.pathParameters['agentId']!),
                 ),
               ),

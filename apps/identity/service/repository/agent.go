@@ -30,6 +30,7 @@ func NewAgentRepository(ctx context.Context, dbPool pool.Pool, workMan workerpoo
 	}
 }
 
+// GetByBranchID returns agents assigned to a branch via the agent_branches join table.
 func (repo *agentRepository) GetByBranchID(
 	ctx context.Context,
 	branchID string,
@@ -37,7 +38,7 @@ func (repo *agentRepository) GetByBranchID(
 ) ([]*models.Agent, error) {
 	var agents []*models.Agent
 	err := repo.Pool().DB(ctx, true).
-		Where("branch_id = ?", branchID).
+		Where("id IN (SELECT agent_id FROM agent_branches WHERE branch_id = ?)", branchID).
 		Offset(offset).Limit(limit).
 		Find(&agents).Error
 	if err != nil {
@@ -98,4 +99,67 @@ func (repo *agentRepository) GetDescendants(
 		return nil, err
 	}
 	return agents, nil
+}
+
+// AgentBranchRepository manages agent-branch assignments.
+type AgentBranchRepository interface {
+	datastore.BaseRepository[*models.AgentBranch]
+	GetByAgentID(ctx context.Context, agentID string) ([]*models.AgentBranch, error)
+	GetByBranchID(ctx context.Context, branchID string) ([]*models.AgentBranch, error)
+	GetByAgentAndBranch(ctx context.Context, agentID, branchID string) (*models.AgentBranch, error)
+	DeleteByID(ctx context.Context, id string) error
+}
+
+type agentBranchRepository struct {
+	datastore.BaseRepository[*models.AgentBranch]
+}
+
+func NewAgentBranchRepository(ctx context.Context, dbPool pool.Pool, workMan workerpool.Manager) AgentBranchRepository {
+	return &agentBranchRepository{
+		BaseRepository: datastore.NewBaseRepository[*models.AgentBranch](
+			ctx, dbPool, workMan, func() *models.AgentBranch { return &models.AgentBranch{} },
+		),
+	}
+}
+
+func (repo *agentBranchRepository) GetByAgentID(ctx context.Context, agentID string) ([]*models.AgentBranch, error) {
+	var results []*models.AgentBranch
+	err := repo.Pool().DB(ctx, true).
+		Where("agent_id = ?", agentID).
+		Find(&results).Error
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
+func (repo *agentBranchRepository) GetByBranchID(ctx context.Context, branchID string) ([]*models.AgentBranch, error) {
+	var results []*models.AgentBranch
+	err := repo.Pool().DB(ctx, true).
+		Where("branch_id = ?", branchID).
+		Find(&results).Error
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
+func (repo *agentBranchRepository) GetByAgentAndBranch(
+	ctx context.Context,
+	agentID, branchID string,
+) (*models.AgentBranch, error) {
+	var result models.AgentBranch
+	err := repo.Pool().DB(ctx, true).
+		Where("agent_id = ? AND branch_id = ?", agentID, branchID).
+		First(&result).Error
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (repo *agentBranchRepository) DeleteByID(ctx context.Context, id string) error {
+	return repo.Pool().DB(ctx, false).
+		Where("id = ?", id).
+		Delete(&models.AgentBranch{}).Error
 }

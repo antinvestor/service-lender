@@ -9,7 +9,7 @@ import "field.connect.spec.dart" as specs;
 
 /// FieldService manages agents and clients in the lending hierarchy.
 /// All RPCs require authentication via Bearer token.
-extension type FieldServiceClient(connect.Transport _transport) {
+extension type FieldServiceClient (connect.Transport _transport) {
   /// AgentSave creates or updates an agent record.
   Future<fieldv1field.AgentSaveResponse> agentSave(
     fieldv1field.AgentSaveRequest input, {
@@ -74,6 +74,60 @@ extension type FieldServiceClient(connect.Transport _transport) {
   }) {
     return connect.Client(_transport).server(
       specs.FieldService.agentHierarchy,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// AgentBranchSave assigns or updates an agent-branch link.
+  Future<fieldv1field.AgentBranchSaveResponse> agentBranchSave(
+    fieldv1field.AgentBranchSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.agentBranchSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// AgentBranchDelete removes an agent-branch link.
+  Future<fieldv1field.AgentBranchDeleteResponse> agentBranchDelete(
+    fieldv1field.AgentBranchDeleteRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.agentBranchDelete,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// AgentBranchList lists agent-branch assignments.
+  Stream<fieldv1field.AgentBranchListResponse> agentBranchList(
+    fieldv1field.AgentBranchListRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.FieldService.agentBranchList,
       input,
       signal: signal,
       headers: headers,

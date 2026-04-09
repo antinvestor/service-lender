@@ -118,6 +118,7 @@ func setupServiceOptions(
 	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
+	agentBranchRepo := repository.NewAgentBranchRepository(ctx, dbPool, workMan)
 	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
 	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
 	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
@@ -128,8 +129,17 @@ func setupServiceOptions(
 
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
 	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo, partitionCli)
-	agentBusiness := business.NewAgentBusiness(ctx, evtsMan, cfg.MaxAgentDepth, branchRepo, agentRepo, agentNotifier)
-	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, branchRepo, clcrRepo)
+	agentBusiness := business.NewAgentBusiness(
+		ctx,
+		evtsMan,
+		cfg.MaxAgentDepth,
+		organizationRepo,
+		branchRepo,
+		agentRepo,
+		agentBranchRepo,
+		agentNotifier,
+	)
+	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, clcrRepo)
 	groupBusiness := business.NewGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)

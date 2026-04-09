@@ -166,17 +166,18 @@ func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
 }
 
 // Agent represents a field agent in the lending hierarchy.
+// Agents belong to an organization and can be assigned to multiple branches via AgentBranch.
 type Agent struct {
 	data.BaseModel
-	BranchID      string `gorm:"type:varchar(50);index:idx_agent_branch"`
-	ParentAgentID string `gorm:"type:varchar(50);index:idx_agent_parent"`
-	ProfileID     string `gorm:"type:varchar(50)"`
-	AgentType     int32
-	Name          string `gorm:"type:varchar(255)"`
-	GeoID         string `gorm:"type:varchar(50)"`
-	Depth         int32
-	State         int32
-	Properties    data.JSONMap
+	OrganizationID string `gorm:"type:varchar(50);index:idx_agent_organization;not null"`
+	ParentAgentID  string `gorm:"type:varchar(50);index:idx_agent_parent"`
+	ProfileID      string `gorm:"type:varchar(50)"`
+	AgentType      int32
+	Name           string `gorm:"type:varchar(255)"`
+	GeoID          string `gorm:"type:varchar(50)"`
+	Depth          int32
+	State          int32
+	Properties     data.JSONMap
 }
 
 func (m *Agent) TableName() string { return "agents" }
@@ -184,7 +185,7 @@ func (m *Agent) TableName() string { return "agents" }
 func (m *Agent) ToAPI() *fieldv1.AgentObject {
 	return &fieldv1.AgentObject{
 		Id:            m.GetID(),
-		BranchId:      m.BranchID,
+		BranchId:      m.OrganizationID, // field 2 repurposed as organization_id until proto is regenerated
 		ParentAgentId: m.ParentAgentID,
 		ProfileId:     m.ProfileID,
 		AgentType:     fieldv1.AgentType(m.AgentType),
@@ -202,14 +203,14 @@ func AgentFromAPI(ctx context.Context, obj *fieldv1.AgentObject) *Agent {
 	}
 
 	model := &Agent{
-		BranchID:      obj.GetBranchId(),
-		ParentAgentID: obj.GetParentAgentId(),
-		ProfileID:     obj.GetProfileId(),
-		AgentType:     int32(obj.GetAgentType()),
-		Name:          obj.GetName(),
-		GeoID:         obj.GetGeoId(),
-		Depth:         obj.GetDepth(),
-		State:         int32(obj.GetState()),
+		OrganizationID: obj.GetBranchId(), // field 2 repurposed as organization_id until proto is regenerated
+		ParentAgentID:  obj.GetParentAgentId(),
+		ProfileID:      obj.GetProfileId(),
+		AgentType:      int32(obj.GetAgentType()),
+		Name:           obj.GetName(),
+		GeoID:          obj.GetGeoId(),
+		Depth:          obj.GetDepth(),
+		State:          int32(obj.GetState()),
 	}
 
 	if obj.GetProperties() != nil {
@@ -223,6 +224,18 @@ func AgentFromAPI(ctx context.Context, obj *fieldv1.AgentObject) *Agent {
 
 	return model
 }
+
+// AgentBranch links an agent to a branch (many-to-many).
+// Each assignment can carry its own state and properties (e.g. commission structure).
+type AgentBranch struct {
+	data.BaseModel
+	AgentID    string `gorm:"type:varchar(50);uniqueIndex:uq_agent_branch,priority:1;not null"`
+	BranchID   string `gorm:"type:varchar(50);uniqueIndex:uq_agent_branch,priority:2;index:idx_ab_branch;not null"`
+	State      int32
+	Properties data.JSONMap
+}
+
+func (m *AgentBranch) TableName() string { return "agent_branches" }
 
 // Client represents a loan recipient always assigned to an agent.
 // Clients exist independently of groups. Product-level code links

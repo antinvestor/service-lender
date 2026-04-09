@@ -22,11 +22,11 @@ import 'field.pbenum.dart';
 export 'field.pbenum.dart';
 
 /// AgentObject represents a field agent in the lending hierarchy.
-/// Agents are organized in a tree structure within branches.
+/// Agents can be assigned to multiple branches via AgentBranchObject.
 class AgentObject extends $pb.GeneratedMessage {
   factory AgentObject({
     $core.String? id,
-    $core.String? branchId,
+    $core.String? organizationId,
     $core.String? parentAgentId,
     $core.String? profileId,
     AgentType? agentType,
@@ -35,13 +35,14 @@ class AgentObject extends $pb.GeneratedMessage {
     $core.int? depth,
     $7.STATE? state,
     $6.Struct? properties,
+    $core.Iterable<$core.String>? branchIds,
   }) {
     final $result = create();
     if (id != null) {
       $result.id = id;
     }
-    if (branchId != null) {
-      $result.branchId = branchId;
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
     }
     if (parentAgentId != null) {
       $result.parentAgentId = parentAgentId;
@@ -67,6 +68,9 @@ class AgentObject extends $pb.GeneratedMessage {
     if (properties != null) {
       $result.properties = properties;
     }
+    if (branchIds != null) {
+      $result.branchIds.addAll(branchIds);
+    }
     return $result;
   }
   AgentObject._() : super();
@@ -75,7 +79,7 @@ class AgentObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..aOS(2, _omitFieldNames ? '' : 'branchId')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..aOS(3, _omitFieldNames ? '' : 'parentAgentId')
     ..aOS(4, _omitFieldNames ? '' : 'profileId')
     ..e<AgentType>(5, _omitFieldNames ? '' : 'agentType', $pb.PbFieldType.OE, defaultOrMaker: AgentType.AGENT_TYPE_UNSPECIFIED, valueOf: AgentType.valueOf, enumValues: AgentType.values)
@@ -84,6 +88,7 @@ class AgentObject extends $pb.GeneratedMessage {
     ..a<$core.int>(8, _omitFieldNames ? '' : 'depth', $pb.PbFieldType.O3)
     ..e<$7.STATE>(9, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
     ..aOM<$6.Struct>(10, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..pPS(11, _omitFieldNames ? '' : 'branchIds')
     ..hasRequiredFields = false
   ;
 
@@ -118,13 +123,13 @@ class AgentObject extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get branchId => $_getSZ(1);
+  $core.String get organizationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set branchId($core.String v) { $_setString(1, v); }
+  set organizationId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBranchId() => $_has(1);
+  $core.bool hasOrganizationId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBranchId() => clearField(2);
+  void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get parentAgentId => $_getSZ(2);
@@ -199,6 +204,119 @@ class AgentObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(10);
   @$pb.TagNumber(10)
   $6.Struct ensureProperties() => $_ensure(9);
+
+  @$pb.TagNumber(11)
+  $core.List<$core.String> get branchIds => $_getList(10);
+}
+
+/// AgentBranchObject links an agent to a branch.
+/// Supports per-branch properties such as commission structures.
+class AgentBranchObject extends $pb.GeneratedMessage {
+  factory AgentBranchObject({
+    $core.String? id,
+    $core.String? agentId,
+    $core.String? branchId,
+    $7.STATE? state,
+    $6.Struct? properties,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (agentId != null) {
+      $result.agentId = agentId;
+    }
+    if (branchId != null) {
+      $result.branchId = branchId;
+    }
+    if (state != null) {
+      $result.state = state;
+    }
+    if (properties != null) {
+      $result.properties = properties;
+    }
+    return $result;
+  }
+  AgentBranchObject._() : super();
+  factory AgentBranchObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'agentId')
+    ..aOS(3, _omitFieldNames ? '' : 'branchId')
+    ..e<$7.STATE>(4, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..aOM<$6.Struct>(5, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchObject clone() => AgentBranchObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchObject copyWith(void Function(AgentBranchObject) updates) => super.copyWith((message) => updates(message as AgentBranchObject)) as AgentBranchObject;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchObject create() => AgentBranchObject._();
+  AgentBranchObject createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchObject> createRepeated() => $pb.PbList<AgentBranchObject>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchObject>(create);
+  static AgentBranchObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get agentId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set agentId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasAgentId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAgentId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get branchId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set branchId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasBranchId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearBranchId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $7.STATE get state => $_getN(3);
+  @$pb.TagNumber(4)
+  set state($7.STATE v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasState() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearState() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $6.Struct get properties => $_getN(4);
+  @$pb.TagNumber(5)
+  set properties($6.Struct v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasProperties() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearProperties() => clearField(5);
+  @$pb.TagNumber(5)
+  $6.Struct ensureProperties() => $_ensure(4);
 }
 
 /// ClientObject represents a loan recipient assigned to an agent.
@@ -537,6 +655,7 @@ class AgentSearchRequest extends $pb.GeneratedMessage {
     $core.String? branchId,
     $core.String? parentAgentId,
     $7.PageCursor? cursor,
+    $core.String? organizationId,
   }) {
     final $result = create();
     if (query != null) {
@@ -551,6 +670,9 @@ class AgentSearchRequest extends $pb.GeneratedMessage {
     if (cursor != null) {
       $result.cursor = cursor;
     }
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
+    }
     return $result;
   }
   AgentSearchRequest._() : super();
@@ -562,6 +684,7 @@ class AgentSearchRequest extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'branchId')
     ..aOS(3, _omitFieldNames ? '' : 'parentAgentId')
     ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOS(5, _omitFieldNames ? '' : 'organizationId')
     ..hasRequiredFields = false
   ;
 
@@ -623,6 +746,15 @@ class AgentSearchRequest extends $pb.GeneratedMessage {
   void clearCursor() => clearField(4);
   @$pb.TagNumber(4)
   $7.PageCursor ensureCursor() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  $core.String get organizationId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set organizationId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasOrganizationId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearOrganizationId() => clearField(5);
 }
 
 class AgentSearchResponse extends $pb.GeneratedMessage {
@@ -776,6 +908,317 @@ class AgentHierarchyResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<AgentObject> get data => $_getList(0);
+}
+
+/// Agent branch assignment messages
+class AgentBranchSaveRequest extends $pb.GeneratedMessage {
+  factory AgentBranchSaveRequest({
+    AgentBranchObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  AgentBranchSaveRequest._() : super();
+  factory AgentBranchSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOM<AgentBranchObject>(1, _omitFieldNames ? '' : 'data', subBuilder: AgentBranchObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchSaveRequest clone() => AgentBranchSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchSaveRequest copyWith(void Function(AgentBranchSaveRequest) updates) => super.copyWith((message) => updates(message as AgentBranchSaveRequest)) as AgentBranchSaveRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchSaveRequest create() => AgentBranchSaveRequest._();
+  AgentBranchSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchSaveRequest> createRepeated() => $pb.PbList<AgentBranchSaveRequest>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchSaveRequest>(create);
+  static AgentBranchSaveRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  AgentBranchObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(AgentBranchObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  AgentBranchObject ensureData() => $_ensure(0);
+}
+
+class AgentBranchSaveResponse extends $pb.GeneratedMessage {
+  factory AgentBranchSaveResponse({
+    AgentBranchObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  AgentBranchSaveResponse._() : super();
+  factory AgentBranchSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOM<AgentBranchObject>(1, _omitFieldNames ? '' : 'data', subBuilder: AgentBranchObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchSaveResponse clone() => AgentBranchSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchSaveResponse copyWith(void Function(AgentBranchSaveResponse) updates) => super.copyWith((message) => updates(message as AgentBranchSaveResponse)) as AgentBranchSaveResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchSaveResponse create() => AgentBranchSaveResponse._();
+  AgentBranchSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchSaveResponse> createRepeated() => $pb.PbList<AgentBranchSaveResponse>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchSaveResponse>(create);
+  static AgentBranchSaveResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  AgentBranchObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(AgentBranchObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  AgentBranchObject ensureData() => $_ensure(0);
+}
+
+class AgentBranchDeleteRequest extends $pb.GeneratedMessage {
+  factory AgentBranchDeleteRequest({
+    $core.String? id,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    return $result;
+  }
+  AgentBranchDeleteRequest._() : super();
+  factory AgentBranchDeleteRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchDeleteRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchDeleteRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchDeleteRequest clone() => AgentBranchDeleteRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchDeleteRequest copyWith(void Function(AgentBranchDeleteRequest) updates) => super.copyWith((message) => updates(message as AgentBranchDeleteRequest)) as AgentBranchDeleteRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchDeleteRequest create() => AgentBranchDeleteRequest._();
+  AgentBranchDeleteRequest createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchDeleteRequest> createRepeated() => $pb.PbList<AgentBranchDeleteRequest>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchDeleteRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchDeleteRequest>(create);
+  static AgentBranchDeleteRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+}
+
+class AgentBranchDeleteResponse extends $pb.GeneratedMessage {
+  factory AgentBranchDeleteResponse() => create();
+  AgentBranchDeleteResponse._() : super();
+  factory AgentBranchDeleteResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchDeleteResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchDeleteResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchDeleteResponse clone() => AgentBranchDeleteResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchDeleteResponse copyWith(void Function(AgentBranchDeleteResponse) updates) => super.copyWith((message) => updates(message as AgentBranchDeleteResponse)) as AgentBranchDeleteResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchDeleteResponse create() => AgentBranchDeleteResponse._();
+  AgentBranchDeleteResponse createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchDeleteResponse> createRepeated() => $pb.PbList<AgentBranchDeleteResponse>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchDeleteResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchDeleteResponse>(create);
+  static AgentBranchDeleteResponse? _defaultInstance;
+}
+
+class AgentBranchListRequest extends $pb.GeneratedMessage {
+  factory AgentBranchListRequest({
+    $core.String? agentId,
+    $core.String? branchId,
+    $7.PageCursor? cursor,
+  }) {
+    final $result = create();
+    if (agentId != null) {
+      $result.agentId = agentId;
+    }
+    if (branchId != null) {
+      $result.branchId = branchId;
+    }
+    if (cursor != null) {
+      $result.cursor = cursor;
+    }
+    return $result;
+  }
+  AgentBranchListRequest._() : super();
+  factory AgentBranchListRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchListRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchListRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'agentId')
+    ..aOS(2, _omitFieldNames ? '' : 'branchId')
+    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchListRequest clone() => AgentBranchListRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchListRequest copyWith(void Function(AgentBranchListRequest) updates) => super.copyWith((message) => updates(message as AgentBranchListRequest)) as AgentBranchListRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchListRequest create() => AgentBranchListRequest._();
+  AgentBranchListRequest createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchListRequest> createRepeated() => $pb.PbList<AgentBranchListRequest>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchListRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchListRequest>(create);
+  static AgentBranchListRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get agentId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set agentId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAgentId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAgentId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get branchId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set branchId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBranchId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBranchId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $7.PageCursor get cursor => $_getN(2);
+  @$pb.TagNumber(3)
+  set cursor($7.PageCursor v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCursor() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCursor() => clearField(3);
+  @$pb.TagNumber(3)
+  $7.PageCursor ensureCursor() => $_ensure(2);
+}
+
+class AgentBranchListResponse extends $pb.GeneratedMessage {
+  factory AgentBranchListResponse({
+    $core.Iterable<AgentBranchObject>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data.addAll(data);
+    }
+    return $result;
+  }
+  AgentBranchListResponse._() : super();
+  factory AgentBranchListResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AgentBranchListResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AgentBranchListResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..pc<AgentBranchObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: AgentBranchObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AgentBranchListResponse clone() => AgentBranchListResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AgentBranchListResponse copyWith(void Function(AgentBranchListResponse) updates) => super.copyWith((message) => updates(message as AgentBranchListResponse)) as AgentBranchListResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchListResponse create() => AgentBranchListResponse._();
+  AgentBranchListResponse createEmptyInstance() => create();
+  static $pb.PbList<AgentBranchListResponse> createRepeated() => $pb.PbList<AgentBranchListResponse>();
+  @$core.pragma('dart2js:noInline')
+  static AgentBranchListResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AgentBranchListResponse>(create);
+  static AgentBranchListResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<AgentBranchObject> get data => $_getList(0);
 }
 
 /// Client messages
@@ -1255,6 +1698,15 @@ class FieldServiceApi {
   ;
   $async.Future<AgentHierarchyResponse> agentHierarchy($pb.ClientContext? ctx, AgentHierarchyRequest request) =>
     _client.invoke<AgentHierarchyResponse>(ctx, 'FieldService', 'AgentHierarchy', request, AgentHierarchyResponse())
+  ;
+  $async.Future<AgentBranchSaveResponse> agentBranchSave($pb.ClientContext? ctx, AgentBranchSaveRequest request) =>
+    _client.invoke<AgentBranchSaveResponse>(ctx, 'FieldService', 'AgentBranchSave', request, AgentBranchSaveResponse())
+  ;
+  $async.Future<AgentBranchDeleteResponse> agentBranchDelete($pb.ClientContext? ctx, AgentBranchDeleteRequest request) =>
+    _client.invoke<AgentBranchDeleteResponse>(ctx, 'FieldService', 'AgentBranchDelete', request, AgentBranchDeleteResponse())
+  ;
+  $async.Future<AgentBranchListResponse> agentBranchList($pb.ClientContext? ctx, AgentBranchListRequest request) =>
+    _client.invoke<AgentBranchListResponse>(ctx, 'FieldService', 'AgentBranchList', request, AgentBranchListResponse())
   ;
   $async.Future<ClientSaveResponse> clientSave($pb.ClientContext? ctx, ClientSaveRequest request) =>
     _client.invoke<ClientSaveResponse>(ctx, 'FieldService', 'ClientSave', request, ClientSaveResponse())
