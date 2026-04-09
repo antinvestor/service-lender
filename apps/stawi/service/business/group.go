@@ -4,57 +4,56 @@ import (
 	"context"
 	"fmt"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/v1"
 	"connectrpc.com/connect"
-	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	identityevents "github.com/antinvestor/service-fintech/apps/identity/service/events"
-	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 type groupBusiness struct {
-	eventsMan fevents.Manager
-	grpRepo   identityrepo.ClientGroupRepository
-	memRepo   identityrepo.MembershipRepository
-	clients   *clients.PlatformClients
+	identityCli identityv1connect.IdentityServiceClient
+	clients     *clients.PlatformClients
 }
 
 func NewClientGroupBusiness(
 	_ context.Context,
-	eventsMan fevents.Manager,
-	grpRepo identityrepo.ClientGroupRepository,
-	memRepo identityrepo.MembershipRepository,
+	identityCli identityv1connect.IdentityServiceClient,
 	pc *clients.PlatformClients,
 ) ClientGroupBusiness {
-	return &groupBusiness{eventsMan: eventsMan, grpRepo: grpRepo, memRepo: memRepo, clients: pc}
+	return &groupBusiness{identityCli: identityCli, clients: pc}
 }
 
 func (b *groupBusiness) Create(
 	ctx context.Context,
-	group *identitymodels.ClientGroup,
-) (*identitymodels.ClientGroup, error) {
-	logger := util.Log(ctx).WithField("method", "GroupBusiness.Create")
-
-	if group.State == 0 {
-		group.State = int32(constants.StateJustCreated)
+	group *identityv1.ClientGroupObject,
+) (*identityv1.ClientGroupObject, error) {
+	if group.GetState() == commonv1.STATE_CREATED {
+		group.State = commonv1.STATE_CREATED
 	}
-	group.GenID(ctx)
 
-	err := b.eventsMan.Emit(ctx, identityevents.ClientGroupSaveEvent, group)
+	resp, err := b.identityCli.ClientGroupSave(ctx, connect.NewRequest(
+		&identityv1.ClientGroupSaveRequest{Data: group},
+	))
 	if err != nil {
-		logger.WithError(err).Error("could not emit group save event")
-		return nil, err
+		return nil, fmt.Errorf("could not save client group: %w", err)
 	}
 
-	return group, nil
+	return resp.Msg.GetData(), nil
 }
 
-func (b *groupBusiness) Get(ctx context.Context, id string) (*identitymodels.ClientGroup, error) {
-	return b.grpRepo.GetByID(ctx, id)
+func (b *groupBusiness) Get(ctx context.Context, id string) (*identityv1.ClientGroupObject, error) {
+	resp, err := b.identityCli.ClientGroupGet(ctx, connect.NewRequest(
+		&identityv1.ClientGroupGetRequest{Id: id},
+	))
+	if err != nil {
+		return nil, fmt.Errorf("client group not found: %w", err)
+	}
+	return resp.Msg.GetData(), nil
 }
 
 func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState int32, reason string) error {
@@ -62,13 +61,12 @@ func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState
 		"method": "GroupBusiness.Transition", "group_id": groupID, "new_state": newState,
 	})
 
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	group, err := b.Get(ctx, groupID)
 	if err != nil {
-		return fmt.Errorf("group not found: %w", err)
+		return err
 	}
 
-	// Validate state transitions
-	currentState := group.State
+	currentState := int32(group.GetState())
 	valid := false
 	switch newState {
 	case int32(constants.StateCheckCreated):
@@ -78,7 +76,7 @@ func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState
 	case int32(constants.StateInactive):
 		valid = currentState == int32(constants.StateActive)
 	case int32(constants.StateShutdown):
-		valid = true // can shutdown from any state
+		valid = true
 	case int32(constants.StateDeleted):
 		valid = currentState == int32(constants.StateShutdown)
 	}
@@ -87,38 +85,36 @@ func (b *groupBusiness) Transition(ctx context.Context, groupID string, newState
 		return fmt.Errorf("invalid state transition from %d to %d", currentState, newState)
 	}
 
-	group.State = newState
-	err = b.eventsMan.Emit(ctx, identityevents.ClientGroupSaveEvent, group)
-	if err != nil {
-		logger.WithError(err).Error("could not emit group save event")
-		return err
+	group.State = commonv1.STATE(newState)
+	if _, saveErr := b.identityCli.ClientGroupSave(ctx, connect.NewRequest(
+		&identityv1.ClientGroupSaveRequest{Data: group},
+	)); saveErr != nil {
+		logger.WithError(saveErr).Error("could not save group state transition")
+		return saveErr
 	}
 
 	logger.WithField("reason", reason).Info("group state transitioned")
 	return nil
 }
 
-// CheckFormation checks if a group has enough members to proceed.
-// Returns formation status with member count.
 func (b *groupBusiness) CheckFormation(ctx context.Context, groupID string) (map[string]interface{}, error) {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.CheckFormation")
 
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	group, err := b.Get(ctx, groupID)
 	if err != nil {
-		return nil, fmt.Errorf("group not found: %w", err)
+		return nil, err
 	}
 
-	members, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
+	members, err := b.searchMembers(ctx, groupID)
 	if err != nil {
 		logger.WithError(err).Error("could not get members")
 		return nil, err
 	}
 
 	memberCount := len(members)
-	// Use group's MinMembers field, default to 5
 	minMembers := 5
-	if group.MinMembers > 0 {
-		minMembers = int(group.MinMembers)
+	if group.GetMinMembers() > 0 {
+		minMembers = int(group.GetMinMembers())
 	}
 
 	formed := memberCount >= minMembers
@@ -127,17 +123,11 @@ func (b *groupBusiness) CheckFormation(ctx context.Context, groupID string) (map
 		"member_count":  memberCount,
 		"min_members":   minMembers,
 		"formed":        formed,
-		"current_state": group.State,
+		"current_state": int32(group.GetState()),
 	}
 
-	// Auto-transition to CHECK_CREATED if formed and still JUST_CREATED
-	if formed && group.State == int32(constants.StateJustCreated) {
-		if transErr := b.Transition(
-			ctx,
-			groupID,
-			int32(constants.StateCheckCreated),
-			"formation threshold met",
-		); transErr != nil {
+	if formed && int32(group.GetState()) == int32(constants.StateJustCreated) {
+		if transErr := b.Transition(ctx, groupID, int32(constants.StateCheckCreated), "formation threshold met"); transErr != nil {
 			logger.WithError(transErr).Warn("could not auto-transition to CHECK_CREATED")
 		} else {
 			result["transitioned_to"] = constants.StateCheckCreated
@@ -147,43 +137,38 @@ func (b *groupBusiness) CheckFormation(ctx context.Context, groupID string) (map
 	return result, nil
 }
 
-// WelcomeGroup activates a group: transitions to ACTIVE state.
 func (b *groupBusiness) WelcomeGroup(ctx context.Context, groupID string) error {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.WelcomeGroup")
 
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	group, err := b.Get(ctx, groupID)
 	if err != nil {
-		return fmt.Errorf("group not found: %w", err)
+		return err
 	}
 
-	if group.State != int32(constants.StateCheckCreated) {
-		return fmt.Errorf("group must be in CHECK_CREATED state, currently %d", group.State)
+	if int32(group.GetState()) != int32(constants.StateCheckCreated) {
+		return fmt.Errorf("group must be in CHECK_CREATED state, currently %d", int32(group.GetState()))
 	}
 
-	// Register with Lender
 	if regErr := b.RegisterWithLender(ctx, groupID); regErr != nil {
 		logger.WithError(regErr).Warn("could not register with lender during welcome")
 	}
 
-	// Transition to ACTIVE
 	return b.Transition(ctx, groupID, int32(constants.StateActive), "group welcomed and activated")
 }
 
-// SetupLedgerAccounts creates the ledger account hierarchy for a group.
 func (b *groupBusiness) SetupLedgerAccounts(ctx context.Context, groupID string) error {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.SetupLedgerAccounts")
 
 	if b.clients == nil || b.clients.LedgerClient == nil {
-		logger.Warn("ledger client not available, skipping ledger account setup")
+		logger.Warn("ledger client not available, skipping")
 		return nil
 	}
 
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	group, err := b.Get(ctx, groupID)
 	if err != nil {
-		return fmt.Errorf("group not found: %w", err)
+		return err
 	}
 
-	// Group-level ledger accounts
 	accountNames := []string{
 		constants.GroupBankAccount(groupID),
 		constants.GroupPenaltyIncomeAccount(groupID),
@@ -198,27 +183,23 @@ func (b *groupBusiness) SetupLedgerAccounts(ctx context.Context, groupID string)
 		req := connect.NewRequest(&ledgerv1.CreateAccountRequest{
 			Id:       acctName,
 			LedgerId: groupID,
-			Currency: group.CurrencyCode,
+			Currency: group.GetCurrencyCode(),
 		})
-
 		if _, createErr := b.clients.LedgerClient.CreateAccount(ctx, req); createErr != nil {
-			logger.WithError(createErr).WithField("account", acctName).
-				Warn("could not create ledger account")
+			logger.WithError(createErr).WithField("account", acctName).Warn("could not create ledger account")
 		}
 	}
 
-	logger.WithField("group_id", groupID).Info("ledger account setup completed")
+	logger.Info("ledger account setup completed")
 	return nil
 }
 
-// RegisterWithLender registers the group as a GroupObject and members as
-// Memberships + Clients in Identity.
 func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) error {
 	logger := util.Log(ctx).WithField("method", "GroupBusiness.RegisterWithLender")
 
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	group, err := b.Get(ctx, groupID)
 	if err != nil {
-		return fmt.Errorf("group not found: %w", err)
+		return err
 	}
 
 	if b.clients == nil || b.clients.LenderIdentity == nil {
@@ -226,51 +207,59 @@ func (b *groupBusiness) RegisterWithLender(ctx context.Context, groupID string) 
 		return nil
 	}
 
-	members, err := b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
+	members, err := b.searchMembers(ctx, groupID)
 	if err != nil {
 		return fmt.Errorf("could not get members: %w", err)
 	}
 
-	agentID := groupAgentID(group)
+	agentID := group.GetAgentId()
 	b.registerMembers(ctx, logger, members, agentID)
-
 	return nil
 }
 
-// groupAgentID returns the agent ID from the group.
-func groupAgentID(group *identitymodels.ClientGroup) string {
-	return group.AgentID
+func (b *groupBusiness) searchMembers(ctx context.Context, groupID string) ([]*identityv1.MembershipObject, error) {
+	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
+		&identityv1.MembershipSearchRequest{
+			GroupId: groupID,
+			Cursor:  &commonv1.PageCursor{Limit: 1000},
+		},
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*identityv1.MembershipObject
+	for stream.Receive() {
+		result = append(result, stream.Msg().GetData()...)
+	}
+	if stream.Err() != nil {
+		return nil, stream.Err()
+	}
+	return result, nil
 }
 
-// registerMembers registers unregistered members as clients in the Field service.
 func (b *groupBusiness) registerMembers(
 	ctx context.Context,
 	logger *util.LogEntry,
-	members []*identitymodels.Membership,
+	members []*identityv1.MembershipObject,
 	agentID string,
 ) {
 	for _, m := range members {
-		// Skip members already linked to a client
-		if m.Properties != nil {
-			if _, ok := m.Properties["client_id"]; ok {
+		if m.GetProperties() != nil {
+			if _, ok := m.GetProperties().GetFields()["client_id"]; ok {
 				continue
 			}
 		}
 
-		if agentID != "" {
-			clientID, cliErr := b.clients.RegisterClient(ctx, agentID, m.ProfileID, m.Name)
+		if agentID != "" && b.clients != nil {
+			clientID, cliErr := b.clients.RegisterClient(ctx, agentID, m.GetProfileId(), m.GetName())
 			if cliErr != nil {
-				logger.WithError(cliErr).WithField("local_membership_id", m.GetID()).Warn("could not register client")
-			} else {
-				if m.Properties == nil {
-					m.Properties = make(map[string]interface{})
-				}
-				m.Properties["client_id"] = clientID
+				logger.WithError(cliErr).WithField("membership_id", m.GetId()).Warn("could not register client")
+			} else if clientID != "" {
+				logger.WithField("membership_id", m.GetId()).
+					WithField("client_id", clientID).
+					Info("member registered as client")
 			}
-		}
-
-		if emitErr := b.eventsMan.Emit(ctx, identityevents.MembershipSaveEvent, m); emitErr != nil {
-			logger.WithError(emitErr).Error("could not save identity IDs on membership")
 		}
 	}
 }

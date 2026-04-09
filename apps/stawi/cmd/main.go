@@ -4,6 +4,9 @@ import (
 	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
@@ -11,15 +14,14 @@ import (
 
 	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
-	// Identity domain (Group & Membership)
-	identityevents "github.com/antinvestor/service-fintech/apps/identity/service/events"
+	// Identity repos (still needed by funding/operations business within workflow callbacks)
 	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 
-	// Group domain (Tenure, Period, Motion, Infraction)
-	groupbusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
-	groupevents "github.com/antinvestor/service-fintech/apps/stawi/service/events"
+	// Stawi domain (Tenure, Period, Motion, Infraction)
+	stawibusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
+	stawievents "github.com/antinvestor/service-fintech/apps/stawi/service/events"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/handlers"
-	grouprepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
+	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
 	// Funding domain
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
@@ -60,7 +62,7 @@ func main() {
 	workMan := svc.WorkManager()
 	evtsMan := svc.EventsManager()
 
-	// Handle database migration if requested (group domain only — funding and operations migrate independently)
+	// Handle database migration if requested (stawi domain only)
 	if handleDatabaseMigration(ctx, dbManager, cfg) {
 		return
 	}
@@ -72,21 +74,23 @@ func main() {
 		return
 	}
 
+	// --- Identity SDK client (for ClientGroup + Membership) ---
+	identityCli, idErr := setupIdentityClient(ctx, cfg)
+	if idErr != nil {
+		log.WithError(idErr).Warn("main -- Could not setup identity client")
+	}
+
 	// --- Platform clients ---
 	platformClients, pcErr := clients.NewPlatformClients(ctx, &cfg, cfg.ServiceEndpoints())
 	if pcErr != nil {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
-	// --- Identity repositories (Group & Membership) ---
-	grpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
-	memRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
-
-	// --- Group repositories (Tenure, Period, Motion, Infraction) ---
-	tenRepo := grouprepo.NewTenureRepository(ctx, dbPool, workMan)
-	perRepo := grouprepo.NewPeriodRepository(ctx, dbPool, workMan)
-	motRepo := grouprepo.NewMotionRepository(ctx, dbPool, workMan)
-	infRepo := grouprepo.NewInfractionRepository(ctx, dbPool, workMan)
+	// --- Stawi repositories (Tenure, Period, Motion, Infraction) ---
+	tenRepo := stawirepo.NewTenureRepository(ctx, dbPool, workMan)
+	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
+	motRepo := stawirepo.NewMotionRepository(ctx, dbPool, workMan)
+	infRepo := stawirepo.NewInfractionRepository(ctx, dbPool, workMan)
 
 	// --- Funding repositories (needed by workflow callbacks) ---
 	lwRepo := fundingrepo.NewLoanWindowRepository(ctx, dbPool, workMan)
@@ -103,16 +107,20 @@ func main() {
 	arRepo := opsrepo.NewAccountRefRepository(ctx, dbPool, workMan)
 	csRepo := opsrepo.NewCBSSyncRecordRepository(ctx, dbPool, workMan)
 
-	// --- Group business ---
-	grpBiz := groupbusiness.NewClientGroupBusiness(ctx, evtsMan, grpRepo, memRepo, platformClients)
-	memBiz := groupbusiness.NewMembershipBusiness(ctx, evtsMan, memRepo, platformClients)
-	tenBiz := groupbusiness.NewTenureBusiness(ctx, evtsMan, grpRepo, tenRepo, perRepo)
-	perBiz := groupbusiness.NewPeriodBusiness(ctx, evtsMan, tenRepo, perRepo)
-	_ = groupbusiness.NewMotionBusiness(ctx, evtsMan, motRepo)
+	// --- Stawi business (uses identity SDK for group/membership) ---
+	grpBiz := stawibusiness.NewClientGroupBusiness(ctx, identityCli, platformClients)
+	memBiz := stawibusiness.NewMembershipBusiness(ctx, identityCli)
+	tenBiz := stawibusiness.NewTenureBusiness(ctx, evtsMan, identityCli, tenRepo, perRepo)
+	perBiz := stawibusiness.NewPeriodBusiness(ctx, evtsMan, tenRepo, perRepo)
+	_ = stawibusiness.NewMotionBusiness(ctx, evtsMan, motRepo)
+
+	// --- Identity repos (still needed by funding/operations business for workflow callbacks) ---
+	identityMemRepo := identityrepo.NewMembershipRepository(ctx, dbPool, workMan)
+	identityGrpRepo := identityrepo.NewClientGroupRepository(ctx, dbPool, workMan)
 
 	// --- Funding business (for workflow callbacks) ---
 	lwBiz := fundingbusiness.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
-	loBiz := fundingbusiness.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, memRepo, platformClients)
+	loBiz := fundingbusiness.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, identityMemRepo, platformClients)
 	lfBiz := fundingbusiness.NewFundingAllocationBusiness(
 		ctx,
 		evtsMan,
@@ -132,7 +140,7 @@ func main() {
 		toRepo,
 		obRepo,
 		arRepo,
-		memRepo,
+		identityMemRepo,
 		platformClients,
 	)
 	toBiz := opsbusiness.NewTransferOrderBusiness(
@@ -146,7 +154,7 @@ func main() {
 		iaRepo,
 		platformClients,
 	)
-	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, memRepo, grpRepo, perRepo)
+	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, identityMemRepo, identityGrpRepo, perRepo)
 
 	// --- HTTP mux with workflow callbacks only ---
 	mux := http.NewServeMux()
@@ -157,14 +165,11 @@ func main() {
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(mux),
 		frame.WithRegisterEvents(
-			// Identity events (Group & Membership)
-			identityevents.NewClientGroupSave(ctx, grpRepo),
-			identityevents.NewMembershipSave(ctx, memRepo),
-			// Group events (Tenure, Period, Motion, Infraction)
-			groupevents.NewTenureSave(ctx, tenRepo),
-			groupevents.NewPeriodSave(ctx, perRepo),
-			groupevents.NewMotionSave(ctx, motRepo),
-			groupevents.NewInfractionSave(ctx, infRepo),
+			// Stawi events (lifecycle)
+			stawievents.NewTenureSave(ctx, tenRepo),
+			stawievents.NewPeriodSave(ctx, perRepo),
+			stawievents.NewMotionSave(ctx, motRepo),
+			stawievents.NewInfractionSave(ctx, infRepo),
 			// Funding events
 			fundingevents.NewLoanWindowSave(ctx, lwRepo),
 			fundingevents.NewLoanOfferSave(ctx, loRepo),
@@ -196,12 +201,20 @@ func handleDatabaseMigration(
 ) bool {
 	if cfg.DoDatabaseMigrate() {
 		migrationPath := cfg.GetDatabaseMigrationPath()
-
-		if err := grouprepo.Migrate(ctx, dbManager, migrationPath); err != nil {
-			util.Log(ctx).WithError(err).Fatal("main -- Could not migrate group tables")
+		if err := stawirepo.Migrate(ctx, dbManager, migrationPath); err != nil {
+			util.Log(ctx).WithError(err).Fatal("main -- Could not migrate stawi tables")
 		}
-
 		return true
 	}
 	return false
+}
+
+func setupIdentityClient(
+	ctx context.Context,
+	cfg aconfig.StawiConfig,
+) (identityv1connect.IdentityServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:  cfg.IdentityServiceURI,
+		Audiences: []string{"service_identity"},
+	}, identityv1connect.NewIdentityServiceClient)
 }

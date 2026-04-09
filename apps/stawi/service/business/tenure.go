@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/events"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/models"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/repository"
@@ -16,29 +18,26 @@ import (
 )
 
 const (
-	// defaultTenureDuration is the default number of periods in a tenure.
 	defaultTenureDuration = int32(52)
-	// tenureDaysPerWeek is the number of days in a weekly period.
-	tenureDaysPerWeek = 7
-	// tenureDaysPerBiweek is the number of days in a biweekly period.
-	tenureDaysPerBiweek = 14
+	tenureDaysPerWeek     = 7
+	tenureDaysPerBiweek   = 14
 )
 
 type tenureBusiness struct {
-	eventsMan fevents.Manager
-	grpRepo   identityrepo.ClientGroupRepository
-	tenRepo   repository.TenureRepository
-	perRepo   repository.PeriodRepository
+	eventsMan   fevents.Manager
+	identityCli identityv1connect.IdentityServiceClient
+	tenRepo     repository.TenureRepository
+	perRepo     repository.PeriodRepository
 }
 
 func NewTenureBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
-	grpRepo identityrepo.ClientGroupRepository,
+	identityCli identityv1connect.IdentityServiceClient,
 	tenRepo repository.TenureRepository,
 	perRepo repository.PeriodRepository,
 ) TenureBusiness {
-	return &tenureBusiness{eventsMan: eventsMan, grpRepo: grpRepo, tenRepo: tenRepo, perRepo: perRepo}
+	return &tenureBusiness{eventsMan: eventsMan, identityCli: identityCli, tenRepo: tenRepo, perRepo: perRepo}
 }
 
 // Open creates a new tenure for the given group.
@@ -50,10 +49,13 @@ func (b *tenureBusiness) Open(ctx context.Context, groupID string) (*models.Tenu
 		WithField("group_id", groupID)
 
 	// Get the group to read properties
-	group, err := b.grpRepo.GetByID(ctx, groupID)
+	grpResp, err := b.identityCli.ClientGroupGet(ctx, connect.NewRequest(
+		&identityv1.ClientGroupGetRequest{Id: groupID},
+	))
 	if err != nil {
 		return nil, fmt.Errorf("group not found: %w", err)
 	}
+	group := grpResp.Msg.GetData()
 
 	// Ensure no active tenure already exists
 	existing, err := b.tenRepo.GetActiveByGroupID(ctx, groupID)
@@ -70,21 +72,17 @@ func (b *tenureBusiness) Open(ctx context.Context, groupID string) (*models.Tenu
 
 	// Duration defaults to 52 periods, overridable from group properties
 	duration := defaultTenureDuration
-	if group.Properties != nil {
-		if v, hasDuration := group.Properties["tenure_duration"]; hasDuration {
-			if d, isFloat := v.(float64); isFloat && d > 0 {
-				duration = int32(d)
-			}
+	if props := group.GetProperties(); props != nil {
+		if v, ok := props.GetFields()["tenure_duration"]; ok && v.GetNumberValue() > 0 {
+			duration = int32(v.GetNumberValue())
 		}
 	}
 
 	// Determine period type for end date calculation (default WEEKLY)
 	periodType := models.PeriodTypeWeekly
-	if group.Properties != nil {
-		if v, hasPeriodType := group.Properties["period_type"]; hasPeriodType {
-			if pt, isFloat := v.(float64); isFloat && pt > 0 {
-				periodType = models.PeriodType(int32(pt))
-			}
+	if props := group.GetProperties(); props != nil {
+		if v, ok := props.GetFields()["period_type"]; ok && v.GetNumberValue() > 0 {
+			periodType = models.PeriodType(int32(v.GetNumberValue()))
 		}
 	}
 
@@ -102,7 +100,6 @@ func (b *tenureBusiness) Open(ctx context.Context, groupID string) (*models.Tenu
 		State:     int32(constants.StateActive),
 	}
 	tenure.GenID(ctx)
-	tenure.CopyPartitionInfo(&group.BaseModel)
 
 	err = b.eventsMan.Emit(ctx, events.TenureSaveEvent, tenure)
 	if err != nil {

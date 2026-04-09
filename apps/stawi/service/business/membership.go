@@ -4,50 +4,71 @@ import (
 	"context"
 	"errors"
 
-	fevents "github.com/pitabwire/frame/events"
-
-	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
-	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
-	"github.com/antinvestor/service-fintech/pkg/clients"
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"connectrpc.com/connect"
 )
 
 type membershipBusiness struct {
-	eventsMan fevents.Manager
-	memRepo   identityrepo.MembershipRepository
-	clients   *clients.PlatformClients
+	identityCli identityv1connect.IdentityServiceClient
 }
 
 func NewMembershipBusiness(
 	_ context.Context,
-	eventsMan fevents.Manager,
-	memRepo identityrepo.MembershipRepository,
-	pc *clients.PlatformClients,
+	identityCli identityv1connect.IdentityServiceClient,
 ) MembershipBusiness {
-	return &membershipBusiness{eventsMan: eventsMan, memRepo: memRepo, clients: pc}
+	return &membershipBusiness{identityCli: identityCli}
 }
 
 func (b *membershipBusiness) Create(
-	_ context.Context,
-	_ *identitymodels.Membership,
-) (*identitymodels.Membership, error) {
-	return nil, errors.New("group membership operations are not yet available for this product")
+	ctx context.Context,
+	membership *identityv1.MembershipObject,
+) (*identityv1.MembershipObject, error) {
+	resp, err := b.identityCli.MembershipSave(ctx, connect.NewRequest(
+		&identityv1.MembershipSaveRequest{Data: membership},
+	))
+	if err != nil {
+		return nil, err
+	}
+	return resp.Msg.GetData(), nil
 }
 
-func (b *membershipBusiness) Get(ctx context.Context, id string) (*identitymodels.Membership, error) {
-	return b.memRepo.GetByID(ctx, id)
+func (b *membershipBusiness) Get(ctx context.Context, id string) (*identityv1.MembershipObject, error) {
+	resp, err := b.identityCli.MembershipGet(ctx, connect.NewRequest(
+		&identityv1.MembershipGetRequest{Id: id},
+	))
+	if err != nil {
+		return nil, err
+	}
+	return resp.Msg.GetData(), nil
 }
 
-func (b *membershipBusiness) GetByGroupID(ctx context.Context, groupID string) ([]*identitymodels.Membership, error) {
-	return b.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
+func (b *membershipBusiness) GetByGroupID(ctx context.Context, groupID string) ([]*identityv1.MembershipObject, error) {
+	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
+		&identityv1.MembershipSearchRequest{
+			GroupId: groupID,
+			Cursor:  &commonv1.PageCursor{Limit: 1000},
+		},
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*identityv1.MembershipObject
+	for stream.Receive() {
+		result = append(result, stream.Msg().GetData()...)
+	}
+	if stream.Err() != nil {
+		return nil, stream.Err()
+	}
+	return result, nil
 }
 
 func (b *membershipBusiness) UpdateRole(_ context.Context, _ string, _ int32) error {
 	return errors.New("group membership operations are not yet available for this product")
 }
 
-func (b *membershipBusiness) CheckPeriodicPayment(
-	_ context.Context,
-	_ string,
-) (map[string]interface{}, error) {
+func (b *membershipBusiness) CheckPeriodicPayment(_ context.Context, _ string) (map[string]interface{}, error) {
 	return nil, errors.New("group membership operations are not yet available for this product")
 }
