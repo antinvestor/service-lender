@@ -34,8 +34,9 @@ class SavingsProductNotifier extends _$SavingsProductNotifier {
 
   Future<SavingsProductObject> save(SavingsProductObject product) async {
     final client = ref.read(savingsServiceClientProvider);
-    final response = await client
-        .savingsProductSave(SavingsProductSaveRequest(data: product));
+    final response = await client.savingsProductSave(
+      SavingsProductSaveRequest(data: product),
+    );
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(savingsProductListProvider);
     });
@@ -68,24 +69,20 @@ Future<List<SavingsAccountObject>> savingsAccountList(
 }
 
 @riverpod
-Future<SavingsAccountObject> savingsAccountDetail(
-  Ref ref,
-  String id,
-) async {
+Future<SavingsAccountObject> savingsAccountDetail(Ref ref, String id) async {
   final client = ref.watch(savingsServiceClientProvider);
-  final response =
-      await client.savingsAccountGet(SavingsAccountGetRequest(id: id));
+  final response = await client.savingsAccountGet(
+    SavingsAccountGetRequest(id: id),
+  );
   return response.data;
 }
 
 @riverpod
-Future<SavingsBalanceObject> savingsBalance(
-  Ref ref,
-  String accountId,
-) async {
+Future<SavingsBalanceObject> savingsBalance(Ref ref, String accountId) async {
   final client = ref.watch(savingsServiceClientProvider);
-  final response = await client
-      .savingsBalanceGet(SavingsBalanceGetRequest(savingsAccountId: accountId));
+  final response = await client.savingsBalanceGet(
+    SavingsBalanceGetRequest(savingsAccountId: accountId),
+  );
   return response.data;
 }
 
@@ -96,8 +93,9 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
 
   Future<SavingsAccountObject> create(SavingsAccountObject account) async {
     final client = ref.read(savingsServiceClientProvider);
-    final response = await client
-        .savingsAccountCreate(SavingsAccountCreateRequest(data: account));
+    final response = await client.savingsAccountCreate(
+      SavingsAccountCreateRequest(data: account),
+    );
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(savingsAccountListProvider);
     });
@@ -106,8 +104,7 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
 
   Future<void> freeze(String id) async {
     final client = ref.read(savingsServiceClientProvider);
-    await client
-        .savingsAccountFreeze(SavingsAccountFreezeRequest(id: id));
+    await client.savingsAccountFreeze(SavingsAccountFreezeRequest(id: id));
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(savingsAccountListProvider);
       ref.invalidate(savingsAccountDetailProvider);
@@ -116,8 +113,7 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
 
   Future<void> close(String id) async {
     final client = ref.read(savingsServiceClientProvider);
-    await client
-        .savingsAccountClose(SavingsAccountCloseRequest(id: id));
+    await client.savingsAccountClose(SavingsAccountCloseRequest(id: id));
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.invalidate(savingsAccountListProvider);
       ref.invalidate(savingsAccountDetailProvider);
@@ -158,14 +154,16 @@ class DepositNotifier extends _$DepositNotifier {
     String payerReference = '',
   }) async {
     final client = ref.read(savingsServiceClientProvider);
-    final response = await client.depositRecord(DepositRecordRequest(
-      savingsAccountId: savingsAccountId,
-      amount: amount,
-      paymentReference: paymentReference,
-      channel: channel,
-      payerReference: payerReference,
-      idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
-    ));
+    final response = await client.depositRecord(
+      DepositRecordRequest(
+        savingsAccountId: savingsAccountId,
+        amount: amount,
+        paymentReference: paymentReference,
+        channel: channel,
+        payerReference: payerReference,
+        idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
+      ),
+    );
     ref.invalidate(depositListProvider);
     ref.invalidate(savingsBalanceProvider);
     return response.data;
@@ -205,15 +203,16 @@ class WithdrawalNotifier extends _$WithdrawalNotifier {
     String reason = '',
   }) async {
     final client = ref.read(savingsServiceClientProvider);
-    final response =
-        await client.withdrawalRequest(WithdrawalRequestRequest(
-      savingsAccountId: savingsAccountId,
-      amount: amount,
-      channel: channel,
-      recipientReference: recipientReference,
-      reason: reason,
-      idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
-    ));
+    final response = await client.withdrawalRequest(
+      WithdrawalRequestRequest(
+        savingsAccountId: savingsAccountId,
+        amount: amount,
+        channel: channel,
+        recipientReference: recipientReference,
+        reason: reason,
+        idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
+      ),
+    );
     ref.invalidate(withdrawalListProvider);
     ref.invalidate(savingsBalanceProvider);
     return response.data;
@@ -221,8 +220,9 @@ class WithdrawalNotifier extends _$WithdrawalNotifier {
 
   Future<WithdrawalObject> approve(String id) async {
     final client = ref.read(savingsServiceClientProvider);
-    final response =
-        await client.withdrawalApprove(WithdrawalApproveRequest(id: id));
+    final response = await client.withdrawalApprove(
+      WithdrawalApproveRequest(id: id),
+    );
     ref.invalidate(withdrawalListProvider);
     ref.invalidate(savingsBalanceProvider);
     return response.data;

@@ -17,9 +17,7 @@ Future<List<LoanStatusChangeObject>> loanStatusChangeList(
   String loanAccountId = '',
 }) async {
   final client = ref.watch(loanManagementServiceClientProvider);
-  final request = LoanStatusChangeSearchRequest(
-    cursor: PageCursor(limit: 100),
-  );
+  final request = LoanStatusChangeSearchRequest(cursor: PageCursor(limit: 100));
   if (loanAccountId.isNotEmpty) {
     request.loanAccountId = loanAccountId;
   }

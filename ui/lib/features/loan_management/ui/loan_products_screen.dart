@@ -18,8 +18,7 @@ class LoanProductsScreen extends ConsumerStatefulWidget {
   const LoanProductsScreen({super.key});
 
   @override
-  ConsumerState<LoanProductsScreen> createState() =>
-      _LoanProductsScreenState();
+  ConsumerState<LoanProductsScreen> createState() => _LoanProductsScreenState();
 }
 
 class _LoanProductsScreenState extends ConsumerState<LoanProductsScreen> {
@@ -76,15 +75,15 @@ class _LoanProductsScreenState extends ConsumerState<LoanProductsScreen> {
         product: product,
         onSave: (updated) async {
           try {
-            await ref
-                .read(loanProductProvider.notifier)
-                .save(updated);
+            await ref.read(loanProductProvider.notifier).save(updated);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(product == null
-                      ? 'Loan product created successfully'
-                      : 'Loan product updated successfully'),
+                  content: Text(
+                    product == null
+                        ? 'Loan product created successfully'
+                        : 'Loan product updated successfully',
+                  ),
                 ),
               );
             }
@@ -116,13 +115,9 @@ class _LoanProductCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Icon(
@@ -165,11 +160,7 @@ class _LoanProductCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class LoanProductFormDialog extends ConsumerStatefulWidget {
-  const LoanProductFormDialog({
-    super.key,
-    this.product,
-    required this.onSave,
-  });
+  const LoanProductFormDialog({super.key, this.product, required this.onSave});
 
   final LoanProductObject? product;
   final Future<void> Function(LoanProductObject product) onSave;
@@ -179,8 +170,7 @@ class LoanProductFormDialog extends ConsumerStatefulWidget {
       _LoanProductFormDialogState();
 }
 
-class _LoanProductFormDialogState
-    extends ConsumerState<LoanProductFormDialog> {
+class _LoanProductFormDialogState extends ConsumerState<LoanProductFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _codeCtrl;
@@ -212,30 +202,37 @@ class _LoanProductFormDialogState
     _codeCtrl = TextEditingController(text: p?.code ?? '');
     _descriptionCtrl = TextEditingController(text: p?.description ?? '');
     _currencyCtrl = TextEditingController(text: p?.currencyCode ?? '');
-    _minAmountCtrl = TextEditingController(text: p != null ? moneyToAmountString(p.minAmount) : '');
-    _maxAmountCtrl = TextEditingController(text: p != null ? moneyToAmountString(p.maxAmount) : '');
-    _minTermCtrl =
-        TextEditingController(text: p != null ? '${p.minTermDays}' : '');
-    _maxTermCtrl =
-        TextEditingController(text: p != null ? '${p.maxTermDays}' : '');
-    _annualRateCtrl =
-        TextEditingController(text: p?.annualInterestRate ?? '');
-    _processingFeeCtrl =
-        TextEditingController(text: p?.processingFeePercent ?? '');
-    _insuranceFeeCtrl =
-        TextEditingController(text: p?.insuranceFeePercent ?? '');
-    _latePenaltyCtrl =
-        TextEditingController(text: p?.latePenaltyRate ?? '');
-    _gracePeriodCtrl =
-        TextEditingController(text: p != null ? '${p.gracePeriodDays}' : '');
+    _minAmountCtrl = TextEditingController(
+      text: p != null ? moneyToAmountString(p.minAmount) : '',
+    );
+    _maxAmountCtrl = TextEditingController(
+      text: p != null ? moneyToAmountString(p.maxAmount) : '',
+    );
+    _minTermCtrl = TextEditingController(
+      text: p != null ? '${p.minTermDays}' : '',
+    );
+    _maxTermCtrl = TextEditingController(
+      text: p != null ? '${p.maxTermDays}' : '',
+    );
+    _annualRateCtrl = TextEditingController(text: p?.annualInterestRate ?? '');
+    _processingFeeCtrl = TextEditingController(
+      text: p?.processingFeePercent ?? '',
+    );
+    _insuranceFeeCtrl = TextEditingController(
+      text: p?.insuranceFeePercent ?? '',
+    );
+    _latePenaltyCtrl = TextEditingController(text: p?.latePenaltyRate ?? '');
+    _gracePeriodCtrl = TextEditingController(
+      text: p != null ? '${p.gracePeriodDays}' : '',
+    );
     _productType = p?.productType ?? LoanProductType.LOAN_PRODUCT_TYPE_TERM;
-    _interestMethod =
-        p?.interestMethod ?? InterestMethod.INTEREST_METHOD_FLAT;
+    _interestMethod = p?.interestMethod ?? InterestMethod.INTEREST_METHOD_FLAT;
     _repaymentFrequency =
         p?.repaymentFrequency ?? RepaymentFrequency.REPAYMENT_FREQUENCY_MONTHLY;
     _selectedState = p?.state ?? STATE.CREATED;
-    _selectedOrganizationId =
-        (p != null && p.hasOrganizationId()) ? p.organizationId : null;
+    _selectedOrganizationId = (p != null && p.hasOrganizationId())
+        ? p.organizationId
+        : null;
   }
 
   @override
@@ -270,8 +267,14 @@ class _LoanProductFormDialogState
       currencyCode: _currencyCtrl.text.trim().toUpperCase(),
       interestMethod: _interestMethod,
       repaymentFrequency: _repaymentFrequency,
-      minAmount: moneyFromString(_minAmountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
-      maxAmount: moneyFromString(_maxAmountCtrl.text.trim(), _currencyCtrl.text.trim().toUpperCase()),
+      minAmount: moneyFromString(
+        _minAmountCtrl.text.trim(),
+        _currencyCtrl.text.trim().toUpperCase(),
+      ),
+      maxAmount: moneyFromString(
+        _maxAmountCtrl.text.trim(),
+        _currencyCtrl.text.trim().toUpperCase(),
+      ),
       minTermDays: int.tryParse(_minTermCtrl.text.trim()) ?? 0,
       maxTermDays: int.tryParse(_maxTermCtrl.text.trim()) ?? 0,
       annualInterestRate: _annualRateCtrl.text.trim(),
@@ -286,8 +289,7 @@ class _LoanProductFormDialogState
     if (_selectedOrganizationId != null &&
         _selectedOrganizationId!.isNotEmpty) {
       product.organizationId = _selectedOrganizationId!;
-    } else if (widget.product != null &&
-        widget.product!.hasOrganizationId()) {
+    } else if (widget.product != null && widget.product!.hasOrganizationId()) {
       product.organizationId = widget.product!.organizationId;
     }
 
@@ -394,43 +396,44 @@ class _LoanProductFormDialogState
                       isRequired: true,
                       child: organizationsAsync.when(
                         loading: () => const LinearProgressIndicator(),
-                        error: (e, _) => Text('Failed to load organizations: $e'),
+                        error: (e, _) =>
+                            Text('Failed to load organizations: $e'),
                         data: (organizations) =>
                             DropdownButtonFormField<String>(
-                          initialValue: _selectedOrganizationId != null &&
-                                  organizations.any(
-                                      (o) => o.id == _selectedOrganizationId)
-                              ? _selectedOrganizationId
-                              : null,
-                          decoration: const InputDecoration(
-                            hintText: 'Select an organization',
-                          ),
-                          items: [
-                            for (final org in organizations)
-                              DropdownMenuItem(
-                                value: org.id,
-                                child: Text(org.name.isNotEmpty
-                                    ? org.name
-                                    : org.id),
+                              initialValue:
+                                  _selectedOrganizationId != null &&
+                                      organizations.any(
+                                        (o) => o.id == _selectedOrganizationId,
+                                      )
+                                  ? _selectedOrganizationId
+                                  : null,
+                              decoration: const InputDecoration(
+                                hintText: 'Select an organization',
                               ),
-                          ],
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Organization is required';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            setState(
-                                () => _selectedOrganizationId = value);
-                          },
-                        ),
+                              items: [
+                                for (final org in organizations)
+                                  DropdownMenuItem(
+                                    value: org.id,
+                                    child: Text(
+                                      org.name.isNotEmpty ? org.name : org.id,
+                                    ),
+                                  ),
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Organization is required';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                setState(() => _selectedOrganizationId = value);
+                              },
+                            ),
                       ),
                     ),
                     FormFieldCard(
                       label: 'Name',
-                      description:
-                          'The display name for this loan product',
+                      description: 'The display name for this loan product',
                       isRequired: true,
                       child: TextFormField(
                         controller: _nameCtrl,
@@ -480,10 +483,12 @@ class _LoanProductFormDialogState
                       child: DropdownButtonFormField<LoanProductType>(
                         initialValue: _productType,
                         items: _productTypes
-                            .map((t) => DropdownMenuItem(
-                                  value: t,
-                                  child: Text(_productTypeLabel(t)),
-                                ))
+                            .map(
+                              (t) => DropdownMenuItem(
+                                value: t,
+                                child: Text(_productTypeLabel(t)),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _productType = v);
@@ -498,19 +503,15 @@ class _LoanProductFormDialogState
                   children: [
                     FormFieldCard(
                       label: 'Currency',
-                      description:
-                          'ISO 4217 currency code for this product',
+                      description: 'ISO 4217 currency code for this product',
                       isRequired: true,
                       child: TextFormField(
                         controller: _currencyCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'e.g. KES',
-                        ),
+                        decoration: const InputDecoration(hintText: 'e.g. KES'),
                         textInputAction: TextInputAction.next,
-                        validator: (v) =>
-                            (v == null || v.trim().length != 3)
-                                ? 'Enter a 3-letter currency code'
-                                : null,
+                        validator: (v) => (v == null || v.trim().length != 3)
+                            ? 'Enter a 3-letter currency code'
+                            : null,
                       ),
                     ),
                     FormFieldCard(
@@ -521,10 +522,12 @@ class _LoanProductFormDialogState
                       child: DropdownButtonFormField<InterestMethod>(
                         initialValue: _interestMethod,
                         items: _interestMethods
-                            .map((m) => DropdownMenuItem(
-                                  value: m,
-                                  child: Text(_interestMethodLabel(m)),
-                                ))
+                            .map(
+                              (m) => DropdownMenuItem(
+                                value: m,
+                                child: Text(_interestMethodLabel(m)),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) {
                           if (v != null) {
@@ -535,17 +538,17 @@ class _LoanProductFormDialogState
                     ),
                     FormFieldCard(
                       label: 'Repayment Frequency',
-                      description:
-                          'How often the borrower makes repayments',
+                      description: 'How often the borrower makes repayments',
                       isRequired: true,
                       child: DropdownButtonFormField<RepaymentFrequency>(
                         initialValue: _repaymentFrequency,
                         items: _repaymentFrequencies
-                            .map((f) => DropdownMenuItem(
-                                  value: f,
-                                  child:
-                                      Text(_repaymentFrequencyLabel(f)),
-                                ))
+                            .map(
+                              (f) => DropdownMenuItem(
+                                value: f,
+                                child: Text(_repaymentFrequencyLabel(f)),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) {
                           if (v != null) {
@@ -593,8 +596,7 @@ class _LoanProductFormDialogState
                         Expanded(
                           child: FormFieldCard(
                             label: 'Max Amount',
-                            description:
-                                'Largest loan that can be issued',
+                            description: 'Largest loan that can be issued',
                             child: TextFormField(
                               controller: _maxAmountCtrl,
                               decoration: const InputDecoration(
@@ -612,8 +614,7 @@ class _LoanProductFormDialogState
                         Expanded(
                           child: FormFieldCard(
                             label: 'Min Term (days)',
-                            description:
-                                'Shortest allowed loan duration',
+                            description: 'Shortest allowed loan duration',
                             child: TextFormField(
                               controller: _minTermCtrl,
                               decoration: const InputDecoration(
@@ -628,8 +629,7 @@ class _LoanProductFormDialogState
                         Expanded(
                           child: FormFieldCard(
                             label: 'Max Term (days)',
-                            description:
-                                'Longest allowed loan duration',
+                            description: 'Longest allowed loan duration',
                             child: TextFormField(
                               controller: _maxTermCtrl,
                               decoration: const InputDecoration(
@@ -653,8 +653,7 @@ class _LoanProductFormDialogState
                         Expanded(
                           child: FormFieldCard(
                             label: 'Processing Fee (%)',
-                            description:
-                                'One-time fee charged at disbursement',
+                            description: 'One-time fee charged at disbursement',
                             child: TextFormField(
                               controller: _processingFeeCtrl,
                               decoration: const InputDecoration(
@@ -669,8 +668,7 @@ class _LoanProductFormDialogState
                         Expanded(
                           child: FormFieldCard(
                             label: 'Insurance Fee (%)',
-                            description:
-                                'Credit insurance premium percentage',
+                            description: 'Credit insurance premium percentage',
                             child: TextFormField(
                               controller: _insuranceFeeCtrl,
                               decoration: const InputDecoration(
@@ -688,8 +686,7 @@ class _LoanProductFormDialogState
                         Expanded(
                           child: FormFieldCard(
                             label: 'Late Penalty Rate',
-                            description:
-                                'Rate charged on overdue payments',
+                            description: 'Rate charged on overdue payments',
                             child: TextFormField(
                               controller: _latePenaltyCtrl,
                               decoration: const InputDecoration(
@@ -722,8 +719,7 @@ class _LoanProductFormDialogState
                 ),
                 FormFieldCard(
                   label: 'State',
-                  description:
-                      'The lifecycle state of this loan product',
+                  description: 'The lifecycle state of this loan product',
                   isRequired: true,
                   child: DropdownButtonFormField<STATE>(
                     initialValue: _selectedState,

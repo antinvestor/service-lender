@@ -178,7 +178,9 @@ class _AgentCard extends StatelessWidget {
         ),
         title: Text(
           agent.name,
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: subtitle.isNotEmpty
             ? Text(subtitle, style: theme.textTheme.bodySmall)
@@ -267,7 +269,11 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
               color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.person_pin_outlined, color: theme.colorScheme.primary, size: 22),
+            child: Icon(
+              Icons.person_pin_outlined,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -276,13 +282,17 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
               children: [
                 Text(
                   _isEditing ? 'Edit Agent' : 'New Agent',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 Text(
                   _isEditing
                       ? 'Update the agent details below.'
                       : 'Register a new field agent in the system.',
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -313,12 +323,14 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                       prefixIcon: Icon(Icons.person_outlined),
                     ),
                     textInputAction: TextInputAction.next,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Name is required' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Name is required' : null,
                   ),
                 ),
                 FormFieldCard(
                   label: 'Profile ID',
-                  description: 'The platform profile identifier linking this agent to their user account.',
+                  description:
+                      'The platform profile identifier linking this agent to their user account.',
                   isRequired: true,
                   child: TextFormField(
                     controller: _profileIdController,
@@ -327,20 +339,24 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                       prefixIcon: Icon(Icons.badge_outlined),
                     ),
                     textInputAction: TextInputAction.next,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Profile ID is required' : null,
+                    validator: (v) => (v == null || v.isEmpty)
+                        ? 'Profile ID is required'
+                        : null,
                   ),
                 ),
 
                 // --- Placement (cascading) ---
                 FormFieldCard(
                   label: 'Organization',
-                  description: 'The organization this agent belongs to. Filters the available branches.',
+                  description:
+                      'The organization this agent belongs to. Filters the available branches.',
                   isRequired: true,
                   child: orgsAsync.when(
                     loading: () => const LinearProgressIndicator(),
                     error: (e, _) => Text('Failed to load: $e'),
                     data: (orgs) => DropdownButtonFormField<String>(
-                      initialValue: _selectedOrgId.isNotEmpty &&
+                      initialValue:
+                          _selectedOrgId.isNotEmpty &&
                               orgs.any((o) => o.id == _selectedOrgId)
                           ? _selectedOrgId
                           : null,
@@ -349,12 +365,16 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                         prefixIcon: Icon(Icons.business_outlined),
                       ),
                       items: orgs
-                          .map((o) => DropdownMenuItem(
-                                value: o.id,
-                                child: Text(o.name.isNotEmpty ? o.name : o.id),
-                              ))
+                          .map(
+                            (o) => DropdownMenuItem(
+                              value: o.id,
+                              child: Text(o.name.isNotEmpty ? o.name : o.id),
+                            ),
+                          )
                           .toList(),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Organization is required' : null,
+                      validator: (v) => (v == null || v.isEmpty)
+                          ? 'Organization is required'
+                          : null,
                       onChanged: (v) => setState(() {
                         _selectedOrgId = v ?? '';
                         _selectedBranchId = ''; // Reset branch
@@ -378,7 +398,8 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                         );
                       }
                       return DropdownButtonFormField<String>(
-                        initialValue: _selectedBranchId.isNotEmpty &&
+                        initialValue:
+                            _selectedBranchId.isNotEmpty &&
                                 branches.any((b) => b.id == _selectedBranchId)
                             ? _selectedBranchId
                             : null,
@@ -387,12 +408,16 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                           prefixIcon: Icon(Icons.store_outlined),
                         ),
                         items: branches
-                            .map((b) => DropdownMenuItem(
-                                  value: b.id,
-                                  child: Text(b.name.isNotEmpty ? b.name : b.id),
-                                ))
+                            .map(
+                              (b) => DropdownMenuItem(
+                                value: b.id,
+                                child: Text(b.name.isNotEmpty ? b.name : b.id),
+                              ),
+                            )
                             .toList(),
-                        validator: (v) => (v == null || v.isEmpty) ? 'Branch is required' : null,
+                        validator: (v) => (v == null || v.isEmpty)
+                            ? 'Branch is required'
+                            : null,
                         onChanged: (v) => setState(() {
                           _selectedBranchId = v ?? '';
                           _selectedParentAgentId = ''; // Reset parent
@@ -411,7 +436,9 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                     error: (e, _) => Text('Failed to load: $e'),
                     data: (agents) {
                       // Filter to only top-level agents (depth 0) — enforces max 1 level of sub-agents
-                      final topLevelAgents = agents.where((a) => a.depth <= 0).toList();
+                      final topLevelAgents = agents
+                          .where((a) => a.depth <= 0)
+                          .toList();
                       if (_selectedBranchId.isEmpty) {
                         return const Text(
                           'Select a branch first',
@@ -419,8 +446,11 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                         );
                       }
                       return DropdownButtonFormField<String>(
-                        initialValue: _selectedParentAgentId.isNotEmpty &&
-                                topLevelAgents.any((a) => a.id == _selectedParentAgentId)
+                        initialValue:
+                            _selectedParentAgentId.isNotEmpty &&
+                                topLevelAgents.any(
+                                  (a) => a.id == _selectedParentAgentId,
+                                )
                             ? _selectedParentAgentId
                             : null,
                         decoration: const InputDecoration(
@@ -432,10 +462,12 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                             value: '',
                             child: Text('None (top-level agent)'),
                           ),
-                          ...topLevelAgents.map((a) => DropdownMenuItem(
-                                value: a.id,
-                                child: Text(a.name.isNotEmpty ? a.name : a.id),
-                              )),
+                          ...topLevelAgents.map(
+                            (a) => DropdownMenuItem(
+                              value: a.id,
+                              child: Text(a.name.isNotEmpty ? a.name : a.id),
+                            ),
+                          ),
                         ],
                         onChanged: (v) => setState(() {
                           _selectedParentAgentId = v ?? '';
@@ -448,7 +480,8 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                 // --- Classification ---
                 FormFieldCard(
                   label: 'Agent Type',
-                  description: 'The operational role of this agent in the field.',
+                  description:
+                      'The operational role of this agent in the field.',
                   isRequired: true,
                   child: DropdownButtonFormField<AgentType>(
                     initialValue: _agentType,
@@ -472,7 +505,8 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                 ),
                 FormFieldCard(
                   label: 'Geographic ID',
-                  description: "Optional geographic area identifier for this agent's territory.",
+                  description:
+                      "Optional geographic area identifier for this agent's territory.",
                   child: TextFormField(
                     controller: _geoIdController,
                     decoration: const InputDecoration(
@@ -491,9 +525,18 @@ class _AgentFormDialogState extends ConsumerState<_AgentFormDialog> {
                       prefixIcon: Icon(Icons.toggle_on_outlined),
                     ),
                     items: const [
-                      DropdownMenuItem(value: STATE.CREATED, child: Text('Created')),
-                      DropdownMenuItem(value: STATE.ACTIVE, child: Text('Active')),
-                      DropdownMenuItem(value: STATE.INACTIVE, child: Text('Inactive')),
+                      DropdownMenuItem(
+                        value: STATE.CREATED,
+                        child: Text('Created'),
+                      ),
+                      DropdownMenuItem(
+                        value: STATE.ACTIVE,
+                        child: Text('Active'),
+                      ),
+                      DropdownMenuItem(
+                        value: STATE.INACTIVE,
+                        child: Text('Inactive'),
+                      ),
                     ],
                     onChanged: (v) {
                       if (v != null) setState(() => _state = v);

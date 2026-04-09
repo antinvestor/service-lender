@@ -136,9 +136,7 @@ class AppTheme {
       // ── Cards: no border, tonal surface ───────────────────────────────
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         color: cs.surfaceContainerLowest,
         surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
@@ -207,9 +205,7 @@ class AppTheme {
       // ── Filled buttons ────────────────────────────────────────────────
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           textStyle: GoogleFonts.inter(
             fontSize: 14,
@@ -222,9 +218,7 @@ class AppTheme {
       // ── Outlined buttons ──────────────────────────────────────────────
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           side: BorderSide(color: cs.outlineVariant.withAlpha(50)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           textStyle: GoogleFonts.inter(
@@ -238,9 +232,7 @@ class AppTheme {
       // ── Text buttons ──────────────────────────────────────────────────
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
@@ -387,9 +379,7 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         color: darkColorScheme.surfaceContainerLow,
         surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
@@ -435,31 +425,30 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         ),
       ),
       dataTableTheme: DataTableThemeData(
-        headingRowColor:
-            WidgetStateProperty.all(darkColorScheme.surfaceContainerHigh),
+        headingRowColor: WidgetStateProperty.all(
+          darkColorScheme.surfaceContainerHigh,
+        ),
         headingTextStyle: GoogleFonts.inter(
           fontWeight: FontWeight.w600,
           fontSize: 12,
           color: darkColorScheme.onSurfaceVariant,
           letterSpacing: 0.5,
         ),
-        dataTextStyle:
-            GoogleFonts.inter(fontSize: 13, color: darkColorScheme.onSurface),
+        dataTextStyle: GoogleFonts.inter(
+          fontSize: 13,
+          color: darkColorScheme.onSurface,
+        ),
         dividerThickness: 0,
       ),
       chipTheme: ChipThemeData(

@@ -108,8 +108,7 @@ GoRouter router(Ref ref) {
         final agentStatus = ref.read(agentOnboardingStatusProvider);
         final status = agentStatus.value;
         if (status != null) {
-          if (!isTermsRoute &&
-              status == AgentOnboardingStatus.pendingTnc) {
+          if (!isTermsRoute && status == AgentOnboardingStatus.pendingTnc) {
             return '/terms';
           }
           if (isTermsRoute &&
@@ -123,18 +122,12 @@ GoRouter router(Ref ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/auth/callback',
         builder: (context, state) => const _AuthCallbackScreen(),
       ),
-      GoRoute(
-        path: '/terms',
-        builder: (context, state) => const TermsScreen(),
-      ),
+      GoRoute(path: '/terms', builder: (context, state) => const TermsScreen()),
 
       // All authenticated routes live inside the shell.
       // Each route is wrapped with RouteRoleGuard to enforce
@@ -143,8 +136,7 @@ GoRouter router(Ref ref) {
       // No StatefulShellBranch overhead — each page renders fresh inside
       // the persistent sidebar shell.
       ShellRoute(
-        builder: (context, state, child) =>
-            AppShellSimple(child: child),
+        builder: (context, state, child) => AppShellSimple(child: child),
         routes: [
           GoRoute(
             path: '/',
@@ -162,8 +154,7 @@ GoRouter router(Ref ref) {
                 builder: (context, state) => _guarded(
                   '/organization/organizations',
                   OrganizationDetailScreen(
-                    organizationId:
-                        state.pathParameters['organizationId']!,
+                    organizationId: state.pathParameters['organizationId']!,
                   ),
                 ),
                 routes: [
@@ -173,8 +164,7 @@ GoRouter router(Ref ref) {
                       '/organization/organizations',
                       BranchDetailScreen(
                         branchId: state.pathParameters['branchId']!,
-                        organizationId:
-                            state.pathParameters['organizationId']!,
+                        organizationId: state.pathParameters['organizationId']!,
                       ),
                     ),
                   ),
@@ -184,56 +174,42 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/organization/investors',
-            builder: (context, state) => _guarded(
-              '/organization/investors',
-              const InvestorsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/organization/investors', const InvestorsScreen()),
           ),
           GoRoute(
             path: '/field/agents',
-            builder: (context, state) => _guarded(
-              '/field/agents',
-              const AgentsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/field/agents', const AgentsScreen()),
             routes: [
               GoRoute(
                 path: 'new',
-                builder: (context, state) => _guarded(
-                  '/field/agents',
-                  const AgentCreateScreen(),
-                ),
+                builder: (context, state) =>
+                    _guarded('/field/agents', const AgentCreateScreen()),
               ),
               GoRoute(
                 path: ':agentId',
                 builder: (context, state) => _guarded(
                   '/field/agents',
-                  AgentDetailScreen(
-                    agentId: state.pathParameters['agentId']!,
-                  ),
+                  AgentDetailScreen(agentId: state.pathParameters['agentId']!),
                 ),
               ),
             ],
           ),
           GoRoute(
             path: '/field/hierarchy',
-            builder: (context, state) => _guarded(
-              '/field/hierarchy',
-              const HierarchyScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/field/hierarchy', const HierarchyScreen()),
           ),
           GoRoute(
             path: '/field/clients',
-            builder: (context, state) => _guarded(
-              '/field/clients',
-              const ClientsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/field/clients', const ClientsScreen()),
             routes: [
               GoRoute(
                 path: 'new',
-                builder: (context, state) => _guarded(
-                  '/field/clients',
-                  const ClientOnboardScreen(),
-                ),
+                builder: (context, state) =>
+                    _guarded('/field/clients', const ClientOnboardScreen()),
               ),
               GoRoute(
                 path: ':clientId',
@@ -248,17 +224,13 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/field/reassignment',
-            builder: (context, state) => _guarded(
-              '/field/reassignment',
-              const ReassignmentScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/field/reassignment', const ReassignmentScreen()),
           ),
           GoRoute(
             path: '/origination/pending',
-            builder: (context, state) => _guarded(
-              '/origination/pending',
-              const PendingCasesScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/origination/pending', const PendingCasesScreen()),
           ),
           GoRoute(
             path: '/origination/applications',
@@ -281,8 +253,7 @@ GoRouter router(Ref ref) {
                 builder: (context, state) => _guarded(
                   '/origination/applications',
                   ApplicationDetailScreen(
-                    applicationId:
-                        state.pathParameters['applicationId']!,
+                    applicationId: state.pathParameters['applicationId']!,
                   ),
                 ),
               ),
@@ -290,10 +261,8 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/loans/products',
-            builder: (context, state) => _guarded(
-              '/loans/products',
-              const LoanProductsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/loans/products', const LoanProductsScreen()),
             routes: [
               GoRoute(
                 path: ':productId',
@@ -308,10 +277,8 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/loans',
-            builder: (context, state) => _guarded(
-              '/loans',
-              const LoanAccountsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/loans', const LoanAccountsScreen()),
             routes: [
               GoRoute(
                 path: ':loanId',
@@ -326,10 +293,8 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/savings',
-            builder: (context, state) => _guarded(
-              '/savings',
-              const SavingsAccountsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/savings', const SavingsAccountsScreen()),
             routes: [
               GoRoute(
                 path: ':accountId',
@@ -344,17 +309,13 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/reports/portfolio',
-            builder: (context, state) => _guarded(
-              '/reports/portfolio',
-              const PortfolioSummaryScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/reports/portfolio', const PortfolioSummaryScreen()),
           ),
           GoRoute(
             path: '/reports/loan-book',
-            builder: (context, state) => _guarded(
-              '/reports/loan-book',
-              const LoanBookScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/reports/loan-book', const LoanBookScreen()),
           ),
           GoRoute(
             path: '/operations/disbursements',
@@ -365,10 +326,8 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/operations/transfers',
-            builder: (context, state) => _guarded(
-              '/operations/transfers',
-              const TransferOrdersScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/operations/transfers', const TransferOrdersScreen()),
           ),
           GoRoute(
             path: '/operations/templates',
@@ -379,24 +338,18 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/admin/users',
-            builder: (context, state) => _guarded(
-              '/admin/users',
-              const SystemUsersScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/admin/users', const SystemUsersScreen()),
           ),
           GoRoute(
             path: '/admin/roles',
-            builder: (context, state) => _guarded(
-              '/admin/roles',
-              const RolesScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/admin/roles', const RolesScreen()),
           ),
           GoRoute(
             path: '/admin/audit',
-            builder: (context, state) => _guarded(
-              '/admin/audit',
-              const AuditLogScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/admin/audit', const AuditLogScreen()),
           ),
           GoRoute(
             path: '/settings',
@@ -473,10 +426,7 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
         );
       } else {
         // No stored context — default to root level
-        tenancy.initializeFromLogin(
-          LoginLevel.root,
-          partitionId: partitionId,
-        );
+        tenancy.initializeFromLogin(LoginLevel.root, partitionId: partitionId);
       }
     } catch (e) {
       // Non-critical — tenancy defaults to root level
@@ -486,8 +436,6 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

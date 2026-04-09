@@ -51,10 +51,10 @@ class _LoanAccountDetailScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final loanAsync =
-        ref.watch(loanAccountDetailProvider(id: widget.loanId));
-    final balanceAsync =
-        ref.watch(loanBalanceDetailProvider(loanAccountId: widget.loanId));
+    final loanAsync = ref.watch(loanAccountDetailProvider(id: widget.loanId));
+    final balanceAsync = ref.watch(
+      loanBalanceDetailProvider(loanAccountId: widget.loanId),
+    );
     final canManage = ref.watch(canManageLoansProvider).value ?? false;
     final canRecordPayment =
         ref.watch(canRecordRepaymentsProvider).value ?? false;
@@ -65,16 +65,16 @@ class _LoanAccountDetailScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 48, color: theme.colorScheme.error),
+            Icon(Icons.error_outline, size: 48, color: theme.colorScheme.error),
             const SizedBox(height: 16),
-            Text('Failed to load loan: $error',
-                style: theme.textTheme.bodyLarge),
+            Text(
+              'Failed to load loan: $error',
+              style: theme.textTheme.bodyLarge,
+            ),
             const SizedBox(height: 16),
             FilledButton.tonal(
-              onPressed: () => ref.invalidate(
-                loanAccountDetailProvider(id: widget.loanId),
-              ),
+              onPressed: () =>
+                  ref.invalidate(loanAccountDetailProvider(id: widget.loanId)),
               child: const Text('Retry'),
             ),
           ],
@@ -127,15 +127,20 @@ class _LoanAccountDetailScreenState
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.errorContainer.withAlpha(60),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber_outlined,
-                        color: theme.colorScheme.error, size: 20),
+                    Icon(
+                      Icons.warning_amber_outlined,
+                      color: theme.colorScheme.error,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       '${loan.daysPastDue} days past due',
@@ -203,13 +208,15 @@ class _LoanAccountDetailScreenState
                     canRecordPayment) ...[
                   FilledButton.icon(
                     onPressed: () => _showRecordPaymentDialog(
-                        context, loan, balanceAsync.value),
+                      context,
+                      loan,
+                      balanceAsync.value,
+                    ),
                     icon: const Icon(Icons.payments, size: 18),
                     label: const Text('Record Payment'),
                   ),
                   FilledButton.tonalIcon(
-                    onPressed: () =>
-                        _showCollectPaymentDialog(context, loan),
+                    onPressed: () => _showCollectPaymentDialog(context, loan),
                     icon: const Icon(Icons.phone_android, size: 18),
                     label: const Text('Collect Payment'),
                   ),
@@ -256,30 +263,32 @@ class _LoanAccountDetailScreenState
     );
   }
 
-  void _showDisbursementDialog(
-      BuildContext context, LoanAccountObject loan) {
+  void _showDisbursementDialog(BuildContext context, LoanAccountObject loan) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => _DisbursementFormDialog(
         loanAccountId: loan.id,
         onSave: (channel, recipientReference) async {
           try {
-            final idempotencyKey =
-                DateTime.now().millisecondsSinceEpoch.toString();
-            await ref.read(disbursementProvider.notifier).create(
+            final idempotencyKey = DateTime.now().millisecondsSinceEpoch
+                .toString();
+            await ref
+                .read(disbursementProvider.notifier)
+                .create(
                   loanAccountId: loan.id,
                   channel: channel,
                   recipientReference: recipientReference,
                   idempotencyKey: idempotencyKey,
                 );
+            ref.invalidate(loanAccountDetailProvider(id: widget.loanId));
             ref.invalidate(
-                loanAccountDetailProvider(id: widget.loanId));
-            ref.invalidate(
-                loanBalanceDetailProvider(loanAccountId: widget.loanId));
+              loanBalanceDetailProvider(loanAccountId: widget.loanId),
+            );
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text('Disbursement initiated successfully')),
+                  content: Text('Disbursement initiated successfully'),
+                ),
               );
             }
           } catch (e) {
@@ -298,7 +307,10 @@ class _LoanAccountDetailScreenState
   }
 
   void _showRecordPaymentDialog(
-      BuildContext context, LoanAccountObject loan, dynamic balance) {
+    BuildContext context,
+    LoanAccountObject loan,
+    dynamic balance,
+  ) {
     String? outstanding;
     if (balance != null) {
       outstanding = moneyToAmountString(balance.totalOutstanding);
@@ -311,9 +323,11 @@ class _LoanAccountDetailScreenState
         totalOutstanding: outstanding,
         onSave: (amount, paymentReference, channel, payerReference) async {
           try {
-            final idempotencyKey =
-                DateTime.now().millisecondsSinceEpoch.toString();
-            await ref.read(repaymentProvider.notifier).record(
+            final idempotencyKey = DateTime.now().millisecondsSinceEpoch
+                .toString();
+            await ref
+                .read(repaymentProvider.notifier)
+                .record(
                   loanAccountId: loan.id,
                   amount: amount,
                   currencyCode: moneyCurrency(loan.principalAmount),
@@ -323,13 +337,12 @@ class _LoanAccountDetailScreenState
                   idempotencyKey: idempotencyKey,
                 );
             ref.invalidate(
-                loanBalanceDetailProvider(loanAccountId: widget.loanId));
-            ref.invalidate(
-                repaymentListProvider(loanAccountId: widget.loanId));
+              loanBalanceDetailProvider(loanAccountId: widget.loanId),
+            );
+            ref.invalidate(repaymentListProvider(loanAccountId: widget.loanId));
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Payment recorded successfully')),
+                const SnackBar(content: Text('Payment recorded successfully')),
               );
             }
           } catch (e) {
@@ -347,8 +360,7 @@ class _LoanAccountDetailScreenState
     );
   }
 
-  void _showCollectPaymentDialog(
-      BuildContext context, LoanAccountObject loan) {
+  void _showCollectPaymentDialog(BuildContext context, LoanAccountObject loan) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => _CollectPaymentFormDialog(
@@ -356,10 +368,9 @@ class _LoanAccountDetailScreenState
         currencyCode: moneyCurrency(loan.principalAmount),
         onSave: (amount, phoneNumber) async {
           try {
-            final client =
-                ref.read(loanManagementServiceClientProvider);
-            final idempotencyKey =
-                DateTime.now().millisecondsSinceEpoch.toString();
+            final client = ref.read(loanManagementServiceClientProvider);
+            final idempotencyKey = DateTime.now().millisecondsSinceEpoch
+                .toString();
             await client.initiateCollection(
               InitiateCollectionRequest(
                 loanAccountId: loan.id,
@@ -371,7 +382,8 @@ class _LoanAccountDetailScreenState
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text('Collection prompt sent successfully')),
+                  content: Text('Collection prompt sent successfully'),
+                ),
               );
             }
           } catch (e) {
@@ -413,9 +425,7 @@ class _BalanceCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -453,8 +463,8 @@ class _BalanceCard extends StatelessWidget {
                   progress >= 0.8
                       ? Colors.green
                       : progress >= 0.5
-                          ? Colors.orange
-                          : Colors.red,
+                      ? Colors.orange
+                      : Colors.red,
                 ),
                 minHeight: 6,
               ),
@@ -590,8 +600,7 @@ class _ScheduleTab extends ConsumerWidget {
             const SizedBox(height: 8),
             FilledButton.tonal(
               onPressed: () => ref.invalidate(
-                repaymentScheduleDetailProvider(
-                    loanAccountId: loanAccountId),
+                repaymentScheduleDetailProvider(loanAccountId: loanAccountId),
               ),
               child: const Text('Retry'),
             ),
@@ -636,15 +645,16 @@ class _ScheduleTab extends ConsumerWidget {
                     };
                   }),
                   cells: [
-                  DataCell(Text('${entry.installmentNumber}')),
-                  DataCell(Text(entry.dueDate)),
-                  DataCell(Text(formatMoney(entry.principalDue))),
-                  DataCell(Text(formatMoney(entry.interestDue))),
-                  DataCell(Text(formatMoney(entry.totalDue))),
-                  DataCell(Text(formatMoney(entry.totalPaid))),
-                  DataCell(Text(formatMoney(entry.outstanding))),
-                  DataCell(_ScheduleEntryStatusChip(status: entry.status)),
-                ]);
+                    DataCell(Text('${entry.installmentNumber}')),
+                    DataCell(Text(entry.dueDate)),
+                    DataCell(Text(formatMoney(entry.principalDue))),
+                    DataCell(Text(formatMoney(entry.interestDue))),
+                    DataCell(Text(formatMoney(entry.totalDue))),
+                    DataCell(Text(formatMoney(entry.totalPaid))),
+                    DataCell(Text(formatMoney(entry.outstanding))),
+                    DataCell(_ScheduleEntryStatusChip(status: entry.status)),
+                  ],
+                );
               }).toList(),
             ),
           ),
@@ -661,18 +671,24 @@ class _ScheduleEntryStatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
-      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_UPCOMING =>
-        ('Upcoming', Colors.blue),
-      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_DUE =>
-        ('Due', Colors.orange),
-      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PAID =>
-        ('Paid', Colors.green),
-      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PARTIAL =>
-        ('Partial', Colors.amber),
-      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_OVERDUE =>
-        ('Overdue', Colors.red),
-      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_WAIVED =>
-        ('Waived', Colors.grey),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_UPCOMING => (
+        'Upcoming',
+        Colors.blue,
+      ),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_DUE => ('Due', Colors.orange),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PAID => ('Paid', Colors.green),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_PARTIAL => (
+        'Partial',
+        Colors.amber,
+      ),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_OVERDUE => (
+        'Overdue',
+        Colors.red,
+      ),
+      ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_WAIVED => (
+        'Waived',
+        Colors.grey,
+      ),
       _ => ('Unknown', Colors.grey),
     };
     return Container(
@@ -684,7 +700,11 @@ class _ScheduleEntryStatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
       ),
     );
   }
@@ -725,30 +745,34 @@ class _TransactionsTab extends ConsumerWidget {
     // Build a combined list sorted by date
     final items = <_TransactionItem>[];
     for (final d in disbursements) {
-      items.add(_TransactionItem(
-        date: d.disbursedAt,
-        type: 'Disbursement',
-        amount: moneyToAmountString(d.amount),
-        currency: moneyCurrency(d.amount),
-        reference: d.paymentReference,
-        status: _disbursementStatusLabel(d.status),
-        statusColor: _disbursementStatusColor(d.status),
-        icon: Icons.arrow_upward,
-        iconColor: Colors.red,
-      ));
+      items.add(
+        _TransactionItem(
+          date: d.disbursedAt,
+          type: 'Disbursement',
+          amount: moneyToAmountString(d.amount),
+          currency: moneyCurrency(d.amount),
+          reference: d.paymentReference,
+          status: _disbursementStatusLabel(d.status),
+          statusColor: _disbursementStatusColor(d.status),
+          icon: Icons.arrow_upward,
+          iconColor: Colors.red,
+        ),
+      );
     }
     for (final r in repayments) {
-      items.add(_TransactionItem(
-        date: r.receivedAt,
-        type: 'Repayment',
-        amount: moneyToAmountString(r.amount),
-        currency: moneyCurrency(r.amount),
-        reference: r.paymentReference,
-        status: _repaymentStatusLabel(r.status),
-        statusColor: _repaymentStatusColor(r.status),
-        icon: Icons.arrow_downward,
-        iconColor: Colors.green,
-      ));
+      items.add(
+        _TransactionItem(
+          date: r.receivedAt,
+          type: 'Repayment',
+          amount: moneyToAmountString(r.amount),
+          currency: moneyCurrency(r.amount),
+          reference: r.paymentReference,
+          status: _repaymentStatusLabel(r.status),
+          statusColor: _repaymentStatusColor(r.status),
+          icon: Icons.arrow_downward,
+          iconColor: Colors.green,
+        ),
+      );
     }
     items.sort((a, b) => b.date.compareTo(a.date));
 
@@ -764,9 +788,7 @@ class _TransactionsTab extends ConsumerWidget {
         final item = items[index];
         return Card(
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           child: ListTile(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -788,8 +810,7 @@ class _TransactionsTab extends ConsumerWidget {
               ),
             ),
             trailing: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: item.statusColor.withAlpha(20),
                 borderRadius: BorderRadius.circular(4),
@@ -884,10 +905,7 @@ class _TransactionItem {
 // ---------------------------------------------------------------------------
 
 class _PenaltiesTab extends ConsumerWidget {
-  const _PenaltiesTab({
-    required this.loanAccountId,
-    required this.canManage,
-  });
+  const _PenaltiesTab({required this.loanAccountId, required this.canManage});
 
   final String loanAccountId;
   final bool canManage;
@@ -921,8 +939,7 @@ class _PenaltiesTab extends ConsumerWidget {
           return const Center(child: Text('No penalties'));
         }
         return ListView.separated(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           itemCount: penalties.length,
           separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
@@ -931,8 +948,7 @@ class _PenaltiesTab extends ConsumerWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                    color: theme.colorScheme.outlineVariant),
+                side: BorderSide(color: theme.colorScheme.outlineVariant),
               ),
               child: ListTile(
                 shape: RoundedRectangleBorder(
@@ -962,36 +978,36 @@ class _PenaltiesTab extends ConsumerWidget {
                       ? 'Waived: ${penalty.waivedReason}'
                       : penalty.reason,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color:
-                        theme.colorScheme.onSurface.withAlpha(160),
+                    color: theme.colorScheme.onSurface.withAlpha(160),
                   ),
                 ),
                 trailing: (!penalty.isWaived && canManage)
                     ? TextButton(
-                        onPressed: () => _showWaiveDialog(
-                            context, ref, penalty),
+                        onPressed: () =>
+                            _showWaiveDialog(context, ref, penalty),
                         child: const Text('Waive'),
                       )
                     : penalty.isWaived
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withAlpha(20),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                  color: Colors.grey.withAlpha(60)),
-                            ),
-                            child: const Text(
-                              'Waived',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          )
-                        : null,
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withAlpha(20),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.grey.withAlpha(60)),
+                        ),
+                        child: const Text(
+                          'Waived',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+                    : null,
               ),
             );
           },
@@ -1001,15 +1017,16 @@ class _PenaltiesTab extends ConsumerWidget {
   }
 
   void _showWaiveDialog(
-      BuildContext context, WidgetRef ref, PenaltyObject penalty) {
+    BuildContext context,
+    WidgetRef ref,
+    PenaltyObject penalty,
+  ) {
     final reasonCtrl = TextEditingController();
     showDialog<void>(
       context: context,
       builder: (dialogContext) {
         final auditAsync = ref.watch(auditContextProvider);
-        final auditLabel = auditAsync.whenOrNull(
-          data: (ac) => ac.displayLabel,
-        );
+        final auditLabel = auditAsync.whenOrNull(data: (ac) => ac.displayLabel);
 
         return AlertDialog(
           title: const Text('Waive Penalty'),
@@ -1056,10 +1073,11 @@ class _PenaltiesTab extends ConsumerWidget {
                 if (reason.isEmpty) return;
                 try {
                   // Get audit context for waivedBy
-                  final auditCtx =
-                      await ref.read(auditContextProvider.future);
+                  final auditCtx = await ref.read(auditContextProvider.future);
 
-                  await ref.read(penaltyProvider.notifier).waive(
+                  await ref
+                      .read(penaltyProvider.notifier)
+                      .waive(
                         id: penalty.id,
                         reason: reason,
                         waivedBy: auditCtx.displayLabel,
@@ -1070,7 +1088,8 @@ class _PenaltiesTab extends ConsumerWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Penalty waived successfully')),
+                        content: Text('Penalty waived successfully'),
+                      ),
                     );
                   }
                 } catch (e) {
@@ -1078,8 +1097,7 @@ class _PenaltiesTab extends ConsumerWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Failed to waive penalty: $e'),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.error,
+                        backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
                   }
@@ -1124,8 +1142,7 @@ class _RestructuringTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final restructuresAsync =
-        ref.watch(restructureListProvider(loanAccountId));
+    final restructuresAsync = ref.watch(restructureListProvider(loanAccountId));
 
     return Column(
       children: [
@@ -1142,8 +1159,7 @@ class _RestructuringTab extends ConsumerWidget {
                     LenderRole.manager,
                   },
                   child: FilledButton.icon(
-                    onPressed: () =>
-                        _showCreateRestructureDialog(context, ref),
+                    onPressed: () => _showCreateRestructureDialog(context, ref),
                     icon: const Icon(Icons.edit_note, size: 18),
                     label: const Text('Request Restructure'),
                   ),
@@ -1153,10 +1169,8 @@ class _RestructuringTab extends ConsumerWidget {
           ),
         Expanded(
           child: restructuresAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
-            error: (error, _) =>
-                Center(child: Text('Error: $error')),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, _) => Center(child: Text('Error: $error')),
             data: (items) {
               if (items.isEmpty) {
                 return Center(
@@ -1181,10 +1195,11 @@ class _RestructuringTab extends ConsumerWidget {
               }
               return ListView.separated(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 8),
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 itemCount: items.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: 8),
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final r = items[index];
                   return _RestructureCard(
@@ -1198,25 +1213,22 @@ class _RestructuringTab extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content:
-                                    Text('Restructure approved')),
+                              content: Text('Restructure approved'),
+                            ),
                           );
                         }
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                  'Failed to approve: $e'),
-                              backgroundColor:
-                                  theme.colorScheme.error,
+                              content: Text('Failed to approve: $e'),
+                              backgroundColor: theme.colorScheme.error,
                             ),
                           );
                         }
                       }
                     },
-                    onReject: () =>
-                        _showRejectDialog(context, ref, r.id),
+                    onReject: () => _showRejectDialog(context, ref, r.id),
                   );
                 },
               );
@@ -1227,8 +1239,7 @@ class _RestructuringTab extends ConsumerWidget {
     );
   }
 
-  void _showCreateRestructureDialog(
-      BuildContext context, WidgetRef ref) {
+  void _showCreateRestructureDialog(BuildContext context, WidgetRef ref) {
     final reasonCtrl = TextEditingController();
     final newRateCtrl = TextEditingController();
     final newTermCtrl = TextEditingController();
@@ -1247,24 +1258,25 @@ class _RestructuringTab extends ConsumerWidget {
               children: [
                 FormFieldCard(
                   label: 'Restructure Type',
-                  description: 'The kind of restructuring to apply to this loan.',
+                  description:
+                      'The kind of restructuring to apply to this loan.',
                   isRequired: true,
                   child: DropdownButtonFormField<RestructureType>(
                     initialValue: type,
-                    decoration: const InputDecoration(
-                        hintText: 'Select type'),
+                    decoration: const InputDecoration(hintText: 'Select type'),
                     items: RestructureType.values
-                        .where((t) =>
-                            t !=
-                            RestructureType
-                                .RESTRUCTURE_TYPE_UNSPECIFIED)
-                        .map((t) => DropdownMenuItem(
-                              value: t,
-                              child: Text(_restructureTypeLabel(t)),
-                            ))
+                        .where(
+                          (t) =>
+                              t != RestructureType.RESTRUCTURE_TYPE_UNSPECIFIED,
+                        )
+                        .map(
+                          (t) => DropdownMenuItem(
+                            value: t,
+                            child: Text(_restructureTypeLabel(t)),
+                          ),
+                        )
                         .toList(),
-                    onChanged: (v) =>
-                        setDialogState(() => type = v ?? type),
+                    onChanged: (v) => setDialogState(() => type = v ?? type),
                   ),
                 ),
                 FormFieldCard(
@@ -1272,11 +1284,10 @@ class _RestructuringTab extends ConsumerWidget {
                   description: 'The revised annual interest rate for the loan.',
                   child: TextField(
                     controller: newRateCtrl,
-                    decoration: const InputDecoration(
-                        hintText: 'e.g. 12.5'),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(
-                            decimal: true),
+                    decoration: const InputDecoration(hintText: 'e.g. 12.5'),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
                 FormFieldCard(
@@ -1284,8 +1295,7 @@ class _RestructuringTab extends ConsumerWidget {
                   description: 'The new repayment period in days.',
                   child: TextField(
                     controller: newTermCtrl,
-                    decoration: const InputDecoration(
-                        hintText: 'e.g. 365'),
+                    decoration: const InputDecoration(hintText: 'e.g. 365'),
                     keyboardType: TextInputType.number,
                   ),
                 ),
@@ -1295,8 +1305,7 @@ class _RestructuringTab extends ConsumerWidget {
                   isRequired: true,
                   child: TextField(
                     controller: reasonCtrl,
-                    decoration:
-                        const InputDecoration(hintText: 'Enter reason'),
+                    decoration: const InputDecoration(hintText: 'Enter reason'),
                     maxLines: 2,
                   ),
                 ),
@@ -1305,8 +1314,7 @@ class _RestructuringTab extends ConsumerWidget {
           ),
           actions: [
             TextButton(
-              onPressed:
-                  saving ? null : () => Navigator.of(ctx).pop(),
+              onPressed: saving ? null : () => Navigator.of(ctx).pop(),
               child: const Text('Cancel'),
             ),
             FilledButton(
@@ -1318,16 +1326,13 @@ class _RestructuringTab extends ConsumerWidget {
                         final data = LoanRestructureObject(
                           loanAccountId: loanAccountId,
                           restructureType: type,
-                          newInterestRate:
-                              newRateCtrl.text.trim(),
-                          newTermDays: int.tryParse(
-                                  newTermCtrl.text.trim()) ??
-                              0,
+                          newInterestRate: newRateCtrl.text.trim(),
+                          newTermDays:
+                              int.tryParse(newTermCtrl.text.trim()) ?? 0,
                           reason: reasonCtrl.text.trim(),
                         );
                         await ref
-                            .read(restructureProvider
-                                .notifier)
+                            .read(restructureProvider.notifier)
                             .create(data);
                         if (ctx.mounted) {
                           Navigator.of(ctx).pop();
@@ -1335,8 +1340,8 @@ class _RestructuringTab extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text(
-                                    'Restructure request created')),
+                              content: Text('Restructure request created'),
+                            ),
                           );
                         }
                       } catch (e) {
@@ -1345,10 +1350,9 @@ class _RestructuringTab extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Failed: $e'),
-                              backgroundColor:
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .error,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
                             ),
                           );
                         }
@@ -1358,8 +1362,7 @@ class _RestructuringTab extends ConsumerWidget {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Text('Submit Request'),
             ),
@@ -1369,8 +1372,7 @@ class _RestructuringTab extends ConsumerWidget {
     );
   }
 
-  void _showRejectDialog(
-      BuildContext context, WidgetRef ref, String id) {
+  void _showRejectDialog(BuildContext context, WidgetRef ref, String id) {
     final reasonCtrl = TextEditingController();
     showDialog<void>(
       context: context,
@@ -1380,12 +1382,12 @@ class _RestructuringTab extends ConsumerWidget {
           width: 400,
           child: FormFieldCard(
             label: 'Reason',
-            description: 'Explain why this restructure request is being rejected.',
+            description:
+                'Explain why this restructure request is being rejected.',
             isRequired: true,
             child: TextField(
               controller: reasonCtrl,
-              decoration:
-                  const InputDecoration(hintText: 'Enter reason'),
+              decoration: const InputDecoration(hintText: 'Enter reason'),
               maxLines: 2,
             ),
           ),
@@ -1404,8 +1406,7 @@ class _RestructuringTab extends ConsumerWidget {
                     .reject(id, reasonCtrl.text.trim());
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Restructure rejected')),
+                    const SnackBar(content: Text('Restructure rejected')),
                   );
                 }
               } catch (e) {
@@ -1413,8 +1414,7 @@ class _RestructuringTab extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Failed: $e'),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.error,
+                      backgroundColor: Theme.of(context).colorScheme.error,
                     ),
                   );
                 }
@@ -1432,8 +1432,7 @@ class _RestructuringTab extends ConsumerWidget {
       RestructureType.RESTRUCTURE_TYPE_RESCHEDULE => 'Reschedule',
       RestructureType.RESTRUCTURE_TYPE_REFINANCE => 'Refinance',
       RestructureType.RESTRUCTURE_TYPE_RATE_CHANGE => 'Rate Change',
-      RestructureType.RESTRUCTURE_TYPE_PARTIAL_WAIVER =>
-        'Partial Waiver',
+      RestructureType.RESTRUCTURE_TYPE_PARTIAL_WAIVER => 'Partial Waiver',
       RestructureType.RESTRUCTURE_TYPE_WRITE_OFF => 'Write Off',
       _ => 'Unknown',
     };
@@ -1456,7 +1455,8 @@ class _RestructureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isPending = restructure.state == STATE.CREATED ||
+    final isPending =
+        restructure.state == STATE.CREATED ||
         restructure.state == STATE.CHECKED;
 
     return Card(
@@ -1474,47 +1474,52 @@ class _RestructureCard extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: _typeColor(restructure.restructureType)
-                        .withAlpha(30),
+                    color: _typeColor(
+                      restructure.restructureType,
+                    ).withAlpha(30),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     _RestructuringTab._restructureTypeLabel(
-                        restructure.restructureType),
+                      restructure.restructureType,
+                    ),
                     style: theme.textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color:
-                          _typeColor(restructure.restructureType),
+                      color: _typeColor(restructure.restructureType),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isPending
                         ? Colors.orange.withAlpha(30)
                         : restructure.state == STATE.ACTIVE
-                            ? Colors.green.withAlpha(30)
-                            : Colors.red.withAlpha(30),
+                        ? Colors.green.withAlpha(30)
+                        : Colors.red.withAlpha(30),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     isPending
                         ? 'Pending'
                         : restructure.state == STATE.ACTIVE
-                            ? 'Approved'
-                            : 'Rejected',
+                        ? 'Approved'
+                        : 'Rejected',
                     style: theme.textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: isPending
                           ? Colors.orange
                           : restructure.state == STATE.ACTIVE
-                              ? Colors.green
-                              : Colors.red,
+                          ? Colors.green
+                          : Colors.red,
                     ),
                   ),
                 ),
@@ -1530,15 +1535,16 @@ class _RestructureCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.check_circle,
-                              color: Colors.green),
+                          icon: const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                          ),
                           tooltip: 'Approve',
                           onPressed: onApprove,
                           visualDensity: VisualDensity.compact,
                         ),
                         IconButton(
-                          icon: const Icon(Icons.cancel,
-                              color: Colors.red),
+                          icon: const Icon(Icons.cancel, color: Colors.red),
                           tooltip: 'Reject',
                           onPressed: onReject,
                           visualDensity: VisualDensity.compact,
@@ -1587,8 +1593,7 @@ class _RestructureCard extends StatelessWidget {
       RestructureType.RESTRUCTURE_TYPE_RESCHEDULE => Colors.blue,
       RestructureType.RESTRUCTURE_TYPE_REFINANCE => Colors.indigo,
       RestructureType.RESTRUCTURE_TYPE_RATE_CHANGE => Colors.teal,
-      RestructureType.RESTRUCTURE_TYPE_PARTIAL_WAIVER =>
-        Colors.orange,
+      RestructureType.RESTRUCTURE_TYPE_PARTIAL_WAIVER => Colors.orange,
       RestructureType.RESTRUCTURE_TYPE_WRITE_OFF => Colors.red,
       _ => Colors.grey,
     };
@@ -1653,8 +1658,7 @@ class _HistoryTab extends ConsumerWidget {
           return const Center(child: Text('No status changes'));
         }
         return ListView.separated(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           itemCount: changes.length,
           separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
@@ -1665,16 +1669,14 @@ class _HistoryTab extends ConsumerWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                    color: theme.colorScheme.outlineVariant),
+                side: BorderSide(color: theme.colorScheme.outlineVariant),
               ),
               child: ListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 leading: CircleAvatar(
-                  backgroundColor:
-                      theme.colorScheme.tertiaryContainer,
+                  backgroundColor: theme.colorScheme.tertiaryContainer,
                   child: Icon(
                     Icons.swap_horiz,
                     color: theme.colorScheme.onTertiaryContainer,
@@ -1691,8 +1693,7 @@ class _HistoryTab extends ConsumerWidget {
                   '${change.changedAt}  |  By: ${change.changedBy}'
                   '${change.reason.isNotEmpty ? '  |  ${change.reason}' : ''}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color:
-                        theme.colorScheme.onSurface.withAlpha(160),
+                    color: theme.colorScheme.onSurface.withAlpha(160),
                   ),
                 ),
               ),
@@ -1747,16 +1748,14 @@ class _DisbursementFormDialog extends StatefulWidget {
   });
 
   final String loanAccountId;
-  final Future<void> Function(String channel, String recipientReference)
-      onSave;
+  final Future<void> Function(String channel, String recipientReference) onSave;
 
   @override
   State<_DisbursementFormDialog> createState() =>
       _DisbursementFormDialogState();
 }
 
-class _DisbursementFormDialogState
-    extends State<_DisbursementFormDialog> {
+class _DisbursementFormDialogState extends State<_DisbursementFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _channelCtrl;
   late final TextEditingController _recipientRefCtrl;
@@ -1803,12 +1802,14 @@ class _DisbursementFormDialogState
             children: [
               FormFieldCard(
                 label: 'Channel',
-                description: 'The disbursement channel (e.g. mobile money, bank transfer).',
+                description:
+                    'The disbursement channel (e.g. mobile money, bank transfer).',
                 isRequired: true,
                 child: TextFormField(
                   controller: _channelCtrl,
-                  decoration:
-                      const InputDecoration(hintText: 'e.g. mobile_money'),
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. mobile_money',
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Required' : null,
@@ -1821,7 +1822,8 @@ class _DisbursementFormDialogState
                 child: TextFormField(
                   controller: _recipientRefCtrl,
                   decoration: const InputDecoration(
-                      hintText: 'e.g. phone number or account'),
+                    hintText: 'e.g. phone number or account',
+                  ),
                   textInputAction: TextInputAction.done,
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Required' : null,
@@ -1871,15 +1873,15 @@ class _RecordPaymentFormDialog extends StatefulWidget {
     String paymentReference,
     String channel,
     String payerReference,
-  ) onSave;
+  )
+  onSave;
 
   @override
   State<_RecordPaymentFormDialog> createState() =>
       _RecordPaymentFormDialogState();
 }
 
-class _RecordPaymentFormDialogState
-    extends State<_RecordPaymentFormDialog> {
+class _RecordPaymentFormDialogState extends State<_RecordPaymentFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountCtrl;
   late final TextEditingController _paymentRefCtrl;
@@ -1938,11 +1940,9 @@ class _RecordPaymentFormDialogState
                   child: Text(
                     'Outstanding: ${widget.currencyCode} ${widget.totalOutstanding}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               FormFieldCard(
@@ -1954,8 +1954,9 @@ class _RecordPaymentFormDialogState
                   decoration: InputDecoration(
                     hintText: widget.totalOutstanding,
                   ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: validateAmount,
                 ),
@@ -1966,24 +1967,23 @@ class _RecordPaymentFormDialogState
                 isRequired: true,
                 child: TextFormField(
                   controller: _paymentRefCtrl,
-                  decoration: const InputDecoration(
-                      hintText: 'e.g. TXN-12345'),
+                  decoration: const InputDecoration(hintText: 'e.g. TXN-12345'),
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      validateRequired(v, 'Payment reference'),
+                  validator: (v) => validateRequired(v, 'Payment reference'),
                 ),
               ),
               FormFieldCard(
                 label: 'Channel',
-                description: 'How the payment was received (cash, mobile money, bank transfer, etc.).',
+                description:
+                    'How the payment was received (cash, mobile money, bank transfer, etc.).',
                 isRequired: true,
                 child: TextFormField(
                   controller: _channelCtrl,
-                  decoration:
-                      const InputDecoration(hintText: 'e.g. mobile_money'),
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. mobile_money',
+                  ),
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      validateRequired(v, 'Channel'),
+                  validator: (v) => validateRequired(v, 'Channel'),
                 ),
               ),
               FormFieldCard(
@@ -1993,10 +1993,10 @@ class _RecordPaymentFormDialogState
                 child: TextFormField(
                   controller: _payerRefCtrl,
                   decoration: const InputDecoration(
-                      hintText: 'e.g. phone number or ID'),
+                    hintText: 'e.g. phone number or ID',
+                  ),
                   textInputAction: TextInputAction.done,
-                  validator: (v) =>
-                      validateRequired(v, 'Payer reference'),
+                  validator: (v) => validateRequired(v, 'Payer reference'),
                 ),
               ),
             ],
@@ -2043,8 +2043,7 @@ class _CollectPaymentFormDialog extends StatefulWidget {
       _CollectPaymentFormDialogState();
 }
 
-class _CollectPaymentFormDialogState
-    extends State<_CollectPaymentFormDialog> {
+class _CollectPaymentFormDialogState extends State<_CollectPaymentFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountCtrl;
   late final TextEditingController _phoneCtrl;
@@ -2068,10 +2067,7 @@ class _CollectPaymentFormDialogState
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
-      await widget.onSave(
-        _amountCtrl.text.trim(),
-        _phoneCtrl.text.trim(),
-      );
+      await widget.onSave(_amountCtrl.text.trim(), _phoneCtrl.text.trim());
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
       if (mounted) setState(() => _saving = false);
@@ -2095,22 +2091,24 @@ class _CollectPaymentFormDialogState
                 isRequired: true,
                 child: TextFormField(
                   controller: _amountCtrl,
-                  decoration:
-                      const InputDecoration(hintText: '0.00'),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(hintText: '0.00'),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: validateAmount,
                 ),
               ),
               FormFieldCard(
                 label: 'Phone Number',
-                description: 'The borrower\'s mobile money phone number for the collection prompt.',
+                description:
+                    'The borrower\'s mobile money phone number for the collection prompt.',
                 isRequired: true,
                 child: TextFormField(
                   controller: _phoneCtrl,
                   decoration: const InputDecoration(
-                      hintText: 'e.g. +254712345678'),
+                    hintText: 'e.g. +254712345678',
+                  ),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
                   validator: validatePhone,

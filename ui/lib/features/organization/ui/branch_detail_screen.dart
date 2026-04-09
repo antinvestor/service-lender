@@ -24,8 +24,7 @@ class BranchDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final canManage =
-        ref.watch(canManageOrganizationsProvider).value ?? false;
+    final canManage = ref.watch(canManageOrganizationsProvider).value ?? false;
 
     return FutureBuilder<BranchObject>(
       future: _loadBranch(ref),
@@ -51,8 +50,7 @@ class BranchDetailScreen extends ConsumerWidget {
 
   Future<BranchObject> _loadBranch(WidgetRef ref) async {
     final client = ref.read(identityServiceClientProvider);
-    final response =
-        await client.branchGet(BranchGetRequest(id: branchId));
+    final response = await client.branchGet(BranchGetRequest(id: branchId));
     return response.data;
   }
 }
@@ -73,8 +71,7 @@ class _BranchDetailContent extends ConsumerStatefulWidget {
       _BranchDetailContentState();
 }
 
-class _BranchDetailContentState
-    extends ConsumerState<_BranchDetailContent> {
+class _BranchDetailContentState extends ConsumerState<_BranchDetailContent> {
   late BranchObject _branch;
 
   @override
@@ -86,8 +83,9 @@ class _BranchDetailContentState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final agentsAsync =
-        ref.watch(agentListProvider(query: '', branchId: _branch.id));
+    final agentsAsync = ref.watch(
+      agentListProvider(query: '', branchId: _branch.id),
+    );
 
     return CustomScrollView(
       slivers: [
@@ -135,22 +133,23 @@ class _BranchDetailContentState
                           Text(
                             'Code: ${_branch.code}',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withAlpha(140),
+                              color: theme.colorScheme.onSurface.withAlpha(140),
                             ),
                           ),
                           if (_branch.geoId.isNotEmpty) ...[
                             const SizedBox(width: 12),
-                            Icon(Icons.location_on_outlined,
-                                size: 14,
-                                color: theme.colorScheme.onSurface
-                                    .withAlpha(120)),
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 14,
+                              color: theme.colorScheme.onSurface.withAlpha(120),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               _branch.geoId,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface
-                                    .withAlpha(140),
+                                color: theme.colorScheme.onSurface.withAlpha(
+                                  140,
+                                ),
                               ),
                             ),
                           ],
@@ -179,8 +178,11 @@ class _BranchDetailContentState
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Row(
               children: [
-                Icon(Icons.person_pin_outlined,
-                    size: 20, color: theme.colorScheme.primary),
+                Icon(
+                  Icons.person_pin_outlined,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -221,8 +223,7 @@ class _BranchDetailContentState
                     const SizedBox(height: 8),
                     FilledButton.tonal(
                       onPressed: () => ref.invalidate(
-                        agentListProvider(
-                            query: '', branchId: _branch.id),
+                        agentListProvider(query: '', branchId: _branch.id),
                       ),
                       child: const Text('Retry'),
                     ),
@@ -242,23 +243,19 @@ class _BranchDetailContentState
                         Icon(
                           Icons.person_pin_outlined,
                           size: 48,
-                          color:
-                              theme.colorScheme.onSurface.withAlpha(80),
+                          color: theme.colorScheme.onSurface.withAlpha(80),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No agents in this branch',
-                          style:
-                              theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withAlpha(140),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withAlpha(140),
                           ),
                         ),
                         if (widget.canManage) ...[
                           const SizedBox(height: 12),
                           FilledButton.icon(
-                            onPressed: () =>
-                                context.go('/field/agents/new'),
+                            onPressed: () => context.go('/field/agents/new'),
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Register Agent'),
                           ),
@@ -271,16 +268,12 @@ class _BranchDetailContentState
             }
 
             return SliverPadding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 24, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final agent = agents[index];
-                    return _AgentCard(agent: agent);
-                  },
-                  childCount: agents.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final agent = agents[index];
+                  return _AgentCard(agent: agent);
+                }, childCount: agents.length),
               ),
             );
           },
@@ -337,8 +330,7 @@ class _AgentCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         onTap: () => context.go('/field/agents/${agent.id}'),
         leading: ProfileAvatar(
           profileId: agent.profileId,
@@ -347,8 +339,9 @@ class _AgentCard extends StatelessWidget {
         ),
         title: Text(
           agent.name,
-          style: theme.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: subtitle.isNotEmpty
             ? Text(subtitle, style: theme.textTheme.bodySmall)

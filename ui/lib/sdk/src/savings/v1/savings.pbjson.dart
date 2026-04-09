@@ -134,19 +134,82 @@ const SavingsProductObject$json = {
   '1': 'SavingsProductObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
+    {
+      '1': 'organization_id',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'organizationId'
+    },
     {'1': 'name', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'name'},
     {'1': 'code', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'code'},
     {'1': 'description', '3': 5, '4': 1, '5': 9, '10': 'description'},
-    {'1': 'currency_code', '3': 6, '4': 1, '5': 9, '8': {}, '10': 'currencyCode'},
+    {
+      '1': 'currency_code',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'currencyCode'
+    },
     {'1': 'interest_rate', '3': 7, '4': 1, '5': 9, '10': 'interestRate'},
-    {'1': 'compounding_frequency', '3': 8, '4': 1, '5': 14, '6': '.savings.v1.CompoundingFrequency', '10': 'compoundingFrequency'},
-    {'1': 'period_type', '3': 9, '4': 1, '5': 14, '6': '.savings.v1.SavingsPeriodType', '10': 'periodType'},
-    {'1': 'min_deposit', '3': 10, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'minDeposit'},
-    {'1': 'max_deposit', '3': 11, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'maxDeposit'},
-    {'1': 'withdrawal_rules', '3': 12, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'withdrawalRules'},
-    {'1': 'state', '3': 13, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
-    {'1': 'properties', '3': 14, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'compounding_frequency',
+      '3': 8,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.CompoundingFrequency',
+      '10': 'compoundingFrequency'
+    },
+    {
+      '1': 'period_type',
+      '3': 9,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.SavingsPeriodType',
+      '10': 'periodType'
+    },
+    {
+      '1': 'min_deposit',
+      '3': 10,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'minDeposit'
+    },
+    {
+      '1': 'max_deposit',
+      '3': 11,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'maxDeposit'
+    },
+    {
+      '1': 'withdrawal_rules',
+      '3': 12,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'withdrawalRules'
+    },
+    {
+      '1': 'state',
+      '3': 13,
+      '4': 1,
+      '5': 14,
+      '6': '.common.v1.STATE',
+      '10': 'state'
+    },
+    {
+      '1': 'properties',
+      '3': 14,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
 };
 
@@ -173,15 +236,62 @@ const SavingsAccountObject$json = {
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
     {'1': 'product_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'productId'},
     {'1': 'owner_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'ownerId'},
-    {'1': 'owner_type', '3': 4, '4': 1, '5': 14, '6': '.savings.v1.SavingsAccountOwnerType', '10': 'ownerType'},
-    {'1': 'organization_id', '3': 5, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
+    {
+      '1': 'owner_type',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.SavingsAccountOwnerType',
+      '10': 'ownerType'
+    },
+    {
+      '1': 'organization_id',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'organizationId'
+    },
     {'1': 'branch_id', '3': 6, '4': 1, '5': 9, '8': {}, '10': 'branchId'},
     {'1': 'agent_id', '3': 7, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
-    {'1': 'currency_code', '3': 8, '4': 1, '5': 9, '8': {}, '10': 'currencyCode'},
-    {'1': 'status', '3': 9, '4': 1, '5': 14, '6': '.savings.v1.SavingsAccountStatus', '10': 'status'},
-    {'1': 'ledger_account_id', '3': 10, '4': 1, '5': 9, '10': 'ledgerAccountId'},
-    {'1': 'payment_account_ref', '3': 11, '4': 1, '5': 9, '10': 'paymentAccountRef'},
-    {'1': 'properties', '3': 12, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'currency_code',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'currencyCode'
+    },
+    {
+      '1': 'status',
+      '3': 9,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.SavingsAccountStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'ledger_account_id',
+      '3': 10,
+      '4': 1,
+      '5': 9,
+      '10': 'ledgerAccountId'
+    },
+    {
+      '1': 'payment_account_ref',
+      '3': 11,
+      '4': 1,
+      '5': 9,
+      '10': 'paymentAccountRef'
+    },
+    {
+      '1': 'properties',
+      '3': 12,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
 };
 
@@ -204,15 +314,55 @@ const DepositObject$json = {
   '1': 'DepositObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {'1': 'savings_account_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'amount', '3': 3, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
-    {'1': 'status', '3': 5, '4': 1, '5': 14, '6': '.savings.v1.DepositStatus', '10': 'status'},
-    {'1': 'payment_reference', '3': 6, '4': 1, '5': 9, '10': 'paymentReference'},
-    {'1': 'ledger_transaction_id', '3': 7, '4': 1, '5': 9, '10': 'ledgerTransactionId'},
+    {
+      '1': 'savings_account_id',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'amount',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
+    {
+      '1': 'status',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.DepositStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'payment_reference',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '10': 'paymentReference'
+    },
+    {
+      '1': 'ledger_transaction_id',
+      '3': 7,
+      '4': 1,
+      '5': 9,
+      '10': 'ledgerTransactionId'
+    },
     {'1': 'channel', '3': 8, '4': 1, '5': 9, '10': 'channel'},
     {'1': 'payer_reference', '3': 9, '4': 1, '5': 9, '10': 'payerReference'},
     {'1': 'idempotency_key', '3': 10, '4': 1, '5': 9, '10': 'idempotencyKey'},
-    {'1': 'properties', '3': 11, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'properties',
+      '3': 11,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
   '9': [
     {'1': 4, '2': 5},
@@ -236,16 +386,62 @@ const WithdrawalObject$json = {
   '1': 'WithdrawalObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {'1': 'savings_account_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'amount', '3': 3, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
-    {'1': 'status', '3': 5, '4': 1, '5': 14, '6': '.savings.v1.WithdrawalStatus', '10': 'status'},
-    {'1': 'payment_reference', '3': 6, '4': 1, '5': 9, '10': 'paymentReference'},
-    {'1': 'ledger_transaction_id', '3': 7, '4': 1, '5': 9, '10': 'ledgerTransactionId'},
+    {
+      '1': 'savings_account_id',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'amount',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
+    {
+      '1': 'status',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.WithdrawalStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'payment_reference',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '10': 'paymentReference'
+    },
+    {
+      '1': 'ledger_transaction_id',
+      '3': 7,
+      '4': 1,
+      '5': 9,
+      '10': 'ledgerTransactionId'
+    },
     {'1': 'channel', '3': 8, '4': 1, '5': 9, '10': 'channel'},
-    {'1': 'recipient_reference', '3': 9, '4': 1, '5': 9, '10': 'recipientReference'},
+    {
+      '1': 'recipient_reference',
+      '3': 9,
+      '4': 1,
+      '5': 9,
+      '10': 'recipientReference'
+    },
     {'1': 'reason', '3': 10, '4': 1, '5': 9, '10': 'reason'},
     {'1': 'idempotency_key', '3': 11, '4': 1, '5': 9, '10': 'idempotencyKey'},
-    {'1': 'properties', '3': 12, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'properties',
+      '3': 12,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
   '9': [
     {'1': 4, '2': 5},
@@ -270,14 +466,48 @@ const InterestAccrualObject$json = {
   '1': 'InterestAccrualObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
-    {'1': 'savings_account_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'amount', '3': 3, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
+    {
+      '1': 'savings_account_id',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'amount',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
     {'1': 'period_start', '3': 4, '4': 1, '5': 9, '10': 'periodStart'},
     {'1': 'period_end', '3': 5, '4': 1, '5': 9, '10': 'periodEnd'},
     {'1': 'rate_applied', '3': 6, '4': 1, '5': 9, '10': 'rateApplied'},
-    {'1': 'balance_used', '3': 7, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'balanceUsed'},
-    {'1': 'ledger_transaction_id', '3': 8, '4': 1, '5': 9, '10': 'ledgerTransactionId'},
-    {'1': 'properties', '3': 9, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'balance_used',
+      '3': 7,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'balanceUsed'
+    },
+    {
+      '1': 'ledger_transaction_id',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '10': 'ledgerTransactionId'
+    },
+    {
+      '1': 'properties',
+      '3': 9,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
 };
 
@@ -296,12 +526,52 @@ final $typed_data.Uint8List interestAccrualObjectDescriptor = $convert.base64Dec
 const SavingsBalanceObject$json = {
   '1': 'SavingsBalanceObject',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '10': 'savingsAccountId'},
-    {'1': 'available_balance', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'availableBalance'},
-    {'1': 'total_deposits', '3': 3, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'totalDeposits'},
-    {'1': 'total_withdrawals', '3': 4, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'totalWithdrawals'},
-    {'1': 'total_interest', '3': 5, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'totalInterest'},
-    {'1': 'last_calculated_at', '3': 6, '4': 1, '5': 9, '10': 'lastCalculatedAt'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'available_balance',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'availableBalance'
+    },
+    {
+      '1': 'total_deposits',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'totalDeposits'
+    },
+    {
+      '1': 'total_withdrawals',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'totalWithdrawals'
+    },
+    {
+      '1': 'total_interest',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'totalInterest'
+    },
+    {
+      '1': 'last_calculated_at',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '10': 'lastCalculatedAt'
+    },
   ],
 };
 
@@ -321,9 +591,30 @@ const SavingsStatementEntry$json = {
   '2': [
     {'1': 'date', '3': 1, '4': 1, '5': 9, '10': 'date'},
     {'1': 'description', '3': 2, '4': 1, '5': 9, '10': 'description'},
-    {'1': 'debit', '3': 3, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'debit'},
-    {'1': 'credit', '3': 4, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'credit'},
-    {'1': 'balance', '3': 5, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'balance'},
+    {
+      '1': 'debit',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'debit'
+    },
+    {
+      '1': 'credit',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'credit'
+    },
+    {
+      '1': 'balance',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'balance'
+    },
     {'1': 'reference', '3': 6, '4': 1, '5': 9, '10': 'reference'},
   ],
 };
@@ -340,27 +631,44 @@ final $typed_data.Uint8List savingsStatementEntryDescriptor = $convert.base64Dec
 const SavingsProductSaveRequest$json = {
   '1': 'SavingsProductSaveRequest',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsProductObject', '8': {}, '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsProductObject',
+      '8': {},
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsProductSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsProductSaveRequestDescriptor = $convert.base64Decode(
-    'ChlTYXZpbmdzUHJvZHVjdFNhdmVSZXF1ZXN0EjwKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
-    'NhdmluZ3NQcm9kdWN0T2JqZWN0Qga6SAPIAQFSBGRhdGE=');
+final $typed_data.Uint8List savingsProductSaveRequestDescriptor =
+    $convert.base64Decode(
+        'ChlTYXZpbmdzUHJvZHVjdFNhdmVSZXF1ZXN0EjwKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
+        'NhdmluZ3NQcm9kdWN0T2JqZWN0Qga6SAPIAQFSBGRhdGE=');
 
 @$core.Deprecated('Use savingsProductSaveResponseDescriptor instead')
 const SavingsProductSaveResponse$json = {
   '1': 'SavingsProductSaveResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsProductObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsProductObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsProductSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsProductSaveResponseDescriptor = $convert.base64Decode(
-    'ChpTYXZpbmdzUHJvZHVjdFNhdmVSZXNwb25zZRI0CgRkYXRhGAEgASgLMiAuc2F2aW5ncy52MS'
-    '5TYXZpbmdzUHJvZHVjdE9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List savingsProductSaveResponseDescriptor =
+    $convert.base64Decode(
+        'ChpTYXZpbmdzUHJvZHVjdFNhdmVSZXNwb25zZRI0CgRkYXRhGAEgASgLMiAuc2F2aW5ncy52MS'
+        '5TYXZpbmdzUHJvZHVjdE9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use savingsProductGetRequestDescriptor instead')
 const SavingsProductGetRequest$json = {
@@ -371,77 +679,126 @@ const SavingsProductGetRequest$json = {
 };
 
 /// Descriptor for `SavingsProductGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsProductGetRequestDescriptor = $convert.base64Decode(
-    'ChhTYXZpbmdzUHJvZHVjdEdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
-    'Etel8tXXszLDQwfVICaWQ=');
+final $typed_data.Uint8List savingsProductGetRequestDescriptor =
+    $convert.base64Decode(
+        'ChhTYXZpbmdzUHJvZHVjdEdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
+        'Etel8tXXszLDQwfVICaWQ=');
 
 @$core.Deprecated('Use savingsProductGetResponseDescriptor instead')
 const SavingsProductGetResponse$json = {
   '1': 'SavingsProductGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsProductObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsProductObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsProductGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsProductGetResponseDescriptor = $convert.base64Decode(
-    'ChlTYXZpbmdzUHJvZHVjdEdldFJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
-    'NhdmluZ3NQcm9kdWN0T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsProductGetResponseDescriptor =
+    $convert.base64Decode(
+        'ChlTYXZpbmdzUHJvZHVjdEdldFJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
+        'NhdmluZ3NQcm9kdWN0T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsProductSearchRequestDescriptor instead')
 const SavingsProductSearchRequest$json = {
   '1': 'SavingsProductSearchRequest',
   '2': [
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
-    {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
-    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'organization_id',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'organizationId'
+    },
+    {
+      '1': 'cursor',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
 /// Descriptor for `SavingsProductSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsProductSearchRequestDescriptor = $convert.base64Decode(
-    'ChtTYXZpbmdzUHJvZHVjdFNlYXJjaFJlcXVlc3QSFAoFcXVlcnkYASABKAlSBXF1ZXJ5EjUKD2'
-    '9yZ2FuaXphdGlvbl9pZBgCIAEoCUIMukgJ2AEBcgQQAxgoUg5vcmdhbml6YXRpb25JZBItCgZj'
-    'dXJzb3IYAyABKAsyFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
+final $typed_data.Uint8List savingsProductSearchRequestDescriptor =
+    $convert.base64Decode(
+        'ChtTYXZpbmdzUHJvZHVjdFNlYXJjaFJlcXVlc3QSFAoFcXVlcnkYASABKAlSBXF1ZXJ5EjUKD2'
+        '9yZ2FuaXphdGlvbl9pZBgCIAEoCUIMukgJ2AEBcgQQAxgoUg5vcmdhbml6YXRpb25JZBItCgZj'
+        'dXJzb3IYAyABKAsyFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
 
 @$core.Deprecated('Use savingsProductSearchResponseDescriptor instead')
 const SavingsProductSearchResponse$json = {
   '1': 'SavingsProductSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.savings.v1.SavingsProductObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.savings.v1.SavingsProductObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsProductSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsProductSearchResponseDescriptor = $convert.base64Decode(
-    'ChxTYXZpbmdzUHJvZHVjdFNlYXJjaFJlc3BvbnNlEjQKBGRhdGEYASADKAsyIC5zYXZpbmdzLn'
-    'YxLlNhdmluZ3NQcm9kdWN0T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsProductSearchResponseDescriptor =
+    $convert.base64Decode(
+        'ChxTYXZpbmdzUHJvZHVjdFNlYXJjaFJlc3BvbnNlEjQKBGRhdGEYASADKAsyIC5zYXZpbmdzLn'
+        'YxLlNhdmluZ3NQcm9kdWN0T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsAccountCreateRequestDescriptor instead')
 const SavingsAccountCreateRequest$json = {
   '1': 'SavingsAccountCreateRequest',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsAccountObject', '8': {}, '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '8': {},
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsAccountCreateRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountCreateRequestDescriptor = $convert.base64Decode(
-    'ChtTYXZpbmdzQWNjb3VudENyZWF0ZVJlcXVlc3QSPAoEZGF0YRgBIAEoCzIgLnNhdmluZ3Mudj'
-    'EuU2F2aW5nc0FjY291bnRPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
+final $typed_data.Uint8List savingsAccountCreateRequestDescriptor =
+    $convert.base64Decode(
+        'ChtTYXZpbmdzQWNjb3VudENyZWF0ZVJlcXVlc3QSPAoEZGF0YRgBIAEoCzIgLnNhdmluZ3Mudj'
+        'EuU2F2aW5nc0FjY291bnRPYmplY3RCBrpIA8gBAVIEZGF0YQ==');
 
 @$core.Deprecated('Use savingsAccountCreateResponseDescriptor instead')
 const SavingsAccountCreateResponse$json = {
   '1': 'SavingsAccountCreateResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsAccountCreateResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountCreateResponseDescriptor = $convert.base64Decode(
-    'ChxTYXZpbmdzQWNjb3VudENyZWF0ZVJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLn'
-    'YxLlNhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsAccountCreateResponseDescriptor =
+    $convert.base64Decode(
+        'ChxTYXZpbmdzQWNjb3VudENyZWF0ZVJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLn'
+        'YxLlNhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsAccountGetRequestDescriptor instead')
 const SavingsAccountGetRequest$json = {
@@ -452,22 +809,31 @@ const SavingsAccountGetRequest$json = {
 };
 
 /// Descriptor for `SavingsAccountGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountGetRequestDescriptor = $convert.base64Decode(
-    'ChhTYXZpbmdzQWNjb3VudEdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
-    'Etel8tXXszLDQwfVICaWQ=');
+final $typed_data.Uint8List savingsAccountGetRequestDescriptor =
+    $convert.base64Decode(
+        'ChhTYXZpbmdzQWNjb3VudEdldFJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
+        'Etel8tXXszLDQwfVICaWQ=');
 
 @$core.Deprecated('Use savingsAccountGetResponseDescriptor instead')
 const SavingsAccountGetResponse$json = {
   '1': 'SavingsAccountGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsAccountGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountGetResponseDescriptor = $convert.base64Decode(
-    'ChlTYXZpbmdzQWNjb3VudEdldFJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
-    'NhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsAccountGetResponseDescriptor =
+    $convert.base64Decode(
+        'ChlTYXZpbmdzQWNjb3VudEdldFJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
+        'NhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsAccountSearchRequestDescriptor instead')
 const SavingsAccountSearchRequest$json = {
@@ -476,9 +842,30 @@ const SavingsAccountSearchRequest$json = {
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
     {'1': 'owner_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'ownerId'},
     {'1': 'product_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'productId'},
-    {'1': 'organization_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
-    {'1': 'status', '3': 5, '4': 1, '5': 14, '6': '.savings.v1.SavingsAccountStatus', '10': 'status'},
-    {'1': 'cursor', '3': 6, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'organization_id',
+      '3': 4,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'organizationId'
+    },
+    {
+      '1': 'status',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.SavingsAccountStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'cursor',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
@@ -495,14 +882,22 @@ final $typed_data.Uint8List savingsAccountSearchRequestDescriptor = $convert.bas
 const SavingsAccountSearchResponse$json = {
   '1': 'SavingsAccountSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.savings.v1.SavingsAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsAccountSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountSearchResponseDescriptor = $convert.base64Decode(
-    'ChxTYXZpbmdzQWNjb3VudFNlYXJjaFJlc3BvbnNlEjQKBGRhdGEYASADKAsyIC5zYXZpbmdzLn'
-    'YxLlNhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsAccountSearchResponseDescriptor =
+    $convert.base64Decode(
+        'ChxTYXZpbmdzQWNjb3VudFNlYXJjaFJlc3BvbnNlEjQKBGRhdGEYASADKAsyIC5zYXZpbmdzLn'
+        'YxLlNhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsAccountFreezeRequestDescriptor instead')
 const SavingsAccountFreezeRequest$json = {
@@ -514,22 +909,31 @@ const SavingsAccountFreezeRequest$json = {
 };
 
 /// Descriptor for `SavingsAccountFreezeRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountFreezeRequestDescriptor = $convert.base64Decode(
-    'ChtTYXZpbmdzQWNjb3VudEZyZWV6ZVJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWz'
-    'AtOWEtel8tXXszLDQwfVICaWQSFgoGcmVhc29uGAIgASgJUgZyZWFzb24=');
+final $typed_data.Uint8List savingsAccountFreezeRequestDescriptor =
+    $convert.base64Decode(
+        'ChtTYXZpbmdzQWNjb3VudEZyZWV6ZVJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWz'
+        'AtOWEtel8tXXszLDQwfVICaWQSFgoGcmVhc29uGAIgASgJUgZyZWFzb24=');
 
 @$core.Deprecated('Use savingsAccountFreezeResponseDescriptor instead')
 const SavingsAccountFreezeResponse$json = {
   '1': 'SavingsAccountFreezeResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsAccountFreezeResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountFreezeResponseDescriptor = $convert.base64Decode(
-    'ChxTYXZpbmdzQWNjb3VudEZyZWV6ZVJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLn'
-    'YxLlNhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsAccountFreezeResponseDescriptor =
+    $convert.base64Decode(
+        'ChxTYXZpbmdzQWNjb3VudEZyZWV6ZVJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLn'
+        'YxLlNhdmluZ3NBY2NvdW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsAccountCloseRequestDescriptor instead')
 const SavingsAccountCloseRequest$json = {
@@ -541,30 +945,59 @@ const SavingsAccountCloseRequest$json = {
 };
 
 /// Descriptor for `SavingsAccountCloseRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountCloseRequestDescriptor = $convert.base64Decode(
-    'ChpTYXZpbmdzQWNjb3VudENsb3NlUmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMhBbMC'
-    '05YS16Xy1dezMsNDB9UgJpZBIWCgZyZWFzb24YAiABKAlSBnJlYXNvbg==');
+final $typed_data.Uint8List savingsAccountCloseRequestDescriptor =
+    $convert.base64Decode(
+        'ChpTYXZpbmdzQWNjb3VudENsb3NlUmVxdWVzdBIrCgJpZBgBIAEoCUIbukgYchYQAxgoMhBbMC'
+        '05YS16Xy1dezMsNDB9UgJpZBIWCgZyZWFzb24YAiABKAlSBnJlYXNvbg==');
 
 @$core.Deprecated('Use savingsAccountCloseResponseDescriptor instead')
 const SavingsAccountCloseResponse$json = {
   '1': 'SavingsAccountCloseResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsAccountCloseResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsAccountCloseResponseDescriptor = $convert.base64Decode(
-    'ChtTYXZpbmdzQWNjb3VudENsb3NlUmVzcG9uc2USNAoEZGF0YRgBIAEoCzIgLnNhdmluZ3Mudj'
-    'EuU2F2aW5nc0FjY291bnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List savingsAccountCloseResponseDescriptor =
+    $convert.base64Decode(
+        'ChtTYXZpbmdzQWNjb3VudENsb3NlUmVzcG9uc2USNAoEZGF0YRgBIAEoCzIgLnNhdmluZ3Mudj'
+        'EuU2F2aW5nc0FjY291bnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use depositRecordRequestDescriptor instead')
 const DepositRecordRequest$json = {
   '1': 'DepositRecordRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'amount', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
-    {'1': 'payment_reference', '3': 3, '4': 1, '5': 9, '10': 'paymentReference'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'amount',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
+    {
+      '1': 'payment_reference',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '10': 'paymentReference'
+    },
     {'1': 'channel', '3': 4, '4': 1, '5': 9, '10': 'channel'},
     {'1': 'payer_reference', '3': 5, '4': 1, '5': 9, '10': 'payerReference'},
     {'1': 'idempotency_key', '3': 6, '4': 1, '5': 9, '10': 'idempotencyKey'},
@@ -583,7 +1016,14 @@ final $typed_data.Uint8List depositRecordRequestDescriptor = $convert.base64Deco
 const DepositRecordResponse$json = {
   '1': 'DepositRecordResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.DepositObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.DepositObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -609,7 +1049,14 @@ final $typed_data.Uint8List depositGetRequestDescriptor = $convert.base64Decode(
 const DepositGetResponse$json = {
   '1': 'DepositGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.DepositObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.DepositObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -622,9 +1069,30 @@ final $typed_data.Uint8List depositGetResponseDescriptor = $convert.base64Decode
 const DepositSearchRequest$json = {
   '1': 'DepositSearchRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'status', '3': 2, '4': 1, '5': 14, '6': '.savings.v1.DepositStatus', '10': 'status'},
-    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'status',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.DepositStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'cursor',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
@@ -639,7 +1107,14 @@ final $typed_data.Uint8List depositSearchRequestDescriptor = $convert.base64Deco
 const DepositSearchResponse$json = {
   '1': 'DepositSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.savings.v1.DepositObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.savings.v1.DepositObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -652,10 +1127,30 @@ final $typed_data.Uint8List depositSearchResponseDescriptor = $convert.base64Dec
 const WithdrawalRequestRequest$json = {
   '1': 'WithdrawalRequestRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'amount', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'amount',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
     {'1': 'channel', '3': 3, '4': 1, '5': 9, '10': 'channel'},
-    {'1': 'recipient_reference', '3': 4, '4': 1, '5': 9, '10': 'recipientReference'},
+    {
+      '1': 'recipient_reference',
+      '3': 4,
+      '4': 1,
+      '5': 9,
+      '10': 'recipientReference'
+    },
     {'1': 'reason', '3': 5, '4': 1, '5': 9, '10': 'reason'},
     {'1': 'idempotency_key', '3': 6, '4': 1, '5': 9, '10': 'idempotencyKey'},
   ],
@@ -673,14 +1168,22 @@ final $typed_data.Uint8List withdrawalRequestRequestDescriptor = $convert.base64
 const WithdrawalRequestResponse$json = {
   '1': 'WithdrawalRequestResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.WithdrawalObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.WithdrawalObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `WithdrawalRequestResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List withdrawalRequestResponseDescriptor = $convert.base64Decode(
-    'ChlXaXRoZHJhd2FsUmVxdWVzdFJlc3BvbnNlEjAKBGRhdGEYASABKAsyHC5zYXZpbmdzLnYxLl'
-    'dpdGhkcmF3YWxPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List withdrawalRequestResponseDescriptor =
+    $convert.base64Decode(
+        'ChlXaXRoZHJhd2FsUmVxdWVzdFJlc3BvbnNlEjAKBGRhdGEYASABKAsyHC5zYXZpbmdzLnYxLl'
+        'dpdGhkcmF3YWxPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use withdrawalApproveRequestDescriptor instead')
 const WithdrawalApproveRequest$json = {
@@ -691,22 +1194,31 @@ const WithdrawalApproveRequest$json = {
 };
 
 /// Descriptor for `WithdrawalApproveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List withdrawalApproveRequestDescriptor = $convert.base64Decode(
-    'ChhXaXRoZHJhd2FsQXBwcm92ZVJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
-    'Etel8tXXszLDQwfVICaWQ=');
+final $typed_data.Uint8List withdrawalApproveRequestDescriptor =
+    $convert.base64Decode(
+        'ChhXaXRoZHJhd2FsQXBwcm92ZVJlcXVlc3QSKwoCaWQYASABKAlCG7pIGHIWEAMYKDIQWzAtOW'
+        'Etel8tXXszLDQwfVICaWQ=');
 
 @$core.Deprecated('Use withdrawalApproveResponseDescriptor instead')
 const WithdrawalApproveResponse$json = {
   '1': 'WithdrawalApproveResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.WithdrawalObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.WithdrawalObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `WithdrawalApproveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List withdrawalApproveResponseDescriptor = $convert.base64Decode(
-    'ChlXaXRoZHJhd2FsQXBwcm92ZVJlc3BvbnNlEjAKBGRhdGEYASABKAsyHC5zYXZpbmdzLnYxLl'
-    'dpdGhkcmF3YWxPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List withdrawalApproveResponseDescriptor =
+    $convert.base64Decode(
+        'ChlXaXRoZHJhd2FsQXBwcm92ZVJlc3BvbnNlEjAKBGRhdGEYASABKAsyHC5zYXZpbmdzLnYxLl'
+        'dpdGhkcmF3YWxPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use withdrawalGetRequestDescriptor instead')
 const WithdrawalGetRequest$json = {
@@ -725,7 +1237,14 @@ final $typed_data.Uint8List withdrawalGetRequestDescriptor = $convert.base64Deco
 const WithdrawalGetResponse$json = {
   '1': 'WithdrawalGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.WithdrawalObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.WithdrawalObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -738,9 +1257,30 @@ final $typed_data.Uint8List withdrawalGetResponseDescriptor = $convert.base64Dec
 const WithdrawalSearchRequest$json = {
   '1': 'WithdrawalSearchRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'status', '3': 2, '4': 1, '5': 14, '6': '.savings.v1.WithdrawalStatus', '10': 'status'},
-    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'status',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.savings.v1.WithdrawalStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'cursor',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
@@ -755,14 +1295,22 @@ final $typed_data.Uint8List withdrawalSearchRequestDescriptor = $convert.base64D
 const WithdrawalSearchResponse$json = {
   '1': 'WithdrawalSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.savings.v1.WithdrawalObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.savings.v1.WithdrawalObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `WithdrawalSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List withdrawalSearchResponseDescriptor = $convert.base64Decode(
-    'ChhXaXRoZHJhd2FsU2VhcmNoUmVzcG9uc2USMAoEZGF0YRgBIAMoCzIcLnNhdmluZ3MudjEuV2'
-    'l0aGRyYXdhbE9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List withdrawalSearchResponseDescriptor =
+    $convert.base64Decode(
+        'ChhXaXRoZHJhd2FsU2VhcmNoUmVzcG9uc2USMAoEZGF0YRgBIAMoCzIcLnNhdmluZ3MudjEuV2'
+        'l0aGRyYXdhbE9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use interestAccrualGetRequestDescriptor instead')
 const InterestAccrualGetRequest$json = {
@@ -773,82 +1321,137 @@ const InterestAccrualGetRequest$json = {
 };
 
 /// Descriptor for `InterestAccrualGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List interestAccrualGetRequestDescriptor = $convert.base64Decode(
-    'ChlJbnRlcmVzdEFjY3J1YWxHZXRSZXF1ZXN0EisKAmlkGAEgASgJQhu6SBhyFhADGCgyEFswLT'
-    'lhLXpfLV17Myw0MH1SAmlk');
+final $typed_data.Uint8List interestAccrualGetRequestDescriptor =
+    $convert.base64Decode(
+        'ChlJbnRlcmVzdEFjY3J1YWxHZXRSZXF1ZXN0EisKAmlkGAEgASgJQhu6SBhyFhADGCgyEFswLT'
+        'lhLXpfLV17Myw0MH1SAmlk');
 
 @$core.Deprecated('Use interestAccrualGetResponseDescriptor instead')
 const InterestAccrualGetResponse$json = {
   '1': 'InterestAccrualGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.InterestAccrualObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.InterestAccrualObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InterestAccrualGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List interestAccrualGetResponseDescriptor = $convert.base64Decode(
-    'ChpJbnRlcmVzdEFjY3J1YWxHZXRSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEuc2F2aW5ncy52MS'
-    '5JbnRlcmVzdEFjY3J1YWxPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List interestAccrualGetResponseDescriptor =
+    $convert.base64Decode(
+        'ChpJbnRlcmVzdEFjY3J1YWxHZXRSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEuc2F2aW5ncy52MS'
+        '5JbnRlcmVzdEFjY3J1YWxPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use interestAccrualSearchRequestDescriptor instead')
 const InterestAccrualSearchRequest$json = {
   '1': 'InterestAccrualSearchRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
-    {'1': 'cursor', '3': 2, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
+    {
+      '1': 'cursor',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
 /// Descriptor for `InterestAccrualSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List interestAccrualSearchRequestDescriptor = $convert.base64Decode(
-    'ChxJbnRlcmVzdEFjY3J1YWxTZWFyY2hSZXF1ZXN0EjcKEnNhdmluZ3NfYWNjb3VudF9pZBgBIA'
-    'EoCUIJukgGcgQQAxgoUhBzYXZpbmdzQWNjb3VudElkEi0KBmN1cnNvchgCIAEoCzIVLmNvbW1v'
-    'bi52MS5QYWdlQ3Vyc29yUgZjdXJzb3I=');
+final $typed_data.Uint8List interestAccrualSearchRequestDescriptor =
+    $convert.base64Decode(
+        'ChxJbnRlcmVzdEFjY3J1YWxTZWFyY2hSZXF1ZXN0EjcKEnNhdmluZ3NfYWNjb3VudF9pZBgBIA'
+        'EoCUIJukgGcgQQAxgoUhBzYXZpbmdzQWNjb3VudElkEi0KBmN1cnNvchgCIAEoCzIVLmNvbW1v'
+        'bi52MS5QYWdlQ3Vyc29yUgZjdXJzb3I=');
 
 @$core.Deprecated('Use interestAccrualSearchResponseDescriptor instead')
 const InterestAccrualSearchResponse$json = {
   '1': 'InterestAccrualSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.savings.v1.InterestAccrualObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.savings.v1.InterestAccrualObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InterestAccrualSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List interestAccrualSearchResponseDescriptor = $convert.base64Decode(
-    'Ch1JbnRlcmVzdEFjY3J1YWxTZWFyY2hSZXNwb25zZRI1CgRkYXRhGAEgAygLMiEuc2F2aW5ncy'
-    '52MS5JbnRlcmVzdEFjY3J1YWxPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List interestAccrualSearchResponseDescriptor =
+    $convert.base64Decode(
+        'Ch1JbnRlcmVzdEFjY3J1YWxTZWFyY2hSZXNwb25zZRI1CgRkYXRhGAEgAygLMiEuc2F2aW5ncy'
+        '52MS5JbnRlcmVzdEFjY3J1YWxPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use savingsBalanceGetRequestDescriptor instead')
 const SavingsBalanceGetRequest$json = {
   '1': 'SavingsBalanceGetRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
   ],
 };
 
 /// Descriptor for `SavingsBalanceGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsBalanceGetRequestDescriptor = $convert.base64Decode(
-    'ChhTYXZpbmdzQmFsYW5jZUdldFJlcXVlc3QSNwoSc2F2aW5nc19hY2NvdW50X2lkGAEgASgJQg'
-    'm6SAZyBBADGChSEHNhdmluZ3NBY2NvdW50SWQ=');
+final $typed_data.Uint8List savingsBalanceGetRequestDescriptor =
+    $convert.base64Decode(
+        'ChhTYXZpbmdzQmFsYW5jZUdldFJlcXVlc3QSNwoSc2F2aW5nc19hY2NvdW50X2lkGAEgASgJQg'
+        'm6SAZyBBADGChSEHNhdmluZ3NBY2NvdW50SWQ=');
 
 @$core.Deprecated('Use savingsBalanceGetResponseDescriptor instead')
 const SavingsBalanceGetResponse$json = {
   '1': 'SavingsBalanceGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsBalanceObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsBalanceObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `SavingsBalanceGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List savingsBalanceGetResponseDescriptor = $convert.base64Decode(
-    'ChlTYXZpbmdzQmFsYW5jZUdldFJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
-    'NhdmluZ3NCYWxhbmNlT2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List savingsBalanceGetResponseDescriptor =
+    $convert.base64Decode(
+        'ChlTYXZpbmdzQmFsYW5jZUdldFJlc3BvbnNlEjQKBGRhdGEYASABKAsyIC5zYXZpbmdzLnYxLl'
+        'NhdmluZ3NCYWxhbmNlT2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use savingsStatementRequestDescriptor instead')
 const SavingsStatementRequest$json = {
   '1': 'SavingsStatementRequest',
   '2': [
-    {'1': 'savings_account_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'savingsAccountId'},
+    {
+      '1': 'savings_account_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'savingsAccountId'
+    },
     {'1': 'from_date', '3': 2, '4': 1, '5': 9, '10': 'fromDate'},
     {'1': 'to_date', '3': 3, '4': 1, '5': 9, '10': 'toDate'},
   ],
@@ -864,9 +1467,30 @@ final $typed_data.Uint8List savingsStatementRequestDescriptor = $convert.base64D
 const SavingsStatementResponse$json = {
   '1': 'SavingsStatementResponse',
   '2': [
-    {'1': 'account', '3': 1, '4': 1, '5': 11, '6': '.savings.v1.SavingsAccountObject', '10': 'account'},
-    {'1': 'balance', '3': 2, '4': 1, '5': 11, '6': '.savings.v1.SavingsBalanceObject', '10': 'balance'},
-    {'1': 'entries', '3': 3, '4': 3, '5': 11, '6': '.savings.v1.SavingsStatementEntry', '10': 'entries'},
+    {
+      '1': 'account',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsAccountObject',
+      '10': 'account'
+    },
+    {
+      '1': 'balance',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.savings.v1.SavingsBalanceObject',
+      '10': 'balance'
+    },
+    {
+      '1': 'entries',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.savings.v1.SavingsStatementEntry',
+      '10': 'entries'
+    },
   ],
 };
 
@@ -880,7 +1504,12 @@ final $typed_data.Uint8List savingsStatementResponseDescriptor = $convert.base64
 const $core.Map<$core.String, $core.dynamic> SavingsServiceBase$json = {
   '1': 'SavingsService',
   '2': [
-    {'1': 'SavingsProductSave', '2': '.savings.v1.SavingsProductSaveRequest', '3': '.savings.v1.SavingsProductSaveResponse', '4': {}},
+    {
+      '1': 'SavingsProductSave',
+      '2': '.savings.v1.SavingsProductSaveRequest',
+      '3': '.savings.v1.SavingsProductSaveResponse',
+      '4': {}
+    },
     {
       '1': 'SavingsProductGet',
       '2': '.savings.v1.SavingsProductGetRequest',
@@ -894,7 +1523,12 @@ const $core.Map<$core.String, $core.dynamic> SavingsServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {'1': 'SavingsAccountCreate', '2': '.savings.v1.SavingsAccountCreateRequest', '3': '.savings.v1.SavingsAccountCreateResponse', '4': {}},
+    {
+      '1': 'SavingsAccountCreate',
+      '2': '.savings.v1.SavingsAccountCreateRequest',
+      '3': '.savings.v1.SavingsAccountCreateResponse',
+      '4': {}
+    },
     {
       '1': 'SavingsAccountGet',
       '2': '.savings.v1.SavingsAccountGetRequest',
@@ -908,9 +1542,24 @@ const $core.Map<$core.String, $core.dynamic> SavingsServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {'1': 'SavingsAccountFreeze', '2': '.savings.v1.SavingsAccountFreezeRequest', '3': '.savings.v1.SavingsAccountFreezeResponse', '4': {}},
-    {'1': 'SavingsAccountClose', '2': '.savings.v1.SavingsAccountCloseRequest', '3': '.savings.v1.SavingsAccountCloseResponse', '4': {}},
-    {'1': 'DepositRecord', '2': '.savings.v1.DepositRecordRequest', '3': '.savings.v1.DepositRecordResponse', '4': {}},
+    {
+      '1': 'SavingsAccountFreeze',
+      '2': '.savings.v1.SavingsAccountFreezeRequest',
+      '3': '.savings.v1.SavingsAccountFreezeResponse',
+      '4': {}
+    },
+    {
+      '1': 'SavingsAccountClose',
+      '2': '.savings.v1.SavingsAccountCloseRequest',
+      '3': '.savings.v1.SavingsAccountCloseResponse',
+      '4': {}
+    },
+    {
+      '1': 'DepositRecord',
+      '2': '.savings.v1.DepositRecordRequest',
+      '3': '.savings.v1.DepositRecordResponse',
+      '4': {}
+    },
     {
       '1': 'DepositGet',
       '2': '.savings.v1.DepositGetRequest',
@@ -924,8 +1573,18 @@ const $core.Map<$core.String, $core.dynamic> SavingsServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {'1': 'WithdrawalRequest', '2': '.savings.v1.WithdrawalRequestRequest', '3': '.savings.v1.WithdrawalRequestResponse', '4': {}},
-    {'1': 'WithdrawalApprove', '2': '.savings.v1.WithdrawalApproveRequest', '3': '.savings.v1.WithdrawalApproveResponse', '4': {}},
+    {
+      '1': 'WithdrawalRequest',
+      '2': '.savings.v1.WithdrawalRequestRequest',
+      '3': '.savings.v1.WithdrawalRequestResponse',
+      '4': {}
+    },
+    {
+      '1': 'WithdrawalApprove',
+      '2': '.savings.v1.WithdrawalApproveRequest',
+      '3': '.savings.v1.WithdrawalApproveResponse',
+      '4': {}
+    },
     {
       '1': 'WithdrawalGet',
       '2': '.savings.v1.WithdrawalGetRequest',
@@ -969,7 +1628,8 @@ const $core.Map<$core.String, $core.dynamic> SavingsServiceBase$json = {
 };
 
 @$core.Deprecated('Use savingsServiceDescriptor instead')
-const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SavingsServiceBase$messageJson = {
+const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
+    SavingsServiceBase$messageJson = {
   '.savings.v1.SavingsProductSaveRequest': SavingsProductSaveRequest$json,
   '.savings.v1.SavingsProductObject': SavingsProductObject$json,
   '.google.type.Money': $9.Money$json,
@@ -1014,7 +1674,8 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SavingsSer
   '.savings.v1.InterestAccrualGetResponse': InterestAccrualGetResponse$json,
   '.savings.v1.InterestAccrualObject': InterestAccrualObject$json,
   '.savings.v1.InterestAccrualSearchRequest': InterestAccrualSearchRequest$json,
-  '.savings.v1.InterestAccrualSearchResponse': InterestAccrualSearchResponse$json,
+  '.savings.v1.InterestAccrualSearchResponse':
+      InterestAccrualSearchResponse$json,
   '.savings.v1.SavingsBalanceGetRequest': SavingsBalanceGetRequest$json,
   '.savings.v1.SavingsBalanceGetResponse': SavingsBalanceGetResponse$json,
   '.savings.v1.SavingsBalanceObject': SavingsBalanceObject$json,
@@ -1134,4 +1795,3 @@ final $typed_data.Uint8List savingsServiceDescriptor = $convert.base64Decode(
     'Z3NfYWNjb3VudF92aWV3EhZzYXZpbmdzX2FjY291bnRfbWFuYWdlEgxkZXBvc2l0X3ZpZXcSDm'
     'RlcG9zaXRfbWFuYWdlEg93aXRoZHJhd2FsX3ZpZXcSEXdpdGhkcmF3YWxfbWFuYWdlEg1pbnRl'
     'cmVzdF92aWV3EhRzYXZpbmdzX2JhbGFuY2Vfdmlldw==');
-

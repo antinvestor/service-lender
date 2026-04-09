@@ -9,7 +9,7 @@ import "field.connect.spec.dart" as specs;
 
 /// FieldService manages agents and clients in the lending hierarchy.
 /// All RPCs require authentication via Bearer token.
-extension type FieldServiceClient (connect.Transport _transport) {
+extension type FieldServiceClient(connect.Transport _transport) {
   /// AgentSave creates or updates an agent record.
   Future<fieldv1field.AgentSaveResponse> agentSave(
     fieldv1field.AgentSaveRequest input, {

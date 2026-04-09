@@ -37,14 +37,42 @@ const AgentObject$json = {
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
     {'1': 'branch_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'branchId'},
-    {'1': 'parent_agent_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'parentAgentId'},
+    {
+      '1': 'parent_agent_id',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'parentAgentId'
+    },
     {'1': 'profile_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'profileId'},
-    {'1': 'agent_type', '3': 5, '4': 1, '5': 14, '6': '.field.v1.AgentType', '10': 'agentType'},
+    {
+      '1': 'agent_type',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.field.v1.AgentType',
+      '10': 'agentType'
+    },
     {'1': 'name', '3': 6, '4': 1, '5': 9, '8': {}, '10': 'name'},
     {'1': 'geo_id', '3': 7, '4': 1, '5': 9, '8': {}, '10': 'geoId'},
     {'1': 'depth', '3': 8, '4': 1, '5': 5, '10': 'depth'},
-    {'1': 'state', '3': 9, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
-    {'1': 'properties', '3': 10, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'state',
+      '3': 9,
+      '4': 1,
+      '5': 14,
+      '6': '.common.v1.STATE',
+      '10': 'state'
+    },
+    {
+      '1': 'properties',
+      '3': 10,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
 };
 
@@ -67,8 +95,22 @@ const ClientObject$json = {
     {'1': 'agent_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
     {'1': 'profile_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'profileId'},
     {'1': 'name', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'name'},
-    {'1': 'state', '3': 5, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
-    {'1': 'properties', '3': 6, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'state',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.common.v1.STATE',
+      '10': 'state'
+    },
+    {
+      '1': 'properties',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
 };
 
@@ -84,7 +126,15 @@ final $typed_data.Uint8List clientObjectDescriptor = $convert.base64Decode(
 const AgentSaveRequest$json = {
   '1': 'AgentSaveRequest',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.AgentObject', '8': {}, '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.AgentObject',
+      '8': {},
+      '10': 'data'
+    },
   ],
 };
 
@@ -97,7 +147,14 @@ final $typed_data.Uint8List agentSaveRequestDescriptor = $convert.base64Decode(
 const AgentSaveResponse$json = {
   '1': 'AgentSaveResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.AgentObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.AgentObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -123,7 +180,14 @@ final $typed_data.Uint8List agentGetRequestDescriptor = $convert.base64Decode(
 const AgentGetResponse$json = {
   '1': 'AgentGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.AgentObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.AgentObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -138,8 +202,22 @@ const AgentSearchRequest$json = {
   '2': [
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
     {'1': 'branch_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'branchId'},
-    {'1': 'parent_agent_id', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'parentAgentId'},
-    {'1': 'cursor', '3': 4, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'parent_agent_id',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '8': {},
+      '10': 'parentAgentId'
+    },
+    {
+      '1': 'cursor',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
@@ -154,7 +232,14 @@ final $typed_data.Uint8List agentSearchRequestDescriptor = $convert.base64Decode
 const AgentSearchResponse$json = {
   '1': 'AgentSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.field.v1.AgentObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.field.v1.AgentObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -181,20 +266,36 @@ final $typed_data.Uint8List agentHierarchyRequestDescriptor = $convert.base64Dec
 const AgentHierarchyResponse$json = {
   '1': 'AgentHierarchyResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.field.v1.AgentObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.field.v1.AgentObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `AgentHierarchyResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List agentHierarchyResponseDescriptor = $convert.base64Decode(
-    'ChZBZ2VudEhpZXJhcmNoeVJlc3BvbnNlEikKBGRhdGEYASADKAsyFS5maWVsZC52MS5BZ2VudE'
-    '9iamVjdFIEZGF0YQ==');
+final $typed_data.Uint8List agentHierarchyResponseDescriptor =
+    $convert.base64Decode(
+        'ChZBZ2VudEhpZXJhcmNoeVJlc3BvbnNlEikKBGRhdGEYASADKAsyFS5maWVsZC52MS5BZ2VudE'
+        '9iamVjdFIEZGF0YQ==');
 
 @$core.Deprecated('Use clientSaveRequestDescriptor instead')
 const ClientSaveRequest$json = {
   '1': 'ClientSaveRequest',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.ClientObject', '8': {}, '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.ClientObject',
+      '8': {},
+      '10': 'data'
+    },
   ],
 };
 
@@ -207,7 +308,14 @@ final $typed_data.Uint8List clientSaveRequestDescriptor = $convert.base64Decode(
 const ClientSaveResponse$json = {
   '1': 'ClientSaveResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.ClientObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.ClientObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -233,7 +341,14 @@ final $typed_data.Uint8List clientGetRequestDescriptor = $convert.base64Decode(
 const ClientGetResponse$json = {
   '1': 'ClientGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.ClientObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.ClientObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -248,7 +363,14 @@ const ClientSearchRequest$json = {
   '2': [
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
     {'1': 'agent_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
-    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'cursor',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
@@ -262,7 +384,14 @@ final $typed_data.Uint8List clientSearchRequestDescriptor = $convert.base64Decod
 const ClientSearchResponse$json = {
   '1': 'ClientSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.field.v1.ClientObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.field.v1.ClientObject',
+      '10': 'data'
+    },
   ],
 };
 
@@ -292,19 +421,32 @@ final $typed_data.Uint8List clientReassignRequestDescriptor = $convert.base64Dec
 const ClientReassignResponse$json = {
   '1': 'ClientReassignResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.ClientObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.field.v1.ClientObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `ClientReassignResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List clientReassignResponseDescriptor = $convert.base64Decode(
-    'ChZDbGllbnRSZWFzc2lnblJlc3BvbnNlEioKBGRhdGEYASABKAsyFi5maWVsZC52MS5DbGllbn'
-    'RPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List clientReassignResponseDescriptor =
+    $convert.base64Decode(
+        'ChZDbGllbnRSZWFzc2lnblJlc3BvbnNlEioKBGRhdGEYASABKAsyFi5maWVsZC52MS5DbGllbn'
+        'RPYmplY3RSBGRhdGE=');
 
 const $core.Map<$core.String, $core.dynamic> FieldServiceBase$json = {
   '1': 'FieldService',
   '2': [
-    {'1': 'AgentSave', '2': '.field.v1.AgentSaveRequest', '3': '.field.v1.AgentSaveResponse', '4': {}},
+    {
+      '1': 'AgentSave',
+      '2': '.field.v1.AgentSaveRequest',
+      '3': '.field.v1.AgentSaveResponse',
+      '4': {}
+    },
     {
       '1': 'AgentGet',
       '2': '.field.v1.AgentGetRequest',
@@ -325,7 +467,12 @@ const $core.Map<$core.String, $core.dynamic> FieldServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {'1': 'ClientSave', '2': '.field.v1.ClientSaveRequest', '3': '.field.v1.ClientSaveResponse', '4': {}},
+    {
+      '1': 'ClientSave',
+      '2': '.field.v1.ClientSaveRequest',
+      '3': '.field.v1.ClientSaveResponse',
+      '4': {}
+    },
     {
       '1': 'ClientGet',
       '2': '.field.v1.ClientGetRequest',
@@ -339,13 +486,19 @@ const $core.Map<$core.String, $core.dynamic> FieldServiceBase$json = {
       '4': {'34': 1},
       '6': true,
     },
-    {'1': 'ClientReassign', '2': '.field.v1.ClientReassignRequest', '3': '.field.v1.ClientReassignResponse', '4': {}},
+    {
+      '1': 'ClientReassign',
+      '2': '.field.v1.ClientReassignRequest',
+      '3': '.field.v1.ClientReassignResponse',
+      '4': {}
+    },
   ],
   '3': {},
 };
 
 @$core.Deprecated('Use fieldServiceDescriptor instead')
-const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FieldServiceBase$messageJson = {
+const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
+    FieldServiceBase$messageJson = {
   '.field.v1.AgentSaveRequest': AgentSaveRequest$json,
   '.field.v1.AgentObject': AgentObject$json,
   '.google.protobuf.Struct': $6.Struct$json,
@@ -418,4 +571,3 @@ final $typed_data.Uint8List fieldServiceDescriptor = $convert.base64Decode(
     'bGllbnRfdmlldxINY2xpZW50X21hbmFnZRobCAQSCmFnZW50X3ZpZXcSC2NsaWVudF92aWV3Gh'
     'sIBRIKYWdlbnRfdmlldxILY2xpZW50X3ZpZXcaOAgGEgphZ2VudF92aWV3EgxhZ2VudF9tYW5h'
     'Z2USC2NsaWVudF92aWV3Eg1jbGllbnRfbWFuYWdl');
-

@@ -17,15 +17,22 @@ import 'package:protobuf/protobuf.dart' as $pb;
 /// authorization. These roles map to OPL namespace relations and Keto tuples.
 /// buf:lint:ignore ENUM_VALUE_PREFIX
 class StandardRole extends $pb.ProtobufEnum {
-  static const StandardRole ROLE_UNSPECIFIED = StandardRole._(0, _omitEnumNames ? '' : 'ROLE_UNSPECIFIED');
-  static const StandardRole ROLE_OWNER = StandardRole._(1, _omitEnumNames ? '' : 'ROLE_OWNER');
-  static const StandardRole ROLE_ADMIN = StandardRole._(2, _omitEnumNames ? '' : 'ROLE_ADMIN');
-  static const StandardRole ROLE_OPERATOR = StandardRole._(3, _omitEnumNames ? '' : 'ROLE_OPERATOR');
-  static const StandardRole ROLE_VIEWER = StandardRole._(4, _omitEnumNames ? '' : 'ROLE_VIEWER');
-  static const StandardRole ROLE_MEMBER = StandardRole._(5, _omitEnumNames ? '' : 'ROLE_MEMBER');
-  static const StandardRole ROLE_SERVICE = StandardRole._(6, _omitEnumNames ? '' : 'ROLE_SERVICE');
+  static const StandardRole ROLE_UNSPECIFIED =
+      StandardRole._(0, _omitEnumNames ? '' : 'ROLE_UNSPECIFIED');
+  static const StandardRole ROLE_OWNER =
+      StandardRole._(1, _omitEnumNames ? '' : 'ROLE_OWNER');
+  static const StandardRole ROLE_ADMIN =
+      StandardRole._(2, _omitEnumNames ? '' : 'ROLE_ADMIN');
+  static const StandardRole ROLE_OPERATOR =
+      StandardRole._(3, _omitEnumNames ? '' : 'ROLE_OPERATOR');
+  static const StandardRole ROLE_VIEWER =
+      StandardRole._(4, _omitEnumNames ? '' : 'ROLE_VIEWER');
+  static const StandardRole ROLE_MEMBER =
+      StandardRole._(5, _omitEnumNames ? '' : 'ROLE_MEMBER');
+  static const StandardRole ROLE_SERVICE =
+      StandardRole._(6, _omitEnumNames ? '' : 'ROLE_SERVICE');
 
-  static const $core.List<StandardRole> values = <StandardRole> [
+  static const $core.List<StandardRole> values = <StandardRole>[
     ROLE_UNSPECIFIED,
     ROLE_OWNER,
     ROLE_ADMIN,
@@ -35,11 +42,11 @@ class StandardRole extends $pb.ProtobufEnum {
     ROLE_SERVICE,
   ];
 
-  static final $core.Map<$core.int, StandardRole> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, StandardRole> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static StandardRole? valueOf($core.int value) => _byValue[value];
 
   const StandardRole._($core.int v, $core.String n) : super(v, n);
 }
-
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

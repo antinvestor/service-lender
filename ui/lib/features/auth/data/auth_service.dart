@@ -15,9 +15,9 @@ class AuthService {
     this._storage, {
     required String issuerUrl,
     required String clientId,
-  })  : _issuerUrl = issuerUrl,
-        _activeClientId = clientId,
-        _defaultClientId = clientId;
+  }) : _issuerUrl = issuerUrl,
+       _activeClientId = clientId,
+       _defaultClientId = clientId;
 
   final FlutterSecureStorage _storage;
   final String _issuerUrl;
@@ -85,8 +85,11 @@ class AuthService {
       }
       return null;
     } catch (e, stackTrace) {
-      AppLogger.error('Authentication failed',
-          error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'Authentication failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -129,8 +132,9 @@ class AuthService {
   /// Schedules a background refresh 2 minutes before the token expires.
   void _scheduleRefresh(DateTime expiresAt) {
     _refreshTimer?.cancel();
-    final refreshAt =
-        expiresAt.subtract(const Duration(minutes: 2)).difference(DateTime.now());
+    final refreshAt = expiresAt
+        .subtract(const Duration(minutes: 2))
+        .difference(DateTime.now());
     if (refreshAt.isNegative) {
       // Already past the refresh window — refresh immediately.
       refreshToken();
@@ -157,8 +161,9 @@ class AuthService {
 
   bool _isTokenExpiredSync() {
     if (_cachedExpiresAt == null) return true;
-    return DateTime.now()
-        .isAfter(_cachedExpiresAt!.subtract(const Duration(minutes: 2)));
+    return DateTime.now().isAfter(
+      _cachedExpiresAt!.subtract(const Duration(minutes: 2)),
+    );
   }
 
   Future<bool> isTokenExpired({
@@ -223,8 +228,7 @@ class AuthService {
       _refreshCompleter!.complete(newCredential);
       return newCredential;
     } catch (e, stackTrace) {
-      AppLogger.error('Token refresh failed',
-          error: e, stackTrace: stackTrace);
+      AppLogger.error('Token refresh failed', error: e, stackTrace: stackTrace);
 
       final errorStr = e.toString().toLowerCase();
       final isPermanent = _isPermanentRefreshError(errorStr);
@@ -245,16 +249,29 @@ class AuthService {
 
   bool _isPermanentRefreshError(String errorStr) {
     const transientPatterns = [
-      'timeout', 'connection refused', 'connection reset',
-      'network is unreachable', 'host not found', 'dns', 'socket',
-      '500', '502', '503', '504', '429', 'service unavailable',
+      'timeout',
+      'connection refused',
+      'connection reset',
+      'network is unreachable',
+      'host not found',
+      'dns',
+      'socket',
+      '500',
+      '502',
+      '503',
+      '504',
+      '429',
+      'service unavailable',
     ];
     for (final pattern in transientPatterns) {
       if (errorStr.contains(pattern)) return false;
     }
 
     const permanentErrors = [
-      'invalid_grant', 'invalid_client', 'unauthorized_client', 'access_denied',
+      'invalid_grant',
+      'invalid_client',
+      'unauthorized_client',
+      'access_denied',
     ];
     for (final error in permanentErrors) {
       if (errorStr.contains(error)) return true;
@@ -349,8 +366,11 @@ class AuthService {
       _redirectCompleter!.complete(false);
       return false;
     } catch (e, stackTrace) {
-      AppLogger.error('Redirect result handling failed',
-          error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'Redirect result handling failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
       _redirectCompleter!.complete(false);
       return false;
     } finally {

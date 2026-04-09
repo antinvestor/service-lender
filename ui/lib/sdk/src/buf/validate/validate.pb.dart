@@ -56,26 +56,31 @@ class Rule extends $pb.GeneratedMessage {
     return $result;
   }
   Rule._() : super();
-  factory Rule.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Rule.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Rule.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Rule.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Rule', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Rule',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'message')
     ..aOS(3, _omitFieldNames ? '' : 'expression')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Rule clone() => Rule()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Rule copyWith(void Function(Rule) updates) => super.copyWith((message) => updates(message as Rule)) as Rule;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Rule copyWith(void Function(Rule) updates) =>
+      super.copyWith((message) => updates(message as Rule)) as Rule;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -84,7 +89,8 @@ class Rule extends $pb.GeneratedMessage {
   Rule createEmptyInstance() => create();
   static $pb.PbList<Rule> createRepeated() => $pb.PbList<Rule>();
   @$core.pragma('dart2js:noInline')
-  static Rule getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Rule>(create);
+  static Rule getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Rule>(create);
   static Rule? _defaultInstance;
 
   /// `id` is a string that serves as a machine-readable name for this Rule.
@@ -92,7 +98,10 @@ class Rule extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set id($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -105,7 +114,10 @@ class Rule extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get message => $_getSZ(1);
   @$pb.TagNumber(2)
-  set message($core.String v) { $_setString(1, v); }
+  set message($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasMessage() => $_has(1);
   @$pb.TagNumber(2)
@@ -118,7 +130,10 @@ class Rule extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get expression => $_getSZ(2);
   @$pb.TagNumber(3)
-  set expression($core.String v) { $_setString(2, v); }
+  set expression($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasExpression() => $_has(2);
   @$pb.TagNumber(3)
@@ -146,35 +161,46 @@ class MessageRules extends $pb.GeneratedMessage {
     return $result;
   }
   MessageRules._() : super();
-  factory MessageRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory MessageRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MessageRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory MessageRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MessageRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..pc<Rule>(3, _omitFieldNames ? '' : 'cel', $pb.PbFieldType.PM, subBuilder: Rule.create)
-    ..pc<MessageOneofRule>(4, _omitFieldNames ? '' : 'oneof', $pb.PbFieldType.PM, subBuilder: MessageOneofRule.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MessageRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..pc<Rule>(3, _omitFieldNames ? '' : 'cel', $pb.PbFieldType.PM,
+        subBuilder: Rule.create)
+    ..pc<MessageOneofRule>(
+        4, _omitFieldNames ? '' : 'oneof', $pb.PbFieldType.PM,
+        subBuilder: MessageOneofRule.create)
     ..pPS(5, _omitFieldNames ? '' : 'celExpression')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   MessageRules clone() => MessageRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  MessageRules copyWith(void Function(MessageRules) updates) => super.copyWith((message) => updates(message as MessageRules)) as MessageRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  MessageRules copyWith(void Function(MessageRules) updates) =>
+      super.copyWith((message) => updates(message as MessageRules))
+          as MessageRules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static MessageRules create() => MessageRules._();
   MessageRules createEmptyInstance() => create();
-  static $pb.PbList<MessageRules> createRepeated() => $pb.PbList<MessageRules>();
+  static $pb.PbList<MessageRules> createRepeated() =>
+      $pb.PbList<MessageRules>();
   @$core.pragma('dart2js:noInline')
-  static MessageRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MessageRules>(create);
+  static MessageRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MessageRules>(create);
   static MessageRules? _defaultInstance;
 
   ///  `cel` is a repeated field of type Rule. Each Rule specifies a validation rule to be applied to this message.
@@ -270,34 +296,42 @@ class MessageOneofRule extends $pb.GeneratedMessage {
     return $result;
   }
   MessageOneofRule._() : super();
-  factory MessageOneofRule.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory MessageOneofRule.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MessageOneofRule.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory MessageOneofRule.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MessageOneofRule', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MessageOneofRule',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'fields')
     ..aOB(2, _omitFieldNames ? '' : 'required')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   MessageOneofRule clone() => MessageOneofRule()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  MessageOneofRule copyWith(void Function(MessageOneofRule) updates) => super.copyWith((message) => updates(message as MessageOneofRule)) as MessageOneofRule;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  MessageOneofRule copyWith(void Function(MessageOneofRule) updates) =>
+      super.copyWith((message) => updates(message as MessageOneofRule))
+          as MessageOneofRule;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static MessageOneofRule create() => MessageOneofRule._();
   MessageOneofRule createEmptyInstance() => create();
-  static $pb.PbList<MessageOneofRule> createRepeated() => $pb.PbList<MessageOneofRule>();
+  static $pb.PbList<MessageOneofRule> createRepeated() =>
+      $pb.PbList<MessageOneofRule>();
   @$core.pragma('dart2js:noInline')
-  static MessageOneofRule getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MessageOneofRule>(create);
+  static MessageOneofRule getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MessageOneofRule>(create);
   static MessageOneofRule? _defaultInstance;
 
   /// A list of field names to include in the oneof. All field names must be
@@ -310,7 +344,10 @@ class MessageOneofRule extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get required => $_getBF(1);
   @$pb.TagNumber(2)
-  set required($core.bool v) { $_setBool(1, v); }
+  set required($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasRequired() => $_has(1);
   @$pb.TagNumber(2)
@@ -330,24 +367,29 @@ class OneofRules extends $pb.GeneratedMessage {
     return $result;
   }
   OneofRules._() : super();
-  factory OneofRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory OneofRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory OneofRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory OneofRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OneofRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'OneofRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'required')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   OneofRules clone() => OneofRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  OneofRules copyWith(void Function(OneofRules) updates) => super.copyWith((message) => updates(message as OneofRules)) as OneofRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  OneofRules copyWith(void Function(OneofRules) updates) =>
+      super.copyWith((message) => updates(message as OneofRules)) as OneofRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -356,7 +398,8 @@ class OneofRules extends $pb.GeneratedMessage {
   OneofRules createEmptyInstance() => create();
   static $pb.PbList<OneofRules> createRepeated() => $pb.PbList<OneofRules>();
   @$core.pragma('dart2js:noInline')
-  static OneofRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OneofRules>(create);
+  static OneofRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<OneofRules>(create);
   static OneofRules? _defaultInstance;
 
   ///  If `required` is true, exactly one field of the oneof must be set. A
@@ -378,7 +421,10 @@ class OneofRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.bool get required => $_getBF(0);
   @$pb.TagNumber(1)
-  set required($core.bool v) { $_setBool(0, v); }
+  set required($core.bool v) {
+    $_setBool(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasRequired() => $_has(0);
   @$pb.TagNumber(1)
@@ -386,28 +432,28 @@ class OneofRules extends $pb.GeneratedMessage {
 }
 
 enum FieldRules_Type {
-  float, 
-  double_2, 
-  int32, 
-  int64, 
-  uint32, 
-  uint64, 
-  sint32, 
-  sint64, 
-  fixed32, 
-  fixed64, 
-  sfixed32, 
-  sfixed64, 
-  bool_13, 
-  string, 
-  bytes, 
-  enum_16, 
-  repeated, 
-  map, 
-  any, 
-  duration, 
-  timestamp, 
-  fieldMask, 
+  float,
+  double_2,
+  int32,
+  int64,
+  uint32,
+  uint64,
+  sint32,
+  sint64,
+  fixed32,
+  fixed64,
+  sfixed32,
+  sfixed64,
+  bool_13,
+  string,
+  bytes,
+  enum_16,
+  repeated,
+  map,
+  any,
+  duration,
+  timestamp,
+  fieldMask,
   notSet
 }
 
@@ -524,74 +570,128 @@ class FieldRules extends $pb.GeneratedMessage {
     return $result;
   }
   FieldRules._() : super();
-  factory FieldRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FieldRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory FieldRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
   static const $core.Map<$core.int, FieldRules_Type> _FieldRules_TypeByTag = {
-    1 : FieldRules_Type.float,
-    2 : FieldRules_Type.double_2,
-    3 : FieldRules_Type.int32,
-    4 : FieldRules_Type.int64,
-    5 : FieldRules_Type.uint32,
-    6 : FieldRules_Type.uint64,
-    7 : FieldRules_Type.sint32,
-    8 : FieldRules_Type.sint64,
-    9 : FieldRules_Type.fixed32,
-    10 : FieldRules_Type.fixed64,
-    11 : FieldRules_Type.sfixed32,
-    12 : FieldRules_Type.sfixed64,
-    13 : FieldRules_Type.bool_13,
-    14 : FieldRules_Type.string,
-    15 : FieldRules_Type.bytes,
-    16 : FieldRules_Type.enum_16,
-    18 : FieldRules_Type.repeated,
-    19 : FieldRules_Type.map,
-    20 : FieldRules_Type.any,
-    21 : FieldRules_Type.duration,
-    22 : FieldRules_Type.timestamp,
-    28 : FieldRules_Type.fieldMask,
-    0 : FieldRules_Type.notSet
+    1: FieldRules_Type.float,
+    2: FieldRules_Type.double_2,
+    3: FieldRules_Type.int32,
+    4: FieldRules_Type.int64,
+    5: FieldRules_Type.uint32,
+    6: FieldRules_Type.uint64,
+    7: FieldRules_Type.sint32,
+    8: FieldRules_Type.sint64,
+    9: FieldRules_Type.fixed32,
+    10: FieldRules_Type.fixed64,
+    11: FieldRules_Type.sfixed32,
+    12: FieldRules_Type.sfixed64,
+    13: FieldRules_Type.bool_13,
+    14: FieldRules_Type.string,
+    15: FieldRules_Type.bytes,
+    16: FieldRules_Type.enum_16,
+    18: FieldRules_Type.repeated,
+    19: FieldRules_Type.map,
+    20: FieldRules_Type.any,
+    21: FieldRules_Type.duration,
+    22: FieldRules_Type.timestamp,
+    28: FieldRules_Type.fieldMask,
+    0: FieldRules_Type.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FieldRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..oo(0, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 28])
-    ..aOM<FloatRules>(1, _omitFieldNames ? '' : 'float', subBuilder: FloatRules.create)
-    ..aOM<DoubleRules>(2, _omitFieldNames ? '' : 'double', subBuilder: DoubleRules.create)
-    ..aOM<Int32Rules>(3, _omitFieldNames ? '' : 'int32', subBuilder: Int32Rules.create)
-    ..aOM<Int64Rules>(4, _omitFieldNames ? '' : 'int64', subBuilder: Int64Rules.create)
-    ..aOM<UInt32Rules>(5, _omitFieldNames ? '' : 'uint32', subBuilder: UInt32Rules.create)
-    ..aOM<UInt64Rules>(6, _omitFieldNames ? '' : 'uint64', subBuilder: UInt64Rules.create)
-    ..aOM<SInt32Rules>(7, _omitFieldNames ? '' : 'sint32', subBuilder: SInt32Rules.create)
-    ..aOM<SInt64Rules>(8, _omitFieldNames ? '' : 'sint64', subBuilder: SInt64Rules.create)
-    ..aOM<Fixed32Rules>(9, _omitFieldNames ? '' : 'fixed32', subBuilder: Fixed32Rules.create)
-    ..aOM<Fixed64Rules>(10, _omitFieldNames ? '' : 'fixed64', subBuilder: Fixed64Rules.create)
-    ..aOM<SFixed32Rules>(11, _omitFieldNames ? '' : 'sfixed32', subBuilder: SFixed32Rules.create)
-    ..aOM<SFixed64Rules>(12, _omitFieldNames ? '' : 'sfixed64', subBuilder: SFixed64Rules.create)
-    ..aOM<BoolRules>(13, _omitFieldNames ? '' : 'bool', subBuilder: BoolRules.create)
-    ..aOM<StringRules>(14, _omitFieldNames ? '' : 'string', subBuilder: StringRules.create)
-    ..aOM<BytesRules>(15, _omitFieldNames ? '' : 'bytes', subBuilder: BytesRules.create)
-    ..aOM<EnumRules>(16, _omitFieldNames ? '' : 'enum', subBuilder: EnumRules.create)
-    ..aOM<RepeatedRules>(18, _omitFieldNames ? '' : 'repeated', subBuilder: RepeatedRules.create)
-    ..aOM<MapRules>(19, _omitFieldNames ? '' : 'map', subBuilder: MapRules.create)
-    ..aOM<AnyRules>(20, _omitFieldNames ? '' : 'any', subBuilder: AnyRules.create)
-    ..aOM<DurationRules>(21, _omitFieldNames ? '' : 'duration', subBuilder: DurationRules.create)
-    ..aOM<TimestampRules>(22, _omitFieldNames ? '' : 'timestamp', subBuilder: TimestampRules.create)
-    ..pc<Rule>(23, _omitFieldNames ? '' : 'cel', $pb.PbFieldType.PM, subBuilder: Rule.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FieldRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..oo(0, [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      18,
+      19,
+      20,
+      21,
+      22,
+      28
+    ])
+    ..aOM<FloatRules>(1, _omitFieldNames ? '' : 'float',
+        subBuilder: FloatRules.create)
+    ..aOM<DoubleRules>(2, _omitFieldNames ? '' : 'double',
+        subBuilder: DoubleRules.create)
+    ..aOM<Int32Rules>(3, _omitFieldNames ? '' : 'int32',
+        subBuilder: Int32Rules.create)
+    ..aOM<Int64Rules>(4, _omitFieldNames ? '' : 'int64',
+        subBuilder: Int64Rules.create)
+    ..aOM<UInt32Rules>(5, _omitFieldNames ? '' : 'uint32',
+        subBuilder: UInt32Rules.create)
+    ..aOM<UInt64Rules>(6, _omitFieldNames ? '' : 'uint64',
+        subBuilder: UInt64Rules.create)
+    ..aOM<SInt32Rules>(7, _omitFieldNames ? '' : 'sint32',
+        subBuilder: SInt32Rules.create)
+    ..aOM<SInt64Rules>(8, _omitFieldNames ? '' : 'sint64',
+        subBuilder: SInt64Rules.create)
+    ..aOM<Fixed32Rules>(9, _omitFieldNames ? '' : 'fixed32',
+        subBuilder: Fixed32Rules.create)
+    ..aOM<Fixed64Rules>(10, _omitFieldNames ? '' : 'fixed64',
+        subBuilder: Fixed64Rules.create)
+    ..aOM<SFixed32Rules>(11, _omitFieldNames ? '' : 'sfixed32',
+        subBuilder: SFixed32Rules.create)
+    ..aOM<SFixed64Rules>(12, _omitFieldNames ? '' : 'sfixed64',
+        subBuilder: SFixed64Rules.create)
+    ..aOM<BoolRules>(13, _omitFieldNames ? '' : 'bool',
+        subBuilder: BoolRules.create)
+    ..aOM<StringRules>(14, _omitFieldNames ? '' : 'string',
+        subBuilder: StringRules.create)
+    ..aOM<BytesRules>(15, _omitFieldNames ? '' : 'bytes',
+        subBuilder: BytesRules.create)
+    ..aOM<EnumRules>(16, _omitFieldNames ? '' : 'enum',
+        subBuilder: EnumRules.create)
+    ..aOM<RepeatedRules>(18, _omitFieldNames ? '' : 'repeated',
+        subBuilder: RepeatedRules.create)
+    ..aOM<MapRules>(19, _omitFieldNames ? '' : 'map',
+        subBuilder: MapRules.create)
+    ..aOM<AnyRules>(20, _omitFieldNames ? '' : 'any',
+        subBuilder: AnyRules.create)
+    ..aOM<DurationRules>(21, _omitFieldNames ? '' : 'duration',
+        subBuilder: DurationRules.create)
+    ..aOM<TimestampRules>(22, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: TimestampRules.create)
+    ..pc<Rule>(23, _omitFieldNames ? '' : 'cel', $pb.PbFieldType.PM,
+        subBuilder: Rule.create)
     ..aOB(25, _omitFieldNames ? '' : 'required')
-    ..e<Ignore>(27, _omitFieldNames ? '' : 'ignore', $pb.PbFieldType.OE, defaultOrMaker: Ignore.IGNORE_UNSPECIFIED, valueOf: Ignore.valueOf, enumValues: Ignore.values)
-    ..aOM<FieldMaskRules>(28, _omitFieldNames ? '' : 'fieldMask', subBuilder: FieldMaskRules.create)
-    ..pPS(29, _omitFieldNames ? '' : 'celExpression')
-  ;
+    ..e<Ignore>(27, _omitFieldNames ? '' : 'ignore', $pb.PbFieldType.OE,
+        defaultOrMaker: Ignore.IGNORE_UNSPECIFIED,
+        valueOf: Ignore.valueOf,
+        enumValues: Ignore.values)
+    ..aOM<FieldMaskRules>(28, _omitFieldNames ? '' : 'fieldMask',
+        subBuilder: FieldMaskRules.create)
+    ..pPS(29, _omitFieldNames ? '' : 'celExpression');
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   FieldRules clone() => FieldRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FieldRules copyWith(void Function(FieldRules) updates) => super.copyWith((message) => updates(message as FieldRules)) as FieldRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  FieldRules copyWith(void Function(FieldRules) updates) =>
+      super.copyWith((message) => updates(message as FieldRules)) as FieldRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -600,7 +700,8 @@ class FieldRules extends $pb.GeneratedMessage {
   FieldRules createEmptyInstance() => create();
   static $pb.PbList<FieldRules> createRepeated() => $pb.PbList<FieldRules>();
   @$core.pragma('dart2js:noInline')
-  static FieldRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldRules>(create);
+  static FieldRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FieldRules>(create);
   static FieldRules? _defaultInstance;
 
   FieldRules_Type whichType() => _FieldRules_TypeByTag[$_whichOneof(0)]!;
@@ -610,7 +711,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   FloatRules get float => $_getN(0);
   @$pb.TagNumber(1)
-  set float(FloatRules v) { setField(1, v); }
+  set float(FloatRules v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasFloat() => $_has(0);
   @$pb.TagNumber(1)
@@ -621,7 +725,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   DoubleRules get double_2 => $_getN(1);
   @$pb.TagNumber(2)
-  set double_2(DoubleRules v) { setField(2, v); }
+  set double_2(DoubleRules v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDouble_2() => $_has(1);
   @$pb.TagNumber(2)
@@ -632,7 +739,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   Int32Rules get int32 => $_getN(2);
   @$pb.TagNumber(3)
-  set int32(Int32Rules v) { setField(3, v); }
+  set int32(Int32Rules v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasInt32() => $_has(2);
   @$pb.TagNumber(3)
@@ -643,7 +753,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   Int64Rules get int64 => $_getN(3);
   @$pb.TagNumber(4)
-  set int64(Int64Rules v) { setField(4, v); }
+  set int64(Int64Rules v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasInt64() => $_has(3);
   @$pb.TagNumber(4)
@@ -654,7 +767,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   UInt32Rules get uint32 => $_getN(4);
   @$pb.TagNumber(5)
-  set uint32(UInt32Rules v) { setField(5, v); }
+  set uint32(UInt32Rules v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasUint32() => $_has(4);
   @$pb.TagNumber(5)
@@ -665,7 +781,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   UInt64Rules get uint64 => $_getN(5);
   @$pb.TagNumber(6)
-  set uint64(UInt64Rules v) { setField(6, v); }
+  set uint64(UInt64Rules v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasUint64() => $_has(5);
   @$pb.TagNumber(6)
@@ -676,7 +795,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   SInt32Rules get sint32 => $_getN(6);
   @$pb.TagNumber(7)
-  set sint32(SInt32Rules v) { setField(7, v); }
+  set sint32(SInt32Rules v) {
+    setField(7, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasSint32() => $_has(6);
   @$pb.TagNumber(7)
@@ -687,7 +809,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   SInt64Rules get sint64 => $_getN(7);
   @$pb.TagNumber(8)
-  set sint64(SInt64Rules v) { setField(8, v); }
+  set sint64(SInt64Rules v) {
+    setField(8, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasSint64() => $_has(7);
   @$pb.TagNumber(8)
@@ -698,7 +823,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   Fixed32Rules get fixed32 => $_getN(8);
   @$pb.TagNumber(9)
-  set fixed32(Fixed32Rules v) { setField(9, v); }
+  set fixed32(Fixed32Rules v) {
+    setField(9, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasFixed32() => $_has(8);
   @$pb.TagNumber(9)
@@ -709,7 +837,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   Fixed64Rules get fixed64 => $_getN(9);
   @$pb.TagNumber(10)
-  set fixed64(Fixed64Rules v) { setField(10, v); }
+  set fixed64(Fixed64Rules v) {
+    setField(10, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasFixed64() => $_has(9);
   @$pb.TagNumber(10)
@@ -720,7 +851,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   SFixed32Rules get sfixed32 => $_getN(10);
   @$pb.TagNumber(11)
-  set sfixed32(SFixed32Rules v) { setField(11, v); }
+  set sfixed32(SFixed32Rules v) {
+    setField(11, v);
+  }
+
   @$pb.TagNumber(11)
   $core.bool hasSfixed32() => $_has(10);
   @$pb.TagNumber(11)
@@ -731,7 +865,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   SFixed64Rules get sfixed64 => $_getN(11);
   @$pb.TagNumber(12)
-  set sfixed64(SFixed64Rules v) { setField(12, v); }
+  set sfixed64(SFixed64Rules v) {
+    setField(12, v);
+  }
+
   @$pb.TagNumber(12)
   $core.bool hasSfixed64() => $_has(11);
   @$pb.TagNumber(12)
@@ -742,7 +879,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   BoolRules get bool_13 => $_getN(12);
   @$pb.TagNumber(13)
-  set bool_13(BoolRules v) { setField(13, v); }
+  set bool_13(BoolRules v) {
+    setField(13, v);
+  }
+
   @$pb.TagNumber(13)
   $core.bool hasBool_13() => $_has(12);
   @$pb.TagNumber(13)
@@ -753,7 +893,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(14)
   StringRules get string => $_getN(13);
   @$pb.TagNumber(14)
-  set string(StringRules v) { setField(14, v); }
+  set string(StringRules v) {
+    setField(14, v);
+  }
+
   @$pb.TagNumber(14)
   $core.bool hasString() => $_has(13);
   @$pb.TagNumber(14)
@@ -764,7 +907,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   BytesRules get bytes => $_getN(14);
   @$pb.TagNumber(15)
-  set bytes(BytesRules v) { setField(15, v); }
+  set bytes(BytesRules v) {
+    setField(15, v);
+  }
+
   @$pb.TagNumber(15)
   $core.bool hasBytes() => $_has(14);
   @$pb.TagNumber(15)
@@ -776,7 +922,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(16)
   EnumRules get enum_16 => $_getN(15);
   @$pb.TagNumber(16)
-  set enum_16(EnumRules v) { setField(16, v); }
+  set enum_16(EnumRules v) {
+    setField(16, v);
+  }
+
   @$pb.TagNumber(16)
   $core.bool hasEnum_16() => $_has(15);
   @$pb.TagNumber(16)
@@ -787,7 +936,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   RepeatedRules get repeated => $_getN(16);
   @$pb.TagNumber(18)
-  set repeated(RepeatedRules v) { setField(18, v); }
+  set repeated(RepeatedRules v) {
+    setField(18, v);
+  }
+
   @$pb.TagNumber(18)
   $core.bool hasRepeated() => $_has(16);
   @$pb.TagNumber(18)
@@ -798,7 +950,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(19)
   MapRules get map => $_getN(17);
   @$pb.TagNumber(19)
-  set map(MapRules v) { setField(19, v); }
+  set map(MapRules v) {
+    setField(19, v);
+  }
+
   @$pb.TagNumber(19)
   $core.bool hasMap() => $_has(17);
   @$pb.TagNumber(19)
@@ -810,7 +965,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(20)
   AnyRules get any => $_getN(18);
   @$pb.TagNumber(20)
-  set any(AnyRules v) { setField(20, v); }
+  set any(AnyRules v) {
+    setField(20, v);
+  }
+
   @$pb.TagNumber(20)
   $core.bool hasAny() => $_has(18);
   @$pb.TagNumber(20)
@@ -821,7 +979,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(21)
   DurationRules get duration => $_getN(19);
   @$pb.TagNumber(21)
-  set duration(DurationRules v) { setField(21, v); }
+  set duration(DurationRules v) {
+    setField(21, v);
+  }
+
   @$pb.TagNumber(21)
   $core.bool hasDuration() => $_has(19);
   @$pb.TagNumber(21)
@@ -832,7 +993,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(22)
   TimestampRules get timestamp => $_getN(20);
   @$pb.TagNumber(22)
-  set timestamp(TimestampRules v) { setField(22, v); }
+  set timestamp(TimestampRules v) {
+    setField(22, v);
+  }
+
   @$pb.TagNumber(22)
   $core.bool hasTimestamp() => $_has(20);
   @$pb.TagNumber(22)
@@ -916,7 +1080,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(25)
   $core.bool get required => $_getBF(22);
   @$pb.TagNumber(25)
-  set required($core.bool v) { $_setBool(22, v); }
+  set required($core.bool v) {
+    $_setBool(22, v);
+  }
+
   @$pb.TagNumber(25)
   $core.bool hasRequired() => $_has(22);
   @$pb.TagNumber(25)
@@ -937,7 +1104,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(27)
   Ignore get ignore => $_getN(23);
   @$pb.TagNumber(27)
-  set ignore(Ignore v) { setField(27, v); }
+  set ignore(Ignore v) {
+    setField(27, v);
+  }
+
   @$pb.TagNumber(27)
   $core.bool hasIgnore() => $_has(23);
   @$pb.TagNumber(27)
@@ -946,7 +1116,10 @@ class FieldRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(28)
   FieldMaskRules get fieldMask => $_getN(24);
   @$pb.TagNumber(28)
-  set fieldMask(FieldMaskRules v) { setField(28, v); }
+  set fieldMask(FieldMaskRules v) {
+    setField(28, v);
+  }
+
   @$pb.TagNumber(28)
   $core.bool hasFieldMask() => $_has(24);
   @$pb.TagNumber(28)
@@ -986,33 +1159,42 @@ class PredefinedRules extends $pb.GeneratedMessage {
     return $result;
   }
   PredefinedRules._() : super();
-  factory PredefinedRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory PredefinedRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory PredefinedRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory PredefinedRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PredefinedRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..pc<Rule>(1, _omitFieldNames ? '' : 'cel', $pb.PbFieldType.PM, subBuilder: Rule.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PredefinedRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..pc<Rule>(1, _omitFieldNames ? '' : 'cel', $pb.PbFieldType.PM,
+        subBuilder: Rule.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   PredefinedRules clone() => PredefinedRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  PredefinedRules copyWith(void Function(PredefinedRules) updates) => super.copyWith((message) => updates(message as PredefinedRules)) as PredefinedRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  PredefinedRules copyWith(void Function(PredefinedRules) updates) =>
+      super.copyWith((message) => updates(message as PredefinedRules))
+          as PredefinedRules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static PredefinedRules create() => PredefinedRules._();
   PredefinedRules createEmptyInstance() => create();
-  static $pb.PbList<PredefinedRules> createRepeated() => $pb.PbList<PredefinedRules>();
+  static $pb.PbList<PredefinedRules> createRepeated() =>
+      $pb.PbList<PredefinedRules>();
   @$core.pragma('dart2js:noInline')
-  static PredefinedRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PredefinedRules>(create);
+  static PredefinedRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<PredefinedRules>(create);
   static PredefinedRules? _defaultInstance;
 
   ///  `cel` is a repeated field used to represent a textual expression
@@ -1033,17 +1215,9 @@ class PredefinedRules extends $pb.GeneratedMessage {
   $core.List<Rule> get cel => $_getList(0);
 }
 
-enum FloatRules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum FloatRules_LessThan { lt, lte, notSet }
 
-enum FloatRules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum FloatRules_GreaterThan { gt, gte, notSet }
 
 /// FloatRules describes the rules applied to `float` values. These
 /// rules may also be applied to the `google.protobuf.FloatValue` Well-Known-Type.
@@ -1090,20 +1264,29 @@ class FloatRules extends $pb.GeneratedMessage {
     return $result;
   }
   FloatRules._() : super();
-  factory FloatRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FloatRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FloatRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory FloatRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, FloatRules_LessThan> _FloatRules_LessThanByTag = {
-    2 : FloatRules_LessThan.lt,
-    3 : FloatRules_LessThan.lte,
-    0 : FloatRules_LessThan.notSet
+  static const $core.Map<$core.int, FloatRules_LessThan>
+      _FloatRules_LessThanByTag = {
+    2: FloatRules_LessThan.lt,
+    3: FloatRules_LessThan.lte,
+    0: FloatRules_LessThan.notSet
   };
-  static const $core.Map<$core.int, FloatRules_GreaterThan> _FloatRules_GreaterThanByTag = {
-    4 : FloatRules_GreaterThan.gt,
-    5 : FloatRules_GreaterThan.gte,
-    0 : FloatRules_GreaterThan.notSet
+  static const $core.Map<$core.int, FloatRules_GreaterThan>
+      _FloatRules_GreaterThanByTag = {
+    4: FloatRules_GreaterThan.gt,
+    5: FloatRules_GreaterThan.gte,
+    0: FloatRules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FloatRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FloatRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.double>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OF)
@@ -1115,19 +1298,17 @@ class FloatRules extends $pb.GeneratedMessage {
     ..p<$core.double>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PF)
     ..aOB(8, _omitFieldNames ? '' : 'finite')
     ..p<$core.double>(9, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PF)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   FloatRules clone() => FloatRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FloatRules copyWith(void Function(FloatRules) updates) => super.copyWith((message) => updates(message as FloatRules)) as FloatRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  FloatRules copyWith(void Function(FloatRules) updates) =>
+      super.copyWith((message) => updates(message as FloatRules)) as FloatRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1136,13 +1317,16 @@ class FloatRules extends $pb.GeneratedMessage {
   FloatRules createEmptyInstance() => create();
   static $pb.PbList<FloatRules> createRepeated() => $pb.PbList<FloatRules>();
   @$core.pragma('dart2js:noInline')
-  static FloatRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FloatRules>(create);
+  static FloatRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FloatRules>(create);
   static FloatRules? _defaultInstance;
 
-  FloatRules_LessThan whichLessThan() => _FloatRules_LessThanByTag[$_whichOneof(0)]!;
+  FloatRules_LessThan whichLessThan() =>
+      _FloatRules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  FloatRules_GreaterThan whichGreaterThan() => _FloatRules_GreaterThanByTag[$_whichOneof(1)]!;
+  FloatRules_GreaterThan whichGreaterThan() =>
+      _FloatRules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -1157,7 +1341,10 @@ class FloatRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.double get const_1 => $_getN(0);
   @$pb.TagNumber(1)
-  set const_1($core.double v) { $_setFloat(0, v); }
+  set const_1($core.double v) {
+    $_setFloat(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -1176,7 +1363,10 @@ class FloatRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.double get lt => $_getN(1);
   @$pb.TagNumber(2)
-  set lt($core.double v) { $_setFloat(1, v); }
+  set lt($core.double v) {
+    $_setFloat(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -1195,7 +1385,10 @@ class FloatRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.double get lte => $_getN(2);
   @$pb.TagNumber(3)
-  set lte($core.double v) { $_setFloat(2, v); }
+  set lte($core.double v) {
+    $_setFloat(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -1222,7 +1415,10 @@ class FloatRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.double get gt => $_getN(3);
   @$pb.TagNumber(4)
-  set gt($core.double v) { $_setFloat(3, v); }
+  set gt($core.double v) {
+    $_setFloat(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -1249,7 +1445,10 @@ class FloatRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.double get gte => $_getN(4);
   @$pb.TagNumber(5)
-  set gte($core.double v) { $_setFloat(4, v); }
+  set gte($core.double v) {
+    $_setFloat(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -1286,7 +1485,10 @@ class FloatRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.bool get finite => $_getBF(7);
   @$pb.TagNumber(8)
-  set finite($core.bool v) { $_setBool(7, v); }
+  set finite($core.bool v) {
+    $_setBool(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasFinite() => $_has(7);
   @$pb.TagNumber(8)
@@ -1308,17 +1510,9 @@ class FloatRules extends $pb.GeneratedMessage {
   $core.List<$core.double> get example => $_getList(8);
 }
 
-enum DoubleRules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum DoubleRules_LessThan { lt, lte, notSet }
 
-enum DoubleRules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum DoubleRules_GreaterThan { gt, gte, notSet }
 
 /// DoubleRules describes the rules applied to `double` values. These
 /// rules may also be applied to the `google.protobuf.DoubleValue` Well-Known-Type.
@@ -1365,20 +1559,29 @@ class DoubleRules extends $pb.GeneratedMessage {
     return $result;
   }
   DoubleRules._() : super();
-  factory DoubleRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DoubleRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DoubleRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory DoubleRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, DoubleRules_LessThan> _DoubleRules_LessThanByTag = {
-    2 : DoubleRules_LessThan.lt,
-    3 : DoubleRules_LessThan.lte,
-    0 : DoubleRules_LessThan.notSet
+  static const $core.Map<$core.int, DoubleRules_LessThan>
+      _DoubleRules_LessThanByTag = {
+    2: DoubleRules_LessThan.lt,
+    3: DoubleRules_LessThan.lte,
+    0: DoubleRules_LessThan.notSet
   };
-  static const $core.Map<$core.int, DoubleRules_GreaterThan> _DoubleRules_GreaterThanByTag = {
-    4 : DoubleRules_GreaterThan.gt,
-    5 : DoubleRules_GreaterThan.gte,
-    0 : DoubleRules_GreaterThan.notSet
+  static const $core.Map<$core.int, DoubleRules_GreaterThan>
+      _DoubleRules_GreaterThanByTag = {
+    4: DoubleRules_GreaterThan.gt,
+    5: DoubleRules_GreaterThan.gte,
+    0: DoubleRules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DoubleRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DoubleRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.double>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OD)
@@ -1390,19 +1593,18 @@ class DoubleRules extends $pb.GeneratedMessage {
     ..p<$core.double>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PD)
     ..aOB(8, _omitFieldNames ? '' : 'finite')
     ..p<$core.double>(9, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PD)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   DoubleRules clone() => DoubleRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  DoubleRules copyWith(void Function(DoubleRules) updates) => super.copyWith((message) => updates(message as DoubleRules)) as DoubleRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  DoubleRules copyWith(void Function(DoubleRules) updates) =>
+      super.copyWith((message) => updates(message as DoubleRules))
+          as DoubleRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1411,13 +1613,16 @@ class DoubleRules extends $pb.GeneratedMessage {
   DoubleRules createEmptyInstance() => create();
   static $pb.PbList<DoubleRules> createRepeated() => $pb.PbList<DoubleRules>();
   @$core.pragma('dart2js:noInline')
-  static DoubleRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DoubleRules>(create);
+  static DoubleRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DoubleRules>(create);
   static DoubleRules? _defaultInstance;
 
-  DoubleRules_LessThan whichLessThan() => _DoubleRules_LessThanByTag[$_whichOneof(0)]!;
+  DoubleRules_LessThan whichLessThan() =>
+      _DoubleRules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  DoubleRules_GreaterThan whichGreaterThan() => _DoubleRules_GreaterThanByTag[$_whichOneof(1)]!;
+  DoubleRules_GreaterThan whichGreaterThan() =>
+      _DoubleRules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -1432,7 +1637,10 @@ class DoubleRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.double get const_1 => $_getN(0);
   @$pb.TagNumber(1)
-  set const_1($core.double v) { $_setDouble(0, v); }
+  set const_1($core.double v) {
+    $_setDouble(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -1451,7 +1659,10 @@ class DoubleRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.double get lt => $_getN(1);
   @$pb.TagNumber(2)
-  set lt($core.double v) { $_setDouble(1, v); }
+  set lt($core.double v) {
+    $_setDouble(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -1470,7 +1681,10 @@ class DoubleRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.double get lte => $_getN(2);
   @$pb.TagNumber(3)
-  set lte($core.double v) { $_setDouble(2, v); }
+  set lte($core.double v) {
+    $_setDouble(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -1497,7 +1711,10 @@ class DoubleRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.double get gt => $_getN(3);
   @$pb.TagNumber(4)
-  set gt($core.double v) { $_setDouble(3, v); }
+  set gt($core.double v) {
+    $_setDouble(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -1524,7 +1741,10 @@ class DoubleRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.double get gte => $_getN(4);
   @$pb.TagNumber(5)
-  set gte($core.double v) { $_setDouble(4, v); }
+  set gte($core.double v) {
+    $_setDouble(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -1561,7 +1781,10 @@ class DoubleRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.bool get finite => $_getBF(7);
   @$pb.TagNumber(8)
-  set finite($core.bool v) { $_setBool(7, v); }
+  set finite($core.bool v) {
+    $_setBool(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasFinite() => $_has(7);
   @$pb.TagNumber(8)
@@ -1583,17 +1806,9 @@ class DoubleRules extends $pb.GeneratedMessage {
   $core.List<$core.double> get example => $_getList(8);
 }
 
-enum Int32Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum Int32Rules_LessThan { lt, lte, notSet }
 
-enum Int32Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum Int32Rules_GreaterThan { gt, gte, notSet }
 
 /// Int32Rules describes the rules applied to `int32` values. These
 /// rules may also be applied to the `google.protobuf.Int32Value` Well-Known-Type.
@@ -1636,20 +1851,29 @@ class Int32Rules extends $pb.GeneratedMessage {
     return $result;
   }
   Int32Rules._() : super();
-  factory Int32Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Int32Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Int32Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Int32Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, Int32Rules_LessThan> _Int32Rules_LessThanByTag = {
-    2 : Int32Rules_LessThan.lt,
-    3 : Int32Rules_LessThan.lte,
-    0 : Int32Rules_LessThan.notSet
+  static const $core.Map<$core.int, Int32Rules_LessThan>
+      _Int32Rules_LessThanByTag = {
+    2: Int32Rules_LessThan.lt,
+    3: Int32Rules_LessThan.lte,
+    0: Int32Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, Int32Rules_GreaterThan> _Int32Rules_GreaterThanByTag = {
-    4 : Int32Rules_GreaterThan.gt,
-    5 : Int32Rules_GreaterThan.gte,
-    0 : Int32Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, Int32Rules_GreaterThan>
+      _Int32Rules_GreaterThanByTag = {
+    4: Int32Rules_GreaterThan.gt,
+    5: Int32Rules_GreaterThan.gte,
+    0: Int32Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Int32Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Int32Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.O3)
@@ -1660,19 +1884,17 @@ class Int32Rules extends $pb.GeneratedMessage {
     ..p<$core.int>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.P3)
     ..p<$core.int>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.P3)
     ..p<$core.int>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.P3)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Int32Rules clone() => Int32Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Int32Rules copyWith(void Function(Int32Rules) updates) => super.copyWith((message) => updates(message as Int32Rules)) as Int32Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Int32Rules copyWith(void Function(Int32Rules) updates) =>
+      super.copyWith((message) => updates(message as Int32Rules)) as Int32Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1681,13 +1903,16 @@ class Int32Rules extends $pb.GeneratedMessage {
   Int32Rules createEmptyInstance() => create();
   static $pb.PbList<Int32Rules> createRepeated() => $pb.PbList<Int32Rules>();
   @$core.pragma('dart2js:noInline')
-  static Int32Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Int32Rules>(create);
+  static Int32Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Int32Rules>(create);
   static Int32Rules? _defaultInstance;
 
-  Int32Rules_LessThan whichLessThan() => _Int32Rules_LessThanByTag[$_whichOneof(0)]!;
+  Int32Rules_LessThan whichLessThan() =>
+      _Int32Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  Int32Rules_GreaterThan whichGreaterThan() => _Int32Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  Int32Rules_GreaterThan whichGreaterThan() =>
+      _Int32Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -1702,7 +1927,10 @@ class Int32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.int get const_1 => $_getIZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.int v) { $_setSignedInt32(0, v); }
+  set const_1($core.int v) {
+    $_setSignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -1721,7 +1949,10 @@ class Int32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.int get lt => $_getIZ(1);
   @$pb.TagNumber(2)
-  set lt($core.int v) { $_setSignedInt32(1, v); }
+  set lt($core.int v) {
+    $_setSignedInt32(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -1740,7 +1971,10 @@ class Int32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.int get lte => $_getIZ(2);
   @$pb.TagNumber(3)
-  set lte($core.int v) { $_setSignedInt32(2, v); }
+  set lte($core.int v) {
+    $_setSignedInt32(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -1767,7 +2001,10 @@ class Int32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.int get gt => $_getIZ(3);
   @$pb.TagNumber(4)
-  set gt($core.int v) { $_setSignedInt32(3, v); }
+  set gt($core.int v) {
+    $_setSignedInt32(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -1794,7 +2031,10 @@ class Int32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.int get gte => $_getIZ(4);
   @$pb.TagNumber(5)
-  set gte($core.int v) { $_setSignedInt32(4, v); }
+  set gte($core.int v) {
+    $_setSignedInt32(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -1842,17 +2082,9 @@ class Int32Rules extends $pb.GeneratedMessage {
   $core.List<$core.int> get example => $_getList(7);
 }
 
-enum Int64Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum Int64Rules_LessThan { lt, lte, notSet }
 
-enum Int64Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum Int64Rules_GreaterThan { gt, gte, notSet }
 
 /// Int64Rules describes the rules applied to `int64` values. These
 /// rules may also be applied to the `google.protobuf.Int64Value` Well-Known-Type.
@@ -1895,20 +2127,29 @@ class Int64Rules extends $pb.GeneratedMessage {
     return $result;
   }
   Int64Rules._() : super();
-  factory Int64Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Int64Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Int64Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Int64Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, Int64Rules_LessThan> _Int64Rules_LessThanByTag = {
-    2 : Int64Rules_LessThan.lt,
-    3 : Int64Rules_LessThan.lte,
-    0 : Int64Rules_LessThan.notSet
+  static const $core.Map<$core.int, Int64Rules_LessThan>
+      _Int64Rules_LessThanByTag = {
+    2: Int64Rules_LessThan.lt,
+    3: Int64Rules_LessThan.lte,
+    0: Int64Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, Int64Rules_GreaterThan> _Int64Rules_GreaterThanByTag = {
-    4 : Int64Rules_GreaterThan.gt,
-    5 : Int64Rules_GreaterThan.gte,
-    0 : Int64Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, Int64Rules_GreaterThan>
+      _Int64Rules_GreaterThanByTag = {
+    4: Int64Rules_GreaterThan.gt,
+    5: Int64Rules_GreaterThan.gte,
+    0: Int64Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Int64Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Int64Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..aInt64(1, _omitFieldNames ? '' : 'const')
@@ -1919,19 +2160,17 @@ class Int64Rules extends $pb.GeneratedMessage {
     ..p<$fixnum.Int64>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.P6)
     ..p<$fixnum.Int64>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.P6)
     ..p<$fixnum.Int64>(9, _omitFieldNames ? '' : 'example', $pb.PbFieldType.P6)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Int64Rules clone() => Int64Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Int64Rules copyWith(void Function(Int64Rules) updates) => super.copyWith((message) => updates(message as Int64Rules)) as Int64Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Int64Rules copyWith(void Function(Int64Rules) updates) =>
+      super.copyWith((message) => updates(message as Int64Rules)) as Int64Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1940,13 +2179,16 @@ class Int64Rules extends $pb.GeneratedMessage {
   Int64Rules createEmptyInstance() => create();
   static $pb.PbList<Int64Rules> createRepeated() => $pb.PbList<Int64Rules>();
   @$core.pragma('dart2js:noInline')
-  static Int64Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Int64Rules>(create);
+  static Int64Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Int64Rules>(create);
   static Int64Rules? _defaultInstance;
 
-  Int64Rules_LessThan whichLessThan() => _Int64Rules_LessThanByTag[$_whichOneof(0)]!;
+  Int64Rules_LessThan whichLessThan() =>
+      _Int64Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  Int64Rules_GreaterThan whichGreaterThan() => _Int64Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  Int64Rules_GreaterThan whichGreaterThan() =>
+      _Int64Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -1961,7 +2203,10 @@ class Int64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get const_1 => $_getI64(0);
   @$pb.TagNumber(1)
-  set const_1($fixnum.Int64 v) { $_setInt64(0, v); }
+  set const_1($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -1980,7 +2225,10 @@ class Int64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get lt => $_getI64(1);
   @$pb.TagNumber(2)
-  set lt($fixnum.Int64 v) { $_setInt64(1, v); }
+  set lt($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -1999,7 +2247,10 @@ class Int64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get lte => $_getI64(2);
   @$pb.TagNumber(3)
-  set lte($fixnum.Int64 v) { $_setInt64(2, v); }
+  set lte($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -2026,7 +2277,10 @@ class Int64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $fixnum.Int64 get gt => $_getI64(3);
   @$pb.TagNumber(4)
-  set gt($fixnum.Int64 v) { $_setInt64(3, v); }
+  set gt($fixnum.Int64 v) {
+    $_setInt64(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -2053,7 +2307,10 @@ class Int64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $fixnum.Int64 get gte => $_getI64(4);
   @$pb.TagNumber(5)
-  set gte($fixnum.Int64 v) { $_setInt64(4, v); }
+  set gte($fixnum.Int64 v) {
+    $_setInt64(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -2101,17 +2358,9 @@ class Int64Rules extends $pb.GeneratedMessage {
   $core.List<$fixnum.Int64> get example => $_getList(7);
 }
 
-enum UInt32Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum UInt32Rules_LessThan { lt, lte, notSet }
 
-enum UInt32Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum UInt32Rules_GreaterThan { gt, gte, notSet }
 
 /// UInt32Rules describes the rules applied to `uint32` values. These
 /// rules may also be applied to the `google.protobuf.UInt32Value` Well-Known-Type.
@@ -2154,20 +2403,29 @@ class UInt32Rules extends $pb.GeneratedMessage {
     return $result;
   }
   UInt32Rules._() : super();
-  factory UInt32Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UInt32Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory UInt32Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory UInt32Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, UInt32Rules_LessThan> _UInt32Rules_LessThanByTag = {
-    2 : UInt32Rules_LessThan.lt,
-    3 : UInt32Rules_LessThan.lte,
-    0 : UInt32Rules_LessThan.notSet
+  static const $core.Map<$core.int, UInt32Rules_LessThan>
+      _UInt32Rules_LessThanByTag = {
+    2: UInt32Rules_LessThan.lt,
+    3: UInt32Rules_LessThan.lte,
+    0: UInt32Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, UInt32Rules_GreaterThan> _UInt32Rules_GreaterThanByTag = {
-    4 : UInt32Rules_GreaterThan.gt,
-    5 : UInt32Rules_GreaterThan.gte,
-    0 : UInt32Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, UInt32Rules_GreaterThan>
+      _UInt32Rules_GreaterThanByTag = {
+    4: UInt32Rules_GreaterThan.gt,
+    5: UInt32Rules_GreaterThan.gte,
+    0: UInt32Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UInt32Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UInt32Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OU3)
@@ -2178,19 +2436,18 @@ class UInt32Rules extends $pb.GeneratedMessage {
     ..p<$core.int>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PU3)
     ..p<$core.int>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PU3)
     ..p<$core.int>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PU3)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   UInt32Rules clone() => UInt32Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  UInt32Rules copyWith(void Function(UInt32Rules) updates) => super.copyWith((message) => updates(message as UInt32Rules)) as UInt32Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  UInt32Rules copyWith(void Function(UInt32Rules) updates) =>
+      super.copyWith((message) => updates(message as UInt32Rules))
+          as UInt32Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2199,13 +2456,16 @@ class UInt32Rules extends $pb.GeneratedMessage {
   UInt32Rules createEmptyInstance() => create();
   static $pb.PbList<UInt32Rules> createRepeated() => $pb.PbList<UInt32Rules>();
   @$core.pragma('dart2js:noInline')
-  static UInt32Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UInt32Rules>(create);
+  static UInt32Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UInt32Rules>(create);
   static UInt32Rules? _defaultInstance;
 
-  UInt32Rules_LessThan whichLessThan() => _UInt32Rules_LessThanByTag[$_whichOneof(0)]!;
+  UInt32Rules_LessThan whichLessThan() =>
+      _UInt32Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  UInt32Rules_GreaterThan whichGreaterThan() => _UInt32Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  UInt32Rules_GreaterThan whichGreaterThan() =>
+      _UInt32Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -2220,7 +2480,10 @@ class UInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.int get const_1 => $_getIZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.int v) { $_setUnsignedInt32(0, v); }
+  set const_1($core.int v) {
+    $_setUnsignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -2239,7 +2502,10 @@ class UInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.int get lt => $_getIZ(1);
   @$pb.TagNumber(2)
-  set lt($core.int v) { $_setUnsignedInt32(1, v); }
+  set lt($core.int v) {
+    $_setUnsignedInt32(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -2258,7 +2524,10 @@ class UInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.int get lte => $_getIZ(2);
   @$pb.TagNumber(3)
-  set lte($core.int v) { $_setUnsignedInt32(2, v); }
+  set lte($core.int v) {
+    $_setUnsignedInt32(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -2285,7 +2554,10 @@ class UInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.int get gt => $_getIZ(3);
   @$pb.TagNumber(4)
-  set gt($core.int v) { $_setUnsignedInt32(3, v); }
+  set gt($core.int v) {
+    $_setUnsignedInt32(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -2312,7 +2584,10 @@ class UInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.int get gte => $_getIZ(4);
   @$pb.TagNumber(5)
-  set gte($core.int v) { $_setUnsignedInt32(4, v); }
+  set gte($core.int v) {
+    $_setUnsignedInt32(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -2360,17 +2635,9 @@ class UInt32Rules extends $pb.GeneratedMessage {
   $core.List<$core.int> get example => $_getList(7);
 }
 
-enum UInt64Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum UInt64Rules_LessThan { lt, lte, notSet }
 
-enum UInt64Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum UInt64Rules_GreaterThan { gt, gte, notSet }
 
 /// UInt64Rules describes the rules applied to `uint64` values. These
 /// rules may also be applied to the `google.protobuf.UInt64Value` Well-Known-Type.
@@ -2413,43 +2680,56 @@ class UInt64Rules extends $pb.GeneratedMessage {
     return $result;
   }
   UInt64Rules._() : super();
-  factory UInt64Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UInt64Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory UInt64Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory UInt64Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, UInt64Rules_LessThan> _UInt64Rules_LessThanByTag = {
-    2 : UInt64Rules_LessThan.lt,
-    3 : UInt64Rules_LessThan.lte,
-    0 : UInt64Rules_LessThan.notSet
+  static const $core.Map<$core.int, UInt64Rules_LessThan>
+      _UInt64Rules_LessThanByTag = {
+    2: UInt64Rules_LessThan.lt,
+    3: UInt64Rules_LessThan.lte,
+    0: UInt64Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, UInt64Rules_GreaterThan> _UInt64Rules_GreaterThanByTag = {
-    4 : UInt64Rules_GreaterThan.gt,
-    5 : UInt64Rules_GreaterThan.gte,
-    0 : UInt64Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, UInt64Rules_GreaterThan>
+      _UInt64Rules_GreaterThanByTag = {
+    4: UInt64Rules_GreaterThan.gt,
+    5: UInt64Rules_GreaterThan.gte,
+    0: UInt64Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UInt64Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UInt64Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
-    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..p<$fixnum.Int64>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PU6)
     ..p<$fixnum.Int64>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PU6)
     ..p<$fixnum.Int64>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PU6)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   UInt64Rules clone() => UInt64Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  UInt64Rules copyWith(void Function(UInt64Rules) updates) => super.copyWith((message) => updates(message as UInt64Rules)) as UInt64Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  UInt64Rules copyWith(void Function(UInt64Rules) updates) =>
+      super.copyWith((message) => updates(message as UInt64Rules))
+          as UInt64Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2458,13 +2738,16 @@ class UInt64Rules extends $pb.GeneratedMessage {
   UInt64Rules createEmptyInstance() => create();
   static $pb.PbList<UInt64Rules> createRepeated() => $pb.PbList<UInt64Rules>();
   @$core.pragma('dart2js:noInline')
-  static UInt64Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UInt64Rules>(create);
+  static UInt64Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UInt64Rules>(create);
   static UInt64Rules? _defaultInstance;
 
-  UInt64Rules_LessThan whichLessThan() => _UInt64Rules_LessThanByTag[$_whichOneof(0)]!;
+  UInt64Rules_LessThan whichLessThan() =>
+      _UInt64Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  UInt64Rules_GreaterThan whichGreaterThan() => _UInt64Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  UInt64Rules_GreaterThan whichGreaterThan() =>
+      _UInt64Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -2479,7 +2762,10 @@ class UInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get const_1 => $_getI64(0);
   @$pb.TagNumber(1)
-  set const_1($fixnum.Int64 v) { $_setInt64(0, v); }
+  set const_1($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -2498,7 +2784,10 @@ class UInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get lt => $_getI64(1);
   @$pb.TagNumber(2)
-  set lt($fixnum.Int64 v) { $_setInt64(1, v); }
+  set lt($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -2517,7 +2806,10 @@ class UInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get lte => $_getI64(2);
   @$pb.TagNumber(3)
-  set lte($fixnum.Int64 v) { $_setInt64(2, v); }
+  set lte($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -2544,7 +2836,10 @@ class UInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $fixnum.Int64 get gt => $_getI64(3);
   @$pb.TagNumber(4)
-  set gt($fixnum.Int64 v) { $_setInt64(3, v); }
+  set gt($fixnum.Int64 v) {
+    $_setInt64(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -2571,7 +2866,10 @@ class UInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $fixnum.Int64 get gte => $_getI64(4);
   @$pb.TagNumber(5)
-  set gte($fixnum.Int64 v) { $_setInt64(4, v); }
+  set gte($fixnum.Int64 v) {
+    $_setInt64(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -2619,17 +2917,9 @@ class UInt64Rules extends $pb.GeneratedMessage {
   $core.List<$fixnum.Int64> get example => $_getList(7);
 }
 
-enum SInt32Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum SInt32Rules_LessThan { lt, lte, notSet }
 
-enum SInt32Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum SInt32Rules_GreaterThan { gt, gte, notSet }
 
 /// SInt32Rules describes the rules applied to `sint32` values.
 class SInt32Rules extends $pb.GeneratedMessage {
@@ -2671,20 +2961,29 @@ class SInt32Rules extends $pb.GeneratedMessage {
     return $result;
   }
   SInt32Rules._() : super();
-  factory SInt32Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SInt32Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SInt32Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SInt32Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SInt32Rules_LessThan> _SInt32Rules_LessThanByTag = {
-    2 : SInt32Rules_LessThan.lt,
-    3 : SInt32Rules_LessThan.lte,
-    0 : SInt32Rules_LessThan.notSet
+  static const $core.Map<$core.int, SInt32Rules_LessThan>
+      _SInt32Rules_LessThanByTag = {
+    2: SInt32Rules_LessThan.lt,
+    3: SInt32Rules_LessThan.lte,
+    0: SInt32Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, SInt32Rules_GreaterThan> _SInt32Rules_GreaterThanByTag = {
-    4 : SInt32Rules_GreaterThan.gt,
-    5 : SInt32Rules_GreaterThan.gte,
-    0 : SInt32Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, SInt32Rules_GreaterThan>
+      _SInt32Rules_GreaterThanByTag = {
+    4: SInt32Rules_GreaterThan.gt,
+    5: SInt32Rules_GreaterThan.gte,
+    0: SInt32Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SInt32Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SInt32Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OS3)
@@ -2695,19 +2994,18 @@ class SInt32Rules extends $pb.GeneratedMessage {
     ..p<$core.int>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PS3)
     ..p<$core.int>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PS3)
     ..p<$core.int>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PS3)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SInt32Rules clone() => SInt32Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SInt32Rules copyWith(void Function(SInt32Rules) updates) => super.copyWith((message) => updates(message as SInt32Rules)) as SInt32Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SInt32Rules copyWith(void Function(SInt32Rules) updates) =>
+      super.copyWith((message) => updates(message as SInt32Rules))
+          as SInt32Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2716,13 +3014,16 @@ class SInt32Rules extends $pb.GeneratedMessage {
   SInt32Rules createEmptyInstance() => create();
   static $pb.PbList<SInt32Rules> createRepeated() => $pb.PbList<SInt32Rules>();
   @$core.pragma('dart2js:noInline')
-  static SInt32Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SInt32Rules>(create);
+  static SInt32Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SInt32Rules>(create);
   static SInt32Rules? _defaultInstance;
 
-  SInt32Rules_LessThan whichLessThan() => _SInt32Rules_LessThanByTag[$_whichOneof(0)]!;
+  SInt32Rules_LessThan whichLessThan() =>
+      _SInt32Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  SInt32Rules_GreaterThan whichGreaterThan() => _SInt32Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  SInt32Rules_GreaterThan whichGreaterThan() =>
+      _SInt32Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -2737,7 +3038,10 @@ class SInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.int get const_1 => $_getIZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.int v) { $_setSignedInt32(0, v); }
+  set const_1($core.int v) {
+    $_setSignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -2756,7 +3060,10 @@ class SInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.int get lt => $_getIZ(1);
   @$pb.TagNumber(2)
-  set lt($core.int v) { $_setSignedInt32(1, v); }
+  set lt($core.int v) {
+    $_setSignedInt32(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -2775,7 +3082,10 @@ class SInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.int get lte => $_getIZ(2);
   @$pb.TagNumber(3)
-  set lte($core.int v) { $_setSignedInt32(2, v); }
+  set lte($core.int v) {
+    $_setSignedInt32(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -2802,7 +3112,10 @@ class SInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.int get gt => $_getIZ(3);
   @$pb.TagNumber(4)
-  set gt($core.int v) { $_setSignedInt32(3, v); }
+  set gt($core.int v) {
+    $_setSignedInt32(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -2829,7 +3142,10 @@ class SInt32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.int get gte => $_getIZ(4);
   @$pb.TagNumber(5)
-  set gte($core.int v) { $_setSignedInt32(4, v); }
+  set gte($core.int v) {
+    $_setSignedInt32(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -2877,17 +3193,9 @@ class SInt32Rules extends $pb.GeneratedMessage {
   $core.List<$core.int> get example => $_getList(7);
 }
 
-enum SInt64Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum SInt64Rules_LessThan { lt, lte, notSet }
 
-enum SInt64Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum SInt64Rules_GreaterThan { gt, gte, notSet }
 
 /// SInt64Rules describes the rules applied to `sint64` values.
 class SInt64Rules extends $pb.GeneratedMessage {
@@ -2929,43 +3237,56 @@ class SInt64Rules extends $pb.GeneratedMessage {
     return $result;
   }
   SInt64Rules._() : super();
-  factory SInt64Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SInt64Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SInt64Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SInt64Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SInt64Rules_LessThan> _SInt64Rules_LessThanByTag = {
-    2 : SInt64Rules_LessThan.lt,
-    3 : SInt64Rules_LessThan.lte,
-    0 : SInt64Rules_LessThan.notSet
+  static const $core.Map<$core.int, SInt64Rules_LessThan>
+      _SInt64Rules_LessThanByTag = {
+    2: SInt64Rules_LessThan.lt,
+    3: SInt64Rules_LessThan.lte,
+    0: SInt64Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, SInt64Rules_GreaterThan> _SInt64Rules_GreaterThanByTag = {
-    4 : SInt64Rules_GreaterThan.gt,
-    5 : SInt64Rules_GreaterThan.gte,
-    0 : SInt64Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, SInt64Rules_GreaterThan>
+      _SInt64Rules_GreaterThanByTag = {
+    4: SInt64Rules_GreaterThan.gt,
+    5: SInt64Rules_GreaterThan.gte,
+    0: SInt64Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SInt64Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SInt64Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
-    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OS6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OS6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OS6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OS6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OS6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OS6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OS6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OS6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OS6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OS6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..p<$fixnum.Int64>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PS6)
     ..p<$fixnum.Int64>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PS6)
     ..p<$fixnum.Int64>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PS6)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SInt64Rules clone() => SInt64Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SInt64Rules copyWith(void Function(SInt64Rules) updates) => super.copyWith((message) => updates(message as SInt64Rules)) as SInt64Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SInt64Rules copyWith(void Function(SInt64Rules) updates) =>
+      super.copyWith((message) => updates(message as SInt64Rules))
+          as SInt64Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2974,13 +3295,16 @@ class SInt64Rules extends $pb.GeneratedMessage {
   SInt64Rules createEmptyInstance() => create();
   static $pb.PbList<SInt64Rules> createRepeated() => $pb.PbList<SInt64Rules>();
   @$core.pragma('dart2js:noInline')
-  static SInt64Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SInt64Rules>(create);
+  static SInt64Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SInt64Rules>(create);
   static SInt64Rules? _defaultInstance;
 
-  SInt64Rules_LessThan whichLessThan() => _SInt64Rules_LessThanByTag[$_whichOneof(0)]!;
+  SInt64Rules_LessThan whichLessThan() =>
+      _SInt64Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  SInt64Rules_GreaterThan whichGreaterThan() => _SInt64Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  SInt64Rules_GreaterThan whichGreaterThan() =>
+      _SInt64Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -2995,7 +3319,10 @@ class SInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get const_1 => $_getI64(0);
   @$pb.TagNumber(1)
-  set const_1($fixnum.Int64 v) { $_setInt64(0, v); }
+  set const_1($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -3014,7 +3341,10 @@ class SInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get lt => $_getI64(1);
   @$pb.TagNumber(2)
-  set lt($fixnum.Int64 v) { $_setInt64(1, v); }
+  set lt($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -3033,7 +3363,10 @@ class SInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get lte => $_getI64(2);
   @$pb.TagNumber(3)
-  set lte($fixnum.Int64 v) { $_setInt64(2, v); }
+  set lte($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -3060,7 +3393,10 @@ class SInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $fixnum.Int64 get gt => $_getI64(3);
   @$pb.TagNumber(4)
-  set gt($fixnum.Int64 v) { $_setInt64(3, v); }
+  set gt($fixnum.Int64 v) {
+    $_setInt64(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -3087,7 +3423,10 @@ class SInt64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $fixnum.Int64 get gte => $_getI64(4);
   @$pb.TagNumber(5)
-  set gte($fixnum.Int64 v) { $_setInt64(4, v); }
+  set gte($fixnum.Int64 v) {
+    $_setInt64(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -3135,17 +3474,9 @@ class SInt64Rules extends $pb.GeneratedMessage {
   $core.List<$fixnum.Int64> get example => $_getList(7);
 }
 
-enum Fixed32Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum Fixed32Rules_LessThan { lt, lte, notSet }
 
-enum Fixed32Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum Fixed32Rules_GreaterThan { gt, gte, notSet }
 
 /// Fixed32Rules describes the rules applied to `fixed32` values.
 class Fixed32Rules extends $pb.GeneratedMessage {
@@ -3187,20 +3518,29 @@ class Fixed32Rules extends $pb.GeneratedMessage {
     return $result;
   }
   Fixed32Rules._() : super();
-  factory Fixed32Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Fixed32Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Fixed32Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Fixed32Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, Fixed32Rules_LessThan> _Fixed32Rules_LessThanByTag = {
-    2 : Fixed32Rules_LessThan.lt,
-    3 : Fixed32Rules_LessThan.lte,
-    0 : Fixed32Rules_LessThan.notSet
+  static const $core.Map<$core.int, Fixed32Rules_LessThan>
+      _Fixed32Rules_LessThanByTag = {
+    2: Fixed32Rules_LessThan.lt,
+    3: Fixed32Rules_LessThan.lte,
+    0: Fixed32Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, Fixed32Rules_GreaterThan> _Fixed32Rules_GreaterThanByTag = {
-    4 : Fixed32Rules_GreaterThan.gt,
-    5 : Fixed32Rules_GreaterThan.gte,
-    0 : Fixed32Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, Fixed32Rules_GreaterThan>
+      _Fixed32Rules_GreaterThanByTag = {
+    4: Fixed32Rules_GreaterThan.gt,
+    5: Fixed32Rules_GreaterThan.gte,
+    0: Fixed32Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Fixed32Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Fixed32Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OF3)
@@ -3211,34 +3551,37 @@ class Fixed32Rules extends $pb.GeneratedMessage {
     ..p<$core.int>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PF3)
     ..p<$core.int>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PF3)
     ..p<$core.int>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PF3)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Fixed32Rules clone() => Fixed32Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Fixed32Rules copyWith(void Function(Fixed32Rules) updates) => super.copyWith((message) => updates(message as Fixed32Rules)) as Fixed32Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Fixed32Rules copyWith(void Function(Fixed32Rules) updates) =>
+      super.copyWith((message) => updates(message as Fixed32Rules))
+          as Fixed32Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static Fixed32Rules create() => Fixed32Rules._();
   Fixed32Rules createEmptyInstance() => create();
-  static $pb.PbList<Fixed32Rules> createRepeated() => $pb.PbList<Fixed32Rules>();
+  static $pb.PbList<Fixed32Rules> createRepeated() =>
+      $pb.PbList<Fixed32Rules>();
   @$core.pragma('dart2js:noInline')
-  static Fixed32Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Fixed32Rules>(create);
+  static Fixed32Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Fixed32Rules>(create);
   static Fixed32Rules? _defaultInstance;
 
-  Fixed32Rules_LessThan whichLessThan() => _Fixed32Rules_LessThanByTag[$_whichOneof(0)]!;
+  Fixed32Rules_LessThan whichLessThan() =>
+      _Fixed32Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  Fixed32Rules_GreaterThan whichGreaterThan() => _Fixed32Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  Fixed32Rules_GreaterThan whichGreaterThan() =>
+      _Fixed32Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value.
@@ -3253,7 +3596,10 @@ class Fixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.int get const_1 => $_getIZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.int v) { $_setUnsignedInt32(0, v); }
+  set const_1($core.int v) {
+    $_setUnsignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -3272,7 +3618,10 @@ class Fixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.int get lt => $_getIZ(1);
   @$pb.TagNumber(2)
-  set lt($core.int v) { $_setUnsignedInt32(1, v); }
+  set lt($core.int v) {
+    $_setUnsignedInt32(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -3291,7 +3640,10 @@ class Fixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.int get lte => $_getIZ(2);
   @$pb.TagNumber(3)
-  set lte($core.int v) { $_setUnsignedInt32(2, v); }
+  set lte($core.int v) {
+    $_setUnsignedInt32(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -3318,7 +3670,10 @@ class Fixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.int get gt => $_getIZ(3);
   @$pb.TagNumber(4)
-  set gt($core.int v) { $_setUnsignedInt32(3, v); }
+  set gt($core.int v) {
+    $_setUnsignedInt32(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -3345,7 +3700,10 @@ class Fixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.int get gte => $_getIZ(4);
   @$pb.TagNumber(5)
-  set gte($core.int v) { $_setUnsignedInt32(4, v); }
+  set gte($core.int v) {
+    $_setUnsignedInt32(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -3393,17 +3751,9 @@ class Fixed32Rules extends $pb.GeneratedMessage {
   $core.List<$core.int> get example => $_getList(7);
 }
 
-enum Fixed64Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum Fixed64Rules_LessThan { lt, lte, notSet }
 
-enum Fixed64Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum Fixed64Rules_GreaterThan { gt, gte, notSet }
 
 /// Fixed64Rules describes the rules applied to `fixed64` values.
 class Fixed64Rules extends $pb.GeneratedMessage {
@@ -3445,58 +3795,75 @@ class Fixed64Rules extends $pb.GeneratedMessage {
     return $result;
   }
   Fixed64Rules._() : super();
-  factory Fixed64Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Fixed64Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Fixed64Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Fixed64Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, Fixed64Rules_LessThan> _Fixed64Rules_LessThanByTag = {
-    2 : Fixed64Rules_LessThan.lt,
-    3 : Fixed64Rules_LessThan.lte,
-    0 : Fixed64Rules_LessThan.notSet
+  static const $core.Map<$core.int, Fixed64Rules_LessThan>
+      _Fixed64Rules_LessThanByTag = {
+    2: Fixed64Rules_LessThan.lt,
+    3: Fixed64Rules_LessThan.lte,
+    0: Fixed64Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, Fixed64Rules_GreaterThan> _Fixed64Rules_GreaterThanByTag = {
-    4 : Fixed64Rules_GreaterThan.gt,
-    5 : Fixed64Rules_GreaterThan.gte,
-    0 : Fixed64Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, Fixed64Rules_GreaterThan>
+      _Fixed64Rules_GreaterThanByTag = {
+    4: Fixed64Rules_GreaterThan.gt,
+    5: Fixed64Rules_GreaterThan.gte,
+    0: Fixed64Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Fixed64Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Fixed64Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
-    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..p<$fixnum.Int64>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PF6)
     ..p<$fixnum.Int64>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PF6)
     ..p<$fixnum.Int64>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PF6)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Fixed64Rules clone() => Fixed64Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Fixed64Rules copyWith(void Function(Fixed64Rules) updates) => super.copyWith((message) => updates(message as Fixed64Rules)) as Fixed64Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Fixed64Rules copyWith(void Function(Fixed64Rules) updates) =>
+      super.copyWith((message) => updates(message as Fixed64Rules))
+          as Fixed64Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static Fixed64Rules create() => Fixed64Rules._();
   Fixed64Rules createEmptyInstance() => create();
-  static $pb.PbList<Fixed64Rules> createRepeated() => $pb.PbList<Fixed64Rules>();
+  static $pb.PbList<Fixed64Rules> createRepeated() =>
+      $pb.PbList<Fixed64Rules>();
   @$core.pragma('dart2js:noInline')
-  static Fixed64Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Fixed64Rules>(create);
+  static Fixed64Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Fixed64Rules>(create);
   static Fixed64Rules? _defaultInstance;
 
-  Fixed64Rules_LessThan whichLessThan() => _Fixed64Rules_LessThanByTag[$_whichOneof(0)]!;
+  Fixed64Rules_LessThan whichLessThan() =>
+      _Fixed64Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  Fixed64Rules_GreaterThan whichGreaterThan() => _Fixed64Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  Fixed64Rules_GreaterThan whichGreaterThan() =>
+      _Fixed64Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -3511,7 +3878,10 @@ class Fixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get const_1 => $_getI64(0);
   @$pb.TagNumber(1)
-  set const_1($fixnum.Int64 v) { $_setInt64(0, v); }
+  set const_1($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -3530,7 +3900,10 @@ class Fixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get lt => $_getI64(1);
   @$pb.TagNumber(2)
-  set lt($fixnum.Int64 v) { $_setInt64(1, v); }
+  set lt($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -3549,7 +3922,10 @@ class Fixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get lte => $_getI64(2);
   @$pb.TagNumber(3)
-  set lte($fixnum.Int64 v) { $_setInt64(2, v); }
+  set lte($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -3576,7 +3952,10 @@ class Fixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $fixnum.Int64 get gt => $_getI64(3);
   @$pb.TagNumber(4)
-  set gt($fixnum.Int64 v) { $_setInt64(3, v); }
+  set gt($fixnum.Int64 v) {
+    $_setInt64(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -3603,7 +3982,10 @@ class Fixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $fixnum.Int64 get gte => $_getI64(4);
   @$pb.TagNumber(5)
-  set gte($fixnum.Int64 v) { $_setInt64(4, v); }
+  set gte($fixnum.Int64 v) {
+    $_setInt64(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -3651,17 +4033,9 @@ class Fixed64Rules extends $pb.GeneratedMessage {
   $core.List<$fixnum.Int64> get example => $_getList(7);
 }
 
-enum SFixed32Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum SFixed32Rules_LessThan { lt, lte, notSet }
 
-enum SFixed32Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum SFixed32Rules_GreaterThan { gt, gte, notSet }
 
 /// SFixed32Rules describes the rules applied to `fixed32` values.
 class SFixed32Rules extends $pb.GeneratedMessage {
@@ -3703,20 +4077,29 @@ class SFixed32Rules extends $pb.GeneratedMessage {
     return $result;
   }
   SFixed32Rules._() : super();
-  factory SFixed32Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SFixed32Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SFixed32Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SFixed32Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SFixed32Rules_LessThan> _SFixed32Rules_LessThanByTag = {
-    2 : SFixed32Rules_LessThan.lt,
-    3 : SFixed32Rules_LessThan.lte,
-    0 : SFixed32Rules_LessThan.notSet
+  static const $core.Map<$core.int, SFixed32Rules_LessThan>
+      _SFixed32Rules_LessThanByTag = {
+    2: SFixed32Rules_LessThan.lt,
+    3: SFixed32Rules_LessThan.lte,
+    0: SFixed32Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, SFixed32Rules_GreaterThan> _SFixed32Rules_GreaterThanByTag = {
-    4 : SFixed32Rules_GreaterThan.gt,
-    5 : SFixed32Rules_GreaterThan.gte,
-    0 : SFixed32Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, SFixed32Rules_GreaterThan>
+      _SFixed32Rules_GreaterThanByTag = {
+    4: SFixed32Rules_GreaterThan.gt,
+    5: SFixed32Rules_GreaterThan.gte,
+    0: SFixed32Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SFixed32Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SFixed32Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OSF3)
@@ -3727,34 +4110,37 @@ class SFixed32Rules extends $pb.GeneratedMessage {
     ..p<$core.int>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PSF3)
     ..p<$core.int>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PSF3)
     ..p<$core.int>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PSF3)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SFixed32Rules clone() => SFixed32Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SFixed32Rules copyWith(void Function(SFixed32Rules) updates) => super.copyWith((message) => updates(message as SFixed32Rules)) as SFixed32Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SFixed32Rules copyWith(void Function(SFixed32Rules) updates) =>
+      super.copyWith((message) => updates(message as SFixed32Rules))
+          as SFixed32Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SFixed32Rules create() => SFixed32Rules._();
   SFixed32Rules createEmptyInstance() => create();
-  static $pb.PbList<SFixed32Rules> createRepeated() => $pb.PbList<SFixed32Rules>();
+  static $pb.PbList<SFixed32Rules> createRepeated() =>
+      $pb.PbList<SFixed32Rules>();
   @$core.pragma('dart2js:noInline')
-  static SFixed32Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SFixed32Rules>(create);
+  static SFixed32Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SFixed32Rules>(create);
   static SFixed32Rules? _defaultInstance;
 
-  SFixed32Rules_LessThan whichLessThan() => _SFixed32Rules_LessThanByTag[$_whichOneof(0)]!;
+  SFixed32Rules_LessThan whichLessThan() =>
+      _SFixed32Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  SFixed32Rules_GreaterThan whichGreaterThan() => _SFixed32Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  SFixed32Rules_GreaterThan whichGreaterThan() =>
+      _SFixed32Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -3769,7 +4155,10 @@ class SFixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.int get const_1 => $_getIZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.int v) { $_setSignedInt32(0, v); }
+  set const_1($core.int v) {
+    $_setSignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -3788,7 +4177,10 @@ class SFixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.int get lt => $_getIZ(1);
   @$pb.TagNumber(2)
-  set lt($core.int v) { $_setSignedInt32(1, v); }
+  set lt($core.int v) {
+    $_setSignedInt32(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -3807,7 +4199,10 @@ class SFixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.int get lte => $_getIZ(2);
   @$pb.TagNumber(3)
-  set lte($core.int v) { $_setSignedInt32(2, v); }
+  set lte($core.int v) {
+    $_setSignedInt32(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -3834,7 +4229,10 @@ class SFixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.int get gt => $_getIZ(3);
   @$pb.TagNumber(4)
-  set gt($core.int v) { $_setSignedInt32(3, v); }
+  set gt($core.int v) {
+    $_setSignedInt32(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -3861,7 +4259,10 @@ class SFixed32Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.int get gte => $_getIZ(4);
   @$pb.TagNumber(5)
-  set gte($core.int v) { $_setSignedInt32(4, v); }
+  set gte($core.int v) {
+    $_setSignedInt32(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -3909,17 +4310,9 @@ class SFixed32Rules extends $pb.GeneratedMessage {
   $core.List<$core.int> get example => $_getList(7);
 }
 
-enum SFixed64Rules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum SFixed64Rules_LessThan { lt, lte, notSet }
 
-enum SFixed64Rules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum SFixed64Rules_GreaterThan { gt, gte, notSet }
 
 /// SFixed64Rules describes the rules applied to `fixed64` values.
 class SFixed64Rules extends $pb.GeneratedMessage {
@@ -3961,58 +4354,76 @@ class SFixed64Rules extends $pb.GeneratedMessage {
     return $result;
   }
   SFixed64Rules._() : super();
-  factory SFixed64Rules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SFixed64Rules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SFixed64Rules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SFixed64Rules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SFixed64Rules_LessThan> _SFixed64Rules_LessThanByTag = {
-    2 : SFixed64Rules_LessThan.lt,
-    3 : SFixed64Rules_LessThan.lte,
-    0 : SFixed64Rules_LessThan.notSet
+  static const $core.Map<$core.int, SFixed64Rules_LessThan>
+      _SFixed64Rules_LessThanByTag = {
+    2: SFixed64Rules_LessThan.lt,
+    3: SFixed64Rules_LessThan.lte,
+    0: SFixed64Rules_LessThan.notSet
   };
-  static const $core.Map<$core.int, SFixed64Rules_GreaterThan> _SFixed64Rules_GreaterThanByTag = {
-    4 : SFixed64Rules_GreaterThan.gt,
-    5 : SFixed64Rules_GreaterThan.gte,
-    0 : SFixed64Rules_GreaterThan.notSet
+  static const $core.Map<$core.int, SFixed64Rules_GreaterThan>
+      _SFixed64Rules_GreaterThanByTag = {
+    4: SFixed64Rules_GreaterThan.gt,
+    5: SFixed64Rules_GreaterThan.gte,
+    0: SFixed64Rules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SFixed64Rules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SFixed64Rules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [2, 3])
     ..oo(1, [4, 5])
-    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OSF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OSF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OSF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OSF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OSF6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OSF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'lt', $pb.PbFieldType.OSF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'lte', $pb.PbFieldType.OSF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'gt', $pb.PbFieldType.OSF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'gte', $pb.PbFieldType.OSF6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..p<$fixnum.Int64>(6, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PSF6)
     ..p<$fixnum.Int64>(7, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PSF6)
-    ..p<$fixnum.Int64>(8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PSF6)
-    ..hasExtensions = true
-  ;
+    ..p<$fixnum.Int64>(
+        8, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PSF6)
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SFixed64Rules clone() => SFixed64Rules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SFixed64Rules copyWith(void Function(SFixed64Rules) updates) => super.copyWith((message) => updates(message as SFixed64Rules)) as SFixed64Rules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SFixed64Rules copyWith(void Function(SFixed64Rules) updates) =>
+      super.copyWith((message) => updates(message as SFixed64Rules))
+          as SFixed64Rules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SFixed64Rules create() => SFixed64Rules._();
   SFixed64Rules createEmptyInstance() => create();
-  static $pb.PbList<SFixed64Rules> createRepeated() => $pb.PbList<SFixed64Rules>();
+  static $pb.PbList<SFixed64Rules> createRepeated() =>
+      $pb.PbList<SFixed64Rules>();
   @$core.pragma('dart2js:noInline')
-  static SFixed64Rules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SFixed64Rules>(create);
+  static SFixed64Rules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SFixed64Rules>(create);
   static SFixed64Rules? _defaultInstance;
 
-  SFixed64Rules_LessThan whichLessThan() => _SFixed64Rules_LessThanByTag[$_whichOneof(0)]!;
+  SFixed64Rules_LessThan whichLessThan() =>
+      _SFixed64Rules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  SFixed64Rules_GreaterThan whichGreaterThan() => _SFixed64Rules_GreaterThanByTag[$_whichOneof(1)]!;
+  SFixed64Rules_GreaterThan whichGreaterThan() =>
+      _SFixed64Rules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -4027,7 +4438,10 @@ class SFixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get const_1 => $_getI64(0);
   @$pb.TagNumber(1)
-  set const_1($fixnum.Int64 v) { $_setInt64(0, v); }
+  set const_1($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -4046,7 +4460,10 @@ class SFixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get lt => $_getI64(1);
   @$pb.TagNumber(2)
-  set lt($fixnum.Int64 v) { $_setInt64(1, v); }
+  set lt($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(2)
@@ -4065,7 +4482,10 @@ class SFixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get lte => $_getI64(2);
   @$pb.TagNumber(3)
-  set lte($fixnum.Int64 v) { $_setInt64(2, v); }
+  set lte($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(3)
@@ -4092,7 +4512,10 @@ class SFixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $fixnum.Int64 get gt => $_getI64(3);
   @$pb.TagNumber(4)
-  set gt($fixnum.Int64 v) { $_setInt64(3, v); }
+  set gt($fixnum.Int64 v) {
+    $_setInt64(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(4)
@@ -4119,7 +4542,10 @@ class SFixed64Rules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $fixnum.Int64 get gte => $_getI64(4);
   @$pb.TagNumber(5)
-  set gte($fixnum.Int64 v) { $_setInt64(4, v); }
+  set gte($fixnum.Int64 v) {
+    $_setInt64(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(5)
@@ -4184,25 +4610,30 @@ class BoolRules extends $pb.GeneratedMessage {
     return $result;
   }
   BoolRules._() : super();
-  factory BoolRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BoolRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory BoolRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory BoolRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BoolRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'BoolRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'const')
     ..p<$core.bool>(2, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PB)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   BoolRules clone() => BoolRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  BoolRules copyWith(void Function(BoolRules) updates) => super.copyWith((message) => updates(message as BoolRules)) as BoolRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  BoolRules copyWith(void Function(BoolRules) updates) =>
+      super.copyWith((message) => updates(message as BoolRules)) as BoolRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4211,7 +4642,8 @@ class BoolRules extends $pb.GeneratedMessage {
   BoolRules createEmptyInstance() => create();
   static $pb.PbList<BoolRules> createRepeated() => $pb.PbList<BoolRules>();
   @$core.pragma('dart2js:noInline')
-  static BoolRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BoolRules>(create);
+  static BoolRules getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BoolRules>(create);
   static BoolRules? _defaultInstance;
 
   ///  `const` requires the field value to exactly match the specified boolean value.
@@ -4226,7 +4658,10 @@ class BoolRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.bool get const_1 => $_getBF(0);
   @$pb.TagNumber(1)
-  set const_1($core.bool v) { $_setBool(0, v); }
+  set const_1($core.bool v) {
+    $_setBool(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -4249,25 +4684,25 @@ class BoolRules extends $pb.GeneratedMessage {
 }
 
 enum StringRules_WellKnown {
-  email, 
-  hostname, 
-  ip, 
-  ipv4, 
-  ipv6, 
-  uri, 
-  uriRef, 
-  address, 
-  uuid, 
-  wellKnownRegex, 
-  ipWithPrefixlen, 
-  ipv4WithPrefixlen, 
-  ipv6WithPrefixlen, 
-  ipPrefix, 
-  ipv4Prefix, 
-  ipv6Prefix, 
-  hostAndPort, 
-  tuuid, 
-  ulid, 
+  email,
+  hostname,
+  ip,
+  ipv4,
+  ipv6,
+  uri,
+  uriRef,
+  address,
+  uuid,
+  wellKnownRegex,
+  ipWithPrefixlen,
+  ipv4WithPrefixlen,
+  ipv6WithPrefixlen,
+  ipPrefix,
+  ipv4Prefix,
+  ipv6Prefix,
+  hostAndPort,
+  tuuid,
+  ulid,
   notSet
 }
 
@@ -4420,38 +4855,72 @@ class StringRules extends $pb.GeneratedMessage {
     return $result;
   }
   StringRules._() : super();
-  factory StringRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory StringRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory StringRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory StringRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, StringRules_WellKnown> _StringRules_WellKnownByTag = {
-    12 : StringRules_WellKnown.email,
-    13 : StringRules_WellKnown.hostname,
-    14 : StringRules_WellKnown.ip,
-    15 : StringRules_WellKnown.ipv4,
-    16 : StringRules_WellKnown.ipv6,
-    17 : StringRules_WellKnown.uri,
-    18 : StringRules_WellKnown.uriRef,
-    21 : StringRules_WellKnown.address,
-    22 : StringRules_WellKnown.uuid,
-    24 : StringRules_WellKnown.wellKnownRegex,
-    26 : StringRules_WellKnown.ipWithPrefixlen,
-    27 : StringRules_WellKnown.ipv4WithPrefixlen,
-    28 : StringRules_WellKnown.ipv6WithPrefixlen,
-    29 : StringRules_WellKnown.ipPrefix,
-    30 : StringRules_WellKnown.ipv4Prefix,
-    31 : StringRules_WellKnown.ipv6Prefix,
-    32 : StringRules_WellKnown.hostAndPort,
-    33 : StringRules_WellKnown.tuuid,
-    35 : StringRules_WellKnown.ulid,
-    0 : StringRules_WellKnown.notSet
+  static const $core.Map<$core.int, StringRules_WellKnown>
+      _StringRules_WellKnownByTag = {
+    12: StringRules_WellKnown.email,
+    13: StringRules_WellKnown.hostname,
+    14: StringRules_WellKnown.ip,
+    15: StringRules_WellKnown.ipv4,
+    16: StringRules_WellKnown.ipv6,
+    17: StringRules_WellKnown.uri,
+    18: StringRules_WellKnown.uriRef,
+    21: StringRules_WellKnown.address,
+    22: StringRules_WellKnown.uuid,
+    24: StringRules_WellKnown.wellKnownRegex,
+    26: StringRules_WellKnown.ipWithPrefixlen,
+    27: StringRules_WellKnown.ipv4WithPrefixlen,
+    28: StringRules_WellKnown.ipv6WithPrefixlen,
+    29: StringRules_WellKnown.ipPrefix,
+    30: StringRules_WellKnown.ipv4Prefix,
+    31: StringRules_WellKnown.ipv6Prefix,
+    32: StringRules_WellKnown.hostAndPort,
+    33: StringRules_WellKnown.tuuid,
+    35: StringRules_WellKnown.ulid,
+    0: StringRules_WellKnown.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'StringRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..oo(0, [12, 13, 14, 15, 16, 17, 18, 21, 22, 24, 26, 27, 28, 29, 30, 31, 32, 33, 35])
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'StringRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..oo(0, [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      21,
+      22,
+      24,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      35
+    ])
     ..aOS(1, _omitFieldNames ? '' : 'const')
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'minLen', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'maxLen', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'minBytes', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'maxBytes', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'minLen', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'maxLen', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(
+        4, _omitFieldNames ? '' : 'minBytes', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(
+        5, _omitFieldNames ? '' : 'maxBytes', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOS(6, _omitFieldNames ? '' : 'pattern')
     ..aOS(7, _omitFieldNames ? '' : 'prefix')
     ..aOS(8, _omitFieldNames ? '' : 'suffix')
@@ -4465,12 +4934,19 @@ class StringRules extends $pb.GeneratedMessage {
     ..aOB(16, _omitFieldNames ? '' : 'ipv6')
     ..aOB(17, _omitFieldNames ? '' : 'uri')
     ..aOB(18, _omitFieldNames ? '' : 'uriRef')
-    ..a<$fixnum.Int64>(19, _omitFieldNames ? '' : 'len', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(20, _omitFieldNames ? '' : 'lenBytes', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(19, _omitFieldNames ? '' : 'len', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(
+        20, _omitFieldNames ? '' : 'lenBytes', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOB(21, _omitFieldNames ? '' : 'address')
     ..aOB(22, _omitFieldNames ? '' : 'uuid')
     ..aOS(23, _omitFieldNames ? '' : 'notContains')
-    ..e<KnownRegex>(24, _omitFieldNames ? '' : 'wellKnownRegex', $pb.PbFieldType.OE, defaultOrMaker: KnownRegex.KNOWN_REGEX_UNSPECIFIED, valueOf: KnownRegex.valueOf, enumValues: KnownRegex.values)
+    ..e<KnownRegex>(
+        24, _omitFieldNames ? '' : 'wellKnownRegex', $pb.PbFieldType.OE,
+        defaultOrMaker: KnownRegex.KNOWN_REGEX_UNSPECIFIED,
+        valueOf: KnownRegex.valueOf,
+        enumValues: KnownRegex.values)
     ..aOB(25, _omitFieldNames ? '' : 'strict')
     ..aOB(26, _omitFieldNames ? '' : 'ipWithPrefixlen')
     ..aOB(27, _omitFieldNames ? '' : 'ipv4WithPrefixlen')
@@ -4482,19 +4958,18 @@ class StringRules extends $pb.GeneratedMessage {
     ..aOB(33, _omitFieldNames ? '' : 'tuuid')
     ..pPS(34, _omitFieldNames ? '' : 'example')
     ..aOB(35, _omitFieldNames ? '' : 'ulid')
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   StringRules clone() => StringRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  StringRules copyWith(void Function(StringRules) updates) => super.copyWith((message) => updates(message as StringRules)) as StringRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  StringRules copyWith(void Function(StringRules) updates) =>
+      super.copyWith((message) => updates(message as StringRules))
+          as StringRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4503,10 +4978,12 @@ class StringRules extends $pb.GeneratedMessage {
   StringRules createEmptyInstance() => create();
   static $pb.PbList<StringRules> createRepeated() => $pb.PbList<StringRules>();
   @$core.pragma('dart2js:noInline')
-  static StringRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StringRules>(create);
+  static StringRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<StringRules>(create);
   static StringRules? _defaultInstance;
 
-  StringRules_WellKnown whichWellKnown() => _StringRules_WellKnownByTag[$_whichOneof(0)]!;
+  StringRules_WellKnown whichWellKnown() =>
+      _StringRules_WellKnownByTag[$_whichOneof(0)]!;
   void clearWellKnown() => clearField($_whichOneof(0));
 
   ///  `const` requires the field value to exactly match the specified value. If
@@ -4521,7 +4998,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.String get const_1 => $_getSZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.String v) { $_setString(0, v); }
+  set const_1($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -4541,7 +5021,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get minLen => $_getI64(1);
   @$pb.TagNumber(2)
-  set minLen($fixnum.Int64 v) { $_setInt64(1, v); }
+  set minLen($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasMinLen() => $_has(1);
   @$pb.TagNumber(2)
@@ -4561,7 +5044,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get maxLen => $_getI64(2);
   @$pb.TagNumber(3)
-  set maxLen($fixnum.Int64 v) { $_setInt64(2, v); }
+  set maxLen($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasMaxLen() => $_has(2);
   @$pb.TagNumber(3)
@@ -4581,7 +5067,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $fixnum.Int64 get minBytes => $_getI64(3);
   @$pb.TagNumber(4)
-  set minBytes($fixnum.Int64 v) { $_setInt64(3, v); }
+  set minBytes($fixnum.Int64 v) {
+    $_setInt64(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasMinBytes() => $_has(3);
   @$pb.TagNumber(4)
@@ -4600,7 +5089,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $fixnum.Int64 get maxBytes => $_getI64(4);
   @$pb.TagNumber(5)
-  set maxBytes($fixnum.Int64 v) { $_setInt64(4, v); }
+  set maxBytes($fixnum.Int64 v) {
+    $_setInt64(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasMaxBytes() => $_has(4);
   @$pb.TagNumber(5)
@@ -4620,7 +5112,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get pattern => $_getSZ(5);
   @$pb.TagNumber(6)
-  set pattern($core.String v) { $_setString(5, v); }
+  set pattern($core.String v) {
+    $_setString(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasPattern() => $_has(5);
   @$pb.TagNumber(6)
@@ -4640,7 +5135,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.String get prefix => $_getSZ(6);
   @$pb.TagNumber(7)
-  set prefix($core.String v) { $_setString(6, v); }
+  set prefix($core.String v) {
+    $_setString(6, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasPrefix() => $_has(6);
   @$pb.TagNumber(7)
@@ -4659,7 +5157,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.String get suffix => $_getSZ(7);
   @$pb.TagNumber(8)
-  set suffix($core.String v) { $_setString(7, v); }
+  set suffix($core.String v) {
+    $_setString(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasSuffix() => $_has(7);
   @$pb.TagNumber(8)
@@ -4678,7 +5179,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $core.String get contains => $_getSZ(8);
   @$pb.TagNumber(9)
-  set contains($core.String v) { $_setString(8, v); }
+  set contains($core.String v) {
+    $_setString(8, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasContains() => $_has(8);
   @$pb.TagNumber(9)
@@ -4728,7 +5232,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   $core.bool get email => $_getBF(11);
   @$pb.TagNumber(12)
-  set email($core.bool v) { $_setBool(11, v); }
+  set email($core.bool v) {
+    $_setBool(11, v);
+  }
+
   @$pb.TagNumber(12)
   $core.bool hasEmail() => $_has(11);
   @$pb.TagNumber(12)
@@ -4756,7 +5263,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   $core.bool get hostname => $_getBF(12);
   @$pb.TagNumber(13)
-  set hostname($core.bool v) { $_setBool(12, v); }
+  set hostname($core.bool v) {
+    $_setBool(12, v);
+  }
+
   @$pb.TagNumber(13)
   $core.bool hasHostname() => $_has(12);
   @$pb.TagNumber(13)
@@ -4783,7 +5293,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(14)
   $core.bool get ip => $_getBF(13);
   @$pb.TagNumber(14)
-  set ip($core.bool v) { $_setBool(13, v); }
+  set ip($core.bool v) {
+    $_setBool(13, v);
+  }
+
   @$pb.TagNumber(14)
   $core.bool hasIp() => $_has(13);
   @$pb.TagNumber(14)
@@ -4802,7 +5315,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   $core.bool get ipv4 => $_getBF(14);
   @$pb.TagNumber(15)
-  set ipv4($core.bool v) { $_setBool(14, v); }
+  set ipv4($core.bool v) {
+    $_setBool(14, v);
+  }
+
   @$pb.TagNumber(15)
   $core.bool hasIpv4() => $_has(14);
   @$pb.TagNumber(15)
@@ -4821,7 +5337,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(16)
   $core.bool get ipv6 => $_getBF(15);
   @$pb.TagNumber(16)
-  set ipv6($core.bool v) { $_setBool(15, v); }
+  set ipv6($core.bool v) {
+    $_setBool(15, v);
+  }
+
   @$pb.TagNumber(16)
   $core.bool hasIpv6() => $_has(15);
   @$pb.TagNumber(16)
@@ -4844,7 +5363,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(17)
   $core.bool get uri => $_getBF(16);
   @$pb.TagNumber(17)
-  set uri($core.bool v) { $_setBool(16, v); }
+  set uri($core.bool v) {
+    $_setBool(16, v);
+  }
+
   @$pb.TagNumber(17)
   $core.bool hasUri() => $_has(16);
   @$pb.TagNumber(17)
@@ -4870,7 +5392,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   $core.bool get uriRef => $_getBF(17);
   @$pb.TagNumber(18)
-  set uriRef($core.bool v) { $_setBool(17, v); }
+  set uriRef($core.bool v) {
+    $_setBool(17, v);
+  }
+
   @$pb.TagNumber(18)
   $core.bool hasUriRef() => $_has(17);
   @$pb.TagNumber(18)
@@ -4890,7 +5415,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(19)
   $fixnum.Int64 get len => $_getI64(18);
   @$pb.TagNumber(19)
-  set len($fixnum.Int64 v) { $_setInt64(18, v); }
+  set len($fixnum.Int64 v) {
+    $_setInt64(18, v);
+  }
+
   @$pb.TagNumber(19)
   $core.bool hasLen() => $_has(18);
   @$pb.TagNumber(19)
@@ -4909,7 +5437,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(20)
   $fixnum.Int64 get lenBytes => $_getI64(19);
   @$pb.TagNumber(20)
-  set lenBytes($fixnum.Int64 v) { $_setInt64(19, v); }
+  set lenBytes($fixnum.Int64 v) {
+    $_setInt64(19, v);
+  }
+
   @$pb.TagNumber(20)
   $core.bool hasLenBytes() => $_has(19);
   @$pb.TagNumber(20)
@@ -4929,7 +5460,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(21)
   $core.bool get address => $_getBF(20);
   @$pb.TagNumber(21)
-  set address($core.bool v) { $_setBool(20, v); }
+  set address($core.bool v) {
+    $_setBool(20, v);
+  }
+
   @$pb.TagNumber(21)
   $core.bool hasAddress() => $_has(20);
   @$pb.TagNumber(21)
@@ -4948,7 +5482,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(22)
   $core.bool get uuid => $_getBF(21);
   @$pb.TagNumber(22)
-  set uuid($core.bool v) { $_setBool(21, v); }
+  set uuid($core.bool v) {
+    $_setBool(21, v);
+  }
+
   @$pb.TagNumber(22)
   $core.bool hasUuid() => $_has(21);
   @$pb.TagNumber(22)
@@ -4967,7 +5504,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(23)
   $core.String get notContains => $_getSZ(22);
   @$pb.TagNumber(23)
-  set notContains($core.String v) { $_setString(22, v); }
+  set notContains($core.String v) {
+    $_setString(22, v);
+  }
+
   @$pb.TagNumber(23)
   $core.bool hasNotContains() => $_has(22);
   @$pb.TagNumber(23)
@@ -4996,7 +5536,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(24)
   KnownRegex get wellKnownRegex => $_getN(23);
   @$pb.TagNumber(24)
-  set wellKnownRegex(KnownRegex v) { setField(24, v); }
+  set wellKnownRegex(KnownRegex v) {
+    setField(24, v);
+  }
+
   @$pb.TagNumber(24)
   $core.bool hasWellKnownRegex() => $_has(23);
   @$pb.TagNumber(24)
@@ -5017,7 +5560,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(25)
   $core.bool get strict => $_getBF(24);
   @$pb.TagNumber(25)
-  set strict($core.bool v) { $_setBool(24, v); }
+  set strict($core.bool v) {
+    $_setBool(24, v);
+  }
+
   @$pb.TagNumber(25)
   $core.bool hasStrict() => $_has(24);
   @$pb.TagNumber(25)
@@ -5037,7 +5583,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(26)
   $core.bool get ipWithPrefixlen => $_getBF(25);
   @$pb.TagNumber(26)
-  set ipWithPrefixlen($core.bool v) { $_setBool(25, v); }
+  set ipWithPrefixlen($core.bool v) {
+    $_setBool(25, v);
+  }
+
   @$pb.TagNumber(26)
   $core.bool hasIpWithPrefixlen() => $_has(25);
   @$pb.TagNumber(26)
@@ -5057,7 +5606,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(27)
   $core.bool get ipv4WithPrefixlen => $_getBF(26);
   @$pb.TagNumber(27)
-  set ipv4WithPrefixlen($core.bool v) { $_setBool(26, v); }
+  set ipv4WithPrefixlen($core.bool v) {
+    $_setBool(26, v);
+  }
+
   @$pb.TagNumber(27)
   $core.bool hasIpv4WithPrefixlen() => $_has(26);
   @$pb.TagNumber(27)
@@ -5077,7 +5629,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(28)
   $core.bool get ipv6WithPrefixlen => $_getBF(27);
   @$pb.TagNumber(28)
-  set ipv6WithPrefixlen($core.bool v) { $_setBool(27, v); }
+  set ipv6WithPrefixlen($core.bool v) {
+    $_setBool(27, v);
+  }
+
   @$pb.TagNumber(28)
   $core.bool hasIpv6WithPrefixlen() => $_has(27);
   @$pb.TagNumber(28)
@@ -5102,7 +5657,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(29)
   $core.bool get ipPrefix => $_getBF(28);
   @$pb.TagNumber(29)
-  set ipPrefix($core.bool v) { $_setBool(28, v); }
+  set ipPrefix($core.bool v) {
+    $_setBool(28, v);
+  }
+
   @$pb.TagNumber(29)
   $core.bool hasIpPrefix() => $_has(28);
   @$pb.TagNumber(29)
@@ -5127,7 +5685,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(30)
   $core.bool get ipv4Prefix => $_getBF(29);
   @$pb.TagNumber(30)
-  set ipv4Prefix($core.bool v) { $_setBool(29, v); }
+  set ipv4Prefix($core.bool v) {
+    $_setBool(29, v);
+  }
+
   @$pb.TagNumber(30)
   $core.bool hasIpv4Prefix() => $_has(29);
   @$pb.TagNumber(30)
@@ -5152,7 +5713,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(31)
   $core.bool get ipv6Prefix => $_getBF(30);
   @$pb.TagNumber(31)
-  set ipv6Prefix($core.bool v) { $_setBool(30, v); }
+  set ipv6Prefix($core.bool v) {
+    $_setBool(30, v);
+  }
+
   @$pb.TagNumber(31)
   $core.bool hasIpv6Prefix() => $_has(30);
   @$pb.TagNumber(31)
@@ -5171,7 +5735,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(32)
   $core.bool get hostAndPort => $_getBF(31);
   @$pb.TagNumber(32)
-  set hostAndPort($core.bool v) { $_setBool(31, v); }
+  set hostAndPort($core.bool v) {
+    $_setBool(31, v);
+  }
+
   @$pb.TagNumber(32)
   $core.bool hasHostAndPort() => $_has(31);
   @$pb.TagNumber(32)
@@ -5191,7 +5758,10 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(33)
   $core.bool get tuuid => $_getBF(32);
   @$pb.TagNumber(33)
-  set tuuid($core.bool v) { $_setBool(32, v); }
+  set tuuid($core.bool v) {
+    $_setBool(32, v);
+  }
+
   @$pb.TagNumber(33)
   $core.bool hasTuuid() => $_has(32);
   @$pb.TagNumber(33)
@@ -5225,20 +5795,17 @@ class StringRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(35)
   $core.bool get ulid => $_getBF(34);
   @$pb.TagNumber(35)
-  set ulid($core.bool v) { $_setBool(34, v); }
+  set ulid($core.bool v) {
+    $_setBool(34, v);
+  }
+
   @$pb.TagNumber(35)
   $core.bool hasUlid() => $_has(34);
   @$pb.TagNumber(35)
   void clearUlid() => clearField(35);
 }
 
-enum BytesRules_WellKnown {
-  ip, 
-  ipv4, 
-  ipv6, 
-  uuid, 
-  notSet
-}
+enum BytesRules_WellKnown { ip, ipv4, ipv6, uuid, notSet }
 
 /// BytesRules describe the rules applied to `bytes` values. These rules
 /// may also be applied to the `google.protobuf.BytesValue` Well-Known-Type.
@@ -5309,46 +5876,62 @@ class BytesRules extends $pb.GeneratedMessage {
     return $result;
   }
   BytesRules._() : super();
-  factory BytesRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BytesRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory BytesRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory BytesRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, BytesRules_WellKnown> _BytesRules_WellKnownByTag = {
-    10 : BytesRules_WellKnown.ip,
-    11 : BytesRules_WellKnown.ipv4,
-    12 : BytesRules_WellKnown.ipv6,
-    15 : BytesRules_WellKnown.uuid,
-    0 : BytesRules_WellKnown.notSet
+  static const $core.Map<$core.int, BytesRules_WellKnown>
+      _BytesRules_WellKnownByTag = {
+    10: BytesRules_WellKnown.ip,
+    11: BytesRules_WellKnown.ipv4,
+    12: BytesRules_WellKnown.ipv6,
+    15: BytesRules_WellKnown.uuid,
+    0: BytesRules_WellKnown.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'BytesRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'BytesRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [10, 11, 12, 15])
-    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OY)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'minLen', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'maxLen', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$core.List<$core.int>>(
+        1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.OY)
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'minLen', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'maxLen', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOS(4, _omitFieldNames ? '' : 'pattern')
-    ..a<$core.List<$core.int>>(5, _omitFieldNames ? '' : 'prefix', $pb.PbFieldType.OY)
-    ..a<$core.List<$core.int>>(6, _omitFieldNames ? '' : 'suffix', $pb.PbFieldType.OY)
-    ..a<$core.List<$core.int>>(7, _omitFieldNames ? '' : 'contains', $pb.PbFieldType.OY)
-    ..p<$core.List<$core.int>>(8, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PY)
-    ..p<$core.List<$core.int>>(9, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PY)
+    ..a<$core.List<$core.int>>(
+        5, _omitFieldNames ? '' : 'prefix', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(
+        6, _omitFieldNames ? '' : 'suffix', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(
+        7, _omitFieldNames ? '' : 'contains', $pb.PbFieldType.OY)
+    ..p<$core.List<$core.int>>(
+        8, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PY)
+    ..p<$core.List<$core.int>>(
+        9, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PY)
     ..aOB(10, _omitFieldNames ? '' : 'ip')
     ..aOB(11, _omitFieldNames ? '' : 'ipv4')
     ..aOB(12, _omitFieldNames ? '' : 'ipv6')
-    ..a<$fixnum.Int64>(13, _omitFieldNames ? '' : 'len', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..p<$core.List<$core.int>>(14, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PY)
+    ..a<$fixnum.Int64>(13, _omitFieldNames ? '' : 'len', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..p<$core.List<$core.int>>(
+        14, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PY)
     ..aOB(15, _omitFieldNames ? '' : 'uuid')
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   BytesRules clone() => BytesRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  BytesRules copyWith(void Function(BytesRules) updates) => super.copyWith((message) => updates(message as BytesRules)) as BytesRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  BytesRules copyWith(void Function(BytesRules) updates) =>
+      super.copyWith((message) => updates(message as BytesRules)) as BytesRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -5357,10 +5940,12 @@ class BytesRules extends $pb.GeneratedMessage {
   BytesRules createEmptyInstance() => create();
   static $pb.PbList<BytesRules> createRepeated() => $pb.PbList<BytesRules>();
   @$core.pragma('dart2js:noInline')
-  static BytesRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BytesRules>(create);
+  static BytesRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<BytesRules>(create);
   static BytesRules? _defaultInstance;
 
-  BytesRules_WellKnown whichWellKnown() => _BytesRules_WellKnownByTag[$_whichOneof(0)]!;
+  BytesRules_WellKnown whichWellKnown() =>
+      _BytesRules_WellKnownByTag[$_whichOneof(0)]!;
   void clearWellKnown() => clearField($_whichOneof(0));
 
   ///  `const` requires the field value to exactly match the specified bytes
@@ -5375,7 +5960,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.List<$core.int> get const_1 => $_getN(0);
   @$pb.TagNumber(1)
-  set const_1($core.List<$core.int> v) { $_setBytes(0, v); }
+  set const_1($core.List<$core.int> v) {
+    $_setBytes(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -5394,7 +5982,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get minLen => $_getI64(1);
   @$pb.TagNumber(2)
-  set minLen($fixnum.Int64 v) { $_setInt64(1, v); }
+  set minLen($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasMinLen() => $_has(1);
   @$pb.TagNumber(2)
@@ -5413,7 +6004,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $fixnum.Int64 get maxLen => $_getI64(2);
   @$pb.TagNumber(3)
-  set maxLen($fixnum.Int64 v) { $_setInt64(2, v); }
+  set maxLen($fixnum.Int64 v) {
+    $_setInt64(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasMaxLen() => $_has(2);
   @$pb.TagNumber(3)
@@ -5434,7 +6028,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get pattern => $_getSZ(3);
   @$pb.TagNumber(4)
-  set pattern($core.String v) { $_setString(3, v); }
+  set pattern($core.String v) {
+    $_setString(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasPattern() => $_has(3);
   @$pb.TagNumber(4)
@@ -5453,7 +6050,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.List<$core.int> get prefix => $_getN(4);
   @$pb.TagNumber(5)
-  set prefix($core.List<$core.int> v) { $_setBytes(4, v); }
+  set prefix($core.List<$core.int> v) {
+    $_setBytes(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasPrefix() => $_has(4);
   @$pb.TagNumber(5)
@@ -5472,7 +6072,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.List<$core.int> get suffix => $_getN(5);
   @$pb.TagNumber(6)
-  set suffix($core.List<$core.int> v) { $_setBytes(5, v); }
+  set suffix($core.List<$core.int> v) {
+    $_setBytes(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasSuffix() => $_has(5);
   @$pb.TagNumber(6)
@@ -5491,7 +6094,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.List<$core.int> get contains => $_getN(6);
   @$pb.TagNumber(7)
-  set contains($core.List<$core.int> v) { $_setBytes(6, v); }
+  set contains($core.List<$core.int> v) {
+    $_setBytes(6, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasContains() => $_has(6);
   @$pb.TagNumber(7)
@@ -5536,7 +6142,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.bool get ip => $_getBF(9);
   @$pb.TagNumber(10)
-  set ip($core.bool v) { $_setBool(9, v); }
+  set ip($core.bool v) {
+    $_setBool(9, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasIp() => $_has(9);
   @$pb.TagNumber(10)
@@ -5554,7 +6163,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   $core.bool get ipv4 => $_getBF(10);
   @$pb.TagNumber(11)
-  set ipv4($core.bool v) { $_setBool(10, v); }
+  set ipv4($core.bool v) {
+    $_setBool(10, v);
+  }
+
   @$pb.TagNumber(11)
   $core.bool hasIpv4() => $_has(10);
   @$pb.TagNumber(11)
@@ -5571,7 +6183,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   $core.bool get ipv6 => $_getBF(11);
   @$pb.TagNumber(12)
-  set ipv6($core.bool v) { $_setBool(11, v); }
+  set ipv6($core.bool v) {
+    $_setBool(11, v);
+  }
+
   @$pb.TagNumber(12)
   $core.bool hasIpv6() => $_has(11);
   @$pb.TagNumber(12)
@@ -5589,7 +6204,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   $fixnum.Int64 get len => $_getI64(12);
   @$pb.TagNumber(13)
-  set len($fixnum.Int64 v) { $_setInt64(12, v); }
+  set len($fixnum.Int64 v) {
+    $_setInt64(12, v);
+  }
+
   @$pb.TagNumber(13)
   $core.bool hasLen() => $_has(12);
   @$pb.TagNumber(13)
@@ -5625,7 +6243,10 @@ class BytesRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   $core.bool get uuid => $_getBF(14);
   @$pb.TagNumber(15)
-  set uuid($core.bool v) { $_setBool(14, v); }
+  set uuid($core.bool v) {
+    $_setBool(14, v);
+  }
+
   @$pb.TagNumber(15)
   $core.bool hasUuid() => $_has(14);
   @$pb.TagNumber(15)
@@ -5660,28 +6281,33 @@ class EnumRules extends $pb.GeneratedMessage {
     return $result;
   }
   EnumRules._() : super();
-  factory EnumRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory EnumRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory EnumRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory EnumRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'EnumRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'EnumRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..a<$core.int>(1, _omitFieldNames ? '' : 'const', $pb.PbFieldType.O3)
     ..aOB(2, _omitFieldNames ? '' : 'definedOnly')
     ..p<$core.int>(3, _omitFieldNames ? '' : 'in', $pb.PbFieldType.P3)
     ..p<$core.int>(4, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.P3)
     ..p<$core.int>(5, _omitFieldNames ? '' : 'example', $pb.PbFieldType.P3)
-    ..hasExtensions = true
-  ;
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   EnumRules clone() => EnumRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  EnumRules copyWith(void Function(EnumRules) updates) => super.copyWith((message) => updates(message as EnumRules)) as EnumRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  EnumRules copyWith(void Function(EnumRules) updates) =>
+      super.copyWith((message) => updates(message as EnumRules)) as EnumRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -5690,7 +6316,8 @@ class EnumRules extends $pb.GeneratedMessage {
   EnumRules createEmptyInstance() => create();
   static $pb.PbList<EnumRules> createRepeated() => $pb.PbList<EnumRules>();
   @$core.pragma('dart2js:noInline')
-  static EnumRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EnumRules>(create);
+  static EnumRules getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EnumRules>(create);
   static EnumRules? _defaultInstance;
 
   ///  `const` requires the field value to exactly match the specified enum value.
@@ -5711,7 +6338,10 @@ class EnumRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.int get const_1 => $_getIZ(0);
   @$pb.TagNumber(1)
-  set const_1($core.int v) { $_setSignedInt32(0, v); }
+  set const_1($core.int v) {
+    $_setSignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -5735,7 +6365,10 @@ class EnumRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get definedOnly => $_getBF(1);
   @$pb.TagNumber(2)
-  set definedOnly($core.bool v) { $_setBool(1, v); }
+  set definedOnly($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDefinedOnly() => $_has(1);
   @$pb.TagNumber(2)
@@ -5823,36 +6456,49 @@ class RepeatedRules extends $pb.GeneratedMessage {
     return $result;
   }
   RepeatedRules._() : super();
-  factory RepeatedRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RepeatedRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RepeatedRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory RepeatedRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RepeatedRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'minItems', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'maxItems', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RepeatedRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..a<$fixnum.Int64>(
+        1, _omitFieldNames ? '' : 'minItems', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(
+        2, _omitFieldNames ? '' : 'maxItems', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOB(3, _omitFieldNames ? '' : 'unique')
-    ..aOM<FieldRules>(4, _omitFieldNames ? '' : 'items', subBuilder: FieldRules.create)
-    ..hasExtensions = true
-  ;
+    ..aOM<FieldRules>(4, _omitFieldNames ? '' : 'items',
+        subBuilder: FieldRules.create)
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   RepeatedRules clone() => RepeatedRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RepeatedRules copyWith(void Function(RepeatedRules) updates) => super.copyWith((message) => updates(message as RepeatedRules)) as RepeatedRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  RepeatedRules copyWith(void Function(RepeatedRules) updates) =>
+      super.copyWith((message) => updates(message as RepeatedRules))
+          as RepeatedRules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static RepeatedRules create() => RepeatedRules._();
   RepeatedRules createEmptyInstance() => create();
-  static $pb.PbList<RepeatedRules> createRepeated() => $pb.PbList<RepeatedRules>();
+  static $pb.PbList<RepeatedRules> createRepeated() =>
+      $pb.PbList<RepeatedRules>();
   @$core.pragma('dart2js:noInline')
-  static RepeatedRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedRules>(create);
+  static RepeatedRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RepeatedRules>(create);
   static RepeatedRules? _defaultInstance;
 
   ///  `min_items` requires that this field must contain at least the specified
@@ -5869,7 +6515,10 @@ class RepeatedRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get minItems => $_getI64(0);
   @$pb.TagNumber(1)
-  set minItems($fixnum.Int64 v) { $_setInt64(0, v); }
+  set minItems($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasMinItems() => $_has(0);
   @$pb.TagNumber(1)
@@ -5889,7 +6538,10 @@ class RepeatedRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get maxItems => $_getI64(1);
   @$pb.TagNumber(2)
-  set maxItems($fixnum.Int64 v) { $_setInt64(1, v); }
+  set maxItems($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasMaxItems() => $_has(1);
   @$pb.TagNumber(2)
@@ -5908,7 +6560,10 @@ class RepeatedRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.bool get unique => $_getBF(2);
   @$pb.TagNumber(3)
-  set unique($core.bool v) { $_setBool(2, v); }
+  set unique($core.bool v) {
+    $_setBool(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasUnique() => $_has(2);
   @$pb.TagNumber(3)
@@ -5935,7 +6590,10 @@ class RepeatedRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   FieldRules get items => $_getN(3);
   @$pb.TagNumber(4)
-  set items(FieldRules v) { setField(4, v); }
+  set items(FieldRules v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasItems() => $_has(3);
   @$pb.TagNumber(4)
@@ -5968,27 +6626,38 @@ class MapRules extends $pb.GeneratedMessage {
     return $result;
   }
   MapRules._() : super();
-  factory MapRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory MapRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MapRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory MapRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MapRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'minPairs', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'maxPairs', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..aOM<FieldRules>(4, _omitFieldNames ? '' : 'keys', subBuilder: FieldRules.create)
-    ..aOM<FieldRules>(5, _omitFieldNames ? '' : 'values', subBuilder: FieldRules.create)
-    ..hasExtensions = true
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MapRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..a<$fixnum.Int64>(
+        1, _omitFieldNames ? '' : 'minPairs', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(
+        2, _omitFieldNames ? '' : 'maxPairs', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOM<FieldRules>(4, _omitFieldNames ? '' : 'keys',
+        subBuilder: FieldRules.create)
+    ..aOM<FieldRules>(5, _omitFieldNames ? '' : 'values',
+        subBuilder: FieldRules.create)
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   MapRules clone() => MapRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  MapRules copyWith(void Function(MapRules) updates) => super.copyWith((message) => updates(message as MapRules)) as MapRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  MapRules copyWith(void Function(MapRules) updates) =>
+      super.copyWith((message) => updates(message as MapRules)) as MapRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -5997,7 +6666,8 @@ class MapRules extends $pb.GeneratedMessage {
   MapRules createEmptyInstance() => create();
   static $pb.PbList<MapRules> createRepeated() => $pb.PbList<MapRules>();
   @$core.pragma('dart2js:noInline')
-  static MapRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MapRules>(create);
+  static MapRules getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MapRules>(create);
   static MapRules? _defaultInstance;
 
   ///  Specifies the minimum number of key-value pairs allowed. If the field has
@@ -6012,7 +6682,10 @@ class MapRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $fixnum.Int64 get minPairs => $_getI64(0);
   @$pb.TagNumber(1)
-  set minPairs($fixnum.Int64 v) { $_setInt64(0, v); }
+  set minPairs($fixnum.Int64 v) {
+    $_setInt64(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasMinPairs() => $_has(0);
   @$pb.TagNumber(1)
@@ -6030,7 +6703,10 @@ class MapRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $fixnum.Int64 get maxPairs => $_getI64(1);
   @$pb.TagNumber(2)
-  set maxPairs($fixnum.Int64 v) { $_setInt64(1, v); }
+  set maxPairs($fixnum.Int64 v) {
+    $_setInt64(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasMaxPairs() => $_has(1);
   @$pb.TagNumber(2)
@@ -6054,7 +6730,10 @@ class MapRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   FieldRules get keys => $_getN(2);
   @$pb.TagNumber(4)
-  set keys(FieldRules v) { setField(4, v); }
+  set keys(FieldRules v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasKeys() => $_has(2);
   @$pb.TagNumber(4)
@@ -6081,7 +6760,10 @@ class MapRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   FieldRules get values => $_getN(3);
   @$pb.TagNumber(5)
-  set values(FieldRules v) { setField(5, v); }
+  set values(FieldRules v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasValues() => $_has(3);
   @$pb.TagNumber(5)
@@ -6106,25 +6788,30 @@ class AnyRules extends $pb.GeneratedMessage {
     return $result;
   }
   AnyRules._() : super();
-  factory AnyRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AnyRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory AnyRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AnyRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AnyRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'AnyRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..pPS(2, _omitFieldNames ? '' : 'in')
     ..pPS(3, _omitFieldNames ? '' : 'notIn')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   AnyRules clone() => AnyRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AnyRules copyWith(void Function(AnyRules) updates) => super.copyWith((message) => updates(message as AnyRules)) as AnyRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AnyRules copyWith(void Function(AnyRules) updates) =>
+      super.copyWith((message) => updates(message as AnyRules)) as AnyRules;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6133,7 +6820,8 @@ class AnyRules extends $pb.GeneratedMessage {
   AnyRules createEmptyInstance() => create();
   static $pb.PbList<AnyRules> createRepeated() => $pb.PbList<AnyRules>();
   @$core.pragma('dart2js:noInline')
-  static AnyRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AnyRules>(create);
+  static AnyRules getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AnyRules>(create);
   static AnyRules? _defaultInstance;
 
   ///  `in` requires the field's `type_url` to be equal to one of the
@@ -6165,17 +6853,9 @@ class AnyRules extends $pb.GeneratedMessage {
   $core.List<$core.String> get notIn => $_getList(1);
 }
 
-enum DurationRules_LessThan {
-  lt, 
-  lte, 
-  notSet
-}
+enum DurationRules_LessThan { lt, lte, notSet }
 
-enum DurationRules_GreaterThan {
-  gt, 
-  gte, 
-  notSet
-}
+enum DurationRules_GreaterThan { gt, gte, notSet }
 
 /// DurationRules describe the rules applied exclusively to the `google.protobuf.Duration` well-known type.
 class DurationRules extends $pb.GeneratedMessage {
@@ -6217,58 +6897,78 @@ class DurationRules extends $pb.GeneratedMessage {
     return $result;
   }
   DurationRules._() : super();
-  factory DurationRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DurationRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DurationRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory DurationRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, DurationRules_LessThan> _DurationRules_LessThanByTag = {
-    3 : DurationRules_LessThan.lt,
-    4 : DurationRules_LessThan.lte,
-    0 : DurationRules_LessThan.notSet
+  static const $core.Map<$core.int, DurationRules_LessThan>
+      _DurationRules_LessThanByTag = {
+    3: DurationRules_LessThan.lt,
+    4: DurationRules_LessThan.lte,
+    0: DurationRules_LessThan.notSet
   };
-  static const $core.Map<$core.int, DurationRules_GreaterThan> _DurationRules_GreaterThanByTag = {
-    5 : DurationRules_GreaterThan.gt,
-    6 : DurationRules_GreaterThan.gte,
-    0 : DurationRules_GreaterThan.notSet
+  static const $core.Map<$core.int, DurationRules_GreaterThan>
+      _DurationRules_GreaterThanByTag = {
+    5: DurationRules_GreaterThan.gt,
+    6: DurationRules_GreaterThan.gte,
+    0: DurationRules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DurationRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DurationRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [3, 4])
     ..oo(1, [5, 6])
-    ..aOM<$0.Duration>(2, _omitFieldNames ? '' : 'const', subBuilder: $0.Duration.create)
-    ..aOM<$0.Duration>(3, _omitFieldNames ? '' : 'lt', subBuilder: $0.Duration.create)
-    ..aOM<$0.Duration>(4, _omitFieldNames ? '' : 'lte', subBuilder: $0.Duration.create)
-    ..aOM<$0.Duration>(5, _omitFieldNames ? '' : 'gt', subBuilder: $0.Duration.create)
-    ..aOM<$0.Duration>(6, _omitFieldNames ? '' : 'gte', subBuilder: $0.Duration.create)
-    ..pc<$0.Duration>(7, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PM, subBuilder: $0.Duration.create)
-    ..pc<$0.Duration>(8, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PM, subBuilder: $0.Duration.create)
-    ..pc<$0.Duration>(9, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PM, subBuilder: $0.Duration.create)
-    ..hasExtensions = true
-  ;
+    ..aOM<$0.Duration>(2, _omitFieldNames ? '' : 'const',
+        subBuilder: $0.Duration.create)
+    ..aOM<$0.Duration>(3, _omitFieldNames ? '' : 'lt',
+        subBuilder: $0.Duration.create)
+    ..aOM<$0.Duration>(4, _omitFieldNames ? '' : 'lte',
+        subBuilder: $0.Duration.create)
+    ..aOM<$0.Duration>(5, _omitFieldNames ? '' : 'gt',
+        subBuilder: $0.Duration.create)
+    ..aOM<$0.Duration>(6, _omitFieldNames ? '' : 'gte',
+        subBuilder: $0.Duration.create)
+    ..pc<$0.Duration>(7, _omitFieldNames ? '' : 'in', $pb.PbFieldType.PM,
+        subBuilder: $0.Duration.create)
+    ..pc<$0.Duration>(8, _omitFieldNames ? '' : 'notIn', $pb.PbFieldType.PM,
+        subBuilder: $0.Duration.create)
+    ..pc<$0.Duration>(9, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PM,
+        subBuilder: $0.Duration.create)
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   DurationRules clone() => DurationRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  DurationRules copyWith(void Function(DurationRules) updates) => super.copyWith((message) => updates(message as DurationRules)) as DurationRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  DurationRules copyWith(void Function(DurationRules) updates) =>
+      super.copyWith((message) => updates(message as DurationRules))
+          as DurationRules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static DurationRules create() => DurationRules._();
   DurationRules createEmptyInstance() => create();
-  static $pb.PbList<DurationRules> createRepeated() => $pb.PbList<DurationRules>();
+  static $pb.PbList<DurationRules> createRepeated() =>
+      $pb.PbList<DurationRules>();
   @$core.pragma('dart2js:noInline')
-  static DurationRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DurationRules>(create);
+  static DurationRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DurationRules>(create);
   static DurationRules? _defaultInstance;
 
-  DurationRules_LessThan whichLessThan() => _DurationRules_LessThanByTag[$_whichOneof(0)]!;
+  DurationRules_LessThan whichLessThan() =>
+      _DurationRules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  DurationRules_GreaterThan whichGreaterThan() => _DurationRules_GreaterThanByTag[$_whichOneof(1)]!;
+  DurationRules_GreaterThan whichGreaterThan() =>
+      _DurationRules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` dictates that the field must match the specified value of the `google.protobuf.Duration` type exactly.
@@ -6284,7 +6984,10 @@ class DurationRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $0.Duration get const_2 => $_getN(0);
   @$pb.TagNumber(2)
-  set const_2($0.Duration v) { setField(2, v); }
+  set const_2($0.Duration v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasConst_2() => $_has(0);
   @$pb.TagNumber(2)
@@ -6305,7 +7008,10 @@ class DurationRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $0.Duration get lt => $_getN(1);
   @$pb.TagNumber(3)
-  set lt($0.Duration v) { setField(3, v); }
+  set lt($0.Duration v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(3)
@@ -6326,7 +7032,10 @@ class DurationRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $0.Duration get lte => $_getN(2);
   @$pb.TagNumber(4)
-  set lte($0.Duration v) { setField(4, v); }
+  set lte($0.Duration v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(4)
@@ -6355,7 +7064,10 @@ class DurationRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $0.Duration get gt => $_getN(3);
   @$pb.TagNumber(5)
-  set gt($0.Duration v) { setField(5, v); }
+  set gt($0.Duration v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(5)
@@ -6384,7 +7096,10 @@ class DurationRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $0.Duration get gte => $_getN(4);
   @$pb.TagNumber(6)
-  set gte($0.Duration v) { setField(6, v); }
+  set gte($0.Duration v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(6)
@@ -6459,36 +7174,46 @@ class FieldMaskRules extends $pb.GeneratedMessage {
     return $result;
   }
   FieldMaskRules._() : super();
-  factory FieldMaskRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldMaskRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FieldMaskRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory FieldMaskRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FieldMaskRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..aOM<$1.FieldMask>(1, _omitFieldNames ? '' : 'const', subBuilder: $1.FieldMask.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FieldMaskRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..aOM<$1.FieldMask>(1, _omitFieldNames ? '' : 'const',
+        subBuilder: $1.FieldMask.create)
     ..pPS(2, _omitFieldNames ? '' : 'in')
     ..pPS(3, _omitFieldNames ? '' : 'notIn')
-    ..pc<$1.FieldMask>(4, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PM, subBuilder: $1.FieldMask.create)
-    ..hasExtensions = true
-  ;
+    ..pc<$1.FieldMask>(4, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PM,
+        subBuilder: $1.FieldMask.create)
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   FieldMaskRules clone() => FieldMaskRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FieldMaskRules copyWith(void Function(FieldMaskRules) updates) => super.copyWith((message) => updates(message as FieldMaskRules)) as FieldMaskRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  FieldMaskRules copyWith(void Function(FieldMaskRules) updates) =>
+      super.copyWith((message) => updates(message as FieldMaskRules))
+          as FieldMaskRules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static FieldMaskRules create() => FieldMaskRules._();
   FieldMaskRules createEmptyInstance() => create();
-  static $pb.PbList<FieldMaskRules> createRepeated() => $pb.PbList<FieldMaskRules>();
+  static $pb.PbList<FieldMaskRules> createRepeated() =>
+      $pb.PbList<FieldMaskRules>();
   @$core.pragma('dart2js:noInline')
-  static FieldMaskRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldMaskRules>(create);
+  static FieldMaskRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FieldMaskRules>(create);
   static FieldMaskRules? _defaultInstance;
 
   ///  `const` dictates that the field must match the specified value of the `google.protobuf.FieldMask` type exactly.
@@ -6506,7 +7231,10 @@ class FieldMaskRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $1.FieldMask get const_1 => $_getN(0);
   @$pb.TagNumber(1)
-  set const_1($1.FieldMask v) { setField(1, v); }
+  set const_1($1.FieldMask v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasConst_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -6564,19 +7292,9 @@ class FieldMaskRules extends $pb.GeneratedMessage {
   $core.List<$1.FieldMask> get example => $_getList(3);
 }
 
-enum TimestampRules_LessThan {
-  lt, 
-  lte, 
-  ltNow, 
-  notSet
-}
+enum TimestampRules_LessThan { lt, lte, ltNow, notSet }
 
-enum TimestampRules_GreaterThan {
-  gt, 
-  gte, 
-  gtNow, 
-  notSet
-}
+enum TimestampRules_GreaterThan { gt, gte, gtNow, notSet }
 
 /// TimestampRules describe the rules applied exclusively to the `google.protobuf.Timestamp` well-known type.
 class TimestampRules extends $pb.GeneratedMessage {
@@ -6622,61 +7340,80 @@ class TimestampRules extends $pb.GeneratedMessage {
     return $result;
   }
   TimestampRules._() : super();
-  factory TimestampRules.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory TimestampRules.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory TimestampRules.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory TimestampRules.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, TimestampRules_LessThan> _TimestampRules_LessThanByTag = {
-    3 : TimestampRules_LessThan.lt,
-    4 : TimestampRules_LessThan.lte,
-    7 : TimestampRules_LessThan.ltNow,
-    0 : TimestampRules_LessThan.notSet
+  static const $core.Map<$core.int, TimestampRules_LessThan>
+      _TimestampRules_LessThanByTag = {
+    3: TimestampRules_LessThan.lt,
+    4: TimestampRules_LessThan.lte,
+    7: TimestampRules_LessThan.ltNow,
+    0: TimestampRules_LessThan.notSet
   };
-  static const $core.Map<$core.int, TimestampRules_GreaterThan> _TimestampRules_GreaterThanByTag = {
-    5 : TimestampRules_GreaterThan.gt,
-    6 : TimestampRules_GreaterThan.gte,
-    8 : TimestampRules_GreaterThan.gtNow,
-    0 : TimestampRules_GreaterThan.notSet
+  static const $core.Map<$core.int, TimestampRules_GreaterThan>
+      _TimestampRules_GreaterThanByTag = {
+    5: TimestampRules_GreaterThan.gt,
+    6: TimestampRules_GreaterThan.gte,
+    8: TimestampRules_GreaterThan.gtNow,
+    0: TimestampRules_GreaterThan.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TimestampRules', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'TimestampRules',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [3, 4, 7])
     ..oo(1, [5, 6, 8])
-    ..aOM<$2.Timestamp>(2, _omitFieldNames ? '' : 'const', subBuilder: $2.Timestamp.create)
-    ..aOM<$2.Timestamp>(3, _omitFieldNames ? '' : 'lt', subBuilder: $2.Timestamp.create)
-    ..aOM<$2.Timestamp>(4, _omitFieldNames ? '' : 'lte', subBuilder: $2.Timestamp.create)
-    ..aOM<$2.Timestamp>(5, _omitFieldNames ? '' : 'gt', subBuilder: $2.Timestamp.create)
-    ..aOM<$2.Timestamp>(6, _omitFieldNames ? '' : 'gte', subBuilder: $2.Timestamp.create)
+    ..aOM<$2.Timestamp>(2, _omitFieldNames ? '' : 'const',
+        subBuilder: $2.Timestamp.create)
+    ..aOM<$2.Timestamp>(3, _omitFieldNames ? '' : 'lt',
+        subBuilder: $2.Timestamp.create)
+    ..aOM<$2.Timestamp>(4, _omitFieldNames ? '' : 'lte',
+        subBuilder: $2.Timestamp.create)
+    ..aOM<$2.Timestamp>(5, _omitFieldNames ? '' : 'gt',
+        subBuilder: $2.Timestamp.create)
+    ..aOM<$2.Timestamp>(6, _omitFieldNames ? '' : 'gte',
+        subBuilder: $2.Timestamp.create)
     ..aOB(7, _omitFieldNames ? '' : 'ltNow')
     ..aOB(8, _omitFieldNames ? '' : 'gtNow')
-    ..aOM<$0.Duration>(9, _omitFieldNames ? '' : 'within', subBuilder: $0.Duration.create)
-    ..pc<$2.Timestamp>(10, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PM, subBuilder: $2.Timestamp.create)
-    ..hasExtensions = true
-  ;
+    ..aOM<$0.Duration>(9, _omitFieldNames ? '' : 'within',
+        subBuilder: $0.Duration.create)
+    ..pc<$2.Timestamp>(10, _omitFieldNames ? '' : 'example', $pb.PbFieldType.PM,
+        subBuilder: $2.Timestamp.create)
+    ..hasExtensions = true;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   TimestampRules clone() => TimestampRules()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  TimestampRules copyWith(void Function(TimestampRules) updates) => super.copyWith((message) => updates(message as TimestampRules)) as TimestampRules;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  TimestampRules copyWith(void Function(TimestampRules) updates) =>
+      super.copyWith((message) => updates(message as TimestampRules))
+          as TimestampRules;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static TimestampRules create() => TimestampRules._();
   TimestampRules createEmptyInstance() => create();
-  static $pb.PbList<TimestampRules> createRepeated() => $pb.PbList<TimestampRules>();
+  static $pb.PbList<TimestampRules> createRepeated() =>
+      $pb.PbList<TimestampRules>();
   @$core.pragma('dart2js:noInline')
-  static TimestampRules getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TimestampRules>(create);
+  static TimestampRules getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<TimestampRules>(create);
   static TimestampRules? _defaultInstance;
 
-  TimestampRules_LessThan whichLessThan() => _TimestampRules_LessThanByTag[$_whichOneof(0)]!;
+  TimestampRules_LessThan whichLessThan() =>
+      _TimestampRules_LessThanByTag[$_whichOneof(0)]!;
   void clearLessThan() => clearField($_whichOneof(0));
 
-  TimestampRules_GreaterThan whichGreaterThan() => _TimestampRules_GreaterThanByTag[$_whichOneof(1)]!;
+  TimestampRules_GreaterThan whichGreaterThan() =>
+      _TimestampRules_GreaterThanByTag[$_whichOneof(1)]!;
   void clearGreaterThan() => clearField($_whichOneof(1));
 
   ///  `const` dictates that this field, of the `google.protobuf.Timestamp` type, must exactly match the specified value. If the field value doesn't correspond to the specified timestamp, an error message will be generated.
@@ -6690,7 +7427,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $2.Timestamp get const_2 => $_getN(0);
   @$pb.TagNumber(2)
-  set const_2($2.Timestamp v) { setField(2, v); }
+  set const_2($2.Timestamp v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasConst_2() => $_has(0);
   @$pb.TagNumber(2)
@@ -6709,7 +7449,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $2.Timestamp get lt => $_getN(1);
   @$pb.TagNumber(3)
-  set lt($2.Timestamp v) { setField(3, v); }
+  set lt($2.Timestamp v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLt() => $_has(1);
   @$pb.TagNumber(3)
@@ -6728,7 +7471,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $2.Timestamp get lte => $_getN(2);
   @$pb.TagNumber(4)
-  set lte($2.Timestamp v) { setField(4, v); }
+  set lte($2.Timestamp v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasLte() => $_has(2);
   @$pb.TagNumber(4)
@@ -6757,7 +7503,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $2.Timestamp get gt => $_getN(3);
   @$pb.TagNumber(5)
-  set gt($2.Timestamp v) { setField(5, v); }
+  set gt($2.Timestamp v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasGt() => $_has(3);
   @$pb.TagNumber(5)
@@ -6786,7 +7535,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $2.Timestamp get gte => $_getN(4);
   @$pb.TagNumber(6)
-  set gte($2.Timestamp v) { setField(6, v); }
+  set gte($2.Timestamp v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasGte() => $_has(4);
   @$pb.TagNumber(6)
@@ -6805,7 +7557,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.bool get ltNow => $_getBF(5);
   @$pb.TagNumber(7)
-  set ltNow($core.bool v) { $_setBool(5, v); }
+  set ltNow($core.bool v) {
+    $_setBool(5, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasLtNow() => $_has(5);
   @$pb.TagNumber(7)
@@ -6822,7 +7577,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.bool get gtNow => $_getBF(6);
   @$pb.TagNumber(8)
-  set gtNow($core.bool v) { $_setBool(6, v); }
+  set gtNow($core.bool v) {
+    $_setBool(6, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasGtNow() => $_has(6);
   @$pb.TagNumber(8)
@@ -6839,7 +7597,10 @@ class TimestampRules extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $0.Duration get within => $_getN(7);
   @$pb.TagNumber(9)
-  set within($0.Duration v) { setField(9, v); }
+  set within($0.Duration v) {
+    setField(9, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasWithin() => $_has(7);
   @$pb.TagNumber(9)
@@ -6877,24 +7638,30 @@ class Violations extends $pb.GeneratedMessage {
     return $result;
   }
   Violations._() : super();
-  factory Violations.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Violations.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Violations.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Violations.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Violations', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..pc<Violation>(1, _omitFieldNames ? '' : 'violations', $pb.PbFieldType.PM, subBuilder: Violation.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Violations',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..pc<Violation>(1, _omitFieldNames ? '' : 'violations', $pb.PbFieldType.PM,
+        subBuilder: Violation.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Violations clone() => Violations()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Violations copyWith(void Function(Violations) updates) => super.copyWith((message) => updates(message as Violations)) as Violations;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Violations copyWith(void Function(Violations) updates) =>
+      super.copyWith((message) => updates(message as Violations)) as Violations;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6903,7 +7670,8 @@ class Violations extends $pb.GeneratedMessage {
   Violations createEmptyInstance() => create();
   static $pb.PbList<Violations> createRepeated() => $pb.PbList<Violations>();
   @$core.pragma('dart2js:noInline')
-  static Violations getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Violations>(create);
+  static Violations getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Violations>(create);
   static Violations? _defaultInstance;
 
   /// `violations` is a repeated field that contains all the `Violation` messages corresponding to the violations detected.
@@ -6981,28 +7749,35 @@ class Violation extends $pb.GeneratedMessage {
     return $result;
   }
   Violation._() : super();
-  factory Violation.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Violation.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Violation.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Violation.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Violation', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Violation',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..aOS(2, _omitFieldNames ? '' : 'ruleId')
     ..aOS(3, _omitFieldNames ? '' : 'message')
     ..aOB(4, _omitFieldNames ? '' : 'forKey')
-    ..aOM<FieldPath>(5, _omitFieldNames ? '' : 'field', subBuilder: FieldPath.create)
-    ..aOM<FieldPath>(6, _omitFieldNames ? '' : 'rule', subBuilder: FieldPath.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<FieldPath>(5, _omitFieldNames ? '' : 'field',
+        subBuilder: FieldPath.create)
+    ..aOM<FieldPath>(6, _omitFieldNames ? '' : 'rule',
+        subBuilder: FieldPath.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Violation clone() => Violation()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Violation copyWith(void Function(Violation) updates) => super.copyWith((message) => updates(message as Violation)) as Violation;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Violation copyWith(void Function(Violation) updates) =>
+      super.copyWith((message) => updates(message as Violation)) as Violation;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -7011,7 +7786,8 @@ class Violation extends $pb.GeneratedMessage {
   Violation createEmptyInstance() => create();
   static $pb.PbList<Violation> createRepeated() => $pb.PbList<Violation>();
   @$core.pragma('dart2js:noInline')
-  static Violation getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Violation>(create);
+  static Violation getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Violation>(create);
   static Violation? _defaultInstance;
 
   /// `rule_id` is the unique identifier of the `Rule` that was not fulfilled.
@@ -7019,7 +7795,10 @@ class Violation extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get ruleId => $_getSZ(0);
   @$pb.TagNumber(2)
-  set ruleId($core.String v) { $_setString(0, v); }
+  set ruleId($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasRuleId() => $_has(0);
   @$pb.TagNumber(2)
@@ -7030,7 +7809,10 @@ class Violation extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get message => $_getSZ(1);
   @$pb.TagNumber(3)
-  set message($core.String v) { $_setString(1, v); }
+  set message($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasMessage() => $_has(1);
   @$pb.TagNumber(3)
@@ -7040,7 +7822,10 @@ class Violation extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get forKey => $_getBF(2);
   @$pb.TagNumber(4)
-  set forKey($core.bool v) { $_setBool(2, v); }
+  set forKey($core.bool v) {
+    $_setBool(2, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasForKey() => $_has(2);
   @$pb.TagNumber(4)
@@ -7068,7 +7853,10 @@ class Violation extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   FieldPath get field_5 => $_getN(3);
   @$pb.TagNumber(5)
-  set field_5(FieldPath v) { setField(5, v); }
+  set field_5(FieldPath v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasField_5() => $_has(3);
   @$pb.TagNumber(5)
@@ -7107,7 +7895,10 @@ class Violation extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   FieldPath get rule => $_getN(4);
   @$pb.TagNumber(6)
-  set rule(FieldPath v) { setField(6, v); }
+  set rule(FieldPath v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasRule() => $_has(4);
   @$pb.TagNumber(6)
@@ -7131,24 +7922,31 @@ class FieldPath extends $pb.GeneratedMessage {
     return $result;
   }
   FieldPath._() : super();
-  factory FieldPath.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldPath.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FieldPath.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory FieldPath.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FieldPath', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
-    ..pc<FieldPathElement>(1, _omitFieldNames ? '' : 'elements', $pb.PbFieldType.PM, subBuilder: FieldPathElement.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FieldPath',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
+    ..pc<FieldPathElement>(
+        1, _omitFieldNames ? '' : 'elements', $pb.PbFieldType.PM,
+        subBuilder: FieldPathElement.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   FieldPath clone() => FieldPath()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FieldPath copyWith(void Function(FieldPath) updates) => super.copyWith((message) => updates(message as FieldPath)) as FieldPath;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  FieldPath copyWith(void Function(FieldPath) updates) =>
+      super.copyWith((message) => updates(message as FieldPath)) as FieldPath;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -7157,7 +7955,8 @@ class FieldPath extends $pb.GeneratedMessage {
   FieldPath createEmptyInstance() => create();
   static $pb.PbList<FieldPath> createRepeated() => $pb.PbList<FieldPath>();
   @$core.pragma('dart2js:noInline')
-  static FieldPath getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldPath>(create);
+  static FieldPath getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldPath>(create);
   static FieldPath? _defaultInstance;
 
   /// `elements` contains each element of the path, starting from the root and recursing downward.
@@ -7166,11 +7965,11 @@ class FieldPath extends $pb.GeneratedMessage {
 }
 
 enum FieldPathElement_Subscript {
-  index_, 
-  boolKey, 
-  intKey, 
-  uintKey, 
-  stringKey, 
+  index_,
+  boolKey,
+  intKey,
+  uintKey,
+  stringKey,
   notSet
 }
 
@@ -7226,61 +8025,88 @@ class FieldPathElement extends $pb.GeneratedMessage {
     return $result;
   }
   FieldPathElement._() : super();
-  factory FieldPathElement.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldPathElement.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FieldPathElement.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory FieldPathElement.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, FieldPathElement_Subscript> _FieldPathElement_SubscriptByTag = {
-    6 : FieldPathElement_Subscript.index_,
-    7 : FieldPathElement_Subscript.boolKey,
-    8 : FieldPathElement_Subscript.intKey,
-    9 : FieldPathElement_Subscript.uintKey,
-    10 : FieldPathElement_Subscript.stringKey,
-    0 : FieldPathElement_Subscript.notSet
+  static const $core.Map<$core.int, FieldPathElement_Subscript>
+      _FieldPathElement_SubscriptByTag = {
+    6: FieldPathElement_Subscript.index_,
+    7: FieldPathElement_Subscript.boolKey,
+    8: FieldPathElement_Subscript.intKey,
+    9: FieldPathElement_Subscript.uintKey,
+    10: FieldPathElement_Subscript.stringKey,
+    0: FieldPathElement_Subscript.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FieldPathElement', package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FieldPathElement',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'buf.validate'),
+      createEmptyInstance: create)
     ..oo(0, [6, 7, 8, 9, 10])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'fieldNumber', $pb.PbFieldType.O3)
     ..aOS(2, _omitFieldNames ? '' : 'fieldName')
-    ..e<$3.FieldDescriptorProto_Type>(3, _omitFieldNames ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $3.FieldDescriptorProto_Type.TYPE_DOUBLE, valueOf: $3.FieldDescriptorProto_Type.valueOf, enumValues: $3.FieldDescriptorProto_Type.values)
-    ..e<$3.FieldDescriptorProto_Type>(4, _omitFieldNames ? '' : 'keyType', $pb.PbFieldType.OE, defaultOrMaker: $3.FieldDescriptorProto_Type.TYPE_DOUBLE, valueOf: $3.FieldDescriptorProto_Type.valueOf, enumValues: $3.FieldDescriptorProto_Type.values)
-    ..e<$3.FieldDescriptorProto_Type>(5, _omitFieldNames ? '' : 'valueType', $pb.PbFieldType.OE, defaultOrMaker: $3.FieldDescriptorProto_Type.TYPE_DOUBLE, valueOf: $3.FieldDescriptorProto_Type.valueOf, enumValues: $3.FieldDescriptorProto_Type.values)
-    ..a<$fixnum.Int64>(6, _omitFieldNames ? '' : 'index', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..e<$3.FieldDescriptorProto_Type>(
+        3, _omitFieldNames ? '' : 'fieldType', $pb.PbFieldType.OE,
+        defaultOrMaker: $3.FieldDescriptorProto_Type.TYPE_DOUBLE,
+        valueOf: $3.FieldDescriptorProto_Type.valueOf,
+        enumValues: $3.FieldDescriptorProto_Type.values)
+    ..e<$3.FieldDescriptorProto_Type>(
+        4, _omitFieldNames ? '' : 'keyType', $pb.PbFieldType.OE,
+        defaultOrMaker: $3.FieldDescriptorProto_Type.TYPE_DOUBLE,
+        valueOf: $3.FieldDescriptorProto_Type.valueOf,
+        enumValues: $3.FieldDescriptorProto_Type.values)
+    ..e<$3.FieldDescriptorProto_Type>(
+        5, _omitFieldNames ? '' : 'valueType', $pb.PbFieldType.OE,
+        defaultOrMaker: $3.FieldDescriptorProto_Type.TYPE_DOUBLE,
+        valueOf: $3.FieldDescriptorProto_Type.valueOf,
+        enumValues: $3.FieldDescriptorProto_Type.values)
+    ..a<$fixnum.Int64>(6, _omitFieldNames ? '' : 'index', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOB(7, _omitFieldNames ? '' : 'boolKey')
     ..aInt64(8, _omitFieldNames ? '' : 'intKey')
-    ..a<$fixnum.Int64>(9, _omitFieldNames ? '' : 'uintKey', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(9, _omitFieldNames ? '' : 'uintKey', $pb.PbFieldType.OU6,
+        defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOS(10, _omitFieldNames ? '' : 'stringKey')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   FieldPathElement clone() => FieldPathElement()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FieldPathElement copyWith(void Function(FieldPathElement) updates) => super.copyWith((message) => updates(message as FieldPathElement)) as FieldPathElement;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  FieldPathElement copyWith(void Function(FieldPathElement) updates) =>
+      super.copyWith((message) => updates(message as FieldPathElement))
+          as FieldPathElement;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static FieldPathElement create() => FieldPathElement._();
   FieldPathElement createEmptyInstance() => create();
-  static $pb.PbList<FieldPathElement> createRepeated() => $pb.PbList<FieldPathElement>();
+  static $pb.PbList<FieldPathElement> createRepeated() =>
+      $pb.PbList<FieldPathElement>();
   @$core.pragma('dart2js:noInline')
-  static FieldPathElement getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldPathElement>(create);
+  static FieldPathElement getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FieldPathElement>(create);
   static FieldPathElement? _defaultInstance;
 
-  FieldPathElement_Subscript whichSubscript() => _FieldPathElement_SubscriptByTag[$_whichOneof(0)]!;
+  FieldPathElement_Subscript whichSubscript() =>
+      _FieldPathElement_SubscriptByTag[$_whichOneof(0)]!;
   void clearSubscript() => clearField($_whichOneof(0));
 
   /// `field_number` is the field number this path element refers to.
   @$pb.TagNumber(1)
   $core.int get fieldNumber => $_getIZ(0);
   @$pb.TagNumber(1)
-  set fieldNumber($core.int v) { $_setSignedInt32(0, v); }
+  set fieldNumber($core.int v) {
+    $_setSignedInt32(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasFieldNumber() => $_has(0);
   @$pb.TagNumber(1)
@@ -7291,7 +8117,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get fieldName => $_getSZ(1);
   @$pb.TagNumber(2)
-  set fieldName($core.String v) { $_setString(1, v); }
+  set fieldName($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasFieldName() => $_has(1);
   @$pb.TagNumber(2)
@@ -7310,7 +8139,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $3.FieldDescriptorProto_Type get fieldType => $_getN(2);
   @$pb.TagNumber(3)
-  set fieldType($3.FieldDescriptorProto_Type v) { setField(3, v); }
+  set fieldType($3.FieldDescriptorProto_Type v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasFieldType() => $_has(2);
   @$pb.TagNumber(3)
@@ -7322,7 +8154,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $3.FieldDescriptorProto_Type get keyType => $_getN(3);
   @$pb.TagNumber(4)
-  set keyType($3.FieldDescriptorProto_Type v) { setField(4, v); }
+  set keyType($3.FieldDescriptorProto_Type v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasKeyType() => $_has(3);
   @$pb.TagNumber(4)
@@ -7333,7 +8168,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $3.FieldDescriptorProto_Type get valueType => $_getN(4);
   @$pb.TagNumber(5)
-  set valueType($3.FieldDescriptorProto_Type v) { setField(5, v); }
+  set valueType($3.FieldDescriptorProto_Type v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasValueType() => $_has(4);
   @$pb.TagNumber(5)
@@ -7343,7 +8181,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $fixnum.Int64 get index => $_getI64(5);
   @$pb.TagNumber(6)
-  set index($fixnum.Int64 v) { $_setInt64(5, v); }
+  set index($fixnum.Int64 v) {
+    $_setInt64(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasIndex() => $_has(5);
   @$pb.TagNumber(6)
@@ -7353,7 +8194,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.bool get boolKey => $_getBF(6);
   @$pb.TagNumber(7)
-  set boolKey($core.bool v) { $_setBool(6, v); }
+  set boolKey($core.bool v) {
+    $_setBool(6, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasBoolKey() => $_has(6);
   @$pb.TagNumber(7)
@@ -7363,7 +8207,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $fixnum.Int64 get intKey => $_getI64(7);
   @$pb.TagNumber(8)
-  set intKey($fixnum.Int64 v) { $_setInt64(7, v); }
+  set intKey($fixnum.Int64 v) {
+    $_setInt64(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasIntKey() => $_has(7);
   @$pb.TagNumber(8)
@@ -7373,7 +8220,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $fixnum.Int64 get uintKey => $_getI64(8);
   @$pb.TagNumber(9)
-  set uintKey($fixnum.Int64 v) { $_setInt64(8, v); }
+  set uintKey($fixnum.Int64 v) {
+    $_setInt64(8, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasUintKey() => $_has(8);
   @$pb.TagNumber(9)
@@ -7383,7 +8233,10 @@ class FieldPathElement extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.String get stringKey => $_getSZ(9);
   @$pb.TagNumber(10)
-  set stringKey($core.String v) { $_setString(9, v); }
+  set stringKey($core.String v) {
+    $_setString(9, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasStringKey() => $_has(9);
   @$pb.TagNumber(10)
@@ -7391,10 +8244,34 @@ class FieldPathElement extends $pb.GeneratedMessage {
 }
 
 class Validate {
-  static final message = $pb.Extension<MessageRules>(_omitMessageNames ? '' : 'google.protobuf.MessageOptions', _omitFieldNames ? '' : 'message', 1159, $pb.PbFieldType.OM, defaultOrMaker: MessageRules.getDefault, subBuilder: MessageRules.create);
-  static final oneof = $pb.Extension<OneofRules>(_omitMessageNames ? '' : 'google.protobuf.OneofOptions', _omitFieldNames ? '' : 'oneof', 1159, $pb.PbFieldType.OM, defaultOrMaker: OneofRules.getDefault, subBuilder: OneofRules.create);
-  static final field_1159 = $pb.Extension<FieldRules>(_omitMessageNames ? '' : 'google.protobuf.FieldOptions', _omitFieldNames ? '' : 'field_1159', 1159, $pb.PbFieldType.OM, defaultOrMaker: FieldRules.getDefault, subBuilder: FieldRules.create);
-  static final predefined = $pb.Extension<PredefinedRules>(_omitMessageNames ? '' : 'google.protobuf.FieldOptions', _omitFieldNames ? '' : 'predefined', 1160, $pb.PbFieldType.OM, defaultOrMaker: PredefinedRules.getDefault, subBuilder: PredefinedRules.create);
+  static final message = $pb.Extension<MessageRules>(
+      _omitMessageNames ? '' : 'google.protobuf.MessageOptions',
+      _omitFieldNames ? '' : 'message',
+      1159,
+      $pb.PbFieldType.OM,
+      defaultOrMaker: MessageRules.getDefault,
+      subBuilder: MessageRules.create);
+  static final oneof = $pb.Extension<OneofRules>(
+      _omitMessageNames ? '' : 'google.protobuf.OneofOptions',
+      _omitFieldNames ? '' : 'oneof',
+      1159,
+      $pb.PbFieldType.OM,
+      defaultOrMaker: OneofRules.getDefault,
+      subBuilder: OneofRules.create);
+  static final field_1159 = $pb.Extension<FieldRules>(
+      _omitMessageNames ? '' : 'google.protobuf.FieldOptions',
+      _omitFieldNames ? '' : 'field_1159',
+      1159,
+      $pb.PbFieldType.OM,
+      defaultOrMaker: FieldRules.getDefault,
+      subBuilder: FieldRules.create);
+  static final predefined = $pb.Extension<PredefinedRules>(
+      _omitMessageNames ? '' : 'google.protobuf.FieldOptions',
+      _omitFieldNames ? '' : 'predefined',
+      1160,
+      $pb.PbFieldType.OM,
+      defaultOrMaker: PredefinedRules.getDefault,
+      subBuilder: PredefinedRules.create);
   static void registerAllExtensions($pb.ExtensionRegistry registry) {
     registry.add(message);
     registry.add(oneof);
@@ -7403,6 +8280,6 @@ class Validate {
   }
 }
 
-
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');
+const _omitMessageNames =
+    $core.bool.fromEnvironment('protobuf.omit_message_names');

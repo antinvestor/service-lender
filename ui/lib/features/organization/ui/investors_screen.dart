@@ -56,9 +56,11 @@ class _InvestorsScreenState extends ConsumerState<InvestorsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.business_outlined,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              Icon(
+                Icons.business_outlined,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(height: 16),
               Text(
                 'Select an organization first',
@@ -70,8 +72,8 @@ class _InvestorsScreenState extends ConsumerState<InvestorsScreen> {
                 'which organization to manage investors for.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -151,13 +153,9 @@ class _InvestorCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Text(
@@ -210,8 +208,9 @@ class _InvestorFormDialogState extends State<_InvestorFormDialog> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.investor?.name ?? '');
-    _profileIdCtrl =
-        TextEditingController(text: widget.investor?.profileId ?? '');
+    _profileIdCtrl = TextEditingController(
+      text: widget.investor?.profileId ?? '',
+    );
     _selectedState = widget.investor?.state ?? STATE.CREATED;
   }
 
@@ -271,8 +270,7 @@ class _InvestorFormDialogState extends State<_InvestorFormDialog> {
             children: [
               FormFieldCard(
                 label: 'Name',
-                description:
-                    'The full legal or display name of the investor',
+                description: 'The full legal or display name of the investor',
                 isRequired: true,
                 child: TextFormField(
                   controller: _nameCtrl,
@@ -280,10 +278,9 @@ class _InvestorFormDialogState extends State<_InvestorFormDialog> {
                     hintText: 'Enter investor name',
                   ),
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty)
-                          ? 'Name is required'
-                          : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Name is required'
+                      : null,
                 ),
               ),
               FormFieldCard(

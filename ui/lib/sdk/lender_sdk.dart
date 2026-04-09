@@ -27,7 +27,12 @@ export 'src/origination/v1/origination.connect.spec.dart';
 // Loan management service
 export 'src/loans/v1/loans.pb.dart' hide InterestMethod, RepaymentFrequency;
 export 'src/loans/v1/loans.pbenum.dart' hide InterestMethod, RepaymentFrequency;
-export 'src/loans/v1/loans.pbjson.dart' hide InterestMethod$json, RepaymentFrequency$json, interestMethodDescriptor, repaymentFrequencyDescriptor;
+export 'src/loans/v1/loans.pbjson.dart'
+    hide
+        InterestMethod$json,
+        RepaymentFrequency$json,
+        interestMethodDescriptor,
+        repaymentFrequencyDescriptor;
 export 'src/loans/v1/loans.connect.client.dart';
 export 'src/loans/v1/loans.connect.spec.dart';
 

@@ -13,15 +13,13 @@ import '../data/branch_providers.dart';
 import 'organizations_screen.dart';
 
 class OrganizationDetailScreen extends ConsumerWidget {
-  const OrganizationDetailScreen(
-      {super.key, required this.organizationId});
+  const OrganizationDetailScreen({super.key, required this.organizationId});
 
   final String organizationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final canManage =
-        ref.watch(canManageOrganizationsProvider).value ?? false;
+    final canManage = ref.watch(canManageOrganizationsProvider).value ?? false;
 
     return FutureBuilder<OrganizationObject>(
       future: _loadOrganization(ref),
@@ -46,8 +44,9 @@ class OrganizationDetailScreen extends ConsumerWidget {
 
   Future<OrganizationObject> _loadOrganization(WidgetRef ref) async {
     final client = ref.read(identityServiceClientProvider);
-    final response =
-        await client.organizationGet(OrganizationGetRequest(id: organizationId));
+    final response = await client.organizationGet(
+      OrganizationGetRequest(id: organizationId),
+    );
     return response.data;
   }
 }
@@ -79,8 +78,7 @@ class _OrganizationDetailContentState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final branchesAsync =
-        ref.watch(branchListProvider('', _organization.id));
+    final branchesAsync = ref.watch(branchListProvider('', _organization.id));
 
     return CustomScrollView(
       slivers: [
@@ -92,8 +90,7 @@ class _OrganizationDetailContentState
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () =>
-                      context.go('/organization/organizations'),
+                  onPressed: () => context.go('/organization/organizations'),
                   tooltip: 'Back to Organizations',
                 ),
                 const SizedBox(width: 8),
@@ -111,8 +108,7 @@ class _OrganizationDetailContentState
                       Text(
                         'Code: ${_organization.code}',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color:
-                              theme.colorScheme.onSurface.withAlpha(140),
+                          color: theme.colorScheme.onSurface.withAlpha(140),
                         ),
                       ),
                     ],
@@ -138,8 +134,11 @@ class _OrganizationDetailContentState
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Row(
               children: [
-                Icon(Icons.store_outlined,
-                    size: 20, color: theme.colorScheme.primary),
+                Icon(
+                  Icons.store_outlined,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -180,7 +179,8 @@ class _OrganizationDetailContentState
                     const SizedBox(height: 8),
                     FilledButton.tonal(
                       onPressed: () => ref.invalidate(
-                          branchListProvider('', _organization.id)),
+                        branchListProvider('', _organization.id),
+                      ),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -199,23 +199,19 @@ class _OrganizationDetailContentState
                         Icon(
                           Icons.store_outlined,
                           size: 48,
-                          color:
-                              theme.colorScheme.onSurface.withAlpha(80),
+                          color: theme.colorScheme.onSurface.withAlpha(80),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No branches yet',
-                          style:
-                              theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withAlpha(140),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withAlpha(140),
                           ),
                         ),
                         if (widget.canManage) ...[
                           const SizedBox(height: 12),
                           FilledButton.icon(
-                            onPressed: () =>
-                                _showBranchDialog(context),
+                            onPressed: () => _showBranchDialog(context),
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Add Branch'),
                           ),
@@ -228,23 +224,18 @@ class _OrganizationDetailContentState
             }
 
             return SliverPadding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 24, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final branch = branches[index];
-                    return _BranchCard(
-                      branch: branch,
-                      organizationId: _organization.id,
-                      onEdit: widget.canManage
-                          ? () => _showBranchDialog(context,
-                              branch: branch)
-                          : null,
-                    );
-                  },
-                  childCount: branches.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final branch = branches[index];
+                  return _BranchCard(
+                    branch: branch,
+                    organizationId: _organization.id,
+                    onEdit: widget.canManage
+                        ? () => _showBranchDialog(context, branch: branch)
+                        : null,
+                  );
+                }, childCount: branches.length),
               ),
             );
           },
@@ -265,8 +256,7 @@ class _OrganizationDetailContentState
           if (!mounted) return;
           setState(() => _organization = saved);
           ScaffoldMessenger.of(this.context).showSnackBar(
-            const SnackBar(
-                content: Text('Organization updated successfully')),
+            const SnackBar(content: Text('Organization updated successfully')),
           );
         },
       ),
@@ -279,8 +269,8 @@ class _OrganizationDetailContentState
   }) async {
     final result = await showDialog<BranchObject>(
       context: context,
-      builder: (context) => BranchFormDialog(
-          branch: branch, organizationId: _organization.id),
+      builder: (context) =>
+          BranchFormDialog(branch: branch, organizationId: _organization.id),
     );
     if (result == null || !mounted) return;
 
@@ -334,16 +324,14 @@ class _BranchCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer
-                      .withAlpha(80),
+                  color: theme.colorScheme.primaryContainer.withAlpha(80),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -369,25 +357,22 @@ class _BranchCard extends StatelessWidget {
                         if (branch.code.isNotEmpty)
                           Text(
                             branch.code,
-                            style:
-                                theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withAlpha(160),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withAlpha(160),
                             ),
                           ),
                         if (branch.geoId.isNotEmpty) ...[
                           const SizedBox(width: 8),
-                          Icon(Icons.location_on_outlined,
-                              size: 12,
-                              color: theme.colorScheme.onSurface
-                                  .withAlpha(120)),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 12,
+                            color: theme.colorScheme.onSurface.withAlpha(120),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             branch.geoId,
-                            style:
-                                theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withAlpha(140),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withAlpha(140),
                             ),
                           ),
                         ],
@@ -416,7 +401,11 @@ class _BranchCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class BranchFormDialog extends StatefulWidget {
-  const BranchFormDialog({super.key, this.branch, required this.organizationId});
+  const BranchFormDialog({
+    super.key,
+    this.branch,
+    required this.organizationId,
+  });
 
   final BranchObject? branch;
   final String organizationId;
@@ -436,12 +425,9 @@ class BranchFormDialogState extends State<BranchFormDialog> {
   void initState() {
     super.initState();
     final branch = widget.branch;
-    _nameController =
-        TextEditingController(text: branch?.name ?? '');
-    _codeController =
-        TextEditingController(text: branch?.code ?? '');
-    _geoIdController =
-        TextEditingController(text: branch?.geoId ?? '');
+    _nameController = TextEditingController(text: branch?.name ?? '');
+    _codeController = TextEditingController(text: branch?.code ?? '');
+    _geoIdController = TextEditingController(text: branch?.geoId ?? '');
     _selectedState = branch?.state ?? STATE.CREATED;
   }
 
@@ -481,8 +467,9 @@ class BranchFormDialogState extends State<BranchFormDialog> {
               children: [
                 Text(
                   isEditing ? 'Edit Branch' : 'New Branch',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 Text(
                   isEditing
@@ -520,9 +507,8 @@ class BranchFormDialogState extends State<BranchFormDialog> {
                       prefixIcon: Icon(Icons.business),
                     ),
                     textInputAction: TextInputAction.next,
-                    validator: (v) => (v == null || v.isEmpty)
-                        ? 'Name is required'
-                        : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Name is required' : null,
                   ),
                 ),
                 FormFieldCard(
@@ -538,9 +524,8 @@ class BranchFormDialogState extends State<BranchFormDialog> {
                     ),
                     textCapitalization: TextCapitalization.characters,
                     textInputAction: TextInputAction.next,
-                    validator: (v) => (v == null || v.isEmpty)
-                        ? 'Code is required'
-                        : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Code is required' : null,
                   ),
                 ),
                 FormFieldCard(
@@ -558,28 +543,28 @@ class BranchFormDialogState extends State<BranchFormDialog> {
                 ),
                 FormFieldCard(
                   label: 'State',
-                  description:
-                      'The operational status of this branch.',
+                  description: 'The operational status of this branch.',
                   isRequired: true,
                   child: DropdownButtonFormField<STATE>(
                     initialValue: _selectedState,
                     decoration: const InputDecoration(
                       prefixIcon: Icon(Icons.toggle_on_outlined),
                     ),
-                    items: const [
-                      STATE.CREATED,
-                      STATE.CHECKED,
-                      STATE.ACTIVE,
-                      STATE.INACTIVE,
-                      STATE.DELETED,
-                    ]
-                        .map(
-                          (s) => DropdownMenuItem(
-                            value: s,
-                            child: Text(stateLabel(s)),
-                          ),
-                        )
-                        .toList(),
+                    items:
+                        const [
+                              STATE.CREATED,
+                              STATE.CHECKED,
+                              STATE.ACTIVE,
+                              STATE.INACTIVE,
+                              STATE.DELETED,
+                            ]
+                            .map(
+                              (s) => DropdownMenuItem(
+                                value: s,
+                                child: Text(stateLabel(s)),
+                              ),
+                            )
+                            .toList(),
                     onChanged: (value) {
                       if (value != null) {
                         setState(() => _selectedState = value);

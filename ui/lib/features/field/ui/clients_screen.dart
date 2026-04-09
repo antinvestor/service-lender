@@ -29,11 +29,14 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     _agentScopeInitialized = true;
 
     final roles = ref.read(currentUserRolesProvider).value ?? <LenderRole>{};
-    final isAgentOnly = roles.contains(LenderRole.agent) &&
-        !roles.any((r) =>
-            r == LenderRole.owner ||
-            r == LenderRole.admin ||
-            r == LenderRole.manager);
+    final isAgentOnly =
+        roles.contains(LenderRole.agent) &&
+        !roles.any(
+          (r) =>
+              r == LenderRole.owner ||
+              r == LenderRole.admin ||
+              r == LenderRole.manager,
+        );
 
     if (isAgentOnly) {
       final profileId = ref.read(currentProfileIdProvider).value;
@@ -51,9 +54,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       clientListProvider(query: _searchQuery, agentId: _selectedAgentId),
     );
     final canManage = ref.watch(canManageClientsProvider);
-    final agentsAsync = ref.watch(
-      agentListProvider(query: '', branchId: ''),
-    );
+    final agentsAsync = ref.watch(agentListProvider(query: '', branchId: ''));
     final pendingCount = ref.watch(pendingSyncCountProvider).value ?? 0;
 
     return clientsAsync.when(
@@ -73,10 +74,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         items: const [],
         error: error.toString(),
         onRetry: () => ref.invalidate(
-          clientListProvider(
-            query: _searchQuery,
-            agentId: _selectedAgentId,
-          ),
+          clientListProvider(query: _searchQuery, agentId: _selectedAgentId),
         ),
         itemBuilder: (_, _) => const SizedBox.shrink(),
         searchHint: 'Search clients...',
@@ -88,11 +86,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         icon: Icons.people_outline,
         items: clients,
         hasMore: clients.length >= 500,
-        itemBuilder: (context, client) => _buildClientCard(
-          context,
-          client,
-          agentsAsync.value ?? [],
-        ),
+        itemBuilder: (context, client) =>
+            _buildClientCard(context, client, agentsAsync.value ?? []),
         searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
         actionLabel: 'Onboard Client',
@@ -106,8 +101,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   Future<void> _syncPending() async {
     setState(() => _isSyncing = true);
     try {
-      final count =
-          await ref.read(clientProvider.notifier).syncPending();
+      final count = await ref.read(clientProvider.notifier).syncPending();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Synced $count client(s) to server')),
@@ -115,9 +109,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sync failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSyncing = false);
@@ -161,10 +155,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       underline: const SizedBox.shrink(),
       borderRadius: BorderRadius.circular(10),
       items: [
-        const DropdownMenuItem(
-          value: '',
-          child: Text('All Agents'),
-        ),
+        const DropdownMenuItem(value: '', child: Text('All Agents')),
         ...agents.map(
           (a) => DropdownMenuItem(
             value: a.id,
@@ -189,9 +180,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
@@ -232,5 +221,4 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       ),
     );
   }
-
 }

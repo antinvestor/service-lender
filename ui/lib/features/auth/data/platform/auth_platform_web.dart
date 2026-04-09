@@ -39,8 +39,9 @@ class AuthPlatformWeb implements AuthPlatform {
     }
     _initCompleter = Completer<void>();
     try {
-      _issuer = await Issuer.discover(Uri.parse(issuerUrl))
-          .timeout(const Duration(seconds: 15));
+      _issuer = await Issuer.discover(
+        Uri.parse(issuerUrl),
+      ).timeout(const Duration(seconds: 15));
       _client = Client(_issuer!, clientId);
       _initCompleter!.complete();
     } catch (e) {
@@ -60,8 +61,7 @@ class AuthPlatformWeb implements AuthPlatform {
 
     final currentUri = Uri.parse(web.window.location.href);
     if (currentUri.scheme.isEmpty || currentUri.host.isEmpty) {
-      throw StateError(
-          'Cannot determine redirect URI: invalid page location');
+      throw StateError('Cannot determine redirect URI: invalid page location');
     }
     final redirectUri = Uri(
       scheme: currentUri.scheme,
@@ -111,7 +111,9 @@ class AuthPlatformWeb implements AuthPlatform {
     if (code == null || state == null) return null;
 
     final storedState = web.window.localStorage.getItem(_stateKey);
-    final storedCodeVerifier = web.window.localStorage.getItem(_codeVerifierKey);
+    final storedCodeVerifier = web.window.localStorage.getItem(
+      _codeVerifierKey,
+    );
     final storedTimestamp = web.window.localStorage.getItem(_timestampKey);
 
     if (storedState != state || storedCodeVerifier == null) {
@@ -153,9 +155,9 @@ class AuthPlatformWeb implements AuthPlatform {
           .callback({'code': code, 'state': state})
           .timeout(_tokenExchangeTimeout);
 
-      final tokenResponse = await credential
-          .getTokenResponse()
-          .timeout(_tokenExchangeTimeout);
+      final tokenResponse = await credential.getTokenResponse().timeout(
+        _tokenExchangeTimeout,
+      );
 
       _clearAuthState();
       // Clean the URL after successful token exchange so query params are removed

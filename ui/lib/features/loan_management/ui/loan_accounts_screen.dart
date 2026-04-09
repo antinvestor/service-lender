@@ -18,8 +18,7 @@ class LoanAccountsScreen extends ConsumerStatefulWidget {
   const LoanAccountsScreen({super.key});
 
   @override
-  ConsumerState<LoanAccountsScreen> createState() =>
-      _LoanAccountsScreenState();
+  ConsumerState<LoanAccountsScreen> createState() => _LoanAccountsScreenState();
 }
 
 class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
@@ -33,14 +32,16 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
     if (_scopeInitialized) return;
     _scopeInitialized = true;
     final roles = ref.read(currentUserRolesProvider).value ?? <LenderRole>{};
-    final isAgentOnly = roles.contains(LenderRole.agent) &&
-        !roles.any((r) =>
-            r == LenderRole.owner ||
-            r == LenderRole.admin ||
-            r == LenderRole.manager);
+    final isAgentOnly =
+        roles.contains(LenderRole.agent) &&
+        !roles.any(
+          (r) =>
+              r == LenderRole.owner ||
+              r == LenderRole.admin ||
+              r == LenderRole.manager,
+        );
     if (isAgentOnly) {
-      _agentScope =
-          ref.read(currentProfileIdProvider).value ?? '';
+      _agentScope = ref.read(currentProfileIdProvider).value ?? '';
     }
   }
 
@@ -109,10 +110,7 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
             child: Text('All Statuses'),
           ),
           ..._filterableStatuses.map(
-            (s) => DropdownMenuItem(
-              value: s,
-              child: Text(loanStatusLabel(s)),
-            ),
+            (s) => DropdownMenuItem(value: s, child: Text(loanStatusLabel(s))),
           ),
         ],
         onChanged: (value) {
@@ -128,15 +126,10 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
 }
 
 class _LoanAccountCard extends ConsumerWidget {
-  const _LoanAccountCard({
-    required this.loan,
-    required this.onTap,
-  });
+  const _LoanAccountCard({required this.loan, required this.onTap});
 
   final LoanAccountObject loan;
   final VoidCallback onTap;
-
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -144,13 +137,9 @@ class _LoanAccountCard extends ConsumerWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Icon(

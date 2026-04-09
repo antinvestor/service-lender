@@ -68,10 +68,7 @@ class AppShellSimple extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _DesktopShell extends StatelessWidget {
-  const _DesktopShell({
-    required this.currentRoute,
-    required this.child,
-  });
+  const _DesktopShell({required this.currentRoute, required this.child});
 
   final String currentRoute;
   final Widget child;
@@ -94,10 +91,7 @@ class _DesktopShell extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _MobileShell extends StatelessWidget {
-  const _MobileShell({
-    required this.currentRoute,
-    required this.child,
-  });
+  const _MobileShell({required this.currentRoute, required this.child});
 
   final String currentRoute;
   final Widget child;
@@ -126,7 +120,8 @@ class _MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   String get _title {
-    if (currentRoute.startsWith('/organization/organizations')) return 'Organizations';
+    if (currentRoute.startsWith('/organization/organizations'))
+      return 'Organizations';
     if (currentRoute.startsWith('/organization/branches')) return 'Branches';
     if (currentRoute.startsWith('/field/agents')) return 'Agents';
     if (currentRoute.startsWith('/field/hierarchy')) return 'Hierarchy';

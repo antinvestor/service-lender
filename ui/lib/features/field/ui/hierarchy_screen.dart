@@ -77,9 +77,7 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Agent Hierarchy'),
-      ),
+      appBar: AppBar(title: const Text('Agent Hierarchy')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -112,9 +110,9 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
                           data: (agents) {
                             if (query.isEmpty) return agents;
                             return agents.where(
-                              (a) => a.name
-                                  .toLowerCase()
-                                  .contains(query.toLowerCase()),
+                              (a) => a.name.toLowerCase().contains(
+                                query.toLowerCase(),
+                              ),
                             );
                           },
                           loading: () => <AgentObject>[],
@@ -125,36 +123,32 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
                         setState(() => _selectedAgent = agent);
                         _loadHierarchy();
                       },
-                      fieldViewBuilder: (
-                        context,
-                        controller,
-                        focusNode,
-                        onFieldSubmitted,
-                      ) {
-                        return TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          decoration: InputDecoration(
-                            labelText: 'Search agents',
-                            hintText: 'Type to search...',
-                            prefixIcon: const Icon(Icons.search),
-                            border: const OutlineInputBorder(),
-                            suffixIcon: agentsAsync.isLoading
-                                ? const Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          onSubmitted: (_) => onFieldSubmitted(),
-                        );
-                      },
+                      fieldViewBuilder:
+                          (context, controller, focusNode, onFieldSubmitted) {
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                labelText: 'Search agents',
+                                hintText: 'Type to search...',
+                                prefixIcon: const Icon(Icons.search),
+                                border: const OutlineInputBorder(),
+                                suffixIcon: agentsAsync.isLoading
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(12),
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                              onSubmitted: (_) => onFieldSubmitted(),
+                            );
+                          },
                       optionsViewBuilder: (context, onSelected, options) {
                         return Align(
                           alignment: Alignment.topLeft,
@@ -208,9 +202,7 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
                                     ? 'Unlimited'
                                     : _maxDepth.toString(),
                                 onChanged: (value) {
-                                  setState(
-                                    () => _maxDepth = value.round(),
-                                  );
+                                  setState(() => _maxDepth = value.round());
                                 },
                               ),
                             ],
@@ -220,8 +212,8 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
                         FilledButton.icon(
                           onPressed:
                               _selectedAgent != null && !_isLoadingHierarchy
-                                  ? _loadHierarchy
-                                  : null,
+                              ? _loadHierarchy
+                              : null,
                           icon: const Icon(Icons.account_tree),
                           label: const Text('Load'),
                         ),
@@ -233,11 +225,7 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
             ),
             const SizedBox(height: 16),
             // Hierarchy tree
-            Expanded(
-              child: Card(
-                child: _buildHierarchyContent(theme),
-              ),
-            ),
+            Expanded(child: Card(child: _buildHierarchyContent(theme))),
           ],
         ),
       ),
@@ -256,7 +244,11 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, size: 48, color: theme.colorScheme.error),
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: theme.colorScheme.error,
+              ),
               const SizedBox(height: 12),
               Text(
                 'Failed to load hierarchy',
@@ -327,10 +319,7 @@ class _HierarchyScreenState extends ConsumerState<HierarchyScreen> {
 }
 
 class _HierarchyNodeTile extends StatelessWidget {
-  const _HierarchyNodeTile({
-    required this.agent,
-    required this.agentTypeLabel,
-  });
+  const _HierarchyNodeTile({required this.agent, required this.agentTypeLabel});
 
   final AgentObject agent;
   final String agentTypeLabel;
@@ -341,7 +330,12 @@ class _HierarchyNodeTile extends StatelessWidget {
     final indentation = agent.depth * 24.0;
 
     return Padding(
-      padding: EdgeInsets.only(left: 16 + indentation, right: 16, top: 2, bottom: 2),
+      padding: EdgeInsets.only(
+        left: 16 + indentation,
+        right: 16,
+        top: 2,
+        bottom: 2,
+      ),
       child: Row(
         children: [
           if (agent.depth > 0) ...[

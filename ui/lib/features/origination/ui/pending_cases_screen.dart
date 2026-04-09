@@ -16,8 +16,7 @@ class PendingCasesScreen extends ConsumerStatefulWidget {
   const PendingCasesScreen({super.key});
 
   @override
-  ConsumerState<PendingCasesScreen> createState() =>
-      _PendingCasesScreenState();
+  ConsumerState<PendingCasesScreen> createState() => _PendingCasesScreenState();
 }
 
 class _PendingCasesScreenState extends ConsumerState<PendingCasesScreen>
@@ -51,8 +50,11 @@ class _PendingCasesScreenState extends ConsumerState<PendingCasesScreen>
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           child: Row(
             children: [
-              Icon(Icons.assignment_late_outlined,
-                  size: 28, color: theme.colorScheme.primary),
+              Icon(
+                Icons.assignment_late_outlined,
+                size: 28,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -86,17 +88,26 @@ class _PendingCasesScreenState extends ConsumerState<PendingCasesScreen>
               _BadgeTab(
                 label: 'Verification',
                 count: verCount.when(
-                    data: (c) => c, loading: () => null, error: (_, _) => null),
+                  data: (c) => c,
+                  loading: () => null,
+                  error: (_, _) => null,
+                ),
               ),
               _BadgeTab(
                 label: 'Underwriting',
                 count: uwCount.when(
-                    data: (c) => c, loading: () => null, error: (_, _) => null),
+                  data: (c) => c,
+                  loading: () => null,
+                  error: (_, _) => null,
+                ),
               ),
               _BadgeTab(
                 label: 'Offers',
                 count: offerCount.when(
-                    data: (c) => c, loading: () => null, error: (_, _) => null),
+                  data: (c) => c,
+                  loading: () => null,
+                  error: (_, _) => null,
+                ),
               ),
             ],
           ),
@@ -241,15 +252,20 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 48, color: theme.colorScheme.error),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
                   const SizedBox(height: 16),
                   Text('$error', style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
                   FilledButton.tonal(
                     onPressed: () => ref.invalidate(
                       applicationListProvider(
-                          _query, statusFilter: widget.statusFilter),
+                        _query,
+                        statusFilter: widget.statusFilter,
+                      ),
                     ),
                     child: const Text('Retry'),
                   ),
@@ -266,20 +282,24 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
                         width: 64,
                         height: 64,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer
-                              .withAlpha(60),
+                          color: theme.colorScheme.primaryContainer.withAlpha(
+                            60,
+                          ),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Icon(widget.emptyIcon,
-                            size: 28,
-                            color: theme.colorScheme.primary.withAlpha(160)),
+                        child: Icon(
+                          widget.emptyIcon,
+                          size: 28,
+                          color: theme.colorScheme.primary.withAlpha(160),
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      Text(widget.emptyLabel,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color:
-                                theme.colorScheme.onSurface.withAlpha(140),
-                          )),
+                      Text(
+                        widget.emptyLabel,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withAlpha(140),
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -288,11 +308,15 @@ class _PendingTabState extends ConsumerState<_PendingTab> {
               return RefreshIndicator(
                 onRefresh: () async => ref.invalidate(
                   applicationListProvider(
-                      _query, statusFilter: widget.statusFilter),
+                    _query,
+                    statusFilter: widget.statusFilter,
+                  ),
                 ),
                 child: ListView.separated(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   itemCount: apps.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
@@ -332,8 +356,8 @@ class _PendingCaseCard extends ConsumerWidget {
     final urgencyColor = daysInStage > 5
         ? Colors.red
         : daysInStage > 2
-            ? Colors.orange
-            : Colors.green;
+        ? Colors.orange
+        : Colors.green;
 
     // Risk flags
     final riskFlagCount = _countRiskFlags(app);
@@ -380,7 +404,9 @@ class _PendingCaseCard extends ConsumerWidget {
                   // Urgency indicator
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: urgencyColor.withAlpha(20),
                       borderRadius: BorderRadius.circular(12),
@@ -388,13 +414,10 @@ class _PendingCaseCard extends ConsumerWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.schedule,
-                            size: 12, color: urgencyColor),
+                        Icon(Icons.schedule, size: 12, color: urgencyColor),
                         const SizedBox(width: 4),
                         Text(
-                          daysInStage > 0
-                              ? '${daysInStage}d'
-                              : 'Today',
+                          daysInStage > 0 ? '${daysInStage}d' : 'Today',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -411,24 +434,23 @@ class _PendingCaseCard extends ConsumerWidget {
                 Row(
                   children: [
                     if (app.agentId.isNotEmpty)
-                      EntityChip(
-                          type: EntityType.agent, id: app.agentId),
+                      EntityChip(type: EntityType.agent, id: app.agentId),
                     if (riskFlagCount > 0) ...[
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red.withAlpha(15),
                           borderRadius: BorderRadius.circular(4),
-                          border:
-                              Border.all(color: Colors.red.withAlpha(50)),
+                          border: Border.all(color: Colors.red.withAlpha(50)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.flag,
-                                size: 12, color: Colors.red),
+                            const Icon(Icons.flag, size: 12, color: Colors.red),
                             const SizedBox(width: 4),
                             Text(
                               '$riskFlagCount risk flag${riskFlagCount > 1 ? 's' : ''}',

@@ -13,11 +13,7 @@ const Map<String, Set<LenderRole>> routePermissions = {
   // Admin — owner and admin only
   '/admin/users': {LenderRole.owner, LenderRole.admin},
   '/admin/roles': {LenderRole.owner, LenderRole.admin},
-  '/admin/audit': {
-    LenderRole.owner,
-    LenderRole.admin,
-    LenderRole.auditor,
-  },
+  '/admin/audit': {LenderRole.owner, LenderRole.admin, LenderRole.auditor},
 
   // Organization — all view roles (not bare agents)
   '/organization/organizations': _viewRoles,
@@ -96,7 +92,9 @@ Set<LenderRole> requiredRolesForRoute(String location) {
     ..sort((a, b) => b.length.compareTo(a.length));
 
   for (final prefix in sorted) {
-    if (location == prefix || location.startsWith('$prefix/') || prefix == location) {
+    if (location == prefix ||
+        location.startsWith('$prefix/') ||
+        prefix == location) {
       return routePermissions[prefix]!;
     }
   }

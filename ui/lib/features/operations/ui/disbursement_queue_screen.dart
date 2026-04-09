@@ -54,8 +54,11 @@ class _DisbursementQueueScreenState
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           child: Row(
             children: [
-              Icon(Icons.send_outlined,
-                  size: 28, color: theme.colorScheme.primary),
+              Icon(
+                Icons.send_outlined,
+                size: 28,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -127,14 +130,16 @@ class _DisbursementQueueScreenState
         // List
         Expanded(
           child: loansAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 48, color: theme.colorScheme.error),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
                   const SizedBox(height: 16),
                   Text('Failed to load: $e'),
                   const SizedBox(height: 16),
@@ -142,8 +147,7 @@ class _DisbursementQueueScreenState
                     onPressed: () => ref.invalidate(
                       loanAccountListProvider(
                         query: _query,
-                        status:
-                            LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT,
+                        status: LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT,
                       ),
                     ),
                     child: const Text('Retry'),
@@ -164,8 +168,11 @@ class _DisbursementQueueScreenState
                           color: theme.colorScheme.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Icon(Icons.check_circle_outline,
-                            size: 28, color: Colors.green),
+                        child: Icon(
+                          Icons.check_circle_outline,
+                          size: 28,
+                          color: Colors.green,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -179,8 +186,10 @@ class _DisbursementQueueScreenState
                 );
               }
               return ListView.separated(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 itemCount: loans.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
@@ -210,15 +219,14 @@ class _DisbursementQueueScreenState
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color:
-                                          Colors.orange.withAlpha(20),
-                                      borderRadius:
-                                          BorderRadius.circular(10),
+                                      color: Colors.orange.withAlpha(20),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
-                                        Icons.payments_outlined,
-                                        color: Colors.orange,
-                                        size: 22),
+                                      Icons.payments_outlined,
+                                      color: Colors.orange,
+                                      size: 22,
+                                    ),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -227,8 +235,7 @@ class _DisbursementQueueScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          formatMoney(
-                                              loan.principalAmount),
+                                          formatMoney(loan.principalAmount),
                                           style: GoogleFonts.manrope(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -237,28 +244,28 @@ class _DisbursementQueueScreenState
                                         const SizedBox(height: 2),
                                         Text(
                                           'Client: ${_shortId(loan.clientId)}',
-                                          style: theme
-                                              .textTheme.bodySmall
+                                          style: theme.textTheme.bodySmall
                                               ?.copyWith(
-                                            color: theme.colorScheme
-                                                .onSurfaceVariant,
-                                          ),
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                         ),
                                         Text(
                                           'Loan: ${_shortId(loan.id)}',
-                                          style: theme
-                                              .textTheme.bodySmall
+                                          style: theme.textTheme.bodySmall
                                               ?.copyWith(
-                                            color: theme.colorScheme
-                                                .onSurfaceVariant,
-                                          ),
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                         ),
                                       ],
                                     ),
                                   ),
                                   FilledButton.tonal(
-                                    onPressed: () => context
-                                        .go('/loans/${loan.id}'),
+                                    onPressed: () =>
+                                        context.go('/loans/${loan.id}'),
                                     child: const Text('Process'),
                                   ),
                                 ],
@@ -312,10 +319,12 @@ class _SummaryChip extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                )),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
         const SizedBox(height: 2),
         Text(
           value,

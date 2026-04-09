@@ -53,9 +53,9 @@ class PaginatedStreamController<R, T> {
     required Stream<R> Function() streamFactory,
     required List<T> Function(R response) extract,
     int maxPages = 20,
-  })  : _streamFactory = streamFactory,
-        _extract = extract,
-        _maxPages = maxPages;
+  }) : _streamFactory = streamFactory,
+       _extract = extract,
+       _maxPages = maxPages;
 
   final Stream<R> Function() _streamFactory;
   final List<T> Function(R response) _extract;
@@ -70,13 +70,14 @@ class PaginatedStreamController<R, T> {
   ValueListenable<PaginatedState<T>> get stateListenable =>
       _stateNotifier as ValueListenable<PaginatedState<T>>;
 
-  PaginatedState<T> get state =>
-      _stateNotifier.value as PaginatedState<T>;
+  PaginatedState<T> get state => _stateNotifier.value as PaginatedState<T>;
 
   /// Start the stream and load the first page.
   Future<void> loadFirstPage() async {
-    _updateState(const PaginatedState<Never>()
-        .copyWith(isLoading: true, clearError: true) as PaginatedState<T>);
+    _updateState(
+      const PaginatedState<Never>().copyWith(isLoading: true, clearError: true)
+          as PaginatedState<T>,
+    );
     _pagesLoaded = 0;
     _streamExhausted = false;
 
@@ -91,15 +92,16 @@ class PaginatedStreamController<R, T> {
           _pagesLoaded++;
 
           final currentItems = [...state.items, ...items];
-          final exhausted =
-              items.isEmpty || _pagesLoaded >= _maxPages;
+          final exhausted = items.isEmpty || _pagesLoaded >= _maxPages;
 
-          _updateState(PaginatedState<T>(
-            items: currentItems,
-            hasMore: !exhausted,
-            isLoading: false,
-            isLoadingMore: false,
-          ));
+          _updateState(
+            PaginatedState<T>(
+              items: currentItems,
+              hasMore: !exhausted,
+              isLoading: false,
+              isLoadingMore: false,
+            ),
+          );
 
           if (exhausted) {
             _streamExhausted = true;
@@ -110,21 +112,25 @@ class PaginatedStreamController<R, T> {
           _pageCompleter = null;
         },
         onError: (error) {
-          _updateState(state.copyWith(
-            isLoading: false,
-            isLoadingMore: false,
-            error: error.toString(),
-          ));
+          _updateState(
+            state.copyWith(
+              isLoading: false,
+              isLoadingMore: false,
+              error: error.toString(),
+            ),
+          );
           _pageCompleter?.complete();
           _pageCompleter = null;
         },
         onDone: () {
           _streamExhausted = true;
-          _updateState(state.copyWith(
-            hasMore: false,
-            isLoading: false,
-            isLoadingMore: false,
-          ));
+          _updateState(
+            state.copyWith(
+              hasMore: false,
+              isLoading: false,
+              isLoadingMore: false,
+            ),
+          );
           _pageCompleter?.complete();
           _pageCompleter = null;
         },
@@ -135,9 +141,7 @@ class PaginatedStreamController<R, T> {
         await _pageCompleter!.future;
       }
     } catch (e) {
-      _updateState(PaginatedState<T>(
-        error: e.toString(),
-      ));
+      _updateState(PaginatedState<T>(error: e.toString()));
     }
   }
 
@@ -155,10 +159,7 @@ class PaginatedStreamController<R, T> {
     await _pageCompleter!.future.timeout(
       const Duration(seconds: 10),
       onTimeout: () {
-        _updateState(state.copyWith(
-          isLoadingMore: false,
-          hasMore: false,
-        ));
+        _updateState(state.copyWith(isLoadingMore: false, hasMore: false));
       },
     );
   }

@@ -10,7 +10,7 @@ import "origination.connect.spec.dart" as specs;
 /// OriginationService manages loan products, applications, documents,
 /// verification tasks, and underwriting decisions.
 /// All RPCs require authentication via Bearer token.
-extension type OriginationServiceClient (connect.Transport _transport) {
+extension type OriginationServiceClient(connect.Transport _transport) {
   /// LoanProductSave creates or updates a loan product.
   Future<originationv1origination.LoanProductSaveResponse> loanProductSave(
     originationv1origination.LoanProductSaveRequest input, {
@@ -156,7 +156,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// ApplicationAcceptOffer accepts a generated loan offer.
-  Future<originationv1origination.ApplicationAcceptOfferResponse> applicationAcceptOffer(
+  Future<originationv1origination.ApplicationAcceptOfferResponse>
+  applicationAcceptOffer(
     originationv1origination.ApplicationAcceptOfferRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -174,7 +175,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// ApplicationDeclineOffer declines a generated loan offer.
-  Future<originationv1origination.ApplicationDeclineOfferResponse> applicationDeclineOffer(
+  Future<originationv1origination.ApplicationDeclineOfferResponse>
+  applicationDeclineOffer(
     originationv1origination.ApplicationDeclineOfferRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -192,7 +194,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// ApplicationDocumentSave creates or updates an application document.
-  Future<originationv1origination.ApplicationDocumentSaveResponse> applicationDocumentSave(
+  Future<originationv1origination.ApplicationDocumentSaveResponse>
+  applicationDocumentSave(
     originationv1origination.ApplicationDocumentSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -210,7 +213,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// ApplicationDocumentGet retrieves an application document by its ID.
-  Future<originationv1origination.ApplicationDocumentGetResponse> applicationDocumentGet(
+  Future<originationv1origination.ApplicationDocumentGetResponse>
+  applicationDocumentGet(
     originationv1origination.ApplicationDocumentGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -228,7 +232,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// ApplicationDocumentSearch finds application documents matching criteria.
-  Stream<originationv1origination.ApplicationDocumentSearchResponse> applicationDocumentSearch(
+  Stream<originationv1origination.ApplicationDocumentSearchResponse>
+  applicationDocumentSearch(
     originationv1origination.ApplicationDocumentSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -246,7 +251,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// VerificationTaskSave creates or updates a verification task.
-  Future<originationv1origination.VerificationTaskSaveResponse> verificationTaskSave(
+  Future<originationv1origination.VerificationTaskSaveResponse>
+  verificationTaskSave(
     originationv1origination.VerificationTaskSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -264,7 +270,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// VerificationTaskGet retrieves a verification task by its ID.
-  Future<originationv1origination.VerificationTaskGetResponse> verificationTaskGet(
+  Future<originationv1origination.VerificationTaskGetResponse>
+  verificationTaskGet(
     originationv1origination.VerificationTaskGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -282,7 +289,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// VerificationTaskSearch finds verification tasks matching criteria.
-  Stream<originationv1origination.VerificationTaskSearchResponse> verificationTaskSearch(
+  Stream<originationv1origination.VerificationTaskSearchResponse>
+  verificationTaskSearch(
     originationv1origination.VerificationTaskSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -300,7 +308,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// VerificationTaskComplete marks a verification task as complete.
-  Future<originationv1origination.VerificationTaskCompleteResponse> verificationTaskComplete(
+  Future<originationv1origination.VerificationTaskCompleteResponse>
+  verificationTaskComplete(
     originationv1origination.VerificationTaskCompleteRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -318,7 +327,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// UnderwritingDecisionSave creates or updates an underwriting decision.
-  Future<originationv1origination.UnderwritingDecisionSaveResponse> underwritingDecisionSave(
+  Future<originationv1origination.UnderwritingDecisionSaveResponse>
+  underwritingDecisionSave(
     originationv1origination.UnderwritingDecisionSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -336,7 +346,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// UnderwritingDecisionGet retrieves an underwriting decision by its ID.
-  Future<originationv1origination.UnderwritingDecisionGetResponse> underwritingDecisionGet(
+  Future<originationv1origination.UnderwritingDecisionGetResponse>
+  underwritingDecisionGet(
     originationv1origination.UnderwritingDecisionGetRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
@@ -354,7 +365,8 @@ extension type OriginationServiceClient (connect.Transport _transport) {
   }
 
   /// UnderwritingDecisionSearch finds underwriting decisions for an application.
-  Stream<originationv1origination.UnderwritingDecisionSearchResponse> underwritingDecisionSearch(
+  Stream<originationv1origination.UnderwritingDecisionSearchResponse>
+  underwritingDecisionSearch(
     originationv1origination.UnderwritingDecisionSearchRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,

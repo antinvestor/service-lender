@@ -32,9 +32,9 @@ class _LoanBookScreenState extends ConsumerState<LoanBookScreen> {
 
     try {
       final client = ref.read(loanManagementServiceClientProvider);
-      final response = await client.portfolioExport(PortfolioExportRequest(
-        format: 'CSV',
-      ));
+      final response = await client.portfolioExport(
+        PortfolioExportRequest(format: 'CSV'),
+      );
 
       // The export response contains the CSV data as bytes.
       // In a production app, this would trigger a file download or share dialog.
@@ -45,14 +45,18 @@ class _LoanBookScreenState extends ConsumerState<LoanBookScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export ready: $filename (${response.data.length} bytes)')),
+          SnackBar(
+            content: Text(
+              'Export ready: $filename (${response.data.length} bytes)',
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -80,21 +84,17 @@ class _LoanBookScreenState extends ConsumerState<LoanBookScreen> {
                         children: [
                           Text(
                             'Loan Book',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Browse all loans. Export as CSV for reporting.',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                           ),
                         ],
@@ -159,8 +159,10 @@ class _LoanBookScreenState extends ConsumerState<LoanBookScreen> {
                           child: Text('Paid Off'),
                         ),
                       ],
-                      onChanged: (v) =>
-                          setState(() => _statusFilter = v ?? LoanStatus.LOAN_STATUS_UNSPECIFIED),
+                      onChanged: (v) => setState(
+                        () => _statusFilter =
+                            v ?? LoanStatus.LOAN_STATUS_UNSPECIFIED,
+                      ),
                     ),
                   ],
                 ),
@@ -211,8 +213,8 @@ class _LoanList extends ConsumerWidget {
               child: Text(
                 'No loans found',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           );
@@ -232,23 +234,24 @@ class _LoanList extends ConsumerWidget {
       loading: () => const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (err, _) => SliverFillRemaining(
-        child: Center(child: Text('Error: $err')),
-      ),
+      error: (err, _) =>
+          SliverFillRemaining(child: Center(child: Text('Error: $err'))),
     );
   }
 }
 
-final _loanListProvider = FutureProvider.family<List<LoanAccountObject>, LoanAccountSearchRequest>(
-  (ref, request) async {
-    final client = ref.watch(loanManagementServiceClientProvider);
-    return collectStream(
-      client.loanAccountSearch(request),
-      extract: (response) => response.data,
-      maxPages: 50,
-    );
-  },
-);
+final _loanListProvider =
+    FutureProvider.family<List<LoanAccountObject>, LoanAccountSearchRequest>((
+      ref,
+      request,
+    ) async {
+      final client = ref.watch(loanManagementServiceClientProvider);
+      return collectStream(
+        client.loanAccountSearch(request),
+        extract: (response) => response.data,
+        maxPages: 50,
+      );
+    });
 
 class _LoanCard extends StatelessWidget {
   const _LoanCard({required this.loan});
@@ -283,8 +286,9 @@ class _LoanCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       formatMoney(loan.principalAmount),
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -294,15 +298,17 @@ class _LoanCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('DPD', style: theme.textTheme.labelSmall),
-                    Text('${loan.daysPastDue}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: loan.daysPastDue > 0
-                              ? theme.colorScheme.error
-                              : null,
-                          fontWeight: loan.daysPastDue > 0
-                              ? FontWeight.w600
-                              : null,
-                        )),
+                    Text(
+                      '${loan.daysPastDue}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: loan.daysPastDue > 0
+                            ? theme.colorScheme.error
+                            : null,
+                        fontWeight: loan.daysPastDue > 0
+                            ? FontWeight.w600
+                            : null,
+                      ),
+                    ),
                   ],
                 ),
               ),

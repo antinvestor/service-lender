@@ -99,8 +99,12 @@ class TenancyContext extends ChangeNotifier {
     }
   }
 
-  void selectOrganization(String id, String name,
-      {String? partitionId, String? partitionName}) {
+  void selectOrganization(
+    String id,
+    String name, {
+    String? partitionId,
+    String? partitionName,
+  }) {
     if (!canSelectOrganization) return; // locked by login level
     if (_organizationId != id) {
       _organizationId = id;
@@ -117,8 +121,12 @@ class TenancyContext extends ChangeNotifier {
     }
   }
 
-  void selectBranch(String id, String name,
-      {String? partitionId, String? partitionName}) {
+  void selectBranch(
+    String id,
+    String name, {
+    String? partitionId,
+    String? partitionName,
+  }) {
     if (!canSelectBranch) return; // locked by login level
     if (_branchId != id) {
       _branchId = id;

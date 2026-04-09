@@ -114,8 +114,7 @@ class _ApplicationCreateScreenState
     final errorColor = Theme.of(context).colorScheme.error;
 
     try {
-      final profileId =
-          ref.read(currentProfileIdProvider).value ?? '';
+      final profileId = ref.read(currentProfileIdProvider).value ?? '';
 
       final app = ApplicationObject(
         productId: _selectedProduct!.id,
@@ -124,8 +123,9 @@ class _ApplicationCreateScreenState
         organizationId: _selectedProduct!.organizationId,
         // branchId is optional; omit to let the backend resolve it.
         requestedAmount: moneyFromString(
-            _amountCtrl.text.trim(),
-            _currencyCtrl.text.trim().toUpperCase()),
+          _amountCtrl.text.trim(),
+          _currencyCtrl.text.trim().toUpperCase(),
+        ),
         requestedTermDays: int.tryParse(_termCtrl.text.trim()) ?? 0,
         purpose: _purposeCtrl.text.trim(),
         status: ApplicationStatus.APPLICATION_STATUS_DRAFT,
@@ -136,29 +136,23 @@ class _ApplicationCreateScreenState
         app.kycData = mapToStruct(_kycValues);
       }
 
-      final saved =
-          await ref.read(applicationProvider.notifier).save(app);
+      final saved = await ref.read(applicationProvider.notifier).save(app);
 
       if (!asDraft) {
         await ref.read(applicationProvider.notifier).submit(saved.id);
         messenger.showSnackBar(
-          const SnackBar(
-              content: Text('Application submitted successfully')),
+          const SnackBar(content: Text('Application submitted successfully')),
         );
       } else {
         messenger.showSnackBar(
-          const SnackBar(
-              content: Text('Application saved as draft')),
+          const SnackBar(content: Text('Application saved as draft')),
         );
       }
 
       if (mounted) context.go('/origination/applications');
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(
-          content: Text('Failed: $e'),
-          backgroundColor: errorColor,
-        ),
+        SnackBar(content: Text('Failed: $e'), backgroundColor: errorColor),
       );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -178,8 +172,7 @@ class _ApplicationCreateScreenState
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () =>
-                    context.go('/origination/applications'),
+                onPressed: () => context.go('/origination/applications'),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -251,7 +244,8 @@ class _ApplicationCreateScreenState
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
-                  color: theme.colorScheme.outlineVariant.withAlpha(60)),
+                color: theme.colorScheme.outlineVariant.withAlpha(60),
+              ),
             ),
           ),
           child: Row(
@@ -280,7 +274,9 @@ class _ApplicationCreateScreenState
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Icon(Icons.send, size: 18),
                   label: const Text('Submit'),
@@ -350,8 +346,7 @@ class _ApplicationCreateScreenState
                 child: _ProductCard(
                   product: product,
                   isSelected: _selectedProduct?.id == product.id,
-                  onTap: () =>
-                      setState(() => _selectedProduct = product),
+                  onTap: () => setState(() => _selectedProduct = product),
                 ),
               ),
           ],
@@ -392,7 +387,8 @@ class _ApplicationCreateScreenState
                         : null,
                   ),
                   keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
+                    decimal: true,
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: validateAmount,
                 ),
@@ -401,8 +397,7 @@ class _ApplicationCreateScreenState
               Expanded(
                 child: TextFormField(
                   controller: _currencyCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Currency'),
+                  decoration: const InputDecoration(labelText: 'Currency'),
                   textCapitalization: TextCapitalization.characters,
                   textInputAction: TextInputAction.next,
                   validator: validateCurrency,
@@ -471,7 +466,8 @@ class _ApplicationCreateScreenState
     final fields = parseKycSchema(_selectedProduct!.kycSchema);
     if (fields.isEmpty) {
       return const Center(
-          child: Text('No KYC fields defined for this product'));
+        child: Text('No KYC fields defined for this product'),
+      );
     }
 
     return DynamicForm(
@@ -496,9 +492,12 @@ class _ApplicationCreateScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Product',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Product',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(_selectedProduct?.name ?? 'None selected'),
                 if (_selectedProduct?.code.isNotEmpty ?? false)
@@ -519,13 +518,18 @@ class _ApplicationCreateScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Loan Details',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Loan Details',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _ReviewLine('Client', _clientIdCtrl.text),
-                _ReviewLine('Amount',
-                    '${_currencyCtrl.text} ${_amountCtrl.text}'),
+                _ReviewLine(
+                  'Amount',
+                  '${_currencyCtrl.text} ${_amountCtrl.text}',
+                ),
                 _ReviewLine('Term', '${_termCtrl.text} days'),
                 _ReviewLine('Purpose', _purposeCtrl.text),
               ],
@@ -540,9 +544,12 @@ class _ApplicationCreateScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('KYC Data',
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    'KYC Data',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   for (final entry in _kycValues.entries)
                     if (entry.value != null &&
@@ -604,8 +611,7 @@ class _ProductCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: theme.colorScheme.primary,
                   ),
-                  child: const Icon(Icons.check,
-                      size: 16, color: Colors.white),
+                  child: const Icon(Icons.check, size: 16, color: Colors.white),
                 )
               else
                 Container(
@@ -614,8 +620,7 @@ class _ProductCard extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                        color: theme.colorScheme.outlineVariant),
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
                   ),
                 ),
               Expanded(
@@ -684,8 +689,7 @@ class _LoanPreviewCard extends StatelessWidget {
       color: theme.colorScheme.primaryContainer.withAlpha(30),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-            color: theme.colorScheme.primary.withAlpha(40)),
+        side: BorderSide(color: theme.colorScheme.primary.withAlpha(40)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -694,8 +698,11 @@ class _LoanPreviewCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.calculate_outlined,
-                    size: 18, color: theme.colorScheme.primary),
+                Icon(
+                  Icons.calculate_outlined,
+                  size: 18,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Loan Estimate',
@@ -710,14 +717,17 @@ class _LoanPreviewCard extends StatelessWidget {
             Row(
               children: [
                 _EstimateItem(
-                    'Monthly Payment',
-                    '$currency ${monthlyPayment.toStringAsFixed(0)}'),
+                  'Monthly Payment',
+                  '$currency ${monthlyPayment.toStringAsFixed(0)}',
+                ),
                 _EstimateItem(
-                    'Total Interest',
-                    '$currency ${totalInterest.toStringAsFixed(0)}'),
+                  'Total Interest',
+                  '$currency ${totalInterest.toStringAsFixed(0)}',
+                ),
                 _EstimateItem(
-                    'Total Repayable',
-                    '$currency ${totalRepayable.toStringAsFixed(0)}'),
+                  'Total Repayable',
+                  '$currency ${totalRepayable.toStringAsFixed(0)}',
+                ),
               ],
             ),
           ],
@@ -739,15 +749,19 @@ class _EstimateItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              )),
-          Text(value,
-              style: GoogleFonts.manrope(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              )),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.manrope(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );
@@ -770,14 +784,14 @@ class _ReviewLine extends StatelessWidget {
         children: [
           SizedBox(
             width: 100,
-            child: Text(label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                )),
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
-          Expanded(
-            child: Text(value, style: theme.textTheme.bodyMedium),
-          ),
+          Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
         ],
       ),
     );

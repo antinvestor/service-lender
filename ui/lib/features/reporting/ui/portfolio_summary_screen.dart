@@ -24,19 +24,22 @@ class _PortfolioSummaryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final summaryAsync = ref.watch(portfolioSummaryProvider(
-      organizationId: _organizationId,
-      branchId: _branchId,
-      agentId: _agentId,
-      productId: _productId,
-    ));
+    final summaryAsync = ref.watch(
+      portfolioSummaryProvider(
+        organizationId: _organizationId,
+        branchId: _branchId,
+        agentId: _agentId,
+        productId: _productId,
+      ),
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = AppBreakpoints.isMobile(constraints.maxWidth);
         final padding = isMobile ? 16.0 : 24.0;
-        final crossAxisCount =
-            isMobile ? 2 : (constraints.maxWidth > 900 ? 3 : 2);
+        final crossAxisCount = isMobile
+            ? 2
+            : (constraints.maxWidth > 900 ? 3 : 2);
 
         return RefreshIndicator(
           onRefresh: () async {
@@ -53,19 +56,15 @@ class _PortfolioSummaryScreenState
                     children: [
                       Text(
                         'Portfolio Summary',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
+                        style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Aggregated financial metrics across your loan portfolio.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -183,12 +182,16 @@ class _PortfolioSummaryScreenState
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.error_outline,
-                            size: 48,
-                            color: Theme.of(context).colorScheme.error),
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                         const SizedBox(height: 16),
-                        Text('Failed to load portfolio summary',
-                            style: Theme.of(context).textTheme.bodyLarge),
+                        Text(
+                          'Failed to load portfolio summary',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         const SizedBox(height: 8),
                         FilledButton.tonal(
                           onPressed: () =>
@@ -238,14 +241,12 @@ class _FilterBar extends StatelessWidget {
       child: Wrap(
         spacing: 8,
         children: [
-          if (organizationId.isNotEmpty) Chip(label: Text('Organization: $organizationId')),
+          if (organizationId.isNotEmpty)
+            Chip(label: Text('Organization: $organizationId')),
           if (branchId.isNotEmpty) Chip(label: Text('Branch: $branchId')),
           if (agentId.isNotEmpty) Chip(label: Text('Agent: $agentId')),
           if (productId.isNotEmpty) Chip(label: Text('Product: $productId')),
-          ActionChip(
-            label: const Text('Clear'),
-            onPressed: onClear,
-          ),
+          ActionChip(label: const Text('Clear'), onPressed: onClear),
         ],
       ),
     );

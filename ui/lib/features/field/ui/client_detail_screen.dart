@@ -23,8 +23,7 @@ class ClientDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final clientsAsync =
-        ref.watch(clientListProvider(query: '', agentId: ''));
+    final clientsAsync = ref.watch(clientListProvider(query: '', agentId: ''));
 
     return clientsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -37,17 +36,15 @@ class ClientDetailScreen extends ConsumerWidget {
             Text('Error: $e'),
             const SizedBox(height: 16),
             FilledButton.tonal(
-              onPressed: () => ref.invalidate(
-                clientListProvider(query: '', agentId: ''),
-              ),
+              onPressed: () =>
+                  ref.invalidate(clientListProvider(query: '', agentId: '')),
               child: const Text('Retry'),
             ),
           ],
         ),
       ),
       data: (clients) {
-        final client =
-            clients.where((c) => c.id == clientId).firstOrNull;
+        final client = clients.where((c) => c.id == clientId).firstOrNull;
         if (client == null) {
           return Center(
             child: Column(
@@ -78,16 +75,13 @@ class _ClientDetailContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final properties =
-        client.hasProperties() ? client.properties.fields : null;
+    final properties = client.hasProperties() ? client.properties.fields : null;
 
     // Extract KYC fields for completeness calculation
     final kycFields = _extractKycFields(properties);
     final totalFields = kycFields.length;
-    final filledFields =
-        kycFields.values.where((v) => v.isNotEmpty).length;
-    final completeness =
-        totalFields > 0 ? filledFields / totalFields : 0.0;
+    final filledFields = kycFields.values.where((v) => v.isNotEmpty).length;
+    final completeness = totalFields > 0 ? filledFields / totalFields : 0.0;
 
     return DefaultTabController(
       length: 3,
@@ -108,9 +102,7 @@ class _ClientDetailContent extends ConsumerWidget {
                   radius: 28,
                   backgroundColor: theme.colorScheme.primaryContainer,
                   child: Text(
-                    client.name.isNotEmpty
-                        ? client.name[0].toUpperCase()
-                        : '?',
+                    client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
                     style: GoogleFonts.manrope(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -136,8 +128,7 @@ class _ClientDetailContent extends ConsumerWidget {
                             Text(
                               properties['phone']!.stringValue,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color:
-                                    theme.colorScheme.onSurfaceVariant,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           if (properties != null &&
@@ -145,15 +136,13 @@ class _ClientDetailContent extends ConsumerWidget {
                             Text(
                               ' \u2022 ',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color:
-                                    theme.colorScheme.onSurfaceVariant,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           Text(
                             'ID: ${_shortId(client.id)}',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  theme.colorScheme.onSurfaceVariant,
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -235,8 +224,7 @@ class _ClientDetailContent extends ConsumerWidget {
       id.length > 12 ? '${id.substring(0, 12)}...' : id;
 
   /// Extract KYC-relevant fields from client properties.
-  Map<String, String> _extractKycFields(
-      Map<String, dynamic>? properties) {
+  Map<String, String> _extractKycFields(Map<String, dynamic>? properties) {
     if (properties == null) return {};
     final result = <String, String>{};
     for (final entry in properties.entries) {
@@ -276,8 +264,8 @@ class _KycCompletenessBar extends StatelessWidget {
     final color = completeness >= 0.8
         ? Colors.green
         : completeness >= 0.5
-            ? Colors.orange
-            : Colors.red;
+        ? Colors.orange
+        : Colors.red;
 
     return Card(
       elevation: 0,
@@ -289,9 +277,7 @@ class _KycCompletenessBar extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  completeness >= 0.8
-                      ? Icons.check_circle
-                      : Icons.info_outline,
+                  completeness >= 0.8 ? Icons.check_circle : Icons.info_outline,
                   size: 18,
                   color: color,
                 ),
@@ -413,8 +399,7 @@ class _ProfileTab extends StatelessWidget {
           const SizedBox(height: 16),
           _SectionCard(
             title: 'Personal Information',
-            fields: personal.map(
-                (k, v) => MapEntry(_humanizeKey(k), v)),
+            fields: personal.map((k, v) => MapEntry(_humanizeKey(k), v)),
           ),
         ],
 
@@ -422,8 +407,7 @@ class _ProfileTab extends StatelessWidget {
           const SizedBox(height: 16),
           _SectionCard(
             title: 'Contact & Address',
-            fields: contact.map(
-                (k, v) => MapEntry(_humanizeKey(k), v)),
+            fields: contact.map((k, v) => MapEntry(_humanizeKey(k), v)),
           ),
         ],
 
@@ -431,8 +415,7 @@ class _ProfileTab extends StatelessWidget {
           const SizedBox(height: 16),
           _SectionCard(
             title: 'Financial Information',
-            fields: financial.map(
-                (k, v) => MapEntry(_humanizeKey(k), v)),
+            fields: financial.map((k, v) => MapEntry(_humanizeKey(k), v)),
           ),
         ],
 
@@ -440,8 +423,7 @@ class _ProfileTab extends StatelessWidget {
           const SizedBox(height: 16),
           _SectionCard(
             title: 'Additional Properties',
-            fields: other.map(
-                (k, v) => MapEntry(_humanizeKey(k), v)),
+            fields: other.map((k, v) => MapEntry(_humanizeKey(k), v)),
           ),
         ],
       ],
@@ -452,9 +434,9 @@ class _ProfileTab extends StatelessWidget {
     return key
         .replaceAll('_', ' ')
         .split(' ')
-        .map((w) => w.isNotEmpty
-            ? '${w[0].toUpperCase()}${w.substring(1)}'
-            : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
   }
 }
@@ -473,9 +455,12 @@ class _SectionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.w600)),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 12),
             for (final entry in fields.entries)
               Padding(
@@ -538,7 +523,8 @@ class _ApplicationsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final appsAsync = ref.watch(
-        applicationListProvider('', clientId: clientId));
+      applicationListProvider('', clientId: clientId),
+    );
 
     return appsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -550,7 +536,8 @@ class _ApplicationsTab extends ConsumerWidget {
             const SizedBox(height: 8),
             FilledButton.tonal(
               onPressed: () => ref.invalidate(
-                  applicationListProvider('', clientId: clientId)),
+                applicationListProvider('', clientId: clientId),
+              ),
               child: const Text('Retry'),
             ),
           ],
@@ -562,13 +549,18 @@ class _ApplicationsTab extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.description_outlined,
-                    size: 48,
-                    color: theme.colorScheme.onSurface.withAlpha(100)),
+                Icon(
+                  Icons.description_outlined,
+                  size: 48,
+                  color: theme.colorScheme.onSurface.withAlpha(100),
+                ),
                 const SizedBox(height: 16),
-                Text('No applications found',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant)),
+                Text(
+                  'No applications found',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           );
@@ -581,8 +573,7 @@ class _ApplicationsTab extends ConsumerWidget {
             final app = apps[index];
             return Card(
               child: InkWell(
-                onTap: () =>
-                    context.go('/origination/applications/${app.id}'),
+                onTap: () => context.go('/origination/applications/${app.id}'),
                 borderRadius: DesignTokens.borderRadiusAll,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -612,8 +603,7 @@ class _ApplicationsTab extends ConsumerWidget {
                             Text(
                               'Product: ${app.productId.isNotEmpty ? app.productId.substring(0, app.productId.length.clamp(0, 8)) : "\u2014"}',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color:
-                                    theme.colorScheme.onSurfaceVariant,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -635,11 +625,9 @@ class _ApplicationsTab extends ConsumerWidget {
     return switch (status) {
       ApplicationStatus.APPLICATION_STATUS_APPROVED ||
       ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED ||
-      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED =>
-        Colors.green,
+      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => Colors.green,
       ApplicationStatus.APPLICATION_STATUS_REJECTED ||
-      ApplicationStatus.APPLICATION_STATUS_CANCELLED =>
-        Colors.red,
+      ApplicationStatus.APPLICATION_STATUS_CANCELLED => Colors.red,
       _ => Colors.blue,
     };
   }
@@ -657,7 +645,8 @@ class _LoansTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final loansAsync = ref.watch(
-        loanAccountListProvider(query: '', clientId: clientId));
+      loanAccountListProvider(query: '', clientId: clientId),
+    );
 
     return loansAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -669,7 +658,8 @@ class _LoansTab extends ConsumerWidget {
             const SizedBox(height: 8),
             FilledButton.tonal(
               onPressed: () => ref.invalidate(
-                  loanAccountListProvider(query: '', clientId: clientId)),
+                loanAccountListProvider(query: '', clientId: clientId),
+              ),
               child: const Text('Retry'),
             ),
           ],
@@ -681,13 +671,18 @@ class _LoansTab extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.credit_score_outlined,
-                    size: 48,
-                    color: theme.colorScheme.onSurface.withAlpha(100)),
+                Icon(
+                  Icons.credit_score_outlined,
+                  size: 48,
+                  color: theme.colorScheme.onSurface.withAlpha(100),
+                ),
                 const SizedBox(height: 16),
-                Text('No loan accounts found',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant)),
+                Text(
+                  'No loan accounts found',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           );
@@ -730,16 +725,15 @@ class _LoansTab extends ConsumerWidget {
                             if (loan.daysPastDue > 0)
                               Text(
                                 '${loan.daysPastDue} days past due',
-                                style: theme.textTheme.bodySmall
-                                    ?.copyWith(color: Colors.red),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.red,
+                                ),
                               )
                             else
                               Text(
                                 'Term: ${loan.termDays} days',
-                                style:
-                                    theme.textTheme.bodySmall?.copyWith(
-                                  color: theme
-                                      .colorScheme.onSurfaceVariant,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
                           ],

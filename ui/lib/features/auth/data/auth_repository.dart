@@ -39,12 +39,12 @@ class StoredLoginContext {
   final String? branchName;
 
   Map<String, dynamic> toJson() => {
-        'level': level.name,
-        'org_id': orgId,
-        'org_name': orgName,
-        'branch_id': branchId,
-        'branch_name': branchName,
-      };
+    'level': level.name,
+    'org_id': orgId,
+    'org_name': orgName,
+    'branch_id': branchId,
+    'branch_name': branchName,
+  };
 }
 
 class AuthRepository {

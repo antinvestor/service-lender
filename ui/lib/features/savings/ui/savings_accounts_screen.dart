@@ -21,8 +21,7 @@ class SavingsAccountsScreen extends ConsumerStatefulWidget {
       _SavingsAccountsScreenState();
 }
 
-class _SavingsAccountsScreenState
-    extends ConsumerState<SavingsAccountsScreen> {
+class _SavingsAccountsScreenState extends ConsumerState<SavingsAccountsScreen> {
   Timer? _debounce;
   String _query = '';
 
@@ -41,8 +40,7 @@ class _SavingsAccountsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final accountsAsync =
-        ref.watch(savingsAccountListProvider(query: _query));
+    final accountsAsync = ref.watch(savingsAccountListProvider(query: _query));
     final canManage = ref.watch(canManageLoansProvider).value ?? false;
 
     final items = accountsAsync.value ?? [];
@@ -52,8 +50,7 @@ class _SavingsAccountsScreenState
       items: items,
       isLoading: accountsAsync.isLoading,
       error: accountsAsync.hasError ? accountsAsync.error.toString() : null,
-      onRetry: () =>
-          ref.invalidate(savingsAccountListProvider(query: _query)),
+      onRetry: () => ref.invalidate(savingsAccountListProvider(query: _query)),
       searchHint: 'Search savings accounts...',
       onSearchChanged: _onSearchChanged,
       actionLabel: 'New Account',
@@ -72,20 +69,17 @@ class _SavingsAccountsScreenState
       builder: (ctx) => _SavingsAccountCreateDialog(
         onSave: (account) async {
           try {
-            await ref
-                .read(savingsAccountProvider.notifier)
-                .create(account);
+            await ref.read(savingsAccountProvider.notifier).create(account);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Savings account created')),
+                const SnackBar(content: Text('Savings account created')),
               );
             }
           } catch (e) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed: $e')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Failed: $e')));
             }
             rethrow;
           }
@@ -200,13 +194,13 @@ class _SavingsAccountCreateDialogState
                   isRequired: true,
                   child: organizationsAsync.when(
                     loading: () => const LinearProgressIndicator(),
-                    error: (e, _) =>
-                        Text('Failed to load organizations: $e'),
-                    data: (organizations) =>
-                        DropdownButtonFormField<String>(
-                      initialValue: _selectedOrganizationId != null &&
+                    error: (e, _) => Text('Failed to load organizations: $e'),
+                    data: (organizations) => DropdownButtonFormField<String>(
+                      initialValue:
+                          _selectedOrganizationId != null &&
                               organizations.any(
-                                  (o) => o.id == _selectedOrganizationId)
+                                (o) => o.id == _selectedOrganizationId,
+                              )
                           ? _selectedOrganizationId
                           : null,
                       decoration: const InputDecoration(
@@ -217,7 +211,8 @@ class _SavingsAccountCreateDialogState
                           DropdownMenuItem(
                             value: org.id,
                             child: Text(
-                                org.name.isNotEmpty ? org.name : org.id),
+                              org.name.isNotEmpty ? org.name : org.id,
+                            ),
                           ),
                       ],
                       validator: (value) {
@@ -227,8 +222,7 @@ class _SavingsAccountCreateDialogState
                         return null;
                       },
                       onChanged: (value) {
-                        setState(
-                            () => _selectedOrganizationId = value);
+                        setState(() => _selectedOrganizationId = value);
                       },
                     ),
                   ),
@@ -257,10 +251,12 @@ class _SavingsAccountCreateDialogState
                   child: DropdownButtonFormField<SavingsAccountOwnerType>(
                     initialValue: _ownerType,
                     items: _ownerTypes
-                        .map((t) => DropdownMenuItem(
-                              value: t,
-                              child: Text(_ownerTypeLabel(t)),
-                            ))
+                        .map(
+                          (t) => DropdownMenuItem(
+                            value: t,
+                            child: Text(_ownerTypeLabel(t)),
+                          ),
+                        )
                         .toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _ownerType = v);
@@ -285,19 +281,15 @@ class _SavingsAccountCreateDialogState
                 ),
                 FormFieldCard(
                   label: 'Currency Code',
-                  description:
-                      'ISO 4217 currency code for this account',
+                  description: 'ISO 4217 currency code for this account',
                   isRequired: true,
                   child: TextFormField(
                     controller: _currencyCodeCtrl,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. KES',
-                    ),
+                    decoration: const InputDecoration(hintText: 'e.g. KES'),
                     textInputAction: TextInputAction.done,
-                    validator: (v) =>
-                        (v == null || v.trim().length != 3)
-                            ? 'Enter a 3-letter currency code'
-                            : null,
+                    validator: (v) => (v == null || v.trim().length != 3)
+                        ? 'Enter a 3-letter currency code'
+                        : null,
                   ),
                 ),
               ],
@@ -326,10 +318,7 @@ class _SavingsAccountCreateDialogState
 }
 
 class _SavingsAccountCard extends StatelessWidget {
-  const _SavingsAccountCard({
-    required this.account,
-    required this.onTap,
-  });
+  const _SavingsAccountCard({required this.account, required this.onTap});
 
   final SavingsAccountObject account;
   final VoidCallback onTap;
@@ -339,24 +328,26 @@ class _SavingsAccountCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     final (statusLabel, statusColor) = switch (account.status) {
-      SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_ACTIVE =>
-        ('Active', Colors.green),
-      SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_FROZEN =>
-        ('Frozen', Colors.blue),
-      SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_CLOSED =>
-        ('Closed', Colors.grey),
+      SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_ACTIVE => (
+        'Active',
+        Colors.green,
+      ),
+      SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_FROZEN => (
+        'Frozen',
+        Colors.blue,
+      ),
+      SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_CLOSED => (
+        'Closed',
+        Colors.grey,
+      ),
       _ => ('Unknown', Colors.grey),
     };
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         leading: CircleAvatar(
           backgroundColor: statusColor.withAlpha(20),
           child: Icon(Icons.savings, color: statusColor, size: 20),
@@ -372,8 +363,7 @@ class _SavingsAccountCard extends StatelessWidget {
         ),
         subtitle: Row(
           children: [
-            EntityChip(
-                type: EntityType.client, id: account.ownerId),
+            EntityChip(type: EntityType.client, id: account.ownerId),
             const SizedBox(width: 8),
             Text(
               account.currencyCode,
@@ -384,8 +374,7 @@ class _SavingsAccountCard extends StatelessWidget {
           ],
         ),
         trailing: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
             color: statusColor.withAlpha(20),
             borderRadius: BorderRadius.circular(12),

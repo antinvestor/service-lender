@@ -67,9 +67,8 @@ class RouteRoleGuard extends ConsumerWidget {
         }
         return const _AccessDeniedScreen();
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (_, _) => const _AccessDeniedScreen(),
     );
   }

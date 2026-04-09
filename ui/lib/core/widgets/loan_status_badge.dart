@@ -30,8 +30,10 @@ class LoanStatusBadge extends StatelessWidget {
 
   static (String, Color) _statusInfo(LoanStatus status) {
     return switch (status) {
-      LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT =>
-        ('Pending Disbursement', Colors.orange),
+      LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT => (
+        'Pending Disbursement',
+        Colors.orange,
+      ),
       LoanStatus.LOAN_STATUS_ACTIVE => ('Active', Colors.green),
       LoanStatus.LOAN_STATUS_DELINQUENT => ('Delinquent', Colors.deepOrange),
       LoanStatus.LOAN_STATUS_DEFAULT => ('Default', Colors.red),

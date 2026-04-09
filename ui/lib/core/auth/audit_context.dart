@@ -73,7 +73,9 @@ Future<AuditContext> auditContext(Ref ref) async {
 
   final results = await Future.wait([
     claimsFuture,
-    locationFuture.catchError((_) => const DeviceLocation(error: 'unavailable')),
+    locationFuture.catchError(
+      (_) => const DeviceLocation(error: 'unavailable'),
+    ),
   ]);
 
   final claims = results[0] as Map<String, dynamic>?;
@@ -87,15 +89,12 @@ Future<AuditContext> auditContext(Ref ref) async {
     profileId: claims['sub'] as String? ?? '',
     tenantId: claims['tenant_id'] as String?,
     partitionId: claims['partition_id'] as String?,
-    contactId:
-        claims['contact_id'] as String? ?? claims['email'] as String?,
-    accessId:
-        claims['azp'] as String? ?? claims['client_id'] as String?,
-    sessionId:
-        claims['sid'] as String? ?? claims['session_state'] as String?,
+    contactId: claims['contact_id'] as String? ?? claims['email'] as String?,
+    accessId: claims['azp'] as String? ?? claims['client_id'] as String?,
+    sessionId: claims['sid'] as String? ?? claims['session_state'] as String?,
     deviceId: claims['device_id'] as String?,
-    displayName: claims['name'] as String? ??
-        claims['preferred_username'] as String?,
+    displayName:
+        claims['name'] as String? ?? claims['preferred_username'] as String?,
     location: location,
   );
 }

@@ -10,7 +10,7 @@ import "../../common/v1/common.pb.dart" as commonv1common;
 
 /// IdentityService manages organizations, branches, and system users for the platform.
 /// All RPCs require authentication via Bearer token.
-extension type IdentityServiceClient (connect.Transport _transport) {
+extension type IdentityServiceClient(connect.Transport _transport) {
   /// OrganizationSave creates or updates an organization record.
   Future<identityv1identity.OrganizationSaveResponse> organizationSave(
     identityv1identity.OrganizationSaveRequest input, {

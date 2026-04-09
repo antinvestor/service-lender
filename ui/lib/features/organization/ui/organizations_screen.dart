@@ -48,8 +48,7 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
   @override
   Widget build(BuildContext context) {
     final organizationsAsync = ref.watch(organizationListProvider(_query));
-    final canManage =
-        ref.watch(canManageOrganizationsProvider).value ?? false;
+    final canManage = ref.watch(canManageOrganizationsProvider).value ?? false;
 
     return EntityListPage<OrganizationObject>(
       title: 'Organizations',
@@ -80,13 +79,12 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
       builder: (dialogContext) => OrganizationFormDialog(
         onSave: (updated) async {
           try {
-            await ref
-                .read(organizationProvider.notifier)
-                .save(updated);
+            await ref.read(organizationProvider.notifier).save(updated);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text('Organization created successfully')),
+                  content: Text('Organization created successfully'),
+                ),
               );
             }
           } catch (e) {
@@ -107,8 +105,7 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
 }
 
 class _OrganizationCard extends StatelessWidget {
-  const _OrganizationCard(
-      {required this.organization, required this.onTap});
+  const _OrganizationCard({required this.organization, required this.onTap});
 
   final OrganizationObject organization;
   final VoidCallback onTap;
@@ -119,13 +116,9 @@ class _OrganizationCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Icon(
@@ -158,8 +151,11 @@ class _OrganizationCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class OrganizationFormDialog extends ConsumerStatefulWidget {
-  const OrganizationFormDialog(
-      {super.key, this.organization, required this.onSave});
+  const OrganizationFormDialog({
+    super.key,
+    this.organization,
+    required this.onSave,
+  });
 
   final OrganizationObject? organization;
   final Future<void> Function(OrganizationObject organization) onSave;
@@ -183,12 +179,11 @@ class _OrganizationFormDialogState
   @override
   void initState() {
     super.initState();
-    _nameCtrl =
-        TextEditingController(text: widget.organization?.name ?? '');
-    _codeCtrl =
-        TextEditingController(text: widget.organization?.code ?? '');
+    _nameCtrl = TextEditingController(text: widget.organization?.name ?? '');
+    _codeCtrl = TextEditingController(text: widget.organization?.code ?? '');
     _selectedState = widget.organization?.state ?? STATE.CREATED;
-    _orgType = widget.organization?.organizationType ??
+    _orgType =
+        widget.organization?.organizationType ??
         OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED;
   }
 
@@ -205,8 +200,7 @@ class _OrganizationFormDialogState
     setState(() => _saving = true);
 
     // Read tenancy context from the authenticated user's JWT.
-    final partitionId =
-        await ref.read(currentPartitionIdProvider.future) ?? '';
+    final partitionId = await ref.read(currentPartitionIdProvider.future) ?? '';
 
     final organization = OrganizationObject(
       id: widget.organization?.id,
@@ -302,8 +296,9 @@ class _OrganizationFormDialogState
               children: [
                 Text(
                   _isEditing ? 'Edit Organization' : 'New Organization',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 Text(
                   _isEditing
@@ -438,7 +433,9 @@ class _OrganizationFormDialogState
                   ),
                 )
               : Icon(_isEditing ? Icons.save : Icons.add),
-          label: Text(_isEditing ? 'Update Organization' : 'Create Organization'),
+          label: Text(
+            _isEditing ? 'Update Organization' : 'Create Organization',
+          ),
         ),
       ],
     );

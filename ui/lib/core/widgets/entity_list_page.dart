@@ -77,7 +77,8 @@ class EntityListPage<T> extends StatelessWidget {
                     ),
                     if (items.isNotEmpty)
                       Text(
-                        totalHint ?? '${items.length} items${hasMore ? '+' : ''}',
+                        totalHint ??
+                            '${items.length} items${hasMore ? '+' : ''}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -118,9 +119,7 @@ class EntityListPage<T> extends StatelessWidget {
         ),
 
         // Content
-        Expanded(
-          child: _buildContent(context, theme),
-        ),
+        Expanded(child: _buildContent(context, theme)),
       ],
     );
   }

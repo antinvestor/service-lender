@@ -30,27 +30,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// The currently selected login target (null = use root client).
   LoginTarget? _selectedTarget;
 
-  String get _currentClientId =>
-      _navigationStack.isNotEmpty
-          ? _navigationStack.last.clientId
-          : AppConfig.oauthClientId;
+  String get _currentClientId => _navigationStack.isNotEmpty
+      ? _navigationStack.last.clientId
+      : AppConfig.oauthClientId;
 
   @override
   void initState() {
     super.initState();
     // Start at root level
-    _navigationStack.add(_BreadcrumbEntry(
-      clientId: AppConfig.oauthClientId,
-      name: 'Home',
-    ));
+    _navigationStack.add(
+      _BreadcrumbEntry(clientId: AppConfig.oauthClientId, name: 'Home'),
+    );
   }
 
   void _drillDown(LoginTarget target) {
     setState(() {
-      _navigationStack.add(_BreadcrumbEntry(
-        clientId: target.clientId,
-        name: target.name,
-      ));
+      _navigationStack.add(
+        _BreadcrumbEntry(clientId: target.clientId, name: target.name),
+      );
       _selectedTarget = null;
       _filterQuery = '';
     });
@@ -228,8 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   // ── Login targets list ──
                   targetsAsync.when(
-                    data: (response) =>
-                        _buildTargetsList(theme, response),
+                    data: (response) => _buildTargetsList(theme, response),
                     loading: () => const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Center(
@@ -349,13 +345,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final filtered = _filterQuery.isEmpty
         ? response.targets
         : response.targets
-            .where((t) =>
-                t.name.toLowerCase().contains(_filterQuery.toLowerCase()) ||
-                t.code.toLowerCase().contains(_filterQuery.toLowerCase()))
-            .toList();
+              .where(
+                (t) =>
+                    t.name.toLowerCase().contains(_filterQuery.toLowerCase()) ||
+                    t.code.toLowerCase().contains(_filterQuery.toLowerCase()),
+              )
+              .toList();
 
-    final targetTypeLabel =
-        response.targets.first.isOrganization ? 'organization' : 'branch';
+    final targetTypeLabel = response.targets.first.isOrganization
+        ? 'organization'
+        : 'branch';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -418,8 +417,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final loginLabel = _selectedTarget != null
         ? 'Sign in to ${_selectedTarget!.name}'
         : _navigationStack.length > 1
-            ? 'Sign in to ${_navigationStack.last.name}'
-            : 'Sign In';
+        ? 'Sign in to ${_navigationStack.last.name}'
+        : 'Sign In';
 
     return SizedBox(
       height: 52,
@@ -525,8 +524,9 @@ class _LoginTargetTile extends StatelessWidget {
                     Text(
                       target.name,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
                     if (target.code.isNotEmpty)
@@ -557,8 +557,10 @@ class _LoginTargetTile extends StatelessWidget {
                   tooltip: 'View branches',
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
                 ),
               ],
             ],

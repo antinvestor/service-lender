@@ -31,8 +31,9 @@ class NotificationTemplatesScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Notification Templates',
-                            style: theme.textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.w700),
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -81,8 +82,7 @@ class NotificationTemplatesScreen extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
@@ -129,9 +129,7 @@ class _TemplateCard extends StatelessWidget {
         side: BorderSide(color: theme.dividerColor),
       ),
       child: ExpansionTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: CircleAvatar(
           radius: 18,
           backgroundColor: theme.colorScheme.secondaryContainer,
@@ -143,8 +141,9 @@ class _TemplateCard extends StatelessWidget {
         ),
         title: Text(
           template.subject,
-          style: theme.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: Text(
           template.description,
@@ -183,8 +182,7 @@ class _TemplateCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     InkWell(
                       onTap: () {
-                        Clipboard.setData(
-                            ClipboardData(text: template.name));
+                        Clipboard.setData(ClipboardData(text: template.name));
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Template ID copied'),
@@ -230,9 +228,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   child: Text(
                     template.body,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      height: 1.5,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
                   ),
                 ),
                 if (template.variables.isNotEmpty) ...[
@@ -312,24 +308,30 @@ const _templateCategories = [
       _TemplateDef(
         name: 'template.fintech.agent.onboarding',
         subject: 'Welcome — Accept Terms & Conditions',
-        body: 'Hello {{.agent_name}},\n\nYou have been registered as an agent. '
+        body:
+            'Hello {{.agent_name}},\n\nYou have been registered as an agent. '
             'Please log in and accept the Terms & Conditions to activate your account.',
-        description: 'Sent when a new agent is created with T&C acceptance invitation.',
+        description:
+            'Sent when a new agent is created with T&C acceptance invitation.',
         variables: ['agent_name', 'agent_id'],
       ),
       _TemplateDef(
         name: 'template.fintech.agent.activated',
         subject: 'Agent Account Activated',
-        body: 'Hello {{.agent_name}},\n\nYour agent account is now active. '
+        body:
+            'Hello {{.agent_name}},\n\nYour agent account is now active. '
             'You can begin onboarding clients and processing applications.',
-        description: 'Sent when an agent accepts T&C and their account becomes active.',
+        description:
+            'Sent when an agent accepts T&C and their account becomes active.',
         variables: ['agent_name'],
       ),
       _TemplateDef(
         name: 'template.fintech.agent.deactivated',
         subject: 'Agent Account Deactivated',
-        body: 'Hello {{.agent_name}},\n\nYour agent account has been deactivated.',
-        description: 'Sent when an agent account is deactivated by an administrator.',
+        body:
+            'Hello {{.agent_name}},\n\nYour agent account has been deactivated.',
+        description:
+            'Sent when an agent account is deactivated by an administrator.',
         variables: ['agent_name'],
       ),
     ],
@@ -348,7 +350,8 @@ const _templateCategories = [
       _TemplateDef(
         name: 'template.fintech.loan.disbursed',
         subject: 'Loan Disbursed',
-        body: 'Your loan of {{.amount}} {{.currency}} has been disbursed. '
+        body:
+            'Your loan of {{.amount}} {{.currency}} has been disbursed. '
             'First repayment due on {{.first_payment_date}}.',
         description: 'Sent when the loan amount is disbursed to the borrower.',
         variables: ['amount', 'currency', 'reference', 'first_payment_date'],
@@ -356,7 +359,8 @@ const _templateCategories = [
       _TemplateDef(
         name: 'repayment_received',
         subject: 'Repayment Received',
-        body: 'Repayment of {{.amount}} {{.currency}} received. '
+        body:
+            'Repayment of {{.amount}} {{.currency}} received. '
             'Remaining: {{.remaining_balance}} {{.currency}}.',
         description: 'Sent when a loan repayment is recorded.',
         variables: ['amount', 'currency', 'remaining_balance'],
@@ -370,16 +374,23 @@ const _templateCategories = [
       _TemplateDef(
         name: 'template.fintech.loan.overdue',
         subject: 'Loan Payment Overdue',
-        body: 'Your payment of {{.amount}} {{.currency}} was due on {{.due_date}}.',
+        body:
+            'Your payment of {{.amount}} {{.currency}} was due on {{.due_date}}.',
         description: 'Sent when a loan repayment is overdue.',
         variables: ['amount', 'currency', 'due_date'],
       ),
       _TemplateDef(
         name: 'template.fintech.loan.penalty',
         subject: 'Penalty Applied',
-        body: 'A penalty of {{.penalty_amount}} {{.currency}} has been applied.',
+        body:
+            'A penalty of {{.penalty_amount}} {{.currency}} has been applied.',
         description: 'Sent when a penalty is applied to a loan account.',
-        variables: ['penalty_amount', 'currency', 'reason', 'total_outstanding'],
+        variables: [
+          'penalty_amount',
+          'currency',
+          'reason',
+          'total_outstanding',
+        ],
       ),
     ],
   ),
@@ -409,7 +420,8 @@ const _templateCategories = [
       _TemplateDef(
         name: 'template.fintech.offer.generated',
         subject: 'Loan Offer Available',
-        body: 'A loan offer of {{.amount}} {{.currency}} at {{.interest_rate}}% '
+        body:
+            'A loan offer of {{.amount}} {{.currency}} at {{.interest_rate}}% '
             'for {{.term_days}} days is available.',
         description: 'Sent when a loan offer is generated for the applicant.',
         variables: ['amount', 'currency', 'interest_rate', 'term_days'],
@@ -423,14 +435,16 @@ const _templateCategories = [
       _TemplateDef(
         name: 'template.fintech.savings.deposit',
         subject: 'Deposit Received',
-        body: 'Deposit of {{.amount}} {{.currency}} credited. Balance: {{.balance}}.',
+        body:
+            'Deposit of {{.amount}} {{.currency}} credited. Balance: {{.balance}}.',
         description: 'Sent when a deposit is made to a savings account.',
         variables: ['amount', 'currency', 'balance'],
       ),
       _TemplateDef(
         name: 'template.fintech.savings.withdrawal',
         subject: 'Withdrawal Processed',
-        body: 'Withdrawal of {{.amount}} {{.currency}} processed. Balance: {{.balance}}.',
+        body:
+            'Withdrawal of {{.amount}} {{.currency}} processed. Balance: {{.balance}}.',
         description: 'Sent when a withdrawal is made from a savings account.',
         variables: ['amount', 'currency', 'balance'],
       ),
@@ -450,7 +464,8 @@ const _templateCategories = [
       _TemplateDef(
         name: 'template.fintech.system.password_reset',
         subject: 'Password Reset Request',
-        body: 'Use code {{.code}} to reset your password. Expires in {{.expiry_minutes}} minutes.',
+        body:
+            'Use code {{.code}} to reset your password. Expires in {{.expiry_minutes}} minutes.',
         description: 'Sent when a user requests a password reset.',
         variables: ['code', 'expiry_minutes'],
       ),

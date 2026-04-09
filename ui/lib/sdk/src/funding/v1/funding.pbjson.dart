@@ -24,17 +24,93 @@ const InvestorAccountObject$json = {
     {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     {'1': 'investor_id', '3': 2, '4': 1, '5': 9, '10': 'investorId'},
     {'1': 'account_name', '3': 3, '4': 1, '5': 9, '10': 'accountName'},
-    {'1': 'available_balance', '3': 5, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'availableBalance'},
-    {'1': 'reserved_balance', '3': 6, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'reservedBalance'},
-    {'1': 'total_deployed', '3': 7, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'totalDeployed'},
-    {'1': 'total_returned', '3': 8, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'totalReturned'},
-    {'1': 'max_exposure', '3': 9, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'maxExposure'},
-    {'1': 'min_interest_rate', '3': 10, '4': 1, '5': 9, '10': 'minInterestRate'},
-    {'1': 'allowed_products', '3': 11, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'allowedProducts'},
-    {'1': 'allowed_regions', '3': 12, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'allowedRegions'},
-    {'1': 'group_affiliations', '3': 13, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'groupAffiliations'},
-    {'1': 'state', '3': 14, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
-    {'1': 'properties', '3': 15, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'available_balance',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'availableBalance'
+    },
+    {
+      '1': 'reserved_balance',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'reservedBalance'
+    },
+    {
+      '1': 'total_deployed',
+      '3': 7,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'totalDeployed'
+    },
+    {
+      '1': 'total_returned',
+      '3': 8,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'totalReturned'
+    },
+    {
+      '1': 'max_exposure',
+      '3': 9,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'maxExposure'
+    },
+    {
+      '1': 'min_interest_rate',
+      '3': 10,
+      '4': 1,
+      '5': 9,
+      '10': 'minInterestRate'
+    },
+    {
+      '1': 'allowed_products',
+      '3': 11,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'allowedProducts'
+    },
+    {
+      '1': 'allowed_regions',
+      '3': 12,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'allowedRegions'
+    },
+    {
+      '1': 'group_affiliations',
+      '3': 13,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'groupAffiliations'
+    },
+    {
+      '1': 'state',
+      '3': 14,
+      '4': 1,
+      '5': 14,
+      '6': '.common.v1.STATE',
+      '10': 'state'
+    },
+    {
+      '1': 'properties',
+      '3': 15,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
   '9': [
     {'1': 4, '2': 5},
@@ -67,9 +143,23 @@ const FundingAllocationObject$json = {
     {'1': 'source_id', '3': 3, '4': 1, '5': 9, '10': 'sourceId'},
     {'1': 'source_type', '3': 4, '4': 1, '5': 9, '10': 'sourceType'},
     {'1': 'tranche_level', '3': 5, '4': 1, '5': 5, '10': 'trancheLevel'},
-    {'1': 'amount', '3': 6, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
+    {
+      '1': 'amount',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
     {'1': 'proportion', '3': 8, '4': 1, '5': 9, '10': 'proportion'},
-    {'1': 'properties', '3': 9, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {
+      '1': 'properties',
+      '3': 9,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Struct',
+      '10': 'properties'
+    },
   ],
   '9': [
     {'1': 7, '2': 8},
@@ -89,27 +179,43 @@ final $typed_data.Uint8List fundingAllocationObjectDescriptor = $convert.base64D
 const InvestorAccountSaveRequest$json = {
   '1': 'InvestorAccountSaveRequest',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.funding.v1.InvestorAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.funding.v1.InvestorAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InvestorAccountSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorAccountSaveRequestDescriptor = $convert.base64Decode(
-    'ChpJbnZlc3RvckFjY291bnRTYXZlUmVxdWVzdBI1CgRkYXRhGAEgASgLMiEuZnVuZGluZy52MS'
-    '5JbnZlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List investorAccountSaveRequestDescriptor =
+    $convert.base64Decode(
+        'ChpJbnZlc3RvckFjY291bnRTYXZlUmVxdWVzdBI1CgRkYXRhGAEgASgLMiEuZnVuZGluZy52MS'
+        '5JbnZlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use investorAccountSaveResponseDescriptor instead')
 const InvestorAccountSaveResponse$json = {
   '1': 'InvestorAccountSaveResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.funding.v1.InvestorAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.funding.v1.InvestorAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InvestorAccountSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorAccountSaveResponseDescriptor = $convert.base64Decode(
-    'ChtJbnZlc3RvckFjY291bnRTYXZlUmVzcG9uc2USNQoEZGF0YRgBIAEoCzIhLmZ1bmRpbmcudj'
-    'EuSW52ZXN0b3JBY2NvdW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List investorAccountSaveResponseDescriptor =
+    $convert.base64Decode(
+        'ChtJbnZlc3RvckFjY291bnRTYXZlUmVzcG9uc2USNQoEZGF0YRgBIAEoCzIhLmZ1bmRpbmcudj'
+        'EuSW52ZXN0b3JBY2NvdW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use investorAccountGetRequestDescriptor instead')
 const InvestorAccountGetRequest$json = {
@@ -120,21 +226,30 @@ const InvestorAccountGetRequest$json = {
 };
 
 /// Descriptor for `InvestorAccountGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorAccountGetRequestDescriptor = $convert.base64Decode(
-    'ChlJbnZlc3RvckFjY291bnRHZXRSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZA==');
+final $typed_data.Uint8List investorAccountGetRequestDescriptor =
+    $convert.base64Decode(
+        'ChlJbnZlc3RvckFjY291bnRHZXRSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZA==');
 
 @$core.Deprecated('Use investorAccountGetResponseDescriptor instead')
 const InvestorAccountGetResponse$json = {
   '1': 'InvestorAccountGetResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.funding.v1.InvestorAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.funding.v1.InvestorAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InvestorAccountGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorAccountGetResponseDescriptor = $convert.base64Decode(
-    'ChpJbnZlc3RvckFjY291bnRHZXRSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEuZnVuZGluZy52MS'
-    '5JbnZlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List investorAccountGetResponseDescriptor =
+    $convert.base64Decode(
+        'ChpJbnZlc3RvckFjY291bnRHZXRSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEuZnVuZGluZy52MS'
+        '5JbnZlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use investorAccountSearchRequestDescriptor instead')
 const InvestorAccountSearchRequest$json = {
@@ -142,35 +257,58 @@ const InvestorAccountSearchRequest$json = {
   '2': [
     {'1': 'investor_id', '3': 1, '4': 1, '5': 9, '10': 'investorId'},
     {'1': 'currency_code', '3': 2, '4': 1, '5': 9, '10': 'currencyCode'},
-    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {
+      '1': 'cursor',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.common.v1.PageCursor',
+      '10': 'cursor'
+    },
   ],
 };
 
 /// Descriptor for `InvestorAccountSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorAccountSearchRequestDescriptor = $convert.base64Decode(
-    'ChxJbnZlc3RvckFjY291bnRTZWFyY2hSZXF1ZXN0Eh8KC2ludmVzdG9yX2lkGAEgASgJUgppbn'
-    'Zlc3RvcklkEiMKDWN1cnJlbmN5X2NvZGUYAiABKAlSDGN1cnJlbmN5Q29kZRItCgZjdXJzb3IY'
-    'AyABKAsyFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
+final $typed_data.Uint8List investorAccountSearchRequestDescriptor =
+    $convert.base64Decode(
+        'ChxJbnZlc3RvckFjY291bnRTZWFyY2hSZXF1ZXN0Eh8KC2ludmVzdG9yX2lkGAEgASgJUgppbn'
+        'Zlc3RvcklkEiMKDWN1cnJlbmN5X2NvZGUYAiABKAlSDGN1cnJlbmN5Q29kZRItCgZjdXJzb3IY'
+        'AyABKAsyFS5jb21tb24udjEuUGFnZUN1cnNvclIGY3Vyc29y');
 
 @$core.Deprecated('Use investorAccountSearchResponseDescriptor instead')
 const InvestorAccountSearchResponse$json = {
   '1': 'InvestorAccountSearchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.funding.v1.InvestorAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.funding.v1.InvestorAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InvestorAccountSearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorAccountSearchResponseDescriptor = $convert.base64Decode(
-    'Ch1JbnZlc3RvckFjY291bnRTZWFyY2hSZXNwb25zZRI1CgRkYXRhGAEgAygLMiEuZnVuZGluZy'
-    '52MS5JbnZlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List investorAccountSearchResponseDescriptor =
+    $convert.base64Decode(
+        'Ch1JbnZlc3RvckFjY291bnRTZWFyY2hSZXNwb25zZRI1CgRkYXRhGAEgAygLMiEuZnVuZGluZy'
+        '52MS5JbnZlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use investorDepositRequestDescriptor instead')
 const InvestorDepositRequest$json = {
   '1': 'InvestorDepositRequest',
   '2': [
     {'1': 'account_id', '3': 1, '4': 1, '5': 9, '10': 'accountId'},
-    {'1': 'amount', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
+    {
+      '1': 'amount',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
   ],
   '9': [
     {'1': 3, '2': 4},
@@ -178,49 +316,74 @@ const InvestorDepositRequest$json = {
 };
 
 /// Descriptor for `InvestorDepositRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorDepositRequestDescriptor = $convert.base64Decode(
-    'ChZJbnZlc3RvckRlcG9zaXRSZXF1ZXN0Eh0KCmFjY291bnRfaWQYASABKAlSCWFjY291bnRJZB'
-    'IqCgZhbW91bnQYAiABKAsyEi5nb29nbGUudHlwZS5Nb25leVIGYW1vdW50SgQIAxAE');
+final $typed_data.Uint8List investorDepositRequestDescriptor =
+    $convert.base64Decode(
+        'ChZJbnZlc3RvckRlcG9zaXRSZXF1ZXN0Eh0KCmFjY291bnRfaWQYASABKAlSCWFjY291bnRJZB'
+        'IqCgZhbW91bnQYAiABKAsyEi5nb29nbGUudHlwZS5Nb25leVIGYW1vdW50SgQIAxAE');
 
 @$core.Deprecated('Use investorDepositResponseDescriptor instead')
 const InvestorDepositResponse$json = {
   '1': 'InvestorDepositResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.funding.v1.InvestorAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.funding.v1.InvestorAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InvestorDepositResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorDepositResponseDescriptor = $convert.base64Decode(
-    'ChdJbnZlc3RvckRlcG9zaXRSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEuZnVuZGluZy52MS5Jbn'
-    'Zlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
+final $typed_data.Uint8List investorDepositResponseDescriptor =
+    $convert.base64Decode(
+        'ChdJbnZlc3RvckRlcG9zaXRSZXNwb25zZRI1CgRkYXRhGAEgASgLMiEuZnVuZGluZy52MS5Jbn'
+        'Zlc3RvckFjY291bnRPYmplY3RSBGRhdGE=');
 
 @$core.Deprecated('Use investorWithdrawRequestDescriptor instead')
 const InvestorWithdrawRequest$json = {
   '1': 'InvestorWithdrawRequest',
   '2': [
     {'1': 'account_id', '3': 1, '4': 1, '5': 9, '10': 'accountId'},
-    {'1': 'amount', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
+    {
+      '1': 'amount',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
   ],
 };
 
 /// Descriptor for `InvestorWithdrawRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorWithdrawRequestDescriptor = $convert.base64Decode(
-    'ChdJbnZlc3RvcldpdGhkcmF3UmVxdWVzdBIdCgphY2NvdW50X2lkGAEgASgJUglhY2NvdW50SW'
-    'QSKgoGYW1vdW50GAIgASgLMhIuZ29vZ2xlLnR5cGUuTW9uZXlSBmFtb3VudA==');
+final $typed_data.Uint8List investorWithdrawRequestDescriptor =
+    $convert.base64Decode(
+        'ChdJbnZlc3RvcldpdGhkcmF3UmVxdWVzdBIdCgphY2NvdW50X2lkGAEgASgJUglhY2NvdW50SW'
+        'QSKgoGYW1vdW50GAIgASgLMhIuZ29vZ2xlLnR5cGUuTW9uZXlSBmFtb3VudA==');
 
 @$core.Deprecated('Use investorWithdrawResponseDescriptor instead')
 const InvestorWithdrawResponse$json = {
   '1': 'InvestorWithdrawResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.funding.v1.InvestorAccountObject', '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.funding.v1.InvestorAccountObject',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `InvestorWithdrawResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List investorWithdrawResponseDescriptor = $convert.base64Decode(
-    'ChhJbnZlc3RvcldpdGhkcmF3UmVzcG9uc2USNQoEZGF0YRgBIAEoCzIhLmZ1bmRpbmcudjEuSW'
-    '52ZXN0b3JBY2NvdW50T2JqZWN0UgRkYXRh');
+final $typed_data.Uint8List investorWithdrawResponseDescriptor =
+    $convert.base64Decode(
+        'ChhJbnZlc3RvcldpdGhkcmF3UmVzcG9uc2USNQoEZGF0YRgBIAEoCzIhLmZ1bmRpbmcudjEuSW'
+        '52ZXN0b3JBY2NvdW50T2JqZWN0UgRkYXRh');
 
 @$core.Deprecated('Use fundLoanRequestDescriptor instead')
 const FundLoanRequest$json = {
@@ -238,9 +401,30 @@ final $typed_data.Uint8List fundLoanRequestDescriptor = $convert.base64Decode(
 const FundLoanResponse$json = {
   '1': 'FundLoanResponse',
   '2': [
-    {'1': 'allocations', '3': 1, '4': 3, '5': 11, '6': '.funding.v1.FundingAllocationObject', '10': 'allocations'},
-    {'1': 'total_allocated', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'totalAllocated'},
-    {'1': 'deficit', '3': 3, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'deficit'},
+    {
+      '1': 'allocations',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.funding.v1.FundingAllocationObject',
+      '10': 'allocations'
+    },
+    {
+      '1': 'total_allocated',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'totalAllocated'
+    },
+    {
+      '1': 'deficit',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'deficit'
+    },
     {'1': 'fully_funded', '3': 4, '4': 1, '5': 8, '10': 'fullyFunded'},
   ],
 };
@@ -258,7 +442,14 @@ const AbsorbLossRequest$json = {
   '1': 'AbsorbLossRequest',
   '2': [
     {'1': 'loan_offer_id', '3': 1, '4': 1, '5': 9, '10': 'loanOfferId'},
-    {'1': 'amount', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
+    {
+      '1': 'amount',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'amount'
+    },
   ],
 };
 
@@ -271,8 +462,22 @@ final $typed_data.Uint8List absorbLossRequestDescriptor = $convert.base64Decode(
 const AbsorbLossResponse$json = {
   '1': 'AbsorbLossResponse',
   '2': [
-    {'1': 'absorbed', '3': 1, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'absorbed'},
-    {'1': 'unrecoverable', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'unrecoverable'},
+    {
+      '1': 'absorbed',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'absorbed'
+    },
+    {
+      '1': 'unrecoverable',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.type.Money',
+      '10': 'unrecoverable'
+    },
   ],
 };
 
@@ -285,19 +490,56 @@ final $typed_data.Uint8List absorbLossResponseDescriptor = $convert.base64Decode
 const $core.Map<$core.String, $core.dynamic> FundingServiceBase$json = {
   '1': 'FundingService',
   '2': [
-    {'1': 'InvestorAccountSave', '2': '.funding.v1.InvestorAccountSaveRequest', '3': '.funding.v1.InvestorAccountSaveResponse', '4': {}},
-    {'1': 'InvestorAccountGet', '2': '.funding.v1.InvestorAccountGetRequest', '3': '.funding.v1.InvestorAccountGetResponse', '4': {}},
-    {'1': 'InvestorAccountSearch', '2': '.funding.v1.InvestorAccountSearchRequest', '3': '.funding.v1.InvestorAccountSearchResponse', '4': {}, '6': true},
-    {'1': 'InvestorDeposit', '2': '.funding.v1.InvestorDepositRequest', '3': '.funding.v1.InvestorDepositResponse', '4': {}},
-    {'1': 'InvestorWithdraw', '2': '.funding.v1.InvestorWithdrawRequest', '3': '.funding.v1.InvestorWithdrawResponse', '4': {}},
-    {'1': 'FundLoan', '2': '.funding.v1.FundLoanRequest', '3': '.funding.v1.FundLoanResponse', '4': {}},
-    {'1': 'AbsorbLoss', '2': '.funding.v1.AbsorbLossRequest', '3': '.funding.v1.AbsorbLossResponse', '4': {}},
+    {
+      '1': 'InvestorAccountSave',
+      '2': '.funding.v1.InvestorAccountSaveRequest',
+      '3': '.funding.v1.InvestorAccountSaveResponse',
+      '4': {}
+    },
+    {
+      '1': 'InvestorAccountGet',
+      '2': '.funding.v1.InvestorAccountGetRequest',
+      '3': '.funding.v1.InvestorAccountGetResponse',
+      '4': {}
+    },
+    {
+      '1': 'InvestorAccountSearch',
+      '2': '.funding.v1.InvestorAccountSearchRequest',
+      '3': '.funding.v1.InvestorAccountSearchResponse',
+      '4': {},
+      '6': true
+    },
+    {
+      '1': 'InvestorDeposit',
+      '2': '.funding.v1.InvestorDepositRequest',
+      '3': '.funding.v1.InvestorDepositResponse',
+      '4': {}
+    },
+    {
+      '1': 'InvestorWithdraw',
+      '2': '.funding.v1.InvestorWithdrawRequest',
+      '3': '.funding.v1.InvestorWithdrawResponse',
+      '4': {}
+    },
+    {
+      '1': 'FundLoan',
+      '2': '.funding.v1.FundLoanRequest',
+      '3': '.funding.v1.FundLoanResponse',
+      '4': {}
+    },
+    {
+      '1': 'AbsorbLoss',
+      '2': '.funding.v1.AbsorbLossRequest',
+      '3': '.funding.v1.AbsorbLossResponse',
+      '4': {}
+    },
   ],
   '3': {},
 };
 
 @$core.Deprecated('Use fundingServiceDescriptor instead')
-const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FundingServiceBase$messageJson = {
+const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
+    FundingServiceBase$messageJson = {
   '.funding.v1.InvestorAccountSaveRequest': InvestorAccountSaveRequest$json,
   '.funding.v1.InvestorAccountObject': InvestorAccountObject$json,
   '.google.type.Money': $9.Money$json,
@@ -310,7 +552,8 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FundingSer
   '.funding.v1.InvestorAccountGetResponse': InvestorAccountGetResponse$json,
   '.funding.v1.InvestorAccountSearchRequest': InvestorAccountSearchRequest$json,
   '.common.v1.PageCursor': $7.PageCursor$json,
-  '.funding.v1.InvestorAccountSearchResponse': InvestorAccountSearchResponse$json,
+  '.funding.v1.InvestorAccountSearchResponse':
+      InvestorAccountSearchResponse$json,
   '.funding.v1.InvestorDepositRequest': InvestorDepositRequest$json,
   '.funding.v1.InvestorDepositResponse': InvestorDepositResponse$json,
   '.funding.v1.InvestorWithdrawRequest': InvestorWithdrawRequest$json,
@@ -347,4 +590,3 @@ final $typed_data.Uint8List fundingServiceDescriptor = $convert.base64Decode(
     'bWFuYWdlGhkIBBIVaW52ZXN0b3JfYWNjb3VudF92aWV3GhkIBRIVaW52ZXN0b3JfYWNjb3VudF'
     '92aWV3Gj8IBhIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhdpbnZlc3Rvcl9hY2NvdW50X21hbmFn'
     'ZRILZnVuZF9tYW5hZ2U=');
-

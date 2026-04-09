@@ -32,10 +32,12 @@ class UnderwritingDecisionNotifier extends _$UnderwritingDecisionNotifier {
   }
 
   Future<UnderwritingDecisionObject> save(
-      UnderwritingDecisionObject decision) async {
+    UnderwritingDecisionObject decision,
+  ) async {
     final client = ref.read(originationServiceClientProvider);
     final response = await client.underwritingDecisionSave(
-        UnderwritingDecisionSaveRequest(data: decision));
+      UnderwritingDecisionSaveRequest(data: decision),
+    );
 
     ref.invalidate(underwritingDecisionListProvider);
 

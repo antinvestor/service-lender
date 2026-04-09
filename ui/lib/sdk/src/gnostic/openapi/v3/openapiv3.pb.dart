@@ -16,11 +16,7 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 import '../../../google/protobuf/any.pb.dart' as $4;
 
-enum AdditionalPropertiesItem_Oneof {
-  schemaOrReference, 
-  boolean, 
-  notSet
-}
+enum AdditionalPropertiesItem_Oneof { schemaOrReference, boolean, notSet }
 
 class AdditionalPropertiesItem extends $pb.GeneratedMessage {
   factory AdditionalPropertiesItem({
@@ -37,49 +33,66 @@ class AdditionalPropertiesItem extends $pb.GeneratedMessage {
     return $result;
   }
   AdditionalPropertiesItem._() : super();
-  factory AdditionalPropertiesItem.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AdditionalPropertiesItem.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory AdditionalPropertiesItem.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AdditionalPropertiesItem.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, AdditionalPropertiesItem_Oneof> _AdditionalPropertiesItem_OneofByTag = {
-    1 : AdditionalPropertiesItem_Oneof.schemaOrReference,
-    2 : AdditionalPropertiesItem_Oneof.boolean,
-    0 : AdditionalPropertiesItem_Oneof.notSet
+  static const $core.Map<$core.int, AdditionalPropertiesItem_Oneof>
+      _AdditionalPropertiesItem_OneofByTag = {
+    1: AdditionalPropertiesItem_Oneof.schemaOrReference,
+    2: AdditionalPropertiesItem_Oneof.boolean,
+    0: AdditionalPropertiesItem_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AdditionalPropertiesItem', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'AdditionalPropertiesItem',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<SchemaOrReference>(1, _omitFieldNames ? '' : 'schemaOrReference', subBuilder: SchemaOrReference.create)
+    ..aOM<SchemaOrReference>(1, _omitFieldNames ? '' : 'schemaOrReference',
+        subBuilder: SchemaOrReference.create)
     ..aOB(2, _omitFieldNames ? '' : 'boolean')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  AdditionalPropertiesItem clone() => AdditionalPropertiesItem()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AdditionalPropertiesItem copyWith(void Function(AdditionalPropertiesItem) updates) => super.copyWith((message) => updates(message as AdditionalPropertiesItem)) as AdditionalPropertiesItem;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  AdditionalPropertiesItem clone() =>
+      AdditionalPropertiesItem()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AdditionalPropertiesItem copyWith(
+          void Function(AdditionalPropertiesItem) updates) =>
+      super.copyWith((message) => updates(message as AdditionalPropertiesItem))
+          as AdditionalPropertiesItem;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static AdditionalPropertiesItem create() => AdditionalPropertiesItem._();
   AdditionalPropertiesItem createEmptyInstance() => create();
-  static $pb.PbList<AdditionalPropertiesItem> createRepeated() => $pb.PbList<AdditionalPropertiesItem>();
+  static $pb.PbList<AdditionalPropertiesItem> createRepeated() =>
+      $pb.PbList<AdditionalPropertiesItem>();
   @$core.pragma('dart2js:noInline')
-  static AdditionalPropertiesItem getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AdditionalPropertiesItem>(create);
+  static AdditionalPropertiesItem getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AdditionalPropertiesItem>(create);
   static AdditionalPropertiesItem? _defaultInstance;
 
-  AdditionalPropertiesItem_Oneof whichOneof() => _AdditionalPropertiesItem_OneofByTag[$_whichOneof(0)]!;
+  AdditionalPropertiesItem_Oneof whichOneof() =>
+      _AdditionalPropertiesItem_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   SchemaOrReference get schemaOrReference => $_getN(0);
   @$pb.TagNumber(1)
-  set schemaOrReference(SchemaOrReference v) { setField(1, v); }
+  set schemaOrReference(SchemaOrReference v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasSchemaOrReference() => $_has(0);
   @$pb.TagNumber(1)
@@ -90,7 +103,10 @@ class AdditionalPropertiesItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get boolean => $_getBF(1);
   @$pb.TagNumber(2)
-  set boolean($core.bool v) { $_setBool(1, v); }
+  set boolean($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasBoolean() => $_has(1);
   @$pb.TagNumber(2)
@@ -112,25 +128,31 @@ class Any extends $pb.GeneratedMessage {
     return $result;
   }
   Any._() : super();
-  factory Any.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Any.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Any.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Any.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Any', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Any',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOM<$4.Any>(1, _omitFieldNames ? '' : 'value', subBuilder: $4.Any.create)
     ..aOS(2, _omitFieldNames ? '' : 'yaml')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Any clone() => Any()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Any copyWith(void Function(Any) updates) => super.copyWith((message) => updates(message as Any)) as Any;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Any copyWith(void Function(Any) updates) =>
+      super.copyWith((message) => updates(message as Any)) as Any;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -139,13 +161,17 @@ class Any extends $pb.GeneratedMessage {
   Any createEmptyInstance() => create();
   static $pb.PbList<Any> createRepeated() => $pb.PbList<Any>();
   @$core.pragma('dart2js:noInline')
-  static Any getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Any>(create);
+  static Any getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Any>(create);
   static Any? _defaultInstance;
 
   @$pb.TagNumber(1)
   $4.Any get value => $_getN(0);
   @$pb.TagNumber(1)
-  set value($4.Any v) { setField(1, v); }
+  set value($4.Any v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasValue() => $_has(0);
   @$pb.TagNumber(1)
@@ -156,18 +182,17 @@ class Any extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get yaml => $_getSZ(1);
   @$pb.TagNumber(2)
-  set yaml($core.String v) { $_setString(1, v); }
+  set yaml($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasYaml() => $_has(1);
   @$pb.TagNumber(2)
   void clearYaml() => clearField(2);
 }
 
-enum AnyOrExpression_Oneof {
-  any, 
-  expression, 
-  notSet
-}
+enum AnyOrExpression_Oneof { any, expression, notSet }
 
 class AnyOrExpression extends $pb.GeneratedMessage {
   factory AnyOrExpression({
@@ -184,49 +209,64 @@ class AnyOrExpression extends $pb.GeneratedMessage {
     return $result;
   }
   AnyOrExpression._() : super();
-  factory AnyOrExpression.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AnyOrExpression.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory AnyOrExpression.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AnyOrExpression.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, AnyOrExpression_Oneof> _AnyOrExpression_OneofByTag = {
-    1 : AnyOrExpression_Oneof.any,
-    2 : AnyOrExpression_Oneof.expression,
-    0 : AnyOrExpression_Oneof.notSet
+  static const $core.Map<$core.int, AnyOrExpression_Oneof>
+      _AnyOrExpression_OneofByTag = {
+    1: AnyOrExpression_Oneof.any,
+    2: AnyOrExpression_Oneof.expression,
+    0: AnyOrExpression_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AnyOrExpression', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'AnyOrExpression',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
     ..aOM<Any>(1, _omitFieldNames ? '' : 'any', subBuilder: Any.create)
-    ..aOM<Expression>(2, _omitFieldNames ? '' : 'expression', subBuilder: Expression.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Expression>(2, _omitFieldNames ? '' : 'expression',
+        subBuilder: Expression.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   AnyOrExpression clone() => AnyOrExpression()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AnyOrExpression copyWith(void Function(AnyOrExpression) updates) => super.copyWith((message) => updates(message as AnyOrExpression)) as AnyOrExpression;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AnyOrExpression copyWith(void Function(AnyOrExpression) updates) =>
+      super.copyWith((message) => updates(message as AnyOrExpression))
+          as AnyOrExpression;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static AnyOrExpression create() => AnyOrExpression._();
   AnyOrExpression createEmptyInstance() => create();
-  static $pb.PbList<AnyOrExpression> createRepeated() => $pb.PbList<AnyOrExpression>();
+  static $pb.PbList<AnyOrExpression> createRepeated() =>
+      $pb.PbList<AnyOrExpression>();
   @$core.pragma('dart2js:noInline')
-  static AnyOrExpression getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AnyOrExpression>(create);
+  static AnyOrExpression getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AnyOrExpression>(create);
   static AnyOrExpression? _defaultInstance;
 
-  AnyOrExpression_Oneof whichOneof() => _AnyOrExpression_OneofByTag[$_whichOneof(0)]!;
+  AnyOrExpression_Oneof whichOneof() =>
+      _AnyOrExpression_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Any get any => $_getN(0);
   @$pb.TagNumber(1)
-  set any(Any v) { setField(1, v); }
+  set any(Any v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasAny() => $_has(0);
   @$pb.TagNumber(1)
@@ -237,7 +277,10 @@ class AnyOrExpression extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Expression get expression => $_getN(1);
   @$pb.TagNumber(2)
-  set expression(Expression v) { setField(2, v); }
+  set expression(Expression v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasExpression() => $_has(1);
   @$pb.TagNumber(2)
@@ -262,25 +305,34 @@ class Callback extends $pb.GeneratedMessage {
     return $result;
   }
   Callback._() : super();
-  factory Callback.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Callback.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Callback.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Callback.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Callback', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedPathItem>(1, _omitFieldNames ? '' : 'path', $pb.PbFieldType.PM, subBuilder: NamedPathItem.create)
-    ..pc<NamedAny>(2, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Callback',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedPathItem>(1, _omitFieldNames ? '' : 'path', $pb.PbFieldType.PM,
+        subBuilder: NamedPathItem.create)
+    ..pc<NamedAny>(
+        2, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Callback clone() => Callback()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Callback copyWith(void Function(Callback) updates) => super.copyWith((message) => updates(message as Callback)) as Callback;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Callback copyWith(void Function(Callback) updates) =>
+      super.copyWith((message) => updates(message as Callback)) as Callback;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -289,7 +341,8 @@ class Callback extends $pb.GeneratedMessage {
   Callback createEmptyInstance() => create();
   static $pb.PbList<Callback> createRepeated() => $pb.PbList<Callback>();
   @$core.pragma('dart2js:noInline')
-  static Callback getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Callback>(create);
+  static Callback getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Callback>(create);
   static Callback? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -299,11 +352,7 @@ class Callback extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(1);
 }
 
-enum CallbackOrReference_Oneof {
-  callback, 
-  reference, 
-  notSet
-}
+enum CallbackOrReference_Oneof { callback, reference, notSet }
 
 class CallbackOrReference extends $pb.GeneratedMessage {
   factory CallbackOrReference({
@@ -320,49 +369,65 @@ class CallbackOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   CallbackOrReference._() : super();
-  factory CallbackOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CallbackOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CallbackOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory CallbackOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, CallbackOrReference_Oneof> _CallbackOrReference_OneofByTag = {
-    1 : CallbackOrReference_Oneof.callback,
-    2 : CallbackOrReference_Oneof.reference,
-    0 : CallbackOrReference_Oneof.notSet
+  static const $core.Map<$core.int, CallbackOrReference_Oneof>
+      _CallbackOrReference_OneofByTag = {
+    1: CallbackOrReference_Oneof.callback,
+    2: CallbackOrReference_Oneof.reference,
+    0: CallbackOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CallbackOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'CallbackOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<Callback>(1, _omitFieldNames ? '' : 'callback', subBuilder: Callback.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Callback>(1, _omitFieldNames ? '' : 'callback',
+        subBuilder: Callback.create)
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   CallbackOrReference clone() => CallbackOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  CallbackOrReference copyWith(void Function(CallbackOrReference) updates) => super.copyWith((message) => updates(message as CallbackOrReference)) as CallbackOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  CallbackOrReference copyWith(void Function(CallbackOrReference) updates) =>
+      super.copyWith((message) => updates(message as CallbackOrReference))
+          as CallbackOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static CallbackOrReference create() => CallbackOrReference._();
   CallbackOrReference createEmptyInstance() => create();
-  static $pb.PbList<CallbackOrReference> createRepeated() => $pb.PbList<CallbackOrReference>();
+  static $pb.PbList<CallbackOrReference> createRepeated() =>
+      $pb.PbList<CallbackOrReference>();
   @$core.pragma('dart2js:noInline')
-  static CallbackOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CallbackOrReference>(create);
+  static CallbackOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CallbackOrReference>(create);
   static CallbackOrReference? _defaultInstance;
 
-  CallbackOrReference_Oneof whichOneof() => _CallbackOrReference_OneofByTag[$_whichOneof(0)]!;
+  CallbackOrReference_Oneof whichOneof() =>
+      _CallbackOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Callback get callback => $_getN(0);
   @$pb.TagNumber(1)
-  set callback(Callback v) { setField(1, v); }
+  set callback(Callback v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasCallback() => $_has(0);
   @$pb.TagNumber(1)
@@ -373,7 +438,10 @@ class CallbackOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -393,33 +461,46 @@ class CallbacksOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   CallbacksOrReferences._() : super();
-  factory CallbacksOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CallbacksOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CallbacksOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory CallbacksOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CallbacksOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedCallbackOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedCallbackOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'CallbacksOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedCallbackOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedCallbackOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  CallbacksOrReferences clone() => CallbacksOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  CallbacksOrReferences copyWith(void Function(CallbacksOrReferences) updates) => super.copyWith((message) => updates(message as CallbacksOrReferences)) as CallbacksOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  CallbacksOrReferences clone() =>
+      CallbacksOrReferences()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  CallbacksOrReferences copyWith(
+          void Function(CallbacksOrReferences) updates) =>
+      super.copyWith((message) => updates(message as CallbacksOrReferences))
+          as CallbacksOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static CallbacksOrReferences create() => CallbacksOrReferences._();
   CallbacksOrReferences createEmptyInstance() => create();
-  static $pb.PbList<CallbacksOrReferences> createRepeated() => $pb.PbList<CallbacksOrReferences>();
+  static $pb.PbList<CallbacksOrReferences> createRepeated() =>
+      $pb.PbList<CallbacksOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static CallbacksOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CallbacksOrReferences>(create);
+  static CallbacksOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CallbacksOrReferences>(create);
   static CallbacksOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -474,33 +555,51 @@ class Components extends $pb.GeneratedMessage {
     return $result;
   }
   Components._() : super();
-  factory Components.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Components.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Components.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Components.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Components', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..aOM<SchemasOrReferences>(1, _omitFieldNames ? '' : 'schemas', subBuilder: SchemasOrReferences.create)
-    ..aOM<ResponsesOrReferences>(2, _omitFieldNames ? '' : 'responses', subBuilder: ResponsesOrReferences.create)
-    ..aOM<ParametersOrReferences>(3, _omitFieldNames ? '' : 'parameters', subBuilder: ParametersOrReferences.create)
-    ..aOM<ExamplesOrReferences>(4, _omitFieldNames ? '' : 'examples', subBuilder: ExamplesOrReferences.create)
-    ..aOM<RequestBodiesOrReferences>(5, _omitFieldNames ? '' : 'requestBodies', subBuilder: RequestBodiesOrReferences.create)
-    ..aOM<HeadersOrReferences>(6, _omitFieldNames ? '' : 'headers', subBuilder: HeadersOrReferences.create)
-    ..aOM<SecuritySchemesOrReferences>(7, _omitFieldNames ? '' : 'securitySchemes', subBuilder: SecuritySchemesOrReferences.create)
-    ..aOM<LinksOrReferences>(8, _omitFieldNames ? '' : 'links', subBuilder: LinksOrReferences.create)
-    ..aOM<CallbacksOrReferences>(9, _omitFieldNames ? '' : 'callbacks', subBuilder: CallbacksOrReferences.create)
-    ..pc<NamedAny>(10, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Components',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..aOM<SchemasOrReferences>(1, _omitFieldNames ? '' : 'schemas',
+        subBuilder: SchemasOrReferences.create)
+    ..aOM<ResponsesOrReferences>(2, _omitFieldNames ? '' : 'responses',
+        subBuilder: ResponsesOrReferences.create)
+    ..aOM<ParametersOrReferences>(3, _omitFieldNames ? '' : 'parameters',
+        subBuilder: ParametersOrReferences.create)
+    ..aOM<ExamplesOrReferences>(4, _omitFieldNames ? '' : 'examples',
+        subBuilder: ExamplesOrReferences.create)
+    ..aOM<RequestBodiesOrReferences>(5, _omitFieldNames ? '' : 'requestBodies',
+        subBuilder: RequestBodiesOrReferences.create)
+    ..aOM<HeadersOrReferences>(6, _omitFieldNames ? '' : 'headers',
+        subBuilder: HeadersOrReferences.create)
+    ..aOM<SecuritySchemesOrReferences>(
+        7, _omitFieldNames ? '' : 'securitySchemes',
+        subBuilder: SecuritySchemesOrReferences.create)
+    ..aOM<LinksOrReferences>(8, _omitFieldNames ? '' : 'links',
+        subBuilder: LinksOrReferences.create)
+    ..aOM<CallbacksOrReferences>(9, _omitFieldNames ? '' : 'callbacks',
+        subBuilder: CallbacksOrReferences.create)
+    ..pc<NamedAny>(
+        10, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Components clone() => Components()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Components copyWith(void Function(Components) updates) => super.copyWith((message) => updates(message as Components)) as Components;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Components copyWith(void Function(Components) updates) =>
+      super.copyWith((message) => updates(message as Components)) as Components;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -509,13 +608,17 @@ class Components extends $pb.GeneratedMessage {
   Components createEmptyInstance() => create();
   static $pb.PbList<Components> createRepeated() => $pb.PbList<Components>();
   @$core.pragma('dart2js:noInline')
-  static Components getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Components>(create);
+  static Components getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Components>(create);
   static Components? _defaultInstance;
 
   @$pb.TagNumber(1)
   SchemasOrReferences get schemas => $_getN(0);
   @$pb.TagNumber(1)
-  set schemas(SchemasOrReferences v) { setField(1, v); }
+  set schemas(SchemasOrReferences v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasSchemas() => $_has(0);
   @$pb.TagNumber(1)
@@ -526,7 +629,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   ResponsesOrReferences get responses => $_getN(1);
   @$pb.TagNumber(2)
-  set responses(ResponsesOrReferences v) { setField(2, v); }
+  set responses(ResponsesOrReferences v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasResponses() => $_has(1);
   @$pb.TagNumber(2)
@@ -537,7 +643,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   ParametersOrReferences get parameters => $_getN(2);
   @$pb.TagNumber(3)
-  set parameters(ParametersOrReferences v) { setField(3, v); }
+  set parameters(ParametersOrReferences v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasParameters() => $_has(2);
   @$pb.TagNumber(3)
@@ -548,7 +657,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   ExamplesOrReferences get examples => $_getN(3);
   @$pb.TagNumber(4)
-  set examples(ExamplesOrReferences v) { setField(4, v); }
+  set examples(ExamplesOrReferences v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasExamples() => $_has(3);
   @$pb.TagNumber(4)
@@ -559,7 +671,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   RequestBodiesOrReferences get requestBodies => $_getN(4);
   @$pb.TagNumber(5)
-  set requestBodies(RequestBodiesOrReferences v) { setField(5, v); }
+  set requestBodies(RequestBodiesOrReferences v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasRequestBodies() => $_has(4);
   @$pb.TagNumber(5)
@@ -570,7 +685,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   HeadersOrReferences get headers => $_getN(5);
   @$pb.TagNumber(6)
-  set headers(HeadersOrReferences v) { setField(6, v); }
+  set headers(HeadersOrReferences v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasHeaders() => $_has(5);
   @$pb.TagNumber(6)
@@ -581,7 +699,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   SecuritySchemesOrReferences get securitySchemes => $_getN(6);
   @$pb.TagNumber(7)
-  set securitySchemes(SecuritySchemesOrReferences v) { setField(7, v); }
+  set securitySchemes(SecuritySchemesOrReferences v) {
+    setField(7, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasSecuritySchemes() => $_has(6);
   @$pb.TagNumber(7)
@@ -592,7 +713,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   LinksOrReferences get links => $_getN(7);
   @$pb.TagNumber(8)
-  set links(LinksOrReferences v) { setField(8, v); }
+  set links(LinksOrReferences v) {
+    setField(8, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasLinks() => $_has(7);
   @$pb.TagNumber(8)
@@ -603,7 +727,10 @@ class Components extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   CallbacksOrReferences get callbacks => $_getN(8);
   @$pb.TagNumber(9)
-  set callbacks(CallbacksOrReferences v) { setField(9, v); }
+  set callbacks(CallbacksOrReferences v) {
+    setField(9, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasCallbacks() => $_has(8);
   @$pb.TagNumber(9)
@@ -639,27 +766,35 @@ class Contact extends $pb.GeneratedMessage {
     return $result;
   }
   Contact._() : super();
-  factory Contact.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Contact.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Contact.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Contact.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Contact', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Contact',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'url')
     ..aOS(3, _omitFieldNames ? '' : 'email')
-    ..pc<NamedAny>(4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Contact clone() => Contact()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Contact copyWith(void Function(Contact) updates) => super.copyWith((message) => updates(message as Contact)) as Contact;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Contact copyWith(void Function(Contact) updates) =>
+      super.copyWith((message) => updates(message as Contact)) as Contact;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -668,13 +803,17 @@ class Contact extends $pb.GeneratedMessage {
   Contact createEmptyInstance() => create();
   static $pb.PbList<Contact> createRepeated() => $pb.PbList<Contact>();
   @$core.pragma('dart2js:noInline')
-  static Contact getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Contact>(create);
+  static Contact getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Contact>(create);
   static Contact? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -683,7 +822,10 @@ class Contact extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get url => $_getSZ(1);
   @$pb.TagNumber(2)
-  set url($core.String v) { $_setString(1, v); }
+  set url($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasUrl() => $_has(1);
   @$pb.TagNumber(2)
@@ -692,7 +834,10 @@ class Contact extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get email => $_getSZ(2);
   @$pb.TagNumber(3)
-  set email($core.String v) { $_setString(2, v); }
+  set email($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasEmail() => $_has(2);
   @$pb.TagNumber(3)
@@ -702,12 +847,7 @@ class Contact extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(3);
 }
 
-enum DefaultType_Oneof {
-  number, 
-  boolean, 
-  string, 
-  notSet
-}
+enum DefaultType_Oneof { number, boolean, string, notSet }
 
 class DefaultType extends $pb.GeneratedMessage {
   factory DefaultType({
@@ -728,33 +868,41 @@ class DefaultType extends $pb.GeneratedMessage {
     return $result;
   }
   DefaultType._() : super();
-  factory DefaultType.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DefaultType.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DefaultType.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory DefaultType.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, DefaultType_Oneof> _DefaultType_OneofByTag = {
-    1 : DefaultType_Oneof.number,
-    2 : DefaultType_Oneof.boolean,
-    3 : DefaultType_Oneof.string,
-    0 : DefaultType_Oneof.notSet
+  static const $core.Map<$core.int, DefaultType_Oneof> _DefaultType_OneofByTag =
+      {
+    1: DefaultType_Oneof.number,
+    2: DefaultType_Oneof.boolean,
+    3: DefaultType_Oneof.string,
+    0: DefaultType_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DefaultType', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DefaultType',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2, 3])
     ..a<$core.double>(1, _omitFieldNames ? '' : 'number', $pb.PbFieldType.OD)
     ..aOB(2, _omitFieldNames ? '' : 'boolean')
     ..aOS(3, _omitFieldNames ? '' : 'string')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   DefaultType clone() => DefaultType()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  DefaultType copyWith(void Function(DefaultType) updates) => super.copyWith((message) => updates(message as DefaultType)) as DefaultType;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  DefaultType copyWith(void Function(DefaultType) updates) =>
+      super.copyWith((message) => updates(message as DefaultType))
+          as DefaultType;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -763,7 +911,8 @@ class DefaultType extends $pb.GeneratedMessage {
   DefaultType createEmptyInstance() => create();
   static $pb.PbList<DefaultType> createRepeated() => $pb.PbList<DefaultType>();
   @$core.pragma('dart2js:noInline')
-  static DefaultType getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DefaultType>(create);
+  static DefaultType getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DefaultType>(create);
   static DefaultType? _defaultInstance;
 
   DefaultType_Oneof whichOneof() => _DefaultType_OneofByTag[$_whichOneof(0)]!;
@@ -772,7 +921,10 @@ class DefaultType extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   $core.double get number => $_getN(0);
   @$pb.TagNumber(1)
-  set number($core.double v) { $_setDouble(0, v); }
+  set number($core.double v) {
+    $_setDouble(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasNumber() => $_has(0);
   @$pb.TagNumber(1)
@@ -781,7 +933,10 @@ class DefaultType extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get boolean => $_getBF(1);
   @$pb.TagNumber(2)
-  set boolean($core.bool v) { $_setBool(1, v); }
+  set boolean($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasBoolean() => $_has(1);
   @$pb.TagNumber(2)
@@ -790,7 +945,10 @@ class DefaultType extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get string => $_getSZ(2);
   @$pb.TagNumber(3)
-  set string($core.String v) { $_setString(2, v); }
+  set string($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasString() => $_has(2);
   @$pb.TagNumber(3)
@@ -817,41 +975,56 @@ class Discriminator extends $pb.GeneratedMessage {
     return $result;
   }
   Discriminator._() : super();
-  factory Discriminator.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Discriminator.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Discriminator.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Discriminator.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Discriminator', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Discriminator',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'propertyName')
-    ..aOM<Strings>(2, _omitFieldNames ? '' : 'mapping', subBuilder: Strings.create)
-    ..pc<NamedAny>(3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Strings>(2, _omitFieldNames ? '' : 'mapping',
+        subBuilder: Strings.create)
+    ..pc<NamedAny>(
+        3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Discriminator clone() => Discriminator()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Discriminator copyWith(void Function(Discriminator) updates) => super.copyWith((message) => updates(message as Discriminator)) as Discriminator;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Discriminator copyWith(void Function(Discriminator) updates) =>
+      super.copyWith((message) => updates(message as Discriminator))
+          as Discriminator;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static Discriminator create() => Discriminator._();
   Discriminator createEmptyInstance() => create();
-  static $pb.PbList<Discriminator> createRepeated() => $pb.PbList<Discriminator>();
+  static $pb.PbList<Discriminator> createRepeated() =>
+      $pb.PbList<Discriminator>();
   @$core.pragma('dart2js:noInline')
-  static Discriminator getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Discriminator>(create);
+  static Discriminator getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Discriminator>(create);
   static Discriminator? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get propertyName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set propertyName($core.String v) { $_setString(0, v); }
+  set propertyName($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasPropertyName() => $_has(0);
   @$pb.TagNumber(1)
@@ -860,7 +1033,10 @@ class Discriminator extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Strings get mapping => $_getN(1);
   @$pb.TagNumber(2)
-  set mapping(Strings v) { setField(2, v); }
+  set mapping(Strings v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasMapping() => $_has(1);
   @$pb.TagNumber(2)
@@ -915,32 +1091,46 @@ class Document extends $pb.GeneratedMessage {
     return $result;
   }
   Document._() : super();
-  factory Document.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Document.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Document.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Document.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Document', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Document',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'openapi')
     ..aOM<Info>(2, _omitFieldNames ? '' : 'info', subBuilder: Info.create)
-    ..pc<Server>(3, _omitFieldNames ? '' : 'servers', $pb.PbFieldType.PM, subBuilder: Server.create)
+    ..pc<Server>(3, _omitFieldNames ? '' : 'servers', $pb.PbFieldType.PM,
+        subBuilder: Server.create)
     ..aOM<Paths>(4, _omitFieldNames ? '' : 'paths', subBuilder: Paths.create)
-    ..aOM<Components>(5, _omitFieldNames ? '' : 'components', subBuilder: Components.create)
-    ..pc<SecurityRequirement>(6, _omitFieldNames ? '' : 'security', $pb.PbFieldType.PM, subBuilder: SecurityRequirement.create)
-    ..pc<Tag>(7, _omitFieldNames ? '' : 'tags', $pb.PbFieldType.PM, subBuilder: Tag.create)
-    ..aOM<ExternalDocs>(8, _omitFieldNames ? '' : 'externalDocs', subBuilder: ExternalDocs.create)
-    ..pc<NamedAny>(9, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Components>(5, _omitFieldNames ? '' : 'components',
+        subBuilder: Components.create)
+    ..pc<SecurityRequirement>(
+        6, _omitFieldNames ? '' : 'security', $pb.PbFieldType.PM,
+        subBuilder: SecurityRequirement.create)
+    ..pc<Tag>(7, _omitFieldNames ? '' : 'tags', $pb.PbFieldType.PM,
+        subBuilder: Tag.create)
+    ..aOM<ExternalDocs>(8, _omitFieldNames ? '' : 'externalDocs',
+        subBuilder: ExternalDocs.create)
+    ..pc<NamedAny>(
+        9, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Document clone() => Document()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Document copyWith(void Function(Document) updates) => super.copyWith((message) => updates(message as Document)) as Document;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Document copyWith(void Function(Document) updates) =>
+      super.copyWith((message) => updates(message as Document)) as Document;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -949,13 +1139,17 @@ class Document extends $pb.GeneratedMessage {
   Document createEmptyInstance() => create();
   static $pb.PbList<Document> createRepeated() => $pb.PbList<Document>();
   @$core.pragma('dart2js:noInline')
-  static Document getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Document>(create);
+  static Document getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Document>(create);
   static Document? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get openapi => $_getSZ(0);
   @$pb.TagNumber(1)
-  set openapi($core.String v) { $_setString(0, v); }
+  set openapi($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasOpenapi() => $_has(0);
   @$pb.TagNumber(1)
@@ -964,7 +1158,10 @@ class Document extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Info get info => $_getN(1);
   @$pb.TagNumber(2)
-  set info(Info v) { setField(2, v); }
+  set info(Info v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasInfo() => $_has(1);
   @$pb.TagNumber(2)
@@ -978,7 +1175,10 @@ class Document extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   Paths get paths => $_getN(3);
   @$pb.TagNumber(4)
-  set paths(Paths v) { setField(4, v); }
+  set paths(Paths v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasPaths() => $_has(3);
   @$pb.TagNumber(4)
@@ -989,7 +1189,10 @@ class Document extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   Components get components => $_getN(4);
   @$pb.TagNumber(5)
-  set components(Components v) { setField(5, v); }
+  set components(Components v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasComponents() => $_has(4);
   @$pb.TagNumber(5)
@@ -1006,7 +1209,10 @@ class Document extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   ExternalDocs get externalDocs => $_getN(7);
   @$pb.TagNumber(8)
-  set externalDocs(ExternalDocs v) { setField(8, v); }
+  set externalDocs(ExternalDocs v) {
+    setField(8, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasExternalDocs() => $_has(7);
   @$pb.TagNumber(8)
@@ -1050,29 +1256,38 @@ class Encoding extends $pb.GeneratedMessage {
     return $result;
   }
   Encoding._() : super();
-  factory Encoding.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Encoding.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Encoding.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Encoding.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Encoding', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Encoding',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'contentType')
-    ..aOM<HeadersOrReferences>(2, _omitFieldNames ? '' : 'headers', subBuilder: HeadersOrReferences.create)
+    ..aOM<HeadersOrReferences>(2, _omitFieldNames ? '' : 'headers',
+        subBuilder: HeadersOrReferences.create)
     ..aOS(3, _omitFieldNames ? '' : 'style')
     ..aOB(4, _omitFieldNames ? '' : 'explode')
     ..aOB(5, _omitFieldNames ? '' : 'allowReserved')
-    ..pc<NamedAny>(6, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        6, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Encoding clone() => Encoding()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Encoding copyWith(void Function(Encoding) updates) => super.copyWith((message) => updates(message as Encoding)) as Encoding;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Encoding copyWith(void Function(Encoding) updates) =>
+      super.copyWith((message) => updates(message as Encoding)) as Encoding;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1081,13 +1296,17 @@ class Encoding extends $pb.GeneratedMessage {
   Encoding createEmptyInstance() => create();
   static $pb.PbList<Encoding> createRepeated() => $pb.PbList<Encoding>();
   @$core.pragma('dart2js:noInline')
-  static Encoding getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Encoding>(create);
+  static Encoding getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Encoding>(create);
   static Encoding? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get contentType => $_getSZ(0);
   @$pb.TagNumber(1)
-  set contentType($core.String v) { $_setString(0, v); }
+  set contentType($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasContentType() => $_has(0);
   @$pb.TagNumber(1)
@@ -1096,7 +1315,10 @@ class Encoding extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   HeadersOrReferences get headers => $_getN(1);
   @$pb.TagNumber(2)
-  set headers(HeadersOrReferences v) { setField(2, v); }
+  set headers(HeadersOrReferences v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasHeaders() => $_has(1);
   @$pb.TagNumber(2)
@@ -1107,7 +1329,10 @@ class Encoding extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get style => $_getSZ(2);
   @$pb.TagNumber(3)
-  set style($core.String v) { $_setString(2, v); }
+  set style($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasStyle() => $_has(2);
   @$pb.TagNumber(3)
@@ -1116,7 +1341,10 @@ class Encoding extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get explode => $_getBF(3);
   @$pb.TagNumber(4)
-  set explode($core.bool v) { $_setBool(3, v); }
+  set explode($core.bool v) {
+    $_setBool(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasExplode() => $_has(3);
   @$pb.TagNumber(4)
@@ -1125,7 +1353,10 @@ class Encoding extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.bool get allowReserved => $_getBF(4);
   @$pb.TagNumber(5)
-  set allowReserved($core.bool v) { $_setBool(4, v); }
+  set allowReserved($core.bool v) {
+    $_setBool(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasAllowReserved() => $_has(4);
   @$pb.TagNumber(5)
@@ -1146,24 +1377,32 @@ class Encodings extends $pb.GeneratedMessage {
     return $result;
   }
   Encodings._() : super();
-  factory Encodings.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Encodings.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Encodings.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Encodings.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Encodings', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedEncoding>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedEncoding.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Encodings',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedEncoding>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedEncoding.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Encodings clone() => Encodings()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Encodings copyWith(void Function(Encodings) updates) => super.copyWith((message) => updates(message as Encodings)) as Encodings;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Encodings copyWith(void Function(Encodings) updates) =>
+      super.copyWith((message) => updates(message as Encodings)) as Encodings;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1172,7 +1411,8 @@ class Encodings extends $pb.GeneratedMessage {
   Encodings createEmptyInstance() => create();
   static $pb.PbList<Encodings> createRepeated() => $pb.PbList<Encodings>();
   @$core.pragma('dart2js:noInline')
-  static Encodings getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Encodings>(create);
+  static Encodings getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Encodings>(create);
   static Encodings? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1206,28 +1446,36 @@ class Example extends $pb.GeneratedMessage {
     return $result;
   }
   Example._() : super();
-  factory Example.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Example.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Example.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Example.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Example', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Example',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'summary')
     ..aOS(2, _omitFieldNames ? '' : 'description')
     ..aOM<Any>(3, _omitFieldNames ? '' : 'value', subBuilder: Any.create)
     ..aOS(4, _omitFieldNames ? '' : 'externalValue')
-    ..pc<NamedAny>(5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Example clone() => Example()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Example copyWith(void Function(Example) updates) => super.copyWith((message) => updates(message as Example)) as Example;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Example copyWith(void Function(Example) updates) =>
+      super.copyWith((message) => updates(message as Example)) as Example;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1236,13 +1484,17 @@ class Example extends $pb.GeneratedMessage {
   Example createEmptyInstance() => create();
   static $pb.PbList<Example> createRepeated() => $pb.PbList<Example>();
   @$core.pragma('dart2js:noInline')
-  static Example getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Example>(create);
+  static Example getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Example>(create);
   static Example? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get summary => $_getSZ(0);
   @$pb.TagNumber(1)
-  set summary($core.String v) { $_setString(0, v); }
+  set summary($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasSummary() => $_has(0);
   @$pb.TagNumber(1)
@@ -1251,7 +1503,10 @@ class Example extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get description => $_getSZ(1);
   @$pb.TagNumber(2)
-  set description($core.String v) { $_setString(1, v); }
+  set description($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDescription() => $_has(1);
   @$pb.TagNumber(2)
@@ -1260,7 +1515,10 @@ class Example extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   Any get value => $_getN(2);
   @$pb.TagNumber(3)
-  set value(Any v) { setField(3, v); }
+  set value(Any v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasValue() => $_has(2);
   @$pb.TagNumber(3)
@@ -1271,7 +1529,10 @@ class Example extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get externalValue => $_getSZ(3);
   @$pb.TagNumber(4)
-  set externalValue($core.String v) { $_setString(3, v); }
+  set externalValue($core.String v) {
+    $_setString(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasExternalValue() => $_has(3);
   @$pb.TagNumber(4)
@@ -1281,11 +1542,7 @@ class Example extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(4);
 }
 
-enum ExampleOrReference_Oneof {
-  example, 
-  reference, 
-  notSet
-}
+enum ExampleOrReference_Oneof { example, reference, notSet }
 
 class ExampleOrReference extends $pb.GeneratedMessage {
   factory ExampleOrReference({
@@ -1302,49 +1559,65 @@ class ExampleOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   ExampleOrReference._() : super();
-  factory ExampleOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ExampleOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ExampleOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ExampleOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, ExampleOrReference_Oneof> _ExampleOrReference_OneofByTag = {
-    1 : ExampleOrReference_Oneof.example,
-    2 : ExampleOrReference_Oneof.reference,
-    0 : ExampleOrReference_Oneof.notSet
+  static const $core.Map<$core.int, ExampleOrReference_Oneof>
+      _ExampleOrReference_OneofByTag = {
+    1: ExampleOrReference_Oneof.example,
+    2: ExampleOrReference_Oneof.reference,
+    0: ExampleOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ExampleOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExampleOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<Example>(1, _omitFieldNames ? '' : 'example', subBuilder: Example.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Example>(1, _omitFieldNames ? '' : 'example',
+        subBuilder: Example.create)
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ExampleOrReference clone() => ExampleOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ExampleOrReference copyWith(void Function(ExampleOrReference) updates) => super.copyWith((message) => updates(message as ExampleOrReference)) as ExampleOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ExampleOrReference copyWith(void Function(ExampleOrReference) updates) =>
+      super.copyWith((message) => updates(message as ExampleOrReference))
+          as ExampleOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ExampleOrReference create() => ExampleOrReference._();
   ExampleOrReference createEmptyInstance() => create();
-  static $pb.PbList<ExampleOrReference> createRepeated() => $pb.PbList<ExampleOrReference>();
+  static $pb.PbList<ExampleOrReference> createRepeated() =>
+      $pb.PbList<ExampleOrReference>();
   @$core.pragma('dart2js:noInline')
-  static ExampleOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ExampleOrReference>(create);
+  static ExampleOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExampleOrReference>(create);
   static ExampleOrReference? _defaultInstance;
 
-  ExampleOrReference_Oneof whichOneof() => _ExampleOrReference_OneofByTag[$_whichOneof(0)]!;
+  ExampleOrReference_Oneof whichOneof() =>
+      _ExampleOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Example get example => $_getN(0);
   @$pb.TagNumber(1)
-  set example(Example v) { setField(1, v); }
+  set example(Example v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasExample() => $_has(0);
   @$pb.TagNumber(1)
@@ -1355,7 +1628,10 @@ class ExampleOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -1375,33 +1651,45 @@ class ExamplesOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   ExamplesOrReferences._() : super();
-  factory ExamplesOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ExamplesOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ExamplesOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ExamplesOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ExamplesOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedExampleOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedExampleOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExamplesOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedExampleOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedExampleOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  ExamplesOrReferences clone() => ExamplesOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ExamplesOrReferences copyWith(void Function(ExamplesOrReferences) updates) => super.copyWith((message) => updates(message as ExamplesOrReferences)) as ExamplesOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  ExamplesOrReferences clone() =>
+      ExamplesOrReferences()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ExamplesOrReferences copyWith(void Function(ExamplesOrReferences) updates) =>
+      super.copyWith((message) => updates(message as ExamplesOrReferences))
+          as ExamplesOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ExamplesOrReferences create() => ExamplesOrReferences._();
   ExamplesOrReferences createEmptyInstance() => create();
-  static $pb.PbList<ExamplesOrReferences> createRepeated() => $pb.PbList<ExamplesOrReferences>();
+  static $pb.PbList<ExamplesOrReferences> createRepeated() =>
+      $pb.PbList<ExamplesOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static ExamplesOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ExamplesOrReferences>(create);
+  static ExamplesOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExamplesOrReferences>(create);
   static ExamplesOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1419,24 +1707,32 @@ class Expression extends $pb.GeneratedMessage {
     return $result;
   }
   Expression._() : super();
-  factory Expression.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Expression.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Expression.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Expression.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Expression', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedAny>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Expression',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedAny>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Expression clone() => Expression()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Expression copyWith(void Function(Expression) updates) => super.copyWith((message) => updates(message as Expression)) as Expression;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Expression copyWith(void Function(Expression) updates) =>
+      super.copyWith((message) => updates(message as Expression)) as Expression;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1445,7 +1741,8 @@ class Expression extends $pb.GeneratedMessage {
   Expression createEmptyInstance() => create();
   static $pb.PbList<Expression> createRepeated() => $pb.PbList<Expression>();
   @$core.pragma('dart2js:noInline')
-  static Expression getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Expression>(create);
+  static Expression getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Expression>(create);
   static Expression? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1472,41 +1769,55 @@ class ExternalDocs extends $pb.GeneratedMessage {
     return $result;
   }
   ExternalDocs._() : super();
-  factory ExternalDocs.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ExternalDocs.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ExternalDocs.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ExternalDocs.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ExternalDocs', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExternalDocs',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'description')
     ..aOS(2, _omitFieldNames ? '' : 'url')
-    ..pc<NamedAny>(3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ExternalDocs clone() => ExternalDocs()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ExternalDocs copyWith(void Function(ExternalDocs) updates) => super.copyWith((message) => updates(message as ExternalDocs)) as ExternalDocs;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ExternalDocs copyWith(void Function(ExternalDocs) updates) =>
+      super.copyWith((message) => updates(message as ExternalDocs))
+          as ExternalDocs;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ExternalDocs create() => ExternalDocs._();
   ExternalDocs createEmptyInstance() => create();
-  static $pb.PbList<ExternalDocs> createRepeated() => $pb.PbList<ExternalDocs>();
+  static $pb.PbList<ExternalDocs> createRepeated() =>
+      $pb.PbList<ExternalDocs>();
   @$core.pragma('dart2js:noInline')
-  static ExternalDocs getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ExternalDocs>(create);
+  static ExternalDocs getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExternalDocs>(create);
   static ExternalDocs? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get description => $_getSZ(0);
   @$pb.TagNumber(1)
-  set description($core.String v) { $_setString(0, v); }
+  set description($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasDescription() => $_has(0);
   @$pb.TagNumber(1)
@@ -1515,7 +1826,10 @@ class ExternalDocs extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get url => $_getSZ(1);
   @$pb.TagNumber(2)
-  set url($core.String v) { $_setString(1, v); }
+  set url($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasUrl() => $_has(1);
   @$pb.TagNumber(2)
@@ -1581,10 +1895,18 @@ class Header extends $pb.GeneratedMessage {
     return $result;
   }
   Header._() : super();
-  factory Header.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Header.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Header.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Header.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Header', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Header',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'description')
     ..aOB(2, _omitFieldNames ? '' : 'required')
     ..aOB(3, _omitFieldNames ? '' : 'deprecated')
@@ -1592,24 +1914,27 @@ class Header extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'style')
     ..aOB(6, _omitFieldNames ? '' : 'explode')
     ..aOB(7, _omitFieldNames ? '' : 'allowReserved')
-    ..aOM<SchemaOrReference>(8, _omitFieldNames ? '' : 'schema', subBuilder: SchemaOrReference.create)
+    ..aOM<SchemaOrReference>(8, _omitFieldNames ? '' : 'schema',
+        subBuilder: SchemaOrReference.create)
     ..aOM<Any>(9, _omitFieldNames ? '' : 'example', subBuilder: Any.create)
-    ..aOM<ExamplesOrReferences>(10, _omitFieldNames ? '' : 'examples', subBuilder: ExamplesOrReferences.create)
-    ..aOM<MediaTypes>(11, _omitFieldNames ? '' : 'content', subBuilder: MediaTypes.create)
-    ..pc<NamedAny>(12, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ExamplesOrReferences>(10, _omitFieldNames ? '' : 'examples',
+        subBuilder: ExamplesOrReferences.create)
+    ..aOM<MediaTypes>(11, _omitFieldNames ? '' : 'content',
+        subBuilder: MediaTypes.create)
+    ..pc<NamedAny>(
+        12, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Header clone() => Header()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Header copyWith(void Function(Header) updates) => super.copyWith((message) => updates(message as Header)) as Header;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Header copyWith(void Function(Header) updates) =>
+      super.copyWith((message) => updates(message as Header)) as Header;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1618,13 +1943,17 @@ class Header extends $pb.GeneratedMessage {
   Header createEmptyInstance() => create();
   static $pb.PbList<Header> createRepeated() => $pb.PbList<Header>();
   @$core.pragma('dart2js:noInline')
-  static Header getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Header>(create);
+  static Header getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Header>(create);
   static Header? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get description => $_getSZ(0);
   @$pb.TagNumber(1)
-  set description($core.String v) { $_setString(0, v); }
+  set description($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasDescription() => $_has(0);
   @$pb.TagNumber(1)
@@ -1633,7 +1962,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get required => $_getBF(1);
   @$pb.TagNumber(2)
-  set required($core.bool v) { $_setBool(1, v); }
+  set required($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasRequired() => $_has(1);
   @$pb.TagNumber(2)
@@ -1642,7 +1974,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.bool get deprecated => $_getBF(2);
   @$pb.TagNumber(3)
-  set deprecated($core.bool v) { $_setBool(2, v); }
+  set deprecated($core.bool v) {
+    $_setBool(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasDeprecated() => $_has(2);
   @$pb.TagNumber(3)
@@ -1651,7 +1986,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get allowEmptyValue => $_getBF(3);
   @$pb.TagNumber(4)
-  set allowEmptyValue($core.bool v) { $_setBool(3, v); }
+  set allowEmptyValue($core.bool v) {
+    $_setBool(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasAllowEmptyValue() => $_has(3);
   @$pb.TagNumber(4)
@@ -1660,7 +1998,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get style => $_getSZ(4);
   @$pb.TagNumber(5)
-  set style($core.String v) { $_setString(4, v); }
+  set style($core.String v) {
+    $_setString(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasStyle() => $_has(4);
   @$pb.TagNumber(5)
@@ -1669,7 +2010,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.bool get explode => $_getBF(5);
   @$pb.TagNumber(6)
-  set explode($core.bool v) { $_setBool(5, v); }
+  set explode($core.bool v) {
+    $_setBool(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasExplode() => $_has(5);
   @$pb.TagNumber(6)
@@ -1678,7 +2022,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.bool get allowReserved => $_getBF(6);
   @$pb.TagNumber(7)
-  set allowReserved($core.bool v) { $_setBool(6, v); }
+  set allowReserved($core.bool v) {
+    $_setBool(6, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasAllowReserved() => $_has(6);
   @$pb.TagNumber(7)
@@ -1687,7 +2034,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   SchemaOrReference get schema => $_getN(7);
   @$pb.TagNumber(8)
-  set schema(SchemaOrReference v) { setField(8, v); }
+  set schema(SchemaOrReference v) {
+    setField(8, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasSchema() => $_has(7);
   @$pb.TagNumber(8)
@@ -1698,7 +2048,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   Any get example => $_getN(8);
   @$pb.TagNumber(9)
-  set example(Any v) { setField(9, v); }
+  set example(Any v) {
+    setField(9, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasExample() => $_has(8);
   @$pb.TagNumber(9)
@@ -1709,7 +2062,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   ExamplesOrReferences get examples => $_getN(9);
   @$pb.TagNumber(10)
-  set examples(ExamplesOrReferences v) { setField(10, v); }
+  set examples(ExamplesOrReferences v) {
+    setField(10, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasExamples() => $_has(9);
   @$pb.TagNumber(10)
@@ -1720,7 +2076,10 @@ class Header extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   MediaTypes get content => $_getN(10);
   @$pb.TagNumber(11)
-  set content(MediaTypes v) { setField(11, v); }
+  set content(MediaTypes v) {
+    setField(11, v);
+  }
+
   @$pb.TagNumber(11)
   $core.bool hasContent() => $_has(10);
   @$pb.TagNumber(11)
@@ -1732,11 +2091,7 @@ class Header extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(11);
 }
 
-enum HeaderOrReference_Oneof {
-  header, 
-  reference, 
-  notSet
-}
+enum HeaderOrReference_Oneof { header, reference, notSet }
 
 class HeaderOrReference extends $pb.GeneratedMessage {
   factory HeaderOrReference({
@@ -1753,49 +2108,64 @@ class HeaderOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   HeaderOrReference._() : super();
-  factory HeaderOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory HeaderOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory HeaderOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory HeaderOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, HeaderOrReference_Oneof> _HeaderOrReference_OneofByTag = {
-    1 : HeaderOrReference_Oneof.header,
-    2 : HeaderOrReference_Oneof.reference,
-    0 : HeaderOrReference_Oneof.notSet
+  static const $core.Map<$core.int, HeaderOrReference_Oneof>
+      _HeaderOrReference_OneofByTag = {
+    1: HeaderOrReference_Oneof.header,
+    2: HeaderOrReference_Oneof.reference,
+    0: HeaderOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'HeaderOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'HeaderOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
     ..aOM<Header>(1, _omitFieldNames ? '' : 'header', subBuilder: Header.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   HeaderOrReference clone() => HeaderOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  HeaderOrReference copyWith(void Function(HeaderOrReference) updates) => super.copyWith((message) => updates(message as HeaderOrReference)) as HeaderOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  HeaderOrReference copyWith(void Function(HeaderOrReference) updates) =>
+      super.copyWith((message) => updates(message as HeaderOrReference))
+          as HeaderOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static HeaderOrReference create() => HeaderOrReference._();
   HeaderOrReference createEmptyInstance() => create();
-  static $pb.PbList<HeaderOrReference> createRepeated() => $pb.PbList<HeaderOrReference>();
+  static $pb.PbList<HeaderOrReference> createRepeated() =>
+      $pb.PbList<HeaderOrReference>();
   @$core.pragma('dart2js:noInline')
-  static HeaderOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<HeaderOrReference>(create);
+  static HeaderOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<HeaderOrReference>(create);
   static HeaderOrReference? _defaultInstance;
 
-  HeaderOrReference_Oneof whichOneof() => _HeaderOrReference_OneofByTag[$_whichOneof(0)]!;
+  HeaderOrReference_Oneof whichOneof() =>
+      _HeaderOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Header get header => $_getN(0);
   @$pb.TagNumber(1)
-  set header(Header v) { setField(1, v); }
+  set header(Header v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasHeader() => $_has(0);
   @$pb.TagNumber(1)
@@ -1806,7 +2176,10 @@ class HeaderOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -1826,33 +2199,44 @@ class HeadersOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   HeadersOrReferences._() : super();
-  factory HeadersOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory HeadersOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory HeadersOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory HeadersOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'HeadersOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedHeaderOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedHeaderOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'HeadersOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedHeaderOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedHeaderOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   HeadersOrReferences clone() => HeadersOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  HeadersOrReferences copyWith(void Function(HeadersOrReferences) updates) => super.copyWith((message) => updates(message as HeadersOrReferences)) as HeadersOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  HeadersOrReferences copyWith(void Function(HeadersOrReferences) updates) =>
+      super.copyWith((message) => updates(message as HeadersOrReferences))
+          as HeadersOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static HeadersOrReferences create() => HeadersOrReferences._();
   HeadersOrReferences createEmptyInstance() => create();
-  static $pb.PbList<HeadersOrReferences> createRepeated() => $pb.PbList<HeadersOrReferences>();
+  static $pb.PbList<HeadersOrReferences> createRepeated() =>
+      $pb.PbList<HeadersOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static HeadersOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<HeadersOrReferences>(create);
+  static HeadersOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<HeadersOrReferences>(create);
   static HeadersOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1899,31 +2283,41 @@ class Info extends $pb.GeneratedMessage {
     return $result;
   }
   Info._() : super();
-  factory Info.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Info.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Info.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Info.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Info', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Info',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'title')
     ..aOS(2, _omitFieldNames ? '' : 'description')
     ..aOS(3, _omitFieldNames ? '' : 'termsOfService')
-    ..aOM<Contact>(4, _omitFieldNames ? '' : 'contact', subBuilder: Contact.create)
-    ..aOM<License>(5, _omitFieldNames ? '' : 'license', subBuilder: License.create)
+    ..aOM<Contact>(4, _omitFieldNames ? '' : 'contact',
+        subBuilder: Contact.create)
+    ..aOM<License>(5, _omitFieldNames ? '' : 'license',
+        subBuilder: License.create)
     ..aOS(6, _omitFieldNames ? '' : 'version')
-    ..pc<NamedAny>(7, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
+    ..pc<NamedAny>(
+        7, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
     ..aOS(8, _omitFieldNames ? '' : 'summary')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Info clone() => Info()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Info copyWith(void Function(Info) updates) => super.copyWith((message) => updates(message as Info)) as Info;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Info copyWith(void Function(Info) updates) =>
+      super.copyWith((message) => updates(message as Info)) as Info;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -1932,13 +2326,17 @@ class Info extends $pb.GeneratedMessage {
   Info createEmptyInstance() => create();
   static $pb.PbList<Info> createRepeated() => $pb.PbList<Info>();
   @$core.pragma('dart2js:noInline')
-  static Info getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Info>(create);
+  static Info getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Info>(create);
   static Info? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get title => $_getSZ(0);
   @$pb.TagNumber(1)
-  set title($core.String v) { $_setString(0, v); }
+  set title($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasTitle() => $_has(0);
   @$pb.TagNumber(1)
@@ -1947,7 +2345,10 @@ class Info extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get description => $_getSZ(1);
   @$pb.TagNumber(2)
-  set description($core.String v) { $_setString(1, v); }
+  set description($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDescription() => $_has(1);
   @$pb.TagNumber(2)
@@ -1956,7 +2357,10 @@ class Info extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get termsOfService => $_getSZ(2);
   @$pb.TagNumber(3)
-  set termsOfService($core.String v) { $_setString(2, v); }
+  set termsOfService($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasTermsOfService() => $_has(2);
   @$pb.TagNumber(3)
@@ -1965,7 +2369,10 @@ class Info extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   Contact get contact => $_getN(3);
   @$pb.TagNumber(4)
-  set contact(Contact v) { setField(4, v); }
+  set contact(Contact v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasContact() => $_has(3);
   @$pb.TagNumber(4)
@@ -1976,7 +2383,10 @@ class Info extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   License get license => $_getN(4);
   @$pb.TagNumber(5)
-  set license(License v) { setField(5, v); }
+  set license(License v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasLicense() => $_has(4);
   @$pb.TagNumber(5)
@@ -1987,7 +2397,10 @@ class Info extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get version => $_getSZ(5);
   @$pb.TagNumber(6)
-  set version($core.String v) { $_setString(5, v); }
+  set version($core.String v) {
+    $_setString(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasVersion() => $_has(5);
   @$pb.TagNumber(6)
@@ -1999,7 +2412,10 @@ class Info extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.String get summary => $_getSZ(7);
   @$pb.TagNumber(8)
-  set summary($core.String v) { $_setString(7, v); }
+  set summary($core.String v) {
+    $_setString(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasSummary() => $_has(7);
   @$pb.TagNumber(8)
@@ -2017,24 +2433,32 @@ class ItemsItem extends $pb.GeneratedMessage {
     return $result;
   }
   ItemsItem._() : super();
-  factory ItemsItem.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ItemsItem.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ItemsItem.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ItemsItem.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ItemsItem', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<SchemaOrReference>(1, _omitFieldNames ? '' : 'schemaOrReference', $pb.PbFieldType.PM, subBuilder: SchemaOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ItemsItem',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<SchemaOrReference>(
+        1, _omitFieldNames ? '' : 'schemaOrReference', $pb.PbFieldType.PM,
+        subBuilder: SchemaOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ItemsItem clone() => ItemsItem()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ItemsItem copyWith(void Function(ItemsItem) updates) => super.copyWith((message) => updates(message as ItemsItem)) as ItemsItem;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ItemsItem copyWith(void Function(ItemsItem) updates) =>
+      super.copyWith((message) => updates(message as ItemsItem)) as ItemsItem;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2043,7 +2467,8 @@ class ItemsItem extends $pb.GeneratedMessage {
   ItemsItem createEmptyInstance() => create();
   static $pb.PbList<ItemsItem> createRepeated() => $pb.PbList<ItemsItem>();
   @$core.pragma('dart2js:noInline')
-  static ItemsItem getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ItemsItem>(create);
+  static ItemsItem getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ItemsItem>(create);
   static ItemsItem? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2070,26 +2495,34 @@ class License extends $pb.GeneratedMessage {
     return $result;
   }
   License._() : super();
-  factory License.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory License.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory License.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory License.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'License', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'License',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'url')
-    ..pc<NamedAny>(3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   License clone() => License()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  License copyWith(void Function(License) updates) => super.copyWith((message) => updates(message as License)) as License;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  License copyWith(void Function(License) updates) =>
+      super.copyWith((message) => updates(message as License)) as License;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2098,13 +2531,17 @@ class License extends $pb.GeneratedMessage {
   License createEmptyInstance() => create();
   static $pb.PbList<License> createRepeated() => $pb.PbList<License>();
   @$core.pragma('dart2js:noInline')
-  static License getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<License>(create);
+  static License getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<License>(create);
   static License? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2113,7 +2550,10 @@ class License extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get url => $_getSZ(1);
   @$pb.TagNumber(2)
-  set url($core.String v) { $_setString(1, v); }
+  set url($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasUrl() => $_has(1);
   @$pb.TagNumber(2)
@@ -2159,30 +2599,40 @@ class Link extends $pb.GeneratedMessage {
     return $result;
   }
   Link._() : super();
-  factory Link.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Link.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Link.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Link.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Link', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Link',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'operationRef')
     ..aOS(2, _omitFieldNames ? '' : 'operationId')
-    ..aOM<AnyOrExpression>(3, _omitFieldNames ? '' : 'parameters', subBuilder: AnyOrExpression.create)
-    ..aOM<AnyOrExpression>(4, _omitFieldNames ? '' : 'requestBody', subBuilder: AnyOrExpression.create)
+    ..aOM<AnyOrExpression>(3, _omitFieldNames ? '' : 'parameters',
+        subBuilder: AnyOrExpression.create)
+    ..aOM<AnyOrExpression>(4, _omitFieldNames ? '' : 'requestBody',
+        subBuilder: AnyOrExpression.create)
     ..aOS(5, _omitFieldNames ? '' : 'description')
     ..aOM<Server>(6, _omitFieldNames ? '' : 'server', subBuilder: Server.create)
-    ..pc<NamedAny>(7, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        7, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Link clone() => Link()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Link copyWith(void Function(Link) updates) => super.copyWith((message) => updates(message as Link)) as Link;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Link copyWith(void Function(Link) updates) =>
+      super.copyWith((message) => updates(message as Link)) as Link;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2191,13 +2641,17 @@ class Link extends $pb.GeneratedMessage {
   Link createEmptyInstance() => create();
   static $pb.PbList<Link> createRepeated() => $pb.PbList<Link>();
   @$core.pragma('dart2js:noInline')
-  static Link getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Link>(create);
+  static Link getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Link>(create);
   static Link? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get operationRef => $_getSZ(0);
   @$pb.TagNumber(1)
-  set operationRef($core.String v) { $_setString(0, v); }
+  set operationRef($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasOperationRef() => $_has(0);
   @$pb.TagNumber(1)
@@ -2206,7 +2660,10 @@ class Link extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get operationId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set operationId($core.String v) { $_setString(1, v); }
+  set operationId($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasOperationId() => $_has(1);
   @$pb.TagNumber(2)
@@ -2215,7 +2672,10 @@ class Link extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   AnyOrExpression get parameters => $_getN(2);
   @$pb.TagNumber(3)
-  set parameters(AnyOrExpression v) { setField(3, v); }
+  set parameters(AnyOrExpression v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasParameters() => $_has(2);
   @$pb.TagNumber(3)
@@ -2226,7 +2686,10 @@ class Link extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   AnyOrExpression get requestBody => $_getN(3);
   @$pb.TagNumber(4)
-  set requestBody(AnyOrExpression v) { setField(4, v); }
+  set requestBody(AnyOrExpression v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasRequestBody() => $_has(3);
   @$pb.TagNumber(4)
@@ -2237,7 +2700,10 @@ class Link extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get description => $_getSZ(4);
   @$pb.TagNumber(5)
-  set description($core.String v) { $_setString(4, v); }
+  set description($core.String v) {
+    $_setString(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasDescription() => $_has(4);
   @$pb.TagNumber(5)
@@ -2246,7 +2712,10 @@ class Link extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   Server get server => $_getN(5);
   @$pb.TagNumber(6)
-  set server(Server v) { setField(6, v); }
+  set server(Server v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasServer() => $_has(5);
   @$pb.TagNumber(6)
@@ -2258,11 +2727,7 @@ class Link extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(6);
 }
 
-enum LinkOrReference_Oneof {
-  link, 
-  reference, 
-  notSet
-}
+enum LinkOrReference_Oneof { link, reference, notSet }
 
 class LinkOrReference extends $pb.GeneratedMessage {
   factory LinkOrReference({
@@ -2279,49 +2744,64 @@ class LinkOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   LinkOrReference._() : super();
-  factory LinkOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory LinkOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory LinkOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory LinkOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, LinkOrReference_Oneof> _LinkOrReference_OneofByTag = {
-    1 : LinkOrReference_Oneof.link,
-    2 : LinkOrReference_Oneof.reference,
-    0 : LinkOrReference_Oneof.notSet
+  static const $core.Map<$core.int, LinkOrReference_Oneof>
+      _LinkOrReference_OneofByTag = {
+    1: LinkOrReference_Oneof.link,
+    2: LinkOrReference_Oneof.reference,
+    0: LinkOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LinkOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'LinkOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
     ..aOM<Link>(1, _omitFieldNames ? '' : 'link', subBuilder: Link.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   LinkOrReference clone() => LinkOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  LinkOrReference copyWith(void Function(LinkOrReference) updates) => super.copyWith((message) => updates(message as LinkOrReference)) as LinkOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  LinkOrReference copyWith(void Function(LinkOrReference) updates) =>
+      super.copyWith((message) => updates(message as LinkOrReference))
+          as LinkOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LinkOrReference create() => LinkOrReference._();
   LinkOrReference createEmptyInstance() => create();
-  static $pb.PbList<LinkOrReference> createRepeated() => $pb.PbList<LinkOrReference>();
+  static $pb.PbList<LinkOrReference> createRepeated() =>
+      $pb.PbList<LinkOrReference>();
   @$core.pragma('dart2js:noInline')
-  static LinkOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LinkOrReference>(create);
+  static LinkOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<LinkOrReference>(create);
   static LinkOrReference? _defaultInstance;
 
-  LinkOrReference_Oneof whichOneof() => _LinkOrReference_OneofByTag[$_whichOneof(0)]!;
+  LinkOrReference_Oneof whichOneof() =>
+      _LinkOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Link get link => $_getN(0);
   @$pb.TagNumber(1)
-  set link(Link v) { setField(1, v); }
+  set link(Link v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasLink() => $_has(0);
   @$pb.TagNumber(1)
@@ -2332,7 +2812,10 @@ class LinkOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -2352,33 +2835,44 @@ class LinksOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   LinksOrReferences._() : super();
-  factory LinksOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory LinksOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory LinksOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory LinksOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LinksOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedLinkOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedLinkOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'LinksOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedLinkOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedLinkOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   LinksOrReferences clone() => LinksOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  LinksOrReferences copyWith(void Function(LinksOrReferences) updates) => super.copyWith((message) => updates(message as LinksOrReferences)) as LinksOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  LinksOrReferences copyWith(void Function(LinksOrReferences) updates) =>
+      super.copyWith((message) => updates(message as LinksOrReferences))
+          as LinksOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LinksOrReferences create() => LinksOrReferences._();
   LinksOrReferences createEmptyInstance() => create();
-  static $pb.PbList<LinksOrReferences> createRepeated() => $pb.PbList<LinksOrReferences>();
+  static $pb.PbList<LinksOrReferences> createRepeated() =>
+      $pb.PbList<LinksOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static LinksOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LinksOrReferences>(create);
+  static LinksOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<LinksOrReferences>(create);
   static LinksOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2413,28 +2907,39 @@ class MediaType extends $pb.GeneratedMessage {
     return $result;
   }
   MediaType._() : super();
-  factory MediaType.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory MediaType.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MediaType.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory MediaType.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MediaType', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..aOM<SchemaOrReference>(1, _omitFieldNames ? '' : 'schema', subBuilder: SchemaOrReference.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MediaType',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..aOM<SchemaOrReference>(1, _omitFieldNames ? '' : 'schema',
+        subBuilder: SchemaOrReference.create)
     ..aOM<Any>(2, _omitFieldNames ? '' : 'example', subBuilder: Any.create)
-    ..aOM<ExamplesOrReferences>(3, _omitFieldNames ? '' : 'examples', subBuilder: ExamplesOrReferences.create)
-    ..aOM<Encodings>(4, _omitFieldNames ? '' : 'encoding', subBuilder: Encodings.create)
-    ..pc<NamedAny>(5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ExamplesOrReferences>(3, _omitFieldNames ? '' : 'examples',
+        subBuilder: ExamplesOrReferences.create)
+    ..aOM<Encodings>(4, _omitFieldNames ? '' : 'encoding',
+        subBuilder: Encodings.create)
+    ..pc<NamedAny>(
+        5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   MediaType clone() => MediaType()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  MediaType copyWith(void Function(MediaType) updates) => super.copyWith((message) => updates(message as MediaType)) as MediaType;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  MediaType copyWith(void Function(MediaType) updates) =>
+      super.copyWith((message) => updates(message as MediaType)) as MediaType;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2443,13 +2948,17 @@ class MediaType extends $pb.GeneratedMessage {
   MediaType createEmptyInstance() => create();
   static $pb.PbList<MediaType> createRepeated() => $pb.PbList<MediaType>();
   @$core.pragma('dart2js:noInline')
-  static MediaType getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MediaType>(create);
+  static MediaType getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MediaType>(create);
   static MediaType? _defaultInstance;
 
   @$pb.TagNumber(1)
   SchemaOrReference get schema => $_getN(0);
   @$pb.TagNumber(1)
-  set schema(SchemaOrReference v) { setField(1, v); }
+  set schema(SchemaOrReference v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasSchema() => $_has(0);
   @$pb.TagNumber(1)
@@ -2460,7 +2969,10 @@ class MediaType extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Any get example => $_getN(1);
   @$pb.TagNumber(2)
-  set example(Any v) { setField(2, v); }
+  set example(Any v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasExample() => $_has(1);
   @$pb.TagNumber(2)
@@ -2471,7 +2983,10 @@ class MediaType extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   ExamplesOrReferences get examples => $_getN(2);
   @$pb.TagNumber(3)
-  set examples(ExamplesOrReferences v) { setField(3, v); }
+  set examples(ExamplesOrReferences v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasExamples() => $_has(2);
   @$pb.TagNumber(3)
@@ -2482,7 +2997,10 @@ class MediaType extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   Encodings get encoding => $_getN(3);
   @$pb.TagNumber(4)
-  set encoding(Encodings v) { setField(4, v); }
+  set encoding(Encodings v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasEncoding() => $_has(3);
   @$pb.TagNumber(4)
@@ -2505,24 +3023,32 @@ class MediaTypes extends $pb.GeneratedMessage {
     return $result;
   }
   MediaTypes._() : super();
-  factory MediaTypes.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory MediaTypes.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MediaTypes.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory MediaTypes.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'MediaTypes', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedMediaType>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedMediaType.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MediaTypes',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedMediaType>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedMediaType.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   MediaTypes clone() => MediaTypes()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  MediaTypes copyWith(void Function(MediaTypes) updates) => super.copyWith((message) => updates(message as MediaTypes)) as MediaTypes;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  MediaTypes copyWith(void Function(MediaTypes) updates) =>
+      super.copyWith((message) => updates(message as MediaTypes)) as MediaTypes;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2531,7 +3057,8 @@ class MediaTypes extends $pb.GeneratedMessage {
   MediaTypes createEmptyInstance() => create();
   static $pb.PbList<MediaTypes> createRepeated() => $pb.PbList<MediaTypes>();
   @$core.pragma('dart2js:noInline')
-  static MediaTypes getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MediaTypes>(create);
+  static MediaTypes getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MediaTypes>(create);
   static MediaTypes? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2554,25 +3081,31 @@ class NamedAny extends $pb.GeneratedMessage {
     return $result;
   }
   NamedAny._() : super();
-  factory NamedAny.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedAny.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedAny.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedAny.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedAny', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedAny',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOM<Any>(2, _omitFieldNames ? '' : 'value', subBuilder: Any.create)
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedAny clone() => NamedAny()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedAny copyWith(void Function(NamedAny) updates) => super.copyWith((message) => updates(message as NamedAny)) as NamedAny;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedAny copyWith(void Function(NamedAny) updates) =>
+      super.copyWith((message) => updates(message as NamedAny)) as NamedAny;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -2581,14 +3114,18 @@ class NamedAny extends $pb.GeneratedMessage {
   NamedAny createEmptyInstance() => create();
   static $pb.PbList<NamedAny> createRepeated() => $pb.PbList<NamedAny>();
   @$core.pragma('dart2js:noInline')
-  static NamedAny getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedAny>(create);
+  static NamedAny getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedAny>(create);
   static NamedAny? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2598,7 +3135,10 @@ class NamedAny extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Any get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(Any v) { setField(2, v); }
+  set value(Any v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -2623,41 +3163,56 @@ class NamedCallbackOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedCallbackOrReference._() : super();
-  factory NamedCallbackOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedCallbackOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedCallbackOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedCallbackOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedCallbackOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedCallbackOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<CallbackOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: CallbackOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<CallbackOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: CallbackOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedCallbackOrReference clone() => NamedCallbackOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedCallbackOrReference copyWith(void Function(NamedCallbackOrReference) updates) => super.copyWith((message) => updates(message as NamedCallbackOrReference)) as NamedCallbackOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedCallbackOrReference clone() =>
+      NamedCallbackOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedCallbackOrReference copyWith(
+          void Function(NamedCallbackOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedCallbackOrReference))
+          as NamedCallbackOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedCallbackOrReference create() => NamedCallbackOrReference._();
   NamedCallbackOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedCallbackOrReference> createRepeated() => $pb.PbList<NamedCallbackOrReference>();
+  static $pb.PbList<NamedCallbackOrReference> createRepeated() =>
+      $pb.PbList<NamedCallbackOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedCallbackOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedCallbackOrReference>(create);
+  static NamedCallbackOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedCallbackOrReference>(create);
   static NamedCallbackOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2667,7 +3222,10 @@ class NamedCallbackOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   CallbackOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(CallbackOrReference v) { setField(2, v); }
+  set value(CallbackOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -2692,41 +3250,54 @@ class NamedEncoding extends $pb.GeneratedMessage {
     return $result;
   }
   NamedEncoding._() : super();
-  factory NamedEncoding.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedEncoding.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedEncoding.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedEncoding.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedEncoding', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedEncoding',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<Encoding>(2, _omitFieldNames ? '' : 'value', subBuilder: Encoding.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Encoding>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: Encoding.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedEncoding clone() => NamedEncoding()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedEncoding copyWith(void Function(NamedEncoding) updates) => super.copyWith((message) => updates(message as NamedEncoding)) as NamedEncoding;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedEncoding copyWith(void Function(NamedEncoding) updates) =>
+      super.copyWith((message) => updates(message as NamedEncoding))
+          as NamedEncoding;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedEncoding create() => NamedEncoding._();
   NamedEncoding createEmptyInstance() => create();
-  static $pb.PbList<NamedEncoding> createRepeated() => $pb.PbList<NamedEncoding>();
+  static $pb.PbList<NamedEncoding> createRepeated() =>
+      $pb.PbList<NamedEncoding>();
   @$core.pragma('dart2js:noInline')
-  static NamedEncoding getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedEncoding>(create);
+  static NamedEncoding getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedEncoding>(create);
   static NamedEncoding? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2736,7 +3307,10 @@ class NamedEncoding extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Encoding get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(Encoding v) { setField(2, v); }
+  set value(Encoding v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -2761,41 +3335,56 @@ class NamedExampleOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedExampleOrReference._() : super();
-  factory NamedExampleOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedExampleOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedExampleOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedExampleOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedExampleOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedExampleOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<ExampleOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: ExampleOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ExampleOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: ExampleOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedExampleOrReference clone() => NamedExampleOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedExampleOrReference copyWith(void Function(NamedExampleOrReference) updates) => super.copyWith((message) => updates(message as NamedExampleOrReference)) as NamedExampleOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedExampleOrReference clone() =>
+      NamedExampleOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedExampleOrReference copyWith(
+          void Function(NamedExampleOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedExampleOrReference))
+          as NamedExampleOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedExampleOrReference create() => NamedExampleOrReference._();
   NamedExampleOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedExampleOrReference> createRepeated() => $pb.PbList<NamedExampleOrReference>();
+  static $pb.PbList<NamedExampleOrReference> createRepeated() =>
+      $pb.PbList<NamedExampleOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedExampleOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedExampleOrReference>(create);
+  static NamedExampleOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedExampleOrReference>(create);
   static NamedExampleOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2805,7 +3394,10 @@ class NamedExampleOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   ExampleOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(ExampleOrReference v) { setField(2, v); }
+  set value(ExampleOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -2830,41 +3422,56 @@ class NamedHeaderOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedHeaderOrReference._() : super();
-  factory NamedHeaderOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedHeaderOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedHeaderOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedHeaderOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedHeaderOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedHeaderOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<HeaderOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: HeaderOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<HeaderOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: HeaderOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedHeaderOrReference clone() => NamedHeaderOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedHeaderOrReference copyWith(void Function(NamedHeaderOrReference) updates) => super.copyWith((message) => updates(message as NamedHeaderOrReference)) as NamedHeaderOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedHeaderOrReference clone() =>
+      NamedHeaderOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedHeaderOrReference copyWith(
+          void Function(NamedHeaderOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedHeaderOrReference))
+          as NamedHeaderOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedHeaderOrReference create() => NamedHeaderOrReference._();
   NamedHeaderOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedHeaderOrReference> createRepeated() => $pb.PbList<NamedHeaderOrReference>();
+  static $pb.PbList<NamedHeaderOrReference> createRepeated() =>
+      $pb.PbList<NamedHeaderOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedHeaderOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedHeaderOrReference>(create);
+  static NamedHeaderOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedHeaderOrReference>(create);
   static NamedHeaderOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2874,7 +3481,10 @@ class NamedHeaderOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   HeaderOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(HeaderOrReference v) { setField(2, v); }
+  set value(HeaderOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -2899,41 +3509,55 @@ class NamedLinkOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedLinkOrReference._() : super();
-  factory NamedLinkOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedLinkOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedLinkOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedLinkOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedLinkOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedLinkOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<LinkOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: LinkOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<LinkOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: LinkOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedLinkOrReference clone() => NamedLinkOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedLinkOrReference copyWith(void Function(NamedLinkOrReference) updates) => super.copyWith((message) => updates(message as NamedLinkOrReference)) as NamedLinkOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedLinkOrReference clone() =>
+      NamedLinkOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedLinkOrReference copyWith(void Function(NamedLinkOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedLinkOrReference))
+          as NamedLinkOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedLinkOrReference create() => NamedLinkOrReference._();
   NamedLinkOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedLinkOrReference> createRepeated() => $pb.PbList<NamedLinkOrReference>();
+  static $pb.PbList<NamedLinkOrReference> createRepeated() =>
+      $pb.PbList<NamedLinkOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedLinkOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedLinkOrReference>(create);
+  static NamedLinkOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedLinkOrReference>(create);
   static NamedLinkOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -2943,7 +3567,10 @@ class NamedLinkOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   LinkOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(LinkOrReference v) { setField(2, v); }
+  set value(LinkOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -2968,41 +3595,54 @@ class NamedMediaType extends $pb.GeneratedMessage {
     return $result;
   }
   NamedMediaType._() : super();
-  factory NamedMediaType.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedMediaType.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedMediaType.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedMediaType.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedMediaType', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedMediaType',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<MediaType>(2, _omitFieldNames ? '' : 'value', subBuilder: MediaType.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<MediaType>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: MediaType.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedMediaType clone() => NamedMediaType()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedMediaType copyWith(void Function(NamedMediaType) updates) => super.copyWith((message) => updates(message as NamedMediaType)) as NamedMediaType;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedMediaType copyWith(void Function(NamedMediaType) updates) =>
+      super.copyWith((message) => updates(message as NamedMediaType))
+          as NamedMediaType;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedMediaType create() => NamedMediaType._();
   NamedMediaType createEmptyInstance() => create();
-  static $pb.PbList<NamedMediaType> createRepeated() => $pb.PbList<NamedMediaType>();
+  static $pb.PbList<NamedMediaType> createRepeated() =>
+      $pb.PbList<NamedMediaType>();
   @$core.pragma('dart2js:noInline')
-  static NamedMediaType getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedMediaType>(create);
+  static NamedMediaType getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedMediaType>(create);
   static NamedMediaType? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3012,7 +3652,10 @@ class NamedMediaType extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   MediaType get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(MediaType v) { setField(2, v); }
+  set value(MediaType v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3037,41 +3680,56 @@ class NamedParameterOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedParameterOrReference._() : super();
-  factory NamedParameterOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedParameterOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedParameterOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedParameterOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedParameterOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedParameterOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<ParameterOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: ParameterOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ParameterOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: ParameterOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedParameterOrReference clone() => NamedParameterOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedParameterOrReference copyWith(void Function(NamedParameterOrReference) updates) => super.copyWith((message) => updates(message as NamedParameterOrReference)) as NamedParameterOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedParameterOrReference clone() =>
+      NamedParameterOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedParameterOrReference copyWith(
+          void Function(NamedParameterOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedParameterOrReference))
+          as NamedParameterOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedParameterOrReference create() => NamedParameterOrReference._();
   NamedParameterOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedParameterOrReference> createRepeated() => $pb.PbList<NamedParameterOrReference>();
+  static $pb.PbList<NamedParameterOrReference> createRepeated() =>
+      $pb.PbList<NamedParameterOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedParameterOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedParameterOrReference>(create);
+  static NamedParameterOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedParameterOrReference>(create);
   static NamedParameterOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3081,7 +3739,10 @@ class NamedParameterOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   ParameterOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(ParameterOrReference v) { setField(2, v); }
+  set value(ParameterOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3106,41 +3767,54 @@ class NamedPathItem extends $pb.GeneratedMessage {
     return $result;
   }
   NamedPathItem._() : super();
-  factory NamedPathItem.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedPathItem.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedPathItem.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedPathItem.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedPathItem', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedPathItem',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<PathItem>(2, _omitFieldNames ? '' : 'value', subBuilder: PathItem.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<PathItem>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: PathItem.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedPathItem clone() => NamedPathItem()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedPathItem copyWith(void Function(NamedPathItem) updates) => super.copyWith((message) => updates(message as NamedPathItem)) as NamedPathItem;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedPathItem copyWith(void Function(NamedPathItem) updates) =>
+      super.copyWith((message) => updates(message as NamedPathItem))
+          as NamedPathItem;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedPathItem create() => NamedPathItem._();
   NamedPathItem createEmptyInstance() => create();
-  static $pb.PbList<NamedPathItem> createRepeated() => $pb.PbList<NamedPathItem>();
+  static $pb.PbList<NamedPathItem> createRepeated() =>
+      $pb.PbList<NamedPathItem>();
   @$core.pragma('dart2js:noInline')
-  static NamedPathItem getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedPathItem>(create);
+  static NamedPathItem getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedPathItem>(create);
   static NamedPathItem? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3150,7 +3824,10 @@ class NamedPathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   PathItem get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(PathItem v) { setField(2, v); }
+  set value(PathItem v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3175,41 +3852,58 @@ class NamedRequestBodyOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedRequestBodyOrReference._() : super();
-  factory NamedRequestBodyOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedRequestBodyOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedRequestBodyOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedRequestBodyOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedRequestBodyOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedRequestBodyOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<RequestBodyOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: RequestBodyOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<RequestBodyOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: RequestBodyOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedRequestBodyOrReference clone() => NamedRequestBodyOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedRequestBodyOrReference copyWith(void Function(NamedRequestBodyOrReference) updates) => super.copyWith((message) => updates(message as NamedRequestBodyOrReference)) as NamedRequestBodyOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedRequestBodyOrReference clone() =>
+      NamedRequestBodyOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedRequestBodyOrReference copyWith(
+          void Function(NamedRequestBodyOrReference) updates) =>
+      super.copyWith(
+              (message) => updates(message as NamedRequestBodyOrReference))
+          as NamedRequestBodyOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static NamedRequestBodyOrReference create() => NamedRequestBodyOrReference._();
+  static NamedRequestBodyOrReference create() =>
+      NamedRequestBodyOrReference._();
   NamedRequestBodyOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedRequestBodyOrReference> createRepeated() => $pb.PbList<NamedRequestBodyOrReference>();
+  static $pb.PbList<NamedRequestBodyOrReference> createRepeated() =>
+      $pb.PbList<NamedRequestBodyOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedRequestBodyOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedRequestBodyOrReference>(create);
+  static NamedRequestBodyOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedRequestBodyOrReference>(create);
   static NamedRequestBodyOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3219,7 +3913,10 @@ class NamedRequestBodyOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   RequestBodyOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(RequestBodyOrReference v) { setField(2, v); }
+  set value(RequestBodyOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3244,41 +3941,56 @@ class NamedResponseOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedResponseOrReference._() : super();
-  factory NamedResponseOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedResponseOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedResponseOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedResponseOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedResponseOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedResponseOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<ResponseOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: ResponseOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ResponseOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: ResponseOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedResponseOrReference clone() => NamedResponseOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedResponseOrReference copyWith(void Function(NamedResponseOrReference) updates) => super.copyWith((message) => updates(message as NamedResponseOrReference)) as NamedResponseOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedResponseOrReference clone() =>
+      NamedResponseOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedResponseOrReference copyWith(
+          void Function(NamedResponseOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedResponseOrReference))
+          as NamedResponseOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedResponseOrReference create() => NamedResponseOrReference._();
   NamedResponseOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedResponseOrReference> createRepeated() => $pb.PbList<NamedResponseOrReference>();
+  static $pb.PbList<NamedResponseOrReference> createRepeated() =>
+      $pb.PbList<NamedResponseOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedResponseOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedResponseOrReference>(create);
+  static NamedResponseOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedResponseOrReference>(create);
   static NamedResponseOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3288,7 +4000,10 @@ class NamedResponseOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   ResponseOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(ResponseOrReference v) { setField(2, v); }
+  set value(ResponseOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3313,41 +4028,56 @@ class NamedSchemaOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedSchemaOrReference._() : super();
-  factory NamedSchemaOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedSchemaOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedSchemaOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedSchemaOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedSchemaOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedSchemaOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<SchemaOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: SchemaOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<SchemaOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: SchemaOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedSchemaOrReference clone() => NamedSchemaOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedSchemaOrReference copyWith(void Function(NamedSchemaOrReference) updates) => super.copyWith((message) => updates(message as NamedSchemaOrReference)) as NamedSchemaOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedSchemaOrReference clone() =>
+      NamedSchemaOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedSchemaOrReference copyWith(
+          void Function(NamedSchemaOrReference) updates) =>
+      super.copyWith((message) => updates(message as NamedSchemaOrReference))
+          as NamedSchemaOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedSchemaOrReference create() => NamedSchemaOrReference._();
   NamedSchemaOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedSchemaOrReference> createRepeated() => $pb.PbList<NamedSchemaOrReference>();
+  static $pb.PbList<NamedSchemaOrReference> createRepeated() =>
+      $pb.PbList<NamedSchemaOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedSchemaOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedSchemaOrReference>(create);
+  static NamedSchemaOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedSchemaOrReference>(create);
   static NamedSchemaOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3357,7 +4087,10 @@ class NamedSchemaOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   SchemaOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(SchemaOrReference v) { setField(2, v); }
+  set value(SchemaOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3382,41 +4115,58 @@ class NamedSecuritySchemeOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   NamedSecuritySchemeOrReference._() : super();
-  factory NamedSecuritySchemeOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedSecuritySchemeOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedSecuritySchemeOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedSecuritySchemeOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedSecuritySchemeOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedSecuritySchemeOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<SecuritySchemeOrReference>(2, _omitFieldNames ? '' : 'value', subBuilder: SecuritySchemeOrReference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<SecuritySchemeOrReference>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: SecuritySchemeOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  NamedSecuritySchemeOrReference clone() => NamedSecuritySchemeOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedSecuritySchemeOrReference copyWith(void Function(NamedSecuritySchemeOrReference) updates) => super.copyWith((message) => updates(message as NamedSecuritySchemeOrReference)) as NamedSecuritySchemeOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  NamedSecuritySchemeOrReference clone() =>
+      NamedSecuritySchemeOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedSecuritySchemeOrReference copyWith(
+          void Function(NamedSecuritySchemeOrReference) updates) =>
+      super.copyWith(
+              (message) => updates(message as NamedSecuritySchemeOrReference))
+          as NamedSecuritySchemeOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static NamedSecuritySchemeOrReference create() => NamedSecuritySchemeOrReference._();
+  static NamedSecuritySchemeOrReference create() =>
+      NamedSecuritySchemeOrReference._();
   NamedSecuritySchemeOrReference createEmptyInstance() => create();
-  static $pb.PbList<NamedSecuritySchemeOrReference> createRepeated() => $pb.PbList<NamedSecuritySchemeOrReference>();
+  static $pb.PbList<NamedSecuritySchemeOrReference> createRepeated() =>
+      $pb.PbList<NamedSecuritySchemeOrReference>();
   @$core.pragma('dart2js:noInline')
-  static NamedSecuritySchemeOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedSecuritySchemeOrReference>(create);
+  static NamedSecuritySchemeOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedSecuritySchemeOrReference>(create);
   static NamedSecuritySchemeOrReference? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3426,7 +4176,10 @@ class NamedSecuritySchemeOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   SecuritySchemeOrReference get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(SecuritySchemeOrReference v) { setField(2, v); }
+  set value(SecuritySchemeOrReference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3451,41 +4204,54 @@ class NamedServerVariable extends $pb.GeneratedMessage {
     return $result;
   }
   NamedServerVariable._() : super();
-  factory NamedServerVariable.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedServerVariable.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedServerVariable.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedServerVariable.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedServerVariable', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedServerVariable',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<ServerVariable>(2, _omitFieldNames ? '' : 'value', subBuilder: ServerVariable.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ServerVariable>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: ServerVariable.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedServerVariable clone() => NamedServerVariable()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedServerVariable copyWith(void Function(NamedServerVariable) updates) => super.copyWith((message) => updates(message as NamedServerVariable)) as NamedServerVariable;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedServerVariable copyWith(void Function(NamedServerVariable) updates) =>
+      super.copyWith((message) => updates(message as NamedServerVariable))
+          as NamedServerVariable;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedServerVariable create() => NamedServerVariable._();
   NamedServerVariable createEmptyInstance() => create();
-  static $pb.PbList<NamedServerVariable> createRepeated() => $pb.PbList<NamedServerVariable>();
+  static $pb.PbList<NamedServerVariable> createRepeated() =>
+      $pb.PbList<NamedServerVariable>();
   @$core.pragma('dart2js:noInline')
-  static NamedServerVariable getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedServerVariable>(create);
+  static NamedServerVariable getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedServerVariable>(create);
   static NamedServerVariable? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3495,7 +4261,10 @@ class NamedServerVariable extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   ServerVariable get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(ServerVariable v) { setField(2, v); }
+  set value(ServerVariable v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3520,25 +4289,32 @@ class NamedString extends $pb.GeneratedMessage {
     return $result;
   }
   NamedString._() : super();
-  factory NamedString.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedString.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedString.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedString.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedString', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedString',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'value')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedString clone() => NamedString()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedString copyWith(void Function(NamedString) updates) => super.copyWith((message) => updates(message as NamedString)) as NamedString;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedString copyWith(void Function(NamedString) updates) =>
+      super.copyWith((message) => updates(message as NamedString))
+          as NamedString;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -3547,14 +4323,18 @@ class NamedString extends $pb.GeneratedMessage {
   NamedString createEmptyInstance() => create();
   static $pb.PbList<NamedString> createRepeated() => $pb.PbList<NamedString>();
   @$core.pragma('dart2js:noInline')
-  static NamedString getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedString>(create);
+  static NamedString getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedString>(create);
   static NamedString? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3564,7 +4344,10 @@ class NamedString extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get value => $_getSZ(1);
   @$pb.TagNumber(2)
-  set value($core.String v) { $_setString(1, v); }
+  set value($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3587,41 +4370,54 @@ class NamedStringArray extends $pb.GeneratedMessage {
     return $result;
   }
   NamedStringArray._() : super();
-  factory NamedStringArray.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory NamedStringArray.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NamedStringArray.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory NamedStringArray.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'NamedStringArray', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'NamedStringArray',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
-    ..aOM<StringArray>(2, _omitFieldNames ? '' : 'value', subBuilder: StringArray.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<StringArray>(2, _omitFieldNames ? '' : 'value',
+        subBuilder: StringArray.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   NamedStringArray clone() => NamedStringArray()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  NamedStringArray copyWith(void Function(NamedStringArray) updates) => super.copyWith((message) => updates(message as NamedStringArray)) as NamedStringArray;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  NamedStringArray copyWith(void Function(NamedStringArray) updates) =>
+      super.copyWith((message) => updates(message as NamedStringArray))
+          as NamedStringArray;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static NamedStringArray create() => NamedStringArray._();
   NamedStringArray createEmptyInstance() => create();
-  static $pb.PbList<NamedStringArray> createRepeated() => $pb.PbList<NamedStringArray>();
+  static $pb.PbList<NamedStringArray> createRepeated() =>
+      $pb.PbList<NamedStringArray>();
   @$core.pragma('dart2js:noInline')
-  static NamedStringArray getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NamedStringArray>(create);
+  static NamedStringArray getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<NamedStringArray>(create);
   static NamedStringArray? _defaultInstance;
 
   /// Map key
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -3631,7 +4427,10 @@ class NamedStringArray extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   StringArray get value => $_getN(1);
   @$pb.TagNumber(2)
-  set value(StringArray v) { setField(2, v); }
+  set value(StringArray v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasValue() => $_has(1);
   @$pb.TagNumber(2)
@@ -3668,28 +4467,37 @@ class OauthFlow extends $pb.GeneratedMessage {
     return $result;
   }
   OauthFlow._() : super();
-  factory OauthFlow.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory OauthFlow.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory OauthFlow.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory OauthFlow.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OauthFlow', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'OauthFlow',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'authorizationUrl')
     ..aOS(2, _omitFieldNames ? '' : 'tokenUrl')
     ..aOS(3, _omitFieldNames ? '' : 'refreshUrl')
-    ..aOM<Strings>(4, _omitFieldNames ? '' : 'scopes', subBuilder: Strings.create)
-    ..pc<NamedAny>(5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Strings>(4, _omitFieldNames ? '' : 'scopes',
+        subBuilder: Strings.create)
+    ..pc<NamedAny>(
+        5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   OauthFlow clone() => OauthFlow()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  OauthFlow copyWith(void Function(OauthFlow) updates) => super.copyWith((message) => updates(message as OauthFlow)) as OauthFlow;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  OauthFlow copyWith(void Function(OauthFlow) updates) =>
+      super.copyWith((message) => updates(message as OauthFlow)) as OauthFlow;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -3698,13 +4506,17 @@ class OauthFlow extends $pb.GeneratedMessage {
   OauthFlow createEmptyInstance() => create();
   static $pb.PbList<OauthFlow> createRepeated() => $pb.PbList<OauthFlow>();
   @$core.pragma('dart2js:noInline')
-  static OauthFlow getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OauthFlow>(create);
+  static OauthFlow getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OauthFlow>(create);
   static OauthFlow? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get authorizationUrl => $_getSZ(0);
   @$pb.TagNumber(1)
-  set authorizationUrl($core.String v) { $_setString(0, v); }
+  set authorizationUrl($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasAuthorizationUrl() => $_has(0);
   @$pb.TagNumber(1)
@@ -3713,7 +4525,10 @@ class OauthFlow extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get tokenUrl => $_getSZ(1);
   @$pb.TagNumber(2)
-  set tokenUrl($core.String v) { $_setString(1, v); }
+  set tokenUrl($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasTokenUrl() => $_has(1);
   @$pb.TagNumber(2)
@@ -3722,7 +4537,10 @@ class OauthFlow extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get refreshUrl => $_getSZ(2);
   @$pb.TagNumber(3)
-  set refreshUrl($core.String v) { $_setString(2, v); }
+  set refreshUrl($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasRefreshUrl() => $_has(2);
   @$pb.TagNumber(3)
@@ -3731,7 +4549,10 @@ class OauthFlow extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   Strings get scopes => $_getN(3);
   @$pb.TagNumber(4)
-  set scopes(Strings v) { setField(4, v); }
+  set scopes(Strings v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasScopes() => $_has(3);
   @$pb.TagNumber(4)
@@ -3771,28 +4592,40 @@ class OauthFlows extends $pb.GeneratedMessage {
     return $result;
   }
   OauthFlows._() : super();
-  factory OauthFlows.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory OauthFlows.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory OauthFlows.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory OauthFlows.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OauthFlows', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..aOM<OauthFlow>(1, _omitFieldNames ? '' : 'implicit', subBuilder: OauthFlow.create)
-    ..aOM<OauthFlow>(2, _omitFieldNames ? '' : 'password', subBuilder: OauthFlow.create)
-    ..aOM<OauthFlow>(3, _omitFieldNames ? '' : 'clientCredentials', subBuilder: OauthFlow.create)
-    ..aOM<OauthFlow>(4, _omitFieldNames ? '' : 'authorizationCode', subBuilder: OauthFlow.create)
-    ..pc<NamedAny>(5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'OauthFlows',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..aOM<OauthFlow>(1, _omitFieldNames ? '' : 'implicit',
+        subBuilder: OauthFlow.create)
+    ..aOM<OauthFlow>(2, _omitFieldNames ? '' : 'password',
+        subBuilder: OauthFlow.create)
+    ..aOM<OauthFlow>(3, _omitFieldNames ? '' : 'clientCredentials',
+        subBuilder: OauthFlow.create)
+    ..aOM<OauthFlow>(4, _omitFieldNames ? '' : 'authorizationCode',
+        subBuilder: OauthFlow.create)
+    ..pc<NamedAny>(
+        5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   OauthFlows clone() => OauthFlows()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  OauthFlows copyWith(void Function(OauthFlows) updates) => super.copyWith((message) => updates(message as OauthFlows)) as OauthFlows;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  OauthFlows copyWith(void Function(OauthFlows) updates) =>
+      super.copyWith((message) => updates(message as OauthFlows)) as OauthFlows;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -3801,13 +4634,17 @@ class OauthFlows extends $pb.GeneratedMessage {
   OauthFlows createEmptyInstance() => create();
   static $pb.PbList<OauthFlows> createRepeated() => $pb.PbList<OauthFlows>();
   @$core.pragma('dart2js:noInline')
-  static OauthFlows getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OauthFlows>(create);
+  static OauthFlows getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<OauthFlows>(create);
   static OauthFlows? _defaultInstance;
 
   @$pb.TagNumber(1)
   OauthFlow get implicit => $_getN(0);
   @$pb.TagNumber(1)
-  set implicit(OauthFlow v) { setField(1, v); }
+  set implicit(OauthFlow v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasImplicit() => $_has(0);
   @$pb.TagNumber(1)
@@ -3818,7 +4655,10 @@ class OauthFlows extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   OauthFlow get password => $_getN(1);
   @$pb.TagNumber(2)
-  set password(OauthFlow v) { setField(2, v); }
+  set password(OauthFlow v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasPassword() => $_has(1);
   @$pb.TagNumber(2)
@@ -3829,7 +4669,10 @@ class OauthFlows extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   OauthFlow get clientCredentials => $_getN(2);
   @$pb.TagNumber(3)
-  set clientCredentials(OauthFlow v) { setField(3, v); }
+  set clientCredentials(OauthFlow v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasClientCredentials() => $_has(2);
   @$pb.TagNumber(3)
@@ -3840,7 +4683,10 @@ class OauthFlows extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   OauthFlow get authorizationCode => $_getN(3);
   @$pb.TagNumber(4)
-  set authorizationCode(OauthFlow v) { setField(4, v); }
+  set authorizationCode(OauthFlow v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasAuthorizationCode() => $_has(3);
   @$pb.TagNumber(4)
@@ -3863,24 +4709,32 @@ class Object extends $pb.GeneratedMessage {
     return $result;
   }
   Object._() : super();
-  factory Object.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Object.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Object.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Object.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Object', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedAny>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Object',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedAny>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Object clone() => Object()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Object copyWith(void Function(Object) updates) => super.copyWith((message) => updates(message as Object)) as Object;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Object copyWith(void Function(Object) updates) =>
+      super.copyWith((message) => updates(message as Object)) as Object;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -3889,7 +4743,8 @@ class Object extends $pb.GeneratedMessage {
   Object createEmptyInstance() => create();
   static $pb.PbList<Object> createRepeated() => $pb.PbList<Object>();
   @$core.pragma('dart2js:noInline')
-  static Object getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Object>(create);
+  static Object getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Object>(create);
   static Object? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3956,36 +4811,53 @@ class Operation extends $pb.GeneratedMessage {
     return $result;
   }
   Operation._() : super();
-  factory Operation.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Operation.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Operation.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Operation.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Operation', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Operation',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'tags')
     ..aOS(2, _omitFieldNames ? '' : 'summary')
     ..aOS(3, _omitFieldNames ? '' : 'description')
-    ..aOM<ExternalDocs>(4, _omitFieldNames ? '' : 'externalDocs', subBuilder: ExternalDocs.create)
+    ..aOM<ExternalDocs>(4, _omitFieldNames ? '' : 'externalDocs',
+        subBuilder: ExternalDocs.create)
     ..aOS(5, _omitFieldNames ? '' : 'operationId')
-    ..pc<ParameterOrReference>(6, _omitFieldNames ? '' : 'parameters', $pb.PbFieldType.PM, subBuilder: ParameterOrReference.create)
-    ..aOM<RequestBodyOrReference>(7, _omitFieldNames ? '' : 'requestBody', subBuilder: RequestBodyOrReference.create)
-    ..aOM<Responses>(8, _omitFieldNames ? '' : 'responses', subBuilder: Responses.create)
-    ..aOM<CallbacksOrReferences>(9, _omitFieldNames ? '' : 'callbacks', subBuilder: CallbacksOrReferences.create)
+    ..pc<ParameterOrReference>(
+        6, _omitFieldNames ? '' : 'parameters', $pb.PbFieldType.PM,
+        subBuilder: ParameterOrReference.create)
+    ..aOM<RequestBodyOrReference>(7, _omitFieldNames ? '' : 'requestBody',
+        subBuilder: RequestBodyOrReference.create)
+    ..aOM<Responses>(8, _omitFieldNames ? '' : 'responses',
+        subBuilder: Responses.create)
+    ..aOM<CallbacksOrReferences>(9, _omitFieldNames ? '' : 'callbacks',
+        subBuilder: CallbacksOrReferences.create)
     ..aOB(10, _omitFieldNames ? '' : 'deprecated')
-    ..pc<SecurityRequirement>(11, _omitFieldNames ? '' : 'security', $pb.PbFieldType.PM, subBuilder: SecurityRequirement.create)
-    ..pc<Server>(12, _omitFieldNames ? '' : 'servers', $pb.PbFieldType.PM, subBuilder: Server.create)
-    ..pc<NamedAny>(13, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<SecurityRequirement>(
+        11, _omitFieldNames ? '' : 'security', $pb.PbFieldType.PM,
+        subBuilder: SecurityRequirement.create)
+    ..pc<Server>(12, _omitFieldNames ? '' : 'servers', $pb.PbFieldType.PM,
+        subBuilder: Server.create)
+    ..pc<NamedAny>(
+        13, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Operation clone() => Operation()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Operation copyWith(void Function(Operation) updates) => super.copyWith((message) => updates(message as Operation)) as Operation;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Operation copyWith(void Function(Operation) updates) =>
+      super.copyWith((message) => updates(message as Operation)) as Operation;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -3994,7 +4866,8 @@ class Operation extends $pb.GeneratedMessage {
   Operation createEmptyInstance() => create();
   static $pb.PbList<Operation> createRepeated() => $pb.PbList<Operation>();
   @$core.pragma('dart2js:noInline')
-  static Operation getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Operation>(create);
+  static Operation getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Operation>(create);
   static Operation? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4003,7 +4876,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get summary => $_getSZ(1);
   @$pb.TagNumber(2)
-  set summary($core.String v) { $_setString(1, v); }
+  set summary($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasSummary() => $_has(1);
   @$pb.TagNumber(2)
@@ -4012,7 +4888,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get description => $_getSZ(2);
   @$pb.TagNumber(3)
-  set description($core.String v) { $_setString(2, v); }
+  set description($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasDescription() => $_has(2);
   @$pb.TagNumber(3)
@@ -4021,7 +4900,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   ExternalDocs get externalDocs => $_getN(3);
   @$pb.TagNumber(4)
-  set externalDocs(ExternalDocs v) { setField(4, v); }
+  set externalDocs(ExternalDocs v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasExternalDocs() => $_has(3);
   @$pb.TagNumber(4)
@@ -4032,7 +4914,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get operationId => $_getSZ(4);
   @$pb.TagNumber(5)
-  set operationId($core.String v) { $_setString(4, v); }
+  set operationId($core.String v) {
+    $_setString(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasOperationId() => $_has(4);
   @$pb.TagNumber(5)
@@ -4044,7 +4929,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   RequestBodyOrReference get requestBody => $_getN(6);
   @$pb.TagNumber(7)
-  set requestBody(RequestBodyOrReference v) { setField(7, v); }
+  set requestBody(RequestBodyOrReference v) {
+    setField(7, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasRequestBody() => $_has(6);
   @$pb.TagNumber(7)
@@ -4055,7 +4943,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   Responses get responses => $_getN(7);
   @$pb.TagNumber(8)
-  set responses(Responses v) { setField(8, v); }
+  set responses(Responses v) {
+    setField(8, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasResponses() => $_has(7);
   @$pb.TagNumber(8)
@@ -4066,7 +4957,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   CallbacksOrReferences get callbacks => $_getN(8);
   @$pb.TagNumber(9)
-  set callbacks(CallbacksOrReferences v) { setField(9, v); }
+  set callbacks(CallbacksOrReferences v) {
+    setField(9, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasCallbacks() => $_has(8);
   @$pb.TagNumber(9)
@@ -4077,7 +4971,10 @@ class Operation extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.bool get deprecated => $_getBF(9);
   @$pb.TagNumber(10)
-  set deprecated($core.bool v) { $_setBool(9, v); }
+  set deprecated($core.bool v) {
+    $_setBool(9, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasDeprecated() => $_has(9);
   @$pb.TagNumber(10)
@@ -4157,10 +5054,18 @@ class Parameter extends $pb.GeneratedMessage {
     return $result;
   }
   Parameter._() : super();
-  factory Parameter.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Parameter.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Parameter.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Parameter.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Parameter', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Parameter',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'in')
     ..aOS(3, _omitFieldNames ? '' : 'description')
@@ -4170,24 +5075,27 @@ class Parameter extends $pb.GeneratedMessage {
     ..aOS(7, _omitFieldNames ? '' : 'style')
     ..aOB(8, _omitFieldNames ? '' : 'explode')
     ..aOB(9, _omitFieldNames ? '' : 'allowReserved')
-    ..aOM<SchemaOrReference>(10, _omitFieldNames ? '' : 'schema', subBuilder: SchemaOrReference.create)
+    ..aOM<SchemaOrReference>(10, _omitFieldNames ? '' : 'schema',
+        subBuilder: SchemaOrReference.create)
     ..aOM<Any>(11, _omitFieldNames ? '' : 'example', subBuilder: Any.create)
-    ..aOM<ExamplesOrReferences>(12, _omitFieldNames ? '' : 'examples', subBuilder: ExamplesOrReferences.create)
-    ..aOM<MediaTypes>(13, _omitFieldNames ? '' : 'content', subBuilder: MediaTypes.create)
-    ..pc<NamedAny>(14, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ExamplesOrReferences>(12, _omitFieldNames ? '' : 'examples',
+        subBuilder: ExamplesOrReferences.create)
+    ..aOM<MediaTypes>(13, _omitFieldNames ? '' : 'content',
+        subBuilder: MediaTypes.create)
+    ..pc<NamedAny>(
+        14, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Parameter clone() => Parameter()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Parameter copyWith(void Function(Parameter) updates) => super.copyWith((message) => updates(message as Parameter)) as Parameter;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Parameter copyWith(void Function(Parameter) updates) =>
+      super.copyWith((message) => updates(message as Parameter)) as Parameter;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4196,13 +5104,17 @@ class Parameter extends $pb.GeneratedMessage {
   Parameter createEmptyInstance() => create();
   static $pb.PbList<Parameter> createRepeated() => $pb.PbList<Parameter>();
   @$core.pragma('dart2js:noInline')
-  static Parameter getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Parameter>(create);
+  static Parameter getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Parameter>(create);
   static Parameter? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -4211,7 +5123,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get in_2 => $_getSZ(1);
   @$pb.TagNumber(2)
-  set in_2($core.String v) { $_setString(1, v); }
+  set in_2($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasIn_2() => $_has(1);
   @$pb.TagNumber(2)
@@ -4220,7 +5135,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get description => $_getSZ(2);
   @$pb.TagNumber(3)
-  set description($core.String v) { $_setString(2, v); }
+  set description($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasDescription() => $_has(2);
   @$pb.TagNumber(3)
@@ -4229,7 +5147,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get required => $_getBF(3);
   @$pb.TagNumber(4)
-  set required($core.bool v) { $_setBool(3, v); }
+  set required($core.bool v) {
+    $_setBool(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasRequired() => $_has(3);
   @$pb.TagNumber(4)
@@ -4238,7 +5159,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.bool get deprecated => $_getBF(4);
   @$pb.TagNumber(5)
-  set deprecated($core.bool v) { $_setBool(4, v); }
+  set deprecated($core.bool v) {
+    $_setBool(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasDeprecated() => $_has(4);
   @$pb.TagNumber(5)
@@ -4247,7 +5171,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.bool get allowEmptyValue => $_getBF(5);
   @$pb.TagNumber(6)
-  set allowEmptyValue($core.bool v) { $_setBool(5, v); }
+  set allowEmptyValue($core.bool v) {
+    $_setBool(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasAllowEmptyValue() => $_has(5);
   @$pb.TagNumber(6)
@@ -4256,7 +5183,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   $core.String get style => $_getSZ(6);
   @$pb.TagNumber(7)
-  set style($core.String v) { $_setString(6, v); }
+  set style($core.String v) {
+    $_setString(6, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasStyle() => $_has(6);
   @$pb.TagNumber(7)
@@ -4265,7 +5195,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.bool get explode => $_getBF(7);
   @$pb.TagNumber(8)
-  set explode($core.bool v) { $_setBool(7, v); }
+  set explode($core.bool v) {
+    $_setBool(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasExplode() => $_has(7);
   @$pb.TagNumber(8)
@@ -4274,7 +5207,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $core.bool get allowReserved => $_getBF(8);
   @$pb.TagNumber(9)
-  set allowReserved($core.bool v) { $_setBool(8, v); }
+  set allowReserved($core.bool v) {
+    $_setBool(8, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasAllowReserved() => $_has(8);
   @$pb.TagNumber(9)
@@ -4283,7 +5219,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   SchemaOrReference get schema => $_getN(9);
   @$pb.TagNumber(10)
-  set schema(SchemaOrReference v) { setField(10, v); }
+  set schema(SchemaOrReference v) {
+    setField(10, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasSchema() => $_has(9);
   @$pb.TagNumber(10)
@@ -4294,7 +5233,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   Any get example => $_getN(10);
   @$pb.TagNumber(11)
-  set example(Any v) { setField(11, v); }
+  set example(Any v) {
+    setField(11, v);
+  }
+
   @$pb.TagNumber(11)
   $core.bool hasExample() => $_has(10);
   @$pb.TagNumber(11)
@@ -4305,7 +5247,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   ExamplesOrReferences get examples => $_getN(11);
   @$pb.TagNumber(12)
-  set examples(ExamplesOrReferences v) { setField(12, v); }
+  set examples(ExamplesOrReferences v) {
+    setField(12, v);
+  }
+
   @$pb.TagNumber(12)
   $core.bool hasExamples() => $_has(11);
   @$pb.TagNumber(12)
@@ -4316,7 +5261,10 @@ class Parameter extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   MediaTypes get content => $_getN(12);
   @$pb.TagNumber(13)
-  set content(MediaTypes v) { setField(13, v); }
+  set content(MediaTypes v) {
+    setField(13, v);
+  }
+
   @$pb.TagNumber(13)
   $core.bool hasContent() => $_has(12);
   @$pb.TagNumber(13)
@@ -4328,11 +5276,7 @@ class Parameter extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(13);
 }
 
-enum ParameterOrReference_Oneof {
-  parameter, 
-  reference, 
-  notSet
-}
+enum ParameterOrReference_Oneof { parameter, reference, notSet }
 
 class ParameterOrReference extends $pb.GeneratedMessage {
   factory ParameterOrReference({
@@ -4349,49 +5293,66 @@ class ParameterOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   ParameterOrReference._() : super();
-  factory ParameterOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ParameterOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ParameterOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ParameterOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, ParameterOrReference_Oneof> _ParameterOrReference_OneofByTag = {
-    1 : ParameterOrReference_Oneof.parameter,
-    2 : ParameterOrReference_Oneof.reference,
-    0 : ParameterOrReference_Oneof.notSet
+  static const $core.Map<$core.int, ParameterOrReference_Oneof>
+      _ParameterOrReference_OneofByTag = {
+    1: ParameterOrReference_Oneof.parameter,
+    2: ParameterOrReference_Oneof.reference,
+    0: ParameterOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ParameterOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ParameterOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<Parameter>(1, _omitFieldNames ? '' : 'parameter', subBuilder: Parameter.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Parameter>(1, _omitFieldNames ? '' : 'parameter',
+        subBuilder: Parameter.create)
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  ParameterOrReference clone() => ParameterOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ParameterOrReference copyWith(void Function(ParameterOrReference) updates) => super.copyWith((message) => updates(message as ParameterOrReference)) as ParameterOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  ParameterOrReference clone() =>
+      ParameterOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ParameterOrReference copyWith(void Function(ParameterOrReference) updates) =>
+      super.copyWith((message) => updates(message as ParameterOrReference))
+          as ParameterOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ParameterOrReference create() => ParameterOrReference._();
   ParameterOrReference createEmptyInstance() => create();
-  static $pb.PbList<ParameterOrReference> createRepeated() => $pb.PbList<ParameterOrReference>();
+  static $pb.PbList<ParameterOrReference> createRepeated() =>
+      $pb.PbList<ParameterOrReference>();
   @$core.pragma('dart2js:noInline')
-  static ParameterOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ParameterOrReference>(create);
+  static ParameterOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ParameterOrReference>(create);
   static ParameterOrReference? _defaultInstance;
 
-  ParameterOrReference_Oneof whichOneof() => _ParameterOrReference_OneofByTag[$_whichOneof(0)]!;
+  ParameterOrReference_Oneof whichOneof() =>
+      _ParameterOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Parameter get parameter => $_getN(0);
   @$pb.TagNumber(1)
-  set parameter(Parameter v) { setField(1, v); }
+  set parameter(Parameter v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasParameter() => $_has(0);
   @$pb.TagNumber(1)
@@ -4402,7 +5363,10 @@ class ParameterOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -4422,37 +5386,51 @@ class ParametersOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   ParametersOrReferences._() : super();
-  factory ParametersOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ParametersOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ParametersOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ParametersOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ParametersOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedParameterOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedParameterOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ParametersOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedParameterOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedParameterOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  ParametersOrReferences clone() => ParametersOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ParametersOrReferences copyWith(void Function(ParametersOrReferences) updates) => super.copyWith((message) => updates(message as ParametersOrReferences)) as ParametersOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  ParametersOrReferences clone() =>
+      ParametersOrReferences()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ParametersOrReferences copyWith(
+          void Function(ParametersOrReferences) updates) =>
+      super.copyWith((message) => updates(message as ParametersOrReferences))
+          as ParametersOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ParametersOrReferences create() => ParametersOrReferences._();
   ParametersOrReferences createEmptyInstance() => create();
-  static $pb.PbList<ParametersOrReferences> createRepeated() => $pb.PbList<ParametersOrReferences>();
+  static $pb.PbList<ParametersOrReferences> createRepeated() =>
+      $pb.PbList<ParametersOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static ParametersOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ParametersOrReferences>(create);
+  static ParametersOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ParametersOrReferences>(create);
   static ParametersOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<NamedParameterOrReference> get additionalProperties => $_getList(0);
+  $core.List<NamedParameterOrReference> get additionalProperties =>
+      $_getList(0);
 }
 
 /// Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
@@ -4519,37 +5497,56 @@ class PathItem extends $pb.GeneratedMessage {
     return $result;
   }
   PathItem._() : super();
-  factory PathItem.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory PathItem.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory PathItem.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory PathItem.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PathItem', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PathItem',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'Ref')
     ..aOS(2, _omitFieldNames ? '' : 'summary')
     ..aOS(3, _omitFieldNames ? '' : 'description')
-    ..aOM<Operation>(4, _omitFieldNames ? '' : 'get', subBuilder: Operation.create)
-    ..aOM<Operation>(5, _omitFieldNames ? '' : 'put', subBuilder: Operation.create)
-    ..aOM<Operation>(6, _omitFieldNames ? '' : 'post', subBuilder: Operation.create)
-    ..aOM<Operation>(7, _omitFieldNames ? '' : 'delete', subBuilder: Operation.create)
-    ..aOM<Operation>(8, _omitFieldNames ? '' : 'options', subBuilder: Operation.create)
-    ..aOM<Operation>(9, _omitFieldNames ? '' : 'head', subBuilder: Operation.create)
-    ..aOM<Operation>(10, _omitFieldNames ? '' : 'patch', subBuilder: Operation.create)
-    ..aOM<Operation>(11, _omitFieldNames ? '' : 'trace', subBuilder: Operation.create)
-    ..pc<Server>(12, _omitFieldNames ? '' : 'servers', $pb.PbFieldType.PM, subBuilder: Server.create)
-    ..pc<ParameterOrReference>(13, _omitFieldNames ? '' : 'parameters', $pb.PbFieldType.PM, subBuilder: ParameterOrReference.create)
-    ..pc<NamedAny>(14, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Operation>(4, _omitFieldNames ? '' : 'get',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(5, _omitFieldNames ? '' : 'put',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(6, _omitFieldNames ? '' : 'post',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(7, _omitFieldNames ? '' : 'delete',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(8, _omitFieldNames ? '' : 'options',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(9, _omitFieldNames ? '' : 'head',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(10, _omitFieldNames ? '' : 'patch',
+        subBuilder: Operation.create)
+    ..aOM<Operation>(11, _omitFieldNames ? '' : 'trace',
+        subBuilder: Operation.create)
+    ..pc<Server>(12, _omitFieldNames ? '' : 'servers', $pb.PbFieldType.PM,
+        subBuilder: Server.create)
+    ..pc<ParameterOrReference>(
+        13, _omitFieldNames ? '' : 'parameters', $pb.PbFieldType.PM,
+        subBuilder: ParameterOrReference.create)
+    ..pc<NamedAny>(
+        14, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   PathItem clone() => PathItem()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  PathItem copyWith(void Function(PathItem) updates) => super.copyWith((message) => updates(message as PathItem)) as PathItem;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  PathItem copyWith(void Function(PathItem) updates) =>
+      super.copyWith((message) => updates(message as PathItem)) as PathItem;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4558,13 +5555,17 @@ class PathItem extends $pb.GeneratedMessage {
   PathItem createEmptyInstance() => create();
   static $pb.PbList<PathItem> createRepeated() => $pb.PbList<PathItem>();
   @$core.pragma('dart2js:noInline')
-  static PathItem getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PathItem>(create);
+  static PathItem getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PathItem>(create);
   static PathItem? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get ref => $_getSZ(0);
   @$pb.TagNumber(1)
-  set ref($core.String v) { $_setString(0, v); }
+  set ref($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasRef() => $_has(0);
   @$pb.TagNumber(1)
@@ -4573,7 +5574,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get summary => $_getSZ(1);
   @$pb.TagNumber(2)
-  set summary($core.String v) { $_setString(1, v); }
+  set summary($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasSummary() => $_has(1);
   @$pb.TagNumber(2)
@@ -4582,7 +5586,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get description => $_getSZ(2);
   @$pb.TagNumber(3)
-  set description($core.String v) { $_setString(2, v); }
+  set description($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasDescription() => $_has(2);
   @$pb.TagNumber(3)
@@ -4591,7 +5598,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   Operation get get => $_getN(3);
   @$pb.TagNumber(4)
-  set get(Operation v) { setField(4, v); }
+  set get(Operation v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasGet() => $_has(3);
   @$pb.TagNumber(4)
@@ -4602,7 +5612,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   Operation get put => $_getN(4);
   @$pb.TagNumber(5)
-  set put(Operation v) { setField(5, v); }
+  set put(Operation v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasPut() => $_has(4);
   @$pb.TagNumber(5)
@@ -4613,7 +5626,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   Operation get post => $_getN(5);
   @$pb.TagNumber(6)
-  set post(Operation v) { setField(6, v); }
+  set post(Operation v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasPost() => $_has(5);
   @$pb.TagNumber(6)
@@ -4624,7 +5640,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   Operation get delete => $_getN(6);
   @$pb.TagNumber(7)
-  set delete(Operation v) { setField(7, v); }
+  set delete(Operation v) {
+    setField(7, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasDelete() => $_has(6);
   @$pb.TagNumber(7)
@@ -4635,7 +5654,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   Operation get options => $_getN(7);
   @$pb.TagNumber(8)
-  set options(Operation v) { setField(8, v); }
+  set options(Operation v) {
+    setField(8, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasOptions() => $_has(7);
   @$pb.TagNumber(8)
@@ -4646,7 +5668,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   Operation get head => $_getN(8);
   @$pb.TagNumber(9)
-  set head(Operation v) { setField(9, v); }
+  set head(Operation v) {
+    setField(9, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasHead() => $_has(8);
   @$pb.TagNumber(9)
@@ -4657,7 +5682,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   Operation get patch => $_getN(9);
   @$pb.TagNumber(10)
-  set patch(Operation v) { setField(10, v); }
+  set patch(Operation v) {
+    setField(10, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasPatch() => $_has(9);
   @$pb.TagNumber(10)
@@ -4668,7 +5696,10 @@ class PathItem extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   Operation get trace => $_getN(10);
   @$pb.TagNumber(11)
-  set trace(Operation v) { setField(11, v); }
+  set trace(Operation v) {
+    setField(11, v);
+  }
+
   @$pb.TagNumber(11)
   $core.bool hasTrace() => $_has(10);
   @$pb.TagNumber(11)
@@ -4702,25 +5733,34 @@ class Paths extends $pb.GeneratedMessage {
     return $result;
   }
   Paths._() : super();
-  factory Paths.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Paths.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Paths.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Paths.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Paths', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedPathItem>(1, _omitFieldNames ? '' : 'path', $pb.PbFieldType.PM, subBuilder: NamedPathItem.create)
-    ..pc<NamedAny>(2, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Paths',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedPathItem>(1, _omitFieldNames ? '' : 'path', $pb.PbFieldType.PM,
+        subBuilder: NamedPathItem.create)
+    ..pc<NamedAny>(
+        2, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Paths clone() => Paths()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Paths copyWith(void Function(Paths) updates) => super.copyWith((message) => updates(message as Paths)) as Paths;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Paths copyWith(void Function(Paths) updates) =>
+      super.copyWith((message) => updates(message as Paths)) as Paths;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4729,7 +5769,8 @@ class Paths extends $pb.GeneratedMessage {
   Paths createEmptyInstance() => create();
   static $pb.PbList<Paths> createRepeated() => $pb.PbList<Paths>();
   @$core.pragma('dart2js:noInline')
-  static Paths getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Paths>(create);
+  static Paths getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Paths>(create);
   static Paths? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4750,24 +5791,32 @@ class Properties extends $pb.GeneratedMessage {
     return $result;
   }
   Properties._() : super();
-  factory Properties.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Properties.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Properties.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Properties.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Properties', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedSchemaOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedSchemaOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Properties',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedSchemaOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedSchemaOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Properties clone() => Properties()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Properties copyWith(void Function(Properties) updates) => super.copyWith((message) => updates(message as Properties)) as Properties;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Properties copyWith(void Function(Properties) updates) =>
+      super.copyWith((message) => updates(message as Properties)) as Properties;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4776,7 +5825,8 @@ class Properties extends $pb.GeneratedMessage {
   Properties createEmptyInstance() => create();
   static $pb.PbList<Properties> createRepeated() => $pb.PbList<Properties>();
   @$core.pragma('dart2js:noInline')
-  static Properties getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Properties>(create);
+  static Properties getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Properties>(create);
   static Properties? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4803,26 +5853,32 @@ class Reference extends $pb.GeneratedMessage {
     return $result;
   }
   Reference._() : super();
-  factory Reference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Reference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Reference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Reference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Reference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Reference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'Ref')
     ..aOS(2, _omitFieldNames ? '' : 'summary')
     ..aOS(3, _omitFieldNames ? '' : 'description')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Reference clone() => Reference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Reference copyWith(void Function(Reference) updates) => super.copyWith((message) => updates(message as Reference)) as Reference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Reference copyWith(void Function(Reference) updates) =>
+      super.copyWith((message) => updates(message as Reference)) as Reference;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4831,13 +5887,17 @@ class Reference extends $pb.GeneratedMessage {
   Reference createEmptyInstance() => create();
   static $pb.PbList<Reference> createRepeated() => $pb.PbList<Reference>();
   @$core.pragma('dart2js:noInline')
-  static Reference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Reference>(create);
+  static Reference getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Reference>(create);
   static Reference? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get ref => $_getSZ(0);
   @$pb.TagNumber(1)
-  set ref($core.String v) { $_setString(0, v); }
+  set ref($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasRef() => $_has(0);
   @$pb.TagNumber(1)
@@ -4846,7 +5906,10 @@ class Reference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get summary => $_getSZ(1);
   @$pb.TagNumber(2)
-  set summary($core.String v) { $_setString(1, v); }
+  set summary($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasSummary() => $_has(1);
   @$pb.TagNumber(2)
@@ -4855,7 +5918,10 @@ class Reference extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get description => $_getSZ(2);
   @$pb.TagNumber(3)
-  set description($core.String v) { $_setString(2, v); }
+  set description($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasDescription() => $_has(2);
   @$pb.TagNumber(3)
@@ -4873,37 +5939,51 @@ class RequestBodiesOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   RequestBodiesOrReferences._() : super();
-  factory RequestBodiesOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RequestBodiesOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RequestBodiesOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory RequestBodiesOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RequestBodiesOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedRequestBodyOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedRequestBodyOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RequestBodiesOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedRequestBodyOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedRequestBodyOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RequestBodiesOrReferences clone() => RequestBodiesOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RequestBodiesOrReferences copyWith(void Function(RequestBodiesOrReferences) updates) => super.copyWith((message) => updates(message as RequestBodiesOrReferences)) as RequestBodiesOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  RequestBodiesOrReferences clone() =>
+      RequestBodiesOrReferences()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  RequestBodiesOrReferences copyWith(
+          void Function(RequestBodiesOrReferences) updates) =>
+      super.copyWith((message) => updates(message as RequestBodiesOrReferences))
+          as RequestBodiesOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static RequestBodiesOrReferences create() => RequestBodiesOrReferences._();
   RequestBodiesOrReferences createEmptyInstance() => create();
-  static $pb.PbList<RequestBodiesOrReferences> createRepeated() => $pb.PbList<RequestBodiesOrReferences>();
+  static $pb.PbList<RequestBodiesOrReferences> createRepeated() =>
+      $pb.PbList<RequestBodiesOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static RequestBodiesOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RequestBodiesOrReferences>(create);
+  static RequestBodiesOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RequestBodiesOrReferences>(create);
   static RequestBodiesOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<NamedRequestBodyOrReference> get additionalProperties => $_getList(0);
+  $core.List<NamedRequestBodyOrReference> get additionalProperties =>
+      $_getList(0);
 }
 
 /// Describes a single request body.
@@ -4930,27 +6010,37 @@ class RequestBody extends $pb.GeneratedMessage {
     return $result;
   }
   RequestBody._() : super();
-  factory RequestBody.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RequestBody.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RequestBody.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory RequestBody.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RequestBody', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RequestBody',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'description')
-    ..aOM<MediaTypes>(2, _omitFieldNames ? '' : 'content', subBuilder: MediaTypes.create)
+    ..aOM<MediaTypes>(2, _omitFieldNames ? '' : 'content',
+        subBuilder: MediaTypes.create)
     ..aOB(3, _omitFieldNames ? '' : 'required')
-    ..pc<NamedAny>(4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   RequestBody clone() => RequestBody()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RequestBody copyWith(void Function(RequestBody) updates) => super.copyWith((message) => updates(message as RequestBody)) as RequestBody;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  RequestBody copyWith(void Function(RequestBody) updates) =>
+      super.copyWith((message) => updates(message as RequestBody))
+          as RequestBody;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -4959,13 +6049,17 @@ class RequestBody extends $pb.GeneratedMessage {
   RequestBody createEmptyInstance() => create();
   static $pb.PbList<RequestBody> createRepeated() => $pb.PbList<RequestBody>();
   @$core.pragma('dart2js:noInline')
-  static RequestBody getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RequestBody>(create);
+  static RequestBody getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RequestBody>(create);
   static RequestBody? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get description => $_getSZ(0);
   @$pb.TagNumber(1)
-  set description($core.String v) { $_setString(0, v); }
+  set description($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasDescription() => $_has(0);
   @$pb.TagNumber(1)
@@ -4974,7 +6068,10 @@ class RequestBody extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   MediaTypes get content => $_getN(1);
   @$pb.TagNumber(2)
-  set content(MediaTypes v) { setField(2, v); }
+  set content(MediaTypes v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasContent() => $_has(1);
   @$pb.TagNumber(2)
@@ -4985,7 +6082,10 @@ class RequestBody extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.bool get required => $_getBF(2);
   @$pb.TagNumber(3)
-  set required($core.bool v) { $_setBool(2, v); }
+  set required($core.bool v) {
+    $_setBool(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasRequired() => $_has(2);
   @$pb.TagNumber(3)
@@ -4995,11 +6095,7 @@ class RequestBody extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(3);
 }
 
-enum RequestBodyOrReference_Oneof {
-  requestBody, 
-  reference, 
-  notSet
-}
+enum RequestBodyOrReference_Oneof { requestBody, reference, notSet }
 
 class RequestBodyOrReference extends $pb.GeneratedMessage {
   factory RequestBodyOrReference({
@@ -5016,49 +6112,67 @@ class RequestBodyOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   RequestBodyOrReference._() : super();
-  factory RequestBodyOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RequestBodyOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RequestBodyOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory RequestBodyOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, RequestBodyOrReference_Oneof> _RequestBodyOrReference_OneofByTag = {
-    1 : RequestBodyOrReference_Oneof.requestBody,
-    2 : RequestBodyOrReference_Oneof.reference,
-    0 : RequestBodyOrReference_Oneof.notSet
+  static const $core.Map<$core.int, RequestBodyOrReference_Oneof>
+      _RequestBodyOrReference_OneofByTag = {
+    1: RequestBodyOrReference_Oneof.requestBody,
+    2: RequestBodyOrReference_Oneof.reference,
+    0: RequestBodyOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RequestBodyOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RequestBodyOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<RequestBody>(1, _omitFieldNames ? '' : 'requestBody', subBuilder: RequestBody.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<RequestBody>(1, _omitFieldNames ? '' : 'requestBody',
+        subBuilder: RequestBody.create)
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RequestBodyOrReference clone() => RequestBodyOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RequestBodyOrReference copyWith(void Function(RequestBodyOrReference) updates) => super.copyWith((message) => updates(message as RequestBodyOrReference)) as RequestBodyOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  RequestBodyOrReference clone() =>
+      RequestBodyOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  RequestBodyOrReference copyWith(
+          void Function(RequestBodyOrReference) updates) =>
+      super.copyWith((message) => updates(message as RequestBodyOrReference))
+          as RequestBodyOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static RequestBodyOrReference create() => RequestBodyOrReference._();
   RequestBodyOrReference createEmptyInstance() => create();
-  static $pb.PbList<RequestBodyOrReference> createRepeated() => $pb.PbList<RequestBodyOrReference>();
+  static $pb.PbList<RequestBodyOrReference> createRepeated() =>
+      $pb.PbList<RequestBodyOrReference>();
   @$core.pragma('dart2js:noInline')
-  static RequestBodyOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RequestBodyOrReference>(create);
+  static RequestBodyOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RequestBodyOrReference>(create);
   static RequestBodyOrReference? _defaultInstance;
 
-  RequestBodyOrReference_Oneof whichOneof() => _RequestBodyOrReference_OneofByTag[$_whichOneof(0)]!;
+  RequestBodyOrReference_Oneof whichOneof() =>
+      _RequestBodyOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   RequestBody get requestBody => $_getN(0);
   @$pb.TagNumber(1)
-  set requestBody(RequestBody v) { setField(1, v); }
+  set requestBody(RequestBody v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasRequestBody() => $_has(0);
   @$pb.TagNumber(1)
@@ -5069,7 +6183,10 @@ class RequestBodyOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -5106,28 +6223,39 @@ class Response extends $pb.GeneratedMessage {
     return $result;
   }
   Response._() : super();
-  factory Response.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Response.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Response.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Response.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Response', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Response',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'description')
-    ..aOM<HeadersOrReferences>(2, _omitFieldNames ? '' : 'headers', subBuilder: HeadersOrReferences.create)
-    ..aOM<MediaTypes>(3, _omitFieldNames ? '' : 'content', subBuilder: MediaTypes.create)
-    ..aOM<LinksOrReferences>(4, _omitFieldNames ? '' : 'links', subBuilder: LinksOrReferences.create)
-    ..pc<NamedAny>(5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<HeadersOrReferences>(2, _omitFieldNames ? '' : 'headers',
+        subBuilder: HeadersOrReferences.create)
+    ..aOM<MediaTypes>(3, _omitFieldNames ? '' : 'content',
+        subBuilder: MediaTypes.create)
+    ..aOM<LinksOrReferences>(4, _omitFieldNames ? '' : 'links',
+        subBuilder: LinksOrReferences.create)
+    ..pc<NamedAny>(
+        5, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Response clone() => Response()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Response copyWith(void Function(Response) updates) => super.copyWith((message) => updates(message as Response)) as Response;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Response copyWith(void Function(Response) updates) =>
+      super.copyWith((message) => updates(message as Response)) as Response;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -5136,13 +6264,17 @@ class Response extends $pb.GeneratedMessage {
   Response createEmptyInstance() => create();
   static $pb.PbList<Response> createRepeated() => $pb.PbList<Response>();
   @$core.pragma('dart2js:noInline')
-  static Response getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Response>(create);
+  static Response getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Response>(create);
   static Response? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get description => $_getSZ(0);
   @$pb.TagNumber(1)
-  set description($core.String v) { $_setString(0, v); }
+  set description($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasDescription() => $_has(0);
   @$pb.TagNumber(1)
@@ -5151,7 +6283,10 @@ class Response extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   HeadersOrReferences get headers => $_getN(1);
   @$pb.TagNumber(2)
-  set headers(HeadersOrReferences v) { setField(2, v); }
+  set headers(HeadersOrReferences v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasHeaders() => $_has(1);
   @$pb.TagNumber(2)
@@ -5162,7 +6297,10 @@ class Response extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   MediaTypes get content => $_getN(2);
   @$pb.TagNumber(3)
-  set content(MediaTypes v) { setField(3, v); }
+  set content(MediaTypes v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasContent() => $_has(2);
   @$pb.TagNumber(3)
@@ -5173,7 +6311,10 @@ class Response extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   LinksOrReferences get links => $_getN(3);
   @$pb.TagNumber(4)
-  set links(LinksOrReferences v) { setField(4, v); }
+  set links(LinksOrReferences v) {
+    setField(4, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasLinks() => $_has(3);
   @$pb.TagNumber(4)
@@ -5185,11 +6326,7 @@ class Response extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(4);
 }
 
-enum ResponseOrReference_Oneof {
-  response, 
-  reference, 
-  notSet
-}
+enum ResponseOrReference_Oneof { response, reference, notSet }
 
 class ResponseOrReference extends $pb.GeneratedMessage {
   factory ResponseOrReference({
@@ -5206,49 +6343,65 @@ class ResponseOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   ResponseOrReference._() : super();
-  factory ResponseOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ResponseOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ResponseOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ResponseOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, ResponseOrReference_Oneof> _ResponseOrReference_OneofByTag = {
-    1 : ResponseOrReference_Oneof.response,
-    2 : ResponseOrReference_Oneof.reference,
-    0 : ResponseOrReference_Oneof.notSet
+  static const $core.Map<$core.int, ResponseOrReference_Oneof>
+      _ResponseOrReference_OneofByTag = {
+    1: ResponseOrReference_Oneof.response,
+    2: ResponseOrReference_Oneof.reference,
+    0: ResponseOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ResponseOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ResponseOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<Response>(1, _omitFieldNames ? '' : 'response', subBuilder: Response.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Response>(1, _omitFieldNames ? '' : 'response',
+        subBuilder: Response.create)
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ResponseOrReference clone() => ResponseOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ResponseOrReference copyWith(void Function(ResponseOrReference) updates) => super.copyWith((message) => updates(message as ResponseOrReference)) as ResponseOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ResponseOrReference copyWith(void Function(ResponseOrReference) updates) =>
+      super.copyWith((message) => updates(message as ResponseOrReference))
+          as ResponseOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ResponseOrReference create() => ResponseOrReference._();
   ResponseOrReference createEmptyInstance() => create();
-  static $pb.PbList<ResponseOrReference> createRepeated() => $pb.PbList<ResponseOrReference>();
+  static $pb.PbList<ResponseOrReference> createRepeated() =>
+      $pb.PbList<ResponseOrReference>();
   @$core.pragma('dart2js:noInline')
-  static ResponseOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResponseOrReference>(create);
+  static ResponseOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ResponseOrReference>(create);
   static ResponseOrReference? _defaultInstance;
 
-  ResponseOrReference_Oneof whichOneof() => _ResponseOrReference_OneofByTag[$_whichOneof(0)]!;
+  ResponseOrReference_Oneof whichOneof() =>
+      _ResponseOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Response get response => $_getN(0);
   @$pb.TagNumber(1)
-  set response(Response v) { setField(1, v); }
+  set response(Response v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasResponse() => $_has(0);
   @$pb.TagNumber(1)
@@ -5259,7 +6412,10 @@ class ResponseOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -5288,26 +6444,37 @@ class Responses extends $pb.GeneratedMessage {
     return $result;
   }
   Responses._() : super();
-  factory Responses.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Responses.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Responses.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Responses.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Responses', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..aOM<ResponseOrReference>(1, _omitFieldNames ? '' : 'default', subBuilder: ResponseOrReference.create)
-    ..pc<NamedResponseOrReference>(2, _omitFieldNames ? '' : 'responseOrReference', $pb.PbFieldType.PM, subBuilder: NamedResponseOrReference.create)
-    ..pc<NamedAny>(3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Responses',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..aOM<ResponseOrReference>(1, _omitFieldNames ? '' : 'default',
+        subBuilder: ResponseOrReference.create)
+    ..pc<NamedResponseOrReference>(
+        2, _omitFieldNames ? '' : 'responseOrReference', $pb.PbFieldType.PM,
+        subBuilder: NamedResponseOrReference.create)
+    ..pc<NamedAny>(
+        3, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Responses clone() => Responses()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Responses copyWith(void Function(Responses) updates) => super.copyWith((message) => updates(message as Responses)) as Responses;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Responses copyWith(void Function(Responses) updates) =>
+      super.copyWith((message) => updates(message as Responses)) as Responses;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -5316,13 +6483,17 @@ class Responses extends $pb.GeneratedMessage {
   Responses createEmptyInstance() => create();
   static $pb.PbList<Responses> createRepeated() => $pb.PbList<Responses>();
   @$core.pragma('dart2js:noInline')
-  static Responses getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Responses>(create);
+  static Responses getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Responses>(create);
   static Responses? _defaultInstance;
 
   @$pb.TagNumber(1)
   ResponseOrReference get default_1 => $_getN(0);
   @$pb.TagNumber(1)
-  set default_1(ResponseOrReference v) { setField(1, v); }
+  set default_1(ResponseOrReference v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasDefault_1() => $_has(0);
   @$pb.TagNumber(1)
@@ -5348,33 +6519,46 @@ class ResponsesOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   ResponsesOrReferences._() : super();
-  factory ResponsesOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ResponsesOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ResponsesOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ResponsesOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ResponsesOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedResponseOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedResponseOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ResponsesOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedResponseOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedResponseOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  ResponsesOrReferences clone() => ResponsesOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ResponsesOrReferences copyWith(void Function(ResponsesOrReferences) updates) => super.copyWith((message) => updates(message as ResponsesOrReferences)) as ResponsesOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  ResponsesOrReferences clone() =>
+      ResponsesOrReferences()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ResponsesOrReferences copyWith(
+          void Function(ResponsesOrReferences) updates) =>
+      super.copyWith((message) => updates(message as ResponsesOrReferences))
+          as ResponsesOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ResponsesOrReferences create() => ResponsesOrReferences._();
   ResponsesOrReferences createEmptyInstance() => create();
-  static $pb.PbList<ResponsesOrReferences> createRepeated() => $pb.PbList<ResponsesOrReferences>();
+  static $pb.PbList<ResponsesOrReferences> createRepeated() =>
+      $pb.PbList<ResponsesOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static ResponsesOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResponsesOrReferences>(create);
+  static ResponsesOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ResponsesOrReferences>(create);
   static ResponsesOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -5533,20 +6717,31 @@ class Schema extends $pb.GeneratedMessage {
     return $result;
   }
   Schema._() : super();
-  factory Schema.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Schema.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Schema.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Schema.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Schema', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Schema',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'nullable')
-    ..aOM<Discriminator>(2, _omitFieldNames ? '' : 'discriminator', subBuilder: Discriminator.create)
+    ..aOM<Discriminator>(2, _omitFieldNames ? '' : 'discriminator',
+        subBuilder: Discriminator.create)
     ..aOB(3, _omitFieldNames ? '' : 'readOnly')
     ..aOB(4, _omitFieldNames ? '' : 'writeOnly')
     ..aOM<Xml>(5, _omitFieldNames ? '' : 'xml', subBuilder: Xml.create)
-    ..aOM<ExternalDocs>(6, _omitFieldNames ? '' : 'externalDocs', subBuilder: ExternalDocs.create)
+    ..aOM<ExternalDocs>(6, _omitFieldNames ? '' : 'externalDocs',
+        subBuilder: ExternalDocs.create)
     ..aOM<Any>(7, _omitFieldNames ? '' : 'example', subBuilder: Any.create)
     ..aOB(8, _omitFieldNames ? '' : 'deprecated')
     ..aOS(9, _omitFieldNames ? '' : 'title')
-    ..a<$core.double>(10, _omitFieldNames ? '' : 'multipleOf', $pb.PbFieldType.OD)
+    ..a<$core.double>(
+        10, _omitFieldNames ? '' : 'multipleOf', $pb.PbFieldType.OD)
     ..a<$core.double>(11, _omitFieldNames ? '' : 'maximum', $pb.PbFieldType.OD)
     ..aOB(12, _omitFieldNames ? '' : 'exclusiveMaximum')
     ..a<$core.double>(13, _omitFieldNames ? '' : 'minimum', $pb.PbFieldType.OD)
@@ -5560,32 +6755,44 @@ class Schema extends $pb.GeneratedMessage {
     ..aInt64(21, _omitFieldNames ? '' : 'maxProperties')
     ..aInt64(22, _omitFieldNames ? '' : 'minProperties')
     ..pPS(23, _omitFieldNames ? '' : 'required')
-    ..pc<Any>(24, _omitFieldNames ? '' : 'enum', $pb.PbFieldType.PM, subBuilder: Any.create)
+    ..pc<Any>(24, _omitFieldNames ? '' : 'enum', $pb.PbFieldType.PM,
+        subBuilder: Any.create)
     ..aOS(25, _omitFieldNames ? '' : 'type')
-    ..pc<SchemaOrReference>(26, _omitFieldNames ? '' : 'allOf', $pb.PbFieldType.PM, subBuilder: SchemaOrReference.create)
-    ..pc<SchemaOrReference>(27, _omitFieldNames ? '' : 'oneOf', $pb.PbFieldType.PM, subBuilder: SchemaOrReference.create)
-    ..pc<SchemaOrReference>(28, _omitFieldNames ? '' : 'anyOf', $pb.PbFieldType.PM, subBuilder: SchemaOrReference.create)
+    ..pc<SchemaOrReference>(
+        26, _omitFieldNames ? '' : 'allOf', $pb.PbFieldType.PM,
+        subBuilder: SchemaOrReference.create)
+    ..pc<SchemaOrReference>(
+        27, _omitFieldNames ? '' : 'oneOf', $pb.PbFieldType.PM,
+        subBuilder: SchemaOrReference.create)
+    ..pc<SchemaOrReference>(
+        28, _omitFieldNames ? '' : 'anyOf', $pb.PbFieldType.PM,
+        subBuilder: SchemaOrReference.create)
     ..aOM<Schema>(29, _omitFieldNames ? '' : 'not', subBuilder: Schema.create)
-    ..aOM<ItemsItem>(30, _omitFieldNames ? '' : 'items', subBuilder: ItemsItem.create)
-    ..aOM<Properties>(31, _omitFieldNames ? '' : 'properties', subBuilder: Properties.create)
-    ..aOM<AdditionalPropertiesItem>(32, _omitFieldNames ? '' : 'additionalProperties', subBuilder: AdditionalPropertiesItem.create)
-    ..aOM<DefaultType>(33, _omitFieldNames ? '' : 'default', subBuilder: DefaultType.create)
+    ..aOM<ItemsItem>(30, _omitFieldNames ? '' : 'items',
+        subBuilder: ItemsItem.create)
+    ..aOM<Properties>(31, _omitFieldNames ? '' : 'properties',
+        subBuilder: Properties.create)
+    ..aOM<AdditionalPropertiesItem>(
+        32, _omitFieldNames ? '' : 'additionalProperties',
+        subBuilder: AdditionalPropertiesItem.create)
+    ..aOM<DefaultType>(33, _omitFieldNames ? '' : 'default',
+        subBuilder: DefaultType.create)
     ..aOS(34, _omitFieldNames ? '' : 'description')
     ..aOS(35, _omitFieldNames ? '' : 'format')
-    ..pc<NamedAny>(36, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        36, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Schema clone() => Schema()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Schema copyWith(void Function(Schema) updates) => super.copyWith((message) => updates(message as Schema)) as Schema;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Schema copyWith(void Function(Schema) updates) =>
+      super.copyWith((message) => updates(message as Schema)) as Schema;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -5594,13 +6801,17 @@ class Schema extends $pb.GeneratedMessage {
   Schema createEmptyInstance() => create();
   static $pb.PbList<Schema> createRepeated() => $pb.PbList<Schema>();
   @$core.pragma('dart2js:noInline')
-  static Schema getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Schema>(create);
+  static Schema getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Schema>(create);
   static Schema? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.bool get nullable => $_getBF(0);
   @$pb.TagNumber(1)
-  set nullable($core.bool v) { $_setBool(0, v); }
+  set nullable($core.bool v) {
+    $_setBool(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasNullable() => $_has(0);
   @$pb.TagNumber(1)
@@ -5609,7 +6820,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Discriminator get discriminator => $_getN(1);
   @$pb.TagNumber(2)
-  set discriminator(Discriminator v) { setField(2, v); }
+  set discriminator(Discriminator v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDiscriminator() => $_has(1);
   @$pb.TagNumber(2)
@@ -5620,7 +6834,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.bool get readOnly => $_getBF(2);
   @$pb.TagNumber(3)
-  set readOnly($core.bool v) { $_setBool(2, v); }
+  set readOnly($core.bool v) {
+    $_setBool(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasReadOnly() => $_has(2);
   @$pb.TagNumber(3)
@@ -5629,7 +6846,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get writeOnly => $_getBF(3);
   @$pb.TagNumber(4)
-  set writeOnly($core.bool v) { $_setBool(3, v); }
+  set writeOnly($core.bool v) {
+    $_setBool(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasWriteOnly() => $_has(3);
   @$pb.TagNumber(4)
@@ -5638,7 +6858,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   Xml get xml => $_getN(4);
   @$pb.TagNumber(5)
-  set xml(Xml v) { setField(5, v); }
+  set xml(Xml v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasXml() => $_has(4);
   @$pb.TagNumber(5)
@@ -5649,7 +6872,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   ExternalDocs get externalDocs => $_getN(5);
   @$pb.TagNumber(6)
-  set externalDocs(ExternalDocs v) { setField(6, v); }
+  set externalDocs(ExternalDocs v) {
+    setField(6, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasExternalDocs() => $_has(5);
   @$pb.TagNumber(6)
@@ -5660,7 +6886,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   Any get example => $_getN(6);
   @$pb.TagNumber(7)
-  set example(Any v) { setField(7, v); }
+  set example(Any v) {
+    setField(7, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasExample() => $_has(6);
   @$pb.TagNumber(7)
@@ -5671,7 +6900,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.bool get deprecated => $_getBF(7);
   @$pb.TagNumber(8)
-  set deprecated($core.bool v) { $_setBool(7, v); }
+  set deprecated($core.bool v) {
+    $_setBool(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasDeprecated() => $_has(7);
   @$pb.TagNumber(8)
@@ -5680,7 +6912,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(9)
   $core.String get title => $_getSZ(8);
   @$pb.TagNumber(9)
-  set title($core.String v) { $_setString(8, v); }
+  set title($core.String v) {
+    $_setString(8, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasTitle() => $_has(8);
   @$pb.TagNumber(9)
@@ -5689,7 +6924,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.double get multipleOf => $_getN(9);
   @$pb.TagNumber(10)
-  set multipleOf($core.double v) { $_setDouble(9, v); }
+  set multipleOf($core.double v) {
+    $_setDouble(9, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasMultipleOf() => $_has(9);
   @$pb.TagNumber(10)
@@ -5698,7 +6936,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(11)
   $core.double get maximum => $_getN(10);
   @$pb.TagNumber(11)
-  set maximum($core.double v) { $_setDouble(10, v); }
+  set maximum($core.double v) {
+    $_setDouble(10, v);
+  }
+
   @$pb.TagNumber(11)
   $core.bool hasMaximum() => $_has(10);
   @$pb.TagNumber(11)
@@ -5707,7 +6948,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   $core.bool get exclusiveMaximum => $_getBF(11);
   @$pb.TagNumber(12)
-  set exclusiveMaximum($core.bool v) { $_setBool(11, v); }
+  set exclusiveMaximum($core.bool v) {
+    $_setBool(11, v);
+  }
+
   @$pb.TagNumber(12)
   $core.bool hasExclusiveMaximum() => $_has(11);
   @$pb.TagNumber(12)
@@ -5716,7 +6960,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   $core.double get minimum => $_getN(12);
   @$pb.TagNumber(13)
-  set minimum($core.double v) { $_setDouble(12, v); }
+  set minimum($core.double v) {
+    $_setDouble(12, v);
+  }
+
   @$pb.TagNumber(13)
   $core.bool hasMinimum() => $_has(12);
   @$pb.TagNumber(13)
@@ -5725,7 +6972,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(14)
   $core.bool get exclusiveMinimum => $_getBF(13);
   @$pb.TagNumber(14)
-  set exclusiveMinimum($core.bool v) { $_setBool(13, v); }
+  set exclusiveMinimum($core.bool v) {
+    $_setBool(13, v);
+  }
+
   @$pb.TagNumber(14)
   $core.bool hasExclusiveMinimum() => $_has(13);
   @$pb.TagNumber(14)
@@ -5734,7 +6984,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   $fixnum.Int64 get maxLength => $_getI64(14);
   @$pb.TagNumber(15)
-  set maxLength($fixnum.Int64 v) { $_setInt64(14, v); }
+  set maxLength($fixnum.Int64 v) {
+    $_setInt64(14, v);
+  }
+
   @$pb.TagNumber(15)
   $core.bool hasMaxLength() => $_has(14);
   @$pb.TagNumber(15)
@@ -5743,7 +6996,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(16)
   $fixnum.Int64 get minLength => $_getI64(15);
   @$pb.TagNumber(16)
-  set minLength($fixnum.Int64 v) { $_setInt64(15, v); }
+  set minLength($fixnum.Int64 v) {
+    $_setInt64(15, v);
+  }
+
   @$pb.TagNumber(16)
   $core.bool hasMinLength() => $_has(15);
   @$pb.TagNumber(16)
@@ -5752,7 +7008,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(17)
   $core.String get pattern => $_getSZ(16);
   @$pb.TagNumber(17)
-  set pattern($core.String v) { $_setString(16, v); }
+  set pattern($core.String v) {
+    $_setString(16, v);
+  }
+
   @$pb.TagNumber(17)
   $core.bool hasPattern() => $_has(16);
   @$pb.TagNumber(17)
@@ -5761,7 +7020,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   $fixnum.Int64 get maxItems => $_getI64(17);
   @$pb.TagNumber(18)
-  set maxItems($fixnum.Int64 v) { $_setInt64(17, v); }
+  set maxItems($fixnum.Int64 v) {
+    $_setInt64(17, v);
+  }
+
   @$pb.TagNumber(18)
   $core.bool hasMaxItems() => $_has(17);
   @$pb.TagNumber(18)
@@ -5770,7 +7032,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(19)
   $fixnum.Int64 get minItems => $_getI64(18);
   @$pb.TagNumber(19)
-  set minItems($fixnum.Int64 v) { $_setInt64(18, v); }
+  set minItems($fixnum.Int64 v) {
+    $_setInt64(18, v);
+  }
+
   @$pb.TagNumber(19)
   $core.bool hasMinItems() => $_has(18);
   @$pb.TagNumber(19)
@@ -5779,7 +7044,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(20)
   $core.bool get uniqueItems => $_getBF(19);
   @$pb.TagNumber(20)
-  set uniqueItems($core.bool v) { $_setBool(19, v); }
+  set uniqueItems($core.bool v) {
+    $_setBool(19, v);
+  }
+
   @$pb.TagNumber(20)
   $core.bool hasUniqueItems() => $_has(19);
   @$pb.TagNumber(20)
@@ -5788,7 +7056,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(21)
   $fixnum.Int64 get maxProperties => $_getI64(20);
   @$pb.TagNumber(21)
-  set maxProperties($fixnum.Int64 v) { $_setInt64(20, v); }
+  set maxProperties($fixnum.Int64 v) {
+    $_setInt64(20, v);
+  }
+
   @$pb.TagNumber(21)
   $core.bool hasMaxProperties() => $_has(20);
   @$pb.TagNumber(21)
@@ -5797,7 +7068,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(22)
   $fixnum.Int64 get minProperties => $_getI64(21);
   @$pb.TagNumber(22)
-  set minProperties($fixnum.Int64 v) { $_setInt64(21, v); }
+  set minProperties($fixnum.Int64 v) {
+    $_setInt64(21, v);
+  }
+
   @$pb.TagNumber(22)
   $core.bool hasMinProperties() => $_has(21);
   @$pb.TagNumber(22)
@@ -5812,7 +7086,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(25)
   $core.String get type => $_getSZ(24);
   @$pb.TagNumber(25)
-  set type($core.String v) { $_setString(24, v); }
+  set type($core.String v) {
+    $_setString(24, v);
+  }
+
   @$pb.TagNumber(25)
   $core.bool hasType() => $_has(24);
   @$pb.TagNumber(25)
@@ -5830,7 +7107,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(29)
   Schema get not => $_getN(28);
   @$pb.TagNumber(29)
-  set not(Schema v) { setField(29, v); }
+  set not(Schema v) {
+    setField(29, v);
+  }
+
   @$pb.TagNumber(29)
   $core.bool hasNot() => $_has(28);
   @$pb.TagNumber(29)
@@ -5841,7 +7121,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(30)
   ItemsItem get items => $_getN(29);
   @$pb.TagNumber(30)
-  set items(ItemsItem v) { setField(30, v); }
+  set items(ItemsItem v) {
+    setField(30, v);
+  }
+
   @$pb.TagNumber(30)
   $core.bool hasItems() => $_has(29);
   @$pb.TagNumber(30)
@@ -5852,7 +7135,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(31)
   Properties get properties => $_getN(30);
   @$pb.TagNumber(31)
-  set properties(Properties v) { setField(31, v); }
+  set properties(Properties v) {
+    setField(31, v);
+  }
+
   @$pb.TagNumber(31)
   $core.bool hasProperties() => $_has(30);
   @$pb.TagNumber(31)
@@ -5863,7 +7149,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(32)
   AdditionalPropertiesItem get additionalProperties => $_getN(31);
   @$pb.TagNumber(32)
-  set additionalProperties(AdditionalPropertiesItem v) { setField(32, v); }
+  set additionalProperties(AdditionalPropertiesItem v) {
+    setField(32, v);
+  }
+
   @$pb.TagNumber(32)
   $core.bool hasAdditionalProperties() => $_has(31);
   @$pb.TagNumber(32)
@@ -5874,7 +7163,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(33)
   DefaultType get default_33 => $_getN(32);
   @$pb.TagNumber(33)
-  set default_33(DefaultType v) { setField(33, v); }
+  set default_33(DefaultType v) {
+    setField(33, v);
+  }
+
   @$pb.TagNumber(33)
   $core.bool hasDefault_33() => $_has(32);
   @$pb.TagNumber(33)
@@ -5885,7 +7177,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(34)
   $core.String get description => $_getSZ(33);
   @$pb.TagNumber(34)
-  set description($core.String v) { $_setString(33, v); }
+  set description($core.String v) {
+    $_setString(33, v);
+  }
+
   @$pb.TagNumber(34)
   $core.bool hasDescription() => $_has(33);
   @$pb.TagNumber(34)
@@ -5894,7 +7189,10 @@ class Schema extends $pb.GeneratedMessage {
   @$pb.TagNumber(35)
   $core.String get format => $_getSZ(34);
   @$pb.TagNumber(35)
-  set format($core.String v) { $_setString(34, v); }
+  set format($core.String v) {
+    $_setString(34, v);
+  }
+
   @$pb.TagNumber(35)
   $core.bool hasFormat() => $_has(34);
   @$pb.TagNumber(35)
@@ -5904,11 +7202,7 @@ class Schema extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(35);
 }
 
-enum SchemaOrReference_Oneof {
-  schema, 
-  reference, 
-  notSet
-}
+enum SchemaOrReference_Oneof { schema, reference, notSet }
 
 class SchemaOrReference extends $pb.GeneratedMessage {
   factory SchemaOrReference({
@@ -5925,49 +7219,64 @@ class SchemaOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   SchemaOrReference._() : super();
-  factory SchemaOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SchemaOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SchemaOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SchemaOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SchemaOrReference_Oneof> _SchemaOrReference_OneofByTag = {
-    1 : SchemaOrReference_Oneof.schema,
-    2 : SchemaOrReference_Oneof.reference,
-    0 : SchemaOrReference_Oneof.notSet
+  static const $core.Map<$core.int, SchemaOrReference_Oneof>
+      _SchemaOrReference_OneofByTag = {
+    1: SchemaOrReference_Oneof.schema,
+    2: SchemaOrReference_Oneof.reference,
+    0: SchemaOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SchemaOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SchemaOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
     ..aOM<Schema>(1, _omitFieldNames ? '' : 'schema', subBuilder: Schema.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SchemaOrReference clone() => SchemaOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SchemaOrReference copyWith(void Function(SchemaOrReference) updates) => super.copyWith((message) => updates(message as SchemaOrReference)) as SchemaOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SchemaOrReference copyWith(void Function(SchemaOrReference) updates) =>
+      super.copyWith((message) => updates(message as SchemaOrReference))
+          as SchemaOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SchemaOrReference create() => SchemaOrReference._();
   SchemaOrReference createEmptyInstance() => create();
-  static $pb.PbList<SchemaOrReference> createRepeated() => $pb.PbList<SchemaOrReference>();
+  static $pb.PbList<SchemaOrReference> createRepeated() =>
+      $pb.PbList<SchemaOrReference>();
   @$core.pragma('dart2js:noInline')
-  static SchemaOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SchemaOrReference>(create);
+  static SchemaOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SchemaOrReference>(create);
   static SchemaOrReference? _defaultInstance;
 
-  SchemaOrReference_Oneof whichOneof() => _SchemaOrReference_OneofByTag[$_whichOneof(0)]!;
+  SchemaOrReference_Oneof whichOneof() =>
+      _SchemaOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Schema get schema => $_getN(0);
   @$pb.TagNumber(1)
-  set schema(Schema v) { setField(1, v); }
+  set schema(Schema v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasSchema() => $_has(0);
   @$pb.TagNumber(1)
@@ -5978,7 +7287,10 @@ class SchemaOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -5998,33 +7310,44 @@ class SchemasOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   SchemasOrReferences._() : super();
-  factory SchemasOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SchemasOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SchemasOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SchemasOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SchemasOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedSchemaOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedSchemaOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SchemasOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedSchemaOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedSchemaOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SchemasOrReferences clone() => SchemasOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SchemasOrReferences copyWith(void Function(SchemasOrReferences) updates) => super.copyWith((message) => updates(message as SchemasOrReferences)) as SchemasOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SchemasOrReferences copyWith(void Function(SchemasOrReferences) updates) =>
+      super.copyWith((message) => updates(message as SchemasOrReferences))
+          as SchemasOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SchemasOrReferences create() => SchemasOrReferences._();
   SchemasOrReferences createEmptyInstance() => create();
-  static $pb.PbList<SchemasOrReferences> createRepeated() => $pb.PbList<SchemasOrReferences>();
+  static $pb.PbList<SchemasOrReferences> createRepeated() =>
+      $pb.PbList<SchemasOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static SchemasOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SchemasOrReferences>(create);
+  static SchemasOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SchemasOrReferences>(create);
   static SchemasOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -6043,33 +7366,44 @@ class SecurityRequirement extends $pb.GeneratedMessage {
     return $result;
   }
   SecurityRequirement._() : super();
-  factory SecurityRequirement.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SecurityRequirement.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SecurityRequirement.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SecurityRequirement.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SecurityRequirement', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedStringArray>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedStringArray.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SecurityRequirement',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedStringArray>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedStringArray.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SecurityRequirement clone() => SecurityRequirement()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SecurityRequirement copyWith(void Function(SecurityRequirement) updates) => super.copyWith((message) => updates(message as SecurityRequirement)) as SecurityRequirement;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SecurityRequirement copyWith(void Function(SecurityRequirement) updates) =>
+      super.copyWith((message) => updates(message as SecurityRequirement))
+          as SecurityRequirement;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SecurityRequirement create() => SecurityRequirement._();
   SecurityRequirement createEmptyInstance() => create();
-  static $pb.PbList<SecurityRequirement> createRepeated() => $pb.PbList<SecurityRequirement>();
+  static $pb.PbList<SecurityRequirement> createRepeated() =>
+      $pb.PbList<SecurityRequirement>();
   @$core.pragma('dart2js:noInline')
-  static SecurityRequirement getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SecurityRequirement>(create);
+  static SecurityRequirement getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SecurityRequirement>(create);
   static SecurityRequirement? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -6120,47 +7454,62 @@ class SecurityScheme extends $pb.GeneratedMessage {
     return $result;
   }
   SecurityScheme._() : super();
-  factory SecurityScheme.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SecurityScheme.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SecurityScheme.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SecurityScheme.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SecurityScheme', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SecurityScheme',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'type')
     ..aOS(2, _omitFieldNames ? '' : 'description')
     ..aOS(3, _omitFieldNames ? '' : 'name')
     ..aOS(4, _omitFieldNames ? '' : 'in')
     ..aOS(5, _omitFieldNames ? '' : 'scheme')
     ..aOS(6, _omitFieldNames ? '' : 'bearerFormat')
-    ..aOM<OauthFlows>(7, _omitFieldNames ? '' : 'flows', subBuilder: OauthFlows.create)
+    ..aOM<OauthFlows>(7, _omitFieldNames ? '' : 'flows',
+        subBuilder: OauthFlows.create)
     ..aOS(8, _omitFieldNames ? '' : 'openIdConnectUrl')
-    ..pc<NamedAny>(9, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        9, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   SecurityScheme clone() => SecurityScheme()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SecurityScheme copyWith(void Function(SecurityScheme) updates) => super.copyWith((message) => updates(message as SecurityScheme)) as SecurityScheme;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SecurityScheme copyWith(void Function(SecurityScheme) updates) =>
+      super.copyWith((message) => updates(message as SecurityScheme))
+          as SecurityScheme;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SecurityScheme create() => SecurityScheme._();
   SecurityScheme createEmptyInstance() => create();
-  static $pb.PbList<SecurityScheme> createRepeated() => $pb.PbList<SecurityScheme>();
+  static $pb.PbList<SecurityScheme> createRepeated() =>
+      $pb.PbList<SecurityScheme>();
   @$core.pragma('dart2js:noInline')
-  static SecurityScheme getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SecurityScheme>(create);
+  static SecurityScheme getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SecurityScheme>(create);
   static SecurityScheme? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get type => $_getSZ(0);
   @$pb.TagNumber(1)
-  set type($core.String v) { $_setString(0, v); }
+  set type($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasType() => $_has(0);
   @$pb.TagNumber(1)
@@ -6169,7 +7518,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get description => $_getSZ(1);
   @$pb.TagNumber(2)
-  set description($core.String v) { $_setString(1, v); }
+  set description($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDescription() => $_has(1);
   @$pb.TagNumber(2)
@@ -6178,7 +7530,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get name => $_getSZ(2);
   @$pb.TagNumber(3)
-  set name($core.String v) { $_setString(2, v); }
+  set name($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasName() => $_has(2);
   @$pb.TagNumber(3)
@@ -6187,7 +7542,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get in_4 => $_getSZ(3);
   @$pb.TagNumber(4)
-  set in_4($core.String v) { $_setString(3, v); }
+  set in_4($core.String v) {
+    $_setString(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasIn_4() => $_has(3);
   @$pb.TagNumber(4)
@@ -6196,7 +7554,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.String get scheme => $_getSZ(4);
   @$pb.TagNumber(5)
-  set scheme($core.String v) { $_setString(4, v); }
+  set scheme($core.String v) {
+    $_setString(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasScheme() => $_has(4);
   @$pb.TagNumber(5)
@@ -6205,7 +7566,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   $core.String get bearerFormat => $_getSZ(5);
   @$pb.TagNumber(6)
-  set bearerFormat($core.String v) { $_setString(5, v); }
+  set bearerFormat($core.String v) {
+    $_setString(5, v);
+  }
+
   @$pb.TagNumber(6)
   $core.bool hasBearerFormat() => $_has(5);
   @$pb.TagNumber(6)
@@ -6214,7 +7578,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(7)
   OauthFlows get flows => $_getN(6);
   @$pb.TagNumber(7)
-  set flows(OauthFlows v) { setField(7, v); }
+  set flows(OauthFlows v) {
+    setField(7, v);
+  }
+
   @$pb.TagNumber(7)
   $core.bool hasFlows() => $_has(6);
   @$pb.TagNumber(7)
@@ -6225,7 +7592,10 @@ class SecurityScheme extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $core.String get openIdConnectUrl => $_getSZ(7);
   @$pb.TagNumber(8)
-  set openIdConnectUrl($core.String v) { $_setString(7, v); }
+  set openIdConnectUrl($core.String v) {
+    $_setString(7, v);
+  }
+
   @$pb.TagNumber(8)
   $core.bool hasOpenIdConnectUrl() => $_has(7);
   @$pb.TagNumber(8)
@@ -6235,11 +7605,7 @@ class SecurityScheme extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(8);
 }
 
-enum SecuritySchemeOrReference_Oneof {
-  securityScheme, 
-  reference, 
-  notSet
-}
+enum SecuritySchemeOrReference_Oneof { securityScheme, reference, notSet }
 
 class SecuritySchemeOrReference extends $pb.GeneratedMessage {
   factory SecuritySchemeOrReference({
@@ -6256,49 +7622,67 @@ class SecuritySchemeOrReference extends $pb.GeneratedMessage {
     return $result;
   }
   SecuritySchemeOrReference._() : super();
-  factory SecuritySchemeOrReference.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SecuritySchemeOrReference.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SecuritySchemeOrReference.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SecuritySchemeOrReference.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SecuritySchemeOrReference_Oneof> _SecuritySchemeOrReference_OneofByTag = {
-    1 : SecuritySchemeOrReference_Oneof.securityScheme,
-    2 : SecuritySchemeOrReference_Oneof.reference,
-    0 : SecuritySchemeOrReference_Oneof.notSet
+  static const $core.Map<$core.int, SecuritySchemeOrReference_Oneof>
+      _SecuritySchemeOrReference_OneofByTag = {
+    1: SecuritySchemeOrReference_Oneof.securityScheme,
+    2: SecuritySchemeOrReference_Oneof.reference,
+    0: SecuritySchemeOrReference_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SecuritySchemeOrReference', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SecuritySchemeOrReference',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<SecurityScheme>(1, _omitFieldNames ? '' : 'securityScheme', subBuilder: SecurityScheme.create)
-    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference', subBuilder: Reference.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<SecurityScheme>(1, _omitFieldNames ? '' : 'securityScheme',
+        subBuilder: SecurityScheme.create)
+    ..aOM<Reference>(2, _omitFieldNames ? '' : 'reference',
+        subBuilder: Reference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  SecuritySchemeOrReference clone() => SecuritySchemeOrReference()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SecuritySchemeOrReference copyWith(void Function(SecuritySchemeOrReference) updates) => super.copyWith((message) => updates(message as SecuritySchemeOrReference)) as SecuritySchemeOrReference;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  SecuritySchemeOrReference clone() =>
+      SecuritySchemeOrReference()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SecuritySchemeOrReference copyWith(
+          void Function(SecuritySchemeOrReference) updates) =>
+      super.copyWith((message) => updates(message as SecuritySchemeOrReference))
+          as SecuritySchemeOrReference;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SecuritySchemeOrReference create() => SecuritySchemeOrReference._();
   SecuritySchemeOrReference createEmptyInstance() => create();
-  static $pb.PbList<SecuritySchemeOrReference> createRepeated() => $pb.PbList<SecuritySchemeOrReference>();
+  static $pb.PbList<SecuritySchemeOrReference> createRepeated() =>
+      $pb.PbList<SecuritySchemeOrReference>();
   @$core.pragma('dart2js:noInline')
-  static SecuritySchemeOrReference getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SecuritySchemeOrReference>(create);
+  static SecuritySchemeOrReference getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SecuritySchemeOrReference>(create);
   static SecuritySchemeOrReference? _defaultInstance;
 
-  SecuritySchemeOrReference_Oneof whichOneof() => _SecuritySchemeOrReference_OneofByTag[$_whichOneof(0)]!;
+  SecuritySchemeOrReference_Oneof whichOneof() =>
+      _SecuritySchemeOrReference_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   SecurityScheme get securityScheme => $_getN(0);
   @$pb.TagNumber(1)
-  set securityScheme(SecurityScheme v) { setField(1, v); }
+  set securityScheme(SecurityScheme v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasSecurityScheme() => $_has(0);
   @$pb.TagNumber(1)
@@ -6309,7 +7693,10 @@ class SecuritySchemeOrReference extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   Reference get reference => $_getN(1);
   @$pb.TagNumber(2)
-  set reference(Reference v) { setField(2, v); }
+  set reference(Reference v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasReference() => $_has(1);
   @$pb.TagNumber(2)
@@ -6329,37 +7716,53 @@ class SecuritySchemesOrReferences extends $pb.GeneratedMessage {
     return $result;
   }
   SecuritySchemesOrReferences._() : super();
-  factory SecuritySchemesOrReferences.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SecuritySchemesOrReferences.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SecuritySchemesOrReferences.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SecuritySchemesOrReferences.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SecuritySchemesOrReferences', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedSecuritySchemeOrReference>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedSecuritySchemeOrReference.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SecuritySchemesOrReferences',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedSecuritySchemeOrReference>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedSecuritySchemeOrReference.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  SecuritySchemesOrReferences clone() => SecuritySchemesOrReferences()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SecuritySchemesOrReferences copyWith(void Function(SecuritySchemesOrReferences) updates) => super.copyWith((message) => updates(message as SecuritySchemesOrReferences)) as SecuritySchemesOrReferences;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  SecuritySchemesOrReferences clone() =>
+      SecuritySchemesOrReferences()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SecuritySchemesOrReferences copyWith(
+          void Function(SecuritySchemesOrReferences) updates) =>
+      super.copyWith(
+              (message) => updates(message as SecuritySchemesOrReferences))
+          as SecuritySchemesOrReferences;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static SecuritySchemesOrReferences create() => SecuritySchemesOrReferences._();
+  static SecuritySchemesOrReferences create() =>
+      SecuritySchemesOrReferences._();
   SecuritySchemesOrReferences createEmptyInstance() => create();
-  static $pb.PbList<SecuritySchemesOrReferences> createRepeated() => $pb.PbList<SecuritySchemesOrReferences>();
+  static $pb.PbList<SecuritySchemesOrReferences> createRepeated() =>
+      $pb.PbList<SecuritySchemesOrReferences>();
   @$core.pragma('dart2js:noInline')
-  static SecuritySchemesOrReferences getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SecuritySchemesOrReferences>(create);
+  static SecuritySchemesOrReferences getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SecuritySchemesOrReferences>(create);
   static SecuritySchemesOrReferences? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<NamedSecuritySchemeOrReference> get additionalProperties => $_getList(0);
+  $core.List<NamedSecuritySchemeOrReference> get additionalProperties =>
+      $_getList(0);
 }
 
 /// An object representing a Server.
@@ -6386,27 +7789,36 @@ class Server extends $pb.GeneratedMessage {
     return $result;
   }
   Server._() : super();
-  factory Server.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Server.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Server.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Server.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Server', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Server',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'url')
     ..aOS(2, _omitFieldNames ? '' : 'description')
-    ..aOM<ServerVariables>(3, _omitFieldNames ? '' : 'variables', subBuilder: ServerVariables.create)
-    ..pc<NamedAny>(4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ServerVariables>(3, _omitFieldNames ? '' : 'variables',
+        subBuilder: ServerVariables.create)
+    ..pc<NamedAny>(
+        4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Server clone() => Server()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Server copyWith(void Function(Server) updates) => super.copyWith((message) => updates(message as Server)) as Server;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Server copyWith(void Function(Server) updates) =>
+      super.copyWith((message) => updates(message as Server)) as Server;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6415,13 +7827,17 @@ class Server extends $pb.GeneratedMessage {
   Server createEmptyInstance() => create();
   static $pb.PbList<Server> createRepeated() => $pb.PbList<Server>();
   @$core.pragma('dart2js:noInline')
-  static Server getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Server>(create);
+  static Server getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Server>(create);
   static Server? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get url => $_getSZ(0);
   @$pb.TagNumber(1)
-  set url($core.String v) { $_setString(0, v); }
+  set url($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasUrl() => $_has(0);
   @$pb.TagNumber(1)
@@ -6430,7 +7846,10 @@ class Server extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get description => $_getSZ(1);
   @$pb.TagNumber(2)
-  set description($core.String v) { $_setString(1, v); }
+  set description($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDescription() => $_has(1);
   @$pb.TagNumber(2)
@@ -6439,7 +7858,10 @@ class Server extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   ServerVariables get variables => $_getN(2);
   @$pb.TagNumber(3)
-  set variables(ServerVariables v) { setField(3, v); }
+  set variables(ServerVariables v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasVariables() => $_has(2);
   @$pb.TagNumber(3)
@@ -6475,36 +7897,47 @@ class ServerVariable extends $pb.GeneratedMessage {
     return $result;
   }
   ServerVariable._() : super();
-  factory ServerVariable.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ServerVariable.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ServerVariable.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ServerVariable.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ServerVariable', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ServerVariable',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'enum')
     ..aOS(2, _omitFieldNames ? '' : 'default')
     ..aOS(3, _omitFieldNames ? '' : 'description')
-    ..pc<NamedAny>(4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ServerVariable clone() => ServerVariable()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ServerVariable copyWith(void Function(ServerVariable) updates) => super.copyWith((message) => updates(message as ServerVariable)) as ServerVariable;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ServerVariable copyWith(void Function(ServerVariable) updates) =>
+      super.copyWith((message) => updates(message as ServerVariable))
+          as ServerVariable;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ServerVariable create() => ServerVariable._();
   ServerVariable createEmptyInstance() => create();
-  static $pb.PbList<ServerVariable> createRepeated() => $pb.PbList<ServerVariable>();
+  static $pb.PbList<ServerVariable> createRepeated() =>
+      $pb.PbList<ServerVariable>();
   @$core.pragma('dart2js:noInline')
-  static ServerVariable getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServerVariable>(create);
+  static ServerVariable getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ServerVariable>(create);
   static ServerVariable? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -6513,7 +7946,10 @@ class ServerVariable extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get default_2 => $_getSZ(1);
   @$pb.TagNumber(2)
-  set default_2($core.String v) { $_setString(1, v); }
+  set default_2($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDefault_2() => $_has(1);
   @$pb.TagNumber(2)
@@ -6522,7 +7958,10 @@ class ServerVariable extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get description => $_getSZ(2);
   @$pb.TagNumber(3)
-  set description($core.String v) { $_setString(2, v); }
+  set description($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasDescription() => $_has(2);
   @$pb.TagNumber(3)
@@ -6543,45 +7982,51 @@ class ServerVariables extends $pb.GeneratedMessage {
     return $result;
   }
   ServerVariables._() : super();
-  factory ServerVariables.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ServerVariables.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ServerVariables.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory ServerVariables.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ServerVariables', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedServerVariable>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedServerVariable.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ServerVariables',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedServerVariable>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedServerVariable.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   ServerVariables clone() => ServerVariables()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  ServerVariables copyWith(void Function(ServerVariables) updates) => super.copyWith((message) => updates(message as ServerVariables)) as ServerVariables;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  ServerVariables copyWith(void Function(ServerVariables) updates) =>
+      super.copyWith((message) => updates(message as ServerVariables))
+          as ServerVariables;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static ServerVariables create() => ServerVariables._();
   ServerVariables createEmptyInstance() => create();
-  static $pb.PbList<ServerVariables> createRepeated() => $pb.PbList<ServerVariables>();
+  static $pb.PbList<ServerVariables> createRepeated() =>
+      $pb.PbList<ServerVariables>();
   @$core.pragma('dart2js:noInline')
-  static ServerVariables getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServerVariables>(create);
+  static ServerVariables getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ServerVariables>(create);
   static ServerVariables? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.List<NamedServerVariable> get additionalProperties => $_getList(0);
 }
 
-enum SpecificationExtension_Oneof {
-  number, 
-  boolean, 
-  string, 
-  notSet
-}
+enum SpecificationExtension_Oneof { number, boolean, string, notSet }
 
 /// Any property starting with x- is valid.
 class SpecificationExtension extends $pb.GeneratedMessage {
@@ -6603,51 +8048,67 @@ class SpecificationExtension extends $pb.GeneratedMessage {
     return $result;
   }
   SpecificationExtension._() : super();
-  factory SpecificationExtension.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SpecificationExtension.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SpecificationExtension.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory SpecificationExtension.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static const $core.Map<$core.int, SpecificationExtension_Oneof> _SpecificationExtension_OneofByTag = {
-    1 : SpecificationExtension_Oneof.number,
-    2 : SpecificationExtension_Oneof.boolean,
-    3 : SpecificationExtension_Oneof.string,
-    0 : SpecificationExtension_Oneof.notSet
+  static const $core.Map<$core.int, SpecificationExtension_Oneof>
+      _SpecificationExtension_OneofByTag = {
+    1: SpecificationExtension_Oneof.number,
+    2: SpecificationExtension_Oneof.boolean,
+    3: SpecificationExtension_Oneof.string,
+    0: SpecificationExtension_Oneof.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SpecificationExtension', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SpecificationExtension',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..oo(0, [1, 2, 3])
     ..a<$core.double>(1, _omitFieldNames ? '' : 'number', $pb.PbFieldType.OD)
     ..aOB(2, _omitFieldNames ? '' : 'boolean')
     ..aOS(3, _omitFieldNames ? '' : 'string')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  SpecificationExtension clone() => SpecificationExtension()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  SpecificationExtension copyWith(void Function(SpecificationExtension) updates) => super.copyWith((message) => updates(message as SpecificationExtension)) as SpecificationExtension;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  SpecificationExtension clone() =>
+      SpecificationExtension()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  SpecificationExtension copyWith(
+          void Function(SpecificationExtension) updates) =>
+      super.copyWith((message) => updates(message as SpecificationExtension))
+          as SpecificationExtension;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static SpecificationExtension create() => SpecificationExtension._();
   SpecificationExtension createEmptyInstance() => create();
-  static $pb.PbList<SpecificationExtension> createRepeated() => $pb.PbList<SpecificationExtension>();
+  static $pb.PbList<SpecificationExtension> createRepeated() =>
+      $pb.PbList<SpecificationExtension>();
   @$core.pragma('dart2js:noInline')
-  static SpecificationExtension getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SpecificationExtension>(create);
+  static SpecificationExtension getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SpecificationExtension>(create);
   static SpecificationExtension? _defaultInstance;
 
-  SpecificationExtension_Oneof whichOneof() => _SpecificationExtension_OneofByTag[$_whichOneof(0)]!;
+  SpecificationExtension_Oneof whichOneof() =>
+      _SpecificationExtension_OneofByTag[$_whichOneof(0)]!;
   void clearOneof() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.double get number => $_getN(0);
   @$pb.TagNumber(1)
-  set number($core.double v) { $_setDouble(0, v); }
+  set number($core.double v) {
+    $_setDouble(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasNumber() => $_has(0);
   @$pb.TagNumber(1)
@@ -6656,7 +8117,10 @@ class SpecificationExtension extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.bool get boolean => $_getBF(1);
   @$pb.TagNumber(2)
-  set boolean($core.bool v) { $_setBool(1, v); }
+  set boolean($core.bool v) {
+    $_setBool(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasBoolean() => $_has(1);
   @$pb.TagNumber(2)
@@ -6665,7 +8129,10 @@ class SpecificationExtension extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get string => $_getSZ(2);
   @$pb.TagNumber(3)
-  set string($core.String v) { $_setString(2, v); }
+  set string($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasString() => $_has(2);
   @$pb.TagNumber(3)
@@ -6683,24 +8150,31 @@ class StringArray extends $pb.GeneratedMessage {
     return $result;
   }
   StringArray._() : super();
-  factory StringArray.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory StringArray.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory StringArray.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory StringArray.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'StringArray', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'StringArray',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'value')
-    ..hasRequiredFields = false
-  ;
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   StringArray clone() => StringArray()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  StringArray copyWith(void Function(StringArray) updates) => super.copyWith((message) => updates(message as StringArray)) as StringArray;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  StringArray copyWith(void Function(StringArray) updates) =>
+      super.copyWith((message) => updates(message as StringArray))
+          as StringArray;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6709,7 +8183,8 @@ class StringArray extends $pb.GeneratedMessage {
   StringArray createEmptyInstance() => create();
   static $pb.PbList<StringArray> createRepeated() => $pb.PbList<StringArray>();
   @$core.pragma('dart2js:noInline')
-  static StringArray getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StringArray>(create);
+  static StringArray getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<StringArray>(create);
   static StringArray? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -6727,24 +8202,32 @@ class Strings extends $pb.GeneratedMessage {
     return $result;
   }
   Strings._() : super();
-  factory Strings.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Strings.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Strings.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Strings.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Strings', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
-    ..pc<NamedString>(1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM, subBuilder: NamedString.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Strings',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
+    ..pc<NamedString>(
+        1, _omitFieldNames ? '' : 'additionalProperties', $pb.PbFieldType.PM,
+        subBuilder: NamedString.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Strings clone() => Strings()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Strings copyWith(void Function(Strings) updates) => super.copyWith((message) => updates(message as Strings)) as Strings;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Strings copyWith(void Function(Strings) updates) =>
+      super.copyWith((message) => updates(message as Strings)) as Strings;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6753,7 +8236,8 @@ class Strings extends $pb.GeneratedMessage {
   Strings createEmptyInstance() => create();
   static $pb.PbList<Strings> createRepeated() => $pb.PbList<Strings>();
   @$core.pragma('dart2js:noInline')
-  static Strings getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Strings>(create);
+  static Strings getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Strings>(create);
   static Strings? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -6784,27 +8268,36 @@ class Tag extends $pb.GeneratedMessage {
     return $result;
   }
   Tag._() : super();
-  factory Tag.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Tag.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Tag.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Tag.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Tag', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Tag',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'description')
-    ..aOM<ExternalDocs>(3, _omitFieldNames ? '' : 'externalDocs', subBuilder: ExternalDocs.create)
-    ..pc<NamedAny>(4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..aOM<ExternalDocs>(3, _omitFieldNames ? '' : 'externalDocs',
+        subBuilder: ExternalDocs.create)
+    ..pc<NamedAny>(
+        4, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Tag clone() => Tag()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Tag copyWith(void Function(Tag) updates) => super.copyWith((message) => updates(message as Tag)) as Tag;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Tag copyWith(void Function(Tag) updates) =>
+      super.copyWith((message) => updates(message as Tag)) as Tag;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6813,13 +8306,17 @@ class Tag extends $pb.GeneratedMessage {
   Tag createEmptyInstance() => create();
   static $pb.PbList<Tag> createRepeated() => $pb.PbList<Tag>();
   @$core.pragma('dart2js:noInline')
-  static Tag getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Tag>(create);
+  static Tag getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Tag>(create);
   static Tag? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -6828,7 +8325,10 @@ class Tag extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get description => $_getSZ(1);
   @$pb.TagNumber(2)
-  set description($core.String v) { $_setString(1, v); }
+  set description($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDescription() => $_has(1);
   @$pb.TagNumber(2)
@@ -6837,7 +8337,10 @@ class Tag extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   ExternalDocs get externalDocs => $_getN(2);
   @$pb.TagNumber(3)
-  set externalDocs(ExternalDocs v) { setField(3, v); }
+  set externalDocs(ExternalDocs v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasExternalDocs() => $_has(2);
   @$pb.TagNumber(3)
@@ -6881,29 +8384,37 @@ class Xml extends $pb.GeneratedMessage {
     return $result;
   }
   Xml._() : super();
-  factory Xml.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Xml.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Xml.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory Xml.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Xml', package: const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Xml',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'gnostic.openapi.v3'),
+      createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'namespace')
     ..aOS(3, _omitFieldNames ? '' : 'prefix')
     ..aOB(4, _omitFieldNames ? '' : 'attribute')
     ..aOB(5, _omitFieldNames ? '' : 'wrapped')
-    ..pc<NamedAny>(6, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM, subBuilder: NamedAny.create)
-    ..hasRequiredFields = false
-  ;
+    ..pc<NamedAny>(
+        6, _omitFieldNames ? '' : 'specificationExtension', $pb.PbFieldType.PM,
+        subBuilder: NamedAny.create)
+    ..hasRequiredFields = false;
 
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   Xml clone() => Xml()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Xml copyWith(void Function(Xml) updates) => super.copyWith((message) => updates(message as Xml)) as Xml;
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  Xml copyWith(void Function(Xml) updates) =>
+      super.copyWith((message) => updates(message as Xml)) as Xml;
 
   $pb.BuilderInfo get info_ => _i;
 
@@ -6912,13 +8423,17 @@ class Xml extends $pb.GeneratedMessage {
   Xml createEmptyInstance() => create();
   static $pb.PbList<Xml> createRepeated() => $pb.PbList<Xml>();
   @$core.pragma('dart2js:noInline')
-  static Xml getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Xml>(create);
+  static Xml getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Xml>(create);
   static Xml? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
-  set name($core.String v) { $_setString(0, v); }
+  set name($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
@@ -6927,7 +8442,10 @@ class Xml extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get namespace => $_getSZ(1);
   @$pb.TagNumber(2)
-  set namespace($core.String v) { $_setString(1, v); }
+  set namespace($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasNamespace() => $_has(1);
   @$pb.TagNumber(2)
@@ -6936,7 +8454,10 @@ class Xml extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get prefix => $_getSZ(2);
   @$pb.TagNumber(3)
-  set prefix($core.String v) { $_setString(2, v); }
+  set prefix($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasPrefix() => $_has(2);
   @$pb.TagNumber(3)
@@ -6945,7 +8466,10 @@ class Xml extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get attribute => $_getBF(3);
   @$pb.TagNumber(4)
-  set attribute($core.bool v) { $_setBool(3, v); }
+  set attribute($core.bool v) {
+    $_setBool(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasAttribute() => $_has(3);
   @$pb.TagNumber(4)
@@ -6954,7 +8478,10 @@ class Xml extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $core.bool get wrapped => $_getBF(4);
   @$pb.TagNumber(5)
-  set wrapped($core.bool v) { $_setBool(4, v); }
+  set wrapped($core.bool v) {
+    $_setBool(4, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasWrapped() => $_has(4);
   @$pb.TagNumber(5)
@@ -6964,6 +8491,6 @@ class Xml extends $pb.GeneratedMessage {
   $core.List<NamedAny> get specificationExtension => $_getList(5);
 }
 
-
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');
+const _omitMessageNames =
+    $core.bool.fromEnvironment('protobuf.omit_message_names');

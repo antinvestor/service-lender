@@ -25,8 +25,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            clientNameProvider('test123')
-                .overrideWith((_) async => 'John Doe'),
+            clientNameProvider('test123').overrideWith((_) async => 'John Doe'),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -43,16 +42,13 @@ void main() {
       expect(find.text('My Label'), findsOneWidget);
     });
 
-    testWidgets('shows correct icon for each entity type',
-        (tester) async {
+    testWidgets('shows correct icon for each entity type', (tester) async {
       for (final type in EntityType.values) {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              clientNameProvider('id1')
-                  .overrideWith((_) async => 'Name'),
-              productNameProvider('id1')
-                  .overrideWith((_) async => 'Product'),
+              clientNameProvider('id1').overrideWith((_) async => 'Name'),
+              productNameProvider('id1').overrideWith((_) async => 'Product'),
             ],
             child: MaterialApp(
               home: Scaffold(
@@ -72,8 +68,9 @@ void main() {
         ProviderScope(
           overrides: [
             // Override with a value that returns the fallback (loading)
-            clientNameProvider('abcdefghijklmnopqrst')
-                .overrideWith((_) async => 'abcdefghijkl...'),
+            clientNameProvider(
+              'abcdefghijklmnopqrst',
+            ).overrideWith((_) async => 'abcdefghijkl...'),
           ],
           child: const MaterialApp(
             home: Scaffold(

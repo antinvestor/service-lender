@@ -11,8 +11,9 @@ part 'name_resolver.g.dart';
 Future<String> clientName(Ref ref, String clientId) async {
   if (clientId.isEmpty) return '—';
   try {
-    final clients =
-        await ref.watch(clientListProvider(query: '', agentId: '').future);
+    final clients = await ref.watch(
+      clientListProvider(query: '', agentId: '').future,
+    );
     final match = clients.where((c) => c.id == clientId).firstOrNull;
     if (match != null && match.name.isNotEmpty) return match.name;
   } catch (_) {
@@ -33,7 +34,5 @@ Future<String> productName(Ref ref, String productId) async {
   } catch (_) {
     // Fall through to truncated ID
   }
-  return productId.length > 12
-      ? '${productId.substring(0, 12)}...'
-      : productId;
+  return productId.length > 12 ? '${productId.substring(0, 12)}...' : productId;
 }
