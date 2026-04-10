@@ -1,0 +1,125 @@
+package business
+
+import (
+	"context"
+	"strconv"
+
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
+	"github.com/pitabwire/frame/data"
+	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-fintech/apps/origination/service/events"
+	"github.com/antinvestor/service-fintech/apps/origination/service/models"
+	"github.com/antinvestor/service-fintech/apps/origination/service/repository"
+)
+
+type LoanProductBusiness interface {
+	Save(ctx context.Context, obj *originationv1.LoanProductObject) (*originationv1.LoanProductObject, error)
+	Get(ctx context.Context, id string) (*originationv1.LoanProductObject, error)
+	Search(
+		ctx context.Context,
+		req *originationv1.LoanProductSearchRequest,
+		consumer func(ctx context.Context, batch []*originationv1.LoanProductObject) error,
+	) error
+}
+
+type loanProductBusiness struct {
+	eventsMan fevents.Manager
+	lpRepo    repository.LoanProductRepository
+}
+
+func NewLoanProductBusiness(
+	_ context.Context,
+	eventsMan fevents.Manager,
+	lpRepo repository.LoanProductRepository,
+) LoanProductBusiness {
+	return &loanProductBusiness{
+		eventsMan: eventsMan,
+		lpRepo:    lpRepo,
+	}
+}
+
+func (b *loanProductBusiness) Save(
+	ctx context.Context,
+	obj *originationv1.LoanProductObject,
+) (*originationv1.LoanProductObject, error) {
+	logger := util.Log(ctx).WithField("method", "LoanProductBusiness.Save")
+
+	lp := models.LoanProductFromAPI(ctx, obj)
+
+	if obj.GetId() == "" && lp.State == 0 {
+		lp.State = int32(commonv1.STATE_ACTIVE)
+	}
+
+	err := b.eventsMan.Emit(ctx, events.LoanProductSaveEvent, lp)
+	if err != nil {
+		logger.WithError(err).Error("could not emit loan product save event")
+		return nil, err
+	}
+
+	return lp.ToAPI(), nil
+}
+
+func (b *loanProductBusiness) Get(ctx context.Context, id string) (*originationv1.LoanProductObject, error) {
+	lp, err := b.lpRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrProductNotFound
+	}
+	return lp.ToAPI(), nil
+}
+
+func (b *loanProductBusiness) Search(
+	ctx context.Context,
+	req *originationv1.LoanProductSearchRequest,
+	consumer func(ctx context.Context, batch []*originationv1.LoanProductObject) error,
+) error {
+	logger := util.Log(ctx).WithField("method", "LoanProductBusiness.Search")
+
+	var searchOpts []data.SearchOption
+
+	cursor := req.GetCursor()
+	if cursor != nil {
+		offset, offsetErr := strconv.Atoi(cursor.GetPage())
+		if offsetErr != nil {
+			offset = 0
+		}
+		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
+	}
+
+	andQueryVal := map[string]any{}
+	if req.GetOrganizationId() != "" {
+		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
+	}
+	if req.GetProductType() != originationv1.LoanProductType_LOAN_PRODUCT_TYPE_UNSPECIFIED {
+		andQueryVal["product_type = ?"] = int32(req.GetProductType())
+	}
+
+	if len(andQueryVal) > 0 {
+		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
+	}
+
+	if req.GetQuery() != "" {
+		searchOpts = append(searchOpts,
+			data.WithSearchFiltersOrByValue(
+				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
+			),
+		)
+	}
+
+	query := data.NewSearchQuery(searchOpts...)
+	results, err := b.lpRepo.Search(ctx, query)
+	if err != nil {
+		logger.WithError(err).Error("failed to search loan products")
+		return err
+	}
+
+	return workerpoolConsumeStream(ctx, results, func(res []*models.LoanProduct) error {
+		var apiResults []*originationv1.LoanProductObject
+		for _, lp := range res {
+			apiResults = append(apiResults, lp.ToAPI())
+		}
+		return consumer(ctx, apiResults)
+	})
+}

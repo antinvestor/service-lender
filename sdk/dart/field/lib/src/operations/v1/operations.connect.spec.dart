@@ -23,4 +23,18 @@ abstract final class OperationsService {
     operationsv1operations.TransferOrderSearchRequest.new,
     operationsv1operations.TransferOrderSearchResponse.new,
   );
+
+  static const incomingPaymentNotify = connect.Spec(
+    '/$name/IncomingPaymentNotify',
+    connect.StreamType.unary,
+    operationsv1operations.IncomingPaymentNotifyRequest.new,
+    operationsv1operations.IncomingPaymentNotifyResponse.new,
+  );
+
+  static const paymentAllocate = connect.Spec(
+    '/$name/PaymentAllocate',
+    connect.StreamType.unary,
+    operationsv1operations.PaymentAllocateRequest.new,
+    operationsv1operations.PaymentAllocateResponse.new,
+  );
 }

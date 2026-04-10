@@ -8,6 +8,7 @@ import '../../../core/auth/role_guard.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/entity_chip.dart';
+import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/workflow_stepper.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
@@ -342,6 +343,7 @@ class _ApplicationDetailContentState
                 _InfoTile(
                   label: 'Agent',
                   value: _app.agentId.isNotEmpty ? _app.agentId : '-',
+                  profileId: _app.agentId.isNotEmpty ? _app.agentId : null,
                 ),
                 _InfoTile(
                   label: 'Branch',
@@ -705,10 +707,17 @@ class _ApplicationDetailContentState
 // ---------------------------------------------------------------------------
 
 class _InfoTile extends StatelessWidget {
-  const _InfoTile({required this.label, required this.value});
+  const _InfoTile({
+    required this.label,
+    required this.value,
+    this.profileId,
+  });
 
   final String label;
   final String value;
+
+  /// If set, shows a [ProfileAvatar] next to the value text.
+  final String? profileId;
 
   @override
   Widget build(BuildContext context) {
@@ -724,13 +733,34 @@ class _InfoTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
+          if (profileId != null && profileId!.isNotEmpty)
+            Row(
+              children: [
+                ProfileAvatar(
+                  profileId: profileId!,
+                  name: value,
+                  size: 20,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
-            overflow: TextOverflow.ellipsis,
-          ),
         ],
       ),
     );

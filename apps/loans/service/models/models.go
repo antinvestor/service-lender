@@ -686,6 +686,78 @@ func (m *LoanStatusChange) ToAPI() *loansv1.LoanStatusChangeObject {
 }
 
 // ---------------------------------------------------------------------------
+// Disbursement
+// ---------------------------------------------------------------------------
+
+type Disbursement struct {
+	data.BaseModel
+	LoanAccountID       string `gorm:"type:varchar(50);index:idx_disb_loan"`
+	Amount              int64
+	CurrencyCode        string `gorm:"type:varchar(3)"`
+	Status              int32
+	PaymentReference    string `gorm:"type:varchar(100)"`
+	LedgerTransactionID string `gorm:"type:varchar(50)"`
+	DisbursedAt         *time.Time
+	Channel             string `gorm:"type:varchar(50)"`
+	RecipientReference  string `gorm:"type:varchar(100)"`
+	FailureReason       string `gorm:"type:text"`
+	IdempotencyKey      string `gorm:"type:varchar(100);uniqueIndex:uq_disb_idem"`
+	Properties          data.JSONMap
+}
+
+func (m *Disbursement) TableName() string { return "disbursements" }
+
+func (m *Disbursement) ToAPI() *loansv1.DisbursementObject {
+	return &loansv1.DisbursementObject{
+		Id:                  m.GetID(),
+		LoanAccountId:       m.LoanAccountID,
+		Amount:              MinorUnitsToMoney(m.Amount, m.CurrencyCode),
+		Status:              loansv1.DisbursementStatus(m.Status),
+		PaymentReference:    m.PaymentReference,
+		LedgerTransactionId: m.LedgerTransactionID,
+		DisbursedAt:         TimeToString(m.DisbursedAt),
+		Channel:             m.Channel,
+		RecipientReference:  m.RecipientReference,
+		FailureReason:       m.FailureReason,
+		IdempotencyKey:      m.IdempotencyKey,
+		Properties:          m.Properties.ToProtoStruct(),
+	}
+}
+
+func DisbursementFromAPI(ctx context.Context, obj *loansv1.DisbursementObject) *Disbursement {
+	if obj == nil {
+		return nil
+	}
+
+	disbAmount, disbCurrency := MoneyToMinorUnits(obj.GetAmount())
+
+	model := &Disbursement{
+		LoanAccountID:       obj.GetLoanAccountId(),
+		Amount:              disbAmount,
+		CurrencyCode:        disbCurrency,
+		Status:              int32(obj.GetStatus()),
+		PaymentReference:    obj.GetPaymentReference(),
+		LedgerTransactionID: obj.GetLedgerTransactionId(),
+		DisbursedAt:         StringToTime(obj.GetDisbursedAt()),
+		Channel:             obj.GetChannel(),
+		RecipientReference:  obj.GetRecipientReference(),
+		FailureReason:       obj.GetFailureReason(),
+		IdempotencyKey:      obj.GetIdempotencyKey(),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ---------------------------------------------------------------------------
 // Reconciliation
 // ---------------------------------------------------------------------------
 

@@ -22,6 +22,7 @@ import (
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type OperationsServer struct {
 	toBusiness business.TransferOrderBusiness
+	prBusiness business.PaymentRoutingBusiness
 	toRepo     repository.TransferOrderRepository
 
 	operationsv1connect.UnimplementedOperationsServiceHandler
@@ -29,10 +30,12 @@ type OperationsServer struct {
 
 func NewOperationsServer(
 	toBusiness business.TransferOrderBusiness,
+	prBusiness business.PaymentRoutingBusiness,
 	toRepo repository.TransferOrderRepository,
 ) operationsv1connect.OperationsServiceHandler {
 	return &OperationsServer{
 		toBusiness: toBusiness,
+		prBusiness: prBusiness,
 		toRepo:     toRepo,
 	}
 }
@@ -155,4 +158,65 @@ func transferOrderToAPI(m *models.TransferOrder) *operationsv1.TransferOrderObje
 		ExtraData:        m.ExtraData.ToProtoStruct(),
 		State:            commonv1.STATE(m.State),
 	}
+}
+
+// --- Payment Routing RPCs ---
+
+func (s *OperationsServer) IncomingPaymentNotify(
+	ctx context.Context,
+	req *connect.Request[operationsv1.IncomingPaymentNotifyRequest],
+) (*connect.Response[operationsv1.IncomingPaymentNotifyResponse], error) {
+	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), 2)
+	currency := req.Msg.GetAmount().GetCurrencyCode()
+
+	paymentData := map[string]interface{}{
+		"transaction_id":  req.Msg.GetTransactionId(),
+		"amount":          amount,
+		"currency":        currency,
+		"payer_reference": req.Msg.GetPayerReference(),
+		"payer_name":      req.Msg.GetPayerName(),
+		"product_id":      req.Msg.GetProductId(),
+		"group_id":        req.Msg.GetGroupId(),
+	}
+
+	result, err := s.prBusiness.IdentifyPayment(ctx, paymentData)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+
+	paymentID, _ := result["payment_id"].(string)
+	status, _ := result["strategy"].(string)
+	if status == "" {
+		status = "unidentified"
+	}
+
+	resultStruct := (&data.JSONMap{}).FromProtoStruct(nil)
+	for k, v := range result {
+		resultStruct[k] = v
+	}
+
+	return connect.NewResponse(&operationsv1.IncomingPaymentNotifyResponse{
+		PaymentId: paymentID,
+		Status:    status,
+		Result:    resultStruct.ToProtoStruct(),
+	}), nil
+}
+
+func (s *OperationsServer) PaymentAllocate(
+	ctx context.Context,
+	req *connect.Request[operationsv1.PaymentAllocateRequest],
+) (*connect.Response[operationsv1.PaymentAllocateResponse], error) {
+	result, err := s.prBusiness.AllocatePayment(ctx, req.Msg.GetPaymentId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+
+	resultMap := data.JSONMap{}
+	for k, v := range result {
+		resultMap[k] = v
+	}
+
+	return connect.NewResponse(&operationsv1.PaymentAllocateResponse{
+		Result: resultMap.ToProtoStruct(),
+	}), nil
 }

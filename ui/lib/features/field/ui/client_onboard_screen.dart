@@ -9,6 +9,7 @@ import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/client_providers.dart';
+import '../data/current_agent_provider.dart';
 
 /// Multi-step client onboarding wizard.
 ///
@@ -128,12 +129,13 @@ class _ClientOnboardScreenState extends ConsumerState<ClientOnboardScreen> {
 
     try {
       final profileId = ref.read(currentProfileIdProvider).value ?? '';
+      final agentId = ref.read(currentAgentIdProvider).value ?? '';
       final propsMap = _buildProperties();
 
       final client = ClientObject(
         name: _nameCtrl.text.trim(),
         profileId: profileId,
-        agentId: profileId,
+        agentId: agentId,
         state: STATE.CREATED,
         properties: mapToStruct(propsMap),
       );

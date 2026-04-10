@@ -150,10 +150,9 @@ func setupServiceOptions(
 		platformClients,
 	)
 	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
-	_ = prBiz // used via workflow callbacks, not directly in ConnectRPC
 
 	// ConnectRPC handler
-	connectHandler := setupConnectServer(ctx, sm, toBiz, toRepo)
+	connectHandler := setupConnectServer(ctx, sm, toBiz, prBiz, toRepo)
 
 	sd := operationspb.File_operations_v1_operations_proto.Services().ByName("OperationsService")
 
@@ -199,9 +198,10 @@ func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
 	toBiz business.TransferOrderBusiness,
+	prBiz business.PaymentRoutingBusiness,
 	toRepo repository.TransferOrderRepository,
 ) http.Handler {
-	opsHandler := handlers.NewOperationsServer(toBiz, toRepo)
+	opsHandler := handlers.NewOperationsServer(toBiz, prBiz, toRepo)
 
 	auth := sm.GetAuthorizer(ctx)
 

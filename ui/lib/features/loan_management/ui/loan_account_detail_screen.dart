@@ -9,6 +9,7 @@ import '../../../core/auth/audit_context.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
@@ -113,6 +114,25 @@ class _LoanAccountDetailScreenState
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      if (loan.agentId.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            ProfileAvatar(
+                              profileId: loan.agentId,
+                              name: loan.agentId,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Agent',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),

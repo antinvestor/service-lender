@@ -27,6 +27,7 @@ type LoanManagementServer struct {
 	restructBusiness  business.LoanRestructureBusiness
 	reconBusiness     business.ReconciliationBusiness
 	portfolioBusiness business.PortfolioBusiness
+	disbBusiness      business.DisbursementBusiness
 	statusChangeRepo  repository.LoanStatusChangeRepository
 
 	loansv1connect.UnimplementedLoanManagementServiceHandler
@@ -41,6 +42,7 @@ func NewLoanManagementServer(
 	restructBusiness business.LoanRestructureBusiness,
 	reconBusiness business.ReconciliationBusiness,
 	portfolioBusiness business.PortfolioBusiness,
+	disbBusiness business.DisbursementBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
 ) loansv1connect.LoanManagementServiceHandler {
 	return &LoanManagementServer{
@@ -52,6 +54,7 @@ func NewLoanManagementServer(
 		restructBusiness:  restructBusiness,
 		reconBusiness:     reconBusiness,
 		portfolioBusiness: portfolioBusiness,
+		disbBusiness:      disbBusiness,
 		statusChangeRepo:  statusChangeRepo,
 	}
 }
@@ -326,4 +329,43 @@ func (s *LoanManagementServer) LoanStatusChangeSearch(
 		}
 		return stream.Send(&loansv1.LoanStatusChangeSearchResponse{Data: apiResults})
 	})
+}
+
+// --- Disbursement RPCs ---
+
+func (s *LoanManagementServer) DisbursementCreate(
+	ctx context.Context,
+	req *connect.Request[loansv1.DisbursementCreateRequest],
+) (*connect.Response[loansv1.DisbursementCreateResponse], error) {
+	result, err := s.disbBusiness.Create(ctx, req.Msg)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.DisbursementCreateResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) DisbursementGet(
+	ctx context.Context,
+	req *connect.Request[loansv1.DisbursementGetRequest],
+) (*connect.Response[loansv1.DisbursementGetResponse], error) {
+	result, err := s.disbBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.DisbursementGetResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) DisbursementSearch(
+	ctx context.Context,
+	req *connect.Request[loansv1.DisbursementSearchRequest],
+	stream *connect.ServerStream[loansv1.DisbursementSearchResponse],
+) error {
+	err := s.disbBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*loansv1.DisbursementObject) error {
+			return stream.Send(&loansv1.DisbursementSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
 }

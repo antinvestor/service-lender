@@ -18,6 +18,7 @@ var (
 	ErrRestructureNotPending      = apperrors.NewError(apperrors.Unprocessable, "restructure is not in pending state")
 	ErrPenaltyAlreadyWaived       = apperrors.NewError(apperrors.Unprocessable, "penalty is already waived")
 
+	ErrDisbursementNotFound          = apperrors.NewError(apperrors.NotFound, "disbursement not found")
 	ErrDuplicateIdempotencyKey       = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")
 	ErrApplicationNotFound           = apperrors.NewError(apperrors.NotFound, "origination application not found")
 	ErrOriginationServiceUnavailable = apperrors.NewError(

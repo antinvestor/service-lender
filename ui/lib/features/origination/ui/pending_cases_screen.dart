@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/entity_chip.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../dashboard/data/dashboard_providers.dart';
@@ -434,7 +435,18 @@ class _PendingCaseCard extends ConsumerWidget {
                 Row(
                   children: [
                     if (app.agentId.isNotEmpty)
-                      EntityChip(type: EntityType.agent, id: app.agentId),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ProfileAvatar(
+                            profileId: app.agentId,
+                            name: app.agentId,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          EntityChip(type: EntityType.agent, id: app.agentId),
+                        ],
+                      ),
                     if (riskFlagCount > 0) ...[
                       const Spacer(),
                       Container(

@@ -40,10 +40,14 @@ buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260404160115-b29
 buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260404160115-b29ae00d2058.2/go.mod h1:NqEdYhWR5WXBVSnRmI/3dQni2sdbbmWD85KWWWql/Z0=
 buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260409143452-1907dfe98aca.2 h1:G0tj4i0tLGdG4B6o4cS1Z4e2rB7wrU58f8Bo1QHk1qk=
 buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260409143452-1907dfe98aca.2/go.mod h1:zilVcP45IhgJEdBNAb9O1aKqw+yc07XSZ+5pO6a+8lk=
+buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260410042530-40733ae5eb81.2 h1:F5FIlRscfnYiN6ZP5iEIgaT7CHl1kGe/v1vBnWu/XJA=
+buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260410042530-40733ae5eb81.2/go.mod h1:292TM1xu9SUfODnYuF5xvjisbpam6YErseGaOretc6Y=
 buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260404160115-b29ae00d2058.1 h1:F+39AjTLmCAgMu/UEWOMs9KTS4AiKtd6YfYHvk+yBXs=
 buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260404160115-b29ae00d2058.1/go.mod h1:AeaIUmCUrlpDTuObZIsKwV1/nN7P9xlVIB3mUjq0JnY=
 buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260409143452-1907dfe98aca.1 h1:EfpRq36BmGw7C29v6t+E/naoh0vXHW7xf03j3nHQWo4=
 buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260409143452-1907dfe98aca.1/go.mod h1:AeaIUmCUrlpDTuObZIsKwV1/nN7P9xlVIB3mUjq0JnY=
+buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260410042530-40733ae5eb81.1 h1:KGgEQTEPfB5+uw3YMt6M/7zBepb32+yemp72T/i/dkg=
+buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260410042530-40733ae5eb81.1/go.mod h1:AeaIUmCUrlpDTuObZIsKwV1/nN7P9xlVIB3mUjq0JnY=
 buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260406205236-b52b5e30e2b2.2 h1:ptczHr/6GEK1NLTQCWAiYaraKx2z8gzR3daGxxe4GKs=
 buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260406205236-b52b5e30e2b2.2/go.mod h1:VhJcb65cAwwIiCjCfiK8A6jPx9+bqm8FJO509CTGWiw=
 buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260409190030-c75f48f0ae6c.2 h1:NrN645urh2PiDpXpFC2DPxwGSiqWhseh/L9SBydQJWc=

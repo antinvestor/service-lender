@@ -19,5 +19,6 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.Application{}, &models.ApplicationDocument{},
 		&models.VerificationTask{}, &models.UnderwritingDecision{},
 		&models.ApplicationStatusHistory{}, &models.ClientProductAccess{},
-		&models.FormTemplate{}, &models.FormSubmission{})
+		&models.FormTemplate{}, &models.FormSubmission{},
+		&models.LoanProduct{})
 }

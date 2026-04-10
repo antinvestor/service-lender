@@ -131,6 +131,7 @@ func setupServiceOptions(
 	lrRepo := repository.NewLoanRestructureRepository(ctx, dbPool, workMan)
 	lscRepo := repository.NewLoanStatusChangeRepository(ctx, dbPool, workMan)
 	reconRepo := repository.NewReconciliationRepository(ctx, dbPool, workMan)
+	disbRepo := repository.NewDisbursementRepository(ctx, dbPool, workMan)
 
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
@@ -152,12 +153,13 @@ func setupServiceOptions(
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
+	disbBusiness := business.NewDisbursementBusiness(ctx, evtsMan, disbRepo, laRepo, laBusiness, operationsCli)
 
 	portfolioBusiness := business.NewPortfolioBusiness(ctx, dbPool)
 
 	connectHandler := setupConnectServer(ctx, sm,
 		lpBusiness, laBusiness, repBusiness, scheduleBusiness,
-		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, lscRepo)
+		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, disbBusiness, lscRepo)
 
 	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
 
@@ -175,6 +177,7 @@ func setupServiceOptions(
 			lmevents.NewLoanRestructureSave(ctx, lrRepo),
 			lmevents.NewLoanStatusChangeSave(ctx, lscRepo),
 			lmevents.NewReconciliationSave(ctx, reconRepo),
+			lmevents.NewDisbursementSave(ctx, disbRepo),
 		),
 	}
 }
@@ -238,6 +241,7 @@ func setupConnectServer(
 	restructBusiness business.LoanRestructureBusiness,
 	reconBusiness business.ReconciliationBusiness,
 	portfolioBusiness business.PortfolioBusiness,
+	disbBusiness business.DisbursementBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
 ) http.Handler {
 	// Create handler with injected dependencies
@@ -250,6 +254,7 @@ func setupConnectServer(
 		restructBusiness,
 		reconBusiness,
 		portfolioBusiness,
+		disbBusiness,
 		statusChangeRepo,
 	)
 

@@ -9,6 +9,7 @@ import '../../../core/theme/design_tokens.dart';
 import '../../../core/widgets/application_status_badge.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
@@ -98,17 +99,10 @@ class _ClientDetailContent extends ConsumerWidget {
                   tooltip: 'Back to Clients',
                 ),
                 const SizedBox(width: 8),
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  child: Text(
-                    client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
-                    style: GoogleFonts.manrope(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
+                ProfileAvatar(
+                  profileId: client.profileId,
+                  name: client.name.isNotEmpty ? client.name : 'Unknown',
+                  size: 56,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -147,6 +141,25 @@ class _ClientDetailContent extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      if (client.agentId.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            ProfileAvatar(
+                              profileId: client.agentId,
+                              name: client.agentId,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Managed by agent',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),

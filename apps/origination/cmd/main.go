@@ -89,6 +89,7 @@ func main() {
 	cpaRepo := repository.NewClientProductAccessRepository(ctx, dbPool, workMan)
 	ftRepo := repository.NewFormTemplateRepository(ctx, dbPool, workMan)
 	fsRepo := repository.NewFormSubmissionRepository(ctx, dbPool, workMan)
+	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 
 	// Create business logic with all dependencies
 	appBusiness := business.NewApplicationBusiness(ctx, evtsMan, appRepo, cpaRepo, identityCli, loanMgmtCli)
@@ -104,11 +105,12 @@ func main() {
 	)
 	ftBusiness := business.NewFormTemplateBusiness(ctx, evtsMan, ftRepo)
 	fsBusiness := business.NewFormSubmissionBusiness(ctx, evtsMan, fsRepo)
+	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
 
 	// Setup Connect RPC servers + maintenance job HTTP handlers
 	connectHandler := setupConnectServer(ctx, sm,
 		appBusiness, docBusiness, vtBusiness, udBusiness,
-		ftBusiness, fsBusiness,
+		ftBusiness, fsBusiness, lpBusiness,
 		appRepo, cfg.DraftExpiryDays)
 
 	// Initialise the service with all options
@@ -125,6 +127,7 @@ func main() {
 			originationevents.NewApplicationStatusHistorySave(ctx, ashRepo),
 			originationevents.NewFormTemplateSave(ctx, ftRepo),
 			originationevents.NewFormSubmissionSave(ctx, fsRepo),
+			originationevents.NewLoanProductSave(ctx, lpRepo),
 		),
 	}
 
@@ -182,6 +185,7 @@ func setupConnectServer(
 	udBusiness business.UnderwritingDecisionBusiness,
 	ftBusiness business.FormTemplateBusiness,
 	fsBusiness business.FormSubmissionBusiness,
+	lpBusiness business.LoanProductBusiness,
 	appRepo repository.ApplicationRepository,
 	draftExpiryDays int,
 ) http.Handler {
@@ -193,6 +197,7 @@ func setupConnectServer(
 		udBusiness,
 		ftBusiness,
 		fsBusiness,
+		lpBusiness,
 	)
 
 	auth := sm.GetAuthorizer(ctx)

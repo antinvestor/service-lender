@@ -53,33 +53,67 @@ message TransferOrderSearchResponse {
   repeated TransferOrderObject data = 1;
 }
 
+// IncomingPaymentNotifyRequest notifies the system of a new payment received.
+message IncomingPaymentNotifyRequest {
+  string transaction_id = 1;       // External transaction ID (idempotency key)
+  google.type.Money amount = 2;    // Payment amount
+  string payer_reference = 3;      // Payer reference (phone, account, membership ID)
+  string payer_name = 4;           // Payer name for fuzzy matching
+  string product_id = 5;           // Product context
+  string group_id = 6;             // Group context
+  google.protobuf.Struct properties = 7;
+}
+
+message IncomingPaymentNotifyResponse {
+  string payment_id = 1;
+  string status = 2;               // "identified" or "unidentified"
+  google.protobuf.Struct result = 3;
+}
+
+// PaymentAllocateRequest triggers allocation of an identified payment to obligations.
+message PaymentAllocateRequest {
+  string payment_id = 1;
+}
+
+message PaymentAllocateResponse {
+  google.protobuf.Struct result = 1;
+}
+
 service OperationsService {
   option (common.v1.service_permissions) = {
     namespace: "service_operations"
     permissions: [
       "transfer_execute",
-      "transfer_view"
+      "transfer_view",
+      "payment_notify",
+      "payment_allocate"
     ]
     role_bindings: [
       {
         role: ROLE_OWNER
         permissions: [
           "transfer_execute",
-          "transfer_view"
+          "transfer_view",
+          "payment_notify",
+          "payment_allocate"
         ]
       },
       {
         role: ROLE_ADMIN
         permissions: [
           "transfer_execute",
-          "transfer_view"
+          "transfer_view",
+          "payment_notify",
+          "payment_allocate"
         ]
       },
       {
         role: ROLE_OPERATOR
         permissions: [
           "transfer_execute",
-          "transfer_view"
+          "transfer_view",
+          "payment_notify",
+          "payment_allocate"
         ]
       },
       {
@@ -94,7 +128,9 @@ service OperationsService {
         role: ROLE_SERVICE
         permissions: [
           "transfer_execute",
-          "transfer_view"
+          "transfer_view",
+          "payment_notify",
+          "payment_allocate"
         ]
       }
     ]
@@ -108,6 +144,16 @@ service OperationsService {
   rpc TransferOrderSearch(TransferOrderSearchRequest) returns (stream TransferOrderSearchResponse) {
     option (common.v1.method_permissions) = {
       permissions: ["transfer_view"]
+    };
+  }
+  rpc IncomingPaymentNotify(IncomingPaymentNotifyRequest) returns (IncomingPaymentNotifyResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["payment_notify"]
+    };
+  }
+  rpc PaymentAllocate(PaymentAllocateRequest) returns (PaymentAllocateResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["payment_allocate"]
     };
   }
 }

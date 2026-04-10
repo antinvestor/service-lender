@@ -6,8 +6,9 @@ import 'package:connectrpc/connect.dart' show Code, ConnectException;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../core/api/api_provider.dart';
+import '../../../core/widgets/dynamic_form.dart' show mapToStruct;
+import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../core/widgets/error_helpers.dart';
 import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/profile_badge.dart';
@@ -198,7 +199,27 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     }
 
     try {
-      await ref.read(agentProvider.notifier).save(agent);
+      final saveResponse = await ref
+          .read(fieldServiceClientProvider)
+          .agentSave(AgentSaveRequest(data: agent));
+      final savedAgent = saveResponse.data;
+
+      // Assign the agent to the selected branch if one was chosen.
+      if (_selectedBranchId.isNotEmpty && savedAgent.id.isNotEmpty) {
+        await ref.read(fieldServiceClientProvider).agentBranchSave(
+              AgentBranchSaveRequest(
+                data: AgentBranchObject(
+                  agentId: savedAgent.id,
+                  branchId: _selectedBranchId,
+                  state: STATE.ACTIVE,
+                ),
+              ),
+            );
+      }
+
+      // Invalidate the agent list so it refreshes.
+      ref.invalidate(agentListProvider);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -222,17 +243,19 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     }
   }
 
-  dynamic _buildProperties() {
-    // Build a Struct with contact and new profile info for backend processing
-    // The backend AgentNotifier.CreateOrLinkProfile reads these
-    final map = <String, dynamic>{'contact_detail': _contactCtrl.text.trim()};
+  struct_pb.Struct _buildProperties() {
+    // Build a protobuf Struct with contact and new profile info for backend processing.
+    // The backend AgentNotifier.CreateOrLinkProfile reads these.
+    final propsMap = <String, dynamic>{
+      'contact_detail': _contactCtrl.text.trim(),
+    };
     if (_nameCtrl.text.trim().isNotEmpty) {
-      map['display_name'] = _nameCtrl.text.trim();
+      propsMap['display_name'] = _nameCtrl.text.trim();
     }
     if (_descriptionCtrl.text.trim().isNotEmpty) {
-      map['description'] = _descriptionCtrl.text.trim();
+      propsMap['description'] = _descriptionCtrl.text.trim();
     }
-    return map;
+    return mapToStruct(propsMap);
   }
 
   // ─────────────────────────────────────────────────────────────────────────

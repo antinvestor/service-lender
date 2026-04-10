@@ -20,6 +20,7 @@ type OriginationServer struct {
 	udBusiness  business.UnderwritingDecisionBusiness
 	ftBusiness  business.FormTemplateBusiness
 	fsBusiness  business.FormSubmissionBusiness
+	lpBusiness  business.LoanProductBusiness
 
 	originationv1connect.UnimplementedOriginationServiceHandler
 }
@@ -31,6 +32,7 @@ func NewOriginationServer(
 	udBusiness business.UnderwritingDecisionBusiness,
 	ftBusiness business.FormTemplateBusiness,
 	fsBusiness business.FormSubmissionBusiness,
+	lpBusiness business.LoanProductBusiness,
 ) originationv1connect.OriginationServiceHandler {
 	return &OriginationServer{
 		appBusiness: appBusiness,
@@ -39,6 +41,7 @@ func NewOriginationServer(
 		udBusiness:  udBusiness,
 		ftBusiness:  ftBusiness,
 		fsBusiness:  fsBusiness,
+		lpBusiness:  lpBusiness,
 	}
 }
 
@@ -335,6 +338,45 @@ func (s *OriginationServer) FormSubmissionSearch(
 	err := s.fsBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*originationv1.FormSubmissionObject) error {
 			return stream.Send(&originationv1.FormSubmissionSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- LoanProduct RPCs ---
+
+func (s *OriginationServer) LoanProductSave(
+	ctx context.Context,
+	req *connect.Request[originationv1.LoanProductSaveRequest],
+) (*connect.Response[originationv1.LoanProductSaveResponse], error) {
+	result, err := s.lpBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.LoanProductSaveResponse{Data: result}), nil
+}
+
+func (s *OriginationServer) LoanProductGet(
+	ctx context.Context,
+	req *connect.Request[originationv1.LoanProductGetRequest],
+) (*connect.Response[originationv1.LoanProductGetResponse], error) {
+	result, err := s.lpBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&originationv1.LoanProductGetResponse{Data: result}), nil
+}
+
+func (s *OriginationServer) LoanProductSearch(
+	ctx context.Context,
+	req *connect.Request[originationv1.LoanProductSearchRequest],
+	stream *connect.ServerStream[originationv1.LoanProductSearchResponse],
+) error {
+	err := s.lpBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*originationv1.LoanProductObject) error {
+			return stream.Send(&originationv1.LoanProductSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)

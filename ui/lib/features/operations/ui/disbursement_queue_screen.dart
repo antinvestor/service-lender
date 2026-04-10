@@ -7,7 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/theme/design_tokens.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/resolved_name.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
+import '../../loan_management/data/disbursement_providers.dart';
 import '../../loan_management/data/loan_account_providers.dart';
 
 class DisbursementQueueScreen extends ConsumerStatefulWidget {
@@ -263,10 +265,26 @@ class _DisbursementQueueScreenState
                                       ],
                                     ),
                                   ),
-                                  FilledButton.tonal(
-                                    onPressed: () =>
-                                        context.go('/loans/${loan.id}'),
-                                    child: const Text('Process'),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      FilledButton.icon(
+                                        onPressed: () =>
+                                            _showDisburseConfirmation(
+                                              context,
+                                              ref,
+                                              loan,
+                                            ),
+                                        icon: const Icon(Icons.send, size: 16),
+                                        label: const Text('Disburse'),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      OutlinedButton(
+                                        onPressed: () =>
+                                            context.go('/loans/${loan.id}'),
+                                        child: const Text('Details'),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -283,6 +301,118 @@ class _DisbursementQueueScreenState
         ),
       ],
     );
+  }
+
+  void _showDisburseConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic loan,
+  ) {
+    final amount = formatMoney(loan.principalAmount);
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm Disbursement'),
+        content: SizedBox(
+          width: 420,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Are you sure you want to disburse this loan?'),
+              const SizedBox(height: 16),
+              Card(
+                elevation: 0,
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Amount: ',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          Text(
+                            amount,
+                            style: GoogleFonts.manrope(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      ClientNameText(
+                        clientId: loan.clientId,
+                        prefix: 'Client: ',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await _executeDisbursement(context, ref, loan);
+            },
+            icon: const Icon(Icons.send, size: 18),
+            label: const Text('Disburse'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _executeDisbursement(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic loan,
+  ) async {
+    try {
+      final idempotencyKey =
+          DateTime.now().millisecondsSinceEpoch.toString();
+      await ref.read(disbursementProvider.notifier).create(
+            loanAccountId: loan.id,
+            channel: 'mobile_money',
+            recipientReference: loan.clientId,
+            idempotencyKey: idempotencyKey,
+          );
+      // Refresh the queue
+      ref.invalidate(
+        loanAccountListProvider(
+          query: _query,
+          status: LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT,
+        ),
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Disbursement initiated successfully'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to disburse: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   String _shortId(String id) =>

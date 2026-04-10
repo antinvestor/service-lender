@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/entity_list_page.dart';
+import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../auth/data/auth_repository.dart';
@@ -182,15 +183,10 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: theme.colorScheme.primaryContainer,
-          child: Text(
-            client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
-            style: TextStyle(
-              color: theme.colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        leading: ProfileAvatar(
+          profileId: client.profileId,
+          name: client.name.isNotEmpty ? client.name : 'Unknown',
+          size: 40,
         ),
         title: Text(
           client.name.isNotEmpty ? client.name : 'Unnamed Client',
@@ -200,13 +196,27 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 2),
-            Text(
-              'Profile: ${client.profileId}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withAlpha(160),
-              ),
-            ),
-            if (agentLabel.isNotEmpty)
+            if (agent != null)
+              Row(
+                children: [
+                  ProfileAvatar(
+                    profileId: agent.profileId,
+                    name: agent.name.isNotEmpty ? agent.name : 'Agent',
+                    size: 16,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'Agent: $agentLabel',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withAlpha(160),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              )
+            else if (agentLabel.isNotEmpty)
               Text(
                 'Agent: $agentLabel',
                 style: theme.textTheme.bodySmall?.copyWith(

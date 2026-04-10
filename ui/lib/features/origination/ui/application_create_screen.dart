@@ -6,8 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/widgets/dynamic_form.dart';
 import '../../../core/widgets/money_helpers.dart';
+import '../../../core/widgets/profile_badge.dart';
+import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../field/data/client_providers.dart';
 import '../../loan_management/data/loan_product_providers.dart';
 import '../data/application_providers.dart';
 
@@ -37,6 +40,8 @@ class _ApplicationCreateScreenState
 
   // Step 2: Loan details
   final _clientIdCtrl = TextEditingController();
+  ClientObject? _selectedClient;
+  String _clientSearchQuery = '';
   final _amountCtrl = TextEditingController();
   final _termCtrl = TextEditingController();
   final _currencyCtrl = TextEditingController(text: 'KES');
@@ -50,7 +55,7 @@ class _ApplicationCreateScreenState
   @override
   void initState() {
     super.initState();
-    if (widget.clientId != null) {
+    if (widget.clientId != null && widget.clientId!.isNotEmpty) {
       _clientIdCtrl.text = widget.clientId!;
     }
   }
@@ -358,21 +363,145 @@ class _ApplicationCreateScreenState
   // ── Step 2: Loan Details ───────────────────────────────────────────────────
 
   Widget _buildLoanDetails() {
+    final clientsAsync = ref.watch(
+      clientListProvider(query: _clientSearchQuery, agentId: ''),
+    );
+
     return Form(
       key: _step2Key,
       child: Column(
         children: [
-          TextFormField(
-            controller: _clientIdCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Client ID *',
-              hintText: 'Enter the client ID',
-            ),
-            textInputAction: TextInputAction.next,
-            validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'Client ID is required'
-                : null,
+          // Client search / picker
+          Autocomplete<ClientObject>(
+            displayStringForOption: (client) => client.name,
+            optionsBuilder: (textEditingValue) {
+              final query = textEditingValue.text.trim();
+              if (query != _clientSearchQuery) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    setState(() => _clientSearchQuery = query);
+                  }
+                });
+              }
+              return clientsAsync.when(
+                data: (clients) {
+                  if (query.isEmpty) return clients;
+                  return clients.where(
+                    (c) => c.name.toLowerCase().contains(query.toLowerCase()),
+                  );
+                },
+                loading: () => <ClientObject>[],
+                error: (_, _) => <ClientObject>[],
+              );
+            },
+            onSelected: (client) {
+              setState(() {
+                _selectedClient = client;
+                _clientIdCtrl.text = client.id;
+              });
+            },
+            fieldViewBuilder:
+                (context, controller, focusNode, onFieldSubmitted) {
+              // Pre-populate if a client was already selected or passed in
+              if (_selectedClient != null && controller.text.isEmpty) {
+                controller.text = _selectedClient!.name;
+              }
+              return TextFormField(
+                controller: controller,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  labelText: 'Client *',
+                  hintText: 'Search by client name...',
+                  prefixIcon: const Icon(Icons.person_search),
+                  suffixIcon: clientsAsync.isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : _selectedClient != null
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 18),
+                              onPressed: () {
+                                controller.clear();
+                                setState(() {
+                                  _selectedClient = null;
+                                  _clientIdCtrl.text = '';
+                                });
+                              },
+                            )
+                          : null,
+                ),
+                textInputAction: TextInputAction.next,
+                validator: (_) {
+                  if (_clientIdCtrl.text.trim().isEmpty) {
+                    return 'Please select a client';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (_) => onFieldSubmitted(),
+              );
+            },
+            optionsViewBuilder: (context, onSelected, options) {
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(8),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxHeight: 250,
+                      maxWidth: 500,
+                    ),
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final client = options.elementAt(index);
+                        return ListTile(
+                          leading: ProfileAvatar(
+                            profileId: client.profileId,
+                            name: client.name.isNotEmpty
+                                ? client.name
+                                : 'Unknown',
+                            size: 32,
+                          ),
+                          title: Text(
+                            client.name.isNotEmpty
+                                ? client.name
+                                : 'Unnamed Client',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'ID: ${client.id.length > 12 ? '${client.id.substring(0, 12)}...' : client.id}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          onTap: () => onSelected(client),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
+          // Show selected client badge
+          if (_selectedClient != null) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ProfileBadge(
+                profileId: _selectedClient!.profileId,
+                name: _selectedClient!.name,
+                description: 'Selected client',
+                avatarSize: 28,
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           Row(
             children: [
@@ -525,7 +654,12 @@ class _ApplicationCreateScreenState
                   ),
                 ),
                 const SizedBox(height: 8),
-                _ReviewLine('Client', _clientIdCtrl.text),
+                _ReviewLine(
+                  'Client',
+                  _selectedClient != null
+                      ? _selectedClient!.name
+                      : _clientIdCtrl.text,
+                ),
                 _ReviewLine(
                   'Amount',
                   '${_currencyCtrl.text} ${_amountCtrl.text}',

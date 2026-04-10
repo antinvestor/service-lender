@@ -23,11 +23,15 @@ export 'operations.pb.dart';
 abstract class OperationsServiceBase extends $pb.GeneratedService {
   $async.Future<$13.TransferOrderExecuteResponse> transferOrderExecute($pb.ServerContext ctx, $13.TransferOrderExecuteRequest request);
   $async.Future<$13.TransferOrderSearchResponse> transferOrderSearch($pb.ServerContext ctx, $13.TransferOrderSearchRequest request);
+  $async.Future<$13.IncomingPaymentNotifyResponse> incomingPaymentNotify($pb.ServerContext ctx, $13.IncomingPaymentNotifyRequest request);
+  $async.Future<$13.PaymentAllocateResponse> paymentAllocate($pb.ServerContext ctx, $13.PaymentAllocateRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
       case 'TransferOrderExecute': return $13.TransferOrderExecuteRequest();
       case 'TransferOrderSearch': return $13.TransferOrderSearchRequest();
+      case 'IncomingPaymentNotify': return $13.IncomingPaymentNotifyRequest();
+      case 'PaymentAllocate': return $13.PaymentAllocateRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -36,6 +40,8 @@ abstract class OperationsServiceBase extends $pb.GeneratedService {
     switch (methodName) {
       case 'TransferOrderExecute': return this.transferOrderExecute(ctx, request as $13.TransferOrderExecuteRequest);
       case 'TransferOrderSearch': return this.transferOrderSearch(ctx, request as $13.TransferOrderSearchRequest);
+      case 'IncomingPaymentNotify': return this.incomingPaymentNotify(ctx, request as $13.IncomingPaymentNotifyRequest);
+      case 'PaymentAllocate': return this.paymentAllocate(ctx, request as $13.PaymentAllocateRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

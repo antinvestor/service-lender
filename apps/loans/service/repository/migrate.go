@@ -34,6 +34,7 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.LoanRestructure{},
 		&models.LoanStatusChange{},
 		&models.Reconciliation{},
+		&models.Disbursement{},
 	)
 }
 
