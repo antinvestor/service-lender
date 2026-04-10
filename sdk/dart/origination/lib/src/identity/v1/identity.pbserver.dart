@@ -45,6 +45,13 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
   $async.Future<$11.InvestorAccountSearchResponse> investorAccountSearch($pb.ServerContext ctx, $11.InvestorAccountSearchRequest request);
   $async.Future<$11.InvestorDepositResponse> investorDeposit($pb.ServerContext ctx, $11.InvestorDepositRequest request);
   $async.Future<$11.InvestorWithdrawResponse> investorWithdraw($pb.ServerContext ctx, $11.InvestorWithdrawRequest request);
+  $async.Future<$11.ClientDataSaveResponse> clientDataSave($pb.ServerContext ctx, $11.ClientDataSaveRequest request);
+  $async.Future<$11.ClientDataGetResponse> clientDataGet($pb.ServerContext ctx, $11.ClientDataGetRequest request);
+  $async.Future<$11.ClientDataListResponse> clientDataList($pb.ServerContext ctx, $11.ClientDataListRequest request);
+  $async.Future<$11.ClientDataVerifyResponse> clientDataVerify($pb.ServerContext ctx, $11.ClientDataVerifyRequest request);
+  $async.Future<$11.ClientDataRejectResponse> clientDataReject($pb.ServerContext ctx, $11.ClientDataRejectRequest request);
+  $async.Future<$11.ClientDataRequestInfoResponse> clientDataRequestInfo($pb.ServerContext ctx, $11.ClientDataRequestInfoRequest request);
+  $async.Future<$11.ClientDataHistoryResponse> clientDataHistory($pb.ServerContext ctx, $11.ClientDataHistoryRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -71,6 +78,13 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'InvestorAccountSearch': return $11.InvestorAccountSearchRequest();
       case 'InvestorDeposit': return $11.InvestorDepositRequest();
       case 'InvestorWithdraw': return $11.InvestorWithdrawRequest();
+      case 'ClientDataSave': return $11.ClientDataSaveRequest();
+      case 'ClientDataGet': return $11.ClientDataGetRequest();
+      case 'ClientDataList': return $11.ClientDataListRequest();
+      case 'ClientDataVerify': return $11.ClientDataVerifyRequest();
+      case 'ClientDataReject': return $11.ClientDataRejectRequest();
+      case 'ClientDataRequestInfo': return $11.ClientDataRequestInfoRequest();
+      case 'ClientDataHistory': return $11.ClientDataHistoryRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -100,6 +114,13 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'InvestorAccountSearch': return this.investorAccountSearch(ctx, request as $11.InvestorAccountSearchRequest);
       case 'InvestorDeposit': return this.investorDeposit(ctx, request as $11.InvestorDepositRequest);
       case 'InvestorWithdraw': return this.investorWithdraw(ctx, request as $11.InvestorWithdrawRequest);
+      case 'ClientDataSave': return this.clientDataSave(ctx, request as $11.ClientDataSaveRequest);
+      case 'ClientDataGet': return this.clientDataGet(ctx, request as $11.ClientDataGetRequest);
+      case 'ClientDataList': return this.clientDataList(ctx, request as $11.ClientDataListRequest);
+      case 'ClientDataVerify': return this.clientDataVerify(ctx, request as $11.ClientDataVerifyRequest);
+      case 'ClientDataReject': return this.clientDataReject(ctx, request as $11.ClientDataRejectRequest);
+      case 'ClientDataRequestInfo': return this.clientDataRequestInfo(ctx, request as $11.ClientDataRequestInfoRequest);
+      case 'ClientDataHistory': return this.clientDataHistory(ctx, request as $11.ClientDataHistoryRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

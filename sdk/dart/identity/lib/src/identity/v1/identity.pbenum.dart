@@ -65,5 +65,31 @@ class SystemUserRole extends $pb.ProtobufEnum {
   const SystemUserRole._($core.int v, $core.String n) : super(v, n);
 }
 
+/// DataVerificationStatus tracks the verification lifecycle of client KYC data.
+class DataVerificationStatus extends $pb.ProtobufEnum {
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_UNSPECIFIED = DataVerificationStatus._(0, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_UNSPECIFIED');
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_COLLECTED = DataVerificationStatus._(1, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_COLLECTED');
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_UNDER_REVIEW = DataVerificationStatus._(2, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_UNDER_REVIEW');
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_VERIFIED = DataVerificationStatus._(3, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_VERIFIED');
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_REJECTED = DataVerificationStatus._(4, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_REJECTED');
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED = DataVerificationStatus._(5, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED');
+  static const DataVerificationStatus DATA_VERIFICATION_STATUS_EXPIRED = DataVerificationStatus._(6, _omitEnumNames ? '' : 'DATA_VERIFICATION_STATUS_EXPIRED');
+
+  static const $core.List<DataVerificationStatus> values = <DataVerificationStatus> [
+    DATA_VERIFICATION_STATUS_UNSPECIFIED,
+    DATA_VERIFICATION_STATUS_COLLECTED,
+    DATA_VERIFICATION_STATUS_UNDER_REVIEW,
+    DATA_VERIFICATION_STATUS_VERIFIED,
+    DATA_VERIFICATION_STATUS_REJECTED,
+    DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED,
+    DATA_VERIFICATION_STATUS_EXPIRED,
+  ];
+
+  static final $core.Map<$core.int, DataVerificationStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static DataVerificationStatus? valueOf($core.int value) => _byValue[value];
+
+  const DataVerificationStatus._($core.int v, $core.String n) : super(v, n);
+}
+
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

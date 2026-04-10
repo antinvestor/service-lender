@@ -61,6 +61,29 @@ final $typed_data.Uint8List systemUserRoleDescriptor = $convert.base64Decode(
     'AhIiCh5TWVNURU1fVVNFUl9ST0xFX0FETUlOSVNUUkFUT1IQAxIcChhTWVNURU1fVVNFUl9ST0'
     'xFX0FVRElUT1IQBA==');
 
+@$core.Deprecated('Use dataVerificationStatusDescriptor instead')
+const DataVerificationStatus$json = {
+  '1': 'DataVerificationStatus',
+  '2': [
+    {'1': 'DATA_VERIFICATION_STATUS_UNSPECIFIED', '2': 0},
+    {'1': 'DATA_VERIFICATION_STATUS_COLLECTED', '2': 1},
+    {'1': 'DATA_VERIFICATION_STATUS_UNDER_REVIEW', '2': 2},
+    {'1': 'DATA_VERIFICATION_STATUS_VERIFIED', '2': 3},
+    {'1': 'DATA_VERIFICATION_STATUS_REJECTED', '2': 4},
+    {'1': 'DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED', '2': 5},
+    {'1': 'DATA_VERIFICATION_STATUS_EXPIRED', '2': 6},
+  ],
+};
+
+/// Descriptor for `DataVerificationStatus`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List dataVerificationStatusDescriptor = $convert.base64Decode(
+    'ChZEYXRhVmVyaWZpY2F0aW9uU3RhdHVzEigKJERBVEFfVkVSSUZJQ0FUSU9OX1NUQVRVU19VTl'
+    'NQRUNJRklFRBAAEiYKIkRBVEFfVkVSSUZJQ0FUSU9OX1NUQVRVU19DT0xMRUNURUQQARIpCiVE'
+    'QVRBX1ZFUklGSUNBVElPTl9TVEFUVVNfVU5ERVJfUkVWSUVXEAISJQohREFUQV9WRVJJRklDQV'
+    'RJT05fU1RBVFVTX1ZFUklGSUVEEAMSJQohREFUQV9WRVJJRklDQVRJT05fU1RBVFVTX1JFSkVD'
+    'VEVEEAQSLQopREFUQV9WRVJJRklDQVRJT05fU1RBVFVTX01PUkVfSU5GT19ORUVERUQQBRIkCi'
+    'BEQVRBX1ZFUklGSUNBVElPTl9TVEFUVVNfRVhQSVJFRBAG');
+
 @$core.Deprecated('Use organizationObjectDescriptor instead')
 const OrganizationObject$json = {
   '1': 'OrganizationObject',
@@ -879,6 +902,260 @@ final $typed_data.Uint8List investorWithdrawResponseDescriptor = $convert.base64
     'ChhJbnZlc3RvcldpdGhkcmF3UmVzcG9uc2USNgoEZGF0YRgBIAEoCzIiLmlkZW50aXR5LnYxLk'
     'ludmVzdG9yQWNjb3VudE9iamVjdFIEZGF0YQ==');
 
+@$core.Deprecated('Use clientDataEntryObjectDescriptor instead')
+const ClientDataEntryObject$json = {
+  '1': 'ClientDataEntryObject',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
+    {'1': 'client_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
+    {'1': 'field_key', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'fieldKey'},
+    {'1': 'value', '3': 4, '4': 1, '5': 9, '10': 'value'},
+    {'1': 'value_type', '3': 5, '4': 1, '5': 9, '10': 'valueType'},
+    {'1': 'verification_status', '3': 6, '4': 1, '5': 14, '6': '.identity.v1.DataVerificationStatus', '10': 'verificationStatus'},
+    {'1': 'reviewer_id', '3': 7, '4': 1, '5': 9, '8': {}, '10': 'reviewerId'},
+    {'1': 'reviewer_comment', '3': 8, '4': 1, '5': 9, '10': 'reviewerComment'},
+    {'1': 'source_application_id', '3': 9, '4': 1, '5': 9, '8': {}, '10': 'sourceApplicationId'},
+    {'1': 'revision', '3': 10, '4': 1, '5': 5, '10': 'revision'},
+    {'1': 'verified_at', '3': 11, '4': 1, '5': 9, '10': 'verifiedAt'},
+    {'1': 'expires_at', '3': 12, '4': 1, '5': 9, '10': 'expiresAt'},
+    {'1': 'properties', '3': 13, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+  ],
+};
+
+/// Descriptor for `ClientDataEntryObject`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataEntryObjectDescriptor = $convert.base64Decode(
+    'ChVDbGllbnREYXRhRW50cnlPYmplY3QSLgoCaWQYASABKAlCHrpIG9gBAXIWEAMYKDIQWzAtOW'
+    'Etel8tXXszLDQwfVICaWQSJgoJY2xpZW50X2lkGAIgASgJQgm6SAZyBBADGChSCGNsaWVudElk'
+    'EiQKCWZpZWxkX2tleRgDIAEoCUIHukgEcgIQAVIIZmllbGRLZXkSFAoFdmFsdWUYBCABKAlSBX'
+    'ZhbHVlEh0KCnZhbHVlX3R5cGUYBSABKAlSCXZhbHVlVHlwZRJUChN2ZXJpZmljYXRpb25fc3Rh'
+    'dHVzGAYgASgOMiMuaWRlbnRpdHkudjEuRGF0YVZlcmlmaWNhdGlvblN0YXR1c1ISdmVyaWZpY2'
+    'F0aW9uU3RhdHVzEisKC3Jldmlld2VyX2lkGAcgASgJQgq6SAfYAQFyAhgoUgpyZXZpZXdlcklk'
+    'EikKEHJldmlld2VyX2NvbW1lbnQYCCABKAlSD3Jldmlld2VyQ29tbWVudBI+ChVzb3VyY2VfYX'
+    'BwbGljYXRpb25faWQYCSABKAlCCrpIB9gBAXICGChSE3NvdXJjZUFwcGxpY2F0aW9uSWQSGgoI'
+    'cmV2aXNpb24YCiABKAVSCHJldmlzaW9uEh8KC3ZlcmlmaWVkX2F0GAsgASgJUgp2ZXJpZmllZE'
+    'F0Eh0KCmV4cGlyZXNfYXQYDCABKAlSCWV4cGlyZXNBdBI3Cgpwcm9wZXJ0aWVzGA0gASgLMhcu'
+    'Z29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJvcGVydGllcw==');
+
+@$core.Deprecated('Use clientDataEntryHistoryObjectDescriptor instead')
+const ClientDataEntryHistoryObject$json = {
+  '1': 'ClientDataEntryHistoryObject',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'id'},
+    {'1': 'entry_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'entryId'},
+    {'1': 'revision', '3': 3, '4': 1, '5': 5, '10': 'revision'},
+    {'1': 'value', '3': 4, '4': 1, '5': 9, '10': 'value'},
+    {'1': 'action', '3': 5, '4': 1, '5': 9, '10': 'action'},
+    {'1': 'actor_id', '3': 6, '4': 1, '5': 9, '8': {}, '10': 'actorId'},
+    {'1': 'comment', '3': 7, '4': 1, '5': 9, '10': 'comment'},
+    {'1': 'created_at', '3': 8, '4': 1, '5': 9, '10': 'createdAt'},
+  ],
+};
+
+/// Descriptor for `ClientDataEntryHistoryObject`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataEntryHistoryObjectDescriptor = $convert.base64Decode(
+    'ChxDbGllbnREYXRhRW50cnlIaXN0b3J5T2JqZWN0Ei4KAmlkGAEgASgJQh66SBvYAQFyFhADGC'
+    'gyEFswLTlhLXpfLV17Myw0MH1SAmlkEiQKCGVudHJ5X2lkGAIgASgJQgm6SAZyBBADGChSB2Vu'
+    'dHJ5SWQSGgoIcmV2aXNpb24YAyABKAVSCHJldmlzaW9uEhQKBXZhbHVlGAQgASgJUgV2YWx1ZR'
+    'IWCgZhY3Rpb24YBSABKAlSBmFjdGlvbhIlCghhY3Rvcl9pZBgGIAEoCUIKukgH2AEBcgIYKFIH'
+    'YWN0b3JJZBIYCgdjb21tZW50GAcgASgJUgdjb21tZW50Eh0KCmNyZWF0ZWRfYXQYCCABKAlSCW'
+    'NyZWF0ZWRBdA==');
+
+@$core.Deprecated('Use clientDataSaveRequestDescriptor instead')
+const ClientDataSaveRequest$json = {
+  '1': 'ClientDataSaveRequest',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '8': {}, '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataSaveRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataSaveRequestDescriptor = $convert.base64Decode(
+    'ChVDbGllbnREYXRhU2F2ZVJlcXVlc3QSPgoEZGF0YRgBIAEoCzIiLmlkZW50aXR5LnYxLkNsaW'
+    'VudERhdGFFbnRyeU9iamVjdEIGukgDyAEBUgRkYXRh');
+
+@$core.Deprecated('Use clientDataSaveResponseDescriptor instead')
+const ClientDataSaveResponse$json = {
+  '1': 'ClientDataSaveResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataSaveResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataSaveResponseDescriptor = $convert.base64Decode(
+    'ChZDbGllbnREYXRhU2F2ZVJlc3BvbnNlEjYKBGRhdGEYASABKAsyIi5pZGVudGl0eS52MS5DbG'
+    'llbnREYXRhRW50cnlPYmplY3RSBGRhdGE=');
+
+@$core.Deprecated('Use clientDataGetRequestDescriptor instead')
+const ClientDataGetRequest$json = {
+  '1': 'ClientDataGetRequest',
+  '2': [
+    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
+    {'1': 'field_key', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'fieldKey'},
+  ],
+};
+
+/// Descriptor for `ClientDataGetRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataGetRequestDescriptor = $convert.base64Decode(
+    'ChRDbGllbnREYXRhR2V0UmVxdWVzdBImCgljbGllbnRfaWQYASABKAlCCbpIBnIEEAMYKFIIY2'
+    'xpZW50SWQSJAoJZmllbGRfa2V5GAIgASgJQge6SARyAhABUghmaWVsZEtleQ==');
+
+@$core.Deprecated('Use clientDataGetResponseDescriptor instead')
+const ClientDataGetResponse$json = {
+  '1': 'ClientDataGetResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataGetResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataGetResponseDescriptor = $convert.base64Decode(
+    'ChVDbGllbnREYXRhR2V0UmVzcG9uc2USNgoEZGF0YRgBIAEoCzIiLmlkZW50aXR5LnYxLkNsaW'
+    'VudERhdGFFbnRyeU9iamVjdFIEZGF0YQ==');
+
+@$core.Deprecated('Use clientDataListRequestDescriptor instead')
+const ClientDataListRequest$json = {
+  '1': 'ClientDataListRequest',
+  '2': [
+    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
+    {'1': 'verification_status', '3': 2, '4': 1, '5': 14, '6': '.identity.v1.DataVerificationStatus', '10': 'verificationStatus'},
+    {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+  ],
+};
+
+/// Descriptor for `ClientDataListRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataListRequestDescriptor = $convert.base64Decode(
+    'ChVDbGllbnREYXRhTGlzdFJlcXVlc3QSJgoJY2xpZW50X2lkGAEgASgJQgm6SAZyBBADGChSCG'
+    'NsaWVudElkElQKE3ZlcmlmaWNhdGlvbl9zdGF0dXMYAiABKA4yIy5pZGVudGl0eS52MS5EYXRh'
+    'VmVyaWZpY2F0aW9uU3RhdHVzUhJ2ZXJpZmljYXRpb25TdGF0dXMSLQoGY3Vyc29yGAMgASgLMh'
+    'UuY29tbW9uLnYxLlBhZ2VDdXJzb3JSBmN1cnNvcg==');
+
+@$core.Deprecated('Use clientDataListResponseDescriptor instead')
+const ClientDataListResponse$json = {
+  '1': 'ClientDataListResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataListResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataListResponseDescriptor = $convert.base64Decode(
+    'ChZDbGllbnREYXRhTGlzdFJlc3BvbnNlEjYKBGRhdGEYASADKAsyIi5pZGVudGl0eS52MS5DbG'
+    'llbnREYXRhRW50cnlPYmplY3RSBGRhdGE=');
+
+@$core.Deprecated('Use clientDataVerifyRequestDescriptor instead')
+const ClientDataVerifyRequest$json = {
+  '1': 'ClientDataVerifyRequest',
+  '2': [
+    {'1': 'entry_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'entryId'},
+    {'1': 'reviewer_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'reviewerId'},
+    {'1': 'comment', '3': 3, '4': 1, '5': 9, '10': 'comment'},
+  ],
+};
+
+/// Descriptor for `ClientDataVerifyRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataVerifyRequestDescriptor = $convert.base64Decode(
+    'ChdDbGllbnREYXRhVmVyaWZ5UmVxdWVzdBIkCghlbnRyeV9pZBgBIAEoCUIJukgGcgQQAxgoUg'
+    'dlbnRyeUlkEioKC3Jldmlld2VyX2lkGAIgASgJQgm6SAZyBBADGChSCnJldmlld2VySWQSGAoH'
+    'Y29tbWVudBgDIAEoCVIHY29tbWVudA==');
+
+@$core.Deprecated('Use clientDataVerifyResponseDescriptor instead')
+const ClientDataVerifyResponse$json = {
+  '1': 'ClientDataVerifyResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataVerifyResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataVerifyResponseDescriptor = $convert.base64Decode(
+    'ChhDbGllbnREYXRhVmVyaWZ5UmVzcG9uc2USNgoEZGF0YRgBIAEoCzIiLmlkZW50aXR5LnYxLk'
+    'NsaWVudERhdGFFbnRyeU9iamVjdFIEZGF0YQ==');
+
+@$core.Deprecated('Use clientDataRejectRequestDescriptor instead')
+const ClientDataRejectRequest$json = {
+  '1': 'ClientDataRejectRequest',
+  '2': [
+    {'1': 'entry_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'entryId'},
+    {'1': 'reviewer_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'reviewerId'},
+    {'1': 'reason', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'reason'},
+  ],
+};
+
+/// Descriptor for `ClientDataRejectRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataRejectRequestDescriptor = $convert.base64Decode(
+    'ChdDbGllbnREYXRhUmVqZWN0UmVxdWVzdBIkCghlbnRyeV9pZBgBIAEoCUIJukgGcgQQAxgoUg'
+    'dlbnRyeUlkEioKC3Jldmlld2VyX2lkGAIgASgJQgm6SAZyBBADGChSCnJldmlld2VySWQSHwoG'
+    'cmVhc29uGAMgASgJQge6SARyAhABUgZyZWFzb24=');
+
+@$core.Deprecated('Use clientDataRejectResponseDescriptor instead')
+const ClientDataRejectResponse$json = {
+  '1': 'ClientDataRejectResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataRejectResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataRejectResponseDescriptor = $convert.base64Decode(
+    'ChhDbGllbnREYXRhUmVqZWN0UmVzcG9uc2USNgoEZGF0YRgBIAEoCzIiLmlkZW50aXR5LnYxLk'
+    'NsaWVudERhdGFFbnRyeU9iamVjdFIEZGF0YQ==');
+
+@$core.Deprecated('Use clientDataRequestInfoRequestDescriptor instead')
+const ClientDataRequestInfoRequest$json = {
+  '1': 'ClientDataRequestInfoRequest',
+  '2': [
+    {'1': 'entry_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'entryId'},
+    {'1': 'reviewer_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'reviewerId'},
+    {'1': 'comment', '3': 3, '4': 1, '5': 9, '8': {}, '10': 'comment'},
+  ],
+};
+
+/// Descriptor for `ClientDataRequestInfoRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataRequestInfoRequestDescriptor = $convert.base64Decode(
+    'ChxDbGllbnREYXRhUmVxdWVzdEluZm9SZXF1ZXN0EiQKCGVudHJ5X2lkGAEgASgJQgm6SAZyBB'
+    'ADGChSB2VudHJ5SWQSKgoLcmV2aWV3ZXJfaWQYAiABKAlCCbpIBnIEEAMYKFIKcmV2aWV3ZXJJ'
+    'ZBIhCgdjb21tZW50GAMgASgJQge6SARyAhABUgdjb21tZW50');
+
+@$core.Deprecated('Use clientDataRequestInfoResponseDescriptor instead')
+const ClientDataRequestInfoResponse$json = {
+  '1': 'ClientDataRequestInfoResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.identity.v1.ClientDataEntryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataRequestInfoResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataRequestInfoResponseDescriptor = $convert.base64Decode(
+    'Ch1DbGllbnREYXRhUmVxdWVzdEluZm9SZXNwb25zZRI2CgRkYXRhGAEgASgLMiIuaWRlbnRpdH'
+    'kudjEuQ2xpZW50RGF0YUVudHJ5T2JqZWN0UgRkYXRh');
+
+@$core.Deprecated('Use clientDataHistoryRequestDescriptor instead')
+const ClientDataHistoryRequest$json = {
+  '1': 'ClientDataHistoryRequest',
+  '2': [
+    {'1': 'entry_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'entryId'},
+  ],
+};
+
+/// Descriptor for `ClientDataHistoryRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataHistoryRequestDescriptor = $convert.base64Decode(
+    'ChhDbGllbnREYXRhSGlzdG9yeVJlcXVlc3QSJAoIZW50cnlfaWQYASABKAlCCbpIBnIEEAMYKF'
+    'IHZW50cnlJZA==');
+
+@$core.Deprecated('Use clientDataHistoryResponseDescriptor instead')
+const ClientDataHistoryResponse$json = {
+  '1': 'ClientDataHistoryResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 3, '5': 11, '6': '.identity.v1.ClientDataEntryHistoryObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientDataHistoryResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientDataHistoryResponseDescriptor = $convert.base64Decode(
+    'ChlDbGllbnREYXRhSGlzdG9yeVJlc3BvbnNlEj0KBGRhdGEYASADKAsyKS5pZGVudGl0eS52MS'
+    '5DbGllbnREYXRhRW50cnlIaXN0b3J5T2JqZWN0UgRkYXRh');
+
 const $core.Map<$core.String, $core.dynamic> IdentityServiceBase$json = {
   '1': 'IdentityService',
   '2': [
@@ -982,6 +1259,29 @@ const $core.Map<$core.String, $core.dynamic> IdentityServiceBase$json = {
     },
     {'1': 'InvestorDeposit', '2': '.identity.v1.InvestorDepositRequest', '3': '.identity.v1.InvestorDepositResponse', '4': {}},
     {'1': 'InvestorWithdraw', '2': '.identity.v1.InvestorWithdrawRequest', '3': '.identity.v1.InvestorWithdrawResponse', '4': {}},
+    {'1': 'ClientDataSave', '2': '.identity.v1.ClientDataSaveRequest', '3': '.identity.v1.ClientDataSaveResponse', '4': {}},
+    {
+      '1': 'ClientDataGet',
+      '2': '.identity.v1.ClientDataGetRequest',
+      '3': '.identity.v1.ClientDataGetResponse',
+      '4': {'34': 1},
+    },
+    {
+      '1': 'ClientDataList',
+      '2': '.identity.v1.ClientDataListRequest',
+      '3': '.identity.v1.ClientDataListResponse',
+      '4': {'34': 1},
+      '6': true,
+    },
+    {'1': 'ClientDataVerify', '2': '.identity.v1.ClientDataVerifyRequest', '3': '.identity.v1.ClientDataVerifyResponse', '4': {}},
+    {'1': 'ClientDataReject', '2': '.identity.v1.ClientDataRejectRequest', '3': '.identity.v1.ClientDataRejectResponse', '4': {}},
+    {'1': 'ClientDataRequestInfo', '2': '.identity.v1.ClientDataRequestInfoRequest', '3': '.identity.v1.ClientDataRequestInfoResponse', '4': {}},
+    {
+      '1': 'ClientDataHistory',
+      '2': '.identity.v1.ClientDataHistoryRequest',
+      '3': '.identity.v1.ClientDataHistoryResponse',
+      '4': {'34': 1},
+    },
   ],
   '3': {},
 };
@@ -1047,6 +1347,22 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> IdentitySe
   '.identity.v1.InvestorDepositResponse': InvestorDepositResponse$json,
   '.identity.v1.InvestorWithdrawRequest': InvestorWithdrawRequest$json,
   '.identity.v1.InvestorWithdrawResponse': InvestorWithdrawResponse$json,
+  '.identity.v1.ClientDataSaveRequest': ClientDataSaveRequest$json,
+  '.identity.v1.ClientDataEntryObject': ClientDataEntryObject$json,
+  '.identity.v1.ClientDataSaveResponse': ClientDataSaveResponse$json,
+  '.identity.v1.ClientDataGetRequest': ClientDataGetRequest$json,
+  '.identity.v1.ClientDataGetResponse': ClientDataGetResponse$json,
+  '.identity.v1.ClientDataListRequest': ClientDataListRequest$json,
+  '.identity.v1.ClientDataListResponse': ClientDataListResponse$json,
+  '.identity.v1.ClientDataVerifyRequest': ClientDataVerifyRequest$json,
+  '.identity.v1.ClientDataVerifyResponse': ClientDataVerifyResponse$json,
+  '.identity.v1.ClientDataRejectRequest': ClientDataRejectRequest$json,
+  '.identity.v1.ClientDataRejectResponse': ClientDataRejectResponse$json,
+  '.identity.v1.ClientDataRequestInfoRequest': ClientDataRequestInfoRequest$json,
+  '.identity.v1.ClientDataRequestInfoResponse': ClientDataRequestInfoResponse$json,
+  '.identity.v1.ClientDataHistoryRequest': ClientDataHistoryRequest$json,
+  '.identity.v1.ClientDataHistoryResponse': ClientDataHistoryResponse$json,
+  '.identity.v1.ClientDataEntryHistoryObject': ClientDataEntryHistoryObject$json,
 };
 
 /// Descriptor for `IdentityService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -1170,33 +1486,73 @@ final $typed_data.Uint8List identityServiceDescriptor = $convert.base64Decode(
     'cmF3UmVzcG9uc2UixwG6R6YBChBJbnZlc3RvckFjY291bnRzEidXaXRoZHJhdyBmdW5kcyBmcm'
     '9tIGFuIGludmVzdG9yIGFjY291bnQaV1JlbW92ZXMgY2FwaXRhbCBmcm9tIGFuIGludmVzdG9y'
     'IGFjY291bnQgaWYgc3VmZmljaWVudCB1bnJlc2VydmVkIGJhbGFuY2UgaXMgYXZhaWxhYmxlLi'
-    'oQaW52ZXN0b3JXaXRoZHJhd4K1GBkKF2ludmVzdG9yX2FjY291bnRfbWFuYWdlGosMgrUYhgwK'
-    'EHNlcnZpY2VfaWRlbnRpdHkSEW9yZ2FuaXphdGlvbl92aWV3EhNvcmdhbml6YXRpb25fbWFuYW'
+    'oQaW52ZXN0b3JXaXRoZHJhd4K1GBkKF2ludmVzdG9yX2FjY291bnRfbWFuYWdlEtACCg5DbGll'
+    'bnREYXRhU2F2ZRIiLmlkZW50aXR5LnYxLkNsaWVudERhdGFTYXZlUmVxdWVzdBojLmlkZW50aX'
+    'R5LnYxLkNsaWVudERhdGFTYXZlUmVzcG9uc2Ui9AG6R9gBCgpDbGllbnREYXRhEhRTYXZlIGNs'
+    'aWVudCBLWUMgZGF0YRqjAUNyZWF0ZXMgb3IgdXBkYXRlcyBhIHNpbmdsZSBjbGllbnQgZGF0YS'
+    'BlbnRyeS4gSWYgYW4gZW50cnkgYWxyZWFkeSBleGlzdHMgZm9yIHRoZSBzYW1lIGNsaWVudF9p'
+    'ZCArIGZpZWxkX2tleSwgdGhlIHJldmlzaW9uIGlzIGluY3JlbWVudGVkIGFuZCB0aGUgdmFsdW'
+    'UgaXMgdXBkYXRlZC4qDmNsaWVudERhdGFTYXZlgrUYFAoSY2xpZW50X2RhdGFfbWFuYWdlEusB'
+    'Cg1DbGllbnREYXRhR2V0EiEuaWRlbnRpdHkudjEuQ2xpZW50RGF0YUdldFJlcXVlc3QaIi5pZG'
+    'VudGl0eS52MS5DbGllbnREYXRhR2V0UmVzcG9uc2UikgGQAgG6R3YKCkNsaWVudERhdGESF0dl'
+    'dCBhIGNsaWVudCBkYXRhIGVudHJ5GkBSZXRyaWV2ZXMgYSBzaW5nbGUgY2xpZW50IGRhdGEgZW'
+    '50cnkgYnkgY2xpZW50IElEIGFuZCBmaWVsZCBrZXkuKg1jbGllbnREYXRhR2V0grUYEgoQY2xp'
+    'ZW50X2RhdGFfdmlldxKDAgoOQ2xpZW50RGF0YUxpc3QSIi5pZGVudGl0eS52MS5DbGllbnREYX'
+    'RhTGlzdFJlcXVlc3QaIy5pZGVudGl0eS52MS5DbGllbnREYXRhTGlzdFJlc3BvbnNlIqUBkAIB'
+    'ukeIAQoKQ2xpZW50RGF0YRIYTGlzdCBjbGllbnQgZGF0YSBlbnRyaWVzGlBMaXN0cyBhbGwgZG'
+    'F0YSBlbnRyaWVzIGZvciBhIGNsaWVudCwgb3B0aW9uYWxseSBmaWx0ZXJlZCBieSB2ZXJpZmlj'
+    'YXRpb24gc3RhdHVzLioOY2xpZW50RGF0YUxpc3SCtRgSChBjbGllbnRfZGF0YV92aWV3MAES7Q'
+    'EKEENsaWVudERhdGFWZXJpZnkSJC5pZGVudGl0eS52MS5DbGllbnREYXRhVmVyaWZ5UmVxdWVz'
+    'dBolLmlkZW50aXR5LnYxLkNsaWVudERhdGFWZXJpZnlSZXNwb25zZSKLAbpHcAoKQ2xpZW50RG'
+    'F0YRIaVmVyaWZ5IGEgY2xpZW50IGRhdGEgZW50cnkaNE1hcmtzIGEgY2xpZW50IGRhdGEgZW50'
+    'cnkgYXMgdmVyaWZpZWQgYnkgYSByZXZpZXdlci4qEGNsaWVudERhdGFWZXJpZnmCtRgUChJjbG'
+    'llbnRfZGF0YV92ZXJpZnkShQIKEENsaWVudERhdGFSZWplY3QSJC5pZGVudGl0eS52MS5DbGll'
+    'bnREYXRhUmVqZWN0UmVxdWVzdBolLmlkZW50aXR5LnYxLkNsaWVudERhdGFSZWplY3RSZXNwb2'
+    '5zZSKjAbpHhwEKCkNsaWVudERhdGESGlJlamVjdCBhIGNsaWVudCBkYXRhIGVudHJ5GktNYXJr'
+    'cyBhIGNsaWVudCBkYXRhIGVudHJ5IGFzIHJlamVjdGVkIGJ5IGEgcmV2aWV3ZXIgd2l0aCBhIH'
+    'JlcXVpcmVkIHJlYXNvbi4qEGNsaWVudERhdGFSZWplY3SCtRgUChJjbGllbnRfZGF0YV92ZXJp'
+    'ZnkSqwIKFUNsaWVudERhdGFSZXF1ZXN0SW5mbxIpLmlkZW50aXR5LnYxLkNsaWVudERhdGFSZX'
+    'F1ZXN0SW5mb1JlcXVlc3QaKi5pZGVudGl0eS52MS5DbGllbnREYXRhUmVxdWVzdEluZm9SZXNw'
+    'b25zZSK6AbpHngEKCkNsaWVudERhdGESKVJlcXVlc3QgbW9yZSBpbmZvIGZvciBhIGNsaWVudC'
+    'BkYXRhIGVudHJ5Gk5NYXJrcyBhIGNsaWVudCBkYXRhIGVudHJ5IGFzIG5lZWRpbmcgbW9yZSBp'
+    'bmZvcm1hdGlvbiB3aXRoIGEgcmVxdWlyZWQgY29tbWVudC4qFWNsaWVudERhdGFSZXF1ZXN0SW'
+    '5mb4K1GBQKEmNsaWVudF9kYXRhX3ZlcmlmeRL/AQoRQ2xpZW50RGF0YUhpc3RvcnkSJS5pZGVu'
+    'dGl0eS52MS5DbGllbnREYXRhSGlzdG9yeVJlcXVlc3QaJi5pZGVudGl0eS52MS5DbGllbnREYX'
+    'RhSGlzdG9yeVJlc3BvbnNlIpoBkAIBukd+CgpDbGllbnREYXRhEh9HZXQgZGF0YSBlbnRyeSBy'
+    'ZXZpc2lvbiBoaXN0b3J5GjxSZXRyaWV2ZXMgdGhlIGZ1bGwgcmV2aXNpb24gaGlzdG9yeSBmb3'
+    'IgYSBjbGllbnQgZGF0YSBlbnRyeS4qEWNsaWVudERhdGFIaXN0b3J5grUYEgoQY2xpZW50X2Rh'
+    'dGFfdmlldxrTDoK1GM4OChBzZXJ2aWNlX2lkZW50aXR5EhFvcmdhbml6YXRpb25fdmlldxITb3'
+    'JnYW5pemF0aW9uX21hbmFnZRILYnJhbmNoX3ZpZXcSDWJyYW5jaF9tYW5hZ2USDWludmVzdG9y'
+    'X3ZpZXcSD2ludmVzdG9yX21hbmFnZRIQc3lzdGVtX3VzZXJfdmlldxISc3lzdGVtX3VzZXJfbW'
+    'FuYWdlEhFjbGllbnRfZ3JvdXBfdmlldxITY2xpZW50X2dyb3VwX21hbmFnZRIPbWVtYmVyc2hp'
+    'cF92aWV3EhFtZW1iZXJzaGlwX21hbmFnZRIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhdpbnZlc3'
+    'Rvcl9hY2NvdW50X21hbmFnZRIQY2xpZW50X2RhdGFfdmlldxISY2xpZW50X2RhdGFfbWFuYWdl'
+    'EhJjbGllbnRfZGF0YV92ZXJpZnkawgIIARIRb3JnYW5pemF0aW9uX3ZpZXcSE29yZ2FuaXphdG'
+    'lvbl9tYW5hZ2USC2JyYW5jaF92aWV3Eg1icmFuY2hfbWFuYWdlEg1pbnZlc3Rvcl92aWV3Eg9p'
+    'bnZlc3Rvcl9tYW5hZ2USEHN5c3RlbV91c2VyX3ZpZXcSEnN5c3RlbV91c2VyX21hbmFnZRIRY2'
+    'xpZW50X2dyb3VwX3ZpZXcSE2NsaWVudF9ncm91cF9tYW5hZ2USD21lbWJlcnNoaXBfdmlldxIR'
+    'bWVtYmVyc2hpcF9tYW5hZ2USFWludmVzdG9yX2FjY291bnRfdmlldxIXaW52ZXN0b3JfYWNjb3'
+    'VudF9tYW5hZ2USEGNsaWVudF9kYXRhX3ZpZXcSEmNsaWVudF9kYXRhX21hbmFnZRISY2xpZW50'
+    'X2RhdGFfdmVyaWZ5GsICCAISEW9yZ2FuaXphdGlvbl92aWV3EhNvcmdhbml6YXRpb25fbWFuYW'
     'dlEgticmFuY2hfdmlldxINYnJhbmNoX21hbmFnZRINaW52ZXN0b3JfdmlldxIPaW52ZXN0b3Jf'
     'bWFuYWdlEhBzeXN0ZW1fdXNlcl92aWV3EhJzeXN0ZW1fdXNlcl9tYW5hZ2USEWNsaWVudF9ncm'
     '91cF92aWV3EhNjbGllbnRfZ3JvdXBfbWFuYWdlEg9tZW1iZXJzaGlwX3ZpZXcSEW1lbWJlcnNo'
     'aXBfbWFuYWdlEhVpbnZlc3Rvcl9hY2NvdW50X3ZpZXcSF2ludmVzdG9yX2FjY291bnRfbWFuYW'
-    'dlGogCCAESEW9yZ2FuaXphdGlvbl92aWV3EhNvcmdhbml6YXRpb25fbWFuYWdlEgticmFuY2hf'
-    'dmlldxINYnJhbmNoX21hbmFnZRINaW52ZXN0b3JfdmlldxIPaW52ZXN0b3JfbWFuYWdlEhBzeX'
-    'N0ZW1fdXNlcl92aWV3EhJzeXN0ZW1fdXNlcl9tYW5hZ2USEWNsaWVudF9ncm91cF92aWV3EhNj'
-    'bGllbnRfZ3JvdXBfbWFuYWdlEg9tZW1iZXJzaGlwX3ZpZXcSEW1lbWJlcnNoaXBfbWFuYWdlEh'
-    'VpbnZlc3Rvcl9hY2NvdW50X3ZpZXcSF2ludmVzdG9yX2FjY291bnRfbWFuYWdlGogCCAISEW9y'
-    'Z2FuaXphdGlvbl92aWV3EhNvcmdhbml6YXRpb25fbWFuYWdlEgticmFuY2hfdmlldxINYnJhbm'
-    'NoX21hbmFnZRINaW52ZXN0b3JfdmlldxIPaW52ZXN0b3JfbWFuYWdlEhBzeXN0ZW1fdXNlcl92'
-    'aWV3EhJzeXN0ZW1fdXNlcl9tYW5hZ2USEWNsaWVudF9ncm91cF92aWV3EhNjbGllbnRfZ3JvdX'
-    'BfbWFuYWdlEg9tZW1iZXJzaGlwX3ZpZXcSEW1lbWJlcnNoaXBfbWFuYWdlEhVpbnZlc3Rvcl9h'
-    'Y2NvdW50X3ZpZXcSF2ludmVzdG9yX2FjY291bnRfbWFuYWdlGsoBCAMSEW9yZ2FuaXphdGlvbl'
-    '92aWV3EhNvcmdhbml6YXRpb25fbWFuYWdlEgticmFuY2hfdmlldxINYnJhbmNoX21hbmFnZRIN'
-    'aW52ZXN0b3JfdmlldxIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhBzeXN0ZW1fdXNlcl92aWV3Eh'
-    'FjbGllbnRfZ3JvdXBfdmlldxITY2xpZW50X2dyb3VwX21hbmFnZRIPbWVtYmVyc2hpcF92aWV3'
-    'EhFtZW1iZXJzaGlwX21hbmFnZRp+CAQSEW9yZ2FuaXphdGlvbl92aWV3EgticmFuY2hfdmlldx'
-    'INaW52ZXN0b3JfdmlldxIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhBzeXN0ZW1fdXNlcl92aWV3'
-    'EhFjbGllbnRfZ3JvdXBfdmlldxIPbWVtYmVyc2hpcF92aWV3Gn4IBRIRb3JnYW5pemF0aW9uX3'
-    'ZpZXcSC2JyYW5jaF92aWV3Eg1pbnZlc3Rvcl92aWV3EhVpbnZlc3Rvcl9hY2NvdW50X3ZpZXcS'
-    'EHN5c3RlbV91c2VyX3ZpZXcSEWNsaWVudF9ncm91cF92aWV3Eg9tZW1iZXJzaGlwX3ZpZXcaiA'
-    'IIBhIRb3JnYW5pemF0aW9uX3ZpZXcSE29yZ2FuaXphdGlvbl9tYW5hZ2USC2JyYW5jaF92aWV3'
-    'Eg1icmFuY2hfbWFuYWdlEg1pbnZlc3Rvcl92aWV3Eg9pbnZlc3Rvcl9tYW5hZ2USEHN5c3RlbV'
-    '91c2VyX3ZpZXcSEnN5c3RlbV91c2VyX21hbmFnZRIRY2xpZW50X2dyb3VwX3ZpZXcSE2NsaWVu'
-    'dF9ncm91cF9tYW5hZ2USD21lbWJlcnNoaXBfdmlldxIRbWVtYmVyc2hpcF9tYW5hZ2USFWludm'
-    'VzdG9yX2FjY291bnRfdmlldxIXaW52ZXN0b3JfYWNjb3VudF9tYW5hZ2U=');
+    'dlEhBjbGllbnRfZGF0YV92aWV3EhJjbGllbnRfZGF0YV9tYW5hZ2USEmNsaWVudF9kYXRhX3Zl'
+    'cmlmeRqEAggDEhFvcmdhbml6YXRpb25fdmlldxITb3JnYW5pemF0aW9uX21hbmFnZRILYnJhbm'
+    'NoX3ZpZXcSDWJyYW5jaF9tYW5hZ2USDWludmVzdG9yX3ZpZXcSFWludmVzdG9yX2FjY291bnRf'
+    'dmlldxIQc3lzdGVtX3VzZXJfdmlldxIRY2xpZW50X2dyb3VwX3ZpZXcSE2NsaWVudF9ncm91cF'
+    '9tYW5hZ2USD21lbWJlcnNoaXBfdmlldxIRbWVtYmVyc2hpcF9tYW5hZ2USEGNsaWVudF9kYXRh'
+    'X3ZpZXcSEmNsaWVudF9kYXRhX21hbmFnZRISY2xpZW50X2RhdGFfdmVyaWZ5GpABCAQSEW9yZ2'
+    'FuaXphdGlvbl92aWV3EgticmFuY2hfdmlldxINaW52ZXN0b3JfdmlldxIVaW52ZXN0b3JfYWNj'
+    'b3VudF92aWV3EhBzeXN0ZW1fdXNlcl92aWV3EhFjbGllbnRfZ3JvdXBfdmlldxIPbWVtYmVyc2'
+    'hpcF92aWV3EhBjbGllbnRfZGF0YV92aWV3GpABCAUSEW9yZ2FuaXphdGlvbl92aWV3EgticmFu'
+    'Y2hfdmlldxINaW52ZXN0b3JfdmlldxIVaW52ZXN0b3JfYWNjb3VudF92aWV3EhBzeXN0ZW1fdX'
+    'Nlcl92aWV3EhFjbGllbnRfZ3JvdXBfdmlldxIPbWVtYmVyc2hpcF92aWV3EhBjbGllbnRfZGF0'
+    'YV92aWV3GsICCAYSEW9yZ2FuaXphdGlvbl92aWV3EhNvcmdhbml6YXRpb25fbWFuYWdlEgticm'
+    'FuY2hfdmlldxINYnJhbmNoX21hbmFnZRINaW52ZXN0b3JfdmlldxIPaW52ZXN0b3JfbWFuYWdl'
+    'EhBzeXN0ZW1fdXNlcl92aWV3EhJzeXN0ZW1fdXNlcl9tYW5hZ2USEWNsaWVudF9ncm91cF92aW'
+    'V3EhNjbGllbnRfZ3JvdXBfbWFuYWdlEg9tZW1iZXJzaGlwX3ZpZXcSEW1lbWJlcnNoaXBfbWFu'
+    'YWdlEhVpbnZlc3Rvcl9hY2NvdW50X3ZpZXcSF2ludmVzdG9yX2FjY291bnRfbWFuYWdlEhBjbG'
+    'llbnRfZGF0YV92aWV3EhJjbGllbnRfZGF0YV9tYW5hZ2USEmNsaWVudF9kYXRhX3ZlcmlmeQ==');
 

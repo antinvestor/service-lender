@@ -45,4 +45,6 @@ var (
 		apperrors.Unprocessable,
 		"failed to create login client for partition",
 	)
+
+	ErrClientDataEntryNotFound = apperrors.NewError(apperrors.NotFound, "client data entry not found")
 )

@@ -210,4 +210,63 @@ abstract final class IdentityService {
     identityv1identity.InvestorWithdrawRequest.new,
     identityv1identity.InvestorWithdrawResponse.new,
   );
+
+  /// ClientDataSave creates or updates a client data entry.
+  static const clientDataSave = connect.Spec(
+    '/$name/ClientDataSave',
+    connect.StreamType.unary,
+    identityv1identity.ClientDataSaveRequest.new,
+    identityv1identity.ClientDataSaveResponse.new,
+  );
+
+  /// ClientDataGet retrieves a single data entry by client_id and field_key.
+  static const clientDataGet = connect.Spec(
+    '/$name/ClientDataGet',
+    connect.StreamType.unary,
+    identityv1identity.ClientDataGetRequest.new,
+    identityv1identity.ClientDataGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// ClientDataList lists all data entries for a client with optional status filter.
+  static const clientDataList = connect.Spec(
+    '/$name/ClientDataList',
+    connect.StreamType.server,
+    identityv1identity.ClientDataListRequest.new,
+    identityv1identity.ClientDataListResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// ClientDataVerify marks a data entry as verified.
+  static const clientDataVerify = connect.Spec(
+    '/$name/ClientDataVerify',
+    connect.StreamType.unary,
+    identityv1identity.ClientDataVerifyRequest.new,
+    identityv1identity.ClientDataVerifyResponse.new,
+  );
+
+  /// ClientDataReject marks a data entry as rejected.
+  static const clientDataReject = connect.Spec(
+    '/$name/ClientDataReject',
+    connect.StreamType.unary,
+    identityv1identity.ClientDataRejectRequest.new,
+    identityv1identity.ClientDataRejectResponse.new,
+  );
+
+  /// ClientDataRequestInfo requests more information for a data entry.
+  static const clientDataRequestInfo = connect.Spec(
+    '/$name/ClientDataRequestInfo',
+    connect.StreamType.unary,
+    identityv1identity.ClientDataRequestInfoRequest.new,
+    identityv1identity.ClientDataRequestInfoResponse.new,
+  );
+
+  /// ClientDataHistory retrieves the revision history for a data entry.
+  static const clientDataHistory = connect.Spec(
+    '/$name/ClientDataHistory',
+    connect.StreamType.unary,
+    identityv1identity.ClientDataHistoryRequest.new,
+    identityv1identity.ClientDataHistoryResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
 }

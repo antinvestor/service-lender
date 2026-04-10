@@ -646,6 +646,140 @@ func (m *SystemUser) ToAPI() *identityv1.SystemUserObject {
 	}
 }
 
+// ClientDataEntry stores a single piece of client KYC data.
+// The (ClientID, FieldKey) pair is unique — resubmissions increment Revision.
+type ClientDataEntry struct {
+	data.BaseModel
+	ClientID            string `gorm:"type:varchar(50);uniqueIndex:uq_cde_client_key,priority:1;not null"`
+	FieldKey            string `gorm:"type:varchar(100);uniqueIndex:uq_cde_client_key,priority:2;not null"`
+	Value               string `gorm:"type:text"`
+	ValueType           string `gorm:"type:varchar(20)"`
+	VerificationStatus  int32  // matches DataVerificationStatus enum
+	ReviewerID          string `gorm:"type:varchar(50)"`
+	ReviewerComment     string `gorm:"type:text"`
+	SourceApplicationID string `gorm:"type:varchar(50)"`
+	Revision            int32
+	VerifiedAt          *time.Time
+	ExpiresAt           *time.Time
+	Properties          data.JSONMap
+}
+
+func (m *ClientDataEntry) TableName() string { return "client_data_entries" }
+
+func (m *ClientDataEntry) ToAPI() *identityv1.ClientDataEntryObject {
+	obj := &identityv1.ClientDataEntryObject{
+		Id:                  m.GetID(),
+		ClientId:            m.ClientID,
+		FieldKey:            m.FieldKey,
+		Value:               m.Value,
+		ValueType:           m.ValueType,
+		VerificationStatus:  identityv1.DataVerificationStatus(m.VerificationStatus),
+		ReviewerId:          m.ReviewerID,
+		ReviewerComment:     m.ReviewerComment,
+		SourceApplicationId: m.SourceApplicationID,
+		Revision:            m.Revision,
+		Properties:          m.Properties.ToProtoStruct(),
+	}
+	if m.VerifiedAt != nil {
+		obj.VerifiedAt = m.VerifiedAt.Format(time.RFC3339)
+	}
+	if m.ExpiresAt != nil {
+		obj.ExpiresAt = m.ExpiresAt.Format(time.RFC3339)
+	}
+	return obj
+}
+
+func ClientDataEntryFromAPI(ctx context.Context, obj *identityv1.ClientDataEntryObject) *ClientDataEntry {
+	if obj == nil {
+		return nil
+	}
+
+	model := &ClientDataEntry{
+		ClientID:            obj.GetClientId(),
+		FieldKey:            obj.GetFieldKey(),
+		Value:               obj.GetValue(),
+		ValueType:           obj.GetValueType(),
+		VerificationStatus:  int32(obj.GetVerificationStatus()),
+		ReviewerID:          obj.GetReviewerId(),
+		ReviewerComment:     obj.GetReviewerComment(),
+		SourceApplicationID: obj.GetSourceApplicationId(),
+		Revision:            obj.GetRevision(),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	if obj.GetVerifiedAt() != "" {
+		if t, err := time.Parse(time.RFC3339, obj.GetVerifiedAt()); err == nil {
+			model.VerifiedAt = &t
+		}
+	}
+	if obj.GetExpiresAt() != "" {
+		if t, err := time.Parse(time.RFC3339, obj.GetExpiresAt()); err == nil {
+			model.ExpiresAt = &t
+		}
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// ClientDataEntryHistory tracks every action on a data entry.
+type ClientDataEntryHistory struct {
+	data.BaseModel
+	EntryID  string `gorm:"type:varchar(50);index:idx_cdeh_entry;not null"`
+	Revision int32
+	Value    string `gorm:"type:text"`
+	Action   string `gorm:"type:varchar(20)"` // submitted, verified, rejected, more_info, expired
+	ActorID  string `gorm:"type:varchar(50)"`
+	Comment  string `gorm:"type:text"`
+}
+
+func (m *ClientDataEntryHistory) TableName() string { return "client_data_entry_history" }
+
+func (m *ClientDataEntryHistory) ToAPI() *identityv1.ClientDataEntryHistoryObject {
+	return &identityv1.ClientDataEntryHistoryObject{
+		Id:        m.GetID(),
+		EntryId:   m.EntryID,
+		Revision:  m.Revision,
+		Value:     m.Value,
+		Action:    m.Action,
+		ActorId:   m.ActorID,
+		Comment:   m.Comment,
+		CreatedAt: m.CreatedAt.Format(time.RFC3339),
+	}
+}
+
+func ClientDataEntryHistoryFromAPI(
+	ctx context.Context,
+	obj *identityv1.ClientDataEntryHistoryObject,
+) *ClientDataEntryHistory {
+	if obj == nil {
+		return nil
+	}
+
+	model := &ClientDataEntryHistory{
+		EntryID:  obj.GetEntryId(),
+		Revision: obj.GetRevision(),
+		Value:    obj.GetValue(),
+		Action:   obj.GetAction(),
+		ActorID:  obj.GetActorId(),
+		Comment:  obj.GetComment(),
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
 func SystemUserFromAPI(ctx context.Context, obj *identityv1.SystemUserObject) *SystemUser {
 	if obj == nil {
 		return nil

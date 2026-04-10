@@ -94,6 +94,17 @@ enum SystemUserRole {
   SYSTEM_USER_ROLE_AUDITOR = 4; // Read-only access for compliance and audit
 }
 
+// DataVerificationStatus tracks the verification lifecycle of client KYC data.
+enum DataVerificationStatus {
+  DATA_VERIFICATION_STATUS_UNSPECIFIED = 0;
+  DATA_VERIFICATION_STATUS_COLLECTED = 1;
+  DATA_VERIFICATION_STATUS_UNDER_REVIEW = 2;
+  DATA_VERIFICATION_STATUS_VERIFIED = 3;
+  DATA_VERIFICATION_STATUS_REJECTED = 4;
+  DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED = 5;
+  DATA_VERIFICATION_STATUS_EXPIRED = 6;
+}
+
 // -----------------------------------------------------
 // Entity Messages
 // -----------------------------------------------------
@@ -565,6 +576,158 @@ message InvestorWithdrawResponse {
 }
 
 // -----------------------------------------------------
+// ClientDataEntry Messages
+// -----------------------------------------------------
+
+// ClientDataEntryObject stores a single piece of client KYC data.
+// Field keys are global identifiers shared across form templates.
+// Verified data is reusable across multiple applications.
+message ClientDataEntryObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string client_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string field_key = 3 [(buf.validate.field).string.min_len = 1]; // Global key e.g. "id_front_photo"
+  string value = 4;                  // Text value or file reference ID
+  string value_type = 5;             // "text", "number", "file", "photo", "signature", "location"
+  DataVerificationStatus verification_status = 6;
+  string reviewer_id = 7 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Profile ID of verifier
+  string reviewer_comment = 8;       // Reason for rejection or more-info request
+  string source_application_id = 9 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Which application collected this
+  int32 revision = 10;               // Auto-incremented on resubmission
+  string verified_at = 11;           // RFC3339 timestamp
+  string expires_at = 12;            // RFC3339 timestamp (empty = never expires)
+  google.protobuf.Struct properties = 13;
+}
+
+// ClientDataEntryHistoryObject tracks every action on a data entry.
+message ClientDataEntryHistoryObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string entry_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // FK to ClientDataEntryObject
+  int32 revision = 3;
+  string value = 4;                  // Value at this revision
+  string action = 5;                 // "submitted", "verified", "rejected", "more_info", "expired"
+  string actor_id = 6 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Profile ID of who performed this
+  string comment = 7;               // Reason/note
+  string created_at = 8;            // RFC3339 timestamp
+}
+
+// Save/update client data (agent submitting)
+message ClientDataSaveRequest {
+  ClientDataEntryObject data = 1 [(buf.validate.field).required = true];
+}
+message ClientDataSaveResponse {
+  ClientDataEntryObject data = 1;
+}
+
+// Get a single entry by client_id + field_key
+message ClientDataGetRequest {
+  string client_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string field_key = 2 [(buf.validate.field).string.min_len = 1];
+}
+message ClientDataGetResponse {
+  ClientDataEntryObject data = 1;
+}
+
+// List all entries for a client
+message ClientDataListRequest {
+  string client_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DataVerificationStatus verification_status = 2; // Optional filter
+  common.v1.PageCursor cursor = 3;
+}
+message ClientDataListResponse {
+  repeated ClientDataEntryObject data = 1;
+}
+
+// Verifier approves a data entry
+message ClientDataVerifyRequest {
+  string entry_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reviewer_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string comment = 3;
+}
+message ClientDataVerifyResponse {
+  ClientDataEntryObject data = 1;
+}
+
+// Verifier rejects a data entry
+message ClientDataRejectRequest {
+  string entry_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reviewer_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reason = 3 [(buf.validate.field).string.min_len = 1]; // Required: why it was rejected
+}
+message ClientDataRejectResponse {
+  ClientDataEntryObject data = 1;
+}
+
+// Verifier requests more information
+message ClientDataRequestInfoRequest {
+  string entry_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reviewer_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string comment = 3 [(buf.validate.field).string.min_len = 1]; // Required: what's needed
+}
+message ClientDataRequestInfoResponse {
+  ClientDataEntryObject data = 1;
+}
+
+// Get revision history for a data entry
+message ClientDataHistoryRequest {
+  string entry_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+}
+message ClientDataHistoryResponse {
+  repeated ClientDataEntryHistoryObject data = 1;
+}
+
+// -----------------------------------------------------
 // Identity Service
 // -----------------------------------------------------
 
@@ -587,7 +750,10 @@ service IdentityService {
       "membership_view",
       "membership_manage",
       "investor_account_view",
-      "investor_account_manage"
+      "investor_account_manage",
+      "client_data_view",
+      "client_data_manage",
+      "client_data_verify"
     ]
     role_bindings: [
       {
@@ -606,7 +772,10 @@ service IdentityService {
           "membership_view",
           "membership_manage",
           "investor_account_view",
-          "investor_account_manage"
+          "investor_account_manage",
+          "client_data_view",
+          "client_data_manage",
+          "client_data_verify"
         ]
       },
       {
@@ -625,7 +794,10 @@ service IdentityService {
           "membership_view",
           "membership_manage",
           "investor_account_view",
-          "investor_account_manage"
+          "investor_account_manage",
+          "client_data_view",
+          "client_data_manage",
+          "client_data_verify"
         ]
       },
       {
@@ -641,7 +813,10 @@ service IdentityService {
           "client_group_view",
           "client_group_manage",
           "membership_view",
-          "membership_manage"
+          "membership_manage",
+          "client_data_view",
+          "client_data_manage",
+          "client_data_verify"
         ]
       },
       {
@@ -653,7 +828,8 @@ service IdentityService {
           "investor_account_view",
           "system_user_view",
           "client_group_view",
-          "membership_view"
+          "membership_view",
+          "client_data_view"
         ]
       },
       {
@@ -665,7 +841,8 @@ service IdentityService {
           "investor_account_view",
           "system_user_view",
           "client_group_view",
-          "membership_view"
+          "membership_view",
+          "client_data_view"
         ]
       },
       {
@@ -684,7 +861,10 @@ service IdentityService {
           "membership_view",
           "membership_manage",
           "investor_account_view",
-          "investor_account_manage"
+          "investor_account_manage",
+          "client_data_view",
+          "client_data_manage",
+          "client_data_verify"
         ]
       }
     ]
@@ -1002,6 +1182,102 @@ service IdentityService {
       summary: "Withdraw funds from an investor account"
       description: "Removes capital from an investor account if sufficient unreserved balance is available."
       tags: "InvestorAccounts"
+    };
+  }
+
+  // --- ClientData RPCs ---
+
+  // ClientDataSave creates or updates a client data entry.
+  rpc ClientDataSave(ClientDataSaveRequest) returns (ClientDataSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataSave"
+      summary: "Save client KYC data"
+      description: "Creates or updates a single client data entry. If an entry already exists for the same client_id + field_key, the revision is incremented and the value is updated."
+      tags: "ClientData"
+    };
+  }
+
+  // ClientDataGet retrieves a single data entry by client_id and field_key.
+  rpc ClientDataGet(ClientDataGetRequest) returns (ClientDataGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataGet"
+      summary: "Get a client data entry"
+      description: "Retrieves a single client data entry by client ID and field key."
+      tags: "ClientData"
+    };
+  }
+
+  // ClientDataList lists all data entries for a client with optional status filter.
+  rpc ClientDataList(ClientDataListRequest) returns (stream ClientDataListResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataList"
+      summary: "List client data entries"
+      description: "Lists all data entries for a client, optionally filtered by verification status."
+      tags: "ClientData"
+    };
+  }
+
+  // ClientDataVerify marks a data entry as verified.
+  rpc ClientDataVerify(ClientDataVerifyRequest) returns (ClientDataVerifyResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_verify"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataVerify"
+      summary: "Verify a client data entry"
+      description: "Marks a client data entry as verified by a reviewer."
+      tags: "ClientData"
+    };
+  }
+
+  // ClientDataReject marks a data entry as rejected.
+  rpc ClientDataReject(ClientDataRejectRequest) returns (ClientDataRejectResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_verify"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataReject"
+      summary: "Reject a client data entry"
+      description: "Marks a client data entry as rejected by a reviewer with a required reason."
+      tags: "ClientData"
+    };
+  }
+
+  // ClientDataRequestInfo requests more information for a data entry.
+  rpc ClientDataRequestInfo(ClientDataRequestInfoRequest) returns (ClientDataRequestInfoResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_verify"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataRequestInfo"
+      summary: "Request more info for a client data entry"
+      description: "Marks a client data entry as needing more information with a required comment."
+      tags: "ClientData"
+    };
+  }
+
+  // ClientDataHistory retrieves the revision history for a data entry.
+  rpc ClientDataHistory(ClientDataHistoryRequest) returns (ClientDataHistoryResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_data_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientDataHistory"
+      summary: "Get data entry revision history"
+      description: "Retrieves the full revision history for a client data entry."
+      tags: "ClientData"
     };
   }
 }

@@ -20,10 +20,14 @@ buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260409090114-0e447
 buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260409090114-0e44719f362b.2/go.mod h1:sl5wUrWY87+myoCvQjYVIkc3pk9TTNyrRwefboCH1J0=
 buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260409171630-366de6176614.2 h1:ztCFJijF1SZqS51UhgN4UmpCgGyR3uHfsqjtdRp7nG0=
 buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260409171630-366de6176614.2/go.mod h1:P+bCn8s6XONlp9Dbn/q8yIGTnfWb0/4L5fRAvlnddJc=
+buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260410052433-3df22bd61257.2 h1:N00n/PQO23//tKVm+3VGadA6RRaF1SpW2kij6l06q2g=
+buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260410052433-3df22bd61257.2/go.mod h1:ljKJB0xPyOer7tOK27aDj7itqvjjmcU0t72F6qoyBUM=
 buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260409074923-d745dcf4666e.1 h1:Rm1MaQdcBpsNJuJzGtB9+gTTEd0mL1LBnYieDYdU388=
 buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260409074923-d745dcf4666e.1/go.mod h1:p/jZSURaFt7/YWQ7JXysYu33S7Z1z71Nh2X987ppfRs=
 buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260409171630-366de6176614.1 h1:Kqaa6cWZ/FKU7jzZDn/jKQpti34OPLlV26v8ma3ivfQ=
 buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260409171630-366de6176614.1/go.mod h1:p/jZSURaFt7/YWQ7JXysYu33S7Z1z71Nh2X987ppfRs=
+buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260410052433-3df22bd61257.1 h1:dZ+4BPciWjlOUILltf8pTeN3X+tnVzJOOlH02xRbSwc=
+buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260410052433-3df22bd61257.1/go.mod h1:p/jZSURaFt7/YWQ7JXysYu33S7Z1z71Nh2X987ppfRs=
 buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260329102121-402b2e01be6f.2 h1:Up43nuDpjGtlqpOiohn1r9sKDhHtTmTqzNdGcNjz4SM=
 buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260329102121-402b2e01be6f.2/go.mod h1:ht8Ciwm6jg5Hejpq/szsNB9EISnNORCjgBA8rpaXUqA=
 buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260329102121-402b2e01be6f.1 h1:xLtgEXjqrwfDhB9eKMndl57anSBEyybKHeA39fj073s=

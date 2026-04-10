@@ -18,6 +18,7 @@ import '../data/underwriting_decision_providers.dart';
 import '../data/verification_task_providers.dart';
 import '../../loan_management/data/loan_product_providers.dart';
 import 'applications_screen.dart';
+import 'client_data_review_screen.dart';
 import 'form_submissions_timeline.dart';
 
 class ApplicationDetailScreen extends ConsumerWidget {
@@ -780,6 +781,13 @@ class _FormsTab extends ConsumerWidget {
 
   final ApplicationObject app;
 
+  /// Whether the application is in a verification/underwriting status
+  /// where per-field review actions should be shown.
+  bool get _isReviewStatus => const {
+    ApplicationStatus.APPLICATION_STATUS_VERIFICATION,
+    ApplicationStatus.APPLICATION_STATUS_UNDERWRITING,
+  }.contains(app.status);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productAsync = ref.watch(loanProductDetailProvider(app.productId));
@@ -788,7 +796,43 @@ class _FormsTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error loading product: $e')),
       data: (product) {
+        // Show per-field client data review when in verification/underwriting
+        // and we have a client ID.
+        if (_isReviewStatus && app.clientId.isNotEmpty) {
+          return Column(
+            children: [
+              // Client data review with verify/reject/request-info actions
+              Expanded(
+                flex: 3,
+                child: ClientDataReviewScreen(
+                  clientId: app.clientId,
+                  applicationId: app.id,
+                ),
+              ),
+              // Divider
+              const Divider(height: 1),
+              // Form submissions timeline (collapsed view)
+              if (product.requiredForms.isNotEmpty)
+                Expanded(
+                  flex: 2,
+                  child: FormSubmissionsTimeline(
+                    applicationId: app.id,
+                    requiredForms: product.requiredForms,
+                    isReadOnly: true,
+                  ),
+                ),
+            ],
+          );
+        }
+
         if (product.requiredForms.isEmpty) {
+          // If no required forms but client has data, show data review.
+          if (app.clientId.isNotEmpty) {
+            return ClientDataReviewScreen(
+              clientId: app.clientId,
+              applicationId: app.id,
+            );
+          }
           return Center(
             child: Text(
               'No required forms configured for this product',

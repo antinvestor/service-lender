@@ -126,6 +126,8 @@ func setupServiceOptions(
 	membershipRepo := repository.NewMembershipRepository(ctx, dbPool, workMan)
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
+	clientDataEntryRepo := repository.NewClientDataEntryRepository(ctx, dbPool, workMan)
+	clientDataHistoryRepo := repository.NewClientDataEntryHistoryRepository(ctx, dbPool, workMan)
 
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
 	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo, partitionCli)
@@ -144,6 +146,7 @@ func setupServiceOptions(
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
+	clientDataBusiness := business.NewClientDataBusiness(ctx, evtsMan, clientDataEntryRepo, clientDataHistoryRepo)
 
 	oauthRedirectURIs := strings.Split(cfg.OAuthRedirectURIs, ",")
 	oauthAudiences := strings.Split(cfg.OAuthAudiences, ",")
@@ -155,7 +158,7 @@ func setupServiceOptions(
 		ctx, sm,
 		organizationBusiness, branchBusiness, agentBusiness, clientBusiness,
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
-		loginClientBusiness,
+		loginClientBusiness, clientDataBusiness,
 	)
 
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
@@ -175,6 +178,8 @@ func setupServiceOptions(
 			identityevents.NewInvestorSave(ctx, investorRepo),
 			identityevents.NewSystemUserSave(ctx, systemUserRepo),
 			identityevents.NewCreditLimitChangeRequestSave(ctx, clcrRepo),
+			identityevents.NewClientDataEntrySave(ctx, clientDataEntryRepo),
+			identityevents.NewClientDataEntryHistorySave(ctx, clientDataHistoryRepo),
 		),
 	}
 }
@@ -239,6 +244,7 @@ func setupConnectServer(
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 	loginClientBusiness business.LoginClientBusiness,
+	clientDataBusiness business.ClientDataBusiness,
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
@@ -248,6 +254,7 @@ func setupConnectServer(
 		membershipBusiness,
 		investorBusiness,
 		suBusiness,
+		clientDataBusiness,
 	)
 	fieldHandler := handlers.NewFieldServer(
 		agentBusiness,

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
@@ -22,6 +23,7 @@ type IdentityServer struct {
 	membershipBusiness   business.MembershipBusiness
 	investorBusiness     business.InvestorBusiness
 	suBusiness           business.SystemUserBusiness
+	clientDataBusiness   business.ClientDataBusiness
 
 	identityv1connect.UnimplementedIdentityServiceHandler
 }
@@ -33,6 +35,7 @@ func NewIdentityServer(
 	membershipBusiness business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
+	clientDataBusiness business.ClientDataBusiness,
 ) identityv1connect.IdentityServiceHandler {
 	return &IdentityServer{
 		organizationBusiness: organizationBusiness,
@@ -41,6 +44,7 @@ func NewIdentityServer(
 		membershipBusiness:   membershipBusiness,
 		investorBusiness:     investorBusiness,
 		suBusiness:           suBusiness,
+		clientDataBusiness:   clientDataBusiness,
 	}
 }
 
@@ -288,4 +292,117 @@ func (s *IdentityServer) MembershipSearch(
 		return apperrors.CleanErr(err)
 	}
 	return nil
+}
+
+// --- ClientData RPCs ---
+
+func (s *IdentityServer) ClientDataSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataSaveRequest],
+) (*connect.Response[identityv1.ClientDataSaveResponse], error) {
+	entry := models.ClientDataEntryFromAPI(ctx, req.Msg.GetData())
+	result, err := s.clientDataBusiness.Save(ctx, entry)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientDataSaveResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientDataGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataGetRequest],
+) (*connect.Response[identityv1.ClientDataGetResponse], error) {
+	result, err := s.clientDataBusiness.Get(ctx, req.Msg.GetClientId(), req.Msg.GetFieldKey())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientDataGetResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientDataList(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataListRequest],
+	stream *connect.ServerStream[identityv1.ClientDataListResponse],
+) error {
+	var offset, limit int
+	if cursor := req.Msg.GetCursor(); cursor != nil {
+		if p := cursor.GetPage(); p != "" {
+			if v, err := parseInt(p); err == nil {
+				offset = v
+			}
+		}
+		limit = int(cursor.GetLimit())
+	}
+	if limit <= 0 {
+		limit = 50
+	}
+
+	status := int32(req.Msg.GetVerificationStatus())
+	results, err := s.clientDataBusiness.List(ctx, req.Msg.GetClientId(), status, offset, limit)
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+
+	var apiResults []*identityv1.ClientDataEntryObject
+	for _, e := range results {
+		apiResults = append(apiResults, e.ToAPI())
+	}
+	return stream.Send(&identityv1.ClientDataListResponse{Data: apiResults})
+}
+
+func (s *IdentityServer) ClientDataVerify(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataVerifyRequest],
+) (*connect.Response[identityv1.ClientDataVerifyResponse], error) {
+	result, err := s.clientDataBusiness.Verify(ctx, req.Msg.GetEntryId(), req.Msg.GetReviewerId(), req.Msg.GetComment())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientDataVerifyResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientDataReject(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataRejectRequest],
+) (*connect.Response[identityv1.ClientDataRejectResponse], error) {
+	result, err := s.clientDataBusiness.Reject(ctx, req.Msg.GetEntryId(), req.Msg.GetReviewerId(), req.Msg.GetReason())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientDataRejectResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientDataRequestInfo(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataRequestInfoRequest],
+) (*connect.Response[identityv1.ClientDataRequestInfoResponse], error) {
+	result, err := s.clientDataBusiness.RequestInfo(
+		ctx, req.Msg.GetEntryId(), req.Msg.GetReviewerId(), req.Msg.GetComment(),
+	)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.ClientDataRequestInfoResponse{Data: result.ToAPI()}), nil
+}
+
+func (s *IdentityServer) ClientDataHistory(
+	ctx context.Context,
+	req *connect.Request[identityv1.ClientDataHistoryRequest],
+) (*connect.Response[identityv1.ClientDataHistoryResponse], error) {
+	results, err := s.clientDataBusiness.History(ctx, req.Msg.GetEntryId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	var apiResults []*identityv1.ClientDataEntryHistoryObject
+	for _, h := range results {
+		apiResults = append(apiResults, h.ToAPI())
+	}
+	return connect.NewResponse(&identityv1.ClientDataHistoryResponse{Data: apiResults}), nil
+}
+
+// parseInt is a small helper to parse page offset strings.
+func parseInt(s string) (int, error) {
+	var v int
+	_, err := fmt.Sscanf(s, "%d", &v)
+	return v, err
 }

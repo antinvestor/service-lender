@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/signature_pad.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../field/data/client_data_providers.dart';
 
 /// Callback when the form is submitted with the collected data.
 typedef FormSubmitCallback = Future<void> Function(
@@ -15,6 +18,73 @@ typedef FormSubmitCallback = Future<void> Function(
 /// Reads a [FormTemplateObject] and renders its fields as a step-by-step
 /// wizard, grouped by section. Validates per field and collects responses
 /// as a [Map<String, dynamic>].
+/// Wraps [DynamicFormRenderer] with client data store awareness.
+///
+/// When [clientId] is provided, loads existing client data entries and renders
+/// fields with verification-aware decorations:
+/// - Verified fields are read-only with a green border
+/// - Rejected fields show reviewer comment with red border
+/// - More-info-needed fields show comment with orange border
+/// - Collected/under-review fields pre-fill values
+class ClientDataAwareFormRenderer extends ConsumerWidget {
+  const ClientDataAwareFormRenderer({
+    super.key,
+    required this.template,
+    required this.clientId,
+    this.initialData = const {},
+    this.onSubmit,
+    this.readOnly = false,
+  });
+
+  final FormTemplateObject template;
+  final String clientId;
+  final Map<String, dynamic> initialData;
+  final FormSubmitCallback? onSubmit;
+  final bool readOnly;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final clientDataAsync =
+        ref.watch(clientDataListProvider(clientId: clientId));
+
+    return clientDataAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) {
+        // Fallback to normal rendering on error.
+        return DynamicFormRenderer(
+          template: template,
+          initialData: initialData,
+          onSubmit: onSubmit,
+          readOnly: readOnly,
+        );
+      },
+      data: (entries) {
+        // Build lookup map keyed by fieldKey.
+        final dataMap = <String, ClientDataEntryObject>{};
+        for (final entry in entries) {
+          dataMap[entry.fieldKey] = entry;
+        }
+
+        // Merge verified/collected values into initialData.
+        final mergedData = Map<String, dynamic>.from(initialData);
+        for (final entry in entries) {
+          if (entry.value.isNotEmpty && !mergedData.containsKey(entry.fieldKey)) {
+            mergedData[entry.fieldKey] = entry.value;
+          }
+        }
+
+        return DynamicFormRenderer(
+          template: template,
+          initialData: mergedData,
+          onSubmit: onSubmit,
+          readOnly: readOnly,
+          clientDataMap: dataMap,
+        );
+      },
+    );
+  }
+}
+
 class DynamicFormRenderer extends StatefulWidget {
   const DynamicFormRenderer({
     super.key,
@@ -22,12 +92,16 @@ class DynamicFormRenderer extends StatefulWidget {
     this.initialData = const {},
     this.onSubmit,
     this.readOnly = false,
+    this.clientDataMap,
   });
 
   final FormTemplateObject template;
   final Map<String, dynamic> initialData;
   final FormSubmitCallback? onSubmit;
   final bool readOnly;
+
+  /// When non-null, per-field verification decorations are applied.
+  final Map<String, ClientDataEntryObject>? clientDataMap;
 
   @override
   State<DynamicFormRenderer> createState() => _DynamicFormRendererState();
@@ -204,7 +278,44 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
   // ---------------------------------------------------------------------------
 
   Widget _buildField(BuildContext context, FormFieldDefinition field) {
-    final readOnly = widget.readOnly;
+    final cdMap = widget.clientDataMap;
+
+    // If we have client data for this field, apply verification-aware rendering.
+    if (cdMap != null && cdMap.containsKey(field.key)) {
+      final entry = cdMap[field.key]!;
+      final status = entry.verificationStatus;
+
+      // Verified + not expired: read-only card with green border.
+      if (status ==
+              DataVerificationStatus.DATA_VERIFICATION_STATUS_VERIFIED &&
+          entry.expiresAt.isEmpty) {
+        return _VerifiedFieldCard(
+          field: field,
+          entry: entry,
+        );
+      }
+
+      // For all other statuses, wrap the normal field with status decoration.
+      final normalField = _buildFieldInner(context, field, entry: entry);
+      return _StatusDecoratedField(
+        status: status,
+        comment: entry.reviewerComment,
+        child: normalField,
+      );
+    }
+
+    return _buildFieldInner(context, field);
+  }
+
+  Widget _buildFieldInner(BuildContext context, FormFieldDefinition field,
+      {ClientDataEntryObject? entry}) {
+    // Rejected fields require re-entry; more-info allows editing.
+    final isRejected = entry?.verificationStatus ==
+        DataVerificationStatus.DATA_VERIFICATION_STATUS_REJECTED;
+    final readOnly = widget.readOnly &&
+        !isRejected &&
+        entry?.verificationStatus !=
+            DataVerificationStatus.DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED;
 
     switch (field.fieldType) {
       case FormFieldType.FORM_FIELD_TYPE_TEXT:
@@ -679,5 +790,135 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
     }
 
     return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Verification-aware field wrappers
+// ---------------------------------------------------------------------------
+
+/// Read-only card for verified fields, shown with a green border and badge.
+class _VerifiedFieldCard extends StatelessWidget {
+  const _VerifiedFieldCard({
+    required this.field,
+    required this.entry,
+  });
+
+  final FormFieldDefinition field;
+  final ClientDataEntryObject entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: Colors.green, width: 1.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    field.label,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.green.withAlpha(100)),
+                  ),
+                  child: Text(
+                    'Verified',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: Colors.green,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              entry.value.isNotEmpty ? entry.value : '(empty)',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Wraps a field widget with a colored border and optional helper text
+/// based on verification status.
+class _StatusDecoratedField extends StatelessWidget {
+  const _StatusDecoratedField({
+    required this.status,
+    required this.comment,
+    required this.child,
+  });
+
+  final DataVerificationStatus status;
+  final String comment;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = _colorForStatus(status);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color, width: 1.2),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          child,
+          if (comment.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(Icons.info_outline, size: 14, color: color),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    comment,
+                    style: theme.textTheme.bodySmall?.copyWith(color: color),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Color _colorForStatus(DataVerificationStatus s) {
+    switch (s) {
+      case DataVerificationStatus.DATA_VERIFICATION_STATUS_REJECTED:
+        return Colors.red;
+      case DataVerificationStatus.DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED:
+        return Colors.orange;
+      case DataVerificationStatus.DATA_VERIFICATION_STATUS_UNDER_REVIEW:
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
   }
 }

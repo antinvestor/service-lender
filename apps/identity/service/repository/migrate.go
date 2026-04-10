@@ -27,7 +27,8 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.Organization{}, &models.Branch{}, &models.Agent{}, &models.AgentBranch{},
 		&models.Client{}, &models.ClientAssignmentHistory{}, &models.CreditLimitChangeRequest{},
 		&models.ClientGroup{}, &models.Membership{},
-		&models.Investor{}, &models.SystemUser{})
+		&models.Investor{}, &models.SystemUser{},
+		&models.ClientDataEntry{}, &models.ClientDataEntryHistory{})
 }
 
 // preMigrate handles structural changes that must happen before GORM AutoMigrate.

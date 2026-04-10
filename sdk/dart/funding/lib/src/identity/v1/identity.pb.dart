@@ -3779,6 +3779,1213 @@ class InvestorWithdrawResponse extends $pb.GeneratedMessage {
   InvestorAccountObject ensureData() => $_ensure(0);
 }
 
+/// ClientDataEntryObject stores a single piece of client KYC data.
+/// Field keys are global identifiers shared across form templates.
+/// Verified data is reusable across multiple applications.
+class ClientDataEntryObject extends $pb.GeneratedMessage {
+  factory ClientDataEntryObject({
+    $core.String? id,
+    $core.String? clientId,
+    $core.String? fieldKey,
+    $core.String? value,
+    $core.String? valueType,
+    DataVerificationStatus? verificationStatus,
+    $core.String? reviewerId,
+    $core.String? reviewerComment,
+    $core.String? sourceApplicationId,
+    $core.int? revision,
+    $core.String? verifiedAt,
+    $core.String? expiresAt,
+    $6.Struct? properties,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (fieldKey != null) {
+      $result.fieldKey = fieldKey;
+    }
+    if (value != null) {
+      $result.value = value;
+    }
+    if (valueType != null) {
+      $result.valueType = valueType;
+    }
+    if (verificationStatus != null) {
+      $result.verificationStatus = verificationStatus;
+    }
+    if (reviewerId != null) {
+      $result.reviewerId = reviewerId;
+    }
+    if (reviewerComment != null) {
+      $result.reviewerComment = reviewerComment;
+    }
+    if (sourceApplicationId != null) {
+      $result.sourceApplicationId = sourceApplicationId;
+    }
+    if (revision != null) {
+      $result.revision = revision;
+    }
+    if (verifiedAt != null) {
+      $result.verifiedAt = verifiedAt;
+    }
+    if (expiresAt != null) {
+      $result.expiresAt = expiresAt;
+    }
+    if (properties != null) {
+      $result.properties = properties;
+    }
+    return $result;
+  }
+  ClientDataEntryObject._() : super();
+  factory ClientDataEntryObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataEntryObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataEntryObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'clientId')
+    ..aOS(3, _omitFieldNames ? '' : 'fieldKey')
+    ..aOS(4, _omitFieldNames ? '' : 'value')
+    ..aOS(5, _omitFieldNames ? '' : 'valueType')
+    ..e<DataVerificationStatus>(6, _omitFieldNames ? '' : 'verificationStatus', $pb.PbFieldType.OE, defaultOrMaker: DataVerificationStatus.DATA_VERIFICATION_STATUS_UNSPECIFIED, valueOf: DataVerificationStatus.valueOf, enumValues: DataVerificationStatus.values)
+    ..aOS(7, _omitFieldNames ? '' : 'reviewerId')
+    ..aOS(8, _omitFieldNames ? '' : 'reviewerComment')
+    ..aOS(9, _omitFieldNames ? '' : 'sourceApplicationId')
+    ..a<$core.int>(10, _omitFieldNames ? '' : 'revision', $pb.PbFieldType.O3)
+    ..aOS(11, _omitFieldNames ? '' : 'verifiedAt')
+    ..aOS(12, _omitFieldNames ? '' : 'expiresAt')
+    ..aOM<$6.Struct>(13, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataEntryObject clone() => ClientDataEntryObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataEntryObject copyWith(void Function(ClientDataEntryObject) updates) => super.copyWith((message) => updates(message as ClientDataEntryObject)) as ClientDataEntryObject;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataEntryObject create() => ClientDataEntryObject._();
+  ClientDataEntryObject createEmptyInstance() => create();
+  static $pb.PbList<ClientDataEntryObject> createRepeated() => $pb.PbList<ClientDataEntryObject>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataEntryObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataEntryObject>(create);
+  static ClientDataEntryObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get clientId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set clientId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasClientId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearClientId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get fieldKey => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set fieldKey($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFieldKey() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFieldKey() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get value => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set value($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasValue() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearValue() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get valueType => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set valueType($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasValueType() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearValueType() => clearField(5);
+
+  @$pb.TagNumber(6)
+  DataVerificationStatus get verificationStatus => $_getN(5);
+  @$pb.TagNumber(6)
+  set verificationStatus(DataVerificationStatus v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasVerificationStatus() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearVerificationStatus() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get reviewerId => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set reviewerId($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasReviewerId() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearReviewerId() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get reviewerComment => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set reviewerComment($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasReviewerComment() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearReviewerComment() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get sourceApplicationId => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set sourceApplicationId($core.String v) { $_setString(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasSourceApplicationId() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearSourceApplicationId() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.int get revision => $_getIZ(9);
+  @$pb.TagNumber(10)
+  set revision($core.int v) { $_setSignedInt32(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasRevision() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearRevision() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.String get verifiedAt => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set verifiedAt($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasVerifiedAt() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearVerifiedAt() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.String get expiresAt => $_getSZ(11);
+  @$pb.TagNumber(12)
+  set expiresAt($core.String v) { $_setString(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasExpiresAt() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearExpiresAt() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $6.Struct get properties => $_getN(12);
+  @$pb.TagNumber(13)
+  set properties($6.Struct v) { setField(13, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasProperties() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearProperties() => clearField(13);
+  @$pb.TagNumber(13)
+  $6.Struct ensureProperties() => $_ensure(12);
+}
+
+/// ClientDataEntryHistoryObject tracks every action on a data entry.
+class ClientDataEntryHistoryObject extends $pb.GeneratedMessage {
+  factory ClientDataEntryHistoryObject({
+    $core.String? id,
+    $core.String? entryId,
+    $core.int? revision,
+    $core.String? value,
+    $core.String? action,
+    $core.String? actorId,
+    $core.String? comment,
+    $core.String? createdAt,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (entryId != null) {
+      $result.entryId = entryId;
+    }
+    if (revision != null) {
+      $result.revision = revision;
+    }
+    if (value != null) {
+      $result.value = value;
+    }
+    if (action != null) {
+      $result.action = action;
+    }
+    if (actorId != null) {
+      $result.actorId = actorId;
+    }
+    if (comment != null) {
+      $result.comment = comment;
+    }
+    if (createdAt != null) {
+      $result.createdAt = createdAt;
+    }
+    return $result;
+  }
+  ClientDataEntryHistoryObject._() : super();
+  factory ClientDataEntryHistoryObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataEntryHistoryObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataEntryHistoryObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'entryId')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'revision', $pb.PbFieldType.O3)
+    ..aOS(4, _omitFieldNames ? '' : 'value')
+    ..aOS(5, _omitFieldNames ? '' : 'action')
+    ..aOS(6, _omitFieldNames ? '' : 'actorId')
+    ..aOS(7, _omitFieldNames ? '' : 'comment')
+    ..aOS(8, _omitFieldNames ? '' : 'createdAt')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataEntryHistoryObject clone() => ClientDataEntryHistoryObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataEntryHistoryObject copyWith(void Function(ClientDataEntryHistoryObject) updates) => super.copyWith((message) => updates(message as ClientDataEntryHistoryObject)) as ClientDataEntryHistoryObject;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataEntryHistoryObject create() => ClientDataEntryHistoryObject._();
+  ClientDataEntryHistoryObject createEmptyInstance() => create();
+  static $pb.PbList<ClientDataEntryHistoryObject> createRepeated() => $pb.PbList<ClientDataEntryHistoryObject>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataEntryHistoryObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataEntryHistoryObject>(create);
+  static ClientDataEntryHistoryObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get entryId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set entryId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasEntryId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearEntryId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get revision => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set revision($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRevision() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRevision() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get value => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set value($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasValue() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearValue() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get action => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set action($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasAction() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearAction() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get actorId => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set actorId($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasActorId() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearActorId() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get comment => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set comment($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasComment() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearComment() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get createdAt => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set createdAt($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasCreatedAt() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearCreatedAt() => clearField(8);
+}
+
+/// Save/update client data (agent submitting)
+class ClientDataSaveRequest extends $pb.GeneratedMessage {
+  factory ClientDataSaveRequest({
+    ClientDataEntryObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientDataSaveRequest._() : super();
+  factory ClientDataSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataSaveRequest clone() => ClientDataSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataSaveRequest copyWith(void Function(ClientDataSaveRequest) updates) => super.copyWith((message) => updates(message as ClientDataSaveRequest)) as ClientDataSaveRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataSaveRequest create() => ClientDataSaveRequest._();
+  ClientDataSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataSaveRequest> createRepeated() => $pb.PbList<ClientDataSaveRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataSaveRequest>(create);
+  static ClientDataSaveRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientDataEntryObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientDataEntryObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientDataEntryObject ensureData() => $_ensure(0);
+}
+
+class ClientDataSaveResponse extends $pb.GeneratedMessage {
+  factory ClientDataSaveResponse({
+    ClientDataEntryObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientDataSaveResponse._() : super();
+  factory ClientDataSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataSaveResponse clone() => ClientDataSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataSaveResponse copyWith(void Function(ClientDataSaveResponse) updates) => super.copyWith((message) => updates(message as ClientDataSaveResponse)) as ClientDataSaveResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataSaveResponse create() => ClientDataSaveResponse._();
+  ClientDataSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataSaveResponse> createRepeated() => $pb.PbList<ClientDataSaveResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataSaveResponse>(create);
+  static ClientDataSaveResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientDataEntryObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientDataEntryObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientDataEntryObject ensureData() => $_ensure(0);
+}
+
+/// Get a single entry by client_id + field_key
+class ClientDataGetRequest extends $pb.GeneratedMessage {
+  factory ClientDataGetRequest({
+    $core.String? clientId,
+    $core.String? fieldKey,
+  }) {
+    final $result = create();
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (fieldKey != null) {
+      $result.fieldKey = fieldKey;
+    }
+    return $result;
+  }
+  ClientDataGetRequest._() : super();
+  factory ClientDataGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+    ..aOS(2, _omitFieldNames ? '' : 'fieldKey')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataGetRequest clone() => ClientDataGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataGetRequest copyWith(void Function(ClientDataGetRequest) updates) => super.copyWith((message) => updates(message as ClientDataGetRequest)) as ClientDataGetRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataGetRequest create() => ClientDataGetRequest._();
+  ClientDataGetRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataGetRequest> createRepeated() => $pb.PbList<ClientDataGetRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataGetRequest>(create);
+  static ClientDataGetRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get clientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set clientId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClientId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get fieldKey => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set fieldKey($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFieldKey() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFieldKey() => clearField(2);
+}
+
+class ClientDataGetResponse extends $pb.GeneratedMessage {
+  factory ClientDataGetResponse({
+    ClientDataEntryObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientDataGetResponse._() : super();
+  factory ClientDataGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataGetResponse clone() => ClientDataGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataGetResponse copyWith(void Function(ClientDataGetResponse) updates) => super.copyWith((message) => updates(message as ClientDataGetResponse)) as ClientDataGetResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataGetResponse create() => ClientDataGetResponse._();
+  ClientDataGetResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataGetResponse> createRepeated() => $pb.PbList<ClientDataGetResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataGetResponse>(create);
+  static ClientDataGetResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientDataEntryObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientDataEntryObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientDataEntryObject ensureData() => $_ensure(0);
+}
+
+/// List all entries for a client
+class ClientDataListRequest extends $pb.GeneratedMessage {
+  factory ClientDataListRequest({
+    $core.String? clientId,
+    DataVerificationStatus? verificationStatus,
+    $7.PageCursor? cursor,
+  }) {
+    final $result = create();
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (verificationStatus != null) {
+      $result.verificationStatus = verificationStatus;
+    }
+    if (cursor != null) {
+      $result.cursor = cursor;
+    }
+    return $result;
+  }
+  ClientDataListRequest._() : super();
+  factory ClientDataListRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataListRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataListRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+    ..e<DataVerificationStatus>(2, _omitFieldNames ? '' : 'verificationStatus', $pb.PbFieldType.OE, defaultOrMaker: DataVerificationStatus.DATA_VERIFICATION_STATUS_UNSPECIFIED, valueOf: DataVerificationStatus.valueOf, enumValues: DataVerificationStatus.values)
+    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataListRequest clone() => ClientDataListRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataListRequest copyWith(void Function(ClientDataListRequest) updates) => super.copyWith((message) => updates(message as ClientDataListRequest)) as ClientDataListRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataListRequest create() => ClientDataListRequest._();
+  ClientDataListRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataListRequest> createRepeated() => $pb.PbList<ClientDataListRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataListRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataListRequest>(create);
+  static ClientDataListRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get clientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set clientId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClientId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  DataVerificationStatus get verificationStatus => $_getN(1);
+  @$pb.TagNumber(2)
+  set verificationStatus(DataVerificationStatus v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasVerificationStatus() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearVerificationStatus() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $7.PageCursor get cursor => $_getN(2);
+  @$pb.TagNumber(3)
+  set cursor($7.PageCursor v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCursor() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCursor() => clearField(3);
+  @$pb.TagNumber(3)
+  $7.PageCursor ensureCursor() => $_ensure(2);
+}
+
+class ClientDataListResponse extends $pb.GeneratedMessage {
+  factory ClientDataListResponse({
+    $core.Iterable<ClientDataEntryObject>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data.addAll(data);
+    }
+    return $result;
+  }
+  ClientDataListResponse._() : super();
+  factory ClientDataListResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataListResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataListResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..pc<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataListResponse clone() => ClientDataListResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataListResponse copyWith(void Function(ClientDataListResponse) updates) => super.copyWith((message) => updates(message as ClientDataListResponse)) as ClientDataListResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataListResponse create() => ClientDataListResponse._();
+  ClientDataListResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataListResponse> createRepeated() => $pb.PbList<ClientDataListResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataListResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataListResponse>(create);
+  static ClientDataListResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<ClientDataEntryObject> get data => $_getList(0);
+}
+
+/// Verifier approves a data entry
+class ClientDataVerifyRequest extends $pb.GeneratedMessage {
+  factory ClientDataVerifyRequest({
+    $core.String? entryId,
+    $core.String? reviewerId,
+    $core.String? comment,
+  }) {
+    final $result = create();
+    if (entryId != null) {
+      $result.entryId = entryId;
+    }
+    if (reviewerId != null) {
+      $result.reviewerId = reviewerId;
+    }
+    if (comment != null) {
+      $result.comment = comment;
+    }
+    return $result;
+  }
+  ClientDataVerifyRequest._() : super();
+  factory ClientDataVerifyRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataVerifyRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataVerifyRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'entryId')
+    ..aOS(2, _omitFieldNames ? '' : 'reviewerId')
+    ..aOS(3, _omitFieldNames ? '' : 'comment')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataVerifyRequest clone() => ClientDataVerifyRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataVerifyRequest copyWith(void Function(ClientDataVerifyRequest) updates) => super.copyWith((message) => updates(message as ClientDataVerifyRequest)) as ClientDataVerifyRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataVerifyRequest create() => ClientDataVerifyRequest._();
+  ClientDataVerifyRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataVerifyRequest> createRepeated() => $pb.PbList<ClientDataVerifyRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataVerifyRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataVerifyRequest>(create);
+  static ClientDataVerifyRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get entryId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set entryId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEntryId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEntryId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get reviewerId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set reviewerId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasReviewerId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearReviewerId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get comment => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set comment($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasComment() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearComment() => clearField(3);
+}
+
+class ClientDataVerifyResponse extends $pb.GeneratedMessage {
+  factory ClientDataVerifyResponse({
+    ClientDataEntryObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientDataVerifyResponse._() : super();
+  factory ClientDataVerifyResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataVerifyResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataVerifyResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataVerifyResponse clone() => ClientDataVerifyResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataVerifyResponse copyWith(void Function(ClientDataVerifyResponse) updates) => super.copyWith((message) => updates(message as ClientDataVerifyResponse)) as ClientDataVerifyResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataVerifyResponse create() => ClientDataVerifyResponse._();
+  ClientDataVerifyResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataVerifyResponse> createRepeated() => $pb.PbList<ClientDataVerifyResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataVerifyResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataVerifyResponse>(create);
+  static ClientDataVerifyResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientDataEntryObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientDataEntryObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientDataEntryObject ensureData() => $_ensure(0);
+}
+
+/// Verifier rejects a data entry
+class ClientDataRejectRequest extends $pb.GeneratedMessage {
+  factory ClientDataRejectRequest({
+    $core.String? entryId,
+    $core.String? reviewerId,
+    $core.String? reason,
+  }) {
+    final $result = create();
+    if (entryId != null) {
+      $result.entryId = entryId;
+    }
+    if (reviewerId != null) {
+      $result.reviewerId = reviewerId;
+    }
+    if (reason != null) {
+      $result.reason = reason;
+    }
+    return $result;
+  }
+  ClientDataRejectRequest._() : super();
+  factory ClientDataRejectRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataRejectRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataRejectRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'entryId')
+    ..aOS(2, _omitFieldNames ? '' : 'reviewerId')
+    ..aOS(3, _omitFieldNames ? '' : 'reason')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataRejectRequest clone() => ClientDataRejectRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataRejectRequest copyWith(void Function(ClientDataRejectRequest) updates) => super.copyWith((message) => updates(message as ClientDataRejectRequest)) as ClientDataRejectRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRejectRequest create() => ClientDataRejectRequest._();
+  ClientDataRejectRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataRejectRequest> createRepeated() => $pb.PbList<ClientDataRejectRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRejectRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataRejectRequest>(create);
+  static ClientDataRejectRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get entryId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set entryId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEntryId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEntryId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get reviewerId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set reviewerId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasReviewerId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearReviewerId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get reason => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set reason($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasReason() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearReason() => clearField(3);
+}
+
+class ClientDataRejectResponse extends $pb.GeneratedMessage {
+  factory ClientDataRejectResponse({
+    ClientDataEntryObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientDataRejectResponse._() : super();
+  factory ClientDataRejectResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataRejectResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataRejectResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataRejectResponse clone() => ClientDataRejectResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataRejectResponse copyWith(void Function(ClientDataRejectResponse) updates) => super.copyWith((message) => updates(message as ClientDataRejectResponse)) as ClientDataRejectResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRejectResponse create() => ClientDataRejectResponse._();
+  ClientDataRejectResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataRejectResponse> createRepeated() => $pb.PbList<ClientDataRejectResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRejectResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataRejectResponse>(create);
+  static ClientDataRejectResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientDataEntryObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientDataEntryObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientDataEntryObject ensureData() => $_ensure(0);
+}
+
+/// Verifier requests more information
+class ClientDataRequestInfoRequest extends $pb.GeneratedMessage {
+  factory ClientDataRequestInfoRequest({
+    $core.String? entryId,
+    $core.String? reviewerId,
+    $core.String? comment,
+  }) {
+    final $result = create();
+    if (entryId != null) {
+      $result.entryId = entryId;
+    }
+    if (reviewerId != null) {
+      $result.reviewerId = reviewerId;
+    }
+    if (comment != null) {
+      $result.comment = comment;
+    }
+    return $result;
+  }
+  ClientDataRequestInfoRequest._() : super();
+  factory ClientDataRequestInfoRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataRequestInfoRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataRequestInfoRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'entryId')
+    ..aOS(2, _omitFieldNames ? '' : 'reviewerId')
+    ..aOS(3, _omitFieldNames ? '' : 'comment')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataRequestInfoRequest clone() => ClientDataRequestInfoRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataRequestInfoRequest copyWith(void Function(ClientDataRequestInfoRequest) updates) => super.copyWith((message) => updates(message as ClientDataRequestInfoRequest)) as ClientDataRequestInfoRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRequestInfoRequest create() => ClientDataRequestInfoRequest._();
+  ClientDataRequestInfoRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataRequestInfoRequest> createRepeated() => $pb.PbList<ClientDataRequestInfoRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRequestInfoRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataRequestInfoRequest>(create);
+  static ClientDataRequestInfoRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get entryId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set entryId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEntryId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEntryId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get reviewerId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set reviewerId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasReviewerId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearReviewerId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get comment => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set comment($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasComment() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearComment() => clearField(3);
+}
+
+class ClientDataRequestInfoResponse extends $pb.GeneratedMessage {
+  factory ClientDataRequestInfoResponse({
+    ClientDataEntryObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientDataRequestInfoResponse._() : super();
+  factory ClientDataRequestInfoResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataRequestInfoResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataRequestInfoResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<ClientDataEntryObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientDataEntryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataRequestInfoResponse clone() => ClientDataRequestInfoResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataRequestInfoResponse copyWith(void Function(ClientDataRequestInfoResponse) updates) => super.copyWith((message) => updates(message as ClientDataRequestInfoResponse)) as ClientDataRequestInfoResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRequestInfoResponse create() => ClientDataRequestInfoResponse._();
+  ClientDataRequestInfoResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataRequestInfoResponse> createRepeated() => $pb.PbList<ClientDataRequestInfoResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataRequestInfoResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataRequestInfoResponse>(create);
+  static ClientDataRequestInfoResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientDataEntryObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientDataEntryObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientDataEntryObject ensureData() => $_ensure(0);
+}
+
+/// Get revision history for a data entry
+class ClientDataHistoryRequest extends $pb.GeneratedMessage {
+  factory ClientDataHistoryRequest({
+    $core.String? entryId,
+  }) {
+    final $result = create();
+    if (entryId != null) {
+      $result.entryId = entryId;
+    }
+    return $result;
+  }
+  ClientDataHistoryRequest._() : super();
+  factory ClientDataHistoryRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataHistoryRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataHistoryRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'entryId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataHistoryRequest clone() => ClientDataHistoryRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataHistoryRequest copyWith(void Function(ClientDataHistoryRequest) updates) => super.copyWith((message) => updates(message as ClientDataHistoryRequest)) as ClientDataHistoryRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataHistoryRequest create() => ClientDataHistoryRequest._();
+  ClientDataHistoryRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientDataHistoryRequest> createRepeated() => $pb.PbList<ClientDataHistoryRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataHistoryRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataHistoryRequest>(create);
+  static ClientDataHistoryRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get entryId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set entryId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEntryId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEntryId() => clearField(1);
+}
+
+class ClientDataHistoryResponse extends $pb.GeneratedMessage {
+  factory ClientDataHistoryResponse({
+    $core.Iterable<ClientDataEntryHistoryObject>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data.addAll(data);
+    }
+    return $result;
+  }
+  ClientDataHistoryResponse._() : super();
+  factory ClientDataHistoryResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientDataHistoryResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientDataHistoryResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..pc<ClientDataEntryHistoryObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: ClientDataEntryHistoryObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientDataHistoryResponse clone() => ClientDataHistoryResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientDataHistoryResponse copyWith(void Function(ClientDataHistoryResponse) updates) => super.copyWith((message) => updates(message as ClientDataHistoryResponse)) as ClientDataHistoryResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientDataHistoryResponse create() => ClientDataHistoryResponse._();
+  ClientDataHistoryResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientDataHistoryResponse> createRepeated() => $pb.PbList<ClientDataHistoryResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientDataHistoryResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientDataHistoryResponse>(create);
+  static ClientDataHistoryResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<ClientDataEntryHistoryObject> get data => $_getList(0);
+}
+
 class IdentityServiceApi {
   $pb.RpcClient _client;
   IdentityServiceApi(this._client);
@@ -3851,6 +5058,27 @@ class IdentityServiceApi {
   ;
   $async.Future<InvestorWithdrawResponse> investorWithdraw($pb.ClientContext? ctx, InvestorWithdrawRequest request) =>
     _client.invoke<InvestorWithdrawResponse>(ctx, 'IdentityService', 'InvestorWithdraw', request, InvestorWithdrawResponse())
+  ;
+  $async.Future<ClientDataSaveResponse> clientDataSave($pb.ClientContext? ctx, ClientDataSaveRequest request) =>
+    _client.invoke<ClientDataSaveResponse>(ctx, 'IdentityService', 'ClientDataSave', request, ClientDataSaveResponse())
+  ;
+  $async.Future<ClientDataGetResponse> clientDataGet($pb.ClientContext? ctx, ClientDataGetRequest request) =>
+    _client.invoke<ClientDataGetResponse>(ctx, 'IdentityService', 'ClientDataGet', request, ClientDataGetResponse())
+  ;
+  $async.Future<ClientDataListResponse> clientDataList($pb.ClientContext? ctx, ClientDataListRequest request) =>
+    _client.invoke<ClientDataListResponse>(ctx, 'IdentityService', 'ClientDataList', request, ClientDataListResponse())
+  ;
+  $async.Future<ClientDataVerifyResponse> clientDataVerify($pb.ClientContext? ctx, ClientDataVerifyRequest request) =>
+    _client.invoke<ClientDataVerifyResponse>(ctx, 'IdentityService', 'ClientDataVerify', request, ClientDataVerifyResponse())
+  ;
+  $async.Future<ClientDataRejectResponse> clientDataReject($pb.ClientContext? ctx, ClientDataRejectRequest request) =>
+    _client.invoke<ClientDataRejectResponse>(ctx, 'IdentityService', 'ClientDataReject', request, ClientDataRejectResponse())
+  ;
+  $async.Future<ClientDataRequestInfoResponse> clientDataRequestInfo($pb.ClientContext? ctx, ClientDataRequestInfoRequest request) =>
+    _client.invoke<ClientDataRequestInfoResponse>(ctx, 'IdentityService', 'ClientDataRequestInfo', request, ClientDataRequestInfoResponse())
+  ;
+  $async.Future<ClientDataHistoryResponse> clientDataHistory($pb.ClientContext? ctx, ClientDataHistoryRequest request) =>
+    _client.invoke<ClientDataHistoryResponse>(ctx, 'IdentityService', 'ClientDataHistory', request, ClientDataHistoryResponse())
   ;
 }
 
