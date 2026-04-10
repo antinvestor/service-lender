@@ -28,10 +28,9 @@ type LoanProduct struct {
 	InsuranceFeePercent  int64 // basis points
 	LatePenaltyRate      int64 // basis points
 	GracePeriodDays      int32
-	KycSchema            data.JSONMap
 	FeeStructure         data.JSONMap
 	EligibilityCriteria  data.JSONMap
-	RequiredDocuments    data.JSONMap
+	RequiredForms        data.JSONMap // JSON array of {template_id, stage, required, order, description}
 	State                int32
 	Properties           data.JSONMap
 }
@@ -58,10 +57,9 @@ func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
 		InsuranceFeePercent:  BasisPointsToString(m.InsuranceFeePercent),
 		LatePenaltyRate:      BasisPointsToString(m.LatePenaltyRate),
 		GracePeriodDays:      m.GracePeriodDays,
-		KycSchema:            m.KycSchema.ToProtoStruct(),
 		FeeStructure:         m.FeeStructure.ToProtoStruct(),
 		EligibilityCriteria:  m.EligibilityCriteria.ToProtoStruct(),
-		RequiredDocuments:    jsonMapToStringSlice(m.RequiredDocuments),
+		RequiredForms:        requiredFormsToAPI(m.RequiredForms),
 		State:                commonv1.STATE(m.State),
 		Properties:           m.Properties.ToProtoStruct(),
 	}
@@ -93,20 +91,15 @@ func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObjec
 		InsuranceFeePercent:  StringToBasisPoints(obj.GetInsuranceFeePercent()),
 		LatePenaltyRate:      StringToBasisPoints(obj.GetLatePenaltyRate()),
 		GracePeriodDays:      obj.GetGracePeriodDays(),
+		RequiredForms:        requiredFormsFromAPI(obj.GetRequiredForms()),
 		State:                int32(obj.GetState()),
 	}
 
-	if obj.GetKycSchema() != nil {
-		model.KycSchema = (&data.JSONMap{}).FromProtoStruct(obj.GetKycSchema())
-	}
 	if obj.GetFeeStructure() != nil {
 		model.FeeStructure = (&data.JSONMap{}).FromProtoStruct(obj.GetFeeStructure())
 	}
 	if obj.GetEligibilityCriteria() != nil {
 		model.EligibilityCriteria = (&data.JSONMap{}).FromProtoStruct(obj.GetEligibilityCriteria())
-	}
-	if len(obj.GetRequiredDocuments()) > 0 {
-		model.RequiredDocuments = stringSliceToJSONMap(obj.GetRequiredDocuments())
 	}
 	if obj.GetProperties() != nil {
 		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
@@ -118,4 +111,52 @@ func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObjec
 	}
 
 	return model
+}
+
+// requiredFormsToAPI converts the stored JSON array to proto ProductFormRequirement messages.
+func requiredFormsToAPI(forms data.JSONMap) []*originationv1.ProductFormRequirement {
+	if forms == nil {
+		return nil
+	}
+
+	items, ok := forms["items"].([]interface{})
+	if !ok {
+		return nil
+	}
+
+	var result []*originationv1.ProductFormRequirement
+	for _, item := range items {
+		m, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		req := &originationv1.ProductFormRequirement{
+			TemplateId:  mapStr(m, "template_id"),
+			Stage:       mapStr(m, "stage"),
+			Required:    mapBool(m, "required"),
+			Order:       mapInt32(m, "order"),
+			Description: mapStr(m, "description"),
+		}
+		result = append(result, req)
+	}
+	return result
+}
+
+// requiredFormsFromAPI converts proto ProductFormRequirement messages to storable JSON.
+func requiredFormsFromAPI(forms []*originationv1.ProductFormRequirement) data.JSONMap {
+	if len(forms) == 0 {
+		return nil
+	}
+
+	items := make([]interface{}, len(forms))
+	for i, f := range forms {
+		items[i] = map[string]interface{}{
+			"template_id": f.GetTemplateId(),
+			"stage":       f.GetStage(),
+			"required":    f.GetRequired(),
+			"order":       int(f.GetOrder()),
+			"description": f.GetDescription(),
+		}
+	}
+	return data.JSONMap{"items": items}
 }

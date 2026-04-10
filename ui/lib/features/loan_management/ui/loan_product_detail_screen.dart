@@ -266,23 +266,21 @@ class _KycSchemaTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final fields = product.hasKycSchema()
-        ? parseKycSchema(product.kycSchema)
-        : <DynamicFieldDef>[];
+    final forms = product.requiredForms;
 
-    if (fields.isEmpty) {
+    if (forms.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.list_alt_outlined,
+              Icons.dynamic_form_outlined,
               size: 48,
               color: theme.colorScheme.onSurface.withAlpha(100),
             ),
             const SizedBox(height: 16),
             Text(
-              'No KYC schema configured',
+              'No form templates configured',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -292,20 +290,24 @@ class _KycSchemaTab extends StatelessWidget {
       );
     }
 
-    // Group and display fields
-    final grouped = groupFields(fields);
+    // Group required forms by stage
+    final stages = <String, List<ProductFormRequirement>>{};
+    for (final form in forms) {
+      final stage = form.stage.isNotEmpty ? form.stage : 'application';
+      stages.putIfAbsent(stage, () => []).add(form);
+    }
 
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          '${fields.length} fields in ${grouped.length} group${grouped.length > 1 ? 's' : ''}',
+          '${forms.length} form${forms.length > 1 ? 's' : ''} across ${stages.length} stage${stages.length > 1 ? 's' : ''}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 12),
-        for (final entry in grouped.entries) ...[
+        for (final entry in stages.entries) ...[
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -319,44 +321,22 @@ class _KycSchemaTab extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingTextStyle: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      dataTextStyle: theme.textTheme.bodySmall,
-                      columnSpacing: 20,
-                      columns: const [
-                        DataColumn(label: Text('Key')),
-                        DataColumn(label: Text('Label')),
-                        DataColumn(label: Text('Type')),
-                        DataColumn(label: Text('Required')),
-                      ],
-                      rows: entry.value
-                          .map(
-                            (f) => DataRow(
-                              cells: [
-                                DataCell(Text(f.key)),
-                                DataCell(Text(f.label)),
-                                DataCell(_TypeChip(type: f.type)),
-                                DataCell(
-                                  Icon(
-                                    f.required
-                                        ? Icons.check_circle
-                                        : Icons.circle_outlined,
-                                    size: 16,
-                                    color: f.required
-                                        ? Colors.green
-                                        : Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                          .toList(),
+                  ...entry.value.map((f) => ListTile(
+                    leading: Icon(
+                      f.required ? Icons.assignment_turned_in : Icons.assignment_outlined,
+                      color: f.required ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                     ),
-                  ),
+                    title: Text(f.templateId, style: theme.textTheme.bodyMedium?.copyWith(fontFamily: 'monospace')),
+                    subtitle: f.description.isNotEmpty ? Text(f.description) : null,
+                    trailing: Chip(
+                      label: Text(f.required ? 'Required' : 'Optional'),
+                      backgroundColor: f.required ? Colors.green.withAlpha(30) : Colors.grey.withAlpha(30),
+                      labelStyle: TextStyle(
+                        fontSize: 11,
+                        color: f.required ? Colors.green.shade700 : Colors.grey.shade600,
+                      ),
+                    ),
+                  )),
                 ],
               ),
             ),
@@ -389,8 +369,6 @@ class _KycSchemaTab extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                DynamicForm(fields: fields, readOnly: true),
               ],
             ),
           ),
@@ -457,9 +435,10 @@ class _DocumentsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final docs = product.requiredDocuments;
+    // Documents are now captured via form templates (photo/file field types)
+    final hasDocForms = product.requiredForms.any((f) => f.stage == 'verification' || f.stage == 'underwriting');
 
-    if (docs.isEmpty) {
+    if (!hasDocForms) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -481,11 +460,17 @@ class _DocumentsTab extends StatelessWidget {
       );
     }
 
+    // Documents are now captured as photo/file fields within form templates.
+    // Show the verification/underwriting stage forms that may require documents.
+    final docForms = product.requiredForms
+        .where((f) => f.stage == 'verification' || f.stage == 'underwriting')
+        .toList();
+
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          '${docs.length} required document${docs.length > 1 ? 's' : ''}',
+          '${docForms.length} document collection form${docForms.length != 1 ? 's' : ''}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -496,7 +481,7 @@ class _DocumentsTab extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                for (var i = 0; i < docs.length; i++)
+                for (var i = 0; i < docForms.length; i++)
                   ListTile(
                     leading: CircleAvatar(
                       radius: 16,
@@ -511,7 +496,9 @@ class _DocumentsTab extends StatelessWidget {
                       ),
                     ),
                     title: Text(
-                      _humanizeDocType(docs[i]),
+                      docForms[i].description.isNotEmpty
+                          ? docForms[i].description
+                          : docForms[i].templateId,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),

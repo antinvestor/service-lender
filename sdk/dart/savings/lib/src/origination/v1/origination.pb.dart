@@ -43,12 +43,11 @@ class LoanProductObject extends $pb.GeneratedMessage {
     $core.String? insuranceFeePercent,
     $core.String? latePenaltyRate,
     $core.int? gracePeriodDays,
-    $6.Struct? kycSchema,
     $6.Struct? feeStructure,
     $6.Struct? eligibilityCriteria,
-    $core.Iterable<$core.String>? requiredDocuments,
     $7.STATE? state,
     $6.Struct? properties,
+    $core.Iterable<ProductFormRequirement>? requiredForms,
   }) {
     final $result = create();
     if (id != null) {
@@ -105,23 +104,20 @@ class LoanProductObject extends $pb.GeneratedMessage {
     if (gracePeriodDays != null) {
       $result.gracePeriodDays = gracePeriodDays;
     }
-    if (kycSchema != null) {
-      $result.kycSchema = kycSchema;
-    }
     if (feeStructure != null) {
       $result.feeStructure = feeStructure;
     }
     if (eligibilityCriteria != null) {
       $result.eligibilityCriteria = eligibilityCriteria;
     }
-    if (requiredDocuments != null) {
-      $result.requiredDocuments.addAll(requiredDocuments);
-    }
     if (state != null) {
       $result.state = state;
     }
     if (properties != null) {
       $result.properties = properties;
+    }
+    if (requiredForms != null) {
+      $result.requiredForms.addAll(requiredForms);
     }
     return $result;
   }
@@ -148,12 +144,11 @@ class LoanProductObject extends $pb.GeneratedMessage {
     ..aOS(16, _omitFieldNames ? '' : 'insuranceFeePercent')
     ..aOS(17, _omitFieldNames ? '' : 'latePenaltyRate')
     ..a<$core.int>(18, _omitFieldNames ? '' : 'gracePeriodDays', $pb.PbFieldType.O3)
-    ..aOM<$6.Struct>(19, _omitFieldNames ? '' : 'kycSchema', subBuilder: $6.Struct.create)
     ..aOM<$6.Struct>(20, _omitFieldNames ? '' : 'feeStructure', subBuilder: $6.Struct.create)
     ..aOM<$6.Struct>(21, _omitFieldNames ? '' : 'eligibilityCriteria', subBuilder: $6.Struct.create)
-    ..pPS(22, _omitFieldNames ? '' : 'requiredDocuments')
     ..e<$7.STATE>(23, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
     ..aOM<$6.Struct>(24, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..pc<ProductFormRequirement>(25, _omitFieldNames ? '' : 'requiredForms', $pb.PbFieldType.PM, subBuilder: ProductFormRequirement.create)
     ..hasRequiredFields = false
   ;
 
@@ -344,61 +339,50 @@ class LoanProductObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   void clearGracePeriodDays() => clearField(18);
 
-  @$pb.TagNumber(19)
-  $6.Struct get kycSchema => $_getN(18);
-  @$pb.TagNumber(19)
-  set kycSchema($6.Struct v) { setField(19, v); }
-  @$pb.TagNumber(19)
-  $core.bool hasKycSchema() => $_has(18);
-  @$pb.TagNumber(19)
-  void clearKycSchema() => clearField(19);
-  @$pb.TagNumber(19)
-  $6.Struct ensureKycSchema() => $_ensure(18);
-
   @$pb.TagNumber(20)
-  $6.Struct get feeStructure => $_getN(19);
+  $6.Struct get feeStructure => $_getN(18);
   @$pb.TagNumber(20)
   set feeStructure($6.Struct v) { setField(20, v); }
   @$pb.TagNumber(20)
-  $core.bool hasFeeStructure() => $_has(19);
+  $core.bool hasFeeStructure() => $_has(18);
   @$pb.TagNumber(20)
   void clearFeeStructure() => clearField(20);
   @$pb.TagNumber(20)
-  $6.Struct ensureFeeStructure() => $_ensure(19);
+  $6.Struct ensureFeeStructure() => $_ensure(18);
 
   @$pb.TagNumber(21)
-  $6.Struct get eligibilityCriteria => $_getN(20);
+  $6.Struct get eligibilityCriteria => $_getN(19);
   @$pb.TagNumber(21)
   set eligibilityCriteria($6.Struct v) { setField(21, v); }
   @$pb.TagNumber(21)
-  $core.bool hasEligibilityCriteria() => $_has(20);
+  $core.bool hasEligibilityCriteria() => $_has(19);
   @$pb.TagNumber(21)
   void clearEligibilityCriteria() => clearField(21);
   @$pb.TagNumber(21)
-  $6.Struct ensureEligibilityCriteria() => $_ensure(20);
-
-  @$pb.TagNumber(22)
-  $core.List<$core.String> get requiredDocuments => $_getList(21);
+  $6.Struct ensureEligibilityCriteria() => $_ensure(19);
 
   @$pb.TagNumber(23)
-  $7.STATE get state => $_getN(22);
+  $7.STATE get state => $_getN(20);
   @$pb.TagNumber(23)
   set state($7.STATE v) { setField(23, v); }
   @$pb.TagNumber(23)
-  $core.bool hasState() => $_has(22);
+  $core.bool hasState() => $_has(20);
   @$pb.TagNumber(23)
   void clearState() => clearField(23);
 
   @$pb.TagNumber(24)
-  $6.Struct get properties => $_getN(23);
+  $6.Struct get properties => $_getN(21);
   @$pb.TagNumber(24)
   set properties($6.Struct v) { setField(24, v); }
   @$pb.TagNumber(24)
-  $core.bool hasProperties() => $_has(23);
+  $core.bool hasProperties() => $_has(21);
   @$pb.TagNumber(24)
   void clearProperties() => clearField(24);
   @$pb.TagNumber(24)
-  $6.Struct ensureProperties() => $_ensure(23);
+  $6.Struct ensureProperties() => $_ensure(21);
+
+  @$pb.TagNumber(25)
+  $core.List<ProductFormRequirement> get requiredForms => $_getList(22);
 }
 
 /// ApplicationObject represents a client's loan application.
@@ -1341,6 +1325,113 @@ class UnderwritingDecisionObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(13);
   @$pb.TagNumber(13)
   $6.Struct ensureProperties() => $_ensure(12);
+}
+
+/// ProductFormRequirement defines a form template required by a product.
+class ProductFormRequirement extends $pb.GeneratedMessage {
+  factory ProductFormRequirement({
+    $core.String? templateId,
+    $core.String? stage,
+    $core.bool? required,
+    $core.int? order,
+    $core.String? description,
+  }) {
+    final $result = create();
+    if (templateId != null) {
+      $result.templateId = templateId;
+    }
+    if (stage != null) {
+      $result.stage = stage;
+    }
+    if (required != null) {
+      $result.required = required;
+    }
+    if (order != null) {
+      $result.order = order;
+    }
+    if (description != null) {
+      $result.description = description;
+    }
+    return $result;
+  }
+  ProductFormRequirement._() : super();
+  factory ProductFormRequirement.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ProductFormRequirement.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ProductFormRequirement', package: const $pb.PackageName(_omitMessageNames ? '' : 'origination.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'templateId')
+    ..aOS(2, _omitFieldNames ? '' : 'stage')
+    ..aOB(3, _omitFieldNames ? '' : 'required')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'order', $pb.PbFieldType.O3)
+    ..aOS(5, _omitFieldNames ? '' : 'description')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ProductFormRequirement clone() => ProductFormRequirement()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ProductFormRequirement copyWith(void Function(ProductFormRequirement) updates) => super.copyWith((message) => updates(message as ProductFormRequirement)) as ProductFormRequirement;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ProductFormRequirement create() => ProductFormRequirement._();
+  ProductFormRequirement createEmptyInstance() => create();
+  static $pb.PbList<ProductFormRequirement> createRepeated() => $pb.PbList<ProductFormRequirement>();
+  @$core.pragma('dart2js:noInline')
+  static ProductFormRequirement getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ProductFormRequirement>(create);
+  static ProductFormRequirement? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get templateId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set templateId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasTemplateId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTemplateId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get stage => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set stage($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasStage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get required => $_getBF(2);
+  @$pb.TagNumber(3)
+  set required($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRequired() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRequired() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get order => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set order($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasOrder() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearOrder() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get description => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set description($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasDescription() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDescription() => clearField(5);
 }
 
 /// FormFieldDefinition defines a single field in a form template.

@@ -16,7 +16,9 @@ import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../data/application_providers.dart';
 import '../data/underwriting_decision_providers.dart';
 import '../data/verification_task_providers.dart';
+import '../../loan_management/data/loan_product_providers.dart';
 import 'applications_screen.dart';
+import 'form_submissions_timeline.dart';
 
 class ApplicationDetailScreen extends ConsumerWidget {
   const ApplicationDetailScreen({super.key, required this.applicationId});
@@ -68,7 +70,7 @@ class _ApplicationDetailContentState
   void initState() {
     super.initState();
     _app = widget.app;
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -170,6 +172,7 @@ class _ApplicationDetailContentState
             controller: _tabController,
             isScrollable: true,
             tabs: const [
+              Tab(text: 'Forms'),
               Tab(text: 'Documents'),
               Tab(text: 'Verification'),
               Tab(text: 'Underwriting'),
@@ -182,6 +185,7 @@ class _ApplicationDetailContentState
           child: TabBarView(
             controller: _tabController,
             children: [
+              _FormsTab(app: _app),
               _DocumentsTab(applicationId: _app.id),
               _VerificationTab(applicationId: _app.id),
               _UnderwritingTab(applicationId: _app.id),
@@ -763,6 +767,47 @@ class _InfoTile extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Forms tab — shows all required forms grouped by stage
+// ---------------------------------------------------------------------------
+
+class _FormsTab extends ConsumerWidget {
+  const _FormsTab({required this.app});
+
+  final ApplicationObject app;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final productAsync = ref.watch(loanProductDetailProvider(app.productId));
+
+    return productAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error loading product: $e')),
+      data: (product) {
+        if (product.requiredForms.isEmpty) {
+          return Center(
+            child: Text(
+              'No required forms configured for this product',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withAlpha(140),
+                  ),
+            ),
+          );
+        }
+
+        return FormSubmissionsTimeline(
+          applicationId: app.id,
+          requiredForms: product.requiredForms,
+          isReadOnly: true,
+        );
+      },
     );
   }
 }

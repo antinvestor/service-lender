@@ -325,10 +325,8 @@ type LoanProduct struct {
 	InsuranceFeePercent  int64 // basis points
 	LatePenaltyRate      int64 // basis points
 	GracePeriodDays      int32
-	KycSchema            data.JSONMap
 	FeeStructure         data.JSONMap
 	EligibilityCriteria  data.JSONMap
-	RequiredDocuments    data.JSONMap
 	State                int32
 	Properties           data.JSONMap
 }
@@ -355,10 +353,8 @@ func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
 		InsuranceFeePercent:  BasisPointsToString(m.InsuranceFeePercent),
 		LatePenaltyRate:      BasisPointsToString(m.LatePenaltyRate),
 		GracePeriodDays:      m.GracePeriodDays,
-		KycSchema:            m.KycSchema.ToProtoStruct(),
 		FeeStructure:         m.FeeStructure.ToProtoStruct(),
 		EligibilityCriteria:  m.EligibilityCriteria.ToProtoStruct(),
-		RequiredDocuments:    jsonMapToStringSlice(m.RequiredDocuments),
 		State:                commonv1.STATE(m.State),
 		Properties:           m.Properties.ToProtoStruct(),
 	}
@@ -393,17 +389,11 @@ func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObjec
 		State:                int32(obj.GetState()),
 	}
 
-	if obj.GetKycSchema() != nil {
-		model.KycSchema = (&data.JSONMap{}).FromProtoStruct(obj.GetKycSchema())
-	}
 	if obj.GetFeeStructure() != nil {
 		model.FeeStructure = (&data.JSONMap{}).FromProtoStruct(obj.GetFeeStructure())
 	}
 	if obj.GetEligibilityCriteria() != nil {
 		model.EligibilityCriteria = (&data.JSONMap{}).FromProtoStruct(obj.GetEligibilityCriteria())
-	}
-	if len(obj.GetRequiredDocuments()) > 0 {
-		model.RequiredDocuments = stringSliceToJSONMap(obj.GetRequiredDocuments())
 	}
 	if obj.GetProperties() != nil {
 		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())

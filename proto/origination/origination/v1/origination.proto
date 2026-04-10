@@ -220,12 +220,13 @@ message LoanProductObject {
   string insurance_fee_percent = 16;
   string late_penalty_rate = 17;
   int32 grace_period_days = 18;
-  google.protobuf.Struct kyc_schema = 19;
+  reserved 19; // was kyc_schema — replaced by required_forms
   google.protobuf.Struct fee_structure = 20;
   google.protobuf.Struct eligibility_criteria = 21;
-  repeated string required_documents = 22;
+  reserved 22; // was required_documents — replaced by required_forms
   common.v1.STATE state = 23;
   google.protobuf.Struct properties = 24;
+  repeated ProductFormRequirement required_forms = 25; // Form templates required for this product
 }
 
 // ApplicationObject represents a client's loan application.
@@ -346,6 +347,15 @@ message UnderwritingDecisionObject {
   google.protobuf.Struct scoring_details = 11;
   google.protobuf.Struct conditions = 12;
   google.protobuf.Struct properties = 13;
+}
+
+// ProductFormRequirement defines a form template required by a product.
+message ProductFormRequirement {
+  string template_id = 1;           // FormTemplate ID
+  string stage = 2;                 // When required: "application", "verification", "underwriting", "disbursement"
+  bool required = 3;                // Whether this form must be completed before advancing
+  int32 order = 4;                  // Display order within the stage
+  string description = 5;           // Why this form is needed (shown to agent)
 }
 
 // FormFieldDefinition defines a single field in a form template.

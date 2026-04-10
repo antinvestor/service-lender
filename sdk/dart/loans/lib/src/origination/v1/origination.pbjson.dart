@@ -269,12 +269,15 @@ const LoanProductObject$json = {
     {'1': 'insurance_fee_percent', '3': 16, '4': 1, '5': 9, '10': 'insuranceFeePercent'},
     {'1': 'late_penalty_rate', '3': 17, '4': 1, '5': 9, '10': 'latePenaltyRate'},
     {'1': 'grace_period_days', '3': 18, '4': 1, '5': 5, '10': 'gracePeriodDays'},
-    {'1': 'kyc_schema', '3': 19, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'kycSchema'},
     {'1': 'fee_structure', '3': 20, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'feeStructure'},
     {'1': 'eligibility_criteria', '3': 21, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'eligibilityCriteria'},
-    {'1': 'required_documents', '3': 22, '4': 3, '5': 9, '10': 'requiredDocuments'},
     {'1': 'state', '3': 23, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
     {'1': 'properties', '3': 24, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {'1': 'required_forms', '3': 25, '4': 3, '5': 11, '6': '.origination.v1.ProductFormRequirement', '10': 'requiredForms'},
+  ],
+  '9': [
+    {'1': 19, '2': 20},
+    {'1': 22, '2': 23},
   ],
 };
 
@@ -296,13 +299,13 @@ final $typed_data.Uint8List loanProductObjectDescriptor = $convert.base64Decode(
     'dfZmVlX3BlcmNlbnQYDyABKAlSFHByb2Nlc3NpbmdGZWVQZXJjZW50EjIKFWluc3VyYW5jZV9m'
     'ZWVfcGVyY2VudBgQIAEoCVITaW5zdXJhbmNlRmVlUGVyY2VudBIqChFsYXRlX3BlbmFsdHlfcm'
     'F0ZRgRIAEoCVIPbGF0ZVBlbmFsdHlSYXRlEioKEWdyYWNlX3BlcmlvZF9kYXlzGBIgASgFUg9n'
-    'cmFjZVBlcmlvZERheXMSNgoKa3ljX3NjaGVtYRgTIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdH'
-    'J1Y3RSCWt5Y1NjaGVtYRI8Cg1mZWVfc3RydWN0dXJlGBQgASgLMhcuZ29vZ2xlLnByb3RvYnVm'
-    'LlN0cnVjdFIMZmVlU3RydWN0dXJlEkoKFGVsaWdpYmlsaXR5X2NyaXRlcmlhGBUgASgLMhcuZ2'
-    '9vZ2xlLnByb3RvYnVmLlN0cnVjdFITZWxpZ2liaWxpdHlDcml0ZXJpYRItChJyZXF1aXJlZF9k'
-    'b2N1bWVudHMYFiADKAlSEXJlcXVpcmVkRG9jdW1lbnRzEiYKBXN0YXRlGBcgASgOMhAuY29tbW'
-    '9uLnYxLlNUQVRFUgVzdGF0ZRI3Cgpwcm9wZXJ0aWVzGBggASgLMhcuZ29vZ2xlLnByb3RvYnVm'
-    'LlN0cnVjdFIKcHJvcGVydGllcw==');
+    'cmFjZVBlcmlvZERheXMSPAoNZmVlX3N0cnVjdHVyZRgUIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi'
+    '5TdHJ1Y3RSDGZlZVN0cnVjdHVyZRJKChRlbGlnaWJpbGl0eV9jcml0ZXJpYRgVIAEoCzIXLmdv'
+    'b2dsZS5wcm90b2J1Zi5TdHJ1Y3RSE2VsaWdpYmlsaXR5Q3JpdGVyaWESJgoFc3RhdGUYFyABKA'
+    '4yEC5jb21tb24udjEuU1RBVEVSBXN0YXRlEjcKCnByb3BlcnRpZXMYGCABKAsyFy5nb29nbGUu'
+    'cHJvdG9idWYuU3RydWN0Ugpwcm9wZXJ0aWVzEk0KDnJlcXVpcmVkX2Zvcm1zGBkgAygLMiYub3'
+    'JpZ2luYXRpb24udjEuUHJvZHVjdEZvcm1SZXF1aXJlbWVudFINcmVxdWlyZWRGb3Jtc0oECBMQ'
+    'FEoECBYQFw==');
 
 @$core.Deprecated('Use applicationObjectDescriptor instead')
 const ApplicationObject$json = {
@@ -447,6 +450,24 @@ final $typed_data.Uint8List underwritingDecisionObjectDescriptor = $convert.base
     'RydWN0Ug5zY29yaW5nRGV0YWlscxI3Cgpjb25kaXRpb25zGAwgASgLMhcuZ29vZ2xlLnByb3Rv'
     'YnVmLlN0cnVjdFIKY29uZGl0aW9ucxI3Cgpwcm9wZXJ0aWVzGA0gASgLMhcuZ29vZ2xlLnByb3'
     'RvYnVmLlN0cnVjdFIKcHJvcGVydGllcw==');
+
+@$core.Deprecated('Use productFormRequirementDescriptor instead')
+const ProductFormRequirement$json = {
+  '1': 'ProductFormRequirement',
+  '2': [
+    {'1': 'template_id', '3': 1, '4': 1, '5': 9, '10': 'templateId'},
+    {'1': 'stage', '3': 2, '4': 1, '5': 9, '10': 'stage'},
+    {'1': 'required', '3': 3, '4': 1, '5': 8, '10': 'required'},
+    {'1': 'order', '3': 4, '4': 1, '5': 5, '10': 'order'},
+    {'1': 'description', '3': 5, '4': 1, '5': 9, '10': 'description'},
+  ],
+};
+
+/// Descriptor for `ProductFormRequirement`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List productFormRequirementDescriptor = $convert.base64Decode(
+    'ChZQcm9kdWN0Rm9ybVJlcXVpcmVtZW50Eh8KC3RlbXBsYXRlX2lkGAEgASgJUgp0ZW1wbGF0ZU'
+    'lkEhQKBXN0YWdlGAIgASgJUgVzdGFnZRIaCghyZXF1aXJlZBgDIAEoCFIIcmVxdWlyZWQSFAoF'
+    'b3JkZXIYBCABKAVSBW9yZGVyEiAKC2Rlc2NyaXB0aW9uGAUgASgJUgtkZXNjcmlwdGlvbg==');
 
 @$core.Deprecated('Use formFieldDefinitionDescriptor instead')
 const FormFieldDefinition$json = {
@@ -1413,6 +1434,7 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> Originatio
   '.google.protobuf.Struct.FieldsEntry': $6.Struct_FieldsEntry$json,
   '.google.protobuf.Value': $6.Value$json,
   '.google.protobuf.ListValue': $6.ListValue$json,
+  '.origination.v1.ProductFormRequirement': ProductFormRequirement$json,
   '.origination.v1.LoanProductSaveResponse': LoanProductSaveResponse$json,
   '.origination.v1.LoanProductGetRequest': LoanProductGetRequest$json,
   '.origination.v1.LoanProductGetResponse': LoanProductGetResponse$json,

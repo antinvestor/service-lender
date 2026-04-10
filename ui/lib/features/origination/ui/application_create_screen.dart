@@ -13,6 +13,7 @@ import '../../auth/data/auth_repository.dart';
 import '../../field/data/client_providers.dart';
 import '../../loan_management/data/loan_product_providers.dart';
 import '../data/application_providers.dart';
+import 'application_form_wizard.dart';
 
 /// Multi-step application creation wizard.
 ///
@@ -70,23 +71,22 @@ class _ApplicationCreateScreenState
     super.dispose();
   }
 
-  bool get _hasKycSchema =>
+  /// Whether the selected product has required forms for the application stage.
+  bool get _hasRequiredForms =>
       _selectedProduct != null &&
-      _selectedProduct!.hasKycSchema() &&
-      _selectedProduct!.kycSchema.fields.isNotEmpty;
+      _selectedProduct!.requiredForms.any(
+        (r) => r.stage.toLowerCase() == 'application',
+      );
 
-  int get _totalSteps => _hasKycSchema ? 4 : 3;
+  /// When the product has required_forms we show: Product -> Details -> Wizard.
+  /// The wizard handles its own form steps internally so we only show 3 top-level
+  /// steps (the last one is the wizard which includes review+submit).
+  // Steps: Product → Details → Form Wizard (if product has forms) or Review
+  int get _totalSteps => _hasRequiredForms ? 3 : 3;
 
   bool _validateCurrentStep() {
-    if (_currentStep == 0) {
-      return _selectedProduct != null;
-    }
-    if (_currentStep == 1) {
-      return _step2Key.currentState?.validate() ?? false;
-    }
-    if (_currentStep == 2 && _hasKycSchema) {
-      return _kycFormKey.currentState?.validate() ?? true;
-    }
+    if (_currentStep == 0) return _selectedProduct != null;
+    if (_currentStep == 1) return _step2Key.currentState?.validate() ?? false;
     return true;
   }
 
@@ -235,15 +235,21 @@ class _ApplicationCreateScreenState
           ),
         ),
 
-        // Content
+        // Content — the form wizard needs full height (not scrollable wrapper)
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: _buildStep(),
-          ),
+          child: _hasRequiredForms && _currentStep == 2
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildStep(),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: _buildStep(),
+                ),
         ),
 
-        // Navigation
+        // Navigation — hidden when form wizard is active (it has its own nav)
+        if (!(_hasRequiredForms && _currentStep == 2))
         Container(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           decoration: BoxDecoration(
@@ -295,12 +301,11 @@ class _ApplicationCreateScreenState
   }
 
   String _stepLabel(int step) {
-    if (_hasKycSchema) {
+    if (_hasRequiredForms) {
       return switch (step) {
         0 => 'Select Loan Product',
         1 => 'Loan Details',
-        2 => 'KYC Information',
-        3 => 'Review & Submit',
+        2 => 'Application Forms',
         _ => '',
       };
     }
@@ -313,13 +318,13 @@ class _ApplicationCreateScreenState
   }
 
   Widget _buildStep() {
-    // Determine actual step, accounting for optional KYC step
-    if (_hasKycSchema) {
+    // When the product has required_forms for the application stage, step 2
+    // is the multi-form wizard which handles its own review and submission.
+    if (_hasRequiredForms) {
       return switch (_currentStep) {
         0 => _buildProductSelection(),
         1 => _buildLoanDetails(),
-        2 => _buildKycStep(),
-        3 => _buildReview(),
+        2 => _buildFormWizardStep(),
         _ => const SizedBox.shrink(),
       };
     }
@@ -585,26 +590,58 @@ class _ApplicationCreateScreenState
     );
   }
 
-  // ── Step 3: KYC Data ───────────────────────────────────────────────────────
+  // ── Step: Form Wizard (when product has required_forms) ─────────────────
 
-  Widget _buildKycStep() {
-    if (_selectedProduct == null || !_hasKycSchema) {
-      return const Center(child: Text('No KYC schema configured'));
-    }
-
-    final fields = parseKycSchema(_selectedProduct!.kycSchema);
-    if (fields.isEmpty) {
-      return const Center(
-        child: Text('No KYC fields defined for this product'),
-      );
-    }
-
-    return DynamicForm(
-      key: _kycFormKey,
-      fields: fields,
-      initialValues: _kycValues,
-      onChanged: (values) => _kycValues = values,
+  Widget _buildFormWizardStep() {
+    // Create a draft application first so we have an ID for form submissions.
+    // The wizard will handle its own layout, so we wrap it in a SizedBox to
+    // fill the available space (the parent is inside a SingleChildScrollView
+    // but the wizard needs a fixed height).
+    return FutureBuilder<ApplicationObject>(
+      future: _getOrCreateDraft(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error creating draft: ${snapshot.error}'));
+        }
+        final draft = snapshot.data!;
+        return SizedBox(
+          height: MediaQuery.of(context).size.height - 280,
+          child: ApplicationFormWizard(
+            application: draft,
+            product: _selectedProduct!,
+            onAllFormsCompleted: () => _submitApplication(),
+          ),
+        );
+      },
     );
+  }
+
+  ApplicationObject? _draftApplication;
+
+  Future<ApplicationObject> _getOrCreateDraft() async {
+    if (_draftApplication != null) return _draftApplication!;
+
+    final profileId = ref.read(currentProfileIdProvider).value ?? '';
+    final app = ApplicationObject(
+      productId: _selectedProduct!.id,
+      clientId: _clientIdCtrl.text.trim(),
+      agentId: profileId,
+      organizationId: _selectedProduct!.organizationId,
+      requestedAmount: moneyFromString(
+        _amountCtrl.text.trim(),
+        _currencyCtrl.text.trim().toUpperCase(),
+      ),
+      requestedTermDays: int.tryParse(_termCtrl.text.trim()) ?? 0,
+      purpose: _purposeCtrl.text.trim(),
+      status: ApplicationStatus.APPLICATION_STATUS_DRAFT,
+    );
+
+    final saved = await ref.read(applicationProvider.notifier).save(app);
+    _draftApplication = saved;
+    return saved;
   }
 
   // ── Review ─────────────────────────────────────────────────────────────────
