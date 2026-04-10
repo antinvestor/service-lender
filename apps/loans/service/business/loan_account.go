@@ -143,7 +143,7 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 	}
 
 	la.GenID(ctx)
-	setDisbursementDates(la)
+	setInitialRepaymentDate(la)
 
 	if err = b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); err != nil {
 		logger.WithError(err).Error("could not emit loan account save event")
@@ -182,6 +182,9 @@ func (b *loanAccountBusiness) populateLoanFromApplication(
 	}
 
 	app := appResp.Msg.GetData()
+	if app.GetStatus() != originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_ACCEPTED {
+		return nil, nil, ErrApplicationNotOfferAccepted
+	}
 	la.ProductID = app.GetProductId()
 	la.ClientID = app.GetClientId()
 	la.AgentID = app.GetAgentId()
@@ -195,16 +198,8 @@ func (b *loanAccountBusiness) populateLoanFromApplication(
 
 	lp := b.applyProductDefaults(ctx, logger, la, app.GetProductId())
 
-	// Use requested amounts as fallback if approved amounts are zero
-	if la.PrincipalAmount == 0 {
-		reqAmt, reqCur := models.MoneyToMinorUnits(app.GetRequestedAmount())
-		la.PrincipalAmount = reqAmt
-		if la.CurrencyCode == "" {
-			la.CurrencyCode = reqCur
-		}
-	}
-	if la.TermDays == 0 {
-		la.TermDays = app.GetRequestedTermDays()
+	if la.PrincipalAmount <= 0 || la.TermDays <= 0 {
+		return nil, nil, ErrApplicationTermsNotApproved
 	}
 
 	return la, lp, nil
@@ -237,10 +232,10 @@ func (b *loanAccountBusiness) applyProductDefaults(
 	return prod
 }
 
-// setDisbursementDates sets the disbursement date to now and computes the first repayment date.
-func setDisbursementDates(la *models.LoanAccount) {
+// setInitialRepaymentDate computes the expected first repayment date without
+// marking the loan as already disbursed.
+func setInitialRepaymentDate(la *models.LoanAccount) {
 	now := time.Now().UTC()
-	la.DisbursedAt = &now
 	firstRepayment := now.AddDate(0, 0, computeFirstRepaymentDays(loansv1.RepaymentFrequency(la.RepaymentFrequency)))
 	la.FirstRepaymentDate = &firstRepayment
 }

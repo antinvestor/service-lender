@@ -2,10 +2,8 @@ package business
 
 import (
 	"context"
-	"strconv"
 
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
-	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
@@ -83,17 +81,6 @@ func (b *formTemplateBusiness) Search(
 ) error {
 	logger := util.Log(ctx).WithField("method", "FormTemplateBusiness.Search")
 
-	var searchOpts []data.SearchOption
-
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
-
 	andQueryVal := map[string]any{}
 	if req.GetOrganizationId() != "" {
 		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
@@ -102,32 +89,19 @@ func (b *formTemplateBusiness) Search(
 		andQueryVal["status = ?"] = int32(req.GetStatus())
 	}
 
-	if len(andQueryVal) > 0 {
-		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
-	}
-
-	if req.GetQuery() != "" {
-		searchOpts = append(searchOpts,
-			data.WithSearchFiltersOrByValue(
-				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
-			),
-		)
-	}
-
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.ftRepo.Search(ctx, query)
-	if err != nil {
-		logger.WithError(err).Error("failed to search form templates")
-		return err
-	}
-
-	return workerpoolConsumeStream(ctx, results, func(res []*models.FormTemplate) error {
-		var apiResults []*originationv1.FormTemplateObject
-		for _, ft := range res {
-			apiResults = append(apiResults, ft.ToAPI())
-		}
-		return consumer(ctx, apiResults)
-	})
+	return executeSearch(
+		ctx,
+		logger,
+		b.ftRepo.Search,
+		req.GetCursor(),
+		andQueryVal,
+		req.GetQuery(),
+		"failed to search form templates",
+		func(ft *models.FormTemplate) *originationv1.FormTemplateObject {
+			return ft.ToAPI()
+		},
+		consumer,
+	)
 }
 
 func (b *formTemplateBusiness) Publish(ctx context.Context, id string) (*originationv1.FormTemplateObject, error) {

@@ -18,11 +18,23 @@ var (
 	ErrRestructureNotPending      = apperrors.NewError(apperrors.Unprocessable, "restructure is not in pending state")
 	ErrPenaltyAlreadyWaived       = apperrors.NewError(apperrors.Unprocessable, "penalty is already waived")
 
-	ErrDisbursementNotFound          = apperrors.NewError(apperrors.NotFound, "disbursement not found")
-	ErrDuplicateIdempotencyKey       = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")
-	ErrApplicationNotFound           = apperrors.NewError(apperrors.NotFound, "origination application not found")
+	ErrDisbursementNotFound        = apperrors.NewError(apperrors.NotFound, "disbursement not found")
+	ErrDuplicateIdempotencyKey     = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")
+	ErrApplicationNotFound         = apperrors.NewError(apperrors.NotFound, "origination application not found")
+	ErrApplicationNotOfferAccepted = apperrors.NewError(
+		apperrors.Unprocessable,
+		"application offer has not been accepted",
+	)
+	ErrApplicationTermsNotApproved = apperrors.NewError(
+		apperrors.Unprocessable,
+		"application does not have approved loan terms",
+	)
 	ErrOriginationServiceUnavailable = apperrors.NewError(
 		apperrors.ServiceUnavailable,
 		"origination service is not available",
+	)
+	ErrLoanPaymentAccountMissing = apperrors.NewError(
+		apperrors.Unprocessable,
+		"loan payment account reference is missing",
 	)
 )

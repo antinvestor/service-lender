@@ -1,10 +1,8 @@
 package models
 
 import (
-	"strconv"
 	"time"
 
-	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util/decimalx"
 	money "google.golang.org/genproto/googleapis/type/money"
 )
@@ -75,24 +73,6 @@ func StringToTime(s string) *time.Time {
 	return &t
 }
 
-// jsonMapToStringSlice converts a JSONMap that stores a list of documents
-// (keyed by index) back to a []string.
-func jsonMapToStringSlice(m data.JSONMap) []string {
-	if m == nil {
-		return nil
-	}
-	result := make([]string, 0, len(m))
-	for i := range len(m) {
-		key := strconv.Itoa(i)
-		if v, exists := m[key]; exists {
-			if s, isStr := v.(string); isStr {
-				result = append(result, s)
-			}
-		}
-	}
-	return result
-}
-
 // MinorUnitsToMoney converts minor units (e.g. cents) and a currency code to a
 // *money.Money proto message.
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
@@ -111,16 +91,4 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 		return 0, ""
 	}
 	return m.GetUnits()*minorUnitsPerUnit + int64(m.GetNanos())/nanosPerMinorUnit, m.GetCurrencyCode()
-}
-
-// stringSliceToJSONMap converts a []string into a JSONMap keyed by index.
-func stringSliceToJSONMap(ss []string) data.JSONMap {
-	if len(ss) == 0 {
-		return nil
-	}
-	m := data.JSONMap{}
-	for i, s := range ss {
-		m[strconv.Itoa(i)] = s
-	}
-	return m
 }

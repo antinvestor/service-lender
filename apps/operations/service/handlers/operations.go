@@ -18,6 +18,8 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
+const moneyDecimalPlaces = 2
+
 // OperationsServer implements the OperationsService RPC handler.
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type OperationsServer struct {
@@ -123,7 +125,7 @@ func (s *OperationsServer) TransferOrderSearch(
 
 // transferOrderFromAPI converts a proto TransferOrderObject to a TransferOrder model.
 func transferOrderFromAPI(ctx context.Context, obj *operationsv1.TransferOrderObject) *models.TransferOrder {
-	amount := moneyx.ToSmallestUnit(obj.GetAmount(), 2)
+	amount := moneyx.ToSmallestUnit(obj.GetAmount(), moneyDecimalPlaces)
 	currency := obj.GetAmount().GetCurrencyCode()
 	m := &models.TransferOrder{
 		DebitAccountRef:  obj.GetDebitAccountRef(),
@@ -151,7 +153,7 @@ func transferOrderToAPI(m *models.TransferOrder) *operationsv1.TransferOrderObje
 		Id:               m.GetID(),
 		DebitAccountRef:  m.DebitAccountRef,
 		CreditAccountRef: m.CreditAccountRef,
-		Amount:           moneyx.FromSmallestUnit(m.Currency, m.Amount, 2),
+		Amount:           moneyx.FromSmallestUnit(m.Currency, m.Amount, moneyDecimalPlaces),
 		OrderType:        m.OrderType,
 		Reference:        m.Reference,
 		Description:      m.Description,
@@ -166,7 +168,7 @@ func (s *OperationsServer) IncomingPaymentNotify(
 	ctx context.Context,
 	req *connect.Request[operationsv1.IncomingPaymentNotifyRequest],
 ) (*connect.Response[operationsv1.IncomingPaymentNotifyResponse], error) {
-	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), 2)
+	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 	currency := req.Msg.GetAmount().GetCurrencyCode()
 
 	paymentData := map[string]interface{}{

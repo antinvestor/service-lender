@@ -9,6 +9,10 @@ var (
 	ErrUnderwritingDecisionNotFound = apperrors.NewError(apperrors.NotFound, "underwriting decision not found")
 	ErrClientNotFound               = apperrors.NewError(apperrors.NotFound, "client not found in identity service")
 	ErrAgentNotFound                = apperrors.NewError(apperrors.NotFound, "agent not found in identity service")
+	ErrClientNotActive              = apperrors.NewError(
+		apperrors.Unprocessable,
+		"client is not active and approved for lending",
+	)
 
 	ErrInvalidStatusTransition      = apperrors.NewError(apperrors.Unprocessable, "invalid status transition")
 	ErrApplicationNotDraft          = apperrors.NewError(apperrors.Unprocessable, "application is not in draft status")
@@ -44,6 +48,10 @@ var (
 	ErrCreditLimitCheckFailed = apperrors.NewError(
 		apperrors.BadGateway,
 		"could not verify client credit limit",
+	)
+	ErrEligibilityCheckFailed = apperrors.NewError(
+		apperrors.BadGateway,
+		"could not complete loan eligibility checks",
 	)
 
 	ErrFormTemplateNotFound = apperrors.NewError(apperrors.NotFound, "form template not found")

@@ -43,6 +43,8 @@ type Reconciler struct {
 	grpRepo identityrepo.ClientGroupRepository
 }
 
+const groupMemberFetchLimit = 1000
+
 func NewReconciler(
 	toRepo opsrepo.TransferOrderRepository,
 	arRepo opsrepo.AccountRefRepository,
@@ -65,7 +67,7 @@ func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Resul
 	}
 
 	// Get all members in the group
-	members, err := r.memRepo.GetByGroupID(ctx, groupID, 0, 1000)
+	members, err := r.memRepo.GetByGroupID(ctx, groupID, 0, groupMemberFetchLimit)
 	if err != nil {
 		return nil, fmt.Errorf("could not get group members: %w", err)
 	}

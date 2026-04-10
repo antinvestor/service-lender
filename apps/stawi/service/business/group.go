@@ -20,6 +20,8 @@ type groupBusiness struct {
 	clients     *clients.PlatformClients
 }
 
+const membershipSearchLimit int32 = 1000
+
 func NewClientGroupBusiness(
 	_ context.Context,
 	identityCli identityv1connect.IdentityServiceClient,
@@ -127,7 +129,12 @@ func (b *groupBusiness) CheckFormation(ctx context.Context, groupID string) (map
 	}
 
 	if formed && int32(group.GetState()) == int32(constants.StateJustCreated) {
-		if transErr := b.Transition(ctx, groupID, int32(constants.StateCheckCreated), "formation threshold met"); transErr != nil {
+		if transErr := b.Transition(
+			ctx,
+			groupID,
+			int32(constants.StateCheckCreated),
+			"formation threshold met",
+		); transErr != nil {
 			logger.WithError(transErr).Warn("could not auto-transition to CHECK_CREATED")
 		} else {
 			result["transitioned_to"] = constants.StateCheckCreated
@@ -221,7 +228,7 @@ func (b *groupBusiness) searchMembers(ctx context.Context, groupID string) ([]*i
 	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
 		&identityv1.MembershipSearchRequest{
 			GroupId: groupID,
-			Cursor:  &commonv1.PageCursor{Limit: 1000},
+			Cursor:  &commonv1.PageCursor{Limit: membershipSearchLimit},
 		},
 	))
 	if err != nil {

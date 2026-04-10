@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	fevents "github.com/pitabwire/frame/events"
@@ -67,7 +68,7 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 
 	// Load the offer to get amount and details
 	if b.loReader == nil {
-		return nil, fmt.Errorf("loan offer reader not configured")
+		return nil, errors.New("loan offer reader not configured")
 	}
 	offer, err := b.loReader.GetByID(ctx, offerID)
 	if err != nil {

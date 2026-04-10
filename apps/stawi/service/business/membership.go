@@ -48,7 +48,7 @@ func (b *membershipBusiness) GetByGroupID(ctx context.Context, groupID string) (
 	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
 		&identityv1.MembershipSearchRequest{
 			GroupId: groupID,
-			Cursor:  &commonv1.PageCursor{Limit: 1000},
+			Cursor:  &commonv1.PageCursor{Limit: membershipSearchLimit},
 		},
 	))
 	if err != nil {

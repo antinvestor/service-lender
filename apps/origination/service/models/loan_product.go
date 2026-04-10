@@ -119,23 +119,23 @@ func requiredFormsToAPI(forms data.JSONMap) []*originationv1.ProductFormRequirem
 		return nil
 	}
 
-	items, ok := forms["items"].([]interface{})
-	if !ok {
+	items, itemsOK := forms["items"].([]interface{})
+	if !itemsOK {
 		return nil
 	}
 
 	var result []*originationv1.ProductFormRequirement
 	for _, item := range items {
-		m, ok := item.(map[string]interface{})
-		if !ok {
+		formMap, isMap := item.(map[string]interface{})
+		if !isMap {
 			continue
 		}
 		req := &originationv1.ProductFormRequirement{
-			TemplateId:  mapStr(m, "template_id"),
-			Stage:       mapStr(m, "stage"),
-			Required:    mapBool(m, "required"),
-			Order:       mapInt32(m, "order"),
-			Description: mapStr(m, "description"),
+			TemplateId:  mapStr(formMap, "template_id"),
+			Stage:       mapStr(formMap, "stage"),
+			Required:    mapBool(formMap, "required"),
+			Order:       mapInt32(formMap, "order"),
+			Description: mapStr(formMap, "description"),
 		}
 		result = append(result, req)
 	}

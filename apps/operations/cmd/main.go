@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
@@ -36,6 +37,8 @@ import (
 
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
+
+var errCurrentPeriodNotFound = errors.New("current period not found")
 
 func main() {
 	tmpCtx := context.Background()
@@ -245,7 +248,7 @@ func (a *periodAdapter) GetCurrentByGroupID(ctx context.Context, groupID string)
 		return nil, err
 	}
 	if p == nil {
-		return nil, nil
+		return nil, errCurrentPeriodNotFound
 	}
 	info := &business.PeriodInfo{
 		EndDate:  p.EndDate,

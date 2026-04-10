@@ -3,8 +3,9 @@ package business
 import (
 	"context"
 
-	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/pitabwire/frame/data"
+
+	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 )
 
 // LoanOfferInfo is a lightweight projection of the loan offer for funding allocation.

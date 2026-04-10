@@ -16,7 +16,7 @@ type DisbursementRepository interface {
 }
 
 type disbursementRepository struct {
-	datastore.BaseRepository[*models.Disbursement]
+	entityRepository[*models.Disbursement]
 }
 
 func NewDisbursementRepository(
@@ -25,9 +25,9 @@ func NewDisbursementRepository(
 	workMan workerpool.Manager,
 ) DisbursementRepository {
 	return &disbursementRepository{
-		BaseRepository: datastore.NewBaseRepository[*models.Disbursement](
-			ctx, dbPool, workMan, func() *models.Disbursement { return &models.Disbursement{} },
-		),
+		entityRepository: newEntityRepository(ctx, dbPool, workMan, func() *models.Disbursement {
+			return &models.Disbursement{}
+		}),
 	}
 }
 
@@ -35,11 +35,5 @@ func (repo *disbursementRepository) GetByIdempotencyKey(
 	ctx context.Context,
 	key string,
 ) (*models.Disbursement, error) {
-	disb := models.Disbursement{}
-	err := repo.Pool().DB(ctx, true).
-		First(&disb, "idempotency_key = ?", key).Error
-	if err != nil {
-		return nil, err
-	}
-	return &disb, nil
+	return repo.findOneByField(ctx, "idempotency_key = ?", key)
 }

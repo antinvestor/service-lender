@@ -21,6 +21,8 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
+const moneyDecimalPlaces = 2
+
 type RepaymentBusiness interface {
 	Record(ctx context.Context, req *loansv1.RepaymentRecordRequest) (*loansv1.RepaymentObject, error)
 	Get(ctx context.Context, id string) (*loansv1.RepaymentObject, error)
@@ -296,7 +298,7 @@ func (b *repaymentBusiness) emitTransferOrder(
 		Data: &operationsv1.TransferOrderObject{
 			DebitAccountRef:  debitAccount,
 			CreditAccountRef: creditAccount,
-			Amount:           moneyx.FromSmallestUnit(currency, amount, 2),
+			Amount:           moneyx.FromSmallestUnit(currency, amount, moneyDecimalPlaces),
 			OrderType:        constants.SafeInt32FromInt(orderType),
 			Reference:        reference,
 			Description:      description,

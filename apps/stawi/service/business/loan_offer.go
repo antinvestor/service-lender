@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -280,7 +281,7 @@ func (b *loanOfferBusiness) getMembersByGroupID(
 	groupID string,
 ) ([]*identityv1.MembershipObject, error) {
 	if b.identityCli == nil {
-		return nil, fmt.Errorf("identity client not available")
+		return nil, errors.New("identity client not available")
 	}
 
 	stream, err := b.identityCli.MembershipSearch(ctx, connect.NewRequest(
@@ -295,8 +296,8 @@ func (b *loanOfferBusiness) getMembersByGroupID(
 		msg := stream.Msg()
 		members = append(members, msg.GetData()...)
 	}
-	if err := stream.Err(); err != nil {
-		return nil, err
+	if streamErr := stream.Err(); streamErr != nil {
+		return nil, streamErr
 	}
 
 	return members, nil

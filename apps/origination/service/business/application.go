@@ -2,9 +2,11 @@ package business
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
@@ -109,12 +111,16 @@ func (b *applicationBusiness) validateNewApplication(
 	app *models.Application,
 ) error {
 	if b.identityCli != nil && app.ClientID != "" {
-		_, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
+		resp, err := b.identityCli.ClientGet(ctx, connect.NewRequest(&fieldv1.ClientGetRequest{
 			Id: app.ClientID,
 		}))
 		if err != nil {
 			logger.WithError(err).Warn("client validation failed")
 			return ErrClientNotFound
+		}
+		if !isClientEligibleForLending(resp.Msg.GetData()) {
+			logger.WithField("client_id", app.ClientID).Warn("client is not active for lending")
+			return ErrClientNotActive
 		}
 	}
 
@@ -327,25 +333,12 @@ func (b *applicationBusiness) submitWithVerificationWorkflow(
 	logger *util.LogEntry,
 	app *models.Application,
 ) (*originationv1.ApplicationObject, error) {
-	// Auto-advance: SUBMITTED → KYC_PENDING
+	// Stop at KYC_PENDING until the downstream onboarding and verification
+	// steps have been explicitly completed.
 	previousStatus := app.Status
 	app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_KYC_PENDING)
-	if advErr := b.emitTransition(ctx, logger, app, previousStatus, "auto-advance after submission"); advErr != nil {
-		logger.WithError(advErr).Warn("could not auto-advance to KYC_PENDING")
-	}
-
-	// Auto-advance: KYC_PENDING → DOCUMENTS_PENDING (KYC assumed complete for now)
-	previousStatus = app.Status
-	app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_DOCUMENTS_PENDING)
-	if advErr := b.emitTransition(ctx, logger, app, previousStatus, "auto-advance KYC complete"); advErr != nil {
-		logger.WithError(advErr).Warn("could not auto-advance to DOCUMENTS_PENDING")
-	}
-
-	// Auto-advance: DOCUMENTS_PENDING → VERIFICATION (ready for verifier tasks)
-	previousStatus = app.Status
-	app.Status = int32(originationv1.ApplicationStatus_APPLICATION_STATUS_VERIFICATION)
-	if advErr := b.emitTransition(ctx, logger, app, previousStatus, "auto-advance documents received"); advErr != nil {
-		logger.WithError(advErr).Warn("could not auto-advance to VERIFICATION")
+	if advErr := b.emitTransition(ctx, logger, app, previousStatus, "awaiting KYC completion"); advErr != nil {
+		logger.WithError(advErr).Warn("could not transition application to KYC_PENDING")
 	}
 
 	return app.ToAPI(), nil
@@ -491,7 +484,8 @@ func (b *applicationBusiness) CheckEligibility(
 	if b.cpaRepo != nil {
 		hasAccess, err := b.cpaRepo.HasAccess(ctx, clientID, productID)
 		if err != nil {
-			logger.WithError(err).Warn("could not check product access, allowing by default")
+			logger.WithError(err).Error("could not check product access")
+			return ErrEligibilityCheckFailed
 		} else if !hasAccess {
 			return ErrProductAccessDenied
 		}
@@ -596,8 +590,8 @@ func (b *applicationBusiness) checkNoActiveLoans(ctx context.Context, clientID s
 
 		stream, err := b.loanMgmtCli.LoanAccountSearch(ctx, connect.NewRequest(req))
 		if err != nil {
-			logger.WithError(err).Warn("could not query loan accounts, skipping active loan check")
-			return nil // fail-open: don't block if loan service is unavailable
+			logger.WithError(err).Error("could not query loan accounts")
+			return fmt.Errorf("%w: active loan lookup unavailable", ErrEligibilityCheckFailed)
 		}
 
 		if stream.Receive() {
@@ -641,8 +635,8 @@ func (b *applicationBusiness) checkNoPendingApplications(ctx context.Context, cl
 
 	results, err := b.appRepo.Search(ctx, query)
 	if err != nil {
-		logger.WithError(err).Warn("could not search applications")
-		return nil // fail-open
+		logger.WithError(err).Error("could not search applications")
+		return fmt.Errorf("%w: pending application lookup unavailable", ErrEligibilityCheckFailed)
 	}
 
 	found := false
@@ -658,6 +652,14 @@ func (b *applicationBusiness) checkNoPendingApplications(ctx context.Context, cl
 	}
 
 	return nil
+}
+
+func isClientEligibleForLending(client *fieldv1.ClientObject) bool {
+	if client == nil {
+		return false
+	}
+
+	return client.GetState() == commonv1.STATE_ACTIVE
 }
 
 // emitTransition emits both the application save event and the status history event.

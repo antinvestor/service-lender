@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/pitabwire/frame/config"
+
+	"github.com/antinvestor/service-fintech/pkg/clients"
 )
 
 type FundingConfig struct {

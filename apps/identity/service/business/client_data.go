@@ -74,14 +74,14 @@ func (b *clientDataBusiness) Save(ctx context.Context, entry *models.ClientDataE
 		entry.VerificationStatus = int32(identityv1.DataVerificationStatus_DATA_VERIFICATION_STATUS_COLLECTED)
 	}
 
-	if err := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); err != nil {
-		logger.WithError(err).Error("could not emit client data entry save event")
-		return nil, err
+	if emitErr := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); emitErr != nil {
+		logger.WithError(emitErr).Error("could not emit client data entry save event")
+		return nil, emitErr
 	}
 
 	// Record history
-	if err := b.recordHistory(ctx, entry, "submitted", "", ""); err != nil {
-		logger.WithError(err).Warn("could not record history for save")
+	if historyErr := b.recordHistory(ctx, entry, "submitted", "", ""); historyErr != nil {
+		logger.WithError(historyErr).Warn("could not record history for save")
 	}
 
 	return entry, nil
@@ -124,13 +124,13 @@ func (b *clientDataBusiness) Verify(
 	entry.ReviewerComment = comment
 	entry.VerifiedAt = &now
 
-	if err := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); err != nil {
-		logger.WithError(err).Error("could not emit client data entry save event")
-		return nil, err
+	if emitErr := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); emitErr != nil {
+		logger.WithError(emitErr).Error("could not emit client data entry save event")
+		return nil, emitErr
 	}
 
-	if err := b.recordHistory(ctx, entry, "verified", reviewerID, comment); err != nil {
-		logger.WithError(err).Warn("could not record history for verify")
+	if historyErr := b.recordHistory(ctx, entry, "verified", reviewerID, comment); historyErr != nil {
+		logger.WithError(historyErr).Warn("could not record history for verify")
 	}
 
 	return entry, nil
@@ -151,13 +151,13 @@ func (b *clientDataBusiness) Reject(
 	entry.ReviewerID = reviewerID
 	entry.ReviewerComment = reason
 
-	if err := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); err != nil {
-		logger.WithError(err).Error("could not emit client data entry save event")
-		return nil, err
+	if emitErr := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); emitErr != nil {
+		logger.WithError(emitErr).Error("could not emit client data entry save event")
+		return nil, emitErr
 	}
 
-	if err := b.recordHistory(ctx, entry, "rejected", reviewerID, reason); err != nil {
-		logger.WithError(err).Warn("could not record history for reject")
+	if historyErr := b.recordHistory(ctx, entry, "rejected", reviewerID, reason); historyErr != nil {
+		logger.WithError(historyErr).Warn("could not record history for reject")
 	}
 
 	return entry, nil
@@ -178,13 +178,13 @@ func (b *clientDataBusiness) RequestInfo(
 	entry.ReviewerID = reviewerID
 	entry.ReviewerComment = comment
 
-	if err := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); err != nil {
-		logger.WithError(err).Error("could not emit client data entry save event")
-		return nil, err
+	if emitErr := b.eventsMan.Emit(ctx, events.ClientDataEntrySaveEvent, entry); emitErr != nil {
+		logger.WithError(emitErr).Error("could not emit client data entry save event")
+		return nil, emitErr
 	}
 
-	if err := b.recordHistory(ctx, entry, "more_info", reviewerID, comment); err != nil {
-		logger.WithError(err).Warn("could not record history for request info")
+	if historyErr := b.recordHistory(ctx, entry, "more_info", reviewerID, comment); historyErr != nil {
+		logger.WithError(historyErr).Warn("could not record history for request info")
 	}
 
 	return entry, nil

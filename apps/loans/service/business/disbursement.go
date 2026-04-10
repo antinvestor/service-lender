@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"strconv"
 	"time"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
@@ -10,7 +9,6 @@ import (
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
-	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
@@ -80,6 +78,9 @@ func (b *disbursementBusiness) Create(
 	if loansv1.LoanStatus(la.Status) != loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT {
 		return nil, ErrLoanNotPendingDisbursement
 	}
+	if la.PaymentAccountRef == "" {
+		return nil, ErrLoanPaymentAccountMissing
+	}
 
 	// Create the disbursement record
 	now := time.Now().UTC()
@@ -131,6 +132,19 @@ func (b *disbursementBusiness) Create(
 		logger.WithError(err).Error("could not update disbursement status")
 	}
 
+	la.DisbursedAt = disb.DisbursedAt
+	if la.FirstRepaymentDate == nil && disb.DisbursedAt != nil {
+		firstRepayment := disb.DisbursedAt.AddDate(
+			0,
+			0,
+			computeFirstRepaymentDays(loansv1.RepaymentFrequency(la.RepaymentFrequency)),
+		)
+		la.FirstRepaymentDate = &firstRepayment
+	}
+	if saveErr := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); saveErr != nil {
+		logger.WithError(saveErr).Error("could not update loan account with disbursement details")
+	}
+
 	// Transition loan to ACTIVE
 	if _, transErr := b.laBusiness.TransitionStatus(
 		ctx, loanAccountID,
@@ -158,17 +172,6 @@ func (b *disbursementBusiness) Search(
 ) error {
 	logger := util.Log(ctx).WithField("method", "DisbursementBusiness.Search")
 
-	var searchOpts []data.SearchOption
-
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
-
 	andQueryVal := map[string]any{}
 	if req.GetLoanAccountId() != "" {
 		andQueryVal["loan_account_id = ?"] = req.GetLoanAccountId()
@@ -177,22 +180,16 @@ func (b *disbursementBusiness) Search(
 		andQueryVal["status = ?"] = int32(req.GetStatus())
 	}
 
-	if len(andQueryVal) > 0 {
-		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
-	}
-
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.disbRepo.Search(ctx, query)
-	if err != nil {
-		logger.WithError(err).Error("failed to search disbursements")
-		return err
-	}
-
-	return workerpoolConsumeStream(ctx, results, func(res []*models.Disbursement) error {
-		var apiResults []*loansv1.DisbursementObject
-		for _, d := range res {
-			apiResults = append(apiResults, d.ToAPI())
-		}
-		return consumer(ctx, apiResults)
-	})
+	return executeSearch(
+		ctx,
+		logger,
+		b.disbRepo.Search,
+		req.GetCursor(),
+		andQueryVal,
+		"failed to search disbursements",
+		func(d *models.Disbursement) *loansv1.DisbursementObject {
+			return d.ToAPI()
+		},
+		consumer,
+	)
 }

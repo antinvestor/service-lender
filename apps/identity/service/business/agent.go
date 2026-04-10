@@ -268,9 +268,9 @@ func (b *agentBusiness) SaveBranch(ctx context.Context, ab *models.AgentBranch) 
 
 	// For sub-agents, validate that the parent has this branch assigned
 	if agent.ParentAgentID != "" {
-		parentBranches, err := b.agentBranchRepo.GetByAgentID(ctx, agent.ParentAgentID)
-		if err != nil {
-			return nil, err
+		parentBranches, branchErr := b.agentBranchRepo.GetByAgentID(ctx, agent.ParentAgentID)
+		if branchErr != nil {
+			return nil, branchErr
 		}
 
 		parentHasBranch := false
@@ -295,16 +295,16 @@ func (b *agentBusiness) SaveBranch(ctx context.Context, ab *models.AgentBranch) 
 	existing, getErr := b.agentBranchRepo.GetByAgentAndBranch(ctx, ab.AgentID, ab.BranchID)
 	if getErr == nil && existing != nil {
 		ab.ID = existing.ID
-		if _, err := b.agentBranchRepo.Update(ctx, ab); err != nil {
-			logger.WithError(err).Error("could not update agent branch assignment")
-			return nil, err
+		if _, updateErr := b.agentBranchRepo.Update(ctx, ab); updateErr != nil {
+			logger.WithError(updateErr).Error("could not update agent branch assignment")
+			return nil, updateErr
 		}
 		return ab, nil
 	}
 
-	if err := b.agentBranchRepo.Create(ctx, ab); err != nil {
-		logger.WithError(err).Error("could not create agent branch assignment")
-		return nil, err
+	if createErr := b.agentBranchRepo.Create(ctx, ab); createErr != nil {
+		logger.WithError(createErr).Error("could not create agent branch assignment")
+		return nil, createErr
 	}
 
 	return ab, nil

@@ -15,6 +15,8 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/apperrors"
 )
 
+const moneyDecimalPlaces = 2
+
 // FundingServer implements the FundingService RPC handler.
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type FundingServer struct {
@@ -100,7 +102,7 @@ func (s *FundingServer) InvestorDeposit(
 	ctx context.Context,
 	req *connect.Request[fundingv1.InvestorDepositRequest],
 ) (*connect.Response[fundingv1.InvestorDepositResponse], error) {
-	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), 2)
+	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
 	err := s.iaBusiness.Deposit(ctx, req.Msg.GetAccountId(), amount)
 	if err != nil {
@@ -121,7 +123,7 @@ func (s *FundingServer) InvestorWithdraw(
 	ctx context.Context,
 	req *connect.Request[fundingv1.InvestorWithdrawRequest],
 ) (*connect.Response[fundingv1.InvestorWithdrawResponse], error) {
-	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), 2)
+	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
 	err := s.iaBusiness.Withdraw(ctx, req.Msg.GetAccountId(), amount)
 	if err != nil {
@@ -156,7 +158,7 @@ func (s *FundingServer) AbsorbLoss(
 	ctx context.Context,
 	req *connect.Request[fundingv1.AbsorbLossRequest],
 ) (*connect.Response[fundingv1.AbsorbLossResponse], error) {
-	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), 2)
+	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
 	err := s.faBusiness.AbsorbLoss(ctx, req.Msg.GetLoanOfferId(), amount)
 	if err != nil {
@@ -176,11 +178,11 @@ func investorAccountToAPI(m *models.InvestorAccount) *fundingv1.InvestorAccountO
 		Id:                m.GetID(),
 		InvestorId:        m.InvestorID,
 		AccountName:       m.AccountName,
-		AvailableBalance:  moneyx.FromSmallestUnit(m.Currency, m.AvailableBalance, 2),
-		ReservedBalance:   moneyx.FromSmallestUnit(m.Currency, m.ReservedBalance, 2),
-		TotalDeployed:     moneyx.FromSmallestUnit(m.Currency, m.TotalDeployed, 2),
-		TotalReturned:     moneyx.FromSmallestUnit(m.Currency, m.TotalReturned, 2),
-		MaxExposure:       moneyx.FromSmallestUnit(m.Currency, m.MaxExposure, 2),
+		AvailableBalance:  moneyx.FromSmallestUnit(m.Currency, m.AvailableBalance, moneyDecimalPlaces),
+		ReservedBalance:   moneyx.FromSmallestUnit(m.Currency, m.ReservedBalance, moneyDecimalPlaces),
+		TotalDeployed:     moneyx.FromSmallestUnit(m.Currency, m.TotalDeployed, moneyDecimalPlaces),
+		TotalReturned:     moneyx.FromSmallestUnit(m.Currency, m.TotalReturned, moneyDecimalPlaces),
+		MaxExposure:       moneyx.FromSmallestUnit(m.Currency, m.MaxExposure, moneyDecimalPlaces),
 		MinInterestRate:   models.BasisPointsToString(m.MinInterestRate),
 		AllowedProducts:   m.AllowedProducts.ToProtoStruct(),
 		AllowedRegions:    m.AllowedRegions.ToProtoStruct(),
@@ -196,9 +198,9 @@ func investorAccountFromAPI(ctx context.Context, obj *fundingv1.InvestorAccountO
 		return nil
 	}
 
-	availBalance := moneyx.ToSmallestUnit(obj.GetAvailableBalance(), 2)
+	availBalance := moneyx.ToSmallestUnit(obj.GetAvailableBalance(), moneyDecimalPlaces)
 	currency := obj.GetAvailableBalance().GetCurrencyCode()
-	maxExposure := moneyx.ToSmallestUnit(obj.GetMaxExposure(), 2)
+	maxExposure := moneyx.ToSmallestUnit(obj.GetMaxExposure(), moneyDecimalPlaces)
 
 	model := &models.InvestorAccount{
 		InvestorID:       obj.GetInvestorId(),
@@ -234,46 +236,60 @@ func investorAccountFromAPI(ctx context.Context, obj *fundingv1.InvestorAccountO
 // fundLoanResultToAPI converts the SourceForOffer result map to a FundLoanResponse.
 func fundLoanResultToAPI(result map[string]interface{}) *fundingv1.FundLoanResponse {
 	resp := &fundingv1.FundLoanResponse{}
+	currency, _ := result["currency"].(string)
 
 	if fullyFunded, ok := result["fully_funded"].(bool); ok {
 		resp.FullyFunded = fullyFunded
 	}
 
 	if totalAllocated, ok := result["total_allocated"].(int64); ok {
-		currency, _ := result["currency"].(string)
-		resp.TotalAllocated = moneyx.FromSmallestUnit(currency, totalAllocated, 2)
+		resp.TotalAllocated = moneyx.FromSmallestUnit(currency, totalAllocated, moneyDecimalPlaces)
 	}
 
 	if deficit, ok := result["deficit"].(int64); ok {
-		currency, _ := result["currency"].(string)
-		resp.Deficit = moneyx.FromSmallestUnit(currency, deficit, 2)
+		resp.Deficit = moneyx.FromSmallestUnit(currency, deficit, moneyDecimalPlaces)
 	}
 
-	if allocations, ok := result["allocations"].([]map[string]interface{}); ok {
-		for _, alloc := range allocations {
-			obj := &fundingv1.FundingAllocationObject{}
-			if id, ok := alloc["id"].(string); ok {
-				obj.Id = id
-			}
-			if loanOfferID, ok := alloc["loan_offer_id"].(string); ok {
-				obj.LoanOfferId = loanOfferID
-			}
-			if sourceID, ok := alloc["source_id"].(string); ok {
-				obj.SourceId = sourceID
-			}
-			if sourceType, ok := alloc["source_type"].(string); ok {
-				obj.SourceType = sourceType
-			}
-			if trancheLevel, ok := alloc["tranche_level"].(int32); ok {
-				obj.TrancheLevel = trancheLevel
-			}
-			if amount, ok := alloc["amount"].(int64); ok {
-				currency, _ := alloc["currency"].(string)
-				obj.Amount = moneyx.FromSmallestUnit(currency, amount, 2)
-			}
-			resp.Allocations = append(resp.Allocations, obj)
-		}
-	}
+	resp.Allocations = fundingAllocationsToAPI(result["allocations"])
 
 	return resp
+}
+
+func fundingAllocationsToAPI(value interface{}) []*fundingv1.FundingAllocationObject {
+	allocations, ok := value.([]map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	apiAllocations := make([]*fundingv1.FundingAllocationObject, 0, len(allocations))
+	for _, allocation := range allocations {
+		apiAllocations = append(apiAllocations, fundingAllocationToAPI(allocation))
+	}
+
+	return apiAllocations
+}
+
+func fundingAllocationToAPI(allocation map[string]interface{}) *fundingv1.FundingAllocationObject {
+	obj := &fundingv1.FundingAllocationObject{}
+	if id, found := allocation["id"].(string); found {
+		obj.Id = id
+	}
+	if loanOfferID, found := allocation["loan_offer_id"].(string); found {
+		obj.LoanOfferId = loanOfferID
+	}
+	if sourceID, found := allocation["source_id"].(string); found {
+		obj.SourceId = sourceID
+	}
+	if sourceType, found := allocation["source_type"].(string); found {
+		obj.SourceType = sourceType
+	}
+	if trancheLevel, found := allocation["tranche_level"].(int32); found {
+		obj.TrancheLevel = trancheLevel
+	}
+	if amount, found := allocation["amount"].(int64); found {
+		currency, _ := allocation["currency"].(string)
+		obj.Amount = moneyx.FromSmallestUnit(currency, amount, moneyDecimalPlaces)
+	}
+
+	return obj
 }

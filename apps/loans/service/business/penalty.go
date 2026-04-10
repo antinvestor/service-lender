@@ -2,10 +2,8 @@ package business
 
 import (
 	"context"
-	"strconv"
 
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
-	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
@@ -78,24 +76,12 @@ func (b *penaltyBusiness) Waive(ctx context.Context, id, reason string) (*loansv
 	return penalty.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *penaltyBusiness) Search(
 	ctx context.Context,
 	req *loansv1.PenaltySearchRequest,
 	consumer func(ctx context.Context, batch []*loansv1.PenaltyObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "PenaltyBusiness.Search")
-
-	var searchOpts []data.SearchOption
-
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
 
 	andQueryVal := map[string]any{}
 	if req.GetLoanAccountId() != "" {
@@ -105,22 +91,16 @@ func (b *penaltyBusiness) Search(
 		andQueryVal["penalty_type = ?"] = int32(req.GetPenaltyType())
 	}
 
-	if len(andQueryVal) > 0 {
-		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
-	}
-
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.penaltyRepo.Search(ctx, query)
-	if err != nil {
-		logger.WithError(err).Error("failed to search penalties")
-		return err
-	}
-
-	return workerpoolConsumeStream(ctx, results, func(res []*models.Penalty) error {
-		var apiResults []*loansv1.PenaltyObject
-		for _, p := range res {
-			apiResults = append(apiResults, p.ToAPI())
-		}
-		return consumer(ctx, apiResults)
-	})
+	return executeSearch(
+		ctx,
+		logger,
+		b.penaltyRepo.Search,
+		req.GetCursor(),
+		andQueryVal,
+		"failed to search penalties",
+		func(p *models.Penalty) *loansv1.PenaltyObject {
+			return p.ToAPI()
+		},
+		consumer,
+	)
 }

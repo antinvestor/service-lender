@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
@@ -10,33 +11,68 @@ import (
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
 	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/stawi/config"
 
-	// Stawi domain (Tenure, Period, Motion, Infraction, LoanWindow, LoanOffer)
+	// Stawi domain (Tenure, Period, Motion, Infraction, LoanWindow, LoanOffer).
 	stawibusiness "github.com/antinvestor/service-fintech/apps/stawi/service/business"
 	stawievents "github.com/antinvestor/service-fintech/apps/stawi/service/events"
 	"github.com/antinvestor/service-fintech/apps/stawi/service/handlers"
 	stawimodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
 	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
-	// Funding domain (LoanFunding, FundingAllocation, InvestorAccount, FundingTranche)
+	// Funding domain (LoanFunding, FundingAllocation, InvestorAccount, FundingTranche).
 	fundingbusiness "github.com/antinvestor/service-fintech/apps/funding/service/business"
 	fundingevents "github.com/antinvestor/service-fintech/apps/funding/service/events"
 	fundingmodels "github.com/antinvestor/service-fintech/apps/funding/service/models"
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
-	// Operations domain
+	// Operations domain.
 	opsbusiness "github.com/antinvestor/service-fintech/apps/operations/service/business"
 	opsevents "github.com/antinvestor/service-fintech/apps/operations/service/events"
 	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
 
-	// Platform clients
+	// Platform clients.
 	"github.com/antinvestor/service-fintech/pkg/clients"
 
 	fevents "github.com/pitabwire/frame/events"
 )
+
+var errCurrentPeriodNotFound = errors.New("current period not found")
+
+type appRepositories struct {
+	tenure            stawirepo.TenureRepository
+	period            stawirepo.PeriodRepository
+	motion            stawirepo.MotionRepository
+	infraction        stawirepo.InfractionRepository
+	loanWindow        stawirepo.LoanWindowRepository
+	loanOffer         stawirepo.LoanOfferRepository
+	loanFunding       fundingrepo.LoanFundingRepository
+	fundingAllocation fundingrepo.FundingAllocationRepository
+	fundingTranche    fundingrepo.FundingTrancheRepository
+	investorAccount   fundingrepo.InvestorAccountRepository
+	transferOrder     opsrepo.TransferOrderRepository
+	obligation        opsrepo.ObligationRepository
+	incomingPayment   opsrepo.IncomingPaymentRepository
+	accountRef        opsrepo.AccountRefRepository
+	cbsSyncRecord     opsrepo.CBSSyncRecordRepository
+}
+
+type appBusinesses struct {
+	group         stawibusiness.ClientGroupBusiness
+	membership    stawibusiness.MembershipBusiness
+	tenure        stawibusiness.TenureBusiness
+	period        stawibusiness.PeriodBusiness
+	loanWindow    stawibusiness.LoanWindowBusiness
+	loanOffer     stawibusiness.LoanOfferBusiness
+	funding       fundingbusiness.FundingAllocationBusiness
+	payment       opsbusiness.PaymentRoutingBusiness
+	transferOrder opsbusiness.TransferOrderBusiness
+	obligation    opsbusiness.ObligationBusiness
+}
 
 func main() {
 	tmpCtx := context.Background()
@@ -87,115 +123,149 @@ func main() {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
-	// --- Stawi repositories (Tenure, Period, Motion, Infraction, LoanWindow, LoanOffer) ---
-	tenRepo := stawirepo.NewTenureRepository(ctx, dbPool, workMan)
-	perRepo := stawirepo.NewPeriodRepository(ctx, dbPool, workMan)
-	motRepo := stawirepo.NewMotionRepository(ctx, dbPool, workMan)
-	infRepo := stawirepo.NewInfractionRepository(ctx, dbPool, workMan)
-	lwRepo := stawirepo.NewLoanWindowRepository(ctx, dbPool, workMan)
-	loRepo := stawirepo.NewLoanOfferRepository(ctx, dbPool, workMan)
-
-	// --- Funding repositories (needed by workflow callbacks) ---
-	lfRepo := fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan)
-	faRepo := fundingrepo.NewFundingAllocationRepository(ctx, dbPool, workMan)
-	ftRepo := fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan)
-	iaRepo := fundingrepo.NewInvestorAccountRepository(ctx, dbPool, workMan)
-
-	// --- Operations repositories (needed by workflow callbacks) ---
-	toRepo := opsrepo.NewTransferOrderRepository(ctx, dbPool, workMan)
-	obRepo := opsrepo.NewObligationRepository(ctx, dbPool, workMan)
-	ipRepo := opsrepo.NewIncomingPaymentRepository(ctx, dbPool, workMan)
-	arRepo := opsrepo.NewAccountRefRepository(ctx, dbPool, workMan)
-	csRepo := opsrepo.NewCBSSyncRecordRepository(ctx, dbPool, workMan)
-
-	// --- Stawi business (uses identity SDK for group/membership) ---
-	grpBiz := stawibusiness.NewClientGroupBusiness(ctx, identityCli, platformClients)
-	memBiz := stawibusiness.NewMembershipBusiness(ctx, identityCli)
-	tenBiz := stawibusiness.NewTenureBusiness(ctx, evtsMan, identityCli, tenRepo, perRepo)
-	perBiz := stawibusiness.NewPeriodBusiness(ctx, evtsMan, tenRepo, perRepo)
-	_ = stawibusiness.NewMotionBusiness(ctx, evtsMan, motRepo)
-
-	// --- Stawi loan window/offer business ---
-	lwBiz := stawibusiness.NewLoanWindowBusiness(ctx, evtsMan, lwRepo)
-	loBiz := stawibusiness.NewLoanOfferBusiness(ctx, evtsMan, loRepo, lwRepo, identityCli, platformClients)
-
-	// --- Funding business (for workflow callbacks) ---
-	lfBiz := fundingbusiness.NewFundingAllocationBusiness(
-		ctx,
-		evtsMan,
-		lfRepo,
-		faRepo,
-		&loanOfferAdapter{repo: loRepo},
-		iaRepo,
-		ftRepo,
-		platformClients,
-	)
-
-	// --- Cross-domain adapters for operations business ---
-	perAdapter := &periodAdapter{repo: perRepo}
-	lfAdapter := &loanFundingAdapter{repo: lfRepo}
-	ftAdapter := &fundingTrancheAdapter{repo: ftRepo, eventsMan: evtsMan}
-	iaAdapter := &investorAccountAdapter{repo: iaRepo, eventsMan: evtsMan}
-
-	// --- Operations business (for workflow callbacks, uses identity SDK directly) ---
-	prBiz := opsbusiness.NewPaymentRoutingBusiness(
-		ctx,
-		evtsMan,
-		ipRepo,
-		toRepo,
-		obRepo,
-		arRepo,
-		identityCli,
-		platformClients,
-	)
-	toBiz := opsbusiness.NewTransferOrderBusiness(
-		ctx,
-		evtsMan,
-		toRepo,
-		csRepo,
-		arRepo,
-		lfAdapter,
-		ftAdapter,
-		iaAdapter,
-		platformClients,
-	)
-	obBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
-
-	// --- HTTP mux with workflow callbacks only ---
-	mux := http.NewServeMux()
-	handlers.RegisterWorkflowCallbacks(mux, grpBiz, memBiz, tenBiz, perBiz,
-		lwBiz, loBiz, lfBiz, prBiz, toBiz, obBiz, platformClients)
-
-	// --- Assemble service options ---
-	serviceOptions := []frame.Option{
-		frame.WithHTTPHandler(mux),
-		frame.WithRegisterEvents(
-			// Stawi events (lifecycle + loan window/offer)
-			stawievents.NewTenureSave(ctx, tenRepo),
-			stawievents.NewPeriodSave(ctx, perRepo),
-			stawievents.NewMotionSave(ctx, motRepo),
-			stawievents.NewInfractionSave(ctx, infRepo),
-			stawievents.NewLoanWindowSave(ctx, lwRepo),
-			stawievents.NewLoanOfferSave(ctx, loRepo),
-			// Funding events
-			fundingevents.NewLoanFundingSave(ctx, lfRepo),
-			fundingevents.NewFundingAllocationSave(ctx, faRepo),
-			fundingevents.NewFundingTrancheSave(ctx, ftRepo),
-			fundingevents.NewInvestorAccountSave(ctx, iaRepo),
-			// Operations events
-			opsevents.NewTransferOrderSave(ctx, toRepo),
-			opsevents.NewObligationSave(ctx, obRepo),
-			opsevents.NewIncomingPaymentSave(ctx, ipRepo),
-			opsevents.NewAccountRefSave(ctx, arRepo),
-			opsevents.NewCBSSyncRecordSave(ctx, csRepo),
-		),
-	}
+	repos := initRepositories(ctx, dbPool, workMan)
+	biz := initBusinesses(ctx, evtsMan, identityCli, platformClients, repos)
+	mux := buildWorkflowMux(platformClients, biz)
+	serviceOptions := buildServiceOptions(ctx, mux, repos)
 
 	svc.Init(ctx, serviceOptions...)
 
 	err = svc.Run(ctx, "")
 	if err != nil {
 		log.WithError(err).Fatal("could not run Server")
+	}
+}
+
+func initRepositories(ctx context.Context, dbPool pool.Pool, workMan workerpool.Manager) appRepositories {
+	return appRepositories{
+		tenure:            stawirepo.NewTenureRepository(ctx, dbPool, workMan),
+		period:            stawirepo.NewPeriodRepository(ctx, dbPool, workMan),
+		motion:            stawirepo.NewMotionRepository(ctx, dbPool, workMan),
+		infraction:        stawirepo.NewInfractionRepository(ctx, dbPool, workMan),
+		loanWindow:        stawirepo.NewLoanWindowRepository(ctx, dbPool, workMan),
+		loanOffer:         stawirepo.NewLoanOfferRepository(ctx, dbPool, workMan),
+		loanFunding:       fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan),
+		fundingAllocation: fundingrepo.NewFundingAllocationRepository(ctx, dbPool, workMan),
+		fundingTranche:    fundingrepo.NewFundingTrancheRepository(ctx, dbPool, workMan),
+		investorAccount:   fundingrepo.NewInvestorAccountRepository(ctx, dbPool, workMan),
+		transferOrder:     opsrepo.NewTransferOrderRepository(ctx, dbPool, workMan),
+		obligation:        opsrepo.NewObligationRepository(ctx, dbPool, workMan),
+		incomingPayment:   opsrepo.NewIncomingPaymentRepository(ctx, dbPool, workMan),
+		accountRef:        opsrepo.NewAccountRefRepository(ctx, dbPool, workMan),
+		cbsSyncRecord:     opsrepo.NewCBSSyncRecordRepository(ctx, dbPool, workMan),
+	}
+}
+
+func initBusinesses(
+	ctx context.Context,
+	evtsMan fevents.Manager,
+	identityCli identityv1connect.IdentityServiceClient,
+	platformClients *clients.PlatformClients,
+	repos appRepositories,
+) appBusinesses {
+	groupBiz := stawibusiness.NewClientGroupBusiness(ctx, identityCli, platformClients)
+	membershipBiz := stawibusiness.NewMembershipBusiness(ctx, identityCli)
+	tenureBiz := stawibusiness.NewTenureBusiness(ctx, evtsMan, identityCli, repos.tenure, repos.period)
+	periodBiz := stawibusiness.NewPeriodBusiness(ctx, evtsMan, repos.tenure, repos.period)
+	_ = stawibusiness.NewMotionBusiness(ctx, evtsMan, repos.motion)
+
+	loanWindowBiz := stawibusiness.NewLoanWindowBusiness(ctx, evtsMan, repos.loanWindow)
+	loanOfferBiz := stawibusiness.NewLoanOfferBusiness(
+		ctx, evtsMan, repos.loanOffer, repos.loanWindow, identityCli, platformClients,
+	)
+	fundingBiz := fundingbusiness.NewFundingAllocationBusiness(
+		ctx,
+		evtsMan,
+		repos.loanFunding,
+		repos.fundingAllocation,
+		&loanOfferAdapter{repo: repos.loanOffer},
+		repos.investorAccount,
+		repos.fundingTranche,
+		platformClients,
+	)
+
+	periodAdapter := &periodAdapter{repo: repos.period}
+	loanFundingAdapter := &loanFundingAdapter{repo: repos.loanFunding}
+	fundingTrancheAdapter := &fundingTrancheAdapter{repo: repos.fundingTranche, eventsMan: evtsMan}
+	investorAccountAdapter := &investorAccountAdapter{repo: repos.investorAccount, eventsMan: evtsMan}
+
+	paymentBiz := opsbusiness.NewPaymentRoutingBusiness(
+		ctx,
+		evtsMan,
+		repos.incomingPayment,
+		repos.transferOrder,
+		repos.obligation,
+		repos.accountRef,
+		identityCli,
+		platformClients,
+	)
+	transferOrderBiz := opsbusiness.NewTransferOrderBusiness(
+		ctx,
+		evtsMan,
+		repos.transferOrder,
+		repos.cbsSyncRecord,
+		repos.accountRef,
+		loanFundingAdapter,
+		fundingTrancheAdapter,
+		investorAccountAdapter,
+		platformClients,
+	)
+	obligationBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, repos.obligation, identityCli, periodAdapter)
+
+	return appBusinesses{
+		group:         groupBiz,
+		membership:    membershipBiz,
+		tenure:        tenureBiz,
+		period:        periodBiz,
+		loanWindow:    loanWindowBiz,
+		loanOffer:     loanOfferBiz,
+		funding:       fundingBiz,
+		payment:       paymentBiz,
+		transferOrder: transferOrderBiz,
+		obligation:    obligationBiz,
+	}
+}
+
+func buildWorkflowMux(platformClients *clients.PlatformClients, biz appBusinesses) *http.ServeMux {
+	mux := http.NewServeMux()
+	handlers.RegisterWorkflowCallbacks(
+		mux,
+		biz.group,
+		biz.membership,
+		biz.tenure,
+		biz.period,
+		biz.loanWindow,
+		biz.loanOffer,
+		biz.funding,
+		biz.payment,
+		biz.transferOrder,
+		biz.obligation,
+		platformClients,
+	)
+
+	return mux
+}
+
+func buildServiceOptions(ctx context.Context, mux *http.ServeMux, repos appRepositories) []frame.Option {
+	return []frame.Option{
+		frame.WithHTTPHandler(mux),
+		frame.WithRegisterEvents(
+			stawievents.NewTenureSave(ctx, repos.tenure),
+			stawievents.NewPeriodSave(ctx, repos.period),
+			stawievents.NewMotionSave(ctx, repos.motion),
+			stawievents.NewInfractionSave(ctx, repos.infraction),
+			stawievents.NewLoanWindowSave(ctx, repos.loanWindow),
+			stawievents.NewLoanOfferSave(ctx, repos.loanOffer),
+			fundingevents.NewLoanFundingSave(ctx, repos.loanFunding),
+			fundingevents.NewFundingAllocationSave(ctx, repos.fundingAllocation),
+			fundingevents.NewFundingTrancheSave(ctx, repos.fundingTranche),
+			fundingevents.NewInvestorAccountSave(ctx, repos.investorAccount),
+			opsevents.NewTransferOrderSave(ctx, repos.transferOrder),
+			opsevents.NewObligationSave(ctx, repos.obligation),
+			opsevents.NewIncomingPaymentSave(ctx, repos.incomingPayment),
+			opsevents.NewAccountRefSave(ctx, repos.accountRef),
+			opsevents.NewCBSSyncRecordSave(ctx, repos.cbsSyncRecord),
+		),
 	}
 }
 
@@ -265,7 +335,7 @@ func (a *periodAdapter) GetCurrentByGroupID(ctx context.Context, groupID string)
 		return nil, err
 	}
 	if p == nil {
-		return nil, nil
+		return nil, errCurrentPeriodNotFound
 	}
 	info := &opsbusiness.PeriodInfo{
 		EndDate:  p.EndDate,

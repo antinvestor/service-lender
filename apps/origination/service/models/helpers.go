@@ -1,6 +1,7 @@
 package models
 
 import (
+	"math"
 	"strconv"
 	"time"
 
@@ -232,12 +233,21 @@ func mapInt32(m map[string]interface{}, key string) int32 {
 	}
 	switch n := v.(type) {
 	case float64:
+		if n > math.MaxInt32 || n < math.MinInt32 {
+			return 0
+		}
 		return int32(n)
 	case int:
+		if n > math.MaxInt32 || n < math.MinInt32 {
+			return 0
+		}
 		return int32(n)
 	case int32:
 		return n
 	case int64:
+		if n > math.MaxInt32 || n < math.MinInt32 {
+			return 0
+		}
 		return int32(n)
 	}
 	return 0

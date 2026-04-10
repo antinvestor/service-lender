@@ -2,11 +2,9 @@ package business
 
 import (
 	"context"
-	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
-	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
@@ -77,17 +75,6 @@ func (b *loanProductBusiness) Search(
 ) error {
 	logger := util.Log(ctx).WithField("method", "LoanProductBusiness.Search")
 
-	var searchOpts []data.SearchOption
-
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
-
 	andQueryVal := map[string]any{}
 	if req.GetOrganizationId() != "" {
 		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
@@ -96,30 +83,17 @@ func (b *loanProductBusiness) Search(
 		andQueryVal["product_type = ?"] = int32(req.GetProductType())
 	}
 
-	if len(andQueryVal) > 0 {
-		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
-	}
-
-	if req.GetQuery() != "" {
-		searchOpts = append(searchOpts,
-			data.WithSearchFiltersOrByValue(
-				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
-			),
-		)
-	}
-
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.lpRepo.Search(ctx, query)
-	if err != nil {
-		logger.WithError(err).Error("failed to search loan products")
-		return err
-	}
-
-	return workerpoolConsumeStream(ctx, results, func(res []*models.LoanProduct) error {
-		var apiResults []*originationv1.LoanProductObject
-		for _, lp := range res {
-			apiResults = append(apiResults, lp.ToAPI())
-		}
-		return consumer(ctx, apiResults)
-	})
+	return executeSearch(
+		ctx,
+		logger,
+		b.lpRepo.Search,
+		req.GetCursor(),
+		andQueryVal,
+		req.GetQuery(),
+		"failed to search loan products",
+		func(lp *models.LoanProduct) *originationv1.LoanProductObject {
+			return lp.ToAPI()
+		},
+		consumer,
+	)
 }
