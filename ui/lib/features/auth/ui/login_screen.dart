@@ -12,7 +12,11 @@ import '../data/login_target.dart';
 import '../data/login_targets_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.initialClientId});
+
+  /// If provided, the login screen auto-navigates to this client_id's level.
+  /// Used for entity-scoped login URLs: /login/{client_id}
+  final String? initialClientId;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -41,6 +45,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _navigationStack.add(
       _BreadcrumbEntry(clientId: AppConfig.oauthClientId, name: 'Home'),
     );
+
+    // If an initial client_id was provided via URL, resolve and auto-navigate
+    if (widget.initialClientId != null &&
+        widget.initialClientId != AppConfig.oauthClientId) {
+      _resolveInitialClientId(widget.initialClientId!);
+    }
+  }
+
+  /// Resolves the initial client_id by fetching its login targets,
+  /// then pushes that entity onto the navigation stack so the user
+  /// sees the correct org/branch level directly.
+  Future<void> _resolveInitialClientId(String clientId) async {
+    try {
+      final response = await ref.read(loginTargetsProvider(clientId).future);
+      if (!mounted) return;
+
+      setState(() {
+        _navigationStack.add(
+          _BreadcrumbEntry(
+            clientId: clientId,
+            name: response.currentName.isNotEmpty
+                ? response.currentName
+                : clientId,
+          ),
+        );
+      });
+    } catch (_) {
+      // Resolution failed — stay at root, user can navigate manually
+    }
   }
 
   void _drillDown(LoginTarget target) {

@@ -84,7 +84,7 @@ GoRouter router(Ref ref) {
     refreshListenable: authChangeNotifier,
     redirect: (context, state) {
       final location = state.matchedLocation;
-      final isLoginRoute = location == '/login';
+      final isLoginRoute = location == '/login' || location.startsWith('/login/');
       final isAuthCallback = location == '/auth/callback';
       final isTermsRoute = location == '/terms';
 
@@ -126,6 +126,12 @@ GoRouter router(Ref ref) {
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/login/:clientId',
+        builder: (context, state) => LoginScreen(
+          initialClientId: state.pathParameters['clientId'],
+        ),
+      ),
       GoRoute(
         path: '/auth/callback',
         builder: (context, state) => const _AuthCallbackScreen(),

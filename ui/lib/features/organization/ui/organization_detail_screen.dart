@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -127,6 +128,58 @@ class _OrganizationDetailContentState
             ),
           ),
         ),
+
+        // Login URL card (shown when org has a client_id)
+        if (_organization.clientId.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: Card(
+                color: theme.colorScheme.primaryContainer.withAlpha(40),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.link, color: theme.colorScheme.primary, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Login URL',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            SelectableText(
+                              '${Uri.base.origin}/login/${_organization.clientId}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontFamily: 'monospace',
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy, size: 18),
+                        tooltip: 'Copy login URL',
+                        onPressed: () {
+                          final url = '${Uri.base.origin}/login/${_organization.clientId}';
+                          // ignore: deprecated_member_use
+                          Clipboard.setData(ClipboardData(text: url));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Login URL copied')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
 
         // Branches section header
         SliverToBoxAdapter(
