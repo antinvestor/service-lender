@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
+	fundingv1 "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
@@ -21,6 +23,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 const (
@@ -98,6 +101,7 @@ type loanAccountBusiness struct {
 	repaymentRepo    repository.RepaymentRepository
 	penaltyRepo      repository.PenaltyRepository
 	originationCli   originationv1connect.OriginationServiceClient
+	fundingCli       fundingv1connect.FundingServiceClient
 	scheduleBusiness RepaymentScheduleBusiness
 }
 
@@ -111,6 +115,7 @@ func NewLoanAccountBusiness(
 	repaymentRepo repository.RepaymentRepository,
 	penaltyRepo repository.PenaltyRepository,
 	originationCli originationv1connect.OriginationServiceClient,
+	fundingCli fundingv1connect.FundingServiceClient,
 	scheduleBusiness RepaymentScheduleBusiness,
 ) LoanAccountBusiness {
 	return &loanAccountBusiness{
@@ -122,6 +127,7 @@ func NewLoanAccountBusiness(
 		repaymentRepo:    repaymentRepo,
 		penaltyRepo:      penaltyRepo,
 		originationCli:   originationCli,
+		fundingCli:       fundingCli,
 		scheduleBusiness: scheduleBusiness,
 	}
 }
@@ -140,6 +146,10 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 
 	if la.PrincipalAmount <= 0 {
 		return nil, fmt.Errorf("loan principal amount must be positive, got %d", la.PrincipalAmount)
+	}
+
+	if err = b.ensureLoanRequestFunding(ctx, logger, applicationID, la); err != nil {
+		return nil, err
 	}
 
 	la.GenID(ctx)
@@ -171,6 +181,9 @@ func (b *loanAccountBusiness) populateLoanFromApplication(
 	la := &models.LoanAccount{
 		ApplicationID: applicationID,
 		Status:        int32(loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT),
+		Properties: data.JSONMap{
+			"loan_request_id": applicationID,
+		},
 	}
 
 	appResp, appErr := b.originationCli.ApplicationGet(ctx, connect.NewRequest(
@@ -195,8 +208,19 @@ func (b *loanAccountBusiness) populateLoanFromApplication(
 	la.PrincipalAmount = approvedAmount
 	la.InterestRate = models.StringToBasisPoints(app.GetInterestRate())
 	la.TermDays = app.GetApprovedTermDays()
+	if app.GetProperties() != nil {
+		la.Properties = (&data.JSONMap{}).FromProtoStruct(app.GetProperties())
+		if la.Properties == nil {
+			la.Properties = data.JSONMap{}
+		}
+	}
+	la.Properties["loan_request_id"] = applicationID
+	if paymentAccountRef := loanRequestStringProperty(la.Properties, "payment_account_ref"); paymentAccountRef != "" {
+		la.PaymentAccountRef = paymentAccountRef
+	}
 
 	lp := b.applyProductDefaults(ctx, logger, la, app.GetProductId())
+	applyLedgerDefaults(la)
 
 	if la.PrincipalAmount <= 0 || la.TermDays <= 0 {
 		return nil, nil, ErrApplicationTermsNotApproved
@@ -230,6 +254,88 @@ func (b *loanAccountBusiness) applyProductDefaults(
 		la.CurrencyCode = prod.CurrencyCode
 	}
 	return prod
+}
+
+func (b *loanAccountBusiness) ensureLoanRequestFunding(
+	ctx context.Context,
+	logger *util.LogEntry,
+	loanRequestID string,
+	la *models.LoanAccount,
+) error {
+	if b.fundingCli == nil {
+		return ErrFundingServiceUnavailable
+	}
+
+	resp, err := b.fundingCli.FundLoan(ctx, connect.NewRequest(&fundingv1.FundLoanRequest{
+		LoanOfferId: loanRequestID,
+	}))
+	if err != nil {
+		logger.WithError(err).Error("could not reserve funding for loan request")
+		return ErrFundingAllocationUnavailable
+	}
+
+	totalAllocated, _ := models.MoneyToMinorUnits(resp.Msg.GetTotalAllocated())
+	if !resp.Msg.GetFullyFunded() || totalAllocated < la.PrincipalAmount {
+		return ErrLoanFundingInsufficient
+	}
+
+	if la.Properties == nil {
+		la.Properties = data.JSONMap{}
+	}
+	la.Properties["loan_request_id"] = loanRequestID
+	la.Properties["funding_fully_funded"] = true
+	la.Properties["funding_total_allocated"] = float64(totalAllocated)
+	la.Properties["funding_allocation_count"] = float64(len(resp.Msg.GetAllocations()))
+	la.Properties["funding_allocations"] = fundingAllocationsJSON(resp.Msg.GetAllocations())
+	return nil
+}
+
+func fundingAllocationsJSON(allocations []*fundingv1.FundingAllocationObject) []map[string]any {
+	if len(allocations) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]any, 0, len(allocations))
+	for _, allocation := range allocations {
+		if allocation == nil {
+			continue
+		}
+		amount, _ := models.MoneyToMinorUnits(allocation.GetAmount())
+		result = append(result, map[string]any{
+			"id":              allocation.GetId(),
+			"loan_request_id": allocation.GetLoanOfferId(),
+			"source_id":       allocation.GetSourceId(),
+			"source_type":     allocation.GetSourceType(),
+			"tranche_level":   float64(allocation.GetTrancheLevel()),
+			"amount":          float64(amount),
+		})
+	}
+	return result
+}
+
+func loanRequestStringProperty(properties data.JSONMap, key string) string {
+	if properties == nil {
+		return ""
+	}
+	if value, ok := properties[key].(string); ok {
+		return value
+	}
+	return ""
+}
+
+func applyLedgerDefaults(la *models.LoanAccount) {
+	if la.LedgerAssetAccountID == "" && la.ProductID != "" {
+		la.LedgerAssetAccountID = constants.ProductUnallocatedAccount(la.ProductID)
+	}
+	if la.LedgerInterestIncomeAccountID == "" && la.ProductID != "" {
+		la.LedgerInterestIncomeAccountID = constants.PlatformIncomeAccount(la.ProductID)
+	}
+	if la.LedgerFeeIncomeAccountID == "" && la.ProductID != "" {
+		la.LedgerFeeIncomeAccountID = constants.ProductServiceFeePayableAccount(la.ProductID)
+	}
+	if la.LedgerPenaltyIncomeAccountID == "" && la.ProductID != "" {
+		la.LedgerPenaltyIncomeAccountID = constants.PlatformIncomeAccount(la.ProductID)
+	}
 }
 
 // setInitialRepaymentDate computes the expected first repayment date without

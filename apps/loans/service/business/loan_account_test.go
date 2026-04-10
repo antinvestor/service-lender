@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	fundingv1 "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
@@ -77,6 +78,15 @@ func TestCreateDoesNotMarkLoanAsDisbursed(t *testing.T) {
 				},
 			}),
 		},
+		fundingCli: &fundingServiceClientStub{
+			fundLoanResp: connect.NewResponse(&fundingv1.FundLoanResponse{
+				FullyFunded: true,
+				TotalAllocated: &moneyv1.Money{
+					CurrencyCode: "UGX",
+					Units:        250000,
+				},
+			}),
+		},
 	}
 
 	loan, err := business.Create(ctx, "app-1")
@@ -95,6 +105,40 @@ func TestCreateDoesNotMarkLoanAsDisbursed(t *testing.T) {
 	}
 }
 
+func TestCreateRequiresFullyFundedLoanRequest(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	business := &loanAccountBusiness{
+		eventsMan: &eventsManagerStub{},
+		originationCli: &originationServiceClientStub{
+			applicationGetResp: connect.NewResponse(&originationv1.ApplicationGetResponse{
+				Data: &originationv1.ApplicationObject{
+					Id:               "app-1",
+					Status:           originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_ACCEPTED,
+					ApprovedAmount:   money("UGX", 250_000),
+					ApprovedTermDays: 45,
+				},
+			}),
+		},
+		fundingCli: &fundingServiceClientStub{
+			fundLoanResp: connect.NewResponse(&fundingv1.FundLoanResponse{
+				FullyFunded: true,
+				TotalAllocated: &moneyv1.Money{
+					CurrencyCode: "UGX",
+					Units:        100000,
+				},
+			}),
+		},
+	}
+
+	_, err := business.Create(ctx, "app-1")
+
+	if !errors.Is(err, ErrLoanFundingInsufficient) {
+		t.Fatalf("expected ErrLoanFundingInsufficient, got %v", err)
+	}
+}
+
 func testLoanLogEntry() *util.LogEntry {
 	return util.Log(context.Background())
 }
@@ -110,6 +154,11 @@ type originationServiceClientStub struct {
 
 type eventsManagerStub struct{}
 
+type fundingServiceClientStub struct {
+	fundLoanResp *connect.Response[fundingv1.FundLoanResponse]
+	fundLoanErr  error
+}
+
 func (e *eventsManagerStub) Add(fevents.EventI) {}
 
 func (e *eventsManagerStub) Get(string) (fevents.EventI, error) { panic(errUnexpectedStubCall) }
@@ -117,6 +166,55 @@ func (e *eventsManagerStub) Get(string) (fevents.EventI, error) { panic(errUnexp
 func (e *eventsManagerStub) Emit(context.Context, string, any) error { return nil }
 
 func (e *eventsManagerStub) Handler() queue.SubscribeWorker { return nil }
+
+func (c *fundingServiceClientStub) InvestorAccountSave(
+	context.Context,
+	*connect.Request[fundingv1.InvestorAccountSaveRequest],
+) (*connect.Response[fundingv1.InvestorAccountSaveResponse], error) {
+	panic(errUnexpectedStubCall)
+}
+
+func (c *fundingServiceClientStub) InvestorAccountGet(
+	context.Context,
+	*connect.Request[fundingv1.InvestorAccountGetRequest],
+) (*connect.Response[fundingv1.InvestorAccountGetResponse], error) {
+	panic(errUnexpectedStubCall)
+}
+
+func (c *fundingServiceClientStub) InvestorAccountSearch(
+	context.Context,
+	*connect.Request[fundingv1.InvestorAccountSearchRequest],
+) (*connect.ServerStreamForClient[fundingv1.InvestorAccountSearchResponse], error) {
+	panic(errUnexpectedStubCall)
+}
+
+func (c *fundingServiceClientStub) InvestorDeposit(
+	context.Context,
+	*connect.Request[fundingv1.InvestorDepositRequest],
+) (*connect.Response[fundingv1.InvestorDepositResponse], error) {
+	panic(errUnexpectedStubCall)
+}
+
+func (c *fundingServiceClientStub) InvestorWithdraw(
+	context.Context,
+	*connect.Request[fundingv1.InvestorWithdrawRequest],
+) (*connect.Response[fundingv1.InvestorWithdrawResponse], error) {
+	panic(errUnexpectedStubCall)
+}
+
+func (c *fundingServiceClientStub) FundLoan(
+	context.Context,
+	*connect.Request[fundingv1.FundLoanRequest],
+) (*connect.Response[fundingv1.FundLoanResponse], error) {
+	return c.fundLoanResp, c.fundLoanErr
+}
+
+func (c *fundingServiceClientStub) AbsorbLoss(
+	context.Context,
+	*connect.Request[fundingv1.AbsorbLossRequest],
+) (*connect.Response[fundingv1.AbsorbLossResponse], error) {
+	panic(errUnexpectedStubCall)
+}
 
 func (c *originationServiceClientStub) LoanProductSave(
 	context.Context,

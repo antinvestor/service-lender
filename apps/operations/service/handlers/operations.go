@@ -179,6 +179,7 @@ func (s *OperationsServer) IncomingPaymentNotify(
 		"payer_name":      req.Msg.GetPayerName(),
 		"product_id":      req.Msg.GetProductId(),
 		"group_id":        req.Msg.GetGroupId(),
+		"properties":      (&data.JSONMap{}).FromProtoStruct(req.Msg.GetProperties()),
 	}
 
 	result, err := s.prBusiness.IdentifyPayment(ctx, paymentData)

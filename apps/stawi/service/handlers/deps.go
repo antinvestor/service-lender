@@ -15,7 +15,7 @@ type LoanOfferBusiness interface {
 
 // FundingAllocationBusiness is the subset of funding business used by workflow callbacks.
 type FundingAllocationBusiness interface {
-	SourceForOffer(ctx context.Context, offerID string) (map[string]interface{}, error)
+	SourceForRequest(ctx context.Context, loanRequestID string) (map[string]interface{}, error)
 }
 
 // PaymentRoutingBusiness is the subset of operations business used by workflow callbacks.

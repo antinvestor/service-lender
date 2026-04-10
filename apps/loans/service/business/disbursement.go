@@ -9,6 +9,7 @@ import (
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
@@ -16,6 +17,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 type DisbursementBusiness interface {
@@ -81,6 +83,12 @@ func (b *disbursementBusiness) Create(
 	if la.PaymentAccountRef == "" {
 		return nil, ErrLoanPaymentAccountMissing
 	}
+	if la.LedgerAssetAccountID == "" {
+		return nil, ErrLoanLedgerAccountMissing
+	}
+	if !loanFundingReady(la.Properties) {
+		return nil, ErrLoanFundingNotReady
+	}
 
 	// Create the disbursement record
 	now := time.Now().UTC()
@@ -103,19 +111,7 @@ func (b *disbursementBusiness) Create(
 
 	// Execute the disbursement transfer order via operations service
 	if b.operationsCli != nil {
-		toResp, toErr := b.operationsCli.TransferOrderExecute(ctx, connect.NewRequest(
-			&operationsv1.TransferOrderExecuteRequest{
-				Data: &operationsv1.TransferOrderObject{
-					DebitAccountRef:  "loan_asset:" + loanAccountID,
-					CreditAccountRef: la.PaymentAccountRef,
-					Amount:           moneyx.FromSmallestUnit(la.CurrencyCode, la.PrincipalAmount, decimalPrecision),
-					OrderType:        1, // disbursement
-					Reference:        "disbursement:" + disb.GetID(),
-					Description:      "Loan disbursement for " + loanAccountID,
-					State:            commonv1.STATE_ACTIVE,
-				},
-			},
-		))
+		toResp, toErr := b.executeDisbursementTransfer(ctx, req, la, disb)
 		if toErr != nil {
 			logger.WithError(toErr).Error("transfer order execution failed")
 			disb.Status = int32(loansv1.DisbursementStatus_DISBURSEMENT_STATUS_FAILED)
@@ -155,6 +151,54 @@ func (b *disbursementBusiness) Create(
 	}
 
 	return disb.ToAPI(), nil
+}
+
+func (b *disbursementBusiness) executeDisbursementTransfer(
+	ctx context.Context,
+	req *loansv1.DisbursementCreateRequest,
+	la *models.LoanAccount,
+	disb *models.Disbursement,
+) (*connect.Response[operationsv1.TransferOrderExecuteResponse], error) {
+	loanRequestID := loanRequestIDFromProperties(la.Properties, la.ApplicationID)
+
+	return b.operationsCli.TransferOrderExecute(ctx, connect.NewRequest(
+		&operationsv1.TransferOrderExecuteRequest{
+			Data: &operationsv1.TransferOrderObject{
+				DebitAccountRef:  la.LedgerAssetAccountID,
+				CreditAccountRef: la.PaymentAccountRef,
+				Amount:           moneyx.FromSmallestUnit(la.CurrencyCode, la.PrincipalAmount, decimalPrecision),
+				OrderType:        constants.SafeInt32FromInt(constants.TransferTypeDisbursement),
+				Reference:        "disbursement:" + disb.GetID(),
+				Description:      "Loan disbursement for " + la.GetID(),
+				State:            commonv1.STATE_ACTIVE,
+				ExtraData: (&data.JSONMap{
+					"loan_id":             la.GetID(),
+					"loan_request_id":     loanRequestID,
+					"recipient_id":        la.ClientID,
+					"client_id":           la.ClientID,
+					"payment_channel":     req.GetChannel(),
+					"payment_account_ref": la.PaymentAccountRef,
+				}).ToProtoStruct(),
+			},
+		},
+	))
+}
+
+func loanFundingReady(properties data.JSONMap) bool {
+	if properties == nil {
+		return false
+	}
+	value, ok := properties["funding_fully_funded"].(bool)
+	return ok && value
+}
+
+func loanRequestIDFromProperties(properties data.JSONMap, fallback string) string {
+	if properties != nil {
+		if loanRequestID, ok := properties["loan_request_id"].(string); ok && loanRequestID != "" {
+			return loanRequestID
+		}
+	}
+	return fallback
 }
 
 func (b *disbursementBusiness) Get(ctx context.Context, id string) (*loansv1.DisbursementObject, error) {

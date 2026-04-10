@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	loanspb "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
@@ -85,6 +86,12 @@ func main() {
 			Warn("main -- Could not setup operations client, transfer orders will be disabled")
 	}
 
+	fundingCli, fundingErr := setupFundingClient(ctx, cfg)
+	if fundingErr != nil {
+		log.WithError(fundingErr).
+			Warn("main -- Could not setup funding client, loan creation will fail closed")
+	}
+
 	// Get database pool
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
@@ -99,6 +106,7 @@ func main() {
 		dbPool,
 		workMan,
 		originationCli,
+		fundingCli,
 		loanNotifier,
 		operationsCli,
 	)
@@ -118,6 +126,7 @@ func setupServiceOptions(
 	dbPool pool.Pool,
 	workMan workerpool.Manager,
 	originationCli originationv1connect.OriginationServiceClient,
+	fundingCli fundingv1connect.FundingServiceClient,
 	loanNotifier *business.LoanNotifier,
 	operationsCli operationsv1connect.OperationsServiceClient,
 ) []frame.Option {
@@ -137,7 +146,7 @@ func setupServiceOptions(
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
 		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, penRepo,
-		originationCli, scheduleBusiness,
+		originationCli, fundingCli, scheduleBusiness,
 	)
 	repBusiness := business.NewRepaymentBusiness(
 		ctx,
@@ -228,6 +237,17 @@ func setupOperationsClient(
 		WorkloadAPITargetPath: cfg.OperationsServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_operations"},
 	}, operationsv1connect.NewOperationsServiceClient)
+}
+
+func setupFundingClient(
+	ctx context.Context,
+	cfg aconfig.LoanManagementConfig,
+) (fundingv1connect.FundingServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.FundingServiceURI,
+		WorkloadAPITargetPath: cfg.FundingServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_funding"},
+	}, fundingv1connect.NewFundingServiceClient)
 }
 
 func setupConnectServer(

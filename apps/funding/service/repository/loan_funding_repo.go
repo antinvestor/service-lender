@@ -13,7 +13,7 @@ import (
 // LoanFundingRepository provides data access for loan fundings.
 type LoanFundingRepository interface {
 	datastore.BaseRepository[*models.LoanFunding]
-	GetByLoanOfferID(ctx context.Context, loanOfferID string) ([]*models.LoanFunding, error)
+	GetByLoanRequestID(ctx context.Context, loanRequestID string) ([]*models.LoanFunding, error)
 }
 
 // NewLoanFundingRepository creates a new LoanFundingRepository.
@@ -29,11 +29,11 @@ type loanFundingRepository struct {
 	datastore.BaseRepository[*models.LoanFunding]
 }
 
-func (r *loanFundingRepository) GetByLoanOfferID(
+func (r *loanFundingRepository) GetByLoanRequestID(
 	ctx context.Context,
-	loanOfferID string,
+	loanRequestID string,
 ) ([]*models.LoanFunding, error) {
 	var fundings []*models.LoanFunding
-	err := r.Pool().DB(ctx, true).Where("loan_offer_id = ?", loanOfferID).Find(&fundings).Error
+	err := r.Pool().DB(ctx, true).Where("loan_offer_id = ?", loanRequestID).Find(&fundings).Error
 	return fundings, err
 }

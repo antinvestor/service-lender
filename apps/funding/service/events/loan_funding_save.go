@@ -18,8 +18,8 @@ func NewLoanFundingSave(_ context.Context, repo repository.LoanFundingRepository
 		name:    LoanFundingSaveEvent,
 		factory: func() *models.LoanFunding { return &models.LoanFunding{} },
 		validate: func(_ context.Context, lf *models.LoanFunding) error {
-			if lf.LoanOfferID == "" {
-				return errors.New("loan_offer_id is required")
+			if lf.LoanRequestID == "" {
+				return errors.New("loan_request_id is required")
 			}
 			return nil
 		},

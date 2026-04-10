@@ -11,8 +11,10 @@ import (
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
@@ -65,38 +67,80 @@ type identificationStrategy struct {
 	run     func(ctx context.Context) (*identificationResult, error)
 }
 
+type incomingPaymentMetadata struct {
+	transactionID string
+	amount        int64
+	currency      string
+	productID     string
+	properties    data.JSONMap
+}
+
 func (b *paymentRoutingBusiness) IdentifyPayment(
 	ctx context.Context,
 	paymentData map[string]interface{},
 ) (map[string]interface{}, error) {
 	logger := util.Log(ctx).WithField("method", "PaymentRoutingBusiness.IdentifyPayment")
 
-	paymentRef, _ := paymentData["reference"].(string)
-	payerRef, _ := paymentData["payer_reference"].(string)
-	payerName, _ := paymentData["payer_name"].(string)
-	productID, _ := paymentData["product_id"].(string)
-	groupID, _ := paymentData["group_id"].(string)
+	payment, err := b.loadOrCreateIncomingPayment(ctx, paymentData)
+	if err != nil {
+		return nil, err
+	}
+	if payment.OwnerID != "" {
+		logger.WithField("payment_id", payment.GetID()).Info("payment already identified, reusing persisted routing")
+		return b.buildStoredPaymentResult(payment), nil
+	}
+
+	paymentRef := extractPaymentReference(paymentData, payment)
+	payerRef := firstNonEmptyString(
+		extractString(paymentData, "payer_reference"),
+		payment.Properties.GetString("payer_reference"),
+	)
+	payerName := firstNonEmptyString(
+		extractString(paymentData, "payer_name"),
+		payment.Properties.GetString("payer_name"),
+	)
+	productID := firstNonEmptyString(
+		extractString(paymentData, "product_id"),
+		payment.Properties.GetString("product_id"),
+	)
+	groupID := firstNonEmptyString(extractString(paymentData, "group_id"), payment.Properties.GetString("group_id"))
 
 	paymentRef = strings.TrimSpace(paymentRef)
 	payerRef = strings.TrimSpace(payerRef)
 	payerName = strings.TrimSpace(payerName)
 
 	strategies := []identificationStrategy{
-		{"direct membership ID", paymentRef != "", func(ctx context.Context) (*identificationResult, error) {
-			return b.identifyByMembershipID(ctx, paymentRef)
-		}},
-		{"profile ID single match", payerRef != "", func(ctx context.Context) (*identificationResult, error) {
-			return b.identifyByProfileID(ctx, payerRef)
-		}},
-		{"filtered membership type", payerRef != "", func(ctx context.Context) (*identificationResult, error) {
-			return b.identifyByFilteredMembership(ctx, payerRef, groupID)
-		}},
-		{"contact ID match", payerRef != "", func(ctx context.Context) (*identificationResult, error) {
-			return b.identifyByContactID(ctx, payerRef, groupID)
-		}},
+		{
+			"direct membership ID",
+			paymentRef != "" && b.identityCli != nil,
+			func(ctx context.Context) (*identificationResult, error) {
+				return b.identifyByMembershipID(ctx, paymentRef)
+			},
+		},
+		{
+			"profile ID single match",
+			payerRef != "" && b.identityCli != nil,
+			func(ctx context.Context) (*identificationResult, error) {
+				return b.identifyByProfileID(ctx, payerRef)
+			},
+		},
+		{
+			"filtered membership type",
+			payerRef != "" && b.identityCli != nil,
+			func(ctx context.Context) (*identificationResult, error) {
+				return b.identifyByFilteredMembership(ctx, payerRef, groupID)
+			},
+		},
+		{
+			"contact ID match",
+			payerRef != "" && b.identityCli != nil,
+			func(ctx context.Context) (*identificationResult, error) {
+				return b.identifyByContactID(ctx, payerRef, groupID)
+			},
+		},
 		{
 			"payer name match",
-			payerName != "" && groupID != "",
+			payerName != "" && groupID != "" && b.identityCli != nil,
 			func(ctx context.Context) (*identificationResult, error) {
 				return b.identifyByPayerName(ctx, payerName, groupID)
 			},
@@ -107,23 +151,149 @@ func (b *paymentRoutingBusiness) IdentifyPayment(
 		if !s.enabled {
 			continue
 		}
-		result, err := s.run(ctx)
-		if err == nil && result != nil {
+		result, strategyErr := s.run(ctx)
+		if strategyErr == nil && result != nil {
+			if saveErr := b.applyIdentificationResult(ctx, payment, result); saveErr != nil {
+				return nil, saveErr
+			}
 			logger.WithField("membership_id", result.MembershipID).
 				Info(fmt.Sprintf("payment identified via strategy %d: %s", i+1, s.name))
-			return b.buildIdentificationResult(result), nil
+			return b.buildIdentificationResult(payment, result), nil
 		}
 	}
 
 	logger.Warn("payment could not be identified, routing to unidentified account")
 	unidentified := map[string]interface{}{
-		"strategy": "unidentified",
-		"reason":   "no matching member found across all identification strategies",
+		"payment_id": payment.GetID(),
+		"strategy":   "unidentified",
+		"reason":     "no matching member found across all identification strategies",
 	}
 	if productID != "" {
 		unidentified["unidentified_account"] = constants.ProductUnidentifiedAccount(productID)
 	}
 	return unidentified, nil
+}
+
+func (b *paymentRoutingBusiness) loadOrCreateIncomingPayment(
+	ctx context.Context,
+	paymentData map[string]interface{},
+) (*models.IncomingPayment, error) {
+	metadata := parseIncomingPaymentMetadata(paymentData)
+	if metadata.transactionID == "" {
+		return nil, errors.New("transaction_id is required")
+	}
+
+	existing, err := b.ipRepo.GetByTransactionID(ctx, metadata.transactionID)
+	if err == nil && existing != nil {
+		return b.refreshExistingIncomingPayment(ctx, existing, metadata)
+	}
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("lookup incoming payment by transaction_id %s: %w", metadata.transactionID, err)
+	}
+
+	return b.createIncomingPayment(ctx, metadata)
+}
+
+func (b *paymentRoutingBusiness) refreshExistingIncomingPayment(
+	ctx context.Context,
+	existing *models.IncomingPayment,
+	metadata incomingPaymentMetadata,
+) (*models.IncomingPayment, error) {
+	if amountMismatch(existing.Amount, metadata.amount) {
+		return nil, fmt.Errorf(
+			"transaction %s already recorded with amount %d, received %d",
+			metadata.transactionID, existing.Amount, metadata.amount,
+		)
+	}
+	if currencyMismatch(existing.Currency, metadata.currency) {
+		return nil, fmt.Errorf(
+			"transaction %s already recorded with currency %s, received %s",
+			metadata.transactionID, existing.Currency, metadata.currency,
+		)
+	}
+
+	if !applyIncomingPaymentMetadata(existing, metadata) {
+		return existing, nil
+	}
+
+	if emitErr := b.eventsMan.Emit(ctx, events.IncomingPaymentSaveEvent, existing); emitErr != nil {
+		return nil, fmt.Errorf("update incoming payment: %w", emitErr)
+	}
+
+	return existing, nil
+}
+
+func (b *paymentRoutingBusiness) createIncomingPayment(
+	ctx context.Context,
+	metadata incomingPaymentMetadata,
+) (*models.IncomingPayment, error) {
+	payment := &models.IncomingPayment{
+		Amount:        metadata.amount,
+		Currency:      metadata.currency,
+		Description:   fmt.Sprintf("incoming payment %s", metadata.transactionID),
+		TransactionID: metadata.transactionID,
+		State:         int32(constants.StateJustCreated),
+		Properties:    metadata.properties,
+	}
+	if metadata.productID != "" {
+		payment.PayableID = metadata.productID
+		payment.PayableType = "product"
+	}
+	payment.GenID(ctx)
+
+	if emitErr := b.eventsMan.Emit(ctx, events.IncomingPaymentSaveEvent, payment); emitErr != nil {
+		return nil, fmt.Errorf("create incoming payment: %w", emitErr)
+	}
+
+	return payment, nil
+}
+
+func parseIncomingPaymentMetadata(paymentData map[string]interface{}) incomingPaymentMetadata {
+	amount, _ := paymentData["amount"].(int64)
+
+	return incomingPaymentMetadata{
+		transactionID: strings.TrimSpace(extractString(paymentData, "transaction_id")),
+		amount:        amount,
+		currency:      strings.TrimSpace(extractString(paymentData, "currency")),
+		productID:     strings.TrimSpace(extractString(paymentData, "product_id")),
+		properties:    incomingPaymentProperties(paymentData),
+	}
+}
+
+func amountMismatch(existingAmount, receivedAmount int64) bool {
+	return receivedAmount > 0 && existingAmount > 0 && existingAmount != receivedAmount
+}
+
+func currencyMismatch(existingCurrency, receivedCurrency string) bool {
+	return receivedCurrency != "" && existingCurrency != "" && existingCurrency != receivedCurrency
+}
+
+func applyIncomingPaymentMetadata(
+	payment *models.IncomingPayment,
+	metadata incomingPaymentMetadata,
+) bool {
+	updated := false
+	if metadata.amount > 0 && payment.Amount == 0 {
+		payment.Amount = metadata.amount
+		updated = true
+	}
+	if metadata.currency != "" && payment.Currency == "" {
+		payment.Currency = metadata.currency
+		updated = true
+	}
+	if metadata.productID != "" && payment.PayableID == "" {
+		payment.PayableID = metadata.productID
+		payment.PayableType = "product"
+		updated = true
+	}
+
+	mergedProperties := mergeJSONMaps(payment.Properties, metadata.properties)
+	if !jsonMapsEqual(payment.Properties, mergedProperties) {
+		payment.Properties = mergedProperties
+		updated = true
+	}
+
+	return updated
 }
 
 // identifyByMembershipID implements Strategy 1.
@@ -319,13 +489,64 @@ func (b *paymentRoutingBusiness) identifyByPayerName(
 }
 
 // buildIdentificationResult converts an identificationResult into the map returned by the interface.
-func (b *paymentRoutingBusiness) buildIdentificationResult(r *identificationResult) map[string]interface{} {
+func (b *paymentRoutingBusiness) buildIdentificationResult(
+	payment *models.IncomingPayment,
+	r *identificationResult,
+) map[string]interface{} {
 	return map[string]interface{}{
+		"payment_id":    payment.GetID(),
 		"strategy":      r.Strategy,
 		"membership_id": r.MembershipID,
 		"group_id":      r.GroupID,
 		"profile_id":    r.ProfileID,
 	}
+}
+
+func (b *paymentRoutingBusiness) buildStoredPaymentResult(payment *models.IncomingPayment) map[string]interface{} {
+	result := map[string]interface{}{
+		"payment_id":    payment.GetID(),
+		"membership_id": payment.OwnerID,
+	}
+	if payment.Properties != nil {
+		if strategy := payment.Properties.GetString("identification_strategy"); strategy != "" {
+			result["strategy"] = strategy
+		}
+		if groupID := payment.Properties.GetString("group_id"); groupID != "" {
+			result["group_id"] = groupID
+		}
+		if profileID := payment.Properties.GetString("profile_id"); profileID != "" {
+			result["profile_id"] = profileID
+		}
+	}
+	if _, ok := result["strategy"]; !ok {
+		result["strategy"] = "persisted"
+	}
+
+	return result
+}
+
+func (b *paymentRoutingBusiness) applyIdentificationResult(
+	ctx context.Context,
+	payment *models.IncomingPayment,
+	result *identificationResult,
+) error {
+	payment.OwnerID = result.MembershipID
+	payment.OwnerType = "membership"
+	if result.GroupID != "" {
+		payment.PayableID = result.GroupID
+		payment.PayableType = "group"
+	}
+	payment.Properties = mergeJSONMaps(payment.Properties, data.JSONMap{
+		"identification_strategy": result.Strategy,
+		"group_id":                result.GroupID,
+		"profile_id":              result.ProfileID,
+	})
+
+	if emitErr := b.eventsMan.Emit(ctx, events.IncomingPaymentSaveEvent, payment); emitErr != nil {
+		return fmt.Errorf("persist payment identification: %w", emitErr)
+	}
+
+	return nil
 }
 
 // allocationBucket defines a priority bucket for payment allocation.
@@ -645,6 +866,101 @@ func normalizeNameForComparison(name string) string {
 	name = strings.ToLower(strings.TrimSpace(name))
 	parts := strings.Fields(name)
 	return strings.Join(parts, " ")
+}
+
+func extractPaymentReference(paymentData map[string]interface{}, payment *models.IncomingPayment) string {
+	reference := strings.TrimSpace(extractString(paymentData, "reference"))
+	if reference != "" {
+		return reference
+	}
+	if payment != nil && payment.Properties != nil {
+		reference = strings.TrimSpace(payment.Properties.GetString("reference"))
+		if reference != "" {
+			return reference
+		}
+	}
+
+	return firstNonEmptyString(
+		strings.TrimSpace(extractString(paymentData, "payer_reference")),
+		strings.TrimSpace(payment.Properties.GetString("payer_reference")),
+	)
+}
+
+func incomingPaymentProperties(paymentData map[string]interface{}) data.JSONMap {
+	properties := jsonMapFromValue(paymentData["properties"])
+	for _, key := range []string{"payer_reference", "payer_name", "product_id", "group_id", "reference"} {
+		if value := strings.TrimSpace(extractString(paymentData, key)); value != "" {
+			properties[key] = value
+		}
+	}
+
+	return properties
+}
+
+func jsonMapFromValue(value interface{}) data.JSONMap {
+	switch typed := value.(type) {
+	case nil:
+		return data.JSONMap{}
+	case data.JSONMap:
+		return typed.Copy()
+	case map[string]interface{}:
+		result := data.JSONMap{}
+		for key, item := range typed {
+			result[key] = item
+		}
+		return result
+	default:
+		return data.JSONMap{}
+	}
+}
+
+func mergeJSONMaps(base, updates data.JSONMap) data.JSONMap {
+	merged := data.JSONMap{}
+	for key, value := range base {
+		merged[key] = value
+	}
+	for key, value := range updates {
+		merged[key] = value
+	}
+
+	return merged
+}
+
+func jsonMapsEqual(left, right data.JSONMap) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for key, value := range left {
+		if right[key] != value {
+			return false
+		}
+	}
+
+	return true
+}
+
+func extractString(values map[string]interface{}, key string) string {
+	raw, ok := values[key]
+	if !ok || raw == nil {
+		return ""
+	}
+
+	switch typed := raw.(type) {
+	case string:
+		return typed
+	default:
+		return fmt.Sprintf("%v", typed)
+	}
+}
+
+func firstNonEmptyString(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+
+	return ""
 }
 
 // getMembersByGroupID fetches group memberships via the identity SDK.

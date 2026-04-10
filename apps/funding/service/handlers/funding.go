@@ -146,7 +146,8 @@ func (s *FundingServer) FundLoan(
 	ctx context.Context,
 	req *connect.Request[fundingv1.FundLoanRequest],
 ) (*connect.Response[fundingv1.FundLoanResponse], error) {
-	result, err := s.faBusiness.SourceForOffer(ctx, req.Msg.GetLoanOfferId())
+	loanRequestID := req.Msg.GetLoanOfferId()
+	result, err := s.faBusiness.SourceForRequest(ctx, loanRequestID)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
@@ -160,7 +161,8 @@ func (s *FundingServer) AbsorbLoss(
 ) (*connect.Response[fundingv1.AbsorbLossResponse], error) {
 	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
-	err := s.faBusiness.AbsorbLoss(ctx, req.Msg.GetLoanOfferId(), amount)
+	loanRequestID := req.Msg.GetLoanOfferId()
+	err := s.faBusiness.AbsorbLoss(ctx, loanRequestID, amount)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
@@ -233,7 +235,7 @@ func investorAccountFromAPI(ctx context.Context, obj *fundingv1.InvestorAccountO
 	return model
 }
 
-// fundLoanResultToAPI converts the SourceForOffer result map to a FundLoanResponse.
+// fundLoanResultToAPI converts the SourceForRequest result map to a FundLoanResponse.
 func fundLoanResultToAPI(result map[string]interface{}) *fundingv1.FundLoanResponse {
 	resp := &fundingv1.FundLoanResponse{}
 	currency, _ := result["currency"].(string)
@@ -274,8 +276,10 @@ func fundingAllocationToAPI(allocation map[string]interface{}) *fundingv1.Fundin
 	if id, found := allocation["id"].(string); found {
 		obj.Id = id
 	}
-	if loanOfferID, found := allocation["loan_offer_id"].(string); found {
-		obj.LoanOfferId = loanOfferID
+	if loanRequestID, found := allocation["loan_request_id"].(string); found {
+		obj.LoanOfferId = loanRequestID
+	} else if legacyLoanRequestID, ok := allocation["loan_offer_id"].(string); ok {
+		obj.LoanOfferId = legacyLoanRequestID
 	}
 	if sourceID, found := allocation["source_id"].(string); found {
 		obj.SourceId = sourceID

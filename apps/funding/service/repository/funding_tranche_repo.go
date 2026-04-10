@@ -14,7 +14,7 @@ import (
 type FundingTrancheRepository interface {
 	datastore.BaseRepository[*models.FundingTranche]
 	GetByLoanFundingID(ctx context.Context, loanFundingID string) ([]*models.FundingTranche, error)
-	GetByLoanOfferID(ctx context.Context, loanOfferID string) ([]*models.FundingTranche, error)
+	GetByLoanRequestID(ctx context.Context, loanRequestID string) ([]*models.FundingTranche, error)
 }
 
 // NewFundingTrancheRepository creates a new FundingTrancheRepository.
@@ -46,14 +46,14 @@ func (r *fundingTrancheRepository) GetByLoanFundingID(
 	return tranches, err
 }
 
-// GetByLoanOfferID returns all tranches for a loan by joining through loan_fundings.
-func (r *fundingTrancheRepository) GetByLoanOfferID(
+// GetByLoanRequestID returns all tranches for a loan request by joining through loan fundings.
+func (r *fundingTrancheRepository) GetByLoanRequestID(
 	ctx context.Context,
-	loanOfferID string,
+	loanRequestID string,
 ) ([]*models.FundingTranche, error) {
 	var tranches []*models.FundingTranche
 	err := r.Pool().DB(ctx, true).
-		Where("loan_funding_id IN (SELECT id FROM loan_fundings WHERE loan_offer_id = ?)", loanOfferID).
+		Where("loan_funding_id IN (SELECT id FROM loan_fundings WHERE loan_offer_id = ?)", loanRequestID).
 		Order("tranche_level ASC").
 		Find(&tranches).Error
 	return tranches, err

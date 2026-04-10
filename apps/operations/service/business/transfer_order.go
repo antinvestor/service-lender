@@ -8,6 +8,7 @@ import (
 	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/v1"
 	paymentv1 "buf.build/gen/go/antinvestor/payment/protocolbuffers/go/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	"github.com/pitabwire/util/decimalx"
@@ -105,11 +106,7 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 
 	logger.Info("executing transfer order")
 
-	debitRef, creditRef, err := b.resolveAccountRefs(ctx, order)
-	if err != nil {
-		logger.WithError(err).Error("failed to resolve account references")
-		return fmt.Errorf("resolve account refs: %w", err)
-	}
+	debitRef, creditRef := b.resolveAccountRefs(ctx, order)
 
 	if execErr := b.executeBaseLedgerTransfer(ctx, order, debitRef, creditRef); execErr != nil {
 		logger.WithError(execErr).Error("base ledger transfer failed")
@@ -208,26 +205,38 @@ func (b *transferOrderBusiness) dispatchSideEffect(
 func (b *transferOrderBusiness) resolveAccountRefs(
 	ctx context.Context,
 	order *models.TransferOrder,
-) (*models.AccountRef, *models.AccountRef, error) {
+) (*models.AccountRef, *models.AccountRef) {
 	var debitRef, creditRef *models.AccountRef
 
 	if order.DebitAccountRef != "" {
-		ref, err := b.arRepo.GetByID(ctx, order.DebitAccountRef)
-		if err != nil {
-			return nil, nil, fmt.Errorf("debit account ref %s: %w", order.DebitAccountRef, err)
-		}
-		debitRef = ref
+		debitRef = b.resolveAccountRef(ctx, order.DebitAccountRef, order.Currency)
 	}
 
 	if order.CreditAccountRef != "" {
-		ref, err := b.arRepo.GetByID(ctx, order.CreditAccountRef)
-		if err != nil {
-			return nil, nil, fmt.Errorf("credit account ref %s: %w", order.CreditAccountRef, err)
-		}
-		creditRef = ref
+		creditRef = b.resolveAccountRef(ctx, order.CreditAccountRef, order.Currency)
 	}
 
-	return debitRef, creditRef, nil
+	return debitRef, creditRef
+}
+
+func (b *transferOrderBusiness) resolveAccountRef(
+	ctx context.Context,
+	refID string,
+	currency string,
+) *models.AccountRef {
+	ref, err := b.arRepo.GetByID(ctx, refID)
+	if err == nil && ref != nil {
+		return ref
+	}
+
+	return &models.AccountRef{
+		Reference: refID,
+		Currency:  currency,
+		LedgerID:  refID,
+		Properties: data.JSONMap{
+			"synthetic": true,
+		},
+	}
 }
 
 // executeBaseLedgerTransfer posts a double-entry transaction to the Ledger service.
@@ -399,13 +408,13 @@ func (b *transferOrderBusiness) redistributeRepayment(
 		WithField("type", repaymentType).
 		WithField("order_id", sourceOrder.GetID())
 
-	loanOfferID := extraDataString(sourceOrder, "loan_offer_id")
-	if loanOfferID == "" {
-		logger.Debug("no loan_offer_id in transfer order, skipping redistribution")
+	loanRequestID := extraDataLoanRequestID(sourceOrder)
+	if loanRequestID == "" {
+		logger.Debug("no loan_request_id in transfer order, skipping redistribution")
 		return
 	}
 
-	fundings, err := b.lfRepo.GetByLoanOfferID(ctx, loanOfferID)
+	fundings, err := b.lfRepo.GetByLoanRequestID(ctx, loanRequestID)
 	if err != nil || len(fundings) == 0 {
 		logger.WithError(err).Warn("no funding records found for redistribution")
 		return
@@ -575,6 +584,7 @@ func (b *transferOrderBusiness) createRedistributionOrder(
 		OrderType:        constants.SafeInt32FromInt(transferType),
 		Reference:        reference,
 		Description:      description,
+		ExtraData:        cloneExtraData(sourceOrder.ExtraData),
 		State:            int32(constants.StateJustCreated),
 	}
 	redistOrder.GenID(ctx)
@@ -711,8 +721,7 @@ func (b *transferOrderBusiness) handleLoanInterestRepayment(
 	logger.WithField("loan_id", loanID).
 		Info("recording loan interest repayment in lender system")
 
-	// Interest repayment recording is handled by the loans app via its own event
-	// pipeline. This handler only manages the base ledger posting.
+	b.redistributeRepayment(ctx, order, order.Amount, "interest", constants.TransferTypeLoanInterestIncomeDistribution)
 }
 
 // handleLoanInsurance processes a loan insurance charge.
@@ -735,7 +744,8 @@ func (b *transferOrderBusiness) handleLoanInsuranceRepayment(
 ) {
 	logger := util.Log(ctx).WithField("handler", "handleLoanInsuranceRepayment").
 		WithField("order_id", order.GetID())
-	logger.Info("loan insurance repayment posted")
+	logger.WithField("loan_request_id", extraDataLoanRequestID(order)).
+		Info("loan fee repayment posted")
 }
 
 // handleDisbursement processes an external disbursement via the payment service.
@@ -1159,10 +1169,10 @@ func (b *transferOrderBusiness) handleInvestorDeployment(
 		WithField("order_id", order.GetID())
 
 	investorAccountID := extraDataString(order, "investor_account_id")
-	loanOfferID := extraDataString(order, "loan_offer_id")
+	loanRequestID := extraDataLoanRequestID(order)
 
 	logger.WithField("investor_account_id", investorAccountID).
-		WithField("loan_offer_id", loanOfferID).
+		WithField("loan_request_id", loanRequestID).
 		WithField("amount", order.Amount).
 		Info("investor capital deployed to loan")
 }
@@ -1206,11 +1216,25 @@ func (b *transferOrderBusiness) handlePlatformFirstLossAbsorption(
 	logger := util.Log(ctx).WithField("handler", "handlePlatformFirstLossAbsorption").
 		WithField("order_id", order.GetID())
 
-	loanOfferID := extraDataString(order, "loan_offer_id")
+	loanRequestID := extraDataLoanRequestID(order)
 
-	logger.WithField("loan_offer_id", loanOfferID).
+	logger.WithField("loan_request_id", loanRequestID).
 		WithField("amount", order.Amount).
 		Info("platform first-loss reserve absorbed loss")
+}
+
+func extraDataLoanRequestID(order *models.TransferOrder) string {
+	if loanRequestID := extraDataString(order, "loan_request_id"); loanRequestID != "" {
+		return loanRequestID
+	}
+	return extraDataString(order, "loan_offer_id")
+}
+
+func cloneExtraData(extra data.JSONMap) data.JSONMap {
+	if extra == nil {
+		return nil
+	}
+	return extra.Copy()
 }
 
 // handleInvestorLossAbsorption processes a loss absorption from an investor account.

@@ -298,12 +298,12 @@ func setupIdentityClient(
 // Cross-domain adapters (funding repos, stawi period, stawi loan offer)
 // ---------------------------------------------------------------------------
 
-// loanOfferAdapter wraps stawi's LoanOfferRepository for funding's LoanOfferReader.
+// loanOfferAdapter wraps stawi's LoanOfferRepository for funding's LoanRequestReader.
 type loanOfferAdapter struct {
 	repo stawirepo.LoanOfferRepository
 }
 
-func (a *loanOfferAdapter) GetByID(ctx context.Context, id string) (*fundingbusiness.LoanOfferInfo, error) {
+func (a *loanOfferAdapter) GetByID(ctx context.Context, id string) (*fundingbusiness.LoanRequestInfo, error) {
 	offer, err := a.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -311,11 +311,11 @@ func (a *loanOfferAdapter) GetByID(ctx context.Context, id string) (*fundingbusi
 	return loanOfferToInfo(offer), nil
 }
 
-func loanOfferToInfo(o *stawimodels.LoanOffer) *fundingbusiness.LoanOfferInfo {
+func loanOfferToInfo(o *stawimodels.LoanOffer) *fundingbusiness.LoanRequestInfo {
 	if o == nil {
 		return nil
 	}
-	info := &fundingbusiness.LoanOfferInfo{
+	info := &fundingbusiness.LoanRequestInfo{
 		Amount:     o.Amount,
 		Currency:   o.Currency,
 		Properties: o.Properties,
@@ -350,11 +350,11 @@ type loanFundingAdapter struct {
 	repo fundingrepo.LoanFundingRepository
 }
 
-func (a *loanFundingAdapter) GetByLoanOfferID(
+func (a *loanFundingAdapter) GetByLoanRequestID(
 	ctx context.Context,
-	loanOfferID string,
+	loanRequestID string,
 ) ([]*opsbusiness.LoanFundingInfo, error) {
-	fundings, err := a.repo.GetByLoanOfferID(ctx, loanOfferID)
+	fundings, err := a.repo.GetByLoanRequestID(ctx, loanRequestID)
 	if err != nil {
 		return nil, err
 	}

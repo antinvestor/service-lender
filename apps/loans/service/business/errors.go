@@ -33,8 +33,28 @@ var (
 		apperrors.ServiceUnavailable,
 		"origination service is not available",
 	)
+	ErrFundingServiceUnavailable = apperrors.NewError(
+		apperrors.ServiceUnavailable,
+		"funding service is not available",
+	)
+	ErrFundingAllocationUnavailable = apperrors.NewError(
+		apperrors.ServiceUnavailable,
+		"loan funding allocation is unavailable",
+	)
+	ErrLoanFundingInsufficient = apperrors.NewError(
+		apperrors.Unprocessable,
+		"loan request is not fully funded",
+	)
+	ErrLoanFundingNotReady = apperrors.NewError(
+		apperrors.Unprocessable,
+		"loan funding is not ready for disbursement",
+	)
 	ErrLoanPaymentAccountMissing = apperrors.NewError(
 		apperrors.Unprocessable,
 		"loan payment account reference is missing",
+	)
+	ErrLoanLedgerAccountMissing = apperrors.NewError(
+		apperrors.Unprocessable,
+		"loan ledger asset account is missing",
 	)
 )

@@ -232,6 +232,13 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 ) {
 	repID := repayment.GetID()
 	memberAccount := constants.MemberLoansAccount(la.ClientID)
+	loanRequestID := loanRequestIDFromProperties(la.Properties, la.ApplicationID)
+	baseExtraData := data.JSONMap{
+		"loan_id":         la.GetID(),
+		"loan_request_id": loanRequestID,
+		"client_id":       la.ClientID,
+		"repayment_id":    repayment.GetID(),
+	}
 
 	// Transfer order for principal repayment
 	if alloc.principalApplied > 0 {
@@ -241,6 +248,7 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 			constants.TransferTypeLoanRepayment,
 			fmt.Sprintf("repayment:%s:principal", repID),
 			"Principal repayment",
+			baseExtraData.Copy(),
 		)
 	}
 
@@ -252,6 +260,7 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 			constants.TransferTypeLoanInterestRepayment,
 			fmt.Sprintf("repayment:%s:interest", repID),
 			"Interest repayment",
+			baseExtraData.Copy(),
 		)
 	}
 
@@ -263,6 +272,7 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 			constants.TransferTypeLoanInsuranceRepayment,
 			fmt.Sprintf("repayment:%s:fees", repID),
 			"Fee repayment",
+			baseExtraData.Copy(),
 		)
 	}
 
@@ -274,6 +284,7 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 			constants.TransferTypePenaltyCancel,
 			fmt.Sprintf("repayment:%s:penalties", repID),
 			"Penalty repayment",
+			baseExtraData.Copy(),
 		)
 	}
 }
@@ -287,6 +298,7 @@ func (b *repaymentBusiness) emitTransferOrder(
 	currency string,
 	orderType int,
 	reference, description string,
+	extraData data.JSONMap,
 ) {
 	if b.operationsCli == nil {
 		logger.WithField("reference", reference).
@@ -302,6 +314,7 @@ func (b *repaymentBusiness) emitTransferOrder(
 			OrderType:        constants.SafeInt32FromInt(orderType),
 			Reference:        reference,
 			Description:      description,
+			ExtraData:        extraData.ToProtoStruct(),
 		},
 	})
 

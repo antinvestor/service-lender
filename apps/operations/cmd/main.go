@@ -262,11 +262,11 @@ type loanFundingAdapter struct {
 	repo fundingrepo.LoanFundingRepository
 }
 
-func (a *loanFundingAdapter) GetByLoanOfferID(
+func (a *loanFundingAdapter) GetByLoanRequestID(
 	ctx context.Context,
-	loanOfferID string,
+	loanRequestID string,
 ) ([]*business.LoanFundingInfo, error) {
-	fundings, err := a.repo.GetByLoanOfferID(ctx, loanOfferID)
+	fundings, err := a.repo.GetByLoanRequestID(ctx, loanRequestID)
 	if err != nil {
 		return nil, err
 	}

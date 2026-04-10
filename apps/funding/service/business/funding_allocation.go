@@ -32,7 +32,7 @@ type fundingAllocationBusiness struct {
 	eventsMan fevents.Manager
 	lfRepo    repository.LoanFundingRepository
 	faRepo    repository.FundingAllocationRepository
-	loReader  LoanOfferReader
+	lrReader  LoanRequestReader
 	iaRepo    repository.InvestorAccountRepository
 	ftRepo    repository.FundingTrancheRepository
 	clients   *clients.PlatformClients
@@ -43,7 +43,7 @@ func NewFundingAllocationBusiness(
 	eventsMan fevents.Manager,
 	lfRepo repository.LoanFundingRepository,
 	faRepo repository.FundingAllocationRepository,
-	loReader LoanOfferReader,
+	lrReader LoanRequestReader,
 	iaRepo repository.InvestorAccountRepository,
 	ftRepo repository.FundingTrancheRepository,
 	pc *clients.PlatformClients,
@@ -52,65 +52,71 @@ func NewFundingAllocationBusiness(
 		eventsMan: eventsMan,
 		lfRepo:    lfRepo,
 		faRepo:    faRepo,
-		loReader:  loReader,
+		lrReader:  lrReader,
 		iaRepo:    iaRepo,
 		ftRepo:    ftRepo,
 		clients:   pc,
 	}
 }
 
-// SourceForOffer allocates funding sources for a loan offer using the tranche-based system.
-func (b *fundingAllocationBusiness) SourceForOffer(
+// SourceForRequest allocates funding sources for a loan request using the tranche-based system.
+func (b *fundingAllocationBusiness) SourceForRequest(
 	ctx context.Context,
-	offerID string,
+	loanRequestID string,
 ) (map[string]interface{}, error) {
-	logger := util.Log(ctx).WithField("method", "FundingAllocationBusiness.SourceForOffer")
+	logger := util.Log(ctx).WithField("method", "FundingAllocationBusiness.SourceForRequest")
 
-	// Load the offer to get amount and details
-	if b.loReader == nil {
-		return nil, errors.New("loan offer reader not configured")
+	if b.lrReader == nil {
+		return nil, errors.New("loan request reader not configured")
 	}
-	offer, err := b.loReader.GetByID(ctx, offerID)
+	requestInfo, err := b.lrReader.GetByID(ctx, loanRequestID)
 	if err != nil {
-		return nil, fmt.Errorf("offer not found: %w", err)
+		return nil, fmt.Errorf("loan request not found: %w", err)
 	}
 
-	loanAmount := offer.Amount
+	if existing, existingErr := b.lfRepo.GetByLoanRequestID(
+		ctx,
+		loanRequestID,
+	); existingErr == nil &&
+		len(existing) > 0 {
+		return b.buildPersistedResult(ctx, loanRequestID, requestInfo, existing)
+	}
+
+	loanAmount := requestInfo.Amount
 	if loanAmount <= 0 {
-		return nil, fmt.Errorf("offer has no amount (amount=%d)", loanAmount)
+		return nil, fmt.Errorf("loan request has no amount (amount=%d)", loanAmount)
 	}
 
-	// Build the funding request from offer properties
 	loanAmountDec := decimalx.FromMinorUnits(loanAmount, decimalPrecision)
-	request := buildFundingRequest(offer, loanAmountDec)
+	request := buildFundingRequest(requestInfo, loanAmountDec)
 
-	// Gather available funding sources
 	sources := b.gatherFundingSources(ctx, request)
-
-	// Run the tranche-based allocation
 	result := calculation.AllocateLoanFunding(request, sources)
 
 	if !calculation.VerifyTrancheAllocationInvariant(loanAmountDec, result) {
 		logger.WithField("total_allocated", result.TotalAllocated).
 			WithField("deficit", result.Deficit).
-			Warn("loan not fully funded")
+			Warn("loan request not fully funded")
 	}
 
-	b.persistAllocations(ctx, logger, offerID, offer.Currency, result)
+	allocations := b.persistAllocations(ctx, logger, loanRequestID, requestInfo.Currency, result)
 
-	logger.WithField("offer_id", offerID).
+	logger.WithField("loan_request_id", loanRequestID).
 		WithField("loan_amount", loanAmount).
 		WithField("total_allocated", result.TotalAllocated).
 		WithField("tranches", len(result.Allocations)).
 		Info("tranche-based funding allocation completed")
 
 	return map[string]interface{}{
-		"offer_id":        offerID,
+		"loan_request_id": loanRequestID,
+		"loan_offer_id":   loanRequestID,
+		"currency":        requestInfo.Currency,
 		"loan_amount":     loanAmount,
 		"total_allocated": result.TotalAllocated.ToMinorUnits(decimalPrecision),
 		"deficit":         result.Deficit.ToMinorUnits(decimalPrecision),
 		"fully_funded":    result.Deficit.IsZero(),
 		"tranches":        len(result.Allocations),
+		"allocations":     allocations,
 		"is_group_loan":   request.IsGroupLoan,
 	}, nil
 }
@@ -120,9 +126,10 @@ func (b *fundingAllocationBusiness) SourceForOffer(
 func (b *fundingAllocationBusiness) persistAllocations(
 	ctx context.Context,
 	logger *util.LogEntry,
-	offerID, currency string,
+	loanRequestID, currency string,
 	result calculation.FundingResult,
-) {
+) []map[string]interface{} {
+	allocations := make([]map[string]interface{}, 0, len(result.Allocations))
 	for _, alloc := range result.Allocations {
 		if !alloc.Amount.IsPositive() {
 			continue
@@ -131,7 +138,7 @@ func (b *fundingAllocationBusiness) persistAllocations(
 		proportion := computeProportion(alloc.Amount, result.TotalAllocated)
 		allocAmount := alloc.Amount.ToMinorUnits(decimalPrecision)
 
-		funding := buildLoanFundingRecord(ctx, offerID, currency, alloc, proportion, allocAmount)
+		funding := buildLoanFundingRecord(ctx, loanRequestID, currency, alloc, proportion, allocAmount)
 		if emitErr := b.eventsMan.Emit(ctx, events.LoanFundingSaveEvent, funding); emitErr != nil {
 			logger.WithError(emitErr).Error("could not create loan funding record")
 			continue
@@ -149,7 +156,20 @@ func (b *fundingAllocationBusiness) persistAllocations(
 				logger.WithError(resErr).Error("could not reserve investor balance")
 			}
 		}
+
+		allocations = append(allocations, map[string]interface{}{
+			"id":              funding.GetID(),
+			"loan_request_id": loanRequestID,
+			"loan_offer_id":   loanRequestID,
+			"source_id":       alloc.SourceID,
+			"source_type":     fundingSourceLabel(alloc.SourceType),
+			"tranche_level":   alloc.TrancheLevel,
+			"amount":          allocAmount,
+			"currency":        currency,
+		})
 	}
+
+	return allocations
 }
 
 // computeProportion returns the allocation proportion in basis points.
@@ -174,20 +194,20 @@ func investorAccountIDForAlloc(alloc calculation.FundingAllocation) string {
 // buildLoanFundingRecord creates a LoanFunding model from an allocation.
 func buildLoanFundingRecord(
 	ctx context.Context,
-	offerID, currency string,
+	loanRequestID, currency string,
 	alloc calculation.FundingAllocation,
 	proportion, allocAmount int64,
 ) *models.LoanFunding {
 	funding := &models.LoanFunding{
-		LoanOfferID: offerID,
-		FundingType: alloc.SourceType,
-		Proportion:  proportion,
-		Amount:      allocAmount,
-		Currency:    currency,
-		OwnerID:     alloc.SourceID,
-		OwnerType:   fundingSourceOwnerType(alloc.SourceType),
-		Description: fmt.Sprintf("Tranche %d funding from %s for offer %s",
-			alloc.TrancheLevel, alloc.SourceID, offerID),
+		LoanRequestID: loanRequestID,
+		FundingType:   alloc.SourceType,
+		Proportion:    proportion,
+		Amount:        allocAmount,
+		Currency:      currency,
+		OwnerID:       alloc.SourceID,
+		OwnerType:     fundingSourceOwnerType(alloc.SourceType),
+		Description: fmt.Sprintf("Tranche %d funding from %s for request %s",
+			alloc.TrancheLevel, alloc.SourceID, loanRequestID),
 		State: int32(constants.StateActive),
 	}
 	funding.GenID(ctx)
@@ -214,8 +234,8 @@ func buildFundingTrancheRecord(
 	return tranche
 }
 
-// buildFundingRequest extracts loan parameters from offer properties into a FundingRequest.
-func buildFundingRequest(offer *LoanOfferInfo, loanAmount decimalx.Decimal) calculation.FundingRequest {
+// buildFundingRequest extracts loan parameters from request properties into a FundingRequest.
+func buildFundingRequest(requestInfo *LoanRequestInfo, loanAmount decimalx.Decimal) calculation.FundingRequest {
 	var (
 		isGroupLoan  bool
 		groupID      string
@@ -224,25 +244,25 @@ func buildFundingRequest(offer *LoanOfferInfo, loanAmount decimalx.Decimal) calc
 		interestRate int64
 	)
 
-	if offer.Properties != nil {
-		if gid, ok := offer.Properties["group_id"].(string); ok && gid != "" {
+	if requestInfo.Properties != nil {
+		if gid, ok := requestInfo.Properties["group_id"].(string); ok && gid != "" {
 			isGroupLoan = true
 			groupID = gid
 		}
-		if pt, ok := offer.Properties["product_type"].(string); ok {
+		if pt, ok := requestInfo.Properties["product_type"].(string); ok {
 			productType = pt
 		}
-		if r, ok := offer.Properties["region"].(string); ok {
+		if r, ok := requestInfo.Properties["region"].(string); ok {
 			region = r
 		}
-		if ir, ok := offer.Properties["interest_rate"].(float64); ok {
+		if ir, ok := requestInfo.Properties["interest_rate"].(float64); ok {
 			interestRate = int64(ir)
 		}
 	}
 
 	return calculation.FundingRequest{
 		LoanAmount:   loanAmount,
-		Currency:     offer.Currency,
+		Currency:     requestInfo.Currency,
 		InterestRate: interestRate,
 		ProductType:  productType,
 		Region:       region,
@@ -254,18 +274,18 @@ func buildFundingRequest(offer *LoanOfferInfo, loanAmount decimalx.Decimal) calc
 // AbsorbLoss distributes a loss across funding tranches in order (first-loss first).
 func (b *fundingAllocationBusiness) AbsorbLoss(
 	ctx context.Context,
-	loanOfferID string,
+	loanRequestID string,
 	lossAmount int64,
 ) error {
 	logger := util.Log(ctx).WithField("method", "FundingAllocationBusiness.AbsorbLoss").
-		WithField("loan_offer_id", loanOfferID)
+		WithField("loan_request_id", loanRequestID)
 
 	if lossAmount <= 0 {
 		return nil
 	}
 
 	// Load all tranches for this loan, sorted by tranche level ASC (first-loss first)
-	tranches, err := b.ftRepo.GetByLoanOfferID(ctx, loanOfferID)
+	tranches, err := b.ftRepo.GetByLoanRequestID(ctx, loanRequestID)
 	if err != nil {
 		return fmt.Errorf("load tranches: %w", err)
 	}
@@ -309,6 +329,69 @@ func (b *fundingAllocationBusiness) AbsorbLoss(
 	}
 
 	return nil
+}
+
+func (b *fundingAllocationBusiness) buildPersistedResult(
+	ctx context.Context,
+	loanRequestID string,
+	requestInfo *LoanRequestInfo,
+	fundings []*models.LoanFunding,
+) (map[string]interface{}, error) {
+	allocations := make([]map[string]interface{}, 0, len(fundings))
+	var totalAllocated int64
+	for _, funding := range fundings {
+		totalAllocated += funding.Amount
+		trancheLevel := int32(0)
+		if tranches, err := b.ftRepo.GetByLoanFundingID(ctx, funding.GetID()); err == nil && len(tranches) > 0 {
+			trancheLevel = tranches[0].TrancheLevel
+		}
+		allocations = append(allocations, map[string]interface{}{
+			"id":              funding.GetID(),
+			"loan_request_id": loanRequestID,
+			"loan_offer_id":   loanRequestID,
+			"source_id":       funding.OwnerID,
+			"source_type":     fundingSourceLabel(funding.FundingType),
+			"tranche_level":   trancheLevel,
+			"amount":          funding.Amount,
+			"currency":        funding.Currency,
+		})
+	}
+
+	deficit := requestInfo.Amount - totalAllocated
+	if deficit < 0 {
+		deficit = 0
+	}
+
+	return map[string]interface{}{
+		"loan_request_id": loanRequestID,
+		"loan_offer_id":   loanRequestID,
+		"currency":        requestInfo.Currency,
+		"loan_amount":     requestInfo.Amount,
+		"total_allocated": totalAllocated,
+		"deficit":         deficit,
+		"fully_funded":    deficit == 0,
+		"tranches":        len(allocations),
+		"allocations":     allocations,
+	}, nil
+}
+
+func fundingSourceLabel(sourceType int32) string {
+	switch models.FundingSource(sourceType) {
+	case models.FundingSourceUnspecified:
+		return "unspecified"
+	case models.FundingSourceGroupSavings:
+		return "group_savings"
+	case models.FundingSourceGroupIncome:
+		return "group_income"
+	case models.FundingSourceInvestorAffiliated:
+		return "investor_affiliated"
+	case models.FundingSourceInvestorGeneral:
+		return "investor_general"
+	case models.FundingSourcePlatformReserve:
+		return "platform_reserve"
+	default:
+		return "unspecified"
+	}
 }
 
 // debitInvestorLoss reduces an investor's reserved balance after a loss absorption.

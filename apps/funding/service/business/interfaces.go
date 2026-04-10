@@ -8,24 +8,24 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 )
 
-// LoanOfferInfo is a lightweight projection of the loan offer for funding allocation.
-type LoanOfferInfo struct {
+// LoanRequestInfo is a lightweight projection of the loan request for funding allocation.
+type LoanRequestInfo struct {
 	data.BaseModel
 	Amount     int64
 	Currency   string
 	Properties data.JSONMap
 }
 
-// LoanOfferReader provides read access to loan offer data.
-// Implemented by adapters in cmd/ that wrap stawi repos or SDK clients.
-type LoanOfferReader interface {
-	GetByID(ctx context.Context, id string) (*LoanOfferInfo, error)
+// LoanRequestReader provides read access to canonical loan request data.
+// Implemented by adapters in cmd/ that bridge legacy sources into a coherent request view.
+type LoanRequestReader interface {
+	GetByID(ctx context.Context, id string) (*LoanRequestInfo, error)
 }
 
 // FundingAllocationBusiness handles funding allocation operations.
 type FundingAllocationBusiness interface {
-	SourceForOffer(ctx context.Context, offerID string) (map[string]interface{}, error)
-	AbsorbLoss(ctx context.Context, loanOfferID string, lossAmount int64) error
+	SourceForRequest(ctx context.Context, loanRequestID string) (map[string]interface{}, error)
+	AbsorbLoss(ctx context.Context, loanRequestID string, lossAmount int64) error
 }
 
 // InvestorAccountBusiness handles investor account operations.

@@ -69,7 +69,7 @@ type InvestorAccountInfo struct {
 
 // LoanFundingReader provides read access to loan funding data.
 type LoanFundingReader interface {
-	GetByLoanOfferID(ctx context.Context, loanOfferID string) ([]*LoanFundingInfo, error)
+	GetByLoanRequestID(ctx context.Context, loanRequestID string) ([]*LoanFundingInfo, error)
 }
 
 // FundingTrancheManager provides read/write access to funding tranche data.

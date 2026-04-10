@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingpb "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
+	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
+	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
+	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	fevents "github.com/pitabwire/frame/events"
@@ -25,6 +29,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/business"
 	fundingevents "github.com/antinvestor/service-fintech/apps/funding/service/events"
 	fundinghandlers "github.com/antinvestor/service-fintech/apps/funding/service/handlers"
+	fundingmodels "github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
 
 	stawimodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
@@ -101,8 +106,13 @@ func setupServiceOptions(
 	ftRepo := repository.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := repository.NewInvestorAccountRepository(ctx, dbPool, workMan)
 
-	// Stawi loan offer repository (shared database, needed for FundLoan RPC)
+	// Legacy Stawi request repository used as a compatibility source while canonical
+	// request data is still split across services.
 	loRepo := stawirepo.NewLoanOfferRepository(ctx, dbPool, workMan)
+	var originationCli originationv1connect.OriginationServiceClient
+	if platformClients != nil {
+		originationCli = platformClients.LenderOrigination
+	}
 
 	// Business logic
 	faBiz := business.NewFundingAllocationBusiness(
@@ -110,7 +120,7 @@ func setupServiceOptions(
 		evtsMan,
 		lfRepo,
 		faRepo,
-		&loanOfferAdapter{repo: loRepo},
+		&loanRequestAdapter{repo: loRepo, originationCli: originationCli},
 		iaRepo,
 		ftRepo,
 		platformClients,
@@ -149,29 +159,71 @@ func handleDatabaseMigration(
 	return false
 }
 
-// loanOfferAdapter wraps stawi's LoanOfferRepository to satisfy business.LoanOfferReader.
-type loanOfferAdapter struct {
-	repo stawirepo.LoanOfferRepository
+var errLoanRequestNotFound = errors.New("loan request not found")
+
+// loanRequestAdapter bridges legacy origination sources into a canonical loan-request view.
+type loanRequestAdapter struct {
+	repo           stawirepo.LoanOfferRepository
+	originationCli originationv1connect.OriginationServiceClient
 }
 
-func (a *loanOfferAdapter) GetByID(ctx context.Context, id string) (*business.LoanOfferInfo, error) {
-	offer, err := a.repo.GetByID(ctx, id)
-	if err != nil {
-		return nil, err
+func (a *loanRequestAdapter) GetByID(ctx context.Context, id string) (*business.LoanRequestInfo, error) {
+	if a.repo != nil {
+		offer, err := a.repo.GetByID(ctx, id)
+		if err == nil && offer != nil {
+			return loanOfferToRequestInfo(offer), nil
+		}
 	}
-	return loanOfferToInfo(offer), nil
+
+	if a.originationCli != nil {
+		resp, err := a.originationCli.ApplicationGet(
+			ctx,
+			connect.NewRequest(&originationv1.ApplicationGetRequest{Id: id}),
+		)
+		if err == nil && resp.Msg.GetData() != nil {
+			return applicationToRequestInfo(resp.Msg.GetData()), nil
+		}
+	}
+
+	return nil, errLoanRequestNotFound
 }
 
-func loanOfferToInfo(o *stawimodels.LoanOffer) *business.LoanOfferInfo {
+func loanOfferToRequestInfo(o *stawimodels.LoanOffer) *business.LoanRequestInfo {
 	if o == nil {
 		return nil
 	}
-	info := &business.LoanOfferInfo{
+	info := &business.LoanRequestInfo{
 		Amount:     o.Amount,
 		Currency:   o.Currency,
 		Properties: o.Properties,
 	}
 	info.BaseModel = o.BaseModel
+	return info
+}
+
+func applicationToRequestInfo(app *originationv1.ApplicationObject) *business.LoanRequestInfo {
+	if app == nil {
+		return nil
+	}
+
+	amount, currency := fundingmodels.MoneyToMinorUnits(app.GetApprovedAmount())
+	if amount <= 0 {
+		amount, currency = fundingmodels.MoneyToMinorUnits(app.GetRequestedAmount())
+	}
+
+	properties := (&data.JSONMap{}).FromProtoStruct(app.GetProperties())
+	if properties == nil {
+		properties = data.JSONMap{}
+	}
+	properties["interest_rate"] = float64(fundingmodels.StringToBasisPoints(app.GetInterestRate()))
+
+	info := &business.LoanRequestInfo{
+		Amount:     amount,
+		Currency:   currency,
+		Properties: properties,
+	}
+	info.GenID(context.Background())
+	info.ID = app.GetId()
 	return info
 }
 

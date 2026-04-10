@@ -339,10 +339,10 @@ func handleSourceFunding(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		offerID := r.PathValue("id")
-		log := util.Log(ctx).WithFields(map[string]any{"handler": "source-funding", "offer_id": offerID})
+		loanRequestID := r.PathValue("id")
+		log := util.Log(ctx).WithFields(map[string]any{"handler": "source-funding", "loan_request_id": loanRequestID})
 
-		result, err := lfBusiness.SourceForOffer(ctx, offerID)
+		result, err := lfBusiness.SourceForRequest(ctx, loanRequestID)
 		if err != nil {
 			log.WithError(err).Error("source funding failed")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
