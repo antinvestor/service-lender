@@ -44,9 +44,44 @@ export 'src/savings/v1/savings.connect.client.dart';
 export 'src/savings/v1/savings.connect.spec.dart';
 
 // Funding service
-export 'src/funding/v1/funding.pb.dart';
+export 'src/funding/v1/funding.pb.dart'
+    hide
+        InvestorAccountObject,
+        InvestorAccountSaveRequest,
+        InvestorAccountSaveResponse,
+        InvestorAccountGetRequest,
+        InvestorAccountGetResponse,
+        InvestorAccountSearchRequest,
+        InvestorAccountSearchResponse,
+        InvestorDepositRequest,
+        InvestorDepositResponse,
+        InvestorWithdrawRequest,
+        InvestorWithdrawResponse;
 export 'src/funding/v1/funding.pbenum.dart';
-export 'src/funding/v1/funding.pbjson.dart';
+export 'src/funding/v1/funding.pbjson.dart'
+    hide
+        InvestorAccountObject$json,
+        investorAccountObjectDescriptor,
+        InvestorAccountSaveRequest$json,
+        investorAccountSaveRequestDescriptor,
+        InvestorAccountSaveResponse$json,
+        investorAccountSaveResponseDescriptor,
+        InvestorAccountGetRequest$json,
+        investorAccountGetRequestDescriptor,
+        InvestorAccountGetResponse$json,
+        investorAccountGetResponseDescriptor,
+        InvestorAccountSearchRequest$json,
+        investorAccountSearchRequestDescriptor,
+        InvestorAccountSearchResponse$json,
+        investorAccountSearchResponseDescriptor,
+        InvestorDepositRequest$json,
+        investorDepositRequestDescriptor,
+        InvestorDepositResponse$json,
+        investorDepositResponseDescriptor,
+        InvestorWithdrawRequest$json,
+        investorWithdrawRequestDescriptor,
+        InvestorWithdrawResponse$json,
+        investorWithdrawResponseDescriptor;
 export 'src/funding/v1/funding.connect.client.dart';
 export 'src/funding/v1/funding.connect.spec.dart';
 

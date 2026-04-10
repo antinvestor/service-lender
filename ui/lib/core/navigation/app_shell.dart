@@ -120,8 +120,9 @@ class _MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   String get _title {
-    if (currentRoute.startsWith('/organization/organizations'))
+    if (currentRoute.startsWith('/organization/organizations')) {
       return 'Organizations';
+    }
     if (currentRoute.startsWith('/organization/branches')) return 'Branches';
     if (currentRoute.startsWith('/organization/agents')) return 'Agents';
     if (currentRoute.startsWith('/field/hierarchy')) return 'Hierarchy';

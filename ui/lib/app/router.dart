@@ -445,6 +445,8 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
       // Determine login level from the JWT partition and initialize tenancy context.
       await _initializeTenancyFromJwt(ref);
 
+      if (!mounted) return;
+
       // Invalidate auth state so the router picks up the new session.
       // Also invalidate agent status so it re-evaluates with fresh tokens
       // instead of using stale results from before the OAuth redirect.

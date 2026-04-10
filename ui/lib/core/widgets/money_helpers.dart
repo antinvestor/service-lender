@@ -1,5 +1,5 @@
 import 'package:fixnum/fixnum.dart';
-import 'package:lender_ui/sdk/lender_sdk.dart';
+import 'package:lender_ui/sdk/src/google/type/money.pb.dart';
 
 /// Formats a [Money] object for display. Returns "—" if null or zero.
 String formatMoney(Money? money) {

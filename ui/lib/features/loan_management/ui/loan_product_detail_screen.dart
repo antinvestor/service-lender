@@ -388,42 +388,6 @@ class _KycSchemaTab extends StatelessWidget {
   }
 }
 
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({required this.type});
-  final String type;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = switch (type) {
-      'text' => Colors.blue,
-      'number' => Colors.green,
-      'date' => Colors.purple,
-      'select' => Colors.orange,
-      'phone' => Colors.teal,
-      'boolean' => Colors.indigo,
-      'photo' => Colors.brown,
-      'location' => Colors.red,
-      _ => Colors.grey,
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withAlpha(20),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        type,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
-    );
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Documents Tab
 // ---------------------------------------------------------------------------
@@ -517,19 +481,6 @@ class _DocumentsTab extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _humanizeDocType(String type) {
-    return type
-        .replaceAll('_', ' ')
-        .replaceAll('DOCUMENT TYPE ', '')
-        .split(' ')
-        .map(
-          (w) => w.isNotEmpty
-              ? '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}'
-              : '',
-        )
-        .join(' ');
   }
 }
 

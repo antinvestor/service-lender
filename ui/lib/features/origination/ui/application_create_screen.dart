@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/widgets/dynamic_form.dart';
+import '../../../core/widgets/dynamic_form.dart' show mapToStruct;
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/profile_badge.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
@@ -50,8 +50,7 @@ class _ApplicationCreateScreenState
   final _step2Key = GlobalKey<FormState>();
 
   // Step 3: KYC data
-  final _kycFormKey = GlobalKey<DynamicFormState>();
-  Map<String, dynamic> _kycValues = {};
+  final Map<String, dynamic> _kycValues = {};
 
   @override
   void initState() {
