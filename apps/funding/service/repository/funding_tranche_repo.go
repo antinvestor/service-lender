@@ -53,7 +53,7 @@ func (r *fundingTrancheRepository) GetByLoanRequestID(
 ) ([]*models.FundingTranche, error) {
 	var tranches []*models.FundingTranche
 	err := r.Pool().DB(ctx, true).
-		Where("loan_funding_id IN (SELECT id FROM loan_fundings WHERE loan_offer_id = ?)", loanRequestID).
+		Where("loan_funding_id IN (SELECT id FROM loan_fundings WHERE loan_request_id = ?)", loanRequestID).
 		Order("tranche_level ASC").
 		Find(&tranches).Error
 	return tranches, err

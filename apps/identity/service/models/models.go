@@ -318,6 +318,12 @@ func (m *Client) ToAPI() *fieldv1.ClientObject {
 	for k, v := range m.Properties {
 		props[k] = v
 	}
+	if phone, ok := props["phone"].(string); ok && phone != "" {
+		if _, hasCanonical := props["phone_number"]; !hasCanonical {
+			props["phone_number"] = phone
+		}
+		delete(props, "phone")
+	}
 	// Ensure credit limits are visible in properties for downstream consumers
 	props["system_credit_limit"] = float64(m.SystemCreditLimit)
 	props["agent_credit_limit"] = float64(m.AgentCreditLimit)
@@ -348,6 +354,12 @@ func ClientFromAPI(ctx context.Context, obj *fieldv1.ClientObject) *Client {
 	if obj.GetProperties() != nil {
 		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
 	}
+	if phone, ok := model.Properties["phone"].(string); ok && phone != "" {
+		if _, hasCanonical := model.Properties["phone_number"]; !hasCanonical {
+			model.Properties["phone_number"] = phone
+		}
+		delete(model.Properties, "phone")
+	}
 
 	model.GenID(ctx)
 	if model.ValidXID(obj.GetId()) {
@@ -374,6 +386,29 @@ type CreditLimitChangeRequest struct {
 }
 
 func (m *CreditLimitChangeRequest) TableName() string { return "credit_limit_change_requests" }
+
+// ApprovalCase captures a reusable verification and approval workflow for any
+// pending business action whose end state must not be actualized immediately.
+type ApprovalCase struct {
+	data.BaseModel
+	SubjectType string `gorm:"type:varchar(50);index:idx_approval_case_subject;not null"`
+	SubjectID   string `gorm:"type:varchar(50);index:idx_approval_case_subject;not null"`
+	CaseType    string `gorm:"type:varchar(100);index:idx_approval_case_type;not null"`
+	Status      string `gorm:"type:varchar(50);index:idx_approval_case_status;not null"`
+	Summary     string `gorm:"type:text"`
+	RequestedBy string `gorm:"type:varchar(50);index:idx_approval_case_requested_by"`
+	VerifiedBy  string `gorm:"type:varchar(50)"`
+	ApprovedBy  string `gorm:"type:varchar(50)"`
+	RejectedBy  string `gorm:"type:varchar(50)"`
+	VerifiedAt  *time.Time
+	ApprovedAt  *time.Time
+	RejectedAt  *time.Time
+	Comment     string `gorm:"type:text"`
+	Payload     data.JSONMap
+	Properties  data.JSONMap
+}
+
+func (m *ApprovalCase) TableName() string { return "approval_cases" }
 
 // GroupType defines the type of customer group.
 type GroupType int32

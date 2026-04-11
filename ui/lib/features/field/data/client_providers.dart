@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/client_sync_service.dart';
 import '../../../core/database/database_provider.dart';
+import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
+import '../../../sdk/src/google/protobuf/struct.pbenum.dart' as struct_enum;
 import '../../../sdk/src/common/v1/common.pbenum.dart' as pb_enum;
 import '../../../sdk/src/field/v1/field.pb.dart';
 
@@ -104,5 +108,43 @@ ClientObject _localToClient(LocalClient local) {
     agentId: local.agentId,
     state: pb_enum.STATE.valueOf(local.state) ?? pb_enum.STATE.CREATED,
   );
+  if (local.propertiesJson.isNotEmpty && local.propertiesJson != '{}') {
+    try {
+      final struct = struct_pb.Struct();
+      _populateStruct(
+        struct,
+        jsonDecode(local.propertiesJson) as Map<String, dynamic>,
+      );
+      client.properties = struct;
+    } catch (_) {}
+  }
   return client;
+}
+
+void _populateStruct(struct_pb.Struct struct, Map<String, dynamic> map) {
+  for (final entry in map.entries) {
+    struct.fields[entry.key] = _objectToValue(entry.value);
+  }
+}
+
+struct_pb.Value _objectToValue(dynamic obj) {
+  final value = struct_pb.Value();
+  if (obj is String) {
+    value.stringValue = obj;
+  } else if (obj is num) {
+    value.numberValue = obj.toDouble();
+  } else if (obj is bool) {
+    value.boolValue = obj;
+  } else if (obj is Map<String, dynamic>) {
+    final nested = struct_pb.Struct();
+    _populateStruct(nested, obj);
+    value.structValue = nested;
+  } else if (obj is List) {
+    value.listValue = struct_pb.ListValue(
+      values: obj.map(_objectToValue).toList(),
+    );
+  } else {
+    value.nullValue = struct_enum.NullValue.NULL_VALUE;
+  }
+  return value;
 }

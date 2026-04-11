@@ -278,8 +278,6 @@ func fundingAllocationToAPI(allocation map[string]interface{}) *fundingv1.Fundin
 	}
 	if loanRequestID, found := allocation["loan_request_id"].(string); found {
 		obj.LoanOfferId = loanRequestID
-	} else if legacyLoanRequestID, ok := allocation["loan_offer_id"].(string); ok {
-		obj.LoanOfferId = legacyLoanRequestID
 	}
 	if sourceID, found := allocation["source_id"].(string); found {
 		obj.SourceId = sourceID

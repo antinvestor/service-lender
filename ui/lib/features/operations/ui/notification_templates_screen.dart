@@ -419,11 +419,11 @@ const _templateCategories = [
       ),
       _TemplateDef(
         name: 'template.fintech.offer.generated',
-        subject: 'Loan Offer Available',
+        subject: 'Loan Terms Available',
         body:
-            'A loan offer of {{.amount}} {{.currency}} at {{.interest_rate}}% '
+            'Approved loan terms of {{.amount}} {{.currency}} at {{.interest_rate}}% '
             'for {{.term_days}} days is available.',
-        description: 'Sent when a loan offer is generated for the applicant.',
+        description: 'Sent when approved loan request terms are ready for the applicant.',
         variables: ['amount', 'currency', 'interest_rate', 'term_days'],
       ),
     ],

@@ -178,6 +178,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     final agentLabel = agent != null
         ? (agent.name.isNotEmpty ? agent.name : agent.id)
         : client.agentId;
+    final caseStatus = client.hasProperties()
+        ? _fieldString(client.properties.fields, 'approval_case_status')
+        : '';
 
     return Card(
       elevation: 0,
@@ -223,6 +226,26 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   color: theme.colorScheme.onSurface.withAlpha(160),
                 ),
               ),
+            if (caseStatus.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer.withAlpha(90),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  'Case: ${caseStatus.replaceAll('_', ' ')}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
         trailing: StateBadge(state: client.state),
@@ -230,5 +253,14 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         onTap: () => context.go('/field/clients/${client.id}'),
       ),
     );
+  }
+
+  String _fieldString(Map<String, dynamic> properties, String key) {
+    final value = properties[key];
+    if (value == null) return '';
+    if (value.hasStringValue()) return value.stringValue;
+    if (value.hasNumberValue()) return value.numberValue.toString();
+    if (value.hasBoolValue()) return value.boolValue.toString();
+    return '';
   }
 }

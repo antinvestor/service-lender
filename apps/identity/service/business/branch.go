@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
@@ -33,6 +34,7 @@ type branchBusiness struct {
 	organizationRepo repository.OrganizationRepository
 	branchRepo       repository.BranchRepository
 	partitionCli     tenancyv1connect.TenancyServiceClient
+	approvalCases    ApprovalCaseBusiness
 }
 
 func NewBranchBusiness(
@@ -41,12 +43,14 @@ func NewBranchBusiness(
 	organizationRepo repository.OrganizationRepository,
 	branchRepo repository.BranchRepository,
 	partitionCli tenancyv1connect.TenancyServiceClient,
+	approvalCases ApprovalCaseBusiness,
 ) BranchBusiness {
 	return &branchBusiness{
 		eventsMan:        eventsMan,
 		organizationRepo: organizationRepo,
 		branchRepo:       branchRepo,
 		partitionCli:     partitionCli,
+		approvalCases:    approvalCases,
 	}
 }
 
@@ -62,6 +66,15 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 
 	isNew := obj.GetId() == ""
 	branch := models.BranchFromAPI(ctx, obj)
+	branch.Properties = entityProperties(branch.Properties)
+
+	if action := caseAction(branch.Properties); action != "" {
+		result, actionErr := b.handleApprovalAction(ctx, logger, branch, action)
+		if actionErr != nil {
+			return nil, actionErr
+		}
+		return result, nil
+	}
 
 	if isNew && branch.State == 0 {
 		branch.State = int32(commonv1.STATE_CREATED.Number())
@@ -69,10 +82,21 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 
 	if isNew {
 		branch.TenantID = org.TenantID
-		branch.PartitionID = b.createChildPartition(
-			ctx, logger, org.TenantID, org.PartitionID, branch.Name,
-		)
+		result, createErr := b.submitBranchCreateCase(ctx, logger, branch)
+		if createErr != nil {
+			return nil, createErr
+		}
+		return result, nil
 	}
+
+	existing, err := b.branchRepo.GetByID(ctx, branch.GetID())
+	if err != nil {
+		logger.WithError(err).Warn("branch not found for update")
+		return nil, ErrBranchNotFound
+	}
+	branch.TenantID = existing.TenantID
+	branch.PartitionID = existing.PartitionID
+	stripCaseCommand(branch.Properties)
 
 	err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, branch)
 	if err != nil {
@@ -83,14 +107,194 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 	return branch.ToAPI(), nil
 }
 
+func (b *branchBusiness) submitBranchCreateCase(
+	ctx context.Context,
+	logger *util.LogEntry,
+	branch *models.Branch,
+) (*identityv1.BranchObject, error) {
+	actorID := caseActorID(branch.Properties)
+	requestedState := branch.State
+	if requestedState == 0 {
+		requestedState = int32(commonv1.STATE_CREATED.Number())
+	}
+
+	approvalCase, err := b.approvalCases.Submit(ctx, ApprovalCaseSubmission{
+		SubjectType:         approvalCaseSubjectBranch,
+		SubjectID:           branch.GetID(),
+		CaseType:            approvalCaseTypeBranchCreate,
+		Summary:             fmt.Sprintf("Branch %s requires verification and approval", branch.Name),
+		RequestedBy:         actorID,
+		Comment:             caseComment(branch.Properties),
+		RequireVerification: true,
+		Payload: map[string]any{
+			"requested_state": requestedState,
+		},
+	})
+	if err != nil {
+		logger.WithError(err).Error("could not create branch approval case")
+		return nil, err
+	}
+
+	branch.State = int32(commonv1.STATE_CREATED.Number())
+	branch.PartitionID = ""
+	stripCaseCommand(branch.Properties)
+	branch.Properties = applyApprovalCaseSnapshot(branch.Properties, approvalCase)
+
+	if err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, branch); err != nil {
+		logger.WithError(err).Error("could not emit branch save event")
+		return nil, err
+	}
+
+	return branch.ToAPI(), nil
+}
+
+func (b *branchBusiness) handleApprovalAction(
+	ctx context.Context,
+	logger *util.LogEntry,
+	branch *models.Branch,
+	action string,
+) (*identityv1.BranchObject, error) {
+	if branch.GetID() == "" {
+		return nil, ErrBranchNotFound
+	}
+
+	existing, err := b.branchRepo.GetByID(ctx, branch.GetID())
+	if err != nil {
+		logger.WithError(err).Warn("branch not found for approval action")
+		return nil, ErrBranchNotFound
+	}
+
+	props := entityProperties(existing.Properties)
+	caseID := openApprovalCaseID(props)
+	approvalCase, err := b.resolveApprovalCase(ctx, caseID, existing.GetID())
+	if err != nil {
+		return nil, err
+	}
+
+	actorID := caseActorID(branch.Properties)
+	comment := caseComment(branch.Properties)
+
+	approvalCase, err = b.transitionApprovalAction(ctx, logger, existing, approvalCase, action, actorID, comment)
+	if err != nil {
+		return nil, err
+	}
+
+	stripCaseCommand(props)
+	existing.Properties = applyApprovalCaseSnapshot(props, approvalCase)
+	if err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, existing); err != nil {
+		logger.WithError(err).Error("could not persist branch approval action")
+		return nil, err
+	}
+
+	logApprovalCaseTransition(ctx, action, approvalCase)
+	return existing.ToAPI(), nil
+}
+
+func (b *branchBusiness) transitionApprovalAction(
+	ctx context.Context,
+	logger *util.LogEntry,
+	existing *models.Branch,
+	approvalCase *models.ApprovalCase,
+	action, actorID, comment string,
+) (*models.ApprovalCase, error) {
+	switch action {
+	case approvalCaseActionVerify:
+		return b.approvalCases.Verify(ctx, approvalCase.GetID(), actorID, comment)
+	case approvalCaseActionApprove:
+		return b.approveBranchCase(ctx, logger, existing, approvalCase, actorID, comment)
+	case approvalCaseActionReject:
+		return b.rejectBranchCase(ctx, existing, approvalCase, actorID, comment)
+	default:
+		return nil, ErrApprovalCaseNotPending.Extend("unsupported case action")
+	}
+}
+
+func (b *branchBusiness) approveBranchCase(
+	ctx context.Context,
+	logger *util.LogEntry,
+	existing *models.Branch,
+	approvalCase *models.ApprovalCase,
+	actorID, comment string,
+) (*models.ApprovalCase, error) {
+	approvedCase, err := b.approvalCases.Approve(ctx, approvalCase.GetID(), actorID, comment)
+	if err != nil {
+		return nil, err
+	}
+
+	if existing.PartitionID == "" {
+		org, orgErr := b.organizationRepo.GetByID(ctx, existing.OrganizationID)
+		if orgErr != nil {
+			return nil, ErrOrganizationNotFound
+		}
+		partitionID, partitionErr := b.createChildPartition(
+			ctx, logger, org.TenantID, org.PartitionID, existing.Name,
+		)
+		if partitionErr != nil {
+			return nil, partitionErr
+		}
+		existing.PartitionID = partitionID
+		existing.TenantID = org.TenantID
+	}
+
+	if requestedState := int32Value(approvedCase.Payload["requested_state"]); requestedState != 0 {
+		existing.State = requestedState
+	}
+
+	return approvedCase, nil
+}
+
+func (b *branchBusiness) rejectBranchCase(
+	ctx context.Context,
+	existing *models.Branch,
+	approvalCase *models.ApprovalCase,
+	actorID, comment string,
+) (*models.ApprovalCase, error) {
+	rejectedCase, err := b.approvalCases.Reject(ctx, approvalCase.GetID(), actorID, comment)
+	if err != nil {
+		return nil, err
+	}
+	if existing.PartitionID == "" {
+		existing.State = int32(commonv1.STATE_INACTIVE.Number())
+	}
+	return rejectedCase, nil
+}
+
+func (b *branchBusiness) resolveApprovalCase(
+	ctx context.Context,
+	caseID, branchID string,
+) (*models.ApprovalCase, error) {
+	if caseID != "" {
+		approvalCase, err := b.approvalCases.GetOpenBySubject(
+			ctx,
+			approvalCaseSubjectBranch,
+			branchID,
+			approvalCaseTypeBranchCreate,
+		)
+		if err == nil && approvalCase != nil && approvalCase.GetID() == caseID {
+			return approvalCase, nil
+		}
+	}
+
+	approvalCase, err := b.approvalCases.GetOpenBySubject(
+		ctx,
+		approvalCaseSubjectBranch,
+		branchID,
+		approvalCaseTypeBranchCreate,
+	)
+	if err != nil {
+		return nil, ErrApprovalCaseNotFound
+	}
+	return approvalCase, nil
+}
+
 func (b *branchBusiness) createChildPartition(
 	ctx context.Context,
 	logger *util.LogEntry,
 	tenantID, parentID, name string,
-) string {
+) (string, error) {
 	if b.partitionCli == nil {
-		logger.Warn("partition client is nil, using parent partition")
-		return parentID
+		logger.Warn("partition client is nil")
+		return "", ErrLoginClientCreationFailed.Extend("partition client is nil")
 	}
 	resp, err := b.partitionCli.CreatePartition(ctx, connect.NewRequest(
 		&tenancyv1.CreatePartitionRequest{
@@ -101,10 +305,10 @@ func (b *branchBusiness) createChildPartition(
 		},
 	))
 	if err != nil {
-		logger.WithError(err).Warn("failed to create child partition, using parent")
-		return parentID
+		logger.WithError(err).Warn("failed to create child partition")
+		return "", ErrLoginClientCreationFailed.Extend("failed to create child partition")
 	}
-	return resp.Msg.GetData().GetId()
+	return resp.Msg.GetData().GetId(), nil
 }
 
 func (b *branchBusiness) Get(ctx context.Context, id string) (*identityv1.BranchObject, error) {

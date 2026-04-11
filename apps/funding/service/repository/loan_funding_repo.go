@@ -34,6 +34,6 @@ func (r *loanFundingRepository) GetByLoanRequestID(
 	loanRequestID string,
 ) ([]*models.LoanFunding, error) {
 	var fundings []*models.LoanFunding
-	err := r.Pool().DB(ctx, true).Where("loan_offer_id = ?", loanRequestID).Find(&fundings).Error
+	err := r.Pool().DB(ctx, true).Where("loan_request_id = ?", loanRequestID).Find(&fundings).Error
 	return fundings, err
 }

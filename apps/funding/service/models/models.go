@@ -49,11 +49,10 @@ const (
 // LoanFunding represents a funding source for a loan request.
 type LoanFunding struct {
 	data.BaseModel
-	OwnerID     string `gorm:"type:varchar(50);index:idx_lfund_owner"`
-	OwnerType   string `gorm:"type:varchar(50)"`
-	FundingType int32  `gorm:"column:funding_type"` // FundingSource
-	// LoanRequestID is stored in the legacy loan_offer_id column for wire compatibility.
-	LoanRequestID string `gorm:"column:loan_offer_id;type:varchar(50);index:idx_lfund_request;not null"`
+	OwnerID       string `gorm:"type:varchar(50);index:idx_lfund_owner"`
+	OwnerType     string `gorm:"type:varchar(50)"`
+	FundingType   int32  `gorm:"column:funding_type"` // FundingSource
+	LoanRequestID string `gorm:"column:loan_request_id;type:varchar(50);index:idx_lfund_request;not null"`
 	LoanAccountID string `gorm:"type:varchar(50)"` // cross-ref to Lender
 	Proportion    int64  // basis points (e.g. 6500 = 65%)
 	Amount        int64  // minor units

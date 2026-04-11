@@ -4,10 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/role_provider.dart';
+import '../../../core/widgets/approval_case_panel.dart';
+import '../../../core/widgets/dynamic_form.dart' show mapToStruct, structToMap;
 import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../auth/data/auth_repository.dart';
 import '../../field/data/agent_providers.dart';
 import '../data/branch_providers.dart';
 import 'organization_detail_screen.dart';
@@ -86,6 +89,9 @@ class _BranchDetailContentState extends ConsumerState<_BranchDetailContent> {
     final agentsAsync = ref.watch(
       agentListProvider(query: '', branchId: _branch.id),
     );
+    final canVerify = ref.watch(canManageVerificationProvider).value ?? false;
+    final canApprove = ref.watch(canManageUnderwritingProvider).value ?? false;
+    final props = _branch.hasProperties() ? _branch.properties.fields : null;
 
     return CustomScrollView(
       slivers: [
@@ -168,6 +174,21 @@ class _BranchDetailContentState extends ConsumerState<_BranchDetailContent> {
                   ),
                 ],
               ],
+            ),
+          ),
+        ),
+
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            child: ApprovalCasePanel(
+              properties: props,
+              title: 'Branch approval',
+              onVerify: canVerify ? () => _performCaseAction('verify') : null,
+              onApprove: canApprove ? () => _performCaseAction('approve') : null,
+              onReject: (canVerify || canApprove)
+                  ? () => _performCaseAction('reject')
+                  : null,
             ),
           ),
         ),
@@ -307,6 +328,38 @@ class _BranchDetailContentState extends ConsumerState<_BranchDetailContent> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save branch: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  Future<void> _performCaseAction(String action) async {
+    final profileId = await ref.read(currentProfileIdProvider.future) ?? '';
+    final client = ref.read(identityServiceClientProvider);
+    final updated = _branch.clone();
+    final props = updated.hasProperties()
+        ? structToMap(updated.properties)
+        : <String, dynamic>{};
+    props['case_action'] = action;
+    props['case_actor_id'] = profileId;
+    updated.properties = mapToStruct(props);
+
+    try {
+      final response = await client.branchSave(BranchSaveRequest(data: updated));
+      if (!mounted) return;
+      setState(() {
+        _branch = response.data;
+      });
+      ref.invalidate(branchListProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Branch case ${action}d successfully')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to $action branch case: $e'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );

@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
@@ -38,11 +39,12 @@ type ClientBusiness interface {
 }
 
 type clientBusiness struct {
-	eventsMan  fevents.Manager
-	agentRepo  repository.AgentRepository
-	clientRepo repository.ClientRepository
-	cahRepo    repository.ClientAssignmentHistoryRepository
-	clcrRepo   repository.CreditLimitChangeRequestRepository
+	eventsMan     fevents.Manager
+	agentRepo     repository.AgentRepository
+	clientRepo    repository.ClientRepository
+	cahRepo       repository.ClientAssignmentHistoryRepository
+	clcrRepo      repository.CreditLimitChangeRequestRepository
+	approvalCases ApprovalCaseBusiness
 }
 
 func NewClientBusiness(_ context.Context, eventsMan fevents.Manager,
@@ -50,13 +52,15 @@ func NewClientBusiness(_ context.Context, eventsMan fevents.Manager,
 	clientRepo repository.ClientRepository,
 	cahRepo repository.ClientAssignmentHistoryRepository,
 	clcrRepo repository.CreditLimitChangeRequestRepository,
+	approvalCases ApprovalCaseBusiness,
 ) ClientBusiness {
 	return &clientBusiness{
-		eventsMan:  eventsMan,
-		agentRepo:  agentRepo,
-		clientRepo: clientRepo,
-		cahRepo:    cahRepo,
-		clcrRepo:   clcrRepo,
+		eventsMan:     eventsMan,
+		agentRepo:     agentRepo,
+		clientRepo:    clientRepo,
+		cahRepo:       cahRepo,
+		clcrRepo:      clcrRepo,
+		approvalCases: approvalCases,
 	}
 }
 
@@ -79,9 +83,41 @@ func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.ClientObject) (*
 
 	isNew := obj.GetId() == ""
 	client := models.ClientFromAPI(ctx, obj)
+	client.Properties = normalizeClientPhoneProperties(entityProperties(client.Properties))
 
 	if isNew && client.State == 0 {
 		client.State = int32(commonv1.STATE_CREATED.Number())
+	}
+
+	if action := caseAction(client.Properties); action != "" {
+		return b.handleApprovalAction(ctx, logger, client, action)
+	}
+
+	if !isNew {
+		existing, getErr := b.clientRepo.GetByID(ctx, client.GetID())
+		if getErr != nil {
+			return nil, ErrClientNotFound
+		}
+
+		if desiredPhone, currentPhone := clientPhoneNumber(
+			client.Properties,
+		), clientPhoneNumber(
+			existing.Properties,
+		); desiredPhone != currentPhone {
+			return b.submitPhoneChangeCase(ctx, logger, existing, client, desiredPhone)
+		}
+
+		client.TenantID = existing.TenantID
+		client.PartitionID = existing.PartitionID
+		client.CurrencyCode = existing.CurrencyCode
+		client.SystemCreditLimit = existing.SystemCreditLimit
+		client.AgentCreditLimit = existing.AgentCreditLimit
+		mergedProps := entityProperties(existing.Properties)
+		for k, v := range client.Properties {
+			mergedProps[k] = v
+		}
+		stripCaseCommand(mergedProps)
+		client.Properties = normalizeClientPhoneProperties(mergedProps)
 	}
 
 	if err = b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
@@ -90,6 +126,119 @@ func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.ClientObject) (*
 	}
 
 	return client.ToAPI(), nil
+}
+
+func (b *clientBusiness) submitPhoneChangeCase(
+	ctx context.Context,
+	logger *util.LogEntry,
+	existing *models.Client,
+	incoming *models.Client,
+	requestedPhone string,
+) (*fieldv1.ClientObject, error) {
+	if _, err := b.approvalCases.GetOpenBySubject(
+		ctx, approvalCaseSubjectClient, existing.GetID(), approvalCaseTypeClientPhoneChange,
+	); err == nil {
+		return nil, ErrClientPhoneChangePending
+	}
+
+	approvalCase, err := b.approvalCases.Submit(ctx, ApprovalCaseSubmission{
+		SubjectType: approvalCaseSubjectClient,
+		SubjectID:   existing.GetID(),
+		CaseType:    approvalCaseTypeClientPhoneChange,
+		Summary: fmt.Sprintf(
+			"Client %s phone number change requires verification and approval",
+			existing.Name,
+		),
+		RequestedBy:         caseActorID(incoming.Properties),
+		Comment:             caseComment(incoming.Properties),
+		RequireVerification: true,
+		Payload: map[string]any{
+			approvalCaseRequestedValueKey: requestedPhone,
+		},
+	})
+	if err != nil {
+		logger.WithError(err).Error("could not create phone change approval case")
+		return nil, err
+	}
+
+	mergedProps := entityProperties(existing.Properties)
+	for k, v := range incoming.Properties {
+		mergedProps[k] = v
+	}
+	setClientPhoneNumber(mergedProps, clientPhoneNumber(existing.Properties))
+	if requestedPhone != "" {
+		mergedProps[clientPendingPhoneNumberKey] = requestedPhone
+	} else {
+		delete(mergedProps, clientPendingPhoneNumberKey)
+	}
+	stripCaseCommand(mergedProps)
+	existing.Name = incoming.Name
+	existing.Properties = applyApprovalCaseSnapshot(normalizeClientPhoneProperties(mergedProps), approvalCase)
+
+	if err = b.eventsMan.Emit(ctx, events.ClientSaveEvent, existing); err != nil {
+		logger.WithError(err).Error("could not persist phone change request")
+		return nil, err
+	}
+
+	return existing.ToAPI(), nil
+}
+
+func (b *clientBusiness) handleApprovalAction(
+	ctx context.Context,
+	logger *util.LogEntry,
+	client *models.Client,
+	action string,
+) (*fieldv1.ClientObject, error) {
+	if client.GetID() == "" {
+		return nil, ErrClientNotFound
+	}
+
+	existing, err := b.clientRepo.GetByID(ctx, client.GetID())
+	if err != nil {
+		return nil, ErrClientNotFound
+	}
+
+	props := entityProperties(existing.Properties)
+	approvalCase, err := b.approvalCases.GetOpenBySubject(
+		ctx, approvalCaseSubjectClient, existing.GetID(), approvalCaseTypeClientPhoneChange,
+	)
+	if err != nil {
+		return nil, ErrApprovalCaseNotFound
+	}
+
+	actorID := caseActorID(client.Properties)
+	comment := caseComment(client.Properties)
+
+	switch action {
+	case approvalCaseActionVerify:
+		approvalCase, err = b.approvalCases.Verify(ctx, approvalCase.GetID(), actorID, comment)
+	case approvalCaseActionApprove:
+		approvalCase, err = b.approvalCases.Approve(ctx, approvalCase.GetID(), actorID, comment)
+		if err == nil {
+			setClientPhoneNumber(props, stringValue(approvalCase.Payload[approvalCaseRequestedValueKey]))
+			delete(props, clientPendingPhoneNumberKey)
+		}
+	case approvalCaseActionReject:
+		approvalCase, err = b.approvalCases.Reject(ctx, approvalCase.GetID(), actorID, comment)
+		if err == nil {
+			delete(props, clientPendingPhoneNumberKey)
+		}
+	default:
+		return nil, ErrApprovalCaseNotPending.Extend("unsupported case action")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	stripCaseCommand(props)
+	existing.Properties = applyApprovalCaseSnapshot(normalizeClientPhoneProperties(props), approvalCase)
+	if err = b.eventsMan.Emit(ctx, events.ClientSaveEvent, existing); err != nil {
+		logger.WithError(err).Error("could not persist client approval action")
+		return nil, err
+	}
+
+	logApprovalCaseTransition(ctx, action, approvalCase)
+	return existing.ToAPI(), nil
 }
 
 func (b *clientBusiness) Get(ctx context.Context, id string) (*fieldv1.ClientObject, error) {

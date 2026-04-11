@@ -122,10 +122,10 @@ func originationTemplates() []Template {
 		},
 		{
 			Name:        "template.fintech.offer.generated",
-			Subject:     "Loan Offer Available",
-			Body:        "A loan offer of {{.amount}} {{.currency}} at {{.interest_rate}}% interest for {{.term_days}} days has been generated for you. Please review and accept or decline the offer.",
+			Subject:     "Loan Terms Available",
+			Body:        "Approved loan terms of {{.amount}} {{.currency}} at {{.interest_rate}}% interest for {{.term_days}} days are ready for your review. Please accept or decline the terms.",
 			Category:    "origination",
-			Description: "Sent when a loan offer is generated for the applicant.",
+			Description: "Sent when approved loan request terms are ready for the applicant.",
 		},
 	}
 }

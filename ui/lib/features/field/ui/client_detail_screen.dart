@@ -6,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/auth/role_guard.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/theme/design_tokens.dart';
+import '../../../core/widgets/approval_case_panel.dart';
 import '../../../core/widgets/application_status_badge.dart';
+import '../../../core/widgets/dynamic_form.dart' show mapToStruct, structToMap;
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/profile_badge.dart';
@@ -16,6 +18,7 @@ import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../../../sdk/src/origination/v1/origination.pbenum.dart';
 import '../../loan_management/data/loan_account_providers.dart';
 import '../../origination/data/application_providers.dart';
+import '../../auth/data/auth_repository.dart';
 import '../data/client_providers.dart';
 
 class ClientDetailScreen extends ConsumerWidget {
@@ -77,6 +80,9 @@ class _ClientDetailContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final properties = client.hasProperties() ? client.properties.fields : null;
+    final canManageClients = ref.watch(canManageClientsProvider).value ?? false;
+    final canVerify = ref.watch(canManageVerificationProvider).value ?? false;
+    final canApprove = ref.watch(canManageUnderwritingProvider).value ?? false;
 
     // Extract KYC fields for completeness calculation
     final kycFields = _extractKycFields(properties);
@@ -118,15 +124,15 @@ class _ClientDetailContent extends ConsumerWidget {
                       Row(
                         children: [
                           if (properties != null &&
-                              properties.containsKey('phone'))
+                              _fieldString(properties, 'phone_number').isNotEmpty)
                             Text(
-                              properties['phone']!.stringValue,
+                              _fieldString(properties, 'phone_number'),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           if (properties != null &&
-                              properties.containsKey('phone'))
+                              _fieldString(properties, 'phone_number').isNotEmpty)
                             Text(
                               ' \u2022 ',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -179,6 +185,25 @@ class _ClientDetailContent extends ConsumerWidget {
               ),
             ),
 
+          if (properties != null &&
+              _fieldString(properties, 'approval_case_status').isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: ApprovalCasePanel(
+                properties: properties,
+                title: 'Client change case',
+                onVerify: canVerify
+                    ? () => _performCaseAction(context, ref, 'verify')
+                    : null,
+                onApprove: canApprove
+                    ? () => _performCaseAction(context, ref, 'approve')
+                    : null,
+                onReject: (canVerify || canApprove)
+                    ? () => _performCaseAction(context, ref, 'reject')
+                    : null,
+              ),
+            ),
+
           // Action buttons
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
@@ -200,6 +225,14 @@ class _ClientDetailContent extends ConsumerWidget {
                     label: const Text('New Application'),
                   ),
                 ),
+                if (canManageClients) ...[
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => _requestPhoneChange(context, ref),
+                    icon: const Icon(Icons.phone_outlined, size: 18),
+                    label: const Text('Change Phone'),
+                  ),
+                ],
               ],
             ),
           ),
@@ -233,6 +266,107 @@ class _ClientDetailContent extends ConsumerWidget {
     );
   }
 
+  Future<void> _requestPhoneChange(BuildContext context, WidgetRef ref) async {
+    final currentPhone = _fieldString(
+      client.hasProperties() ? client.properties.fields : null,
+      'pending_phone_number',
+    ).isNotEmpty
+        ? _fieldString(
+            client.hasProperties() ? client.properties.fields : null,
+            'pending_phone_number',
+          )
+        : _fieldString(
+            client.hasProperties() ? client.properties.fields : null,
+            'phone_number',
+          );
+    final controller = TextEditingController(text: currentPhone);
+    final nextPhone = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Request Phone Change'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(
+            labelText: 'Phone Number',
+            hintText: 'Enter the new client phone number',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+
+    if (nextPhone == null || nextPhone.isEmpty) return;
+
+    final profileId = await ref.read(currentProfileIdProvider.future) ?? '';
+    final updated = client.clone();
+    final props = updated.hasProperties()
+        ? structToMap(updated.properties)
+        : <String, dynamic>{};
+    props['phone_number'] = nextPhone;
+    props['case_actor_id'] = profileId;
+    updated.properties = mapToStruct(props);
+
+    try {
+      await ref.read(clientProvider.notifier).save(updated);
+      ref.invalidate(clientListProvider);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone change case submitted')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to submit phone change: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  Future<void> _performCaseAction(
+    BuildContext context,
+    WidgetRef ref,
+    String action,
+  ) async {
+    final profileId = await ref.read(currentProfileIdProvider.future) ?? '';
+    final updated = client.clone();
+    final props = updated.hasProperties()
+        ? structToMap(updated.properties)
+        : <String, dynamic>{};
+    props['case_action'] = action;
+    props['case_actor_id'] = profileId;
+    updated.properties = mapToStruct(props);
+
+    try {
+      await ref.read(clientProvider.notifier).save(updated);
+      ref.invalidate(clientListProvider);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Client case ${action}d successfully')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to $action client case: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
   String _shortId(String id) =>
       id.length > 12 ? '${id.substring(0, 12)}...' : id;
 
@@ -253,6 +387,16 @@ class _ClientDetailContent extends ConsumerWidget {
       result[entry.key] = strVal;
     }
     return result;
+  }
+
+  String _fieldString(Map<String, dynamic>? properties, String key) {
+    if (properties == null) return '';
+    final value = properties[key];
+    if (value == null) return '';
+    if (value.hasStringValue()) return value.stringValue;
+    if (value.hasNumberValue()) return value.numberValue.toString();
+    if (value.hasBoolValue()) return value.boolValue.toString();
+    return '';
   }
 }
 

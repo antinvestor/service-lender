@@ -122,6 +122,7 @@ func setupServiceOptions(
 	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
 	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
 	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
+	approvalCaseRepo := repository.NewApprovalCaseRepository(ctx, dbPool, workMan)
 	groupRepo := repository.NewClientGroupRepository(ctx, dbPool, workMan)
 	membershipRepo := repository.NewMembershipRepository(ctx, dbPool, workMan)
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
@@ -129,8 +130,11 @@ func setupServiceOptions(
 	clientDataEntryRepo := repository.NewClientDataEntryRepository(ctx, dbPool, workMan)
 	clientDataHistoryRepo := repository.NewClientDataEntryHistoryRepository(ctx, dbPool, workMan)
 
+	approvalCaseBusiness := business.NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo)
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
-	branchBusiness := business.NewBranchBusiness(ctx, evtsMan, organizationRepo, branchRepo, partitionCli)
+	branchBusiness := business.NewBranchBusiness(
+		ctx, evtsMan, organizationRepo, branchRepo, partitionCli, approvalCaseBusiness,
+	)
 	agentBusiness := business.NewAgentBusiness(
 		ctx,
 		evtsMan,
@@ -141,7 +145,9 @@ func setupServiceOptions(
 		agentBranchRepo,
 		agentNotifier,
 	)
-	clientBusiness := business.NewClientBusiness(ctx, evtsMan, agentRepo, clientRepo, cahRepo, clcrRepo)
+	clientBusiness := business.NewClientBusiness(
+		ctx, evtsMan, agentRepo, clientRepo, cahRepo, clcrRepo, approvalCaseBusiness,
+	)
 	groupBusiness := business.NewClientGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
@@ -178,6 +184,7 @@ func setupServiceOptions(
 			identityevents.NewInvestorSave(ctx, investorRepo),
 			identityevents.NewSystemUserSave(ctx, systemUserRepo),
 			identityevents.NewCreditLimitChangeRequestSave(ctx, clcrRepo),
+			identityevents.NewApprovalCaseSave(ctx, approvalCaseRepo),
 			identityevents.NewClientDataEntrySave(ctx, clientDataEntryRepo),
 			identityevents.NewClientDataEntryHistorySave(ctx, clientDataHistoryRepo),
 		),

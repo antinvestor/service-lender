@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/role_provider.dart';
+import '../../../core/widgets/dynamic_form.dart' show mapToStruct, structToMap;
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
+import '../../auth/data/auth_repository.dart';
 import '../data/organization_providers.dart';
 import '../data/branch_providers.dart';
 
@@ -114,6 +116,10 @@ class _BranchesScreenState extends ConsumerState<BranchesScreen> {
     if (result == null || !mounted) return;
 
     try {
+      final profileId = await ref.read(currentProfileIdProvider.future) ?? '';
+      final props = result.hasProperties() ? structToMap(result.properties) : <String, dynamic>{};
+      props['case_actor_id'] = profileId;
+      result.properties = mapToStruct(props);
       await ref.read(branchProvider.notifier).save(result);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -147,6 +153,8 @@ class _BranchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final caseFields = branch.hasProperties() ? branch.properties.fields : null;
+    final caseStatus = _stringValue(caseFields, 'approval_case_status');
     return Card(
       margin: EdgeInsets.zero,
       child: InkWell(
@@ -224,6 +232,28 @@ class _BranchCard extends StatelessWidget {
                         ],
                       ],
                     ),
+                    if (caseStatus.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer.withAlpha(
+                            90,
+                          ),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          'Case: ${caseStatus.replaceAll('_', ' ')}',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -234,6 +264,15 @@ class _BranchCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _stringValue(Map<String, dynamic>? props, String key) {
+  final value = props?[key];
+  if (value == null) return '';
+  if (value.hasStringValue()) return value.stringValue;
+  if (value.hasNumberValue()) return value.numberValue.toString();
+  if (value.hasBoolValue()) return value.boolValue.toString();
+  return '';
 }
 
 class _BranchFormDialog extends StatefulWidget {

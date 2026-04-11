@@ -1224,10 +1224,7 @@ func (b *transferOrderBusiness) handlePlatformFirstLossAbsorption(
 }
 
 func extraDataLoanRequestID(order *models.TransferOrder) string {
-	if loanRequestID := extraDataString(order, "loan_request_id"); loanRequestID != "" {
-		return loanRequestID
-	}
-	return extraDataString(order, "loan_offer_id")
+	return extraDataString(order, "loan_request_id")
 }
 
 func cloneExtraData(extra data.JSONMap) data.JSONMap {

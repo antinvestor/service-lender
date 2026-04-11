@@ -25,7 +25,7 @@ var (
 		"application is in a terminal status and cannot be modified",
 	)
 	ErrLoanCreationFailed = apperrors.NewError(apperrors.BadGateway, "could not create loan account")
-	ErrOfferExpired       = apperrors.NewError(apperrors.Unprocessable, "loan offer has expired")
+	ErrOfferExpired       = apperrors.NewError(apperrors.Unprocessable, "approved loan terms have expired")
 
 	ErrClientHasActiveLoan = apperrors.NewError(
 		apperrors.Unprocessable,

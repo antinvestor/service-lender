@@ -109,7 +109,6 @@ func (b *fundingAllocationBusiness) SourceForRequest(
 
 	return map[string]interface{}{
 		"loan_request_id": loanRequestID,
-		"loan_offer_id":   loanRequestID,
 		"currency":        requestInfo.Currency,
 		"loan_amount":     loanAmount,
 		"total_allocated": result.TotalAllocated.ToMinorUnits(decimalPrecision),
@@ -160,7 +159,6 @@ func (b *fundingAllocationBusiness) persistAllocations(
 		allocations = append(allocations, map[string]interface{}{
 			"id":              funding.GetID(),
 			"loan_request_id": loanRequestID,
-			"loan_offer_id":   loanRequestID,
 			"source_id":       alloc.SourceID,
 			"source_type":     fundingSourceLabel(alloc.SourceType),
 			"tranche_level":   alloc.TrancheLevel,
@@ -348,7 +346,6 @@ func (b *fundingAllocationBusiness) buildPersistedResult(
 		allocations = append(allocations, map[string]interface{}{
 			"id":              funding.GetID(),
 			"loan_request_id": loanRequestID,
-			"loan_offer_id":   loanRequestID,
 			"source_id":       funding.OwnerID,
 			"source_type":     fundingSourceLabel(funding.FundingType),
 			"tranche_level":   trancheLevel,
@@ -364,7 +361,6 @@ func (b *fundingAllocationBusiness) buildPersistedResult(
 
 	return map[string]interface{}{
 		"loan_request_id": loanRequestID,
-		"loan_offer_id":   loanRequestID,
 		"currency":        requestInfo.Currency,
 		"loan_amount":     requestInfo.Amount,
 		"total_allocated": totalAllocated,

@@ -573,9 +573,9 @@ class _ApplicationDetailContentState
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Accept Offer'),
+        title: const Text('Accept Loan Terms'),
         content: const Text(
-          'Are you sure you want to accept this loan offer? This will trigger loan account creation.',
+          'Are you sure you want to accept these approved loan terms? This will trigger loan account creation.',
         ),
         actions: [
           TextButton(
@@ -594,13 +594,13 @@ class _ApplicationDetailContentState
                 if (mounted) {
                   setState(() => _app = updated);
                   messenger.showSnackBar(
-                    const SnackBar(content: Text('Offer accepted')),
+                    const SnackBar(content: Text('Loan terms accepted')),
                   );
                 }
               } catch (e) {
                 messenger.showSnackBar(
                   SnackBar(
-                    content: Text('Failed to accept offer: $e'),
+                    content: Text('Failed to accept loan terms: $e'),
                     backgroundColor: errorColor,
                   ),
                 );
@@ -618,18 +618,18 @@ class _ApplicationDetailContentState
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Decline Offer'),
+        title: const Text('Decline Loan Terms'),
         content: SizedBox(
           width: 400,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Are you sure you want to decline this loan offer?'),
+              const Text('Are you sure you want to decline these approved loan terms?'),
               const SizedBox(height: 12),
               TextField(
                 controller: reasonCtrl,
                 decoration: const InputDecoration(
-                  labelText: 'Reason for declining',
+                  labelText: 'Reason for declining terms',
                 ),
                 maxLines: 2,
               ),

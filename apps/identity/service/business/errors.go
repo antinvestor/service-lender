@@ -41,6 +41,36 @@ var (
 		"credit limit change request is not in pending status",
 	)
 
+	ErrApprovalCaseSubjectRequired = apperrors.NewError(
+		apperrors.BadRequest,
+		"approval case subject and type are required",
+	)
+	ErrApprovalCaseActorRequired = apperrors.NewError(
+		apperrors.BadRequest,
+		"approval case actor is required",
+	)
+	ErrApprovalCaseAlreadyPending = apperrors.NewError(
+		apperrors.Conflict,
+		"an approval case is already pending for this subject",
+	)
+	ErrApprovalCaseNotFound   = apperrors.NewError(apperrors.NotFound, "approval case not found")
+	ErrApprovalCaseNotPending = apperrors.NewError(
+		apperrors.Unprocessable,
+		"approval case is not pending",
+	)
+	ErrApprovalCaseNotPendingVerification = apperrors.NewError(
+		apperrors.Unprocessable,
+		"approval case is not pending verification",
+	)
+	ErrApprovalCaseNotPendingApproval = apperrors.NewError(
+		apperrors.Unprocessable,
+		"approval case is not pending approval",
+	)
+	ErrClientPhoneChangePending = apperrors.NewError(
+		apperrors.Conflict,
+		"a phone number change case is already pending for this client",
+	)
+
 	ErrLoginClientCreationFailed = apperrors.NewError(
 		apperrors.Unprocessable,
 		"failed to create login client for partition",

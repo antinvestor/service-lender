@@ -26,6 +26,7 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.Organization{}, &models.Branch{}, &models.Agent{}, &models.AgentBranch{},
 		&models.Client{}, &models.ClientAssignmentHistory{}, &models.CreditLimitChangeRequest{},
+		&models.ApprovalCase{},
 		&models.ClientGroup{}, &models.Membership{},
 		&models.Investor{}, &models.SystemUser{},
 		&models.ClientDataEntry{}, &models.ClientDataEntryHistory{})

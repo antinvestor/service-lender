@@ -103,7 +103,7 @@ class _ClientOnboardScreenState extends ConsumerState<ClientOnboardScreen> {
       if (value.isNotEmpty) props[key] = value;
     }
 
-    add('phone', _phoneCtrl.text.trim());
+    add('phone_number', _phoneCtrl.text.trim());
     add('id_type', _idType);
     add('id_number', _idNumberCtrl.text.trim());
     add('date_of_birth', _dobCtrl.text.trim());
