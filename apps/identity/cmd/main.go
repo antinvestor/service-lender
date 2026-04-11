@@ -130,7 +130,16 @@ func setupServiceOptions(
 	clientDataEntryRepo := repository.NewClientDataEntryRepository(ctx, dbPool, workMan)
 	clientDataHistoryRepo := repository.NewClientDataEntryHistoryRepository(ctx, dbPool, workMan)
 
-	approvalCaseBusiness := business.NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo)
+	approvalCaseNotifier := business.NewApprovalCaseNotifier(
+		agentNotifier.Client(),
+		agentNotifier.ProfileClient(),
+		systemUserRepo,
+		branchRepo,
+		clientRepo,
+		agentRepo,
+		agentBranchRepo,
+	)
+	approvalCaseBusiness := business.NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo, approvalCaseNotifier)
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
 	branchBusiness := business.NewBranchBusiness(
 		ctx, evtsMan, organizationRepo, branchRepo, partitionCli, approvalCaseBusiness,

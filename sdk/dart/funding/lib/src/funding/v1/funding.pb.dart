@@ -274,7 +274,7 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
 class FundingAllocationObject extends $pb.GeneratedMessage {
   factory FundingAllocationObject({
     $core.String? id,
-    $core.String? loanOfferId,
+    $core.String? loanRequestId,
     $core.String? sourceId,
     $core.String? sourceType,
     $core.int? trancheLevel,
@@ -286,8 +286,8 @@ class FundingAllocationObject extends $pb.GeneratedMessage {
     if (id != null) {
       $result.id = id;
     }
-    if (loanOfferId != null) {
-      $result.loanOfferId = loanOfferId;
+    if (loanRequestId != null) {
+      $result.loanRequestId = loanRequestId;
     }
     if (sourceId != null) {
       $result.sourceId = sourceId;
@@ -315,7 +315,7 @@ class FundingAllocationObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FundingAllocationObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'funding.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
-    ..aOS(2, _omitFieldNames ? '' : 'loanOfferId')
+    ..aOS(2, _omitFieldNames ? '' : 'loanRequestId')
     ..aOS(3, _omitFieldNames ? '' : 'sourceId')
     ..aOS(4, _omitFieldNames ? '' : 'sourceType')
     ..a<$core.int>(5, _omitFieldNames ? '' : 'trancheLevel', $pb.PbFieldType.O3)
@@ -356,13 +356,13 @@ class FundingAllocationObject extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get loanOfferId => $_getSZ(1);
+  $core.String get loanRequestId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set loanOfferId($core.String v) { $_setString(1, v); }
+  set loanRequestId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasLoanOfferId() => $_has(1);
+  $core.bool hasLoanRequestId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearLoanOfferId() => clearField(2);
+  void clearLoanRequestId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get sourceId => $_getSZ(2);
@@ -991,11 +991,11 @@ class InvestorWithdrawResponse extends $pb.GeneratedMessage {
 
 class FundLoanRequest extends $pb.GeneratedMessage {
   factory FundLoanRequest({
-    $core.String? loanOfferId,
+    $core.String? loanRequestId,
   }) {
     final $result = create();
-    if (loanOfferId != null) {
-      $result.loanOfferId = loanOfferId;
+    if (loanRequestId != null) {
+      $result.loanRequestId = loanRequestId;
     }
     return $result;
   }
@@ -1004,7 +1004,7 @@ class FundLoanRequest extends $pb.GeneratedMessage {
   factory FundLoanRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FundLoanRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'funding.v1'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'loanOfferId')
+    ..aOS(1, _omitFieldNames ? '' : 'loanRequestId')
     ..hasRequiredFields = false
   ;
 
@@ -1030,13 +1030,13 @@ class FundLoanRequest extends $pb.GeneratedMessage {
   static FundLoanRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get loanOfferId => $_getSZ(0);
+  $core.String get loanRequestId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set loanOfferId($core.String v) { $_setString(0, v); }
+  set loanRequestId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasLoanOfferId() => $_has(0);
+  $core.bool hasLoanRequestId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearLoanOfferId() => clearField(1);
+  void clearLoanRequestId() => clearField(1);
 }
 
 class FundLoanResponse extends $pb.GeneratedMessage {
@@ -1131,12 +1131,12 @@ class FundLoanResponse extends $pb.GeneratedMessage {
 
 class AbsorbLossRequest extends $pb.GeneratedMessage {
   factory AbsorbLossRequest({
-    $core.String? loanOfferId,
+    $core.String? loanRequestId,
     $9.Money? amount,
   }) {
     final $result = create();
-    if (loanOfferId != null) {
-      $result.loanOfferId = loanOfferId;
+    if (loanRequestId != null) {
+      $result.loanRequestId = loanRequestId;
     }
     if (amount != null) {
       $result.amount = amount;
@@ -1148,7 +1148,7 @@ class AbsorbLossRequest extends $pb.GeneratedMessage {
   factory AbsorbLossRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AbsorbLossRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'funding.v1'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'loanOfferId')
+    ..aOS(1, _omitFieldNames ? '' : 'loanRequestId')
     ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
     ..hasRequiredFields = false
   ;
@@ -1175,13 +1175,13 @@ class AbsorbLossRequest extends $pb.GeneratedMessage {
   static AbsorbLossRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get loanOfferId => $_getSZ(0);
+  $core.String get loanRequestId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set loanOfferId($core.String v) { $_setString(0, v); }
+  set loanRequestId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasLoanOfferId() => $_has(0);
+  $core.bool hasLoanRequestId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearLoanOfferId() => clearField(1);
+  void clearLoanRequestId() => clearField(1);
 
   @$pb.TagNumber(2)
   $9.Money get amount => $_getN(1);

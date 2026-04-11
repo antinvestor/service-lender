@@ -46,7 +46,7 @@ message InvestorAccountObject {
 // FundingAllocationObject represents how a loan is funded across tranches.
 message FundingAllocationObject {
   string id = 1;
-  string loan_offer_id = 2;
+  string loan_request_id = 2;
   string source_id = 3;
   string source_type = 4;
   int32 tranche_level = 5;
@@ -95,7 +95,7 @@ message InvestorWithdrawResponse {
 }
 
 message FundLoanRequest {
-  string loan_offer_id = 1;
+  string loan_request_id = 1;
 }
 message FundLoanResponse {
   repeated FundingAllocationObject allocations = 1;
@@ -105,7 +105,7 @@ message FundLoanResponse {
 }
 
 message AbsorbLossRequest {
-  string loan_offer_id = 1;
+  string loan_request_id = 1;
   google.type.Money amount = 2;
 }
 message AbsorbLossResponse {

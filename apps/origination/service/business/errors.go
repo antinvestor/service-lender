@@ -18,7 +18,7 @@ var (
 	ErrApplicationNotDraft          = apperrors.NewError(apperrors.Unprocessable, "application is not in draft status")
 	ErrApplicationNotOfferGenerated = apperrors.NewError(
 		apperrors.Unprocessable,
-		"application is not in offer generated status",
+		"application does not have approved loan terms ready",
 	)
 	ErrApplicationTerminal = apperrors.NewError(
 		apperrors.Unprocessable,

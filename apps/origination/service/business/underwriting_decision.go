@@ -185,7 +185,7 @@ func (b *underwritingDecisionBusiness) applyDecisionToApplication(
 		if transErr := b.appBusiness.TransitionStatus(
 			ctx, ud.ApplicationID,
 			originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_GENERATED,
-			"offer generated from underwriting approval",
+			"approved loan terms generated from underwriting approval",
 		); transErr != nil {
 			return fmt.Errorf("could not transition application to OFFER_GENERATED: %w", transErr)
 		}

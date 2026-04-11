@@ -63,7 +63,7 @@ const FundingAllocationObject$json = {
   '1': 'FundingAllocationObject',
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    {'1': 'loan_offer_id', '3': 2, '4': 1, '5': 9, '10': 'loanOfferId'},
+    {'1': 'loan_request_id', '3': 2, '4': 1, '5': 9, '10': 'loanRequestId'},
     {'1': 'source_id', '3': 3, '4': 1, '5': 9, '10': 'sourceId'},
     {'1': 'source_type', '3': 4, '4': 1, '5': 9, '10': 'sourceType'},
     {'1': 'tranche_level', '3': 5, '4': 1, '5': 5, '10': 'trancheLevel'},
@@ -78,12 +78,12 @@ const FundingAllocationObject$json = {
 
 /// Descriptor for `FundingAllocationObject`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fundingAllocationObjectDescriptor = $convert.base64Decode(
-    'ChdGdW5kaW5nQWxsb2NhdGlvbk9iamVjdBIOCgJpZBgBIAEoCVICaWQSIgoNbG9hbl9vZmZlcl'
-    '9pZBgCIAEoCVILbG9hbk9mZmVySWQSGwoJc291cmNlX2lkGAMgASgJUghzb3VyY2VJZBIfCgtz'
-    'b3VyY2VfdHlwZRgEIAEoCVIKc291cmNlVHlwZRIjCg10cmFuY2hlX2xldmVsGAUgASgFUgx0cm'
-    'FuY2hlTGV2ZWwSKgoGYW1vdW50GAYgASgLMhIuZ29vZ2xlLnR5cGUuTW9uZXlSBmFtb3VudBIe'
-    'Cgpwcm9wb3J0aW9uGAggASgJUgpwcm9wb3J0aW9uEjcKCnByb3BlcnRpZXMYCSABKAsyFy5nb2'
-    '9nbGUucHJvdG9idWYuU3RydWN0Ugpwcm9wZXJ0aWVzSgQIBxAI');
+    'ChdGdW5kaW5nQWxsb2NhdGlvbk9iamVjdBIOCgJpZBgBIAEoCVICaWQSJgoPbG9hbl9yZXF1ZX'
+    'N0X2lkGAIgASgJUg1sb2FuUmVxdWVzdElkEhsKCXNvdXJjZV9pZBgDIAEoCVIIc291cmNlSWQS'
+    'HwoLc291cmNlX3R5cGUYBCABKAlSCnNvdXJjZVR5cGUSIwoNdHJhbmNoZV9sZXZlbBgFIAEoBV'
+    'IMdHJhbmNoZUxldmVsEioKBmFtb3VudBgGIAEoCzISLmdvb2dsZS50eXBlLk1vbmV5UgZhbW91'
+    'bnQSHgoKcHJvcG9ydGlvbhgIIAEoCVIKcHJvcG9ydGlvbhI3Cgpwcm9wZXJ0aWVzGAkgASgLMh'
+    'cuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJvcGVydGllc0oECAcQCA==');
 
 @$core.Deprecated('Use investorAccountSaveRequestDescriptor instead')
 const InvestorAccountSaveRequest$json = {
@@ -226,13 +226,14 @@ final $typed_data.Uint8List investorWithdrawResponseDescriptor = $convert.base64
 const FundLoanRequest$json = {
   '1': 'FundLoanRequest',
   '2': [
-    {'1': 'loan_offer_id', '3': 1, '4': 1, '5': 9, '10': 'loanOfferId'},
+    {'1': 'loan_request_id', '3': 1, '4': 1, '5': 9, '10': 'loanRequestId'},
   ],
 };
 
 /// Descriptor for `FundLoanRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fundLoanRequestDescriptor = $convert.base64Decode(
-    'Cg9GdW5kTG9hblJlcXVlc3QSIgoNbG9hbl9vZmZlcl9pZBgBIAEoCVILbG9hbk9mZmVySWQ=');
+    'Cg9GdW5kTG9hblJlcXVlc3QSJgoPbG9hbl9yZXF1ZXN0X2lkGAEgASgJUg1sb2FuUmVxdWVzdE'
+    'lk');
 
 @$core.Deprecated('Use fundLoanResponseDescriptor instead')
 const FundLoanResponse$json = {
@@ -257,15 +258,15 @@ final $typed_data.Uint8List fundLoanResponseDescriptor = $convert.base64Decode(
 const AbsorbLossRequest$json = {
   '1': 'AbsorbLossRequest',
   '2': [
-    {'1': 'loan_offer_id', '3': 1, '4': 1, '5': 9, '10': 'loanOfferId'},
+    {'1': 'loan_request_id', '3': 1, '4': 1, '5': 9, '10': 'loanRequestId'},
     {'1': 'amount', '3': 2, '4': 1, '5': 11, '6': '.google.type.Money', '10': 'amount'},
   ],
 };
 
 /// Descriptor for `AbsorbLossRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List absorbLossRequestDescriptor = $convert.base64Decode(
-    'ChFBYnNvcmJMb3NzUmVxdWVzdBIiCg1sb2FuX29mZmVyX2lkGAEgASgJUgtsb2FuT2ZmZXJJZB'
-    'IqCgZhbW91bnQYAiABKAsyEi5nb29nbGUudHlwZS5Nb25leVIGYW1vdW50');
+    'ChFBYnNvcmJMb3NzUmVxdWVzdBImCg9sb2FuX3JlcXVlc3RfaWQYASABKAlSDWxvYW5SZXF1ZX'
+    'N0SWQSKgoGYW1vdW50GAIgASgLMhIuZ29vZ2xlLnR5cGUuTW9uZXlSBmFtb3VudA==');
 
 @$core.Deprecated('Use absorbLossResponseDescriptor instead')
 const AbsorbLossResponse$json = {

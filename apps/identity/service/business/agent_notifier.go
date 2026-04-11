@@ -40,6 +40,20 @@ func NewAgentNotifier(
 	}
 }
 
+func (n *AgentNotifier) Client() notificationv1connect.NotificationServiceClient {
+	if n == nil {
+		return nil
+	}
+	return n.client
+}
+
+func (n *AgentNotifier) ProfileClient() profilev1connect.ProfileServiceClient {
+	if n == nil {
+		return nil
+	}
+	return n.profileClient
+}
+
 // NotifyAgentOnboarded sends a high-priority T&C acceptance invitation to a
 // newly registered agent. The call is fire-and-forget: errors are logged but
 // never propagated to the caller.

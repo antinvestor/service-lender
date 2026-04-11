@@ -418,7 +418,7 @@ const _templateCategories = [
         variables: ['reason', 'reapply_period'],
       ),
       _TemplateDef(
-        name: 'template.fintech.offer.generated',
+        name: 'template.fintech.loan_terms.generated',
         subject: 'Loan Terms Available',
         body:
             'Approved loan terms of {{.amount}} {{.currency}} at {{.interest_rate}}% '

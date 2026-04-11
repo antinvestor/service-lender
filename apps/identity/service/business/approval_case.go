@@ -78,16 +78,19 @@ type ApprovalCaseBusiness interface {
 type approvalCaseBusiness struct {
 	eventsMan fevents.Manager
 	repo      repository.ApprovalCaseRepository
+	notifier  *ApprovalCaseNotifier
 }
 
 func NewApprovalCaseBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	repo repository.ApprovalCaseRepository,
+	notifier *ApprovalCaseNotifier,
 ) ApprovalCaseBusiness {
 	return &approvalCaseBusiness{
 		eventsMan: eventsMan,
 		repo:      repo,
+		notifier:  notifier,
 	}
 }
 
@@ -130,6 +133,9 @@ func (b *approvalCaseBusiness) Submit(
 	if err = b.eventsMan.Emit(ctx, events.ApprovalCaseSaveEvent, approvalCase); err != nil {
 		return nil, fmt.Errorf("emit approval case save: %w", err)
 	}
+	if b.notifier != nil {
+		b.notifier.NotifySubmitted(ctx, approvalCase)
+	}
 
 	return approvalCase, nil
 }
@@ -161,6 +167,9 @@ func (b *approvalCaseBusiness) Verify(
 	if err = b.eventsMan.Emit(ctx, events.ApprovalCaseSaveEvent, approvalCase); err != nil {
 		return nil, fmt.Errorf("emit approval case verify: %w", err)
 	}
+	if b.notifier != nil {
+		b.notifier.NotifyVerified(ctx, approvalCase)
+	}
 	return approvalCase, nil
 }
 
@@ -190,6 +199,9 @@ func (b *approvalCaseBusiness) Approve(
 
 	if err = b.eventsMan.Emit(ctx, events.ApprovalCaseSaveEvent, approvalCase); err != nil {
 		return nil, fmt.Errorf("emit approval case approve: %w", err)
+	}
+	if b.notifier != nil {
+		b.notifier.NotifyApproved(ctx, approvalCase)
 	}
 	return approvalCase, nil
 }
@@ -221,6 +233,9 @@ func (b *approvalCaseBusiness) Reject(
 
 	if err = b.eventsMan.Emit(ctx, events.ApprovalCaseSaveEvent, approvalCase); err != nil {
 		return nil, fmt.Errorf("emit approval case reject: %w", err)
+	}
+	if b.notifier != nil {
+		b.notifier.NotifyRejected(ctx, approvalCase)
 	}
 	return approvalCase, nil
 }

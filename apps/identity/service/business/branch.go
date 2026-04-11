@@ -127,6 +127,7 @@ func (b *branchBusiness) submitBranchCreateCase(
 		Comment:             caseComment(branch.Properties),
 		RequireVerification: true,
 		Payload: map[string]any{
+			"organization_id": branch.OrganizationID,
 			"requested_state": requestedState,
 		},
 	})

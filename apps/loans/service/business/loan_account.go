@@ -24,6 +24,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/fundingcompat"
 )
 
 const (
@@ -266,9 +267,7 @@ func (b *loanAccountBusiness) ensureLoanRequestFunding(
 		return ErrFundingServiceUnavailable
 	}
 
-	resp, err := b.fundingCli.FundLoan(ctx, connect.NewRequest(&fundingv1.FundLoanRequest{
-		LoanOfferId: loanRequestID,
-	}))
+	resp, err := b.fundingCli.FundLoan(ctx, connect.NewRequest(fundingcompat.NewFundLoanRequest(loanRequestID)))
 	if err != nil {
 		logger.WithError(err).Error("could not reserve funding for loan request")
 		return ErrFundingAllocationUnavailable
@@ -303,7 +302,7 @@ func fundingAllocationsJSON(allocations []*fundingv1.FundingAllocationObject) []
 		amount, _ := models.MoneyToMinorUnits(allocation.GetAmount())
 		result = append(result, map[string]any{
 			"id":              allocation.GetId(),
-			"loan_request_id": allocation.GetLoanOfferId(),
+			"loan_request_id": fundingcompat.AllocationLoanRequestID(allocation),
 			"source_id":       allocation.GetSourceId(),
 			"source_type":     allocation.GetSourceType(),
 			"tranche_level":   float64(allocation.GetTrancheLevel()),

@@ -13,7 +13,7 @@ class ApplicationWorkflowStepper extends StatelessWidget {
     ('Submitted', ApplicationStatus.APPLICATION_STATUS_SUBMITTED),
     ('Verification', ApplicationStatus.APPLICATION_STATUS_VERIFICATION),
     ('Underwriting', ApplicationStatus.APPLICATION_STATUS_UNDERWRITING),
-    ('Offer', ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED),
+    ('Terms', ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED),
     ('Loan', ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED),
   ];
 

@@ -4,404 +4,429 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/frame/frametests"
+	"github.com/pitabwire/frame/frametests/definition"
+	"github.com/pitabwire/frame/frametests/deps/testpostgres"
 	"github.com/pitabwire/frame/queue"
-	"github.com/pitabwire/frame/workerpool"
+	"github.com/pitabwire/util"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	"google.golang.org/protobuf/types/known/structpb"
 
+	identityevents "github.com/antinvestor/service-fintech/apps/identity/service/events"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
-var errIdentityUnexpectedStubCall = errors.New("unexpected stub call")
+type approvalWorkflowSuite struct {
+	frametests.FrameBaseTestSuite
+}
 
-func TestBranchSaveCreatesPendingApprovalCaseWithoutPartition(t *testing.T) {
-	t.Parallel()
+type approvalWorkflowEnv struct {
+	t                *testing.T
+	ctx              context.Context
+	organizationRepo repository.OrganizationRepository
+	branchRepo       repository.BranchRepository
+	agentRepo        repository.AgentRepository
+	agentBranchRepo  repository.AgentBranchRepository
+	clientRepo       repository.ClientRepository
+	cahRepo          repository.ClientAssignmentHistoryRepository
+	clcrRepo         repository.CreditLimitChangeRequestRepository
+	approvalCaseRepo repository.ApprovalCaseRepository
+	branchBusiness   BranchBusiness
+	clientBusiness   ClientBusiness
+}
 
-	ctx := context.Background()
-	now := time.Now().UTC()
-	caseRecord := &models.ApprovalCase{
-		Status:      approvalCaseStatusPendingVerification,
-		CaseType:    approvalCaseTypeBranchCreate,
-		RequestedBy: "profile-requestor",
+func TestApprovalWorkflowSuite(t *testing.T) {
+	suite.Run(t, new(approvalWorkflowSuite))
+}
+
+func (s *approvalWorkflowSuite) SetupSuite() {
+	s.InitResourceFunc = func(_ context.Context) []definition.TestResource {
+		return []definition.TestResource{
+			testpostgres.NewWithOpts(
+				"identity_approval_workflow",
+				definition.WithUserName("ant"),
+				definition.WithCredential("s3cr3t"),
+				definition.WithEnableLogging(false),
+			),
+		}
 	}
-	caseRecord.GenID(ctx)
-	caseRecord.CreatedAt = now
+	s.FrameBaseTestSuite.SetupSuite()
+}
 
-	eventsStub := &identityEventsManagerStub{}
-	business := &branchBusiness{
-		eventsMan: eventsStub,
-		organizationRepo: &organizationRepoStub{
-			baseRepoStub: baseRepoStub[*models.Organization]{
-				getByID: func(context.Context, string) (*models.Organization, error) {
-					return &models.Organization{BaseModel: data.BaseModel{TenantID: "tenant-1"}, Name: "Org"}, nil
-				},
-			},
-		},
-		approvalCases: &approvalCaseBusinessStub{submitResp: caseRecord},
-	}
+func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseWithoutPartition() {
+	env := s.newEnv()
+	org := env.createOrganization("Org Branch Create", "org-branch-create")
 
-	result, err := business.Save(ctx, &identityv1.BranchObject{
-		OrganizationId: "org-1",
+	result, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+		OrganizationId: org.GetID(),
 		Name:           "Central Branch",
-		Code:           "CENTRAL",
-		Properties: (&data.JSONMap{
+		Code:           "central-branch",
+		Properties: propertiesStruct(map[string]any{
 			caseActorIDKey: "profile-requestor",
-		}).ToProtoStruct(),
+		}),
 	})
-	if err != nil {
-		t.Fatalf("Save returned error: %v", err)
-	}
+	s.Require().NoError(err)
+	s.Require().NotEmpty(result.GetId())
+	s.Require().Empty(result.GetPartitionId())
 
-	if result.GetPartitionId() != "" {
-		t.Fatalf("expected no partition before approval, got %q", result.GetPartitionId())
-	}
+	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	s.Require().NoError(err)
+	s.Equal(approvalCaseStatusPendingVerification, savedBranch.Properties.GetString(approvalCaseStatusKey))
+	s.Empty(savedBranch.PartitionID)
 
-	savedBranch, ok := eventsStub.lastPayload.(*models.Branch)
-	if !ok {
-		t.Fatalf("expected branch payload, got %T", eventsStub.lastPayload)
-	}
-	if got := savedBranch.Properties.GetString(approvalCaseStatusKey); got != approvalCaseStatusPendingVerification {
-		t.Fatalf("expected pending verification status, got %q", got)
-	}
+	approvalCase, err := env.approvalCaseRepo.GetOpenBySubject(
+		env.ctx,
+		approvalCaseSubjectBranch,
+		savedBranch.GetID(),
+		approvalCaseTypeBranchCreate,
+	)
+	s.Require().NoError(err)
+	s.Equal(approvalCaseStatusPendingVerification, approvalCase.Status)
+	s.Equal("profile-requestor", approvalCase.RequestedBy)
 }
 
-func TestClientSavePhoneChangeCreatesPendingCaseAndPreservesCurrentPhone(t *testing.T) {
-	t.Parallel()
+func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingApproval() {
+	env := s.newEnv()
+	org := env.createOrganization("Org Branch Verify", "org-branch-verify")
 
-	ctx := context.Background()
-	now := time.Now().UTC()
-	caseRecord := &models.ApprovalCase{
-		Status:      approvalCaseStatusPendingVerification,
-		CaseType:    approvalCaseTypeClientPhoneChange,
-		RequestedBy: "agent-actor",
-		Payload: data.JSONMap{
-			approvalCaseRequestedValueKey: "+256700000222",
-		},
-	}
-	caseRecord.GenID(ctx)
-	caseRecord.CreatedAt = now
+	result, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+		OrganizationId: org.GetID(),
+		Name:           "North Branch",
+		Code:           "north-branch",
+		Properties: propertiesStruct(map[string]any{
+			caseActorIDKey: "profile-requestor",
+		}),
+	})
+	s.Require().NoError(err)
 
-	existingClient := &models.Client{
-		BaseModel:  data.BaseModel{ID: "client-1"},
-		AgentID:    "agent-1",
-		Name:       "Jane Doe",
-		State:      int32(commonv1.STATE_ACTIVE),
-		Properties: data.JSONMap{clientPhoneNumberKey: "+256700000111"},
-	}
+	verified, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+		Id:             result.GetId(),
+		OrganizationId: org.GetID(),
+		Name:           "North Branch",
+		Code:           "north-branch",
+		Properties: propertiesStruct(map[string]any{
+			caseActionKey:  approvalCaseActionVerify,
+			caseActorIDKey: "profile-verifier",
+			caseCommentKey: "documents checked",
+		}),
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(verified)
 
-	eventsStub := &identityEventsManagerStub{}
-	business := &clientBusiness{
-		eventsMan: eventsStub,
-		agentRepo: &agentRepoStub{
-			baseRepoStub: baseRepoStub[*models.Agent]{getByID: func(context.Context, string) (*models.Agent, error) {
-				return &models.Agent{State: int32(commonv1.STATE_ACTIVE)}, nil
-			}},
-		},
-		clientRepo: &clientRepoStub{
-			baseRepoStub: baseRepoStub[*models.Client]{getByID: func(context.Context, string) (*models.Client, error) {
-				return existingClient, nil
-			}},
-		},
-		approvalCases: &approvalCaseBusinessStub{
-			getOpenErr: errors.New("not found"),
-			submitResp: caseRecord,
-		},
-	}
+	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	s.Require().NoError(err)
+	s.Equal(approvalCaseStatusPendingApproval, savedBranch.Properties.GetString(approvalCaseStatusKey))
 
-	_, err := business.Save(ctx, &fieldv1.ClientObject{
-		Id:      "client-1",
-		AgentId: "agent-1",
-		Name:    "Jane Doe",
-		Properties: (&data.JSONMap{
+	approvalCase, err := env.approvalCaseRepo.GetByID(
+		env.ctx,
+		savedBranch.Properties.GetString(approvalCaseIDKey),
+	)
+	s.Require().NoError(err)
+	s.Equal(approvalCaseStatusPendingApproval, approvalCase.Status)
+	s.Equal("profile-verifier", approvalCase.VerifiedBy)
+}
+
+func (s *approvalWorkflowSuite) TestClientPhoneChangeActualizesOnlyAfterApproval() {
+	env := s.newEnv()
+	org := env.createOrganization("Org Client Phone", "org-client-phone")
+	branch := env.createBranch(org, "Field Branch", "field-branch")
+	agent := env.createAgent(org, "Agent One", "agent-profile-1")
+	env.assignAgentToBranch(agent, branch)
+	client := env.createClient(agent, "Jane Doe", "+256700000111")
+
+	updated, err := env.clientBusiness.Save(env.ctx, &fieldv1.ClientObject{
+		Id:      client.GetID(),
+		AgentId: agent.GetID(),
+		Name:    client.Name,
+		Properties: propertiesStruct(map[string]any{
 			clientPhoneNumberKey: "+256700000222",
-			caseActorIDKey:       "agent-actor",
-		}).ToProtoStruct(),
+			caseActorIDKey:       "agent-profile-1",
+			caseCommentKey:       "customer requested number change",
+		}),
 	})
-	if err != nil {
-		t.Fatalf("Save returned error: %v", err)
-	}
+	s.Require().NoError(err)
+	s.Require().NotNil(updated)
 
-	savedClient, ok := eventsStub.lastPayload.(*models.Client)
-	if !ok {
-		t.Fatalf("expected client payload, got %T", eventsStub.lastPayload)
-	}
-	if got := savedClient.Properties.GetString(clientPhoneNumberKey); got != "+256700000111" {
-		t.Fatalf("expected current phone to remain unchanged, got %q", got)
-	}
-	if got := savedClient.Properties.GetString(clientPendingPhoneNumberKey); got != "+256700000222" {
-		t.Fatalf("expected pending phone number to be stored, got %q", got)
-	}
-	if got := savedClient.Properties.GetString(approvalCaseStatusKey); got != approvalCaseStatusPendingVerification {
-		t.Fatalf("expected pending verification status, got %q", got)
-	}
-}
+	pendingClient, err := env.clientRepo.GetByID(env.ctx, client.GetID())
+	s.Require().NoError(err)
+	s.Equal("+256700000111", pendingClient.Properties.GetString(clientPhoneNumberKey))
+	s.Equal("+256700000222", pendingClient.Properties.GetString(clientPendingPhoneNumberKey))
+	s.Equal(approvalCaseStatusPendingVerification, pendingClient.Properties.GetString(approvalCaseStatusKey))
 
-func TestClientApprovalAppliesPendingPhoneOnApprove(t *testing.T) {
-	t.Parallel()
+	verified, err := env.clientBusiness.Save(env.ctx, &fieldv1.ClientObject{
+		Id:      client.GetID(),
+		AgentId: agent.GetID(),
+		Name:    client.Name,
+		Properties: propertiesStruct(map[string]any{
+			caseActionKey:  approvalCaseActionVerify,
+			caseActorIDKey: "profile-verifier",
+			caseCommentKey: "identity cross-check complete",
+		}),
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(verified)
 
-	ctx := context.Background()
-	now := time.Now().UTC()
-	openCase := &models.ApprovalCase{
-		BaseModel: data.BaseModel{ID: "case-1", CreatedAt: now},
-		Status:    approvalCaseStatusPendingApproval,
-		CaseType:  approvalCaseTypeClientPhoneChange,
-		Payload: data.JSONMap{
-			approvalCaseRequestedValueKey: "+256700000222",
-		},
-		RequestedBy: "agent-actor",
-	}
-	approvedCase := &models.ApprovalCase{
-		BaseModel:   openCase.BaseModel,
-		Status:      approvalCaseStatusApproved,
-		CaseType:    approvalCaseTypeClientPhoneChange,
-		Payload:     openCase.Payload,
-		RequestedBy: "agent-actor",
-		ApprovedBy:  "approver-actor",
-	}
+	verifiedClient, err := env.clientRepo.GetByID(env.ctx, client.GetID())
+	s.Require().NoError(err)
+	s.Equal(approvalCaseStatusPendingApproval, verifiedClient.Properties.GetString(approvalCaseStatusKey))
+	s.Equal("+256700000111", verifiedClient.Properties.GetString(clientPhoneNumberKey))
+	s.Equal("+256700000222", verifiedClient.Properties.GetString(clientPendingPhoneNumberKey))
 
-	existingClient := &models.Client{
-		BaseModel: data.BaseModel{ID: "client-1"},
-		AgentID:   "agent-1",
-		Name:      "Jane Doe",
-		State:     int32(commonv1.STATE_ACTIVE),
-		Properties: data.JSONMap{
-			clientPhoneNumberKey:        "+256700000111",
-			clientPendingPhoneNumberKey: "+256700000222",
-			approvalCaseIDKey:           "case-1",
-		},
-	}
-
-	eventsStub := &identityEventsManagerStub{}
-	business := &clientBusiness{
-		eventsMan: eventsStub,
-		agentRepo: &agentRepoStub{
-			baseRepoStub: baseRepoStub[*models.Agent]{getByID: func(context.Context, string) (*models.Agent, error) {
-				return &models.Agent{State: int32(commonv1.STATE_ACTIVE)}, nil
-			}},
-		},
-		clientRepo: &clientRepoStub{
-			baseRepoStub: baseRepoStub[*models.Client]{getByID: func(context.Context, string) (*models.Client, error) {
-				return existingClient, nil
-			}},
-		},
-		approvalCases: &approvalCaseBusinessStub{
-			getOpenResp: openCase,
-			approveResp: approvedCase,
-		},
-	}
-
-	_, err := business.Save(ctx, &fieldv1.ClientObject{
-		Id:      "client-1",
-		AgentId: "agent-1",
-		Name:    "Jane Doe",
-		Properties: (&data.JSONMap{
+	approved, err := env.clientBusiness.Save(env.ctx, &fieldv1.ClientObject{
+		Id:      client.GetID(),
+		AgentId: agent.GetID(),
+		Name:    client.Name,
+		Properties: propertiesStruct(map[string]any{
 			caseActionKey:  approvalCaseActionApprove,
-			caseActorIDKey: "approver-actor",
-		}).ToProtoStruct(),
+			caseActorIDKey: "profile-approver",
+			caseCommentKey: "approved after review",
+		}),
 	})
-	if err != nil {
-		t.Fatalf("Save returned error: %v", err)
-	}
+	s.Require().NoError(err)
+	s.Require().NotNil(approved)
 
-	savedClient, ok := eventsStub.lastPayload.(*models.Client)
+	approvedClient, err := env.clientRepo.GetByID(env.ctx, client.GetID())
+	s.Require().NoError(err)
+	s.Equal("+256700000222", approvedClient.Properties.GetString(clientPhoneNumberKey))
+	s.Empty(approvedClient.Properties.GetString(clientPendingPhoneNumberKey))
+	s.Equal(approvalCaseStatusApproved, approvedClient.Properties.GetString(approvalCaseStatusKey))
+
+	approvalCase, err := env.approvalCaseRepo.GetByID(
+		env.ctx,
+		approvedClient.Properties.GetString(approvalCaseIDKey),
+	)
+	s.Require().NoError(err)
+	s.Equal(approvalCaseStatusApproved, approvalCase.Status)
+	s.Equal("profile-approver", approvalCase.ApprovedBy)
+}
+
+func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
+	s.T().Helper()
+
+	ctx := s.T().Context()
+	db := s.databaseResource(ctx)
+	dsn, cleanup, err := db.GetRandomisedDS(ctx, util.RandomAlphaNumericString(8))
+	s.Require().NoError(err)
+	s.T().Cleanup(func() {
+		cleanup(ctx)
+	})
+
+	ctx, svc := frame.NewServiceWithContext(
+		ctx,
+		frame.WithName("identity-approval-test"),
+		frame.WithDatastore(pool.WithConnection(dsn.String(), false)),
+	)
+	s.T().Cleanup(func() {
+		svc.Stop(ctx)
+	})
+
+	svc.Init(ctx)
+
+	dbPool := svc.DatastoreManager().GetPool(ctx, datastore.DefaultPoolName)
+	s.Require().NotNil(dbPool)
+	workMan := svc.WorkManager()
+
+	s.Require().NoError(dbPool.DB(ctx, false).AutoMigrate(
+		&models.Organization{},
+		&models.Branch{},
+		&models.Agent{},
+		&models.AgentBranch{},
+		&models.Client{},
+		&models.ClientAssignmentHistory{},
+		&models.CreditLimitChangeRequest{},
+		&models.ApprovalCase{},
+	))
+
+	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
+	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
+	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
+	agentBranchRepo := repository.NewAgentBranchRepository(ctx, dbPool, workMan)
+	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
+	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
+	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
+	approvalCaseRepo := repository.NewApprovalCaseRepository(ctx, dbPool, workMan)
+
+	evtsMan := newImmediateEventsManager(
+		identityevents.NewOrganizationSave(ctx, organizationRepo),
+		identityevents.NewBranchSave(ctx, branchRepo),
+		identityevents.NewClientSave(ctx, clientRepo),
+		identityevents.NewApprovalCaseSave(ctx, approvalCaseRepo),
+	)
+
+	approvalCaseBusiness := NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo, nil)
+	branchBusiness := NewBranchBusiness(
+		ctx,
+		evtsMan,
+		organizationRepo,
+		branchRepo,
+		nil,
+		approvalCaseBusiness,
+	)
+	clientBusiness := NewClientBusiness(
+		ctx,
+		evtsMan,
+		agentRepo,
+		clientRepo,
+		cahRepo,
+		clcrRepo,
+		approvalCaseBusiness,
+	)
+
+	return &approvalWorkflowEnv{
+		t:                s.T(),
+		ctx:              ctx,
+		organizationRepo: organizationRepo,
+		branchRepo:       branchRepo,
+		agentRepo:        agentRepo,
+		agentBranchRepo:  agentBranchRepo,
+		clientRepo:       clientRepo,
+		cahRepo:          cahRepo,
+		clcrRepo:         clcrRepo,
+		approvalCaseRepo: approvalCaseRepo,
+		branchBusiness:   branchBusiness,
+		clientBusiness:   clientBusiness,
+	}
+}
+
+type immediateEventsManager struct {
+	events map[string]fevents.EventI
+}
+
+func newImmediateEventsManager(events ...fevents.EventI) fevents.Manager {
+	manager := &immediateEventsManager{events: make(map[string]fevents.EventI, len(events))}
+	for _, event := range events {
+		manager.Add(event)
+	}
+	return manager
+}
+
+func (m *immediateEventsManager) Add(evt fevents.EventI) {
+	m.events[evt.Name()] = evt
+}
+
+func (m *immediateEventsManager) Get(name string) (fevents.EventI, error) {
+	event, ok := m.events[name]
 	if !ok {
-		t.Fatalf("expected client payload, got %T", eventsStub.lastPayload)
+		return nil, errors.New("event not found")
 	}
-	if got := savedClient.Properties.GetString(clientPhoneNumberKey); got != "+256700000222" {
-		t.Fatalf("expected approved phone to be applied, got %q", got)
-	}
-	if got := savedClient.Properties.GetString(clientPendingPhoneNumberKey); got != "" {
-		t.Fatalf("expected pending phone number to be cleared, got %q", got)
-	}
-	if got := savedClient.Properties.GetString(approvalCaseStatusKey); got != approvalCaseStatusApproved {
-		t.Fatalf("expected approved status, got %q", got)
-	}
+	return event, nil
 }
 
-type identityEventsManagerStub struct {
-	lastEvent   string
-	lastPayload any
+func (m *immediateEventsManager) Emit(ctx context.Context, name string, payload any) error {
+	event, err := m.Get(name)
+	if err != nil {
+		return err
+	}
+	if err = event.Validate(ctx, payload); err != nil {
+		return err
+	}
+	return event.Execute(ctx, payload)
 }
 
-func (e *identityEventsManagerStub) Add(fevents.EventI) {}
-
-func (e *identityEventsManagerStub) Get(string) (fevents.EventI, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (e *identityEventsManagerStub) Emit(_ context.Context, event string, payload any) error {
-	e.lastEvent = event
-	e.lastPayload = payload
+func (m *immediateEventsManager) Handler() queue.SubscribeWorker {
 	return nil
 }
 
-func (e *identityEventsManagerStub) Handler() queue.SubscribeWorker { return nil }
+func (s *approvalWorkflowSuite) databaseResource(ctx context.Context) definition.DependancyConn {
+	s.T().Helper()
 
-type approvalCaseBusinessStub struct {
-	submitResp  *models.ApprovalCase
-	submitErr   error
-	getOpenResp *models.ApprovalCase
-	getOpenErr  error
-	verifyResp  *models.ApprovalCase
-	verifyErr   error
-	approveResp *models.ApprovalCase
-	approveErr  error
-	rejectResp  *models.ApprovalCase
-	rejectErr   error
-}
-
-func (a *approvalCaseBusinessStub) Submit(
-	context.Context,
-	ApprovalCaseSubmission,
-) (*models.ApprovalCase, error) {
-	return a.submitResp, a.submitErr
-}
-
-func (a *approvalCaseBusinessStub) Verify(
-	context.Context,
-	string, string, string,
-) (*models.ApprovalCase, error) {
-	return a.verifyResp, a.verifyErr
-}
-
-func (a *approvalCaseBusinessStub) Approve(
-	context.Context,
-	string, string, string,
-) (*models.ApprovalCase, error) {
-	return a.approveResp, a.approveErr
-}
-
-func (a *approvalCaseBusinessStub) Reject(
-	context.Context,
-	string, string, string,
-) (*models.ApprovalCase, error) {
-	return a.rejectResp, a.rejectErr
-}
-
-func (a *approvalCaseBusinessStub) GetOpenBySubject(
-	context.Context,
-	string, string, string,
-) (*models.ApprovalCase, error) {
-	if a.getOpenResp != nil || a.getOpenErr != nil {
-		return a.getOpenResp, a.getOpenErr
+	for _, resource := range s.Resources() {
+		if resource.Name() == testpostgres.PostgresqlDBImage && resource.GetDS(ctx).IsDB() {
+			return resource
+		}
 	}
-	return nil, errors.New("not found")
+	s.T().Fatal("postgres test resource not found")
+	return nil
 }
 
-type baseRepoStub[T any] struct {
-	getByID func(ctx context.Context, id string) (T, error)
-}
-
-func (b *baseRepoStub[T]) Pool() pool.Pool { return nil }
-
-func (b *baseRepoStub[T]) WorkManager() workerpool.Manager { return nil }
-
-func (b *baseRepoStub[T]) GetByID(ctx context.Context, id string) (T, error) {
-	if b.getByID != nil {
-		return b.getByID(ctx, id)
+func (e *approvalWorkflowEnv) createOrganization(name, code string) *models.Organization {
+	org := &models.Organization{
+		Name:       name,
+		Code:       code,
+		State:      int32(commonv1.STATE_ACTIVE),
+		ProfileID:  util.IDString(),
+		ClientID:   util.IDString(),
+		Properties: data.JSONMap{},
 	}
-	var zero T
-	return zero, errors.New("not found")
+	org.GenID(e.ctx)
+	org.TenantID = util.IDString()
+	org.PartitionID = util.IDString()
+	require.NoError(e.t, e.organizationRepo.Create(e.ctx, org))
+	return org
 }
 
-func (b *baseRepoStub[T]) GetLastestBy(context.Context, map[string]any) (T, error) {
-	panic(errIdentityUnexpectedStubCall)
+func (e *approvalWorkflowEnv) createBranch(
+	org *models.Organization,
+	name, code string,
+) *models.Branch {
+	branch := &models.Branch{
+		OrganizationID: org.GetID(),
+		Name:           name,
+		Code:           code,
+		State:          int32(commonv1.STATE_ACTIVE),
+		Properties:     data.JSONMap{},
+	}
+	branch.GenID(e.ctx)
+	branch.TenantID = org.TenantID
+	branch.PartitionID = util.IDString()
+	require.NoError(e.t, e.branchRepo.Create(e.ctx, branch))
+	return branch
 }
 
-func (b *baseRepoStub[T]) GetAllBy(context.Context, map[string]any, int, int) ([]T, error) {
-	panic(errIdentityUnexpectedStubCall)
+func (e *approvalWorkflowEnv) createAgent(
+	org *models.Organization,
+	name, profileID string,
+) *models.Agent {
+	agent := &models.Agent{
+		OrganizationID: org.GetID(),
+		Name:           name,
+		ProfileID:      profileID,
+		State:          int32(commonv1.STATE_ACTIVE),
+		Properties:     data.JSONMap{},
+	}
+	agent.GenID(e.ctx)
+	agent.TenantID = org.TenantID
+	require.NoError(e.t, e.agentRepo.Create(e.ctx, agent))
+	return agent
 }
 
-func (b *baseRepoStub[T]) Search(context.Context, *data.SearchQuery) (workerpool.JobResultPipe[[]T], error) {
-	panic(errIdentityUnexpectedStubCall)
+func (e *approvalWorkflowEnv) assignAgentToBranch(agent *models.Agent, branch *models.Branch) {
+	assignment := &models.AgentBranch{
+		AgentID:    agent.GetID(),
+		BranchID:   branch.GetID(),
+		State:      int32(commonv1.STATE_ACTIVE),
+		Properties: data.JSONMap{},
+	}
+	assignment.GenID(e.ctx)
+	assignment.TenantID = branch.TenantID
+	require.NoError(e.t, e.agentBranchRepo.Create(e.ctx, assignment))
 }
 
-func (b *baseRepoStub[T]) Count(context.Context) (int64, error) { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) CountBy(context.Context, map[string]any) (int64, error) {
-	panic(errIdentityUnexpectedStubCall)
+func (e *approvalWorkflowEnv) createClient(agent *models.Agent, name, phone string) *models.Client {
+	client := &models.Client{
+		AgentID:    agent.GetID(),
+		Name:       name,
+		State:      int32(commonv1.STATE_ACTIVE),
+		Properties: data.JSONMap{clientPhoneNumberKey: phone},
+	}
+	client.GenID(e.ctx)
+	client.TenantID = agent.TenantID
+	require.NoError(e.t, e.clientRepo.Create(e.ctx, client))
+	return client
 }
 
-func (b *baseRepoStub[T]) Create(context.Context, T) error { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) BatchSize() int { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) BulkCreate(context.Context, []T) error {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (b *baseRepoStub[T]) FieldsImmutable() []string { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) FieldsAllowed() map[string]struct{} { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) ExtendFieldsAllowed(...string) {}
-
-func (b *baseRepoStub[T]) IsFieldAllowed(string) error { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) Update(context.Context, T, ...string) (int64, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (b *baseRepoStub[T]) BulkUpdate(context.Context, []string, map[string]any) (int64, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (b *baseRepoStub[T]) Delete(context.Context, string) error { panic(errIdentityUnexpectedStubCall) }
-
-func (b *baseRepoStub[T]) DeleteBatch(context.Context, []string) error {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-type organizationRepoStub struct {
-	baseRepoStub[*models.Organization]
-}
-
-func (o *organizationRepoStub) GetByCode(context.Context, string) (*models.Organization, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (o *organizationRepoStub) GetByPartitionID(context.Context, string) (*models.Organization, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (o *organizationRepoStub) GetByTenantID(context.Context, string, int, int) ([]*models.Organization, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-type agentRepoStub struct {
-	baseRepoStub[*models.Agent]
-}
-
-func (a *agentRepoStub) GetByBranchID(context.Context, string, int, int) ([]*models.Agent, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (a *agentRepoStub) GetByParentAgentID(context.Context, string, int, int) ([]*models.Agent, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (a *agentRepoStub) GetByProfileID(context.Context, string) (*models.Agent, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (a *agentRepoStub) GetDescendants(context.Context, string, int) ([]*models.Agent, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-type clientRepoStub struct {
-	baseRepoStub[*models.Client]
-}
-
-func (c *clientRepoStub) GetByAgentID(context.Context, string, int, int) ([]*models.Client, error) {
-	panic(errIdentityUnexpectedStubCall)
-}
-
-func (c *clientRepoStub) GetByProfileID(context.Context, string) (*models.Client, error) {
-	panic(errIdentityUnexpectedStubCall)
+func propertiesStruct(values map[string]any) *structpb.Struct {
+	props := data.JSONMap(values)
+	return (&props).ToProtoStruct()
 }

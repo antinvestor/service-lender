@@ -155,7 +155,7 @@ extension type OriginationServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// ApplicationAcceptOffer accepts a generated loan offer.
+  /// ApplicationAcceptOffer accepts generated approved loan terms.
   Future<originationv1origination.ApplicationAcceptOfferResponse> applicationAcceptOffer(
     originationv1origination.ApplicationAcceptOfferRequest input, {
     connect.Headers? headers,
@@ -173,7 +173,7 @@ extension type OriginationServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// ApplicationDeclineOffer declines a generated loan offer.
+  /// ApplicationDeclineOffer declines generated approved loan terms.
   Future<originationv1origination.ApplicationDeclineOfferResponse> applicationDeclineOffer(
     originationv1origination.ApplicationDeclineOfferRequest input, {
     connect.Headers? headers,

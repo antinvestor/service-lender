@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "name": "origination-expire-stale-tasks",
-  "description": "Expires stale origination tasks: offers past their deadline and drafts inactive beyond threshold.",
+  "description": "Expires stale origination tasks: approved loan terms past their deadline and drafts inactive beyond threshold.",
   "timeout": "5m",
   "on_error": {
     "action": "fail"
@@ -10,7 +10,7 @@
     {
       "id": "expire_offers",
       "type": "call",
-      "name": "Expire stale loan offers",
+      "name": "Expire stale loan terms",
       "call": {
         "action": "http.request",
         "input": {

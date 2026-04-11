@@ -81,7 +81,7 @@ abstract final class OriginationService {
     originationv1origination.ApplicationCancelResponse.new,
   );
 
-  /// ApplicationAcceptOffer accepts a generated loan offer.
+  /// ApplicationAcceptOffer accepts generated approved loan terms.
   static const applicationAcceptOffer = connect.Spec(
     '/$name/ApplicationAcceptOffer',
     connect.StreamType.unary,
@@ -89,7 +89,7 @@ abstract final class OriginationService {
     originationv1origination.ApplicationAcceptOfferResponse.new,
   );
 
-  /// ApplicationDeclineOffer declines a generated loan offer.
+  /// ApplicationDeclineOffer declines generated approved loan terms.
   static const applicationDeclineOffer = connect.Spec(
     '/$name/ApplicationDeclineOffer',
     connect.StreamType.unary,

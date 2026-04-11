@@ -56,11 +56,11 @@ class ApplicationStatusBadge extends StatelessWidget {
         Colors.teal,
       ),
       ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED => (
-        'Offer Generated',
+        'Terms Ready',
         Colors.teal,
       ),
       ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => (
-        'Offer Accepted',
+        'Terms Accepted',
         Colors.green,
       ),
       ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => (
@@ -69,7 +69,7 @@ class ApplicationStatusBadge extends StatelessWidget {
       ),
       ApplicationStatus.APPLICATION_STATUS_REJECTED => ('Rejected', Colors.red),
       ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => (
-        'Offer Declined',
+        'Terms Declined',
         Colors.red,
       ),
       ApplicationStatus.APPLICATION_STATUS_CANCELLED => (
@@ -93,11 +93,11 @@ String applicationStatusLabel(ApplicationStatus status) {
     ApplicationStatus.APPLICATION_STATUS_VERIFICATION => 'Verification',
     ApplicationStatus.APPLICATION_STATUS_UNDERWRITING => 'Underwriting',
     ApplicationStatus.APPLICATION_STATUS_APPROVED => 'Approved',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED => 'Offer Generated',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => 'Offer Accepted',
+    ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED => 'Terms Ready',
+    ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => 'Terms Accepted',
     ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => 'Loan Created',
     ApplicationStatus.APPLICATION_STATUS_REJECTED => 'Rejected',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => 'Offer Declined',
+    ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => 'Terms Declined',
     ApplicationStatus.APPLICATION_STATUS_CANCELLED => 'Cancelled',
     ApplicationStatus.APPLICATION_STATUS_EXPIRED => 'Expired',
     _ => 'Unknown',

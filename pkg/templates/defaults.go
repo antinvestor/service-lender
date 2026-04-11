@@ -19,6 +19,7 @@ func Defaults() []Template {
 	all = append(all, loanTemplates()...)
 	all = append(all, originationTemplates()...)
 	all = append(all, savingsTemplates()...)
+	all = append(all, workflowTemplates()...)
 	all = append(all, systemTemplates()...)
 	return all
 }
@@ -121,7 +122,7 @@ func originationTemplates() []Template {
 			Description: "Sent when a loan application is rejected during underwriting.",
 		},
 		{
-			Name:        "template.fintech.offer.generated",
+			Name:        "template.fintech.loan_terms.generated",
 			Subject:     "Loan Terms Available",
 			Body:        "Approved loan terms of {{.amount}} {{.currency}} at {{.interest_rate}}% interest for {{.term_days}} days are ready for your review. Please accept or decline the terms.",
 			Category:    "origination",
@@ -145,6 +146,39 @@ func savingsTemplates() []Template {
 			Body:        "A withdrawal of {{.amount}} {{.currency}} has been processed from your savings account. Remaining balance: {{.balance}} {{.currency}}.",
 			Category:    "savings",
 			Description: "Sent when a withdrawal is made from a savings account.",
+		},
+	}
+}
+
+func workflowTemplates() []Template {
+	return []Template{
+		{
+			Name:        "template.fintech.case.verification_required",
+			Subject:     "Verification Required: {{.case_type_label}}",
+			Body:        "Case {{.case_id}} requires verification before it can proceed.\n\nSummary: {{.summary}}\nSubject: {{.subject_type}} {{.subject_id}}\nRequested by: {{.requested_by}}\nRequested value: {{.requested_value}}\nComment: {{.comment}}",
+			Category:    "workflow",
+			Description: "Sent to verifiers when a reusable approval case is created and requires verification.",
+		},
+		{
+			Name:        "template.fintech.case.approval_required",
+			Subject:     "Approval Required: {{.case_type_label}}",
+			Body:        "Case {{.case_id}} is ready for approval.\n\nSummary: {{.summary}}\nSubject: {{.subject_type}} {{.subject_id}}\nRequested by: {{.requested_by}}\nRequested value: {{.requested_value}}\nComment: {{.comment}}",
+			Category:    "workflow",
+			Description: "Sent to approvers when a reusable approval case is ready for approval.",
+		},
+		{
+			Name:        "template.fintech.case.approved",
+			Subject:     "Case Approved: {{.case_type_label}}",
+			Body:        "Your case {{.case_id}} has been approved and the requested change has now been actualized.\n\nSummary: {{.summary}}\nSubject: {{.subject_type}} {{.subject_id}}\nRequested value: {{.requested_value}}",
+			Category:    "workflow",
+			Description: "Sent to the requester when a reusable approval case is approved.",
+		},
+		{
+			Name:        "template.fintech.case.rejected",
+			Subject:     "Case Rejected: {{.case_type_label}}",
+			Body:        "Your case {{.case_id}} has been rejected.\n\nSummary: {{.summary}}\nSubject: {{.subject_type}} {{.subject_id}}\nRequested value: {{.requested_value}}\nComment: {{.comment}}",
+			Category:    "workflow",
+			Description: "Sent to the requester when a reusable approval case is rejected.",
 		},
 	}
 }
@@ -184,6 +218,7 @@ func CategoryLabels() map[string]string {
 		"loan":        "Loan Lifecycle",
 		"origination": "Loan Origination",
 		"savings":     "Savings",
+		"workflow":    "Workflow Cases",
 		"system":      "System",
 	}
 }

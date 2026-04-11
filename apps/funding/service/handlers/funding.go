@@ -13,6 +13,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/business"
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/antinvestor/service-fintech/pkg/apperrors"
+	"github.com/antinvestor/service-fintech/pkg/fundingcompat"
 )
 
 const moneyDecimalPlaces = 2
@@ -146,7 +147,7 @@ func (s *FundingServer) FundLoan(
 	ctx context.Context,
 	req *connect.Request[fundingv1.FundLoanRequest],
 ) (*connect.Response[fundingv1.FundLoanResponse], error) {
-	loanRequestID := req.Msg.GetLoanOfferId()
+	loanRequestID := fundingcompat.LoanRequestIDFromFundLoanRequest(req.Msg)
 	result, err := s.faBusiness.SourceForRequest(ctx, loanRequestID)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -161,7 +162,7 @@ func (s *FundingServer) AbsorbLoss(
 ) (*connect.Response[fundingv1.AbsorbLossResponse], error) {
 	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
-	loanRequestID := req.Msg.GetLoanOfferId()
+	loanRequestID := fundingcompat.LoanRequestIDFromAbsorbLossRequest(req.Msg)
 	err := s.faBusiness.AbsorbLoss(ctx, loanRequestID, amount)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
@@ -277,7 +278,7 @@ func fundingAllocationToAPI(allocation map[string]interface{}) *fundingv1.Fundin
 		obj.Id = id
 	}
 	if loanRequestID, found := allocation["loan_request_id"].(string); found {
-		obj.LoanOfferId = loanRequestID
+		fundingcompat.SetAllocationLoanRequestID(obj, loanRequestID)
 	}
 	if sourceID, found := allocation["source_id"].(string); found {
 		obj.SourceId = sourceID

@@ -1026,28 +1026,28 @@ service OriginationService {
     };
   }
 
-  // ApplicationAcceptOffer accepts a generated loan offer.
+  // ApplicationAcceptOffer accepts generated approved loan terms.
   rpc ApplicationAcceptOffer(ApplicationAcceptOfferRequest) returns (ApplicationAcceptOfferResponse) {
     option (common.v1.method_permissions) = {
       permissions: ["application_manage"]
     };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationAcceptOffer"
-      summary: "Accept a loan offer"
-      description: "Accepts a generated loan offer, triggering loan account creation."
+      summary: "Accept approved loan terms"
+      description: "Accepts generated approved loan terms, triggering loan account creation."
       tags: "Applications"
     };
   }
 
-  // ApplicationDeclineOffer declines a generated loan offer.
+  // ApplicationDeclineOffer declines generated approved loan terms.
   rpc ApplicationDeclineOffer(ApplicationDeclineOfferRequest) returns (ApplicationDeclineOfferResponse) {
     option (common.v1.method_permissions) = {
       permissions: ["application_manage"]
     };
     option (gnostic.openapi.v3.operation) = {
       operation_id: "applicationDeclineOffer"
-      summary: "Decline a loan offer"
-      description: "Declines a generated loan offer with a reason."
+      summary: "Decline approved loan terms"
+      description: "Declines generated approved loan terms with a reason."
       tags: "Applications"
     };
   }
