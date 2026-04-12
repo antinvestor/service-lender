@@ -816,7 +816,7 @@ class _FormsTab extends ConsumerWidget {
                 Expanded(
                   flex: 2,
                   child: FormSubmissionsTimeline(
-                    applicationId: app.id,
+                    entityId: app.id,
                     requiredForms: product.requiredForms,
                     isReadOnly: true,
                   ),
@@ -847,7 +847,7 @@ class _FormsTab extends ConsumerWidget {
         }
 
         return FormSubmissionsTimeline(
-          applicationId: app.id,
+          entityId: app.id,
           requiredForms: product.requiredForms,
           isReadOnly: true,
         );

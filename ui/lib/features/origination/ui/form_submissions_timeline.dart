@@ -6,27 +6,34 @@ import '../../../core/widgets/profile_badge.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../data/form_template_providers.dart';
 
-/// Canonical ordering of form stages in the origination pipeline.
-const _stageOrder = [
+/// Default stage ordering for the origination pipeline.
+const originationStageOrder = [
   'application',
   'verification',
   'underwriting',
   'disbursement',
 ];
 
-/// A reusable timeline widget that shows all required forms for an application,
+/// A reusable timeline widget that shows all required forms for an entity,
 /// grouped by stage, with their completion status and expandable read-only data.
+///
+/// [entityId] is used to fetch form submissions — can be an application ID,
+/// client ID, group ID, or any other entity that has form submissions.
+/// [stageOrder] controls the ordering of stage groups; defaults to the
+/// origination pipeline stages.
 class FormSubmissionsTimeline extends ConsumerWidget {
   const FormSubmissionsTimeline({
     super.key,
-    required this.applicationId,
+    required this.entityId,
     required this.requiredForms,
+    this.stageOrder = originationStageOrder,
     this.isReadOnly = true,
     this.onFillForm,
   });
 
-  final String applicationId;
+  final String entityId;
   final List<ProductFormRequirement> requiredForms;
+  final List<String> stageOrder;
   final bool isReadOnly;
 
   /// Called when the agent taps "Fill Now" on a pending form (non-read-only).
@@ -35,7 +42,7 @@ class FormSubmissionsTimeline extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final submissionsAsync =
-        ref.watch(formSubmissionListProvider(applicationId: applicationId));
+        ref.watch(formSubmissionListProvider(applicationId: entityId));
 
     return submissionsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -60,7 +67,7 @@ class FormSubmissionsTimeline extends ConsumerWidget {
 
         // Build ordered stage list.
         final orderedStages = <String>[];
-        for (final s in _stageOrder) {
+        for (final s in stageOrder) {
           if (grouped.containsKey(s)) orderedStages.add(s);
         }
         // Add any stages not in the canonical list.

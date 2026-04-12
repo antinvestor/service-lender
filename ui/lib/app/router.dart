@@ -427,6 +427,31 @@ GoRouter router(Ref ref) {
                 _guarded('/admin/audit', const AuditLogScreen()),
           ),
           GoRoute(
+            path: '/admin/form-templates',
+            builder: (context, state) => _guarded(
+              '/admin/form-templates',
+              const FormTemplatesScreen(),
+            ),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => _guarded(
+                  '/admin/form-templates',
+                  const FormTemplateDesignerScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':templateId',
+                builder: (context, state) => _guarded(
+                  '/admin/form-templates',
+                  FormTemplateDesignerScreen(
+                    templateId: state.pathParameters['templateId'],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
             path: '/settings',
             builder: (context, state) => const SettingsScreen(),
           ),

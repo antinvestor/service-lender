@@ -253,6 +253,133 @@ abstract class _$FormTemplateNotifier extends $AsyncNotifier<void> {
   }
 }
 
+/// Loads form requirements for a given entity type by searching for
+/// published templates associated with that type.
+///
+/// Templates are matched by searching with the entity type name.
+/// Organizations configure which templates apply to each entity type
+/// via the form template admin panel.
+
+@ProviderFor(entityFormTemplates)
+final entityFormTemplatesProvider = EntityFormTemplatesFamily._();
+
+/// Loads form requirements for a given entity type by searching for
+/// published templates associated with that type.
+///
+/// Templates are matched by searching with the entity type name.
+/// Organizations configure which templates apply to each entity type
+/// via the form template admin panel.
+
+final class EntityFormTemplatesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<FormTemplateObject>>,
+          List<FormTemplateObject>,
+          FutureOr<List<FormTemplateObject>>
+        >
+    with
+        $FutureModifier<List<FormTemplateObject>>,
+        $FutureProvider<List<FormTemplateObject>> {
+  /// Loads form requirements for a given entity type by searching for
+  /// published templates associated with that type.
+  ///
+  /// Templates are matched by searching with the entity type name.
+  /// Organizations configure which templates apply to each entity type
+  /// via the form template admin panel.
+  EntityFormTemplatesProvider._({
+    required EntityFormTemplatesFamily super.from,
+    required ({FormEntityType entityType, String organizationId})
+    super.argument,
+  }) : super(
+         retry: null,
+         name: r'entityFormTemplatesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$entityFormTemplatesHash();
+
+  @override
+  String toString() {
+    return r'entityFormTemplatesProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<FormTemplateObject>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<FormTemplateObject>> create(Ref ref) {
+    final argument =
+        this.argument as ({FormEntityType entityType, String organizationId});
+    return entityFormTemplates(
+      ref,
+      entityType: argument.entityType,
+      organizationId: argument.organizationId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EntityFormTemplatesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$entityFormTemplatesHash() =>
+    r'99accc048eb4e1d664c1492a1c0384b0147a5ba4';
+
+/// Loads form requirements for a given entity type by searching for
+/// published templates associated with that type.
+///
+/// Templates are matched by searching with the entity type name.
+/// Organizations configure which templates apply to each entity type
+/// via the form template admin panel.
+
+final class EntityFormTemplatesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<FormTemplateObject>>,
+          ({FormEntityType entityType, String organizationId})
+        > {
+  EntityFormTemplatesFamily._()
+    : super(
+        retry: null,
+        name: r'entityFormTemplatesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Loads form requirements for a given entity type by searching for
+  /// published templates associated with that type.
+  ///
+  /// Templates are matched by searching with the entity type name.
+  /// Organizations configure which templates apply to each entity type
+  /// via the form template admin panel.
+
+  EntityFormTemplatesProvider call({
+    required FormEntityType entityType,
+    String organizationId = '',
+  }) => EntityFormTemplatesProvider._(
+    argument: (entityType: entityType, organizationId: organizationId),
+    from: this,
+  );
+
+  @override
+  String toString() => r'entityFormTemplatesProvider';
+}
+
 @ProviderFor(FormSubmissionList)
 final formSubmissionListProvider = FormSubmissionListFamily._();
 

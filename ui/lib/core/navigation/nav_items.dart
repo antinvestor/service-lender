@@ -367,6 +367,14 @@ List<NavItem> buildNavItems() => [
         requiredRoles: _adminRoles,
       ),
       NavItem(
+        id: 'form_templates',
+        label: 'Form Templates',
+        icon: Icons.dynamic_form_outlined,
+        activeIcon: Icons.dynamic_form,
+        route: '/admin/form-templates',
+        requiredRoles: _adminRoles,
+      ),
+      NavItem(
         id: 'audit_log',
         label: 'Audit Log',
         icon: Icons.history_outlined,
