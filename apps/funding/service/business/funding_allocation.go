@@ -390,7 +390,8 @@ func fundingSourceLabel(sourceType int32) string {
 	}
 }
 
-// debitInvestorLoss reduces an investor's reserved balance after a loss absorption.
+// debitInvestorLoss atomically reduces an investor's reserved balance after
+// a loss absorption using the repository's SQL-level guard.
 func (b *fundingAllocationBusiness) debitInvestorLoss(
 	ctx context.Context,
 	logger *util.LogEntry,
@@ -400,17 +401,8 @@ func (b *fundingAllocationBusiness) debitInvestorLoss(
 	if investorAccountID == "" {
 		return
 	}
-	account, getErr := b.iaRepo.GetByID(ctx, investorAccountID)
-	if getErr != nil {
-		logger.WithError(getErr).Error("could not load investor account for loss")
-		return
-	}
-	account.ReservedBalance -= absorbed
-	if account.ReservedBalance < 0 {
-		account.ReservedBalance = 0
-	}
-	if emitErr := b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); emitErr != nil {
-		logger.WithError(emitErr).Error("could not update investor account after loss")
+	if _, err := b.iaRepo.AtomicAbsorbLoss(ctx, investorAccountID, absorbed); err != nil {
+		logger.WithError(err).Error("could not debit investor account for loss absorption")
 	}
 }
 
@@ -555,21 +547,19 @@ func appendInvestorSources(
 	return sources
 }
 
-// reserveInvestorBalance increments the reserved balance on an investor account.
+// reserveInvestorBalance atomically increments the reserved balance on an
+// investor account using a SQL-level guard that prevents concurrent
+// over-commitment. Replaces the prior read-modify-write pattern.
 func (b *fundingAllocationBusiness) reserveInvestorBalance(
 	ctx context.Context,
 	investorAccountID string,
 	amount int64,
 ) error {
-	account, err := b.iaRepo.GetByID(ctx, investorAccountID)
+	_, err := b.iaRepo.AtomicReserve(ctx, investorAccountID, amount)
 	if err != nil {
-		return fmt.Errorf("investor account not found: %w", err)
+		return fmt.Errorf("reserve investor balance: %w", err)
 	}
-
-	account.ReservedBalance += amount
-	account.TotalDeployed += amount
-
-	return b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account)
+	return nil
 }
 
 func fundingSourceOwnerType(sourceType int32) string {
