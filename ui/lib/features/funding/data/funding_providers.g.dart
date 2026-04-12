@@ -194,7 +194,7 @@ final class InvestorAccountNotifierProvider
 }
 
 String _$investorAccountNotifierHash() =>
-    r'60b7794bbf3119902c6824c649ec2809f63f1027';
+    r'5f68c3b5e36f032e9ac171d2eb2a0a1728e18ad5';
 
 abstract class _$InvestorAccountNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

@@ -1,20 +1,12 @@
-import 'dart:math';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/idempotency.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/savings/v1/savings.pb.dart';
 
 part 'savings_providers.g.dart';
-
-/// Generates a collision-resistant idempotency key.
-String _generateIdempotencyKey() {
-  final random = Random.secure();
-  final bytes = List<int>.generate(16, (_) => random.nextInt(256));
-  return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-}
 
 // ---------------------------------------------------------------------------
 // Savings Products
@@ -162,7 +154,7 @@ class DepositNotifier extends _$DepositNotifier {
         paymentReference: paymentReference,
         channel: channel,
         payerReference: payerReference,
-        idempotencyKey: _generateIdempotencyKey(),
+        idempotencyKey: generateIdempotencyKey(),
       ),
     );
     ref.invalidate(depositListProvider);
@@ -211,7 +203,7 @@ class WithdrawalNotifier extends _$WithdrawalNotifier {
         channel: channel,
         recipientReference: recipientReference,
         reason: reason,
-        idempotencyKey: _generateIdempotencyKey(),
+        idempotencyKey: generateIdempotencyKey(),
       ),
     );
     ref.invalidate(withdrawalListProvider);

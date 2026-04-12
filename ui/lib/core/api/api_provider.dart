@@ -170,9 +170,14 @@ void resetAuthFailureGuard() {
 }
 
 /// Creates a Connect RPC transport for the given [baseUrl].
+///
+/// Watches [authStateProvider] so the transport (and its interceptor) is
+/// recreated whenever the authentication state changes (login/logout).
 Transport _createTransport(Ref ref, String baseUrl) {
   final authRepo = ref.watch(authRepositoryProvider);
-  // Capture the current session generation at creation time.
+  // Ensure transport is recreated on auth state changes so the captured
+  // session generation stays in sync.
+  ref.watch(authStateProvider);
   final capturedGeneration = _authSessionGeneration;
   final authInterceptor = AuthInterceptor(authRepo, () {
     // Ignore if this interceptor was created for a stale session.

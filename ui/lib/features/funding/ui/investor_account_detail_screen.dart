@@ -71,7 +71,10 @@ class InvestorAccountDetailScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Actions
-          _ActionButtons(accountId: accountId),
+          _ActionButtons(
+            accountId: accountId,
+            currencyCode: moneyCurrency(account.availableBalance, 'KES'),
+          ),
           const SizedBox(height: 24),
 
           // Details
@@ -216,8 +219,9 @@ class _MetricCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ActionButtons extends ConsumerWidget {
-  const _ActionButtons({required this.accountId});
+  const _ActionButtons({required this.accountId, required this.currencyCode});
   final String accountId;
+  final String currencyCode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -268,7 +272,7 @@ class _ActionButtons extends ConsumerWidget {
           ),
           FilledButton(
             onPressed: () async {
-              final amount = moneyFromString(amountCtrl.text.trim(), 'KES');
+              final amount = moneyFromString(amountCtrl.text.trim(), currencyCode);
               Navigator.pop(ctx);
               try {
                 await ref
@@ -318,7 +322,7 @@ class _ActionButtons extends ConsumerWidget {
           ),
           FilledButton(
             onPressed: () async {
-              final amount = moneyFromString(amountCtrl.text.trim(), 'KES');
+              final amount = moneyFromString(amountCtrl.text.trim(), currencyCode);
               Navigator.pop(ctx);
               try {
                 await ref
@@ -375,7 +379,10 @@ class _ActionButtons extends ConsumerWidget {
               try {
                 final result = await ref
                     .read(investorAccountProvider.notifier)
-                    .fundLoan(loanRequestId: loanRequestId);
+                    .fundLoan(
+                      loanRequestId: loanRequestId,
+                      accountId: accountId,
+                    );
                 if (context.mounted) {
                   final msg = result.fullyFunded
                       ? 'Loan fully funded (${formatMoney(result.totalAllocated)})'

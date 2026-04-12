@@ -528,7 +528,7 @@ final class DepositNotifierProvider
   DepositNotifier create() => DepositNotifier();
 }
 
-String _$depositNotifierHash() => r'fb032e8db3665d948c1f24061bdd9fadc7726533';
+String _$depositNotifierHash() => r'4b72e3fc873ecf4b3ae137c955212a80cf096a57';
 
 abstract class _$DepositNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -650,7 +650,7 @@ final class WithdrawalNotifierProvider
 }
 
 String _$withdrawalNotifierHash() =>
-    r'0d9b47121ec0cf3a5e8563ebe543adcc925ee6d3';
+    r'2a180120112778c1c7d8e6ea37c8d8046e120d7f';
 
 abstract class _$WithdrawalNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

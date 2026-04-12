@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/config/auth_constants.dart';
 import 'login_target.dart';
 
 part 'login_targets_provider.g.dart';
@@ -14,15 +15,12 @@ const _identityUrl = String.fromEnvironment(
   defaultValue: 'https://api.antinvestor.com/identity',
 );
 
-/// Allowed format for OAuth client IDs — alphanumeric, 6-64 chars.
-final _clientIdPattern = RegExp(r'^[a-zA-Z0-9_\-]{6,64}$');
-
 /// Fetches login targets (child orgs/branches) for a given OAuth client_id.
 /// This is an unauthenticated call — used on the login page before sign-in.
 @riverpod
 Future<LoginTargetsResponse> loginTargets(Ref ref, String clientId) async {
   // Validate clientId format to prevent path traversal or injection.
-  if (!_clientIdPattern.hasMatch(clientId)) {
+  if (!clientIdPattern.hasMatch(clientId)) {
     debugPrint('Invalid clientId format: $clientId');
     return const LoginTargetsResponse(
       targets: [],

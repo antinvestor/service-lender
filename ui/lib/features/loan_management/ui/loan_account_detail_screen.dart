@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/idempotency.dart';
 import '../../../core/auth/audit_context.dart';
 import '../../../core/auth/role_provider.dart';
 import '../../../core/widgets/loan_status_badge.dart';
@@ -291,11 +291,7 @@ class _LoanAccountDetailScreenState
         loanAccountId: loan.id,
         onSave: (channel, recipientReference) async {
           try {
-            final random = Random.secure();
-            final idempotencyKey = List.generate(
-              16,
-              (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
-            ).join();
+            final idempotencyKey = generateIdempotencyKey();
             await ref
                 .read(disbursementProvider.notifier)
                 .create(
@@ -347,11 +343,7 @@ class _LoanAccountDetailScreenState
         totalOutstanding: outstanding,
         onSave: (amount, paymentReference, channel, payerReference) async {
           try {
-            final random = Random.secure();
-            final idempotencyKey = List.generate(
-              16,
-              (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
-            ).join();
+            final idempotencyKey = generateIdempotencyKey();
             await ref
                 .read(repaymentProvider.notifier)
                 .record(
@@ -396,11 +388,7 @@ class _LoanAccountDetailScreenState
         onSave: (amount, phoneNumber) async {
           try {
             final client = ref.read(loanManagementServiceClientProvider);
-            final random = Random.secure();
-            final idempotencyKey = List.generate(
-              16,
-              (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
-            ).join();
+            final idempotencyKey = generateIdempotencyKey();
             await client.initiateCollection(
               InitiateCollectionRequest(
                 loanAccountId: loan.id,

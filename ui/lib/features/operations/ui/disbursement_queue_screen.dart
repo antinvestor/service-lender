@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../core/api/idempotency.dart';
 
 import '../../../core/theme/design_tokens.dart';
 import '../../../core/widgets/money_helpers.dart';
@@ -382,10 +383,7 @@ class _DisbursementQueueScreenState
     dynamic loan,
   ) async {
     try {
-      final random = Random.secure();
-      final idempotencyKey = List.generate(
-        16, (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
-      ).join();
+      final idempotencyKey = generateIdempotencyKey();
       await ref.read(disbursementProvider.notifier).create(
             loanAccountId: loan.id,
             channel: 'mobile_money',

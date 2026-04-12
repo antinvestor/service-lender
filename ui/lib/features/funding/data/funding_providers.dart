@@ -4,6 +4,7 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/funding/v1/funding.pb.dart';
+import '../../../sdk/src/google/type/money.pb.dart';
 
 part 'funding_providers.g.dart';
 
@@ -57,7 +58,7 @@ class InvestorAccountNotifier extends _$InvestorAccountNotifier {
 
   Future<InvestorAccountObject> deposit({
     required String accountId,
-    required dynamic amount,
+    required Money amount,
   }) async {
     final client = ref.read(fundingServiceClientProvider);
     final response = await client.investorDeposit(
@@ -70,7 +71,7 @@ class InvestorAccountNotifier extends _$InvestorAccountNotifier {
 
   Future<InvestorAccountObject> withdraw({
     required String accountId,
-    required dynamic amount,
+    required Money amount,
   }) async {
     final client = ref.read(fundingServiceClientProvider);
     final response = await client.investorWithdraw(
@@ -81,23 +82,33 @@ class InvestorAccountNotifier extends _$InvestorAccountNotifier {
     return response.data;
   }
 
-  Future<FundLoanResponse> fundLoan({required String loanRequestId}) async {
+  Future<FundLoanResponse> fundLoan({
+    required String loanRequestId,
+    String? accountId,
+  }) async {
     final client = ref.read(fundingServiceClientProvider);
     final response = await client.fundLoan(
       FundLoanRequest(loanRequestId: loanRequestId),
     );
+    if (accountId != null) {
+      ref.invalidate(investorAccountDetailProvider(accountId));
+    }
     ref.invalidate(investorAccountListProvider);
     return response;
   }
 
   Future<void> absorbLoss({
     required String loanRequestId,
-    required dynamic amount,
+    required Money amount,
+    String? accountId,
   }) async {
     final client = ref.read(fundingServiceClientProvider);
     await client.absorbLoss(
       AbsorbLossRequest(loanRequestId: loanRequestId, amount: amount),
     );
+    if (accountId != null) {
+      ref.invalidate(investorAccountDetailProvider(accountId));
+    }
     ref.invalidate(investorAccountListProvider);
   }
 }

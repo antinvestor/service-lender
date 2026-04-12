@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:openid_client/openid_client.dart';
 
+import '../../../core/config/auth_constants.dart';
 import '../../../core/logging/app_logger.dart';
 import 'platform/auth_platform.dart';
 import 'platform/auth_platform_stub.dart'
@@ -43,15 +44,12 @@ class AuthService {
     await _platform.initialize(_issuerUrl, _activeClientId);
   }
 
-  /// Allowed format for OAuth client IDs — alphanumeric, 6-64 chars.
-  static final _clientIdPattern = RegExp(r'^[a-zA-Z0-9_\-]{6,64}$');
-
   /// Switch to a different OAuth client for login.
   /// Reinitializes the OIDC client and persists the selection.
   Future<void> switchClient(String clientId) async {
     if (clientId == _activeClientId) return;
     // Validate format to prevent injection via deep links.
-    if (!_clientIdPattern.hasMatch(clientId)) {
+    if (!clientIdPattern.hasMatch(clientId)) {
       AppLogger.warning('Invalid clientId format rejected: $clientId');
       return;
     }
