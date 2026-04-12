@@ -171,7 +171,7 @@ func setupServiceOptions(
 		paidOffHook,
 	)
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo, laRepo, operationsCli, auditWriter)
-	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
+	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo, scheduleBusiness)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
 	disbBusiness := business.NewDisbursementBusiness(
 		ctx,

@@ -14,6 +14,7 @@ const Map<String, Set<LenderRole>> routePermissions = {
   '/admin/users': {LenderRole.owner, LenderRole.admin},
   '/admin/roles': {LenderRole.owner, LenderRole.admin},
   '/admin/audit': {LenderRole.owner, LenderRole.admin, LenderRole.auditor},
+  '/admin/form-templates': {LenderRole.owner, LenderRole.admin},
 
   // Organization — all view roles (not bare agents)
   '/organization/organizations': _viewRoles,

@@ -120,10 +120,14 @@ func (b *repaymentBusiness) Record(
 	}
 
 	amount, repCurrencyCode := models.MoneyToMinorUnits(req.GetAmount())
-	_ = repCurrencyCode
 
 	if amount <= 0 {
 		return nil, fmt.Errorf("repayment amount must be positive, got %d", amount)
+	}
+
+	if repCurrencyCode != "" && repCurrencyCode != la.CurrencyCode {
+		return nil, fmt.Errorf("repayment currency %s does not match loan currency %s",
+			repCurrencyCode, la.CurrencyCode)
 	}
 
 	// Load balance once — used for both penalty allocation and balance update.

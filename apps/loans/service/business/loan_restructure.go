@@ -31,6 +31,7 @@ type loanRestructureBusiness struct {
 	eventsMan           fevents.Manager
 	loanRestructureRepo repository.LoanRestructureRepository
 	loanAccountRepo     repository.LoanAccountRepository
+	scheduleBusiness    RepaymentScheduleBusiness
 }
 
 func NewLoanRestructureBusiness(
@@ -38,11 +39,13 @@ func NewLoanRestructureBusiness(
 	eventsMan fevents.Manager,
 	loanRestructureRepo repository.LoanRestructureRepository,
 	loanAccountRepo repository.LoanAccountRepository,
+	scheduleBusiness RepaymentScheduleBusiness,
 ) LoanRestructureBusiness {
 	return &loanRestructureBusiness{
 		eventsMan:           eventsMan,
 		loanRestructureRepo: loanRestructureRepo,
 		loanAccountRepo:     loanAccountRepo,
+		scheduleBusiness:    scheduleBusiness,
 	}
 }
 
@@ -102,12 +105,19 @@ func (b *loanRestructureBusiness) Approve(
 		la.TermDays = lr.NewTermDays
 	}
 
-	// Transition to RESTRUCTURED then back to ACTIVE
+	// Transition to RESTRUCTURED
 	la.Status = int32(loansv1.LoanStatus_LOAN_STATUS_RESTRUCTURED)
 
 	if emitErr := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); emitErr != nil {
 		logger.WithError(emitErr).Error("could not save restructured loan account")
 		return nil, emitErr
+	}
+
+	// Regenerate repayment schedule with the updated terms.
+	if b.scheduleBusiness != nil {
+		if _, schedErr := b.scheduleBusiness.Generate(ctx, la.GetID()); schedErr != nil {
+			logger.WithError(schedErr).Error("could not regenerate schedule after restructure")
+		}
 	}
 
 	return lr.ToAPI(), nil

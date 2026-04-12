@@ -28,6 +28,7 @@ type WithdrawalBusiness interface {
 		accountID, amount, channel, recipientRef, reason, idempotencyKey string,
 	) (*savingsv1.WithdrawalObject, error)
 	Approve(ctx context.Context, id string) (*savingsv1.WithdrawalObject, error)
+	Cancel(ctx context.Context, id, reason string) (*savingsv1.WithdrawalObject, error)
 	Get(ctx context.Context, id string) (*savingsv1.WithdrawalObject, error)
 	Search(
 		ctx context.Context,
@@ -283,6 +284,37 @@ func (b *withdrawalBusiness) postWithdrawalTransferOrder(
 		return "", fmt.Errorf("withdrawal transfer order %s failed: %w", reference, execErr)
 	}
 	return resp.Msg.GetData().GetId(), nil
+}
+
+// Cancel rejects a pending withdrawal and releases the reserved balance.
+func (b *withdrawalBusiness) Cancel(ctx context.Context, id, reason string) (*savingsv1.WithdrawalObject, error) {
+	logger := util.Log(ctx).WithField("method", "WithdrawalBusiness.Cancel")
+
+	wdr, err := b.wdrRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrWithdrawalNotFound
+	}
+
+	if wdr.Status != int32(savingsv1.WithdrawalStatus_WITHDRAWAL_STATUS_PENDING) {
+		return nil, errors.New("only pending withdrawals can be cancelled")
+	}
+
+	// Release the reserved balance back to available.
+	if _, relErr := b.sbRepo.ReleaseReserved(ctx, wdr.SavingsAccountID, wdr.Amount); relErr != nil {
+		logger.WithError(relErr).Error("could not release reserved balance for cancelled withdrawal")
+		return nil, fmt.Errorf("release reserved balance: %w", relErr)
+	}
+
+	wdr.Status = int32(savingsv1.WithdrawalStatus_WITHDRAWAL_STATUS_REJECTED)
+	wdr.Reason = reason
+
+	if emitErr := b.eventsMan.Emit(ctx, events.WithdrawalSaveEvent, wdr); emitErr != nil {
+		logger.WithError(emitErr).Error("could not save cancelled withdrawal")
+		return nil, emitErr
+	}
+
+	logger.WithField("withdrawal_id", id).Info("withdrawal cancelled and balance released")
+	return wdr.ToAPI(), nil
 }
 
 func (b *withdrawalBusiness) Get(ctx context.Context, id string) (*savingsv1.WithdrawalObject, error) {

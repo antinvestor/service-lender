@@ -72,7 +72,7 @@ func renameColumnIfExists(ctx context.Context, db *gorm.DB, table, oldCol, newCo
 	// Check if old column exists before renaming
 	var count int64
 	db.Raw(`SELECT count(*) FROM information_schema.columns
-		WHERE table_name = ? AND column_name = ?`, table, oldCol).Scan(&count)
+		WHERE table_schema = current_schema() AND table_name = ? AND column_name = ?`, table, oldCol).Scan(&count)
 	if count > 0 {
 		util.Log(ctx).WithField("table", table).WithField("old", oldCol).WithField("new", newCol).
 			Info("preMigrate -- renaming column")

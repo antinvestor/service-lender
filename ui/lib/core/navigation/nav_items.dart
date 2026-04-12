@@ -208,14 +208,6 @@ List<NavItem> buildNavItems() => [
         route: '/origination/applications',
         requiredRoles: _allViewRoles,
       ),
-      NavItem(
-        id: 'form_templates',
-        label: 'Form Templates',
-        icon: Icons.dynamic_form_outlined,
-        activeIcon: Icons.dynamic_form,
-        route: '/origination/templates',
-        requiredRoles: _adminRoles,
-      ),
     ],
   ),
   NavItem(
@@ -364,6 +356,14 @@ List<NavItem> buildNavItems() => [
         icon: Icons.security_outlined,
         activeIcon: Icons.security,
         route: '/admin/roles',
+        requiredRoles: _adminRoles,
+      ),
+      NavItem(
+        id: 'form_templates',
+        label: 'Form Templates',
+        icon: Icons.dynamic_form_outlined,
+        activeIcon: Icons.dynamic_form,
+        route: '/admin/form-templates',
         requiredRoles: _adminRoles,
       ),
       NavItem(

@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
@@ -114,17 +115,18 @@ func (b *disbursementBusiness) Create(
 	}
 
 	// Execute the disbursement transfer order via operations service
-	if b.operationsCli != nil {
-		toResp, toErr := b.executeDisbursementTransfer(ctx, req, la, disb)
-		if toErr != nil {
-			logger.WithError(toErr).Error("transfer order execution failed")
-			disb.Status = int32(loansv1.DisbursementStatus_DISBURSEMENT_STATUS_FAILED)
-			disb.FailureReason = toErr.Error()
-			_ = b.eventsMan.Emit(ctx, events.DisbursementSaveEvent, disb)
-			return disb.ToAPI(), nil
-		}
-		disb.LedgerTransactionID = toResp.Msg.GetData().GetId()
+	if b.operationsCli == nil {
+		return nil, errors.New("operations client is not configured; cannot execute disbursement")
 	}
+	toResp, toErr := b.executeDisbursementTransfer(ctx, req, la, disb)
+	if toErr != nil {
+		logger.WithError(toErr).Error("transfer order execution failed")
+		disb.Status = int32(loansv1.DisbursementStatus_DISBURSEMENT_STATUS_FAILED)
+		disb.FailureReason = toErr.Error()
+		_ = b.eventsMan.Emit(ctx, events.DisbursementSaveEvent, disb)
+		return disb.ToAPI(), nil
+	}
+	disb.LedgerTransactionID = toResp.Msg.GetData().GetId()
 
 	// Mark disbursement as completed
 	disb.Status = int32(loansv1.DisbursementStatus_DISBURSEMENT_STATUS_COMPLETED)
