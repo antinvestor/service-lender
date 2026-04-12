@@ -43,9 +43,12 @@ import '../features/origination/ui/pending_cases_screen.dart';
 import '../features/operations/ui/disbursement_queue_screen.dart';
 import '../features/operations/ui/notification_templates_screen.dart';
 import '../features/operations/ui/transfer_orders_screen.dart';
+import '../features/funding/ui/investor_account_detail_screen.dart';
+import '../features/funding/ui/investor_accounts_screen.dart';
 import '../features/reporting/ui/portfolio_summary_screen.dart';
 import '../features/savings/ui/savings_account_detail_screen.dart';
 import '../features/savings/ui/savings_accounts_screen.dart';
+import '../features/savings/ui/savings_products_screen.dart';
 import '../features/reporting/ui/loan_book_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 
@@ -149,7 +152,7 @@ GoRouter router(Ref ref) {
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => const DashboardScreen(),
+            builder: (context, state) => _guarded('/', const DashboardScreen()),
           ),
           GoRoute(
             path: '/organization/organizations',
@@ -341,6 +344,11 @@ GoRouter router(Ref ref) {
             ],
           ),
           GoRoute(
+            path: '/savings/products',
+            builder: (context, state) =>
+                _guarded('/savings/products', const SavingsProductsScreen()),
+          ),
+          GoRoute(
             path: '/savings',
             builder: (context, state) =>
                 _guarded('/savings', const SavingsAccountsScreen()),
@@ -350,6 +358,24 @@ GoRouter router(Ref ref) {
                 builder: (context, state) => _guarded(
                   '/savings',
                   SavingsAccountDetailScreen(
+                    accountId: state.pathParameters['accountId']!,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/funding/accounts',
+            builder: (context, state) => _guarded(
+              '/funding/accounts',
+              const InvestorAccountsScreen(),
+            ),
+            routes: [
+              GoRoute(
+                path: ':accountId',
+                builder: (context, state) => _guarded(
+                  '/funding/accounts',
+                  InvestorAccountDetailScreen(
                     accountId: state.pathParameters['accountId']!,
                   ),
                 ),

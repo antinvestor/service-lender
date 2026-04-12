@@ -76,9 +76,12 @@ class AuthPlatformWeb implements AuthPlatform {
           ..scopes.addAll(scopes)
           ..redirectUri = redirectUri;
 
-    web.window.localStorage.setItem(_stateKey, flow.state);
-    web.window.localStorage.setItem(_codeVerifierKey, codeVerifier);
-    web.window.localStorage.setItem(
+    // Use sessionStorage for ephemeral PKCE material — confines it to the
+    // current tab and avoids persistence to disk, reducing the window where
+    // same-origin scripts could read it.
+    web.window.sessionStorage.setItem(_stateKey, flow.state);
+    web.window.sessionStorage.setItem(_codeVerifierKey, codeVerifier);
+    web.window.sessionStorage.setItem(
       _timestampKey,
       DateTime.now().millisecondsSinceEpoch.toString(),
     );
@@ -110,11 +113,11 @@ class AuthPlatformWeb implements AuthPlatform {
 
     if (code == null || state == null) return null;
 
-    final storedState = web.window.localStorage.getItem(_stateKey);
-    final storedCodeVerifier = web.window.localStorage.getItem(
+    final storedState = web.window.sessionStorage.getItem(_stateKey);
+    final storedCodeVerifier = web.window.sessionStorage.getItem(
       _codeVerifierKey,
     );
-    final storedTimestamp = web.window.localStorage.getItem(_timestampKey);
+    final storedTimestamp = web.window.sessionStorage.getItem(_timestampKey);
 
     if (storedState != state || storedCodeVerifier == null) {
       _clearAuthState();
@@ -181,13 +184,13 @@ class AuthPlatformWeb implements AuthPlatform {
   }
 
   void _clearAuthState() {
-    web.window.localStorage.removeItem(_stateKey);
-    web.window.localStorage.removeItem(_codeVerifierKey);
-    web.window.localStorage.removeItem(_timestampKey);
+    web.window.sessionStorage.removeItem(_stateKey);
+    web.window.sessionStorage.removeItem(_codeVerifierKey);
+    web.window.sessionStorage.removeItem(_timestampKey);
   }
 
   void _cleanupStaleState() {
-    final storedTimestamp = web.window.localStorage.getItem(_timestampKey);
+    final storedTimestamp = web.window.sessionStorage.getItem(_timestampKey);
     if (storedTimestamp != null) {
       final timestamp = DateTime.fromMillisecondsSinceEpoch(
         int.tryParse(storedTimestamp) ?? 0,

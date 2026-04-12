@@ -64,10 +64,23 @@ class _DesktopAuthenticator {
           request.response.write(_successHtml);
           await request.response.close();
 
+          // Validate PKCE state parameter to prevent CSRF attacks.
+          if (state == null || state != flow.state) {
+            request.response.statusCode = HttpStatus.forbidden;
+            request.response.write('Invalid state parameter');
+            await request.response.close();
+            if (!completer.isCompleted) {
+              completer.completeError(
+                Exception('OAuth state mismatch — possible CSRF'),
+              );
+            }
+            return;
+          }
+
           try {
             final credential = await flow.callback({
               'code': code,
-              'state': ?state,
+              'state': state,
             });
             if (!completer.isCompleted) {
               completer.complete(credential);
@@ -144,10 +157,20 @@ class _MobileAuthenticator {
           return;
         }
 
+        // Validate PKCE state parameter to prevent CSRF attacks.
+        if (state == null || state != flow.state) {
+          if (!completer.isCompleted) {
+            completer.completeError(
+              Exception('OAuth state mismatch — possible CSRF'),
+            );
+          }
+          return;
+        }
+
         try {
           final credential = await flow.callback({
             'code': code,
-            'state': ?state,
+            'state': state,
           });
           if (!completer.isCompleted) {
             completer.complete(credential);

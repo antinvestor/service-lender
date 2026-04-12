@@ -156,17 +156,27 @@ class AuthInterceptor {
   }
 }
 
-/// Global guard: ensures logout fires at most once across all transports.
-/// Reset when the auth state is invalidated (e.g. after a new login).
+/// Global guard: ensures logout fires at most once per session across all
+/// transports. Uses a generation counter so stale interceptors from a prior
+/// session cannot trigger logout on a newly-authenticated session.
+int _authSessionGeneration = 0;
 bool _globalAuthFailureFired = false;
 
 /// Reset the global auth failure guard after a successful login.
-void resetAuthFailureGuard() => _globalAuthFailureFired = false;
+/// Increments the session generation so stale interceptors are ignored.
+void resetAuthFailureGuard() {
+  _globalAuthFailureFired = false;
+  _authSessionGeneration++;
+}
 
 /// Creates a Connect RPC transport for the given [baseUrl].
 Transport _createTransport(Ref ref, String baseUrl) {
   final authRepo = ref.watch(authRepositoryProvider);
+  // Capture the current session generation at creation time.
+  final capturedGeneration = _authSessionGeneration;
   final authInterceptor = AuthInterceptor(authRepo, () {
+    // Ignore if this interceptor was created for a stale session.
+    if (capturedGeneration != _authSessionGeneration) return;
     if (_globalAuthFailureFired) return;
     _globalAuthFailureFired = true;
     AppLogger.error('Auth failure — logging out and redirecting to login');
