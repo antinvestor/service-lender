@@ -2,10 +2,10 @@
 
 ## Content Width Strategy
 
-On large screens (desktop, wide tablets), UI content must **not** stretch to
-fill the full viewport. Input fields, cards, and text become difficult to scan
-when they span 2000+ pixels. Instead, content is centered within a maximum
-width that preserves readability and touch/click ergonomics.
+On large screens, UI content fills from the left at a comfortable width.
+The remaining space on the right is reserved for contextual panels
+(detail views, previews, help) in a master-detail pattern. Input fields
+and form containers never stretch to fill the full viewport.
 
 ### Width Constants (`DesignTokens`)
 
@@ -15,51 +15,53 @@ width that preserves readability and touch/click ergonomics.
 | `maxFormWidth`     | 640 px   | Form containers (wizards, create screens)       |
 | `maxFieldWidth`    | 480 px   | Individual single-line inputs (text, dropdown)  |
 
-These are defined in `core/theme/design_tokens.dart`.
+Defined in `core/theme/design_tokens.dart`.
 
-### Where Constraints Are Applied
+### How Constraints Are Applied (Automatic)
 
-1. **Shell level** (`core/navigation/app_shell.dart`):
-   `_DesktopShell` wraps the content area in a `Center > ConstrainedBox`
-   with `maxContentWidth`. Every screen inherits this constraint.
+Constraints are applied at the theme level — **no per-widget manual
+wrapping is needed** for input fields:
 
-2. **Form renderer** (`core/widgets/dynamic_form_renderer.dart`):
-   The step indicator, section title, field list, and navigation buttons
-   are each wrapped in `Center > ConstrainedBox(maxFormWidth)`. This
-   keeps form fields at a comfortable phone-like input width.
+1. **Theme level** (`core/theme/app_theme.dart`):
+   `InputDecorationTheme.constraints` is set to `maxFieldWidth` on both
+   light and dark themes. Every `TextField`, `TextFormField`, and
+   `DropdownButtonFormField` inherits this automatically. Fields never
+   stretch wider than 480px regardless of parent width.
 
-3. **Entity list pages** (`core/widgets/entity_list_page.dart`):
-   Search fields are constrained to `maxFieldWidth` so they don't
-   stretch across the full content area on desktop.
+2. **Shell level** (`core/navigation/app_shell.dart`):
+   Content fills naturally from the left. No centering — the desktop
+   space to the right of content is available for master-detail views.
 
-4. **Content constraint widget** (`core/widgets/content_constraint.dart`):
-   A reusable `ContentConstraint` widget for screens that need explicit
-   width control beyond the shell default.
+3. **Form renderer** (`core/widgets/dynamic_form_renderer.dart`):
+   A single top-level `Align(topLeft) + ConstrainedBox(maxFormWidth)`
+   wraps the entire form. Not per-field — one constraint on the form.
+
+### Layout Pattern: Left-Aligned with Detail Space
+
+```
+┌──────────┬────────────────────────────────┬──────────────────┐
+│ Sidebar  │  List / Form (maxFormWidth)    │  Detail Panel    │
+│          │  ← left-aligned                │  ← uses the     │
+│          │                                │    remaining     │
+│          │                                │    space         │
+└──────────┴────────────────────────────────┴──────────────────┘
+```
+
+When a user clicks an item in a list, the detail view can appear in the
+space to the right rather than navigating to a new page. This pattern
+is natural for fintech admin tools (table → detail, form → preview).
 
 ### Rules for New Screens
 
-- **Never** let a single-line text field fill the full content width.
-  Wrap it in a `ConstrainedBox(maxWidth: DesignTokens.maxFieldWidth)`.
-
-- **Form steps** should be wrapped in `maxFormWidth`. Use the
-  `DynamicFormRenderer` or `FormRequirementWizard` which already handle
-  this. For custom forms, wrap the form body in
-  `ContentConstraint.form(child: ...)`.
-
-- **Multi-column layouts** (e.g. the form template designer's field
-  table + preview) can exceed `maxFormWidth` since they use the space
-  productively. They are still bounded by the shell's `maxContentWidth`.
-
-- **Dialogs** should use `SizedBox(width: 400-480)` for create/edit
-  dialogs. This is already the convention in the codebase.
-
-- **Grid layouts** (dashboard cards, balance summaries) use
-  `LayoutBuilder` with responsive column counts. Cards fill their grid
-  cells, which is fine because the grid itself is bounded by the shell's
-  `maxContentWidth`.
+- **Do not manually constrain individual fields.** The theme handles it.
+- **Do not center content.** Left-align and let the right space be
+  available for contextual panels.
+- **Form containers** use `ConstrainedBox(maxFormWidth)` once at the
+  top level, or `ContentConstraint.form(child: ...)`.
+- **Dialogs** use `SizedBox(width: 400-480)`.
+- **Grid layouts** use `LayoutBuilder` with responsive column counts.
 
 ### Mobile Behavior
 
-On screens narrower than `maxContentWidth`, the constraints have no
-effect — content fills the available width normally. The constraints
-only activate on desktop/wide-tablet viewports.
+On mobile (<600px), constraints have no effect — content fills the
+available width normally.

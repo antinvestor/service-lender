@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../responsive/breakpoints.dart';
-import '../theme/design_tokens.dart';
 import 'app_sidebar.dart';
 
 /// The app shell provides persistent sidebar navigation for all
@@ -80,20 +79,11 @@ class _DesktopShell extends StatelessWidget {
       body: Row(
         children: [
           AppSidebar(currentRoute: currentRoute),
-          Expanded(
-            // Center content within the available space so pages don't
-            // stretch edge-to-edge on ultra-wide displays. The constraint
-            // keeps content at a readable width while the remaining space
-            // gets the surface background color.
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: DesignTokens.maxContentWidth,
-                ),
-                child: child,
-              ),
-            ),
-          ),
+          // Content fills naturally from the left. Individual input fields
+          // are constrained by the theme's InputDecorationTheme.constraints
+          // so they never stretch wider than maxFieldWidth. The remaining
+          // desktop space is available for master-detail panels.
+          Expanded(child: child),
         ],
       ),
     );

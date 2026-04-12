@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'design_tokens.dart';
+
 class AppTheme {
   AppTheme._();
 
@@ -175,10 +177,16 @@ class AppTheme {
         visualDensity: VisualDensity.compact,
       ),
 
-      // ── Input fields: filled, no border ───────────────────────────────
+      // ── Input fields: filled, no border, max-width constrained ────────
+      // The constraints property ensures input fields never stretch wider
+      // than maxFieldWidth, keeping them at a comfortable input size on
+      // desktop screens without requiring per-widget manual constraints.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: cs.surfaceContainerHighest,
+        constraints: const BoxConstraints(
+          maxWidth: DesignTokens.maxFieldWidth,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
@@ -405,6 +413,9 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: darkColorScheme.surfaceContainerHigh,
+        constraints: const BoxConstraints(
+          maxWidth: DesignTokens.maxFieldWidth,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
