@@ -280,16 +280,22 @@ func WithdrawalFromAPI(ctx context.Context, obj *savingsv1.WithdrawalObject) *Wi
 }
 
 // InterestAccrual records periodic interest accrued on a savings account.
+//
+// The (savings_account_id, period_end) pair is unique: rerunning the accrual
+// job for the same closing period returns the existing row rather than
+// double-crediting the member. Callers should use GetByAccountAndPeriod
+// before attempting to create a new accrual, or rely on the duplicate-key
+// handling in the InterestAccrualSave event handler.
 type InterestAccrual struct {
 	data.BaseModel
-	SavingsAccountID    string `gorm:"type:varchar(50);index:idx_ia_account"`
+	SavingsAccountID    string `gorm:"type:varchar(50);index:idx_ia_account;uniqueIndex:uq_ia_account_period"`
 	Amount              int64  // minor units
 	CurrencyCode        string `gorm:"type:varchar(3)"`
 	PeriodStart         *time.Time
-	PeriodEnd           *time.Time
-	RateApplied         int64  // basis points
-	BalanceUsed         int64  // minor units
-	LedgerTransactionID string `gorm:"type:varchar(50)"`
+	PeriodEnd           *time.Time `gorm:"uniqueIndex:uq_ia_account_period"`
+	RateApplied         int64      // basis points
+	BalanceUsed         int64      // minor units
+	LedgerTransactionID string     `gorm:"type:varchar(50)"`
 	Properties          data.JSONMap
 }
 

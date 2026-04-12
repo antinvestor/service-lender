@@ -40,6 +40,12 @@ type FundingConfig struct {
 	// Tenancy service
 	TenancyServiceURI                   string `envDefault:"127.0.0.1:7003"              env:"TENANCY_SERVICE_URI"`
 	TenancyServiceWorkloadAPITargetPath string `envDefault:"/ns/auth/sa/service-tenancy" env:"TENANCY_SERVICE_WORKLOAD_API_TARGET_PATH"`
+
+	// Operations service: every investor capital movement posts a transfer
+	// order through this client so the external ledger is the authoritative
+	// record of money movement, not the InvestorAccount row.
+	OperationsServiceURI                   string `envDefault:"127.0.0.1:7060"                    env:"OPERATIONS_SERVICE_URI"`
+	OperationsServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-operations" env:"OPERATIONS_SERVICE_WORKLOAD_API_TARGET_PATH"`
 }
 
 // ServiceEndpoints returns a clients.ServiceEndpoints populated from the config.

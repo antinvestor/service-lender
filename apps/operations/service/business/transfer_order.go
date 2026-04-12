@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
@@ -18,6 +19,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/operations/service/events"
 	"github.com/antinvestor/service-fintech/apps/operations/service/models"
 	"github.com/antinvestor/service-fintech/apps/operations/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
@@ -31,14 +33,15 @@ const (
 )
 
 type transferOrderBusiness struct {
-	eventsMan fevents.Manager
-	toRepo    repository.TransferOrderRepository
-	csRepo    repository.CBSSyncRecordRepository
-	arRepo    repository.AccountRefRepository
-	lfRepo    LoanFundingReader
-	ftRepo    FundingTrancheManager
-	iaRepo    InvestorAccountManager
-	clients   *clients.PlatformClients
+	eventsMan   fevents.Manager
+	toRepo      repository.TransferOrderRepository
+	csRepo      repository.CBSSyncRecordRepository
+	arRepo      repository.AccountRefRepository
+	lfRepo      LoanFundingReader
+	ftRepo      FundingTrancheManager
+	iaRepo      InvestorAccountManager
+	clients     *clients.PlatformClients
+	auditWriter *audit.Writer
 }
 
 func NewTransferOrderBusiness(
@@ -51,21 +54,42 @@ func NewTransferOrderBusiness(
 	ftRepo FundingTrancheManager,
 	iaRepo InvestorAccountManager,
 	pc *clients.PlatformClients,
+	auditWriter *audit.Writer,
 ) TransferOrderBusiness {
 	return &transferOrderBusiness{
-		eventsMan: eventsMan,
-		toRepo:    toRepo,
-		csRepo:    csRepo,
-		arRepo:    arRepo,
-		lfRepo:    lfRepo,
-		ftRepo:    ftRepo,
-		iaRepo:    iaRepo,
-		clients:   pc,
+		eventsMan:   eventsMan,
+		toRepo:      toRepo,
+		csRepo:      csRepo,
+		arRepo:      arRepo,
+		lfRepo:      lfRepo,
+		ftRepo:      ftRepo,
+		iaRepo:      iaRepo,
+		clients:     pc,
+		auditWriter: auditWriter,
 	}
 }
 
 // Save persists a transfer order via the event system.
+//
+// If the order carries a non-empty Reference, it is treated as an
+// idempotency key. A lookup by reference runs first; if a prior row with
+// that reference already exists, the incoming order is populated with its
+// identifiers and persisted state and no duplicate is emitted. This makes
+// the whole Save→Execute pipeline safe to retry end-to-end: repeated calls
+// with the same reference converge on a single ledger posting.
 func (b *transferOrderBusiness) Save(ctx context.Context, order *models.TransferOrder) error {
+	if order.Reference != "" {
+		existing, lookupErr := b.toRepo.GetByReference(ctx, order.Reference)
+		if lookupErr == nil && existing != nil {
+			order.ID = existing.ID
+			order.State = existing.State
+			order.CreatedAt = existing.CreatedAt
+			order.ModifiedAt = existing.ModifiedAt
+			order.Version = existing.Version
+			return nil
+		}
+	}
+
 	if order.State == 0 {
 		order.State = int32(constants.StateJustCreated)
 	}
@@ -108,7 +132,8 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 
 	debitRef, creditRef := b.resolveAccountRefs(ctx, order)
 
-	if execErr := b.executeBaseLedgerTransfer(ctx, order, debitRef, creditRef); execErr != nil {
+	ledgerTxnID, execErr := b.executeBaseLedgerTransfer(ctx, order, debitRef, creditRef)
+	if execErr != nil {
 		logger.WithError(execErr).Error("base ledger transfer failed")
 		return execErr
 	}
@@ -118,8 +143,11 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 		return sideEffectErr
 	}
 
-	// Step 5: Log CBS sync record for external reconciliation
-	if syncErr := b.logCBSSyncRecord(ctx, order); syncErr != nil {
+	// Step 5: Log CBS sync record for external reconciliation. The ledger
+	// transaction id captured above goes into the record so reconciliation
+	// has a direct link from the local transfer order to the posted ledger
+	// entry.
+	if syncErr := b.logCBSSyncRecord(ctx, order, ledgerTxnID); syncErr != nil {
 		logger.WithError(syncErr).Warn("CBS sync record logging failed (non-fatal)")
 	}
 
@@ -129,6 +157,33 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 		logger.WithError(emitErr).Error("could not update transfer order state")
 		return emitErr
 	}
+
+	// Step 7: Audit. Captures every successful money movement in one
+	// descriptive record for later tracing. Best-effort: we don't fail
+	// the operation if audit recording fails because the money has
+	// already moved and the primary record of it lives in transfer_orders.
+	b.auditWriter.RecordOrLog(ctx, audit.Record{
+		EntityType: "transfer_order",
+		EntityID:   order.GetID(),
+		Action:     "transfer_order.executed",
+		Reason:     fmt.Sprintf("posted %s ledger transaction", typeName),
+		After: data.JSONMap{
+			"state":                 "inactive",
+			"ledger_transaction_id": ledgerTxnID,
+		},
+		Metadata: data.JSONMap{
+			"order_type":         orderType,
+			"order_type_name":    typeName,
+			"amount":             order.Amount,
+			"currency":           order.Currency,
+			"debit_account_ref":  order.DebitAccountRef,
+			"credit_account_ref": order.CreditAccountRef,
+			"reference":          order.Reference,
+		},
+		Parent: &order.BaseModel,
+	}, func(err error) {
+		logger.WithError(err).Warn("audit record emission failed for transfer order")
+	})
 
 	logger.Info("transfer order executed successfully")
 	return nil
@@ -247,7 +302,7 @@ func (b *transferOrderBusiness) executeBaseLedgerTransfer(
 	ctx context.Context,
 	order *models.TransferOrder,
 	debitRef, creditRef *models.AccountRef,
-) error {
+) (string, error) {
 	logger := util.Log(ctx).WithField("method", "executeBaseLedgerTransfer").
 		WithField("order_id", order.GetID())
 
@@ -267,8 +322,7 @@ func (b *transferOrderBusiness) executeBaseLedgerTransfer(
 		Info("posting ledger transaction")
 
 	if b.clients.LedgerClient == nil {
-		logger.Warn("LedgerClient not configured, skipping ledger posting")
-		return nil
+		return "", errors.New("ledger client is not configured; refusing to post transfer order")
 	}
 
 	amt := minorToMoney(order.Currency, order.Amount)
@@ -292,26 +346,45 @@ func (b *transferOrderBusiness) executeBaseLedgerTransfer(
 		Type:    ledgerv1.TransactionType_NORMAL,
 	}).Build()
 
-	_, err := b.clients.LedgerClient.CreateTransaction(ctx, connect.NewRequest(req))
+	resp, err := b.clients.LedgerClient.CreateTransaction(ctx, connect.NewRequest(req))
 	if err != nil {
-		return fmt.Errorf("ledger CreateTransaction failed: %w", err)
+		return "", fmt.Errorf("ledger CreateTransaction failed: %w", err)
 	}
 
-	return nil
+	// Capture the posted transaction's id so downstream audit records link
+	// back to the ledger entry. The ledger service dedupes on the request id
+	// (which is order.GetID()) so retries return the same transaction id.
+	var ledgerTxnID string
+	if txn := resp.Msg.GetData(); txn != nil {
+		ledgerTxnID = txn.GetId()
+	}
+	return ledgerTxnID, nil
 }
 
-// logCBSSyncRecord creates a CBS synchronization record for the executed transfer
-// order. This record is used by the reconciliation system to sync with the
-// external core banking system.
-func (b *transferOrderBusiness) logCBSSyncRecord(ctx context.Context, order *models.TransferOrder) error {
+// logCBSSyncRecord persists an audit row linking this transfer order to the
+// posted ledger transaction. The ledgerTxnID from the CreateTransaction
+// response is stored so reconciliation can cross-reference local state with
+// the external ledger without having to re-resolve via the request id.
+func (b *transferOrderBusiness) logCBSSyncRecord(
+	ctx context.Context,
+	order *models.TransferOrder,
+	ledgerTxnID string,
+) error {
+	cbsStatus := "posted"
+	if ledgerTxnID == "" {
+		cbsStatus = "unknown"
+	}
 	record := &models.CBSSyncRecord{
-		OwnerID:       order.DebitAccountRef,
-		OwnerType:     "transfer_order",
-		OrderType:     order.OrderType,
-		TransactionID: order.GetID(),
-		Amount:        order.Amount,
-		Currency:      order.Currency,
-		State:         int32(constants.StateActive),
+		OwnerID:          order.DebitAccountRef,
+		OwnerType:        "transfer_order",
+		OrderType:        order.OrderType,
+		TransactionID:    order.GetID(),
+		CBSTransactionID: ledgerTxnID,
+		CBSStatus:        cbsStatus,
+		Amount:           order.Amount,
+		Currency:         order.Currency,
+		LedgerID:         ledgerTxnID,
+		State:            int32(constants.StateActive),
 	}
 	record.GenID(ctx)
 	record.CopyPartitionInfo(&order.BaseModel)

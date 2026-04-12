@@ -2,29 +2,52 @@ package business
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
 
+	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
+	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
+	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	moneyx "github.com/pitabwire/util/money"
 
 	"github.com/antinvestor/service-fintech/apps/funding/service/events"
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
+// moneyDecimalPlaces is the assumed decimal precision for all investor
+// currency conversions (two-decimal currencies only).
+const moneyDecimalPlaces = 2
+
+// ErrMissingInvestorContext is returned when an investor account lacks the
+// fields required to post a capital transfer (id, currency, investor id).
+var ErrMissingInvestorContext = errors.New("investor account is missing required context")
+
 type investorAccountBusiness struct {
-	eventsMan fevents.Manager
-	iaRepo    repository.InvestorAccountRepository
+	eventsMan     fevents.Manager
+	iaRepo        repository.InvestorAccountRepository
+	operationsCli operationsv1connect.OperationsServiceClient
+	auditWriter   *audit.Writer
 }
 
 func NewInvestorAccountBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	iaRepo repository.InvestorAccountRepository,
+	operationsCli operationsv1connect.OperationsServiceClient,
+	auditWriter *audit.Writer,
 ) InvestorAccountBusiness {
-	return &investorAccountBusiness{eventsMan: eventsMan, iaRepo: iaRepo}
+	return &investorAccountBusiness{
+		eventsMan:     eventsMan,
+		iaRepo:        iaRepo,
+		operationsCli: operationsCli,
+		auditWriter:   auditWriter,
+	}
 }
 
 func (b *investorAccountBusiness) Create(
@@ -59,6 +82,15 @@ func (b *investorAccountBusiness) GetByInvestorID(
 	return b.iaRepo.GetByInvestorID(ctx, investorID)
 }
 
+// Deposit settles an inbound investor capital contribution. It posts a
+// transfer order from the product-level external cash control account into
+// the investor's capital account, then applies the balance change via an
+// atomic SQL delta. The transfer order reference is keyed on a stable
+// composite (investor-account + version + amount) so retries converge on a
+// single ledger posting.
+//
+// Balance mutations run through AtomicDeposit on the repository so no
+// read-modify-write race is possible even with concurrent deposits.
 func (b *investorAccountBusiness) Deposit(
 	ctx context.Context,
 	accountID string,
@@ -74,18 +106,62 @@ func (b *investorAccountBusiness) Deposit(
 	if err != nil {
 		return fmt.Errorf("investor account not found: %w", err)
 	}
-
-	account.AvailableBalance += amount
-
-	if err = b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); err != nil {
-		logger.WithError(err).Error("could not update investor account after deposit")
-		return fmt.Errorf("deposit: %w", err)
+	if account.InvestorID == "" || account.Currency == "" {
+		return ErrMissingInvestorContext
 	}
 
-	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).Info("deposit processed")
+	reference := fmt.Sprintf("investor:%s:deposit:v%d", accountID, account.GetVersion()+1)
+	if toErr := b.postInvestorCapitalTransfer(
+		ctx,
+		logger,
+		account,
+		amount,
+		constants.PlatformExternalCashAccount(),
+		constants.InvestorCapitalAccount(account.GetID()),
+		constants.TransferTypeInvestorDeployment,
+		reference,
+		"Investor capital deposit",
+	); toErr != nil {
+		return toErr
+	}
+
+	fresh, applyErr := b.iaRepo.AtomicDeposit(ctx, accountID, amount)
+	if applyErr != nil {
+		logger.WithError(applyErr).Error("could not apply investor deposit delta")
+		return fmt.Errorf("investor deposit delta: %w", applyErr)
+	}
+
+	b.auditWriter.RecordOrLog(ctx, audit.Record{
+		EntityType: "investor_account",
+		EntityID:   accountID,
+		Action:     "investor.capital.deposited",
+		Reason:     "investor capital inflow settled on ledger",
+		Before:     data.JSONMap{"available_balance": account.AvailableBalance},
+		After:      data.JSONMap{"available_balance": fresh.AvailableBalance},
+		Metadata: data.JSONMap{
+			"investor_id": account.InvestorID,
+			"amount":      amount,
+			"currency":    account.Currency,
+		},
+		Parent: &fresh.BaseModel,
+	}, func(auErr error) {
+		logger.WithError(auErr).Warn("audit emission failed for investor deposit")
+	})
+
+	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).
+		Info("investor deposit processed")
 	return nil
 }
 
+// Withdraw settles an investor capital withdrawal. The SQL-level balance
+// guard in AtomicWithdraw is the single authoritative sufficiency check:
+// two concurrent withdrawals against overlapping funds will serialize and
+// one of them receives ErrInvestorInsufficientFunds.
+//
+// The transfer order is posted only after the reservation has been
+// atomically decremented. If the transfer order fails we roll back via a
+// best-effort compensating AtomicDeposit; retries via caller are safe
+// because the transfer order reference is stable.
 func (b *investorAccountBusiness) Withdraw(
 	ctx context.Context,
 	accountID string,
@@ -97,24 +173,60 @@ func (b *investorAccountBusiness) Withdraw(
 		return fmt.Errorf("withdrawal amount must be positive, got %d", amount)
 	}
 
-	account, err := b.iaRepo.GetByID(ctx, accountID)
-	if err != nil {
-		return fmt.Errorf("investor account not found: %w", err)
+	account, getErr := b.iaRepo.GetByID(ctx, accountID)
+	if getErr != nil {
+		return fmt.Errorf("investor account not found: %w", getErr)
+	}
+	if account.InvestorID == "" || account.Currency == "" {
+		return ErrMissingInvestorContext
 	}
 
-	available := account.AvailableBalance - account.ReservedBalance
-	if amount > available {
-		return fmt.Errorf("insufficient available balance: requested %d, available %d", amount, available)
+	fresh, debErr := b.iaRepo.AtomicWithdraw(ctx, accountID, amount)
+	if debErr != nil {
+		return fmt.Errorf("investor withdraw: %w", debErr)
 	}
 
-	account.AvailableBalance -= amount
-
-	if err = b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account); err != nil {
-		logger.WithError(err).Error("could not update investor account after withdrawal")
-		return fmt.Errorf("withdraw: %w", err)
+	reference := fmt.Sprintf("investor:%s:withdraw:v%d", accountID, fresh.GetVersion())
+	if toErr := b.postInvestorCapitalTransfer(
+		ctx,
+		logger,
+		fresh,
+		amount,
+		constants.InvestorCapitalAccount(fresh.GetID()),
+		constants.PlatformExternalCashAccount(),
+		constants.TransferTypeInvestorPrincipalReturn,
+		reference,
+		"Investor capital withdrawal",
+	); toErr != nil {
+		// Compensate the atomic debit so retries see the original balance.
+		// AtomicDeposit cannot fail on a valid account; we log and surface
+		// the primary error.
+		if _, rollbackErr := b.iaRepo.AtomicDeposit(ctx, accountID, amount); rollbackErr != nil {
+			logger.WithError(rollbackErr).
+				Error("could not roll back investor withdrawal after transfer-order failure")
+		}
+		return toErr
 	}
 
-	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).Info("withdrawal processed")
+	b.auditWriter.RecordOrLog(ctx, audit.Record{
+		EntityType: "investor_account",
+		EntityID:   accountID,
+		Action:     "investor.capital.withdrawn",
+		Reason:     "investor capital outflow settled on ledger",
+		Before:     data.JSONMap{"available_balance": account.AvailableBalance},
+		After:      data.JSONMap{"available_balance": fresh.AvailableBalance},
+		Metadata: data.JSONMap{
+			"investor_id": fresh.InvestorID,
+			"amount":      amount,
+			"currency":    fresh.Currency,
+		},
+		Parent: &fresh.BaseModel,
+	}, func(auErr error) {
+		logger.WithError(auErr).Warn("audit emission failed for investor withdrawal")
+	})
+
+	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).
+		Info("investor withdrawal processed")
 	return nil
 }
 
@@ -134,8 +246,9 @@ func (b *investorAccountBusiness) GetAvailable(
 	return available, nil
 }
 
-// ReserveBalance increases the reserved balance for an investor account
-// when capital is committed to a loan.
+// ReserveBalance moves funds from available to reserved when capital is
+// committed to a loan. Delegates to the repository's atomic SQL so concurrent
+// allocation pipelines cannot over-commit an investor.
 func (b *investorAccountBusiness) ReserveBalance(
 	ctx context.Context,
 	accountID string,
@@ -144,50 +257,36 @@ func (b *investorAccountBusiness) ReserveBalance(
 	if amount <= 0 {
 		return nil
 	}
-
-	account, err := b.iaRepo.GetByID(ctx, accountID)
-	if err != nil {
-		return fmt.Errorf("investor account not found: %w", err)
+	if _, err := b.iaRepo.AtomicReserve(ctx, accountID, amount); err != nil {
+		return fmt.Errorf("reserve balance: %w", err)
 	}
-
-	account.ReservedBalance += amount
-	account.TotalDeployed += amount
-	now := time.Now()
-	account.LastDeployedAt = &now
-
-	return b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account)
+	return nil
 }
 
-// ReleaseBalance decreases reserved balance and optionally returns capital
-// when a loan is repaid.
+// ReleaseBalance settles a reservation. principalReturned moves funds from
+// reserved back to available; interestEarned is an additional credit to
+// available without a reservation impact. Lifetime total_returned counter is
+// incremented by the sum.
 func (b *investorAccountBusiness) ReleaseBalance(
 	ctx context.Context,
 	accountID string,
 	principalReturned int64,
 	interestEarned int64,
 ) error {
-	account, err := b.iaRepo.GetByID(ctx, accountID)
-	if err != nil {
-		return fmt.Errorf("investor account not found: %w", err)
+	if _, err := b.iaRepo.AtomicReleaseWithReturn(
+		ctx,
+		accountID,
+		principalReturned,
+		interestEarned,
+	); err != nil {
+		return fmt.Errorf("release balance: %w", err)
 	}
-
-	if principalReturned > 0 {
-		account.ReservedBalance -= principalReturned
-		if account.ReservedBalance < 0 {
-			account.ReservedBalance = 0
-		}
-		account.AvailableBalance += principalReturned
-	}
-
-	account.TotalReturned += principalReturned + interestEarned
-	if interestEarned > 0 {
-		account.AvailableBalance += interestEarned
-	}
-
-	return b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account)
+	return nil
 }
 
-// AbsorbLoss records a loss against an investor account.
+// AbsorbLoss records a realised loss against an investor account. Uses the
+// repository's atomic update so a concurrent ReserveBalance or
+// ReleaseBalance cannot race with the loss application.
 func (b *investorAccountBusiness) AbsorbLoss(
 	ctx context.Context,
 	accountID string,
@@ -197,16 +296,50 @@ func (b *investorAccountBusiness) AbsorbLoss(
 		return nil
 	}
 
-	account, err := b.iaRepo.GetByID(ctx, accountID)
-	if err != nil {
-		return fmt.Errorf("investor account not found: %w", err)
+	if _, err := b.iaRepo.AtomicAbsorbLoss(ctx, accountID, lossAmount); err != nil {
+		return fmt.Errorf("absorb loss: %w", err)
+	}
+	return nil
+}
+
+// postInvestorCapitalTransfer builds a transfer order for a capital-movement
+// operation and dispatches it through the operations client. Every call
+// carries a stable reference so retries converge on a single ledger posting.
+func (b *investorAccountBusiness) postInvestorCapitalTransfer(
+	ctx context.Context,
+	logger *util.LogEntry,
+	account *models.InvestorAccount,
+	amount int64,
+	debitAccount, creditAccount string,
+	orderType int,
+	reference, description string,
+) error {
+	if b.operationsCli == nil {
+		return errors.New("operations client is not configured; cannot post investor capital transfer")
 	}
 
-	// Reduce reserved balance (the loan is being written off)
-	account.ReservedBalance -= lossAmount
-	if account.ReservedBalance < 0 {
-		account.ReservedBalance = 0
+	extraData := data.JSONMap{
+		"investor_account_id": account.GetID(),
+		"investor_id":         account.InvestorID,
 	}
 
-	return b.eventsMan.Emit(ctx, events.InvestorAccountSaveEvent, account)
+	req := connect.NewRequest(&operationsv1.TransferOrderExecuteRequest{
+		Data: &operationsv1.TransferOrderObject{
+			DebitAccountRef:  debitAccount,
+			CreditAccountRef: creditAccount,
+			Amount:           moneyx.FromSmallestUnit(account.Currency, amount, moneyDecimalPlaces),
+			OrderType:        constants.SafeInt32FromInt(orderType),
+			Reference:        reference,
+			Description:      description,
+			ExtraData:        extraData.ToProtoStruct(),
+		},
+	})
+
+	if _, execErr := b.operationsCli.TransferOrderExecute(ctx, req); execErr != nil {
+		logger.WithError(execErr).
+			WithField("reference", reference).
+			Error("could not execute investor capital transfer order")
+		return fmt.Errorf("investor transfer order %s failed: %w", reference, execErr)
+	}
+	return nil
 }

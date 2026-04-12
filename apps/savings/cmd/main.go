@@ -4,9 +4,12 @@ import (
 	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
 	savingspb "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
 	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
@@ -24,6 +27,8 @@ import (
 	savingsevents "github.com/antinvestor/service-fintech/apps/savings/service/events"
 	"github.com/antinvestor/service-fintech/apps/savings/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
+
+	"github.com/antinvestor/service-fintech/pkg/audit"
 )
 
 func main() {
@@ -70,13 +75,43 @@ func main() {
 	depRepo := repository.NewDepositRepository(ctx, dbPool, workMan)
 	wdRepo := repository.NewWithdrawalRepository(ctx, dbPool, workMan)
 	iaRepo := repository.NewInterestAccrualRepository(ctx, dbPool, workMan)
+	sbRepo := repository.NewSavingsBalanceRepository(ctx, dbPool, workMan)
+	auditRepo := audit.NewRepository(ctx, dbPool, workMan)
+	auditWriter := audit.NewWriter(evtsMan)
+
+	// Operations client. Every deposit / withdrawal posts a transfer order via
+	// this client so the external ledger mirrors savings state. Refuse to
+	// start if it cannot be wired: running without it would drop money
+	// movements on the floor.
+	operationsCli, opsErr := setupOperationsClient(ctx, cfg)
+	if opsErr != nil {
+		log.WithError(opsErr).Fatal("main -- could not initialise operations client")
+	}
 
 	// Create business logic with all dependencies
 	spBusiness := business.NewSavingsProductBusiness(ctx, evtsMan, spRepo)
-	saBusiness := business.NewSavingsAccountBusiness(ctx, evtsMan, saRepo, depRepo, wdRepo, iaRepo)
-	depBusiness := business.NewDepositBusiness(ctx, evtsMan, depRepo, saRepo)
-	wdBusiness := business.NewWithdrawalBusiness(ctx, evtsMan, wdRepo, saRepo, saBusiness)
-	iaBusiness := business.NewInterestAccrualBusiness(ctx, iaRepo)
+	saBusiness := business.NewSavingsAccountBusiness(ctx, evtsMan, saRepo, depRepo, wdRepo, iaRepo, sbRepo)
+	depBusiness := business.NewDepositBusiness(ctx, evtsMan, depRepo, saRepo, sbRepo, operationsCli, auditWriter)
+	wdBusiness := business.NewWithdrawalBusiness(
+		ctx,
+		evtsMan,
+		wdRepo,
+		saRepo,
+		sbRepo,
+		saBusiness,
+		operationsCli,
+		auditWriter,
+	)
+	iaBusiness := business.NewInterestAccrualBusiness(
+		ctx,
+		iaRepo,
+		saRepo,
+		spRepo,
+		sbRepo,
+		evtsMan,
+		operationsCli,
+		auditWriter,
+	)
 
 	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(ctx, sm,
@@ -94,6 +129,8 @@ func main() {
 			savingsevents.NewDepositSave(ctx, depRepo),
 			savingsevents.NewWithdrawalSave(ctx, wdRepo),
 			savingsevents.NewInterestAccrualSave(ctx, iaRepo),
+			savingsevents.NewSavingsBalanceSave(ctx, sbRepo),
+			audit.NewEventSave(ctx, auditRepo),
 		),
 	}
 
@@ -103,6 +140,21 @@ func main() {
 	if err != nil {
 		log.WithError(err).Fatal("could not run Server")
 	}
+}
+
+// setupOperationsClient wires the operations service client used for every
+// transfer order the savings service emits. The Endpoint and SPIFFE workload
+// target path come from config; a failure here is fatal at startup because
+// the savings service would otherwise have no path to the ledger.
+func setupOperationsClient(
+	ctx context.Context,
+	cfg aconfig.SavingsConfig,
+) (operationsv1connect.OperationsServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.OperationsServiceURI,
+		WorkloadAPITargetPath: cfg.OperationsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_operations"},
+	}, operationsv1connect.NewOperationsServiceClient)
 }
 
 func handleDatabaseMigration(

@@ -33,6 +33,8 @@ import (
 	lmevents "github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+
+	"github.com/antinvestor/service-fintech/pkg/audit"
 )
 
 func main() {
@@ -141,13 +143,20 @@ func setupServiceOptions(
 	lscRepo := repository.NewLoanStatusChangeRepository(ctx, dbPool, workMan)
 	reconRepo := repository.NewReconciliationRepository(ctx, dbPool, workMan)
 	disbRepo := repository.NewDisbursementRepository(ctx, dbPool, workMan)
+	auditRepo := audit.NewRepository(ctx, dbPool, workMan)
+	auditWriter := audit.NewWriter(evtsMan)
 
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
 		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, penRepo,
-		originationCli, fundingCli, scheduleBusiness,
+		originationCli, fundingCli, scheduleBusiness, operationsCli, auditWriter,
 	)
+	// paidOffHook is currently nil here. A deployment that runs seed
+	// inside the loans process (or wires an RPC client for a seed
+	// service) can pass an implementation here to get credit profile
+	// updates on loan pay-off.
+	var paidOffHook business.PaidOffHook
 	repBusiness := business.NewRepaymentBusiness(
 		ctx,
 		evtsMan,
@@ -158,11 +167,21 @@ func setupServiceOptions(
 		lbRepo,
 		loanNotifier,
 		operationsCli,
+		auditWriter,
+		paidOffHook,
 	)
-	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo)
+	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo, laRepo, operationsCli, auditWriter)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo)
 	reconBusiness := business.NewReconciliationBusiness(ctx, evtsMan, reconRepo)
-	disbBusiness := business.NewDisbursementBusiness(ctx, evtsMan, disbRepo, laRepo, laBusiness, operationsCli)
+	disbBusiness := business.NewDisbursementBusiness(
+		ctx,
+		evtsMan,
+		disbRepo,
+		laRepo,
+		laBusiness,
+		operationsCli,
+		auditWriter,
+	)
 
 	portfolioBusiness := business.NewPortfolioBusiness(ctx, dbPool)
 
@@ -187,6 +206,7 @@ func setupServiceOptions(
 			lmevents.NewLoanStatusChangeSave(ctx, lscRepo),
 			lmevents.NewReconciliationSave(ctx, reconRepo),
 			lmevents.NewDisbursementSave(ctx, disbRepo),
+			audit.NewEventSave(ctx, auditRepo),
 		),
 	}
 }

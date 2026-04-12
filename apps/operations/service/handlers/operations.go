@@ -48,8 +48,11 @@ func (s *OperationsServer) TransferOrderExecute(
 ) (*connect.Response[operationsv1.TransferOrderExecuteResponse], error) {
 	obj := req.Msg.GetData()
 
-	// If the order has an ID, execute an existing order.
-	// Otherwise create it first, then execute.
+	// Resolve the order to execute. If the caller provides an ID, use it.
+	// If the caller provides a non-empty Reference, that reference is treated
+	// as an idempotency key: a prior row with the same reference short-circuits
+	// creation so the same logical operation always converges on a single
+	// ledger posting. Otherwise we create a fresh order from the payload.
 	orderID := obj.GetId()
 	if orderID == "" {
 		order := transferOrderFromAPI(ctx, obj)

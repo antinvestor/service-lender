@@ -7,9 +7,12 @@ import (
 
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingpb "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
+	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
 	"github.com/antinvestor/common/permissions"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/config"
@@ -35,6 +38,7 @@ import (
 	stawimodels "github.com/antinvestor/service-fintech/apps/stawi/service/models"
 	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
 
@@ -82,7 +86,15 @@ func main() {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, platformClients)
+	// Operations client is load-bearing for investor capital movements and
+	// must be available at startup; failing loudly here beats silently
+	// dropping ledger postings later.
+	operationsCli, opsErr := setupOperationsClient(ctx, cfg)
+	if opsErr != nil {
+		log.WithError(opsErr).Fatal("main -- could not initialise operations client")
+	}
+
+	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, platformClients, operationsCli)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -99,12 +111,15 @@ func setupServiceOptions(
 	dbPool pool.Pool,
 	workMan workerpool.Manager,
 	platformClients *clients.PlatformClients,
+	operationsCli operationsv1connect.OperationsServiceClient,
 ) []frame.Option {
 	// Funding repositories
 	lfRepo := repository.NewLoanFundingRepository(ctx, dbPool, workMan)
 	faRepo := repository.NewFundingAllocationRepository(ctx, dbPool, workMan)
 	ftRepo := repository.NewFundingTrancheRepository(ctx, dbPool, workMan)
 	iaRepo := repository.NewInvestorAccountRepository(ctx, dbPool, workMan)
+	auditRepo := audit.NewRepository(ctx, dbPool, workMan)
+	auditWriter := audit.NewWriter(evtsMan)
 
 	// Legacy Stawi request repository used as a compatibility source while canonical
 	// request data is still split across services.
@@ -125,7 +140,7 @@ func setupServiceOptions(
 		ftRepo,
 		platformClients,
 	)
-	iaBiz := business.NewInvestorAccountBusiness(ctx, evtsMan, iaRepo)
+	iaBiz := business.NewInvestorAccountBusiness(ctx, evtsMan, iaRepo, operationsCli, auditWriter)
 
 	// ConnectRPC handler
 	connectHandler := setupConnectServer(ctx, sm, iaBiz, faBiz)
@@ -140,8 +155,24 @@ func setupServiceOptions(
 			fundingevents.NewFundingAllocationSave(ctx, faRepo),
 			fundingevents.NewFundingTrancheSave(ctx, ftRepo),
 			fundingevents.NewInvestorAccountSave(ctx, iaRepo),
+			audit.NewEventSave(ctx, auditRepo),
 		),
 	}
+}
+
+// setupOperationsClient wires the operations service client used for every
+// investor capital transfer order. Fails at startup if it cannot be
+// initialised so funding never accepts a deposit it cannot settle on the
+// ledger.
+func setupOperationsClient(
+	ctx context.Context,
+	cfg aconfig.FundingConfig,
+) (operationsv1connect.OperationsServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.OperationsServiceURI,
+		WorkloadAPITargetPath: cfg.OperationsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_operations"},
+	}, operationsv1connect.NewOperationsServiceClient)
 }
 
 func handleDatabaseMigration(

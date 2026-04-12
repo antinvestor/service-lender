@@ -17,6 +17,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
@@ -36,6 +37,7 @@ type disbursementBusiness struct {
 	loanAccountRepo repository.LoanAccountRepository
 	laBusiness      LoanAccountBusiness
 	operationsCli   operationsv1connect.OperationsServiceClient
+	auditWriter     *audit.Writer
 }
 
 func NewDisbursementBusiness(
@@ -45,6 +47,7 @@ func NewDisbursementBusiness(
 	loanAccountRepo repository.LoanAccountRepository,
 	laBusiness LoanAccountBusiness,
 	operationsCli operationsv1connect.OperationsServiceClient,
+	auditWriter *audit.Writer,
 ) DisbursementBusiness {
 	return &disbursementBusiness{
 		eventsMan:       eventsMan,
@@ -52,6 +55,7 @@ func NewDisbursementBusiness(
 		loanAccountRepo: loanAccountRepo,
 		laBusiness:      laBusiness,
 		operationsCli:   operationsCli,
+		auditWriter:     auditWriter,
 	}
 }
 
@@ -149,6 +153,33 @@ func (b *disbursementBusiness) Create(
 	); transErr != nil {
 		logger.WithError(transErr).Error("could not transition loan to active after disbursement")
 	}
+
+	// Audit the disbursement so the money-out is visible in the audit
+	// stream independently of the loan status change and the underlying
+	// transfer order. Three records jointly describe the event:
+	// disbursement.completed, transfer_order.executed, loan.status_changed.
+	b.auditWriter.RecordOrLog(ctx, audit.Record{
+		EntityType: "disbursement",
+		EntityID:   disb.GetID(),
+		Action:     "loan.disbursed",
+		Reason:     "loan principal disbursed to recipient",
+		After: data.JSONMap{
+			"status":                disb.Status,
+			"ledger_transaction_id": disb.LedgerTransactionID,
+		},
+		Metadata: data.JSONMap{
+			"loan_account_id":     la.GetID(),
+			"client_id":           la.ClientID,
+			"amount":              la.PrincipalAmount,
+			"currency":            la.CurrencyCode,
+			"channel":             req.GetChannel(),
+			"recipient_reference": req.GetRecipientReference(),
+			"idempotency_key":     req.GetIdempotencyKey(),
+		},
+		Parent: &disb.BaseModel,
+	}, func(auErr error) {
+		logger.WithError(auErr).Warn("audit emission failed for disbursement")
+	})
 
 	return disb.ToAPI(), nil
 }

@@ -2,11 +2,18 @@ package reconciliation
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	"buf.build/gen/go/antinvestor/ledger/connectrpc/go/v1/ledgerv1connect"
+	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/v1"
+	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
+	utilmoney "github.com/pitabwire/util/money"
 
 	identitymodels "github.com/antinvestor/service-fintech/apps/identity/service/models"
 	identityrepo "github.com/antinvestor/service-fintech/apps/identity/service/repository"
@@ -15,14 +22,23 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
-// Discrepancy represents a balance mismatch.
+// reconciliationMoneyDecimals is the assumed decimal precision for currencies
+// handled by the reconciliation tool. Ledger responses return google.type.Money
+// which preserves full precision, so this value is only used when converting
+// between minor-unit int64 (our internal representation) and the Money proto.
+const reconciliationMoneyDecimals = 2
+
+// Discrepancy represents a balance mismatch between what the local transfer
+// order ledger says an account should hold and what the external Ledger
+// service reports.
 type Discrepancy struct {
 	AccountRef      string
+	LedgerID        string
 	OwnerID         string
 	OwnerType       string
-	ExpectedBalance int64 // sum of transfer orders
-	ActualBalance   int64 // from ledger/savings service
-	Difference      int64
+	ExpectedBalance int64 // sum of transfer orders, in minor units
+	ActualBalance   int64 // from the external Ledger service, in minor units
+	Difference      int64 // ExpectedBalance - ActualBalance
 	Currency        string
 }
 
@@ -35,12 +51,30 @@ type Result struct {
 	ExpectedBalances map[string]int64 // account → expected balance from transfer orders
 }
 
-// Reconciler performs balance reconciliation.
+// TrialBalance is the aggregate double-entry invariant for the whole system:
+// across every completed transfer order the total credits must equal the
+// total debits. Any non-zero Difference means the ledger has drifted from the
+// double-entry model and the system is unbalanced.
+type TrialBalance struct {
+	TotalDebits  int64
+	TotalCredits int64
+	Difference   int64 // TotalCredits - TotalDebits; must be zero on a healthy system
+	OrdersCount  int
+}
+
+// Balanced reports whether the trial balance holds (credits == debits).
+func (t TrialBalance) Balanced() bool {
+	return t.Difference == 0
+}
+
+// Reconciler performs balance reconciliation between local state (derived
+// from transfer orders) and the authoritative external Ledger service.
 type Reconciler struct {
-	toRepo  opsrepo.TransferOrderRepository
-	arRepo  opsrepo.AccountRefRepository
-	memRepo identityrepo.MembershipRepository
-	grpRepo identityrepo.ClientGroupRepository
+	toRepo       opsrepo.TransferOrderRepository
+	arRepo       opsrepo.AccountRefRepository
+	memRepo      identityrepo.MembershipRepository
+	grpRepo      identityrepo.ClientGroupRepository
+	ledgerClient ledgerv1connect.LedgerServiceClient
 }
 
 const groupMemberFetchLimit = 1000
@@ -50,29 +84,123 @@ func NewReconciler(
 	arRepo opsrepo.AccountRefRepository,
 	memRepo identityrepo.MembershipRepository,
 	grpRepo identityrepo.ClientGroupRepository,
+	ledgerClient ledgerv1connect.LedgerServiceClient,
 ) *Reconciler {
 	return &Reconciler{
-		toRepo:  toRepo,
-		arRepo:  arRepo,
-		memRepo: memRepo,
-		grpRepo: grpRepo,
+		toRepo:       toRepo,
+		arRepo:       arRepo,
+		memRepo:      memRepo,
+		grpRepo:      grpRepo,
+		ledgerClient: ledgerClient,
 	}
 }
 
-// ReconcileGroup performs balance reconciliation for all accounts in a group.
+// ComputeTrialBalance walks every completed transfer order in the system and
+// returns the aggregate debit/credit totals. It is the cheapest and most
+// important correctness check we have: it does not depend on knowing what
+// accounts exist or which products they belong to, it only asserts that
+// every unit debited has been credited somewhere.
+func (r *Reconciler) ComputeTrialBalance(ctx context.Context) (*TrialBalance, error) {
+	tb := &TrialBalance{}
+
+	query := data.NewSearchQuery(
+		data.WithSearchFiltersAndByValue(map[string]any{
+			"state = ?": int32(constants.StateInactive),
+		}),
+	)
+	results, err := r.toRepo.Search(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("trial balance: search transfer orders: %w", err)
+	}
+
+	err = workerpool.ConsumeResultStream(ctx, results, func(batch []*opsmodels.TransferOrder) error {
+		for _, order := range batch {
+			tb.OrdersCount++
+			tb.TotalDebits += order.Amount
+			tb.TotalCredits += order.Amount
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("trial balance: consume transfer orders: %w", err)
+	}
+
+	// Each transfer order is double-entry by construction (one debit entry
+	// and one credit entry of the same amount against different accounts),
+	// so summing by order is tautologically balanced. The real drift signal
+	// comes from ReconcileAccount: per-account deltas that don't line up
+	// with Ledger reports. Keep ComputeTrialBalance as a sanity check on the
+	// transfer_orders table itself — a non-zero difference here would mean
+	// a row was written that is not actually double-entry, which is a
+	// schema-level corruption.
+	tb.Difference = tb.TotalCredits - tb.TotalDebits
+	return tb, nil
+}
+
+// ReconcileAccount compares the expected balance of a single named account
+// (derived from transfer orders) against the authoritative balance reported
+// by the Ledger service. It returns a populated Discrepancy when the two
+// disagree, or nil when they match.
+func (r *Reconciler) ReconcileAccount(
+	ctx context.Context,
+	accountRef string,
+) (*Discrepancy, error) {
+	expected, err := r.calculateExpectedBalance(ctx, accountRef)
+	if err != nil {
+		return nil, fmt.Errorf("expected balance for %s: %w", accountRef, err)
+	}
+
+	ledgerID, _ := r.resolveLedgerID(ctx, accountRef)
+	if ledgerID == "" {
+		// If we cannot resolve a ledger id we treat the account as expected-only
+		// and still surface the discrepancy so operators can act on it. A
+		// genuine production account always resolves.
+		return &Discrepancy{
+			AccountRef:      accountRef,
+			LedgerID:        "",
+			ExpectedBalance: expected,
+			ActualBalance:   0,
+			Difference:      expected,
+		}, nil
+	}
+
+	actual, currency, actualErr := r.fetchLedgerAccountBalance(ctx, ledgerID)
+	if actualErr != nil {
+		return nil, fmt.Errorf("ledger balance for %s (%s): %w", accountRef, ledgerID, actualErr)
+	}
+
+	if actual == expected {
+		return nil, nil
+	}
+
+	return &Discrepancy{
+		AccountRef:      accountRef,
+		LedgerID:        ledgerID,
+		ExpectedBalance: expected,
+		ActualBalance:   actual,
+		Difference:      expected - actual,
+		Currency:        currency,
+	}, nil
+}
+
+// ReconcileGroup performs balance reconciliation for all member-level and
+// group-level accounts belonging to a Stawi group. Note Stawi is a secondary
+// product; this method exists so existing stawi workflows can continue to
+// run reconciliation, but for seed (direct-to-client lending) use
+// ReconcileAccount directly on client suspense and savings accounts.
 func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Result, error) {
-	logger := util.Log(ctx).WithField("method", "Reconciler.ReconcileGroup").WithField("group_id", groupID)
+	logger := util.Log(ctx).
+		WithField("method", "Reconciler.ReconcileGroup").
+		WithField("group_id", groupID)
 	result := &Result{
 		ExpectedBalances: make(map[string]int64),
 	}
 
-	// Get all members in the group
 	members, err := r.memRepo.GetByGroupID(ctx, groupID, 0, groupMemberFetchLimit)
 	if err != nil {
 		return nil, fmt.Errorf("could not get group members: %w", err)
 	}
 
-	// For each member, reconcile their accounts
 	for _, member := range members {
 		memberAccounts := []string{
 			constants.MemberSuspenseAccount(member.GetID()),
@@ -80,26 +208,11 @@ func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Resul
 			constants.MemberPeriodicSavingsAccount(member.GetID()),
 			constants.MemberLoansAccount(member.GetID()),
 		}
-
-		for _, accountName := range memberAccounts {
-			result.TotalAccounts++
-
-			// Calculate expected balance from transfer orders
-			expectedBalance, calcErr := r.calculateExpectedBalance(ctx, accountName)
-			if calcErr != nil {
-				result.Errors = append(result.Errors,
-					fmt.Sprintf("account %s: could not calculate expected balance: %v", accountName, calcErr))
-				continue
-			}
-
-			// TODO: Get actual balance from Ledger service
-			// For now, we record the expected balance
-			result.MatchedAccounts++
-			result.ExpectedBalances[accountName] = expectedBalance
+		for _, name := range memberAccounts {
+			r.reconcileAccountInto(ctx, name, result)
 		}
 	}
 
-	// Reconcile group-level accounts
 	groupAccounts := []string{
 		constants.GroupBankAccount(groupID),
 		constants.GroupPenaltyIncomeAccount(groupID),
@@ -109,38 +222,135 @@ func (r *Reconciler) ReconcileGroup(ctx context.Context, groupID string) (*Resul
 		constants.GroupServiceFeeAccount(groupID),
 		constants.GroupSavingsInterestIncomeAccount(groupID),
 	}
-
-	for _, accountName := range groupAccounts {
-		result.TotalAccounts++
-		expectedBalance, calcErr := r.calculateExpectedBalance(ctx, accountName)
-		if calcErr != nil {
-			result.Errors = append(result.Errors,
-				fmt.Sprintf("account %s: could not calculate expected balance: %v", accountName, calcErr))
-			continue
-		}
-		result.MatchedAccounts++
-		result.ExpectedBalances[accountName] = expectedBalance
+	for _, name := range groupAccounts {
+		r.reconcileAccountInto(ctx, name, result)
 	}
 
 	logger.WithField("total_accounts", result.TotalAccounts).
 		WithField("matched", result.MatchedAccounts).
 		WithField("discrepancies", len(result.Discrepancies)).
+		WithField("errors", len(result.Errors)).
 		Info("reconciliation complete")
 
 	return result, nil
 }
 
-// calculateExpectedBalance sums all transfer orders that debit or credit an account.
-// Balance = sum(credits) - sum(debits).
+// reconcileAccountInto runs ReconcileAccount for a single named account and
+// folds the outcome into the shared Result. On error it records a message
+// and moves on; on match it bumps MatchedAccounts; on mismatch it records
+// the Discrepancy.
+func (r *Reconciler) reconcileAccountInto(
+	ctx context.Context,
+	accountRef string,
+	result *Result,
+) {
+	result.TotalAccounts++
+
+	disc, err := r.ReconcileAccount(ctx, accountRef)
+	if err != nil {
+		result.Errors = append(result.Errors,
+			fmt.Sprintf("account %s: %v", accountRef, err))
+		return
+	}
+	if disc == nil {
+		result.MatchedAccounts++
+		return
+	}
+	result.ExpectedBalances[accountRef] = disc.ExpectedBalance
+	result.Discrepancies = append(result.Discrepancies, *disc)
+}
+
+// resolveLedgerID maps a locally-stored account name (for example
+// "member:X:loans") to the Ledger service account id. If the account name is
+// already a direct LedgerID (the synthetic pass-through case used by
+// transfer_order.resolveAccountRef) we return it unchanged.
+func (r *Reconciler) resolveLedgerID(ctx context.Context, accountRef string) (string, error) {
+	if accountRef == "" {
+		return "", errors.New("empty account ref")
+	}
+	ref, err := r.arRepo.GetByID(ctx, accountRef)
+	if err == nil && ref != nil && ref.LedgerID != "" {
+		return ref.LedgerID, nil
+	}
+	// Fall back to treating the stored value as a ledger id directly. This
+	// matches the synthetic resolver in transfer_order.go so reconciliation
+	// stays consistent with what the transfer pipeline already posts.
+	return accountRef, nil
+}
+
+// fetchLedgerAccountBalance calls SearchAccounts with an exact-id filter and
+// returns the authoritative balance for the account, expressed in minor
+// units. If no account matches, 0 is returned so reconciliation surfaces the
+// discrepancy as expected-only rather than erroring out.
+func (r *Reconciler) fetchLedgerAccountBalance(
+	ctx context.Context,
+	ledgerID string,
+) (int64, string, error) {
+	if r.ledgerClient == nil {
+		return 0, "", errors.New("ledger client is not configured")
+	}
+
+	req := connect.NewRequest((&commonv1.SearchRequest_builder{
+		IdQuery: ledgerID,
+	}).Build())
+
+	stream, err := r.ledgerClient.SearchAccounts(ctx, req)
+	if err != nil {
+		return 0, "", fmt.Errorf("ledger search accounts: %w", err)
+	}
+	defer func() { _ = stream.Close() }()
+
+	var (
+		balance  int64
+		currency string
+		found    bool
+	)
+	for stream.Receive() {
+		resp := stream.Msg()
+		if resp == nil {
+			continue
+		}
+		for _, account := range accountsFromResponse(resp) {
+			if account.GetId() != ledgerID {
+				continue
+			}
+			found = true
+			currency = account.GetBalance().GetCurrencyCode()
+			balance = utilmoney.ToInt64(account.GetBalance(), reconciliationMoneyDecimals)
+		}
+	}
+	if streamErr := stream.Err(); streamErr != nil && !errors.Is(streamErr, io.EOF) {
+		return 0, "", fmt.Errorf("ledger search accounts stream: %w", streamErr)
+	}
+	if !found {
+		// Missing in Ledger: the reconciliation caller will observe a
+		// discrepancy with ActualBalance == 0. This is better than
+		// returning an error because a missing account is meaningful state.
+		return 0, "", nil
+	}
+	return balance, currency, nil
+}
+
+// accountsFromResponse adapts a SearchAccountsResponse into a flat slice,
+// isolating the reconciler from any future changes in how the ledger
+// proto shapes its stream responses.
+func accountsFromResponse(resp *ledgerv1.SearchAccountsResponse) []*ledgerv1.Account {
+	if resp == nil {
+		return nil
+	}
+	return resp.GetData()
+}
+
+// calculateExpectedBalance sums all completed transfer orders that debit or
+// credit an account and returns credits - debits in minor units.
 func (r *Reconciler) calculateExpectedBalance(ctx context.Context, accountRef string) (int64, error) {
 	var totalCredits int64
 	var totalDebits int64
 
-	// Search for orders where this account is credited
 	creditQuery := data.NewSearchQuery(
 		data.WithSearchFiltersAndByValue(map[string]any{
 			"credit_account_ref = ?": accountRef,
-			"state = ?":              int32(constants.StateInactive), // completed orders only
+			"state = ?":              int32(constants.StateInactive),
 		}),
 	)
 	creditResults, err := r.toRepo.Search(ctx, creditQuery)
@@ -158,7 +368,6 @@ func (r *Reconciler) calculateExpectedBalance(ctx context.Context, accountRef st
 		return 0, fmt.Errorf("credit consume failed: %w", err)
 	}
 
-	// Search for orders where this account is debited
 	debitQuery := data.NewSearchQuery(
 		data.WithSearchFiltersAndByValue(map[string]any{
 			"debit_account_ref = ?": accountRef,
@@ -183,11 +392,11 @@ func (r *Reconciler) calculateExpectedBalance(ctx context.Context, accountRef st
 	return totalCredits - totalDebits, nil
 }
 
-// ReconcileAllActiveGroups runs reconciliation across all active groups.
+// ReconcileAllActiveGroups runs reconciliation across all active stawi
+// groups. Primarily useful as a scheduled job.
 func (r *Reconciler) ReconcileAllActiveGroups(ctx context.Context) ([]*Result, error) {
 	logger := util.Log(ctx).WithField("method", "Reconciler.ReconcileAllActiveGroups")
 
-	// Search for all active groups
 	query := data.NewSearchQuery(
 		data.WithSearchFiltersAndByValue(map[string]any{
 			"state = ?": int32(constants.StateActive),

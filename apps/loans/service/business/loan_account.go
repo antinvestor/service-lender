@@ -11,6 +11,8 @@ import (
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingv1 "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
+	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
+	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
@@ -18,10 +20,12 @@ import (
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	"github.com/pitabwire/util/decimalx"
+	moneyx "github.com/pitabwire/util/money"
 
 	"github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 	"github.com/antinvestor/service-fintech/pkg/fundingcompat"
@@ -104,6 +108,8 @@ type loanAccountBusiness struct {
 	originationCli   originationv1connect.OriginationServiceClient
 	fundingCli       fundingv1connect.FundingServiceClient
 	scheduleBusiness RepaymentScheduleBusiness
+	operationsCli    operationsv1connect.OperationsServiceClient
+	auditWriter      *audit.Writer
 }
 
 func NewLoanAccountBusiness(
@@ -118,6 +124,8 @@ func NewLoanAccountBusiness(
 	originationCli originationv1connect.OriginationServiceClient,
 	fundingCli fundingv1connect.FundingServiceClient,
 	scheduleBusiness RepaymentScheduleBusiness,
+	operationsCli operationsv1connect.OperationsServiceClient,
+	auditWriter *audit.Writer,
 ) LoanAccountBusiness {
 	return &loanAccountBusiness{
 		eventsMan:        eventsMan,
@@ -130,6 +138,8 @@ func NewLoanAccountBusiness(
 		originationCli:   originationCli,
 		fundingCli:       fundingCli,
 		scheduleBusiness: scheduleBusiness,
+		operationsCli:    operationsCli,
+		auditWriter:      auditWriter,
 	}
 }
 
@@ -689,6 +699,7 @@ func (b *loanAccountBusiness) TransitionStatus(
 	}
 
 	// Update loan account status
+	previousStatus := currentStatus
 	la.Status = int32(newStatus)
 	err = b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la)
 	if err != nil {
@@ -696,7 +707,115 @@ func (b *loanAccountBusiness) TransitionStatus(
 		return nil, err
 	}
 
+	// Descriptive state-change audit. Captures the transition verb, the
+	// before/after status, the actor, and the reason in a single
+	// queryable record so future operators can trace who moved the loan
+	// from X to Y and why without having to cross-reference two tables.
+	b.auditWriter.RecordOrLog(ctx, audit.Record{
+		EntityType: "loan_account",
+		EntityID:   la.GetID(),
+		Action:     "loan.status_changed",
+		ActorID:    changedBy,
+		ActorType:  "user",
+		Reason:     reason,
+		Before:     data.JSONMap{"status": previousStatus.String()},
+		After:      data.JSONMap{"status": newStatus.String()},
+		Metadata: data.JSONMap{
+			"client_id":       la.ClientID,
+			"product_id":      la.ProductID,
+			"application_id":  la.ApplicationID,
+			"loan_request_id": loanRequestIDFromProperties(la.Properties, la.ApplicationID),
+		},
+		Parent: &la.BaseModel,
+	}, func(auErr error) {
+		logger.WithError(auErr).Warn("audit emission failed for loan status change")
+	})
+
+	// Write-off cascade. When a loan crosses into WRITTEN_OFF the remaining
+	// outstanding balance stops being an asset and becomes a realised loss.
+	// We record that by posting a shutdown_loan_recovery transfer order
+	// (debit bad-debt expense, credit the loan asset account) for the full
+	// outstanding amount. Idempotent via the writeoff:{loan_id} reference.
+	//
+	// Per-investor tranche loss absorption is intentionally deferred: it
+	// requires the funding service to enumerate tranches and post an
+	// investor_loss_absorption order per tranche. That's the natural next
+	// step once funding has an operations client wired; for now the loan's
+	// own ledger balance is settled correctly and reconciliation will
+	// surface the residual investor exposure.
+	if newStatus == loansv1.LoanStatus_LOAN_STATUS_WRITTEN_OFF {
+		if writeOffErr := b.postWriteOffLedgerCascade(ctx, logger, la); writeOffErr != nil {
+			return nil, writeOffErr
+		}
+	}
+
 	return la.ToAPI(), nil
+}
+
+// postWriteOffLedgerCascade issues the transfer order that recognises the
+// realised loss when a loan is written off. The amount is the current
+// outstanding balance (principal + accrued interest + fees + penalties).
+// Missing balance rows are treated as a hard error so a silent write-off
+// against a loan with unknown exposure cannot happen.
+func (b *loanAccountBusiness) postWriteOffLedgerCascade(
+	ctx context.Context,
+	logger *util.LogEntry,
+	la *models.LoanAccount,
+) error {
+	if b.operationsCli == nil {
+		return fmt.Errorf("operations client is not configured; cannot post write-off for loan %s", la.GetID())
+	}
+	if la.LedgerAssetAccountID == "" {
+		return fmt.Errorf("loan %s is missing LedgerAssetAccountID; cannot post write-off", la.GetID())
+	}
+	if la.ProductID == "" {
+		return fmt.Errorf("loan %s is missing product id; cannot resolve bad-debt expense account", la.GetID())
+	}
+
+	balance, err := b.loanBalanceRepo.GetByLoanAccountID(ctx, la.GetID())
+	if err != nil || balance == nil {
+		return fmt.Errorf("cannot load loan balance for write-off of %s: %w", la.GetID(), err)
+	}
+
+	outstanding := balance.TotalOutstanding
+	if outstanding <= 0 {
+		logger.WithField("loan_id", la.GetID()).
+			Info("write-off requested on loan with zero outstanding balance; no ledger posting")
+		return nil
+	}
+
+	reference := fmt.Sprintf("writeoff:%s", la.GetID())
+	extraData := data.JSONMap{
+		"loan_account_id":       la.GetID(),
+		"client_id":             la.ClientID,
+		"principal_outstanding": balance.PrincipalOutstanding,
+		"interest_outstanding":  balance.InterestAccrued,
+		"fees_outstanding":      balance.FeesOutstanding,
+		"penalties_outstanding": balance.PenaltiesOutstanding,
+	}
+
+	req := connect.NewRequest(&operationsv1.TransferOrderExecuteRequest{
+		Data: &operationsv1.TransferOrderObject{
+			DebitAccountRef:  constants.ProductBadDebtExpenseAccount(la.ProductID),
+			CreditAccountRef: la.LedgerAssetAccountID,
+			Amount:           moneyx.FromSmallestUnit(la.CurrencyCode, outstanding, decimalPrecision),
+			OrderType:        constants.SafeInt32FromInt(constants.TransferTypeShutdownLoanRecovery),
+			Reference:        reference,
+			Description:      "Loan write-off recovery",
+			ExtraData:        extraData.ToProtoStruct(),
+		},
+	})
+
+	if _, execErr := b.operationsCli.TransferOrderExecute(ctx, req); execErr != nil {
+		logger.WithError(execErr).
+			WithField("reference", reference).
+			Error("could not execute write-off transfer order")
+		return fmt.Errorf("write-off transfer order %s failed: %w", reference, execErr)
+	}
+	logger.WithField("loan_id", la.GetID()).
+		WithField("amount", outstanding).
+		Info("loan written off")
+	return nil
 }
 
 // computeFirstRepaymentDays returns the number of days from disbursement

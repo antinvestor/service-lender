@@ -8,6 +8,7 @@ import (
 	"github.com/pitabwire/util"
 
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 )
 
 // Migrate runs database migrations for all funding models.
@@ -35,5 +36,6 @@ func migratePool(ctx context.Context, dbPool pool.Pool, migrationsDirPath string
 		&models.FundingAllocation{},
 		&models.InvestorAccount{},
 		&models.FundingTranche{},
+		&audit.Event{},
 	)
 }

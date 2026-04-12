@@ -38,6 +38,11 @@ func (e *LoanStatusChangeSave) Validate(_ context.Context, payload any) error {
 	return nil
 }
 
+// Execute persists a loan status change as an append-only audit record.
+// Status transitions are historical facts and must never be rewritten:
+// a duplicate-key insert is treated as idempotent success (the prior
+// replay of the same event), while any other error fails the handler
+// so the event pipeline retries. There is no update path.
 func (e *LoanStatusChangeSave) Execute(ctx context.Context, payload any) error {
 	lsc, ok := payload.(*models.LoanStatusChange)
 	if !ok {
@@ -47,19 +52,12 @@ func (e *LoanStatusChangeSave) Execute(ctx context.Context, payload any) error {
 	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "loan_status_change_id": lsc.GetID()})
 	defer logger.Release()
 
-	existing, getErr := e.loanStatusChangeRepo.GetByID(ctx, lsc.GetID())
-	if getErr == nil && existing != nil {
-		if _, err := e.loanStatusChangeRepo.Update(ctx, lsc); err != nil {
-			logger.WithError(err).Error("could not update loan status change in db")
-			return err
+	if err := e.loanStatusChangeRepo.Create(ctx, lsc); err != nil {
+		if data.ErrorIsDuplicateKey(err) {
+			return nil
 		}
-		return nil
-	}
-
-	if err := e.loanStatusChangeRepo.Create(ctx, lsc); err != nil && !data.ErrorIsDuplicateKey(err) {
 		logger.WithError(err).Error("could not create loan status change in db")
 		return err
 	}
-
 	return nil
 }

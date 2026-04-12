@@ -18,6 +18,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
@@ -33,6 +34,18 @@ type RepaymentBusiness interface {
 	) error
 }
 
+// PaidOffHook is the extension point for downstream products (such as
+// seed) that want to react when a loan reaches PAID_OFF. Implementations
+// must be safe to call synchronously from inside the repayment pipeline
+// and must be idempotent: the hook might fire more than once for the
+// same loan if a retry or replay happens.
+//
+// A nil PaidOffHook is fine; the repayment business simply skips the
+// notification in that case.
+type PaidOffHook interface {
+	HandlePaidOff(ctx context.Context, loanAccountID string, totalRepaid int64) error
+}
+
 type repaymentBusiness struct {
 	eventsMan         fevents.Manager
 	loanAccountRepo   repository.LoanAccountRepository
@@ -42,6 +55,8 @@ type repaymentBusiness struct {
 	loanBalanceRepo   repository.LoanBalanceRepository
 	notifier          *LoanNotifier
 	operationsCli     operationsv1connect.OperationsServiceClient
+	auditWriter       *audit.Writer
+	paidOffHook       PaidOffHook
 }
 
 func NewRepaymentBusiness(
@@ -54,6 +69,8 @@ func NewRepaymentBusiness(
 	loanBalanceRepo repository.LoanBalanceRepository,
 	notifier *LoanNotifier,
 	operationsCli operationsv1connect.OperationsServiceClient,
+	auditWriter *audit.Writer,
+	paidOffHook PaidOffHook,
 ) RepaymentBusiness {
 	return &repaymentBusiness{
 		eventsMan:         eventsMan,
@@ -64,6 +81,8 @@ func NewRepaymentBusiness(
 		loanBalanceRepo:   loanBalanceRepo,
 		notifier:          notifier,
 		operationsCli:     operationsCli,
+		auditWriter:       auditWriter,
+		paidOffHook:       paidOffHook,
 	}
 }
 
@@ -139,64 +158,96 @@ func (b *repaymentBusiness) Record(
 		return nil, err
 	}
 
-	// Emit transfer orders for each allocation component (ledger double-entry)
-	b.emitRepaymentTransferOrders(ctx, logger, la, r, alloc)
-
-	// Update loan balance and handle payoff detection
-	if balErr == nil && balance != nil {
-		b.applyRepaymentToBalance(ctx, logger, la, balance, amount, alloc)
+	// Emit transfer orders for each allocation component (ledger double-entry).
+	// Each transfer order carries a stable reference (the idempotency key),
+	// so retries of this call are safe: the operations service dedupes on
+	// reference and converges on a single ledger posting per component.
+	// We surface any emission error so the caller can retry the repayment;
+	// on retry the repayment's own idempotency_key short-circuits the record
+	// creation and the transfer orders reconcile via their references.
+	if toErr := b.emitRepaymentTransferOrders(ctx, logger, la, r, alloc); toErr != nil {
+		return nil, toErr
 	}
+
+	// Apply the allocation to the loan balance atomically. A single SQL
+	// UPDATE with arithmetic expressions clamps each bucket at zero and
+	// serializes concurrent repayments at the row-level, so no read-modify-
+	// write race is possible here regardless of how the event pipeline
+	// interleaves.
+	if balErr == nil && balance != nil {
+		if applyErr := b.applyRepaymentToBalance(ctx, logger, la, alloc); applyErr != nil {
+			return nil, applyErr
+		}
+	}
+
+	// Descriptive audit capture. The Repayment table holds the normalised
+	// record, but the audit event gives a traceable "what happened when
+	// money came in" entry that joins naturally with transfer orders,
+	// loan balance snapshots, and future credit profile changes.
+	b.auditWriter.RecordOrLog(ctx, audit.Record{
+		EntityType: "repayment",
+		EntityID:   r.GetID(),
+		Action:     "repayment.applied",
+		Reason:     "inbound repayment applied via waterfall",
+		After: data.JSONMap{
+			"status":            alloc.status.String(),
+			"principal_applied": alloc.principalApplied,
+			"interest_applied":  alloc.interestApplied,
+			"fees_applied":      alloc.feesApplied,
+			"penalties_applied": alloc.penaltiesApplied,
+			"excess_amount":     alloc.excessAmount,
+		},
+		Metadata: data.JSONMap{
+			"loan_account_id":   la.GetID(),
+			"client_id":         la.ClientID,
+			"amount":            amount,
+			"currency":          la.CurrencyCode,
+			"channel":           req.GetChannel(),
+			"payment_reference": req.GetPaymentReference(),
+			"payer_reference":   req.GetPayerReference(),
+			"idempotency_key":   req.GetIdempotencyKey(),
+		},
+		Parent: &r.BaseModel,
+	}, func(auErr error) {
+		logger.WithError(auErr).Warn("audit emission failed for repayment")
+	})
 
 	return r.ToAPI(), nil
 }
 
-// applyRepaymentToBalance updates the loan balance after a repayment, emits the
-// updated balance, checks for full payoff, and sends notifications.
+// applyRepaymentToBalance applies a waterfall allocation to the authoritative
+// loan balance row using an atomic SQL delta, then re-reads the fresh row to
+// check for full payoff. Because the UPDATE uses arithmetic expressions and
+// clamps each bucket at zero in the database itself, concurrent repayments
+// on the same loan serialize correctly without any application-side locking.
 func (b *repaymentBusiness) applyRepaymentToBalance(
 	ctx context.Context,
 	logger *util.LogEntry,
 	la *models.LoanAccount,
-	balance *models.LoanBalance,
-	amount int64,
 	alloc waterfallResult,
-) {
-	balance.PrincipalOutstanding -= alloc.principalApplied
-	if balance.PrincipalOutstanding < 0 {
-		balance.PrincipalOutstanding = 0
-	}
-	balance.InterestAccrued -= alloc.interestApplied
-	if balance.InterestAccrued < 0 {
-		balance.InterestAccrued = 0
-	}
-	balance.FeesOutstanding -= alloc.feesApplied
-	if balance.FeesOutstanding < 0 {
-		balance.FeesOutstanding = 0
-	}
-	balance.PenaltiesOutstanding -= alloc.penaltiesApplied
-	if balance.PenaltiesOutstanding < 0 {
-		balance.PenaltiesOutstanding = 0
-	}
-	balance.TotalPaid += alloc.principalApplied + alloc.interestApplied +
-		alloc.feesApplied + alloc.penaltiesApplied
-	balance.TotalOutstanding = balance.PrincipalOutstanding + balance.InterestAccrued +
-		balance.FeesOutstanding + balance.PenaltiesOutstanding
-	now := time.Now().UTC()
-	balance.LastCalculatedAt = &now
-	if emitErr := b.eventsMan.Emit(ctx, events.LoanBalanceSaveEvent, balance); emitErr != nil {
-		logger.WithError(emitErr).Error("could not update loan balance after repayment")
+) error {
+	delta := repository.LoanBalanceDelta{
+		PrincipalApplied: alloc.principalApplied,
+		InterestApplied:  alloc.interestApplied,
+		FeesApplied:      alloc.feesApplied,
+		PenaltiesApplied: alloc.penaltiesApplied,
 	}
 
-	// Notify client about repayment received
+	fresh, err := b.loanBalanceRepo.ApplyRepaymentDelta(ctx, la.GetID(), delta)
+	if err != nil {
+		logger.WithError(err).Error("could not apply repayment delta to loan balance")
+		return err
+	}
+
 	if b.notifier != nil {
 		b.notifier.NotifyRepaymentReceived(ctx, la.ClientID, "",
-			models.MinorUnitsToString(amount),
+			models.MinorUnitsToString(delta.Total()),
 			la.CurrencyCode,
-			models.MinorUnitsToString(balance.TotalOutstanding),
+			models.MinorUnitsToString(fresh.TotalOutstanding),
 		)
 	}
 
-	// Check if loan is fully paid off
-	if balance.TotalOutstanding <= 0 {
+	if fresh.TotalOutstanding <= 0 {
 		la.Status = int32(loansv1.LoanStatus_LOAN_STATUS_PAID_OFF)
 		if emitErr := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); emitErr != nil {
 			logger.WithError(emitErr).Error("could not transition loan to PAID_OFF")
@@ -207,7 +258,20 @@ func (b *repaymentBusiness) applyRepaymentToBalance(
 		if b.notifier != nil {
 			b.notifier.NotifyLoanFullyPaid(ctx, la.ClientID, "")
 		}
+
+		// Fire the paid-off hook so downstream products (seed credit
+		// profile, for instance) can react to a fully settled loan.
+		// Hook errors are logged but do not fail the repayment: the
+		// money has moved and the loan is settled regardless.
+		if b.paidOffHook != nil {
+			if hookErr := b.paidOffHook.HandlePaidOff(ctx, la.GetID(), fresh.TotalPaid); hookErr != nil {
+				logger.WithError(hookErr).
+					WithField("loan_id", la.GetID()).
+					Warn("paid-off hook failed")
+			}
+		}
 	}
+	return nil
 }
 
 // waterfallResult holds the outcome of waterfall allocation against schedule entries.
@@ -221,15 +285,21 @@ type waterfallResult struct {
 }
 
 // emitRepaymentTransferOrders creates transfer orders for each allocation
-// component of a repayment. This ensures all money movements are captured in
-// the ledger via double-entry accounting.
+// component of a repayment. Each call uses a stable reference built from the
+// repayment id and the component name; the operations service treats that
+// reference as an idempotency key, so retrying this function after a partial
+// failure converges on a single ledger posting per component rather than
+// duplicating money movement.
+//
+// Errors surface to the caller so the repayment cannot be reported as
+// successful with missing ledger postings.
 func (b *repaymentBusiness) emitRepaymentTransferOrders(
 	ctx context.Context,
 	logger *util.LogEntry,
 	la *models.LoanAccount,
 	repayment *models.Repayment,
 	alloc waterfallResult,
-) {
+) error {
 	repID := repayment.GetID()
 	memberAccount := constants.MemberLoansAccount(la.ClientID)
 	loanRequestID := loanRequestIDFromProperties(la.Properties, la.ApplicationID)
@@ -240,56 +310,66 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 		"repayment_id":    repayment.GetID(),
 	}
 
-	// Transfer order for principal repayment
 	if alloc.principalApplied > 0 {
-		b.emitTransferOrder(ctx, logger,
+		if err := b.emitTransferOrder(ctx, logger,
 			memberAccount, la.LedgerAssetAccountID,
 			alloc.principalApplied, la.CurrencyCode,
 			constants.TransferTypeLoanRepayment,
 			fmt.Sprintf("repayment:%s:principal", repID),
 			"Principal repayment",
 			baseExtraData.Copy(),
-		)
+		); err != nil {
+			return err
+		}
 	}
 
-	// Transfer order for interest repayment
 	if alloc.interestApplied > 0 {
-		b.emitTransferOrder(ctx, logger,
+		if err := b.emitTransferOrder(ctx, logger,
 			memberAccount, la.LedgerInterestIncomeAccountID,
 			alloc.interestApplied, la.CurrencyCode,
 			constants.TransferTypeLoanInterestRepayment,
 			fmt.Sprintf("repayment:%s:interest", repID),
 			"Interest repayment",
 			baseExtraData.Copy(),
-		)
+		); err != nil {
+			return err
+		}
 	}
 
-	// Transfer order for fee repayment (insurance + processing)
 	if alloc.feesApplied > 0 {
-		b.emitTransferOrder(ctx, logger,
+		if err := b.emitTransferOrder(ctx, logger,
 			memberAccount, la.LedgerFeeIncomeAccountID,
 			alloc.feesApplied, la.CurrencyCode,
 			constants.TransferTypeLoanInsuranceRepayment,
 			fmt.Sprintf("repayment:%s:fees", repID),
 			"Fee repayment",
 			baseExtraData.Copy(),
-		)
+		); err != nil {
+			return err
+		}
 	}
 
-	// Transfer order for penalty repayment
 	if alloc.penaltiesApplied > 0 {
-		b.emitTransferOrder(ctx, logger,
+		if err := b.emitTransferOrder(ctx, logger,
 			memberAccount, la.LedgerPenaltyIncomeAccountID,
 			alloc.penaltiesApplied, la.CurrencyCode,
 			constants.TransferTypePenaltyCancel,
 			fmt.Sprintf("repayment:%s:penalties", repID),
 			"Penalty repayment",
 			baseExtraData.Copy(),
-		)
+		); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-// emitTransferOrder creates and executes a transfer order via the operations service SDK.
+// emitTransferOrder creates and executes a single transfer order via the
+// operations service SDK. A missing operations client is treated as a hard
+// configuration error rather than a silent skip: every money movement must
+// reach the ledger, and running without an operations client means nothing
+// is reaching it.
 func (b *repaymentBusiness) emitTransferOrder(
 	ctx context.Context,
 	logger *util.LogEntry,
@@ -299,11 +379,9 @@ func (b *repaymentBusiness) emitTransferOrder(
 	orderType int,
 	reference, description string,
 	extraData data.JSONMap,
-) {
+) error {
 	if b.operationsCli == nil {
-		logger.WithField("reference", reference).
-			Warn("operations client not available, transfer order skipped")
-		return
+		return fmt.Errorf("operations client is not configured; cannot post transfer order %s", reference)
 	}
 
 	req := connect.NewRequest(&operationsv1.TransferOrderExecuteRequest{
@@ -322,7 +400,9 @@ func (b *repaymentBusiness) emitTransferOrder(
 		logger.WithError(execErr).
 			WithField("reference", reference).
 			Error("could not execute transfer order for repayment")
+		return fmt.Errorf("transfer order %s failed: %w", reference, execErr)
 	}
+	return nil
 }
 
 // waterfallAllocate applies a payment amount in waterfall order:

@@ -19,6 +19,31 @@ func ProductInsuranceAccount(productID string) string {
 	return fmt.Sprintf("product:%s:insurance", productID)
 }
 
+// ProductBadDebtExpenseAccount returns the product-level bad-debt expense
+// ledger account. Loans that transition to WRITTEN_OFF debit their
+// outstanding balance into this expense account so the P&L reflects the
+// realised loss.
+func ProductBadDebtExpenseAccount(productID string) string {
+	return fmt.Sprintf("product:%s:bad_debt_expense", productID)
+}
+
+// ProductSavingsInterestExpenseAccount returns the product-level savings
+// interest expense account. Each savings interest accrual debits this
+// account (an expense to the platform) and credits the member's savings
+// asset account (a liability we owe the member).
+func ProductSavingsInterestExpenseAccount(productID string) string {
+	return fmt.Sprintf("product:%s:savings_interest_expense", productID)
+}
+
+// ProductExternalCashAccount is the product-level external cash control
+// account: the stand-in for "real world" money held on behalf of the
+// product (e.g. the bank account for investor capital inflows). Every
+// money-in or money-out posting at the product scope debits or credits
+// this account.
+func ProductExternalCashAccount(productID string) string {
+	return fmt.Sprintf("product:%s:external_cash", productID)
+}
+
 // GroupBankAccount returns the group-level bank ledger account name.
 func GroupBankAccount(groupID string) string {
 	return fmt.Sprintf("group:%s:bank", groupID)
@@ -53,6 +78,15 @@ func MemberSuspenseAccount(memberID string) string {
 	return fmt.Sprintf("member:%s:suspense", memberID)
 }
 
+// ClientSuspenseAccount returns the client-level suspense ledger account
+// name used by the seed direct-to-client lending product. Every inbound
+// payment for a seed client first lands in this account; obligation-
+// driven transfer orders then move funds from the suspense into the
+// specific destination (loan, savings, fee, etc.).
+func ClientSuspenseAccount(clientID string) string {
+	return fmt.Sprintf("client:%s:suspense", clientID)
+}
+
 func MemberLendingAccount(memberID string) string {
 	return fmt.Sprintf("member:%s:lending", memberID)
 }
@@ -63,6 +97,14 @@ func MemberPeriodicSavingsAccount(memberID string) string {
 
 func MemberLoansAccount(memberID string) string {
 	return fmt.Sprintf("member:%s:loans", memberID)
+}
+
+// MemberPenaltyReceivableAccount is the receivable account that is debited
+// when a penalty is applied to a member and credited when the penalty is
+// settled via repayment waterfall. It is the accrual-side counterpart to
+// the product's penalty income account.
+func MemberPenaltyReceivableAccount(memberID string) string {
+	return fmt.Sprintf("member:%s:penalty_receivable", memberID)
 }
 
 // InvestorCapitalAccount returns the investor-level capital ledger account name.
@@ -81,4 +123,12 @@ func PlatformFirstLossAccount(productID string) string {
 
 func PlatformIncomeAccount(productID string) string {
 	return fmt.Sprintf("platform:%s:income", productID)
+}
+
+// PlatformExternalCashAccount returns the platform-wide external cash
+// control account. Used as the counter-party for money movements that are
+// not scoped to a specific product — notably investor capital deposits and
+// withdrawals, which are investor-scoped rather than product-scoped.
+func PlatformExternalCashAccount() string {
+	return "platform:external_cash"
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/pitabwire/frame/datastore"
 
 	"github.com/antinvestor/service-fintech/apps/savings/service/models"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 )
 
 func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {
@@ -17,5 +18,6 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.SavingsProduct{}, &models.SavingsAccount{}, &models.Deposit{},
-		&models.Withdrawal{}, &models.InterestAccrual{})
+		&models.Withdrawal{}, &models.InterestAccrual{}, &models.SavingsBalance{},
+		&audit.Event{})
 }

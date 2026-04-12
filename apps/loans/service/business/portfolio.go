@@ -146,7 +146,7 @@ func (b *portfolioBusiness) runAggregationQuery(db *gorm.DB, filter PortfolioFil
 			COALESCE(SUM(lb.interest_accrued), 0) as interest_outstanding,
 			COALESCE(SUM(lb.fees_outstanding), 0) as fees_outstanding,
 			COALESCE(SUM(lb.penalties_outstanding), 0) as penalties_outstanding,
-			COUNT(CASE WHEN la.status IN (3, 4) THEN 1 END) as par30_count
+			COUNT(CASE WHEN la.days_past_due > 30 THEN 1 END) as par30_count
 		`).
 		Joins("LEFT JOIN loan_balances lb ON la.id = lb.loan_account_id")
 

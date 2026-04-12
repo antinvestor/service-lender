@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"time"
 
@@ -35,6 +36,7 @@ type savingsAccountBusiness struct {
 	depRepo   repository.DepositRepository
 	wdrRepo   repository.WithdrawalRepository
 	iaRepo    repository.InterestAccrualRepository
+	sbRepo    repository.SavingsBalanceRepository
 }
 
 func NewSavingsAccountBusiness(
@@ -44,6 +46,7 @@ func NewSavingsAccountBusiness(
 	depRepo repository.DepositRepository,
 	wdrRepo repository.WithdrawalRepository,
 	iaRepo repository.InterestAccrualRepository,
+	sbRepo repository.SavingsBalanceRepository,
 ) SavingsAccountBusiness {
 	return &savingsAccountBusiness{
 		eventsMan: eventsMan,
@@ -51,6 +54,7 @@ func NewSavingsAccountBusiness(
 		depRepo:   depRepo,
 		wdrRepo:   wdrRepo,
 		iaRepo:    iaRepo,
+		sbRepo:    sbRepo,
 	}
 }
 
@@ -70,6 +74,16 @@ func (b *savingsAccountBusiness) Create(
 	if err != nil {
 		logger.WithError(err).Error("could not emit savings account save event")
 		return nil, err
+	}
+
+	// Provision the authoritative running balance row for this account. The
+	// Ensure call is idempotent: a re-created account or a retry of this call
+	// resolves to the same zero row rather than duplicating or erroring.
+	if b.sbRepo != nil {
+		if _, balErr := b.sbRepo.Ensure(ctx, sa.GetID(), sa.CurrencyCode, &sa.BaseModel); balErr != nil {
+			logger.WithError(balErr).Error("could not provision savings balance row")
+			return nil, balErr
+		}
 	}
 
 	return sa.ToAPI(), nil
@@ -195,85 +209,55 @@ func (b *savingsAccountBusiness) Close(
 	return sa.ToAPI(), nil
 }
 
+// GetBalance reads directly from the authoritative SavingsBalance row. This
+// is a constant-time read that does not depend on the size of the account's
+// transaction history, and it always matches the ledger because balance
+// mutations only happen after the corresponding transfer order has posted.
+//
+// The SavingsBalanceObject return shape is preserved for wire compatibility:
+// TotalDeposits / TotalWithdrawals / TotalInterest come from the per-row
+// lifetime counters, AvailableBalance is (Balance - ReservedBalance).
 func (b *savingsAccountBusiness) GetBalance(
 	ctx context.Context,
 	accountID string,
 ) (*savingsv1.SavingsBalanceObject, error) {
-	logger := util.Log(ctx).WithField("method", "SavingsAccountBusiness.GetBalance")
-
 	sa, err := b.saRepo.GetByID(ctx, accountID)
 	if err != nil {
 		return nil, ErrSavingsAccountNotFound
 	}
 	cc := sa.CurrencyCode
 
-	// Sum deposits
-	var totalDeposits int64
-	depQuery := data.NewSearchQuery(
-		data.WithSearchFiltersAndByValue(map[string]any{
-			"savings_account_id = ?": accountID,
-			"status = ?":             int32(savingsv1.DepositStatus_DEPOSIT_STATUS_COMPLETED),
-		}),
-	)
-	depResults, err := b.depRepo.Search(ctx, depQuery)
+	if b.sbRepo == nil {
+		return nil, errors.New("savings balance repository is not configured")
+	}
+	snapshot, err := b.sbRepo.GetBySavingsAccountID(ctx, accountID)
 	if err != nil {
-		logger.WithError(err).Error("failed to search deposits for balance")
+		if errors.Is(err, repository.ErrSavingsBalanceNotFound) {
+			// Account exists but balance row was not provisioned yet: return
+			// a zero snapshot rather than erroring so callers can treat
+			// "unprovisioned" the same as "empty".
+			return &savingsv1.SavingsBalanceObject{
+				SavingsAccountId: accountID,
+				TotalDeposits:    models.MinorUnitsToMoney(0, cc),
+				TotalWithdrawals: models.MinorUnitsToMoney(0, cc),
+				TotalInterest:    models.MinorUnitsToMoney(0, cc),
+				AvailableBalance: models.MinorUnitsToMoney(0, cc),
+			}, nil
+		}
 		return nil, err
 	}
-	_ = workerpoolConsumeStream(ctx, depResults, func(batch []*models.Deposit) error {
-		for _, d := range batch {
-			totalDeposits += d.Amount
-		}
-		return nil
-	})
 
-	// Sum withdrawals
-	var totalWithdrawals int64
-	wdrQuery := data.NewSearchQuery(
-		data.WithSearchFiltersAndByValue(map[string]any{
-			"savings_account_id = ?": accountID,
-			"status = ?":             int32(savingsv1.WithdrawalStatus_WITHDRAWAL_STATUS_COMPLETED),
-		}),
-	)
-	wdrResults, err := b.wdrRepo.Search(ctx, wdrQuery)
-	if err != nil {
-		logger.WithError(err).Error("failed to search withdrawals for balance")
-		return nil, err
+	available := snapshot.Balance - snapshot.ReservedBalance
+	if available < 0 {
+		available = 0
 	}
-	_ = workerpoolConsumeStream(ctx, wdrResults, func(batch []*models.Withdrawal) error {
-		for _, w := range batch {
-			totalWithdrawals += w.Amount
-		}
-		return nil
-	})
-
-	// Sum interest accruals
-	var totalInterest int64
-	iaQuery := data.NewSearchQuery(
-		data.WithSearchFiltersAndByValue(map[string]any{
-			"savings_account_id = ?": accountID,
-		}),
-	)
-	iaResults, err := b.iaRepo.Search(ctx, iaQuery)
-	if err != nil {
-		logger.WithError(err).Error("failed to search interest accruals for balance")
-		return nil, err
-	}
-	_ = workerpoolConsumeStream(ctx, iaResults, func(batch []*models.InterestAccrual) error {
-		for _, ia := range batch {
-			totalInterest += ia.Amount
-		}
-		return nil
-	})
-
-	availableBalance := totalDeposits + totalInterest - totalWithdrawals
 
 	return &savingsv1.SavingsBalanceObject{
 		SavingsAccountId: accountID,
-		TotalDeposits:    models.MinorUnitsToMoney(totalDeposits, cc),
-		TotalWithdrawals: models.MinorUnitsToMoney(totalWithdrawals, cc),
-		TotalInterest:    models.MinorUnitsToMoney(totalInterest, cc),
-		AvailableBalance: models.MinorUnitsToMoney(availableBalance, cc),
+		TotalDeposits:    models.MinorUnitsToMoney(snapshot.TotalDeposits, cc),
+		TotalWithdrawals: models.MinorUnitsToMoney(snapshot.TotalWithdrawals, cc),
+		TotalInterest:    models.MinorUnitsToMoney(snapshot.TotalInterest, cc),
+		AvailableBalance: models.MinorUnitsToMoney(available, cc),
 	}, nil
 }
 

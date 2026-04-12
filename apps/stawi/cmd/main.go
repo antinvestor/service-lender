@@ -36,6 +36,7 @@ import (
 	opsrepo "github.com/antinvestor/service-fintech/apps/operations/service/repository"
 
 	// Platform clients.
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 
 	fevents "github.com/pitabwire/frame/events"
@@ -209,6 +210,7 @@ func initBusinesses(
 		fundingTrancheAdapter,
 		investorAccountAdapter,
 		platformClients,
+		audit.NewWriter(evtsMan),
 	)
 	obligationBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, repos.obligation, identityCli, periodAdapter)
 

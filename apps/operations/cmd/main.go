@@ -35,6 +35,7 @@ import (
 	fundingrepo "github.com/antinvestor/service-fintech/apps/funding/service/repository"
 	stawirepo "github.com/antinvestor/service-fintech/apps/stawi/service/repository"
 
+	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 )
 
@@ -84,10 +85,16 @@ func main() {
 		log.WithError(idErr).Warn("main -- Could not setup identity client")
 	}
 
-	// Platform clients for transfer order execution (ledger, payment, etc.)
+	// Platform clients for transfer order execution (ledger, payment, etc.).
+	// The ledger client is load-bearing: every transfer order has to post a
+	// double-entry transaction. Refuse to start if it is missing so we never
+	// silently drop postings against a partially-wired deployment.
 	platformClients, pcErr := clients.NewPlatformClients(ctx, &cfg, cfg.ServiceEndpoints())
 	if pcErr != nil {
-		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
+		log.WithError(pcErr).Fatal("main -- could not initialise platform clients")
+	}
+	if platformClients == nil || platformClients.LedgerClient == nil {
+		log.Fatal("main -- ledger client is required but was not configured")
 	}
 
 	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, identityCli, platformClients)
@@ -115,6 +122,8 @@ func setupServiceOptions(
 	ipRepo := repository.NewIncomingPaymentRepository(ctx, dbPool, workMan)
 	arRepo := repository.NewAccountRefRepository(ctx, dbPool, workMan)
 	csRepo := repository.NewCBSSyncRecordRepository(ctx, dbPool, workMan)
+	auditRepo := audit.NewRepository(ctx, dbPool, workMan)
+	auditWriter := audit.NewWriter(evtsMan)
 
 	// Funding repositories (shared database, adapted to local interfaces)
 	lfRepo := fundingrepo.NewLoanFundingRepository(ctx, dbPool, workMan)
@@ -151,6 +160,7 @@ func setupServiceOptions(
 		ftAdapter,
 		iaAdapter,
 		platformClients,
+		auditWriter,
 	)
 	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
 
@@ -168,6 +178,7 @@ func setupServiceOptions(
 			opsevents.NewIncomingPaymentSave(ctx, ipRepo),
 			opsevents.NewAccountRefSave(ctx, arRepo),
 			opsevents.NewCBSSyncRecordSave(ctx, csRepo),
+			audit.NewEventSave(ctx, auditRepo),
 		),
 	}
 }

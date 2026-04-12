@@ -6,40 +6,9 @@ import (
 	"github.com/pitabwire/frame/data"
 )
 
-// TransferType defines all 28 transfer order types from Java OrderType.
-type TransferType int32
-
-const (
-	TransferTypeUnspecified                               TransferType = 0
-	TransferTypePayment                                   TransferType = 1
-	TransferTypePaymentIdentified                         TransferType = 2
-	TransferTypePaymentAllocated                          TransferType = 3
-	TransferTypeDisbursement                              TransferType = 6
-	TransferTypeDisbursementReversal                      TransferType = 7
-	TransferTypeDisbursementReversalReroute               TransferType = 8
-	TransferTypeTerminalDisbursement                      TransferType = 9
-	TransferTypeTerminalDisbursementRecovery              TransferType = 10
-	TransferTypeCost                                      TransferType = 11
-	TransferTypeServiceFee                                TransferType = 16
-	TransferTypeRegistrationFee                           TransferType = 21
-	TransferTypePeriodicSaving                            TransferType = 25
-	TransferTypePeriodicSavingsInterestIncomeDistribution TransferType = 26
-	TransferTypePeriodicSavingRecovery                    TransferType = 27
-	TransferTypePenalty                                   TransferType = 31
-	TransferTypePenaltyCancel                             TransferType = 32
-	TransferTypePenaltyIncomeDistribution                 TransferType = 33
-	TransferTypeLoanFundingExternalLending                TransferType = 36
-	TransferTypeLoanFundingExternalLendingPayback         TransferType = 37
-	TransferTypeLoan                                      TransferType = 41
-	TransferTypeLoanRepayment                             TransferType = 42
-	TransferTypeShutdownLoanRecovery                      TransferType = 43
-	TransferTypeLoanInterest                              TransferType = 46
-	TransferTypeLoanInterestRepayment                     TransferType = 47
-	TransferTypeLoanInterestIncomeDistribution            TransferType = 48
-	TransferTypeLoanInsurance                             TransferType = 51
-	TransferTypeLoanInsuranceRepayment                    TransferType = 52
-	TransferTypeInterSubscriptionPayment                  TransferType = 71
-)
+// Transfer type constants live in pkg/constants/transfer_types.go and are
+// the single source of truth across the codebase. The duplicate block that
+// used to live here has been removed; use constants.TransferType* everywhere.
 
 // ObligationType defines the type of financial obligation.
 type ObligationType int32

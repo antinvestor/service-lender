@@ -2,18 +2,30 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/funding/service/models"
 )
 
 // stateActive is the numeric value for the active state used in database queries.
 const stateActive = 3
+
+// ErrInvestorAccountNotFound is returned by atomic mutators when no row
+// matches the filter, so callers can distinguish missing state from a
+// guard-clause rejection.
+var ErrInvestorAccountNotFound = errors.New("investor account not found")
+
+// ErrInvestorInsufficientFunds is returned by AtomicWithdraw when the
+// available balance (available - reserved) is below the requested amount.
+var ErrInvestorInsufficientFunds = errors.New("investor account insufficient available balance")
 
 // sanitizeJSONKey removes any characters that could break JSON structure,
 // allowing only alphanumeric characters, hyphens, and underscores.
@@ -45,6 +57,42 @@ type InvestorAccountRepository interface {
 		currency string,
 		interestRate int64,
 	) ([]*models.InvestorAccount, error)
+
+	// AtomicDeposit increases available_balance on an investor account with
+	// a single arithmetic UPDATE. Eliminates the read-modify-write race of
+	// mutating the struct and re-emitting it via the event bus.
+	AtomicDeposit(ctx context.Context, accountID string, amount int64) (*models.InvestorAccount, error)
+
+	// AtomicWithdraw decreases available_balance iff there are enough
+	// available (unreserved) funds to cover the amount. The SQL guard
+	// predicate makes concurrent withdrawals against overlapping funds
+	// serialize correctly, with losers receiving ErrInvestorInsufficientFunds.
+	AtomicWithdraw(ctx context.Context, accountID string, amount int64) (*models.InvestorAccount, error)
+
+	// AtomicAbsorbLoss decrements reserved_balance (clamped at zero) when a
+	// loan tranche held by the investor is written off.
+	AtomicAbsorbLoss(ctx context.Context, accountID string, lossAmount int64) (*models.InvestorAccount, error)
+
+	// AtomicReserve moves funds from available to reserved when capital is
+	// committed to a loan. The SQL guard refuses the reservation if the
+	// account has insufficient unreserved funds so the reserve cannot
+	// over-commit a concurrent allocation pipeline.
+	AtomicReserve(ctx context.Context, accountID string, amount int64) (*models.InvestorAccount, error)
+
+	// AtomicRelease releases a prior reservation without returning capital,
+	// typically when a funding allocation is cancelled before disbursement.
+	AtomicRelease(ctx context.Context, accountID string, amount int64) (*models.InvestorAccount, error)
+
+	// AtomicReleaseWithReturn settles a reservation after loan principal is
+	// returned (and optionally interest earned). Principal reduces reserved
+	// and increases available; interest only increases available. Total
+	// returned counter tracks lifetime.
+	AtomicReleaseWithReturn(
+		ctx context.Context,
+		accountID string,
+		principalReturned int64,
+		interestEarned int64,
+	) (*models.InvestorAccount, error)
 }
 
 // NewInvestorAccountRepository creates a new InvestorAccountRepository.
@@ -133,4 +181,194 @@ func (r *investorAccountRepository) GetAffiliatedForGroup(
 		Order("COALESCE(total_deployed * 1.0 / NULLIF(available_balance + total_deployed, 0), 0) ASC, last_deployed_at ASC NULLS FIRST, available_balance DESC").
 		Find(&accounts).Error
 	return accounts, err
+}
+
+func (r *investorAccountRepository) AtomicDeposit(
+	ctx context.Context,
+	accountID string,
+	amount int64,
+) (*models.InvestorAccount, error) {
+	if amount <= 0 {
+		return nil, errors.New("deposit amount must be positive")
+	}
+	now := time.Now().UTC()
+	result := r.Pool().DB(ctx, false).
+		Model(&models.InvestorAccount{}).
+		Where("id = ?", accountID).
+		Updates(map[string]any{
+			"available_balance": gorm.Expr("available_balance + ?", amount),
+			"modified_at":       now,
+			"version":           gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, ErrInvestorAccountNotFound
+	}
+	return r.GetByID(ctx, accountID)
+}
+
+func (r *investorAccountRepository) AtomicWithdraw(
+	ctx context.Context,
+	accountID string,
+	amount int64,
+) (*models.InvestorAccount, error) {
+	if amount <= 0 {
+		return nil, errors.New("withdraw amount must be positive")
+	}
+	now := time.Now().UTC()
+	result := r.Pool().DB(ctx, false).
+		Model(&models.InvestorAccount{}).
+		Where("id = ? AND (available_balance - reserved_balance) >= ?", accountID, amount).
+		Updates(map[string]any{
+			"available_balance": gorm.Expr("available_balance - ?", amount),
+			"modified_at":       now,
+			"version":           gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		// Distinguish missing row from insufficient funds.
+		existing := &models.InvestorAccount{}
+		if lookupErr := r.Pool().DB(ctx, true).
+			First(existing, "id = ?", accountID).Error; lookupErr != nil {
+			if errors.Is(lookupErr, gorm.ErrRecordNotFound) {
+				return nil, ErrInvestorAccountNotFound
+			}
+			return nil, lookupErr
+		}
+		return nil, ErrInvestorInsufficientFunds
+	}
+	return r.GetByID(ctx, accountID)
+}
+
+func (r *investorAccountRepository) AtomicAbsorbLoss(
+	ctx context.Context,
+	accountID string,
+	lossAmount int64,
+) (*models.InvestorAccount, error) {
+	if lossAmount <= 0 {
+		return nil, errors.New("loss amount must be positive")
+	}
+	now := time.Now().UTC()
+	result := r.Pool().DB(ctx, false).
+		Model(&models.InvestorAccount{}).
+		Where("id = ?", accountID).
+		Updates(map[string]any{
+			"reserved_balance": gorm.Expr("GREATEST(reserved_balance - ?, 0)", lossAmount),
+			"modified_at":      now,
+			"version":          gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, ErrInvestorAccountNotFound
+	}
+	return r.GetByID(ctx, accountID)
+}
+
+func (r *investorAccountRepository) AtomicReserve(
+	ctx context.Context,
+	accountID string,
+	amount int64,
+) (*models.InvestorAccount, error) {
+	if amount <= 0 {
+		return nil, errors.New("reserve amount must be positive")
+	}
+	now := time.Now().UTC()
+	result := r.Pool().DB(ctx, false).
+		Model(&models.InvestorAccount{}).
+		Where("id = ? AND (available_balance - reserved_balance) >= ?", accountID, amount).
+		Updates(map[string]any{
+			"reserved_balance": gorm.Expr("reserved_balance + ?", amount),
+			"total_deployed":   gorm.Expr("total_deployed + ?", amount),
+			"last_deployed_at": now,
+			"modified_at":      now,
+			"version":          gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		existing := &models.InvestorAccount{}
+		if lookupErr := r.Pool().DB(ctx, true).
+			First(existing, "id = ?", accountID).Error; lookupErr != nil {
+			if errors.Is(lookupErr, gorm.ErrRecordNotFound) {
+				return nil, ErrInvestorAccountNotFound
+			}
+			return nil, lookupErr
+		}
+		return nil, ErrInvestorInsufficientFunds
+	}
+	return r.GetByID(ctx, accountID)
+}
+
+func (r *investorAccountRepository) AtomicRelease(
+	ctx context.Context,
+	accountID string,
+	amount int64,
+) (*models.InvestorAccount, error) {
+	if amount <= 0 {
+		return nil, errors.New("release amount must be positive")
+	}
+	now := time.Now().UTC()
+	result := r.Pool().DB(ctx, false).
+		Model(&models.InvestorAccount{}).
+		Where("id = ? AND reserved_balance >= ?", accountID, amount).
+		Updates(map[string]any{
+			"reserved_balance": gorm.Expr("reserved_balance - ?", amount),
+			"modified_at":      now,
+			"version":          gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		existing := &models.InvestorAccount{}
+		if lookupErr := r.Pool().DB(ctx, true).
+			First(existing, "id = ?", accountID).Error; lookupErr != nil {
+			if errors.Is(lookupErr, gorm.ErrRecordNotFound) {
+				return nil, ErrInvestorAccountNotFound
+			}
+			return nil, lookupErr
+		}
+		return nil, errors.New("release exceeded reserved balance")
+	}
+	return r.GetByID(ctx, accountID)
+}
+
+func (r *investorAccountRepository) AtomicReleaseWithReturn(
+	ctx context.Context,
+	accountID string,
+	principalReturned int64,
+	interestEarned int64,
+) (*models.InvestorAccount, error) {
+	if principalReturned < 0 || interestEarned < 0 {
+		return nil, errors.New("returns must be non-negative")
+	}
+	if principalReturned == 0 && interestEarned == 0 {
+		return r.GetByID(ctx, accountID)
+	}
+
+	now := time.Now().UTC()
+	result := r.Pool().DB(ctx, false).
+		Model(&models.InvestorAccount{}).
+		Where("id = ?", accountID).
+		Updates(map[string]any{
+			"reserved_balance":  gorm.Expr("GREATEST(reserved_balance - ?, 0)", principalReturned),
+			"available_balance": gorm.Expr("available_balance + ?", principalReturned+interestEarned),
+			"total_returned":    gorm.Expr("total_returned + ?", principalReturned+interestEarned),
+			"modified_at":       now,
+			"version":           gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, ErrInvestorAccountNotFound
+	}
+	return r.GetByID(ctx, accountID)
 }
