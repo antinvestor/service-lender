@@ -2881,6 +2881,122 @@ class WithdrawalApproveResponse extends $pb.GeneratedMessage {
   WithdrawalObject ensureData() => $_ensure(0);
 }
 
+class WithdrawalCancelRequest extends $pb.GeneratedMessage {
+  factory WithdrawalCancelRequest({
+    $core.String? id,
+    $core.String? reason,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (reason != null) {
+      $result.reason = reason;
+    }
+    return $result;
+  }
+  WithdrawalCancelRequest._() : super();
+  factory WithdrawalCancelRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory WithdrawalCancelRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WithdrawalCancelRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'reason')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  WithdrawalCancelRequest clone() => WithdrawalCancelRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  WithdrawalCancelRequest copyWith(void Function(WithdrawalCancelRequest) updates) => super.copyWith((message) => updates(message as WithdrawalCancelRequest)) as WithdrawalCancelRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static WithdrawalCancelRequest create() => WithdrawalCancelRequest._();
+  WithdrawalCancelRequest createEmptyInstance() => create();
+  static $pb.PbList<WithdrawalCancelRequest> createRepeated() => $pb.PbList<WithdrawalCancelRequest>();
+  @$core.pragma('dart2js:noInline')
+  static WithdrawalCancelRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WithdrawalCancelRequest>(create);
+  static WithdrawalCancelRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get reason => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set reason($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasReason() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearReason() => clearField(2);
+}
+
+class WithdrawalCancelResponse extends $pb.GeneratedMessage {
+  factory WithdrawalCancelResponse({
+    WithdrawalObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  WithdrawalCancelResponse._() : super();
+  factory WithdrawalCancelResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory WithdrawalCancelResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WithdrawalCancelResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
+    ..aOM<WithdrawalObject>(1, _omitFieldNames ? '' : 'data', subBuilder: WithdrawalObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  WithdrawalCancelResponse clone() => WithdrawalCancelResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  WithdrawalCancelResponse copyWith(void Function(WithdrawalCancelResponse) updates) => super.copyWith((message) => updates(message as WithdrawalCancelResponse)) as WithdrawalCancelResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static WithdrawalCancelResponse create() => WithdrawalCancelResponse._();
+  WithdrawalCancelResponse createEmptyInstance() => create();
+  static $pb.PbList<WithdrawalCancelResponse> createRepeated() => $pb.PbList<WithdrawalCancelResponse>();
+  @$core.pragma('dart2js:noInline')
+  static WithdrawalCancelResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WithdrawalCancelResponse>(create);
+  static WithdrawalCancelResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  WithdrawalObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(WithdrawalObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  WithdrawalObject ensureData() => $_ensure(0);
+}
+
 class WithdrawalGetRequest extends $pb.GeneratedMessage {
   factory WithdrawalGetRequest({
     $core.String? id,
@@ -3617,6 +3733,9 @@ class SavingsServiceApi {
   ;
   $async.Future<WithdrawalApproveResponse> withdrawalApprove($pb.ClientContext? ctx, WithdrawalApproveRequest request) =>
     _client.invoke<WithdrawalApproveResponse>(ctx, 'SavingsService', 'WithdrawalApprove', request, WithdrawalApproveResponse())
+  ;
+  $async.Future<WithdrawalCancelResponse> withdrawalCancel($pb.ClientContext? ctx, WithdrawalCancelRequest request) =>
+    _client.invoke<WithdrawalCancelResponse>(ctx, 'SavingsService', 'WithdrawalCancel', request, WithdrawalCancelResponse())
   ;
   $async.Future<WithdrawalGetResponse> withdrawalGet($pb.ClientContext? ctx, WithdrawalGetRequest request) =>
     _client.invoke<WithdrawalGetResponse>(ctx, 'SavingsService', 'WithdrawalGet', request, WithdrawalGetResponse())

@@ -245,6 +245,24 @@ extension type SavingsServiceClient (connect.Transport _transport) {
     );
   }
 
+  /// WithdrawalCancel rejects a pending withdrawal and releases the reserved balance.
+  Future<savingsv1savings.WithdrawalCancelResponse> withdrawalCancel(
+    savingsv1savings.WithdrawalCancelRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.SavingsService.withdrawalCancel,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
   /// WithdrawalGet retrieves a withdrawal by its ID.
   Future<savingsv1savings.WithdrawalGetResponse> withdrawalGet(
     savingsv1savings.WithdrawalGetRequest input, {

@@ -71,27 +71,20 @@ class FormTemplateNotifier extends _$FormTemplateNotifier {
 
 /// Entity types that can have form requirements.
 ///
-/// Used as a convention to look up form templates by entity type —
-/// templates are tagged in their properties or name to associate them
-/// with a specific entity type (client, agent, investor, group).
+/// Maps directly to `FormTemplateObject.entity_type` in the proto.
 enum FormEntityType {
   client,
   agent,
   investor,
   group,
+  application,
 }
 
-/// Loads form requirements for a given entity type by searching for
-/// published templates associated with that type.
+/// Loads published form templates for a given entity type.
 ///
-/// **Naming convention:** Templates are matched by searching with the entity
-/// type name (e.g. "client", "agent", "group"). Admins must include the
-/// entity type in the template name or description for it to be discovered.
-/// For example, a template named "Client KYC Form" will be found for
-/// `FormEntityType.client`.
-///
-/// TODO: Replace with an explicit `entityType` field on `FormTemplateObject`
-/// once the proto is updated, rather than relying on text search.
+/// Uses the `entity_type` field on `FormTemplateSearchRequest` to filter
+/// templates explicitly tagged for the requested domain. Admins set the
+/// entity type when creating templates in the form template designer.
 @riverpod
 Future<List<FormTemplateObject>> entityFormTemplates(
   Ref ref, {
@@ -100,22 +93,17 @@ Future<List<FormTemplateObject>> entityFormTemplates(
 }) async {
   final client = ref.watch(originationServiceClientProvider);
   final request = FormTemplateSearchRequest(
-    query: entityType.name,
+    entityType: entityType.name,
+    status: FormTemplateStatus.FORM_TEMPLATE_STATUS_PUBLISHED,
     cursor: PageCursor(limit: 20),
   );
   if (organizationId.isNotEmpty) {
     request.organizationId = organizationId;
   }
-  final all = await collectStream(
+  return collectStream(
     client.formTemplateSearch(request),
     extract: (response) => response.data,
   );
-  // Only return published templates.
-  return all
-      .where(
-        (t) => t.status == FormTemplateStatus.FORM_TEMPLATE_STATUS_PUBLISHED,
-      )
-      .toList();
 }
 
 @riverpod

@@ -1733,7 +1733,16 @@ class FormFieldDefinition extends $pb.GeneratedMessage {
   $6.Struct ensureProperties() => $_ensure(18);
 }
 
-/// FormTemplateObject defines a reusable form schema.
+///  FormTemplateObject defines a reusable form schema.
+///
+///  Form templates are the backbone of dynamic data collection across the
+///  platform. A single template can be used for loan origination KYC,
+///  client onboarding, group membership registration, investor KYC, or
+///  any other structured data collection requirement.
+///
+///  The entity_type field determines which domain the template serves
+///  (e.g. "client", "agent", "investor", "group", "application").
+///  Products and entities reference templates via ProductFormRequirement.
 class FormTemplateObject extends $pb.GeneratedMessage {
   factory FormTemplateObject({
     $core.String? id,
@@ -1746,6 +1755,7 @@ class FormTemplateObject extends $pb.GeneratedMessage {
     $core.Iterable<$core.String>? sections,
     $6.Struct? validationRules,
     $6.Struct? properties,
+    $core.String? entityType,
   }) {
     final $result = create();
     if (id != null) {
@@ -1778,6 +1788,9 @@ class FormTemplateObject extends $pb.GeneratedMessage {
     if (properties != null) {
       $result.properties = properties;
     }
+    if (entityType != null) {
+      $result.entityType = entityType;
+    }
     return $result;
   }
   FormTemplateObject._() : super();
@@ -1795,6 +1808,7 @@ class FormTemplateObject extends $pb.GeneratedMessage {
     ..pPS(8, _omitFieldNames ? '' : 'sections')
     ..aOM<$6.Struct>(9, _omitFieldNames ? '' : 'validationRules', subBuilder: $6.Struct.create)
     ..aOM<$6.Struct>(10, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..aOS(11, _omitFieldNames ? '' : 'entityType')
     ..hasRequiredFields = false
   ;
 
@@ -1900,9 +1914,26 @@ class FormTemplateObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(10);
   @$pb.TagNumber(10)
   $6.Struct ensureProperties() => $_ensure(9);
+
+  /// The entity type this template is designed for. Used to filter
+  /// templates when loading requirements for a specific domain.
+  /// Standard values: "client", "agent", "investor", "group", "application".
+  @$pb.TagNumber(11)
+  $core.String get entityType => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set entityType($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasEntityType() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearEntityType() => clearField(11);
 }
 
-/// FormSubmissionObject captures filled form data for an application.
+///  FormSubmissionObject captures filled form data for an entity.
+///
+///  Submissions are linked to an owning entity via entity_id. For backward
+///  compatibility, application_id remains as an alias — callers may set
+///  either field; the service treats them identically. New integrations
+///  (client onboarding, group setup, investor KYC) should use entity_id.
 class FormSubmissionObject extends $pb.GeneratedMessage {
   factory FormSubmissionObject({
     $core.String? id,
@@ -1914,6 +1945,8 @@ class FormSubmissionObject extends $pb.GeneratedMessage {
     $6.Struct? fileRefs,
     $7.STATE? state,
     $6.Struct? properties,
+    $core.String? entityId,
+    $core.String? entityType,
   }) {
     final $result = create();
     if (id != null) {
@@ -1943,6 +1976,12 @@ class FormSubmissionObject extends $pb.GeneratedMessage {
     if (properties != null) {
       $result.properties = properties;
     }
+    if (entityId != null) {
+      $result.entityId = entityId;
+    }
+    if (entityType != null) {
+      $result.entityType = entityType;
+    }
     return $result;
   }
   FormSubmissionObject._() : super();
@@ -1959,6 +1998,8 @@ class FormSubmissionObject extends $pb.GeneratedMessage {
     ..aOM<$6.Struct>(7, _omitFieldNames ? '' : 'fileRefs', subBuilder: $6.Struct.create)
     ..e<$7.STATE>(8, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
     ..aOM<$6.Struct>(9, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..aOS(10, _omitFieldNames ? '' : 'entityId')
+    ..aOS(11, _omitFieldNames ? '' : 'entityType')
     ..hasRequiredFields = false
   ;
 
@@ -1992,6 +2033,7 @@ class FormSubmissionObject extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearId() => clearField(1);
 
+  /// Deprecated: use entity_id for new integrations.
   @$pb.TagNumber(2)
   $core.String get applicationId => $_getSZ(1);
   @$pb.TagNumber(2)
@@ -2069,6 +2111,27 @@ class FormSubmissionObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(9);
   @$pb.TagNumber(9)
   $6.Struct ensureProperties() => $_ensure(8);
+
+  /// The owning entity ID (application, client, group, investor, etc.).
+  /// For loan applications, this is the same as application_id.
+  @$pb.TagNumber(10)
+  $core.String get entityId => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set entityId($core.String v) { $_setString(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasEntityId() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearEntityId() => clearField(10);
+
+  /// The entity type for categorization (matches FormTemplateObject.entity_type).
+  @$pb.TagNumber(11)
+  $core.String get entityType => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set entityType($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasEntityType() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearEntityType() => clearField(11);
 }
 
 class LoanProductSaveRequest extends $pb.GeneratedMessage {
@@ -4585,6 +4648,7 @@ class FormTemplateSearchRequest extends $pb.GeneratedMessage {
     $core.String? organizationId,
     FormTemplateStatus? status,
     $7.PageCursor? cursor,
+    $core.String? entityType,
   }) {
     final $result = create();
     if (query != null) {
@@ -4599,6 +4663,9 @@ class FormTemplateSearchRequest extends $pb.GeneratedMessage {
     if (cursor != null) {
       $result.cursor = cursor;
     }
+    if (entityType != null) {
+      $result.entityType = entityType;
+    }
     return $result;
   }
   FormTemplateSearchRequest._() : super();
@@ -4610,6 +4677,7 @@ class FormTemplateSearchRequest extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..e<FormTemplateStatus>(3, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: FormTemplateStatus.FORM_TEMPLATE_STATUS_UNSPECIFIED, valueOf: FormTemplateStatus.valueOf, enumValues: FormTemplateStatus.values)
     ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOS(5, _omitFieldNames ? '' : 'entityType')
     ..hasRequiredFields = false
   ;
 
@@ -4671,6 +4739,16 @@ class FormTemplateSearchRequest extends $pb.GeneratedMessage {
   void clearCursor() => clearField(4);
   @$pb.TagNumber(4)
   $7.PageCursor ensureCursor() => $_ensure(3);
+
+  /// Filter templates by entity type (e.g. "client", "group", "application").
+  @$pb.TagNumber(5)
+  $core.String get entityType => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set entityType($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasEntityType() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEntityType() => clearField(5);
 }
 
 class FormTemplateSearchResponse extends $pb.GeneratedMessage {
@@ -5030,6 +5108,8 @@ class FormSubmissionSearchRequest extends $pb.GeneratedMessage {
     $core.String? applicationId,
     $core.String? templateId,
     $7.PageCursor? cursor,
+    $core.String? entityId,
+    $core.String? entityType,
   }) {
     final $result = create();
     if (applicationId != null) {
@@ -5041,6 +5121,12 @@ class FormSubmissionSearchRequest extends $pb.GeneratedMessage {
     if (cursor != null) {
       $result.cursor = cursor;
     }
+    if (entityId != null) {
+      $result.entityId = entityId;
+    }
+    if (entityType != null) {
+      $result.entityType = entityType;
+    }
     return $result;
   }
   FormSubmissionSearchRequest._() : super();
@@ -5051,6 +5137,8 @@ class FormSubmissionSearchRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'applicationId')
     ..aOS(2, _omitFieldNames ? '' : 'templateId')
     ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOS(4, _omitFieldNames ? '' : 'entityId')
+    ..aOS(5, _omitFieldNames ? '' : 'entityType')
     ..hasRequiredFields = false
   ;
 
@@ -5075,6 +5163,7 @@ class FormSubmissionSearchRequest extends $pb.GeneratedMessage {
   static FormSubmissionSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FormSubmissionSearchRequest>(create);
   static FormSubmissionSearchRequest? _defaultInstance;
 
+  /// Deprecated: use entity_id for new integrations.
   @$pb.TagNumber(1)
   $core.String get applicationId => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -5103,6 +5192,27 @@ class FormSubmissionSearchRequest extends $pb.GeneratedMessage {
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
   $7.PageCursor ensureCursor() => $_ensure(2);
+
+  /// Filter by owning entity ID. For backward compatibility,
+  /// the service checks both entity_id and application_id.
+  @$pb.TagNumber(4)
+  $core.String get entityId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set entityId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasEntityId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearEntityId() => clearField(4);
+
+  /// Filter by entity type.
+  @$pb.TagNumber(5)
+  $core.String get entityType => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set entityType($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasEntityType() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEntityType() => clearField(5);
 }
 
 class FormSubmissionSearchResponse extends $pb.GeneratedMessage {
