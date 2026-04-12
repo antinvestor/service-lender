@@ -110,7 +110,7 @@ final class InvestorNotifierProvider
   InvestorNotifier create() => InvestorNotifier();
 }
 
-String _$investorNotifierHash() => r'302e7956c1dc71596f765efd3d642610dfaf6b40';
+String _$investorNotifierHash() => r'106765bcbfacaace2afd4df81134371574630b41';
 
 abstract class _$InvestorNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

@@ -53,12 +53,8 @@ class FormTemplateNotifier extends _$FormTemplateNotifier {
     final response = await client.formTemplateSave(
       FormTemplateSaveRequest(data: template),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(formTemplateListProvider);
-      ref.invalidate(formTemplateDetailProvider);
-    });
-
+    ref.invalidate(formTemplateListProvider);
+    ref.invalidate(formTemplateDetailProvider(response.data.id));
     return response.data;
   }
 
@@ -67,12 +63,8 @@ class FormTemplateNotifier extends _$FormTemplateNotifier {
     final response = await client.formTemplatePublish(
       FormTemplatePublishRequest(id: id),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(formTemplateListProvider);
-      ref.invalidate(formTemplateDetailProvider);
-    });
-
+    ref.invalidate(formTemplateListProvider);
+    ref.invalidate(formTemplateDetailProvider(id));
     return response.data;
   }
 }
@@ -108,11 +100,7 @@ class FormSubmissionNotifier extends _$FormSubmissionNotifier {
     final response = await client.formSubmissionSave(
       FormSubmissionSaveRequest(data: submission),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(formSubmissionListProvider);
-    });
-
+    ref.invalidate(formSubmissionListProvider);
     return response.data;
   }
 }

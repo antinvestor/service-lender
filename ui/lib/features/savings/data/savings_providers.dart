@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
@@ -6,6 +8,13 @@ import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/savings/v1/savings.pb.dart';
 
 part 'savings_providers.g.dart';
+
+/// Generates a collision-resistant idempotency key.
+String _generateIdempotencyKey() {
+  final random = Random.secure();
+  final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+  return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+}
 
 // ---------------------------------------------------------------------------
 // Savings Products
@@ -37,9 +46,7 @@ class SavingsProductNotifier extends _$SavingsProductNotifier {
     final response = await client.savingsProductSave(
       SavingsProductSaveRequest(data: product),
     );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsProductListProvider);
-    });
+    ref.invalidate(savingsProductListProvider);
     return response.data;
   }
 }
@@ -96,28 +103,22 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
     final response = await client.savingsAccountCreate(
       SavingsAccountCreateRequest(data: account),
     );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsAccountListProvider);
-    });
+    ref.invalidate(savingsAccountListProvider);
     return response.data;
   }
 
   Future<void> freeze(String id) async {
     final client = ref.read(savingsServiceClientProvider);
     await client.savingsAccountFreeze(SavingsAccountFreezeRequest(id: id));
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsAccountListProvider);
-      ref.invalidate(savingsAccountDetailProvider);
-    });
+    ref.invalidate(savingsAccountListProvider);
+    ref.invalidate(savingsAccountDetailProvider(id));
   }
 
   Future<void> close(String id) async {
     final client = ref.read(savingsServiceClientProvider);
     await client.savingsAccountClose(SavingsAccountCloseRequest(id: id));
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsAccountListProvider);
-      ref.invalidate(savingsAccountDetailProvider);
-    });
+    ref.invalidate(savingsAccountListProvider);
+    ref.invalidate(savingsAccountDetailProvider(id));
   }
 }
 
@@ -161,7 +162,7 @@ class DepositNotifier extends _$DepositNotifier {
         paymentReference: paymentReference,
         channel: channel,
         payerReference: payerReference,
-        idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
+        idempotencyKey: _generateIdempotencyKey(),
       ),
     );
     ref.invalidate(depositListProvider);
@@ -210,7 +211,7 @@ class WithdrawalNotifier extends _$WithdrawalNotifier {
         channel: channel,
         recipientReference: recipientReference,
         reason: reason,
-        idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
+        idempotencyKey: _generateIdempotencyKey(),
       ),
     );
     ref.invalidate(withdrawalListProvider);

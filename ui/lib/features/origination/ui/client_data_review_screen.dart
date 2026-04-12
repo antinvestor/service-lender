@@ -208,7 +208,7 @@ class _VerifyAllButtonState extends ConsumerState<_VerifyAllButton> {
 
     setState(() => _loading = true);
     try {
-      final notifier = ref.read(clientDataNotifierProvider.notifier);
+      final notifier = ref.read(clientDataProvider.notifier);
       final pendingEntries = widget.entries.where((e) =>
           e.verificationStatus !=
               DataVerificationStatus.DATA_VERIFICATION_STATUS_VERIFIED &&
@@ -463,7 +463,7 @@ class _VerifyButton extends ConsumerWidget {
         if (profileId.isEmpty) return;
         try {
           await ref
-              .read(clientDataNotifierProvider.notifier)
+              .read(clientDataProvider.notifier)
               .verify(entryId, profileId);
         } catch (e) {
           if (context.mounted) {
@@ -531,7 +531,7 @@ class _RejectButton extends ConsumerWidget {
     if (profileId.isEmpty) return;
     try {
       await ref
-          .read(clientDataNotifierProvider.notifier)
+          .read(clientDataProvider.notifier)
           .reject(entryId, profileId, reason.trim());
     } catch (e) {
       if (context.mounted) {
@@ -596,7 +596,7 @@ class _RequestInfoButton extends ConsumerWidget {
     if (profileId.isEmpty) return;
     try {
       await ref
-          .read(clientDataNotifierProvider.notifier)
+          .read(clientDataProvider.notifier)
           .requestInfo(entryId, profileId, comment.trim());
     } catch (e) {
       if (context.mounted) {

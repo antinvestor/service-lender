@@ -117,7 +117,7 @@ final class AgentNotifierProvider
   AgentNotifier create() => AgentNotifier();
 }
 
-String _$agentNotifierHash() => r'3827874178a7950c1ec6a9fd6911eaea5ab1ebd7';
+String _$agentNotifierHash() => r'126147187bcb540e16f6105b82510235d26fdde3';
 
 abstract class _$AgentNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

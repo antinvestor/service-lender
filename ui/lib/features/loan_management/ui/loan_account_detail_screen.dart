@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -290,8 +291,11 @@ class _LoanAccountDetailScreenState
         loanAccountId: loan.id,
         onSave: (channel, recipientReference) async {
           try {
-            final idempotencyKey = DateTime.now().millisecondsSinceEpoch
-                .toString();
+            final random = Random.secure();
+            final idempotencyKey = List.generate(
+              16,
+              (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+            ).join();
             await ref
                 .read(disbursementProvider.notifier)
                 .create(
@@ -343,8 +347,11 @@ class _LoanAccountDetailScreenState
         totalOutstanding: outstanding,
         onSave: (amount, paymentReference, channel, payerReference) async {
           try {
-            final idempotencyKey = DateTime.now().millisecondsSinceEpoch
-                .toString();
+            final random = Random.secure();
+            final idempotencyKey = List.generate(
+              16,
+              (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+            ).join();
             await ref
                 .read(repaymentProvider.notifier)
                 .record(
@@ -389,8 +396,11 @@ class _LoanAccountDetailScreenState
         onSave: (amount, phoneNumber) async {
           try {
             final client = ref.read(loanManagementServiceClientProvider);
-            final idempotencyKey = DateTime.now().millisecondsSinceEpoch
-                .toString();
+            final random = Random.secure();
+            final idempotencyKey = List.generate(
+              16,
+              (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+            ).join();
             await client.initiateCollection(
               InitiateCollectionRequest(
                 loanAccountId: loan.id,

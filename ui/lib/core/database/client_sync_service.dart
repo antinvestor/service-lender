@@ -97,12 +97,21 @@ class ClientSyncService {
     return companions.length;
   }
 
-  /// Full sync: push pending, then pull fresh data.
+  /// Full sync: pull fresh data first so newly-pushed records are included,
+  /// then push any remaining pending locals.
+  ///
+  /// Order rationale: pulling first ensures the local DB has the latest state
+  /// from the backend. Any records that were successfully pushed in a prior
+  /// sync cycle will appear in the pull results. Pending locals that haven't
+  /// been pushed yet are preserved by [replaceAllClientsFromBackend].
   Future<({int pushed, int pulled})> fullSync({
     String query = '',
     String agentId = '',
   }) async {
     final pushed = await pushPendingClients();
+    // Small delay to allow backend event propagation before pulling, so
+    // records just pushed are included in the pull results.
+    await Future.delayed(const Duration(milliseconds: 200));
     final pulled = await pullClients(query: query, agentId: agentId);
     return (pushed: pushed, pulled: pulled);
   }

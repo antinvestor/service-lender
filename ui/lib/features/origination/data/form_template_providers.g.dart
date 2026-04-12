@@ -233,7 +233,7 @@ final class FormTemplateNotifierProvider
 }
 
 String _$formTemplateNotifierHash() =>
-    r'a35246ae45de9742f60c3e03f8febdd813496d61';
+    r'f8b360fa4cbf89c9d6b396d11b51cf3bff2ba6a5';
 
 abstract class _$FormTemplateNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -378,7 +378,7 @@ final class FormSubmissionNotifierProvider
 }
 
 String _$formSubmissionNotifierHash() =>
-    r'e6d624e6e0cc54d82deddeb4a1706f17b5cfd70b';
+    r'1c835239e1fb16d1659dacf4316f16a3eafd775d';
 
 abstract class _$FormSubmissionNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

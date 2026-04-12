@@ -143,16 +143,40 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Bulk insert clients from backend (used during initial sync/refresh).
+  ///
+  /// Preserves pending and failed local records. If a backend record has the
+  /// same ID as a pending local record, the backend record is skipped to avoid
+  /// overwriting unsynced local changes.
   Future<void> replaceAllClientsFromBackend(
     List<LocalClientsCompanion> clients,
   ) async {
+    // Collect IDs of pending/failed locals to avoid overwriting them.
+    final pendingLocals = await (select(localClients)
+          ..where(
+            (c) => c.syncStatus.equalsValue(SyncStatus.pending) |
+                c.syncStatus.equalsValue(SyncStatus.failed),
+          ))
+        .get();
+    final pendingIds = pendingLocals
+        .where((c) => c.id.isNotEmpty)
+        .map((c) => c.id)
+        .toSet();
+
+    // Filter out backend records that conflict with pending locals.
+    final safeClients = clients
+        .where((c) {
+          final id = c.id.value;
+          return id.isEmpty || !pendingIds.contains(id);
+        })
+        .toList();
+
     await batch((batch) {
-      // Only delete synced records — keep pending locals.
+      // Only delete synced records — keep pending/failed locals.
       batch.deleteWhere(
         localClients,
         (c) => c.syncStatus.equalsValue(SyncStatus.synced),
       );
-      batch.insertAll(localClients, clients);
+      batch.insertAll(localClients, safeClients);
     });
   }
 }

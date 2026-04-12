@@ -34,8 +34,6 @@ class BranchNotifier extends _$BranchNotifier {
   Future<void> save(BranchObject branch) async {
     final client = ref.read(identityServiceClientProvider);
     await client.branchSave(BranchSaveRequest(data: branch));
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(branchListProvider);
-    });
+    ref.invalidate(branchListProvider);
   }
 }

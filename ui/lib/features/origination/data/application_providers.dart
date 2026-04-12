@@ -64,19 +64,17 @@ class ApplicationNotifier extends _$ApplicationNotifier {
     // no-op
   }
 
+  void _invalidateForApplication(String id) {
+    ref.invalidate(applicationListProvider);
+    ref.invalidate(applicationDetailProvider(id));
+  }
+
   Future<ApplicationObject> save(ApplicationObject app) async {
     final client = ref.read(originationServiceClientProvider);
     final response = await client.applicationSave(
       ApplicationSaveRequest(data: app),
     );
-
-    // Delay the list refresh slightly to allow the async event handler
-    // to commit to the database before we query.
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(applicationListProvider);
-      ref.invalidate(applicationDetailProvider);
-    });
-
+    _invalidateForApplication(response.data.id);
     return response.data;
   }
 
@@ -85,12 +83,7 @@ class ApplicationNotifier extends _$ApplicationNotifier {
     final response = await client.applicationSubmit(
       ApplicationSubmitRequest(id: id),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(applicationListProvider);
-      ref.invalidate(applicationDetailProvider);
-    });
-
+    _invalidateForApplication(id);
     return response.data;
   }
 
@@ -99,12 +92,7 @@ class ApplicationNotifier extends _$ApplicationNotifier {
     final response = await client.applicationCancel(
       ApplicationCancelRequest(id: id, reason: reason),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(applicationListProvider);
-      ref.invalidate(applicationDetailProvider);
-    });
-
+    _invalidateForApplication(id);
     return response.data;
   }
 
@@ -113,12 +101,7 @@ class ApplicationNotifier extends _$ApplicationNotifier {
     final response = await client.applicationAcceptOffer(
       ApplicationAcceptOfferRequest(id: id),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(applicationListProvider);
-      ref.invalidate(applicationDetailProvider);
-    });
-
+    _invalidateForApplication(id);
     return response.data;
   }
 
@@ -127,12 +110,7 @@ class ApplicationNotifier extends _$ApplicationNotifier {
     final response = await client.applicationDeclineOffer(
       ApplicationDeclineOfferRequest(id: id, reason: reason),
     );
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(applicationListProvider);
-      ref.invalidate(applicationDetailProvider);
-    });
-
+    _invalidateForApplication(id);
     return response.data;
   }
 }
