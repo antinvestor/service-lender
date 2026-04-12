@@ -382,6 +382,15 @@ message FormFieldDefinition {
 }
 
 // FormTemplateObject defines a reusable form schema.
+//
+// Form templates are the backbone of dynamic data collection across the
+// platform. A single template can be used for loan origination KYC,
+// client onboarding, group membership registration, investor KYC, or
+// any other structured data collection requirement.
+//
+// The entity_type field determines which domain the template serves
+// (e.g. "client", "agent", "investor", "group", "application").
+// Products and entities reference templates via ProductFormRequirement.
 message FormTemplateObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -401,9 +410,18 @@ message FormTemplateObject {
   repeated string sections = 8;
   google.protobuf.Struct validation_rules = 9;
   google.protobuf.Struct properties = 10;
+  // The entity type this template is designed for. Used to filter
+  // templates when loading requirements for a specific domain.
+  // Standard values: "client", "agent", "investor", "group", "application".
+  string entity_type = 11;
 }
 
-// FormSubmissionObject captures filled form data for an application.
+// FormSubmissionObject captures filled form data for an entity.
+//
+// Submissions are linked to an owning entity via entity_id. For backward
+// compatibility, application_id remains as an alias — callers may set
+// either field; the service treats them identically. New integrations
+// (client onboarding, group setup, investor KYC) should use entity_id.
 message FormSubmissionObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -411,8 +429,9 @@ message FormSubmissionObject {
     (buf.validate.field).string.max_len = 40,
     (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
   ];
+  // Deprecated: use entity_id for new integrations.
   string application_id = 2 [
-    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ];
   string template_id = 3 [
@@ -428,6 +447,14 @@ message FormSubmissionObject {
   google.protobuf.Struct file_refs = 7;
   common.v1.STATE state = 8;
   google.protobuf.Struct properties = 9;
+  // The owning entity ID (application, client, group, investor, etc.).
+  // For loan applications, this is the same as application_id.
+  string entity_id = 10 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  // The entity type for categorization (matches FormTemplateObject.entity_type).
+  string entity_type = 11;
 }
 
 // -----------------------------------------------------
@@ -728,6 +755,8 @@ message FormTemplateSearchRequest {
   ];
   FormTemplateStatus status = 3;
   common.v1.PageCursor cursor = 4;
+  // Filter templates by entity type (e.g. "client", "group", "application").
+  string entity_type = 5;
 }
 
 message FormTemplateSearchResponse {
@@ -769,9 +798,9 @@ message FormSubmissionGetResponse {
 }
 
 message FormSubmissionSearchRequest {
+  // Deprecated: use entity_id for new integrations.
   string application_id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
   string template_id = 2 [
@@ -780,6 +809,14 @@ message FormSubmissionSearchRequest {
     (buf.validate.field).string.max_len = 40
   ];
   common.v1.PageCursor cursor = 3;
+  // Filter by owning entity ID. For backward compatibility,
+  // the service checks both entity_id and application_id.
+  string entity_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  // Filter by entity type.
+  string entity_type = 5;
 }
 
 message FormSubmissionSearchResponse {

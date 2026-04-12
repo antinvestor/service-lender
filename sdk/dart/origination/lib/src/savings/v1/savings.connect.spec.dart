@@ -123,6 +123,14 @@ abstract final class SavingsService {
     savingsv1savings.WithdrawalApproveResponse.new,
   );
 
+  /// WithdrawalCancel rejects a pending withdrawal and releases the reserved balance.
+  static const withdrawalCancel = connect.Spec(
+    '/$name/WithdrawalCancel',
+    connect.StreamType.unary,
+    savingsv1savings.WithdrawalCancelRequest.new,
+    savingsv1savings.WithdrawalCancelResponse.new,
+  );
+
   /// WithdrawalGet retrieves a withdrawal by its ID.
   static const withdrawalGet = connect.Spec(
     '/$name/WithdrawalGet',

@@ -525,6 +525,7 @@ const FormTemplateObject$json = {
     {'1': 'sections', '3': 8, '4': 3, '5': 9, '10': 'sections'},
     {'1': 'validation_rules', '3': 9, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'validationRules'},
     {'1': 'properties', '3': 10, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {'1': 'entity_type', '3': 11, '4': 1, '5': 9, '10': 'entityType'},
   ],
 };
 
@@ -538,7 +539,8 @@ final $typed_data.Uint8List formTemplateObjectDescriptor = $convert.base64Decode
     'RzGAcgAygLMiMub3JpZ2luYXRpb24udjEuRm9ybUZpZWxkRGVmaW5pdGlvblIGZmllbGRzEhoK'
     'CHNlY3Rpb25zGAggAygJUghzZWN0aW9ucxJCChB2YWxpZGF0aW9uX3J1bGVzGAkgASgLMhcuZ2'
     '9vZ2xlLnByb3RvYnVmLlN0cnVjdFIPdmFsaWRhdGlvblJ1bGVzEjcKCnByb3BlcnRpZXMYCiAB'
-    'KAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ugpwcm9wZXJ0aWVz');
+    'KAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ugpwcm9wZXJ0aWVzEh8KC2VudGl0eV90eXBlGA'
+    'sgASgJUgplbnRpdHlUeXBl');
 
 @$core.Deprecated('Use formSubmissionObjectDescriptor instead')
 const FormSubmissionObject$json = {
@@ -553,20 +555,23 @@ const FormSubmissionObject$json = {
     {'1': 'file_refs', '3': 7, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'fileRefs'},
     {'1': 'state', '3': 8, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
     {'1': 'properties', '3': 9, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {'1': 'entity_id', '3': 10, '4': 1, '5': 9, '8': {}, '10': 'entityId'},
+    {'1': 'entity_type', '3': 11, '4': 1, '5': 9, '10': 'entityType'},
   ],
 };
 
 /// Descriptor for `FormSubmissionObject`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List formSubmissionObjectDescriptor = $convert.base64Decode(
     'ChRGb3JtU3VibWlzc2lvbk9iamVjdBIuCgJpZBgBIAEoCUIeukgb2AEBchYQAxgoMhBbMC05YS'
-    '16Xy1dezMsNDB9UgJpZBIwCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUIJukgGcgQQAxgoUg1hcHBs'
-    'aWNhdGlvbklkEioKC3RlbXBsYXRlX2lkGAMgASgJQgm6SAZyBBADGChSCnRlbXBsYXRlSWQSKQ'
-    'oQdGVtcGxhdGVfdmVyc2lvbhgEIAEoBVIPdGVtcGxhdGVWZXJzaW9uEi0KDHN1Ym1pdHRlZF9i'
-    'eRgFIAEoCUIKukgH2AEBcgIYKFILc3VibWl0dGVkQnkSKwoEZGF0YRgGIAEoCzIXLmdvb2dsZS'
-    '5wcm90b2J1Zi5TdHJ1Y3RSBGRhdGESNAoJZmlsZV9yZWZzGAcgASgLMhcuZ29vZ2xlLnByb3Rv'
-    'YnVmLlN0cnVjdFIIZmlsZVJlZnMSJgoFc3RhdGUYCCABKA4yEC5jb21tb24udjEuU1RBVEVSBX'
-    'N0YXRlEjcKCnByb3BlcnRpZXMYCSABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ugpwcm9w'
-    'ZXJ0aWVz');
+    '16Xy1dezMsNDB9UgJpZBIxCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUIKukgH2AEBcgIYKFINYXBw'
+    'bGljYXRpb25JZBIqCgt0ZW1wbGF0ZV9pZBgDIAEoCUIJukgGcgQQAxgoUgp0ZW1wbGF0ZUlkEi'
+    'kKEHRlbXBsYXRlX3ZlcnNpb24YBCABKAVSD3RlbXBsYXRlVmVyc2lvbhItCgxzdWJtaXR0ZWRf'
+    'YnkYBSABKAlCCrpIB9gBAXICGChSC3N1Ym1pdHRlZEJ5EisKBGRhdGEYBiABKAsyFy5nb29nbG'
+    'UucHJvdG9idWYuU3RydWN0UgRkYXRhEjQKCWZpbGVfcmVmcxgHIAEoCzIXLmdvb2dsZS5wcm90'
+    'b2J1Zi5TdHJ1Y3RSCGZpbGVSZWZzEiYKBXN0YXRlGAggASgOMhAuY29tbW9uLnYxLlNUQVRFUg'
+    'VzdGF0ZRI3Cgpwcm9wZXJ0aWVzGAkgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJv'
+    'cGVydGllcxInCgllbnRpdHlfaWQYCiABKAlCCrpIB9gBAXICGChSCGVudGl0eUlkEh8KC2VudG'
+    'l0eV90eXBlGAsgASgJUgplbnRpdHlUeXBl');
 
 @$core.Deprecated('Use loanProductSaveRequestDescriptor instead')
 const LoanProductSaveRequest$json = {
@@ -1183,6 +1188,7 @@ const FormTemplateSearchRequest$json = {
     {'1': 'organization_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'organizationId'},
     {'1': 'status', '3': 3, '4': 1, '5': 14, '6': '.origination.v1.FormTemplateStatus', '10': 'status'},
     {'1': 'cursor', '3': 4, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {'1': 'entity_type', '3': 5, '4': 1, '5': 9, '10': 'entityType'},
   ],
 };
 
@@ -1191,7 +1197,8 @@ final $typed_data.Uint8List formTemplateSearchRequestDescriptor = $convert.base6
     'ChlGb3JtVGVtcGxhdGVTZWFyY2hSZXF1ZXN0EhQKBXF1ZXJ5GAEgASgJUgVxdWVyeRI1Cg9vcm'
     'dhbml6YXRpb25faWQYAiABKAlCDLpICdgBAXIEEAMYKFIOb3JnYW5pemF0aW9uSWQSOgoGc3Rh'
     'dHVzGAMgASgOMiIub3JpZ2luYXRpb24udjEuRm9ybVRlbXBsYXRlU3RhdHVzUgZzdGF0dXMSLQ'
-    'oGY3Vyc29yGAQgASgLMhUuY29tbW9uLnYxLlBhZ2VDdXJzb3JSBmN1cnNvcg==');
+    'oGY3Vyc29yGAQgASgLMhUuY29tbW9uLnYxLlBhZ2VDdXJzb3JSBmN1cnNvchIfCgtlbnRpdHlf'
+    'dHlwZRgFIAEoCVIKZW50aXR5VHlwZQ==');
 
 @$core.Deprecated('Use formTemplateSearchResponseDescriptor instead')
 const FormTemplateSearchResponse$json = {
@@ -1291,15 +1298,18 @@ const FormSubmissionSearchRequest$json = {
     {'1': 'application_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'applicationId'},
     {'1': 'template_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'templateId'},
     {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {'1': 'entity_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'entityId'},
+    {'1': 'entity_type', '3': 5, '4': 1, '5': 9, '10': 'entityType'},
   ],
 };
 
 /// Descriptor for `FormSubmissionSearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List formSubmissionSearchRequestDescriptor = $convert.base64Decode(
-    'ChtGb3JtU3VibWlzc2lvblNlYXJjaFJlcXVlc3QSMwoOYXBwbGljYXRpb25faWQYASABKAlCDL'
-    'pICdgBAXIEEAMYKFINYXBwbGljYXRpb25JZBItCgt0ZW1wbGF0ZV9pZBgCIAEoCUIMukgJ2AEB'
-    'cgQQAxgoUgp0ZW1wbGF0ZUlkEi0KBmN1cnNvchgDIAEoCzIVLmNvbW1vbi52MS5QYWdlQ3Vyc2'
-    '9yUgZjdXJzb3I=');
+    'ChtGb3JtU3VibWlzc2lvblNlYXJjaFJlcXVlc3QSMQoOYXBwbGljYXRpb25faWQYASABKAlCCr'
+    'pIB9gBAXICGChSDWFwcGxpY2F0aW9uSWQSLQoLdGVtcGxhdGVfaWQYAiABKAlCDLpICdgBAXIE'
+    'EAMYKFIKdGVtcGxhdGVJZBItCgZjdXJzb3IYAyABKAsyFS5jb21tb24udjEuUGFnZUN1cnNvcl'
+    'IGY3Vyc29yEicKCWVudGl0eV9pZBgEIAEoCUIKukgH2AEBcgIYKFIIZW50aXR5SWQSHwoLZW50'
+    'aXR5X3R5cGUYBSABKAlSCmVudGl0eVR5cGU=');
 
 @$core.Deprecated('Use formSubmissionSearchResponseDescriptor instead')
 const FormSubmissionSearchResponse$json = {

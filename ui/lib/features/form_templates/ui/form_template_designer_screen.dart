@@ -171,6 +171,31 @@ class _FormTemplateDesignerScreenState
                 onChanged: (v) => setState(() => _template.description = v),
               ),
             ),
+            const SizedBox(width: 16),
+            SizedBox(
+              width: 180,
+              child: DropdownButtonFormField<String>(
+                initialValue: _template.entityType.isNotEmpty
+                    ? _template.entityType
+                    : null,
+                decoration: const InputDecoration(
+                  labelText: 'Entity Type',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'client', child: Text('Client')),
+                  DropdownMenuItem(value: 'agent', child: Text('Agent')),
+                  DropdownMenuItem(value: 'investor', child: Text('Investor')),
+                  DropdownMenuItem(value: 'group', child: Text('Group')),
+                  DropdownMenuItem(
+                    value: 'application',
+                    child: Text('Application'),
+                  ),
+                ],
+                onChanged: (v) =>
+                    setState(() => _template.entityType = v ?? ''),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 24),

@@ -469,6 +469,19 @@ message WithdrawalApproveResponse {
   WithdrawalObject data = 1;
 }
 
+message WithdrawalCancelRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message WithdrawalCancelResponse {
+  WithdrawalObject data = 1;
+}
+
 message WithdrawalGetRequest {
   string id = 1 [
     (buf.validate.field).string.min_len = 3,
@@ -825,6 +838,19 @@ service SavingsService {
       operation_id: "withdrawalApprove"
       summary: "Approve a withdrawal"
       description: "Approves a pending withdrawal request."
+      tags: "Withdrawals"
+    };
+  }
+
+  // WithdrawalCancel rejects a pending withdrawal and releases the reserved balance.
+  rpc WithdrawalCancel(WithdrawalCancelRequest) returns (WithdrawalCancelResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["withdrawal_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "withdrawalCancel"
+      summary: "Cancel a withdrawal"
+      description: "Cancels a pending withdrawal request and releases the reserved balance back to available."
       tags: "Withdrawals"
     };
   }

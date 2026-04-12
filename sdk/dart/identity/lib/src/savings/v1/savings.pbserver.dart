@@ -34,6 +34,7 @@ abstract class SavingsServiceBase extends $pb.GeneratedService {
   $async.Future<$15.DepositSearchResponse> depositSearch($pb.ServerContext ctx, $15.DepositSearchRequest request);
   $async.Future<$15.WithdrawalRequestResponse> withdrawalRequest($pb.ServerContext ctx, $15.WithdrawalRequestRequest request);
   $async.Future<$15.WithdrawalApproveResponse> withdrawalApprove($pb.ServerContext ctx, $15.WithdrawalApproveRequest request);
+  $async.Future<$15.WithdrawalCancelResponse> withdrawalCancel($pb.ServerContext ctx, $15.WithdrawalCancelRequest request);
   $async.Future<$15.WithdrawalGetResponse> withdrawalGet($pb.ServerContext ctx, $15.WithdrawalGetRequest request);
   $async.Future<$15.WithdrawalSearchResponse> withdrawalSearch($pb.ServerContext ctx, $15.WithdrawalSearchRequest request);
   $async.Future<$15.InterestAccrualGetResponse> interestAccrualGet($pb.ServerContext ctx, $15.InterestAccrualGetRequest request);
@@ -56,6 +57,7 @@ abstract class SavingsServiceBase extends $pb.GeneratedService {
       case 'DepositSearch': return $15.DepositSearchRequest();
       case 'WithdrawalRequest': return $15.WithdrawalRequestRequest();
       case 'WithdrawalApprove': return $15.WithdrawalApproveRequest();
+      case 'WithdrawalCancel': return $15.WithdrawalCancelRequest();
       case 'WithdrawalGet': return $15.WithdrawalGetRequest();
       case 'WithdrawalSearch': return $15.WithdrawalSearchRequest();
       case 'InterestAccrualGet': return $15.InterestAccrualGetRequest();
@@ -81,6 +83,7 @@ abstract class SavingsServiceBase extends $pb.GeneratedService {
       case 'DepositSearch': return this.depositSearch(ctx, request as $15.DepositSearchRequest);
       case 'WithdrawalRequest': return this.withdrawalRequest(ctx, request as $15.WithdrawalRequestRequest);
       case 'WithdrawalApprove': return this.withdrawalApprove(ctx, request as $15.WithdrawalApproveRequest);
+      case 'WithdrawalCancel': return this.withdrawalCancel(ctx, request as $15.WithdrawalCancelRequest);
       case 'WithdrawalGet': return this.withdrawalGet(ctx, request as $15.WithdrawalGetRequest);
       case 'WithdrawalSearch': return this.withdrawalSearch(ctx, request as $15.WithdrawalSearchRequest);
       case 'InterestAccrualGet': return this.interestAccrualGet(ctx, request as $15.InterestAccrualGetRequest);
