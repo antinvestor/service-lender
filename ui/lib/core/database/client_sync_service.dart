@@ -97,7 +97,11 @@ class ClientSyncService {
     return companions.length;
   }
 
-  /// Full sync: push pending, then pull fresh data.
+  /// Full sync: push pending locals, then pull fresh data.
+  ///
+  /// Pending locals that haven't been pushed yet (or whose push failed) are
+  /// preserved by [replaceAllClientsFromBackend], so there is no data loss
+  /// even if a just-pushed record hasn't propagated to the search index yet.
   Future<({int pushed, int pulled})> fullSync({
     String query = '',
     String agentId = '',

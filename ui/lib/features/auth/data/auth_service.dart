@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:openid_client/openid_client.dart';
 
+import '../../../core/config/auth_constants.dart';
 import '../../../core/logging/app_logger.dart';
 import 'platform/auth_platform.dart';
 import 'platform/auth_platform_stub.dart'
@@ -47,6 +48,11 @@ class AuthService {
   /// Reinitializes the OIDC client and persists the selection.
   Future<void> switchClient(String clientId) async {
     if (clientId == _activeClientId) return;
+    // Validate format to prevent injection via deep links.
+    if (!clientIdPattern.hasMatch(clientId)) {
+      AppLogger.warning('Invalid clientId format rejected: $clientId');
+      return;
+    }
     _activeClientId = clientId;
     // Force reinitialize with the new client_id
     _platform.reset();

@@ -251,12 +251,37 @@ List<NavItem> buildNavItems() => [
     requiredRoles: _allViewRoles,
     children: [
       NavItem(
+        id: 'savings_products',
+        label: 'Products',
+        icon: Icons.inventory_2_outlined,
+        activeIcon: Icons.inventory_2,
+        route: '/savings/products',
+        requiredRoles: _viewRoles,
+      ),
+      NavItem(
         id: 'savings_accounts',
         label: 'Savings Accounts',
         icon: Icons.account_balance_outlined,
         activeIcon: Icons.account_balance,
         route: '/savings',
         requiredRoles: _allViewRoles,
+      ),
+    ],
+  ),
+  NavItem(
+    id: 'funding',
+    label: 'Funding',
+    icon: Icons.monetization_on_outlined,
+    activeIcon: Icons.monetization_on,
+    requiredRoles: _viewRoles,
+    children: [
+      NavItem(
+        id: 'investor_accounts',
+        label: 'Investor Accounts',
+        icon: Icons.account_balance_wallet_outlined,
+        activeIcon: Icons.account_balance_wallet,
+        route: '/funding/accounts',
+        requiredRoles: _viewRoles,
       ),
     ],
   ),

@@ -44,7 +44,11 @@ const Map<String, Set<LenderRole>> routePermissions = {
   '/operations/transfers': _viewRoles,
   '/operations/templates': {LenderRole.owner, LenderRole.admin},
 
+  // Funding — view roles
+  '/funding/accounts': _viewRoles,
+
   // Savings — operational roles
+  '/savings/products': _viewRoles,
   '/savings': _allViewRoles,
 
   // Settings — any authenticated user

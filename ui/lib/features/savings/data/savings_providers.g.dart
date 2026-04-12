@@ -116,7 +116,7 @@ final class SavingsProductNotifierProvider
 }
 
 String _$savingsProductNotifierHash() =>
-    r'1b413dd4b696e2f3774e1b651fe18cbd1df1ab64';
+    r'b025d70423225418a0fe06e9710f9389e194e65a';
 
 abstract class _$SavingsProductNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -407,7 +407,7 @@ final class SavingsAccountNotifierProvider
 }
 
 String _$savingsAccountNotifierHash() =>
-    r'99017e6c1de302c1aee42a87d9894e2388fc97d2';
+    r'7723fd46008eba68a5ddd171619f8c0169452ada';
 
 abstract class _$SavingsAccountNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -528,7 +528,7 @@ final class DepositNotifierProvider
   DepositNotifier create() => DepositNotifier();
 }
 
-String _$depositNotifierHash() => r'5738016a387f688c8c871595819862e2765f6eff';
+String _$depositNotifierHash() => r'4b72e3fc873ecf4b3ae137c955212a80cf096a57';
 
 abstract class _$DepositNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -650,7 +650,7 @@ final class WithdrawalNotifierProvider
 }
 
 String _$withdrawalNotifierHash() =>
-    r'a47d2aa7943224246c9ed9a572d163b974265e72';
+    r'2a180120112778c1c7d8e6ea37c8d8046e120d7f';
 
 abstract class _$WithdrawalNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

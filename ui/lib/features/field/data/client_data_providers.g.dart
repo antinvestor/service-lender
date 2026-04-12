@@ -24,7 +24,7 @@ final class ClientDataListProvider
         $FutureProvider<List<ClientDataEntryObject>> {
   ClientDataListProvider._({
     required ClientDataListFamily super.from,
-    required ({String clientId}) super.argument,
+    required String super.argument,
   }) : super(
          retry: null,
          name: r'clientDataListProvider',
@@ -40,7 +40,7 @@ final class ClientDataListProvider
   String toString() {
     return r'clientDataListProvider'
         ''
-        '$argument';
+        '($argument)';
   }
 
   @$internal
@@ -51,8 +51,8 @@ final class ClientDataListProvider
 
   @override
   FutureOr<List<ClientDataEntryObject>> create(Ref ref) {
-    final argument = this.argument as ({String clientId});
-    return clientDataList(ref, clientId: argument.clientId);
+    final argument = this.argument as String;
+    return clientDataList(ref, clientId: argument);
   }
 
   @override
@@ -66,13 +66,13 @@ final class ClientDataListProvider
   }
 }
 
-String _$clientDataListHash() => r'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
+String _$clientDataListHash() => r'2159767887da22ad7156246bec21d1cdaa5fa35c';
 
 final class ClientDataListFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<ClientDataEntryObject>>,
-          ({String clientId})
+          String
         > {
   ClientDataListFamily._()
     : super(
@@ -84,17 +84,14 @@ final class ClientDataListFamily extends $Family
       );
 
   ClientDataListProvider call({required String clientId}) =>
-      ClientDataListProvider._(
-        argument: (clientId: clientId),
-        from: this,
-      );
+      ClientDataListProvider._(argument: clientId, from: this);
 
   @override
   String toString() => r'clientDataListProvider';
 }
 
 @ProviderFor(ClientDataNotifier)
-final clientDataNotifierProvider = ClientDataNotifierProvider._();
+final clientDataProvider = ClientDataNotifierProvider._();
 
 final class ClientDataNotifierProvider
     extends $AsyncNotifierProvider<ClientDataNotifier, void> {
@@ -103,7 +100,7 @@ final class ClientDataNotifierProvider
         from: null,
         argument: null,
         retry: null,
-        name: r'clientDataNotifierProvider',
+        name: r'clientDataProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
@@ -118,7 +115,7 @@ final class ClientDataNotifierProvider
 }
 
 String _$clientDataNotifierHash() =>
-    r'b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1';
+    r'041580ddaba53cf214ee1a9376e107817dba65fe';
 
 abstract class _$ClientDataNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -153,7 +150,7 @@ final class ClientDataHistoryProvider
         $FutureProvider<List<ClientDataEntryHistoryObject>> {
   ClientDataHistoryProvider._({
     required ClientDataHistoryFamily super.from,
-    required ({String entryId}) super.argument,
+    required String super.argument,
   }) : super(
          retry: null,
          name: r'clientDataHistoryProvider',
@@ -169,7 +166,7 @@ final class ClientDataHistoryProvider
   String toString() {
     return r'clientDataHistoryProvider'
         ''
-        '$argument';
+        '($argument)';
   }
 
   @$internal
@@ -180,8 +177,8 @@ final class ClientDataHistoryProvider
 
   @override
   FutureOr<List<ClientDataEntryHistoryObject>> create(Ref ref) {
-    final argument = this.argument as ({String entryId});
-    return clientDataHistory(ref, entryId: argument.entryId);
+    final argument = this.argument as String;
+    return clientDataHistory(ref, entryId: argument);
   }
 
   @override
@@ -195,14 +192,13 @@ final class ClientDataHistoryProvider
   }
 }
 
-String _$clientDataHistoryHash() =>
-    r'c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2';
+String _$clientDataHistoryHash() => r'61056a6aaf469a1dd926f7ba720fe886f8225df2';
 
 final class ClientDataHistoryFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<ClientDataEntryHistoryObject>>,
-          ({String entryId})
+          String
         > {
   ClientDataHistoryFamily._()
     : super(
@@ -214,10 +210,7 @@ final class ClientDataHistoryFamily extends $Family
       );
 
   ClientDataHistoryProvider call({required String entryId}) =>
-      ClientDataHistoryProvider._(
-        argument: (entryId: entryId),
-        from: this,
-      );
+      ClientDataHistoryProvider._(argument: entryId, from: this);
 
   @override
   String toString() => r'clientDataHistoryProvider';

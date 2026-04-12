@@ -106,6 +106,9 @@ class PaginatedStreamController<R, T> {
           if (exhausted) {
             _streamExhausted = true;
             _subscription?.cancel();
+          } else {
+            // Pause after each page so loadMore() can resume for the next.
+            _subscription?.pause();
           }
 
           _pageCompleter?.complete();

@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_provider.dart';
+import '../../../core/api/idempotency.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/savings/v1/savings.pb.dart';
@@ -37,9 +38,7 @@ class SavingsProductNotifier extends _$SavingsProductNotifier {
     final response = await client.savingsProductSave(
       SavingsProductSaveRequest(data: product),
     );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsProductListProvider);
-    });
+    ref.invalidate(savingsProductListProvider);
     return response.data;
   }
 }
@@ -96,28 +95,22 @@ class SavingsAccountNotifier extends _$SavingsAccountNotifier {
     final response = await client.savingsAccountCreate(
       SavingsAccountCreateRequest(data: account),
     );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsAccountListProvider);
-    });
+    ref.invalidate(savingsAccountListProvider);
     return response.data;
   }
 
   Future<void> freeze(String id) async {
     final client = ref.read(savingsServiceClientProvider);
     await client.savingsAccountFreeze(SavingsAccountFreezeRequest(id: id));
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsAccountListProvider);
-      ref.invalidate(savingsAccountDetailProvider);
-    });
+    ref.invalidate(savingsAccountListProvider);
+    ref.invalidate(savingsAccountDetailProvider(id));
   }
 
   Future<void> close(String id) async {
     final client = ref.read(savingsServiceClientProvider);
     await client.savingsAccountClose(SavingsAccountCloseRequest(id: id));
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.invalidate(savingsAccountListProvider);
-      ref.invalidate(savingsAccountDetailProvider);
-    });
+    ref.invalidate(savingsAccountListProvider);
+    ref.invalidate(savingsAccountDetailProvider(id));
   }
 }
 
@@ -161,7 +154,7 @@ class DepositNotifier extends _$DepositNotifier {
         paymentReference: paymentReference,
         channel: channel,
         payerReference: payerReference,
-        idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
+        idempotencyKey: generateIdempotencyKey(),
       ),
     );
     ref.invalidate(depositListProvider);
@@ -210,7 +203,7 @@ class WithdrawalNotifier extends _$WithdrawalNotifier {
         channel: channel,
         recipientReference: recipientReference,
         reason: reason,
-        idempotencyKey: DateTime.now().millisecondsSinceEpoch.toString(),
+        idempotencyKey: generateIdempotencyKey(),
       ),
     );
     ref.invalidate(withdrawalListProvider);

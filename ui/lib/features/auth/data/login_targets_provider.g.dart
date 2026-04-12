@@ -73,7 +73,7 @@ final class LoginTargetsProvider
   }
 }
 
-String _$loginTargetsHash() => r'83feab7f83fad4e066caed980b641322f6e87f79';
+String _$loginTargetsHash() => r'3bfdcb81e53d2d8244ba49c6f5107036333e6371';
 
 /// Fetches login targets (child orgs/branches) for a given OAuth client_id.
 /// This is an unauthenticated call — used on the login page before sign-in.

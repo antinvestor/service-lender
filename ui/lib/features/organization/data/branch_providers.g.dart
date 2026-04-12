@@ -114,7 +114,7 @@ final class BranchNotifierProvider
   BranchNotifier create() => BranchNotifier();
 }
 
-String _$branchNotifierHash() => r'a3a29ba3b0ef09b2841d6f2fa742fd5c522b672e';
+String _$branchNotifierHash() => r'030be18352f90db083511c6c8659e72dd3bfeccf';
 
 abstract class _$BranchNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

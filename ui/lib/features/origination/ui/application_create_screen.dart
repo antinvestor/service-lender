@@ -596,8 +596,11 @@ class _ApplicationCreateScreenState
     // The wizard will handle its own layout, so we wrap it in a SizedBox to
     // fill the available space (the parent is inside a SingleChildScrollView
     // but the wizard needs a fixed height).
+    // Store the future in a field to prevent FutureBuilder from restarting
+    // on every widget rebuild (which causes spinner flash and form state loss).
+    _draftFuture ??= _getOrCreateDraft();
     return FutureBuilder<ApplicationObject>(
-      future: _getOrCreateDraft(),
+      future: _draftFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -619,6 +622,7 @@ class _ApplicationCreateScreenState
   }
 
   ApplicationObject? _draftApplication;
+  Future<ApplicationObject>? _draftFuture;
 
   Future<ApplicationObject> _getOrCreateDraft() async {
     if (_draftApplication != null) return _draftApplication!;
