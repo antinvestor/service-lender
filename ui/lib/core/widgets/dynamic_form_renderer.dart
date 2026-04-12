@@ -145,84 +145,72 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
     final section = _sections[_currentStep];
     final fields = _fieldsForSection(section);
 
-    return Column(
-      children: [
-        // Step indicator — constrained to form width
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: DesignTokens.maxFormWidth,
-            ),
-            child: Padding(
+    // Top-level constraint keeps the form at a comfortable width, left-
+    // aligned so the remaining space can be used for detail panels.
+    // Individual input fields are further constrained by the theme's
+    // InputDecorationTheme.constraints (maxFieldWidth) automatically.
+    return Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: DesignTokens.maxFormWidth,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Step indicator
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-            children: [
-              for (var i = 0; i < _sections.length; i++) ...[
-                if (i > 0)
-                  Expanded(
-                    child: Container(
-                      height: 2,
-                      color: i <= _currentStep
+                children: [
+                  for (var i = 0; i < _sections.length; i++) ...[
+                    if (i > 0)
+                      Expanded(
+                        child: Container(
+                          height: 2,
+                          color: i <= _currentStep
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surfaceContainerHighest,
+                        ),
+                      ),
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundColor: i <= _currentStep
                           ? theme.colorScheme.primary
                           : theme.colorScheme.surfaceContainerHighest,
+                      child: i < _currentStep
+                          ? Icon(Icons.check,
+                              size: 14,
+                              color: theme.colorScheme.onPrimary)
+                          : Text(
+                              '${i + 1}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: i == _currentStep
+                                    ? theme.colorScheme.onPrimary
+                                    : theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
                     ),
-                  ),
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: i <= _currentStep
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.surfaceContainerHighest,
-                  child: i < _currentStep
-                      ? Icon(Icons.check,
-                          size: 14,
-                          color: theme.colorScheme.onPrimary)
-                      : Text(
-                          '${i + 1}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: i == _currentStep
-                                ? theme.colorScheme.onPrimary
-                                : theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                ),
-              ],
-            ],
-          ),
-        ),
-          ),
-        ),
-
-        // Section title — constrained
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: DesignTokens.maxFormWidth,
+                  ],
+                ],
+              ),
             ),
-            child: Padding(
+
+            // Section title
+            Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  section,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              child: Text(
+                section,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          ),
-        ),
 
-        // Fields — constrained to form width so inputs don't stretch
-        // across ultra-wide screens.
-        Expanded(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: DesignTokens.maxFormWidth,
-              ),
+            // Fields
+            Expanded(
               child: Form(
                 key: _formKey,
                 child: ListView.separated(
@@ -234,50 +222,43 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
                 ),
               ),
             ),
-          ),
-        ),
 
-        // Navigation buttons — also constrained for alignment
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: DesignTokens.maxFormWidth,
-            ),
-            child: Padding(
+            // Navigation buttons
+            Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-            children: [
-              if (_currentStep > 0)
-                OutlinedButton(
-                  onPressed: () => setState(() => _currentStep--),
-                  child: const Text('Back'),
-                ),
-              const Spacer(),
-              if (_currentStep < _sections.length - 1)
-                FilledButton(
-                  onPressed: _nextStep,
-                  child: const Text('Next'),
-                )
-              else
-                FilledButton(
-                  onPressed: _submitting || widget.readOnly
-                      ? null
-                      : _submit,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Submit'),
-                ),
-              ],
+                children: [
+                  if (_currentStep > 0)
+                    OutlinedButton(
+                      onPressed: () => setState(() => _currentStep--),
+                      child: const Text('Back'),
+                    ),
+                  const Spacer(),
+                  if (_currentStep < _sections.length - 1)
+                    FilledButton(
+                      onPressed: _nextStep,
+                      child: const Text('Next'),
+                    )
+                  else
+                    FilledButton(
+                      onPressed: _submitting || widget.readOnly
+                          ? null
+                          : _submit,
+                      child: _submitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Submit'),
+                    ),
+                ],
+              ),
             ),
-            ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

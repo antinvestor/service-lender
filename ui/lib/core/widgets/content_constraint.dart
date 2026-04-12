@@ -44,7 +44,10 @@ class ContentConstraint extends StatelessWidget {
     if (padding != null) {
       content = Padding(padding: padding!, child: content);
     }
-    return Center(
+    // Left-aligned so remaining desktop space is available for
+    // master-detail panels or other contextual content.
+    return Align(
+      alignment: Alignment.topLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: content,
