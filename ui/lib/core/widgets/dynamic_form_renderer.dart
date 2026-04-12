@@ -288,13 +288,24 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
       final entry = cdMap[field.key]!;
       final status = entry.verificationStatus;
 
-      // Verified + not expired: read-only card with green border.
+      // Verified: check expiry before showing read-only card.
       if (status ==
-              DataVerificationStatus.DATA_VERIFICATION_STATUS_VERIFIED &&
-          entry.expiresAt.isEmpty) {
-        return VerifiedFieldCard(
-          field: field,
-          entry: entry,
+              DataVerificationStatus.DATA_VERIFICATION_STATUS_VERIFIED) {
+        final isExpired = entry.expiresAt.isNotEmpty &&
+            DateTime.tryParse(entry.expiresAt)?.isBefore(DateTime.now()) == true;
+
+        if (!isExpired) {
+          return VerifiedFieldCard(
+            field: field,
+            entry: entry,
+          );
+        }
+        // Expired verification — show as editable with expiry notice.
+        final normalField = _buildFieldInner(context, field, entry: entry);
+        return StatusDecoratedField(
+          status: DataVerificationStatus.DATA_VERIFICATION_STATUS_EXPIRED,
+          comment: 'Verification expired — please re-verify',
+          child: normalField,
         );
       }
 
@@ -583,7 +594,8 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
     required String label,
     bool readOnly = false,
   }) {
-    final hasData = _fileData.containsKey(field.key);
+    final hasData = _fileData.containsKey(field.key) ||
+        (_data[field.key] != null && _data[field.key].toString().isNotEmpty);
     return FormField<String>(
       validator: (v) => field.required && !hasData
           ? '${field.label} is required'
@@ -619,17 +631,22 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
                         .colorScheme
                         .outlineVariant),
               ),
-              child: const Center(child: Icon(Icons.check_circle)),
+              child: const Center(
+                child: Icon(Icons.check_circle, color: Colors.green),
+              ),
             )
           else
             OutlinedButton.icon(
               onPressed: readOnly
                   ? null
                   : () {
-                      // In a real app this would invoke image_picker or
-                      // file_picker. For now we store a placeholder.
+                      // TODO: invoke image_picker or file_picker for real
+                      // capture. For now, store a placeholder sentinel in
+                      // both _data (for validation) and _fileData (for
+                      // the onSubmit callback).
                       setState(() {
                         _data[field.key] = 'pending_upload';
+                        _fileData[field.key] = Uint8List(0);
                       });
                     },
               icon: Icon(icon, size: 18),
@@ -922,6 +939,8 @@ class StatusDecoratedField extends StatelessWidget {
         return Colors.orange;
       case DataVerificationStatus.DATA_VERIFICATION_STATUS_UNDER_REVIEW:
         return Colors.blue;
+      case DataVerificationStatus.DATA_VERIFICATION_STATUS_EXPIRED:
+        return Colors.red.shade300;
       default:
         return Colors.grey;
     }

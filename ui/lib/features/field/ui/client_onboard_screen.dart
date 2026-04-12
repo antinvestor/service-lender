@@ -263,7 +263,21 @@ class _MultiTemplateOnboardingState
 
     return templateAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Error loading form: $e'),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () => ref.invalidate(
+                formTemplateDetailProvider(req.templateId),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
       data: (template) {
         final isLast = _currentIndex == widget.requirements.length - 1;
         return DynamicFormRenderer(

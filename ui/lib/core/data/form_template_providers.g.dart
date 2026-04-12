@@ -256,9 +256,14 @@ abstract class _$FormTemplateNotifier extends $AsyncNotifier<void> {
 /// Loads form requirements for a given entity type by searching for
 /// published templates associated with that type.
 ///
-/// Templates are matched by searching with the entity type name.
-/// Organizations configure which templates apply to each entity type
-/// via the form template admin panel.
+/// **Naming convention:** Templates are matched by searching with the entity
+/// type name (e.g. "client", "agent", "group"). Admins must include the
+/// entity type in the template name or description for it to be discovered.
+/// For example, a template named "Client KYC Form" will be found for
+/// `FormEntityType.client`.
+///
+/// TODO: Replace with an explicit `entityType` field on `FormTemplateObject`
+/// once the proto is updated, rather than relying on text search.
 
 @ProviderFor(entityFormTemplates)
 final entityFormTemplatesProvider = EntityFormTemplatesFamily._();
@@ -266,9 +271,14 @@ final entityFormTemplatesProvider = EntityFormTemplatesFamily._();
 /// Loads form requirements for a given entity type by searching for
 /// published templates associated with that type.
 ///
-/// Templates are matched by searching with the entity type name.
-/// Organizations configure which templates apply to each entity type
-/// via the form template admin panel.
+/// **Naming convention:** Templates are matched by searching with the entity
+/// type name (e.g. "client", "agent", "group"). Admins must include the
+/// entity type in the template name or description for it to be discovered.
+/// For example, a template named "Client KYC Form" will be found for
+/// `FormEntityType.client`.
+///
+/// TODO: Replace with an explicit `entityType` field on `FormTemplateObject`
+/// once the proto is updated, rather than relying on text search.
 
 final class EntityFormTemplatesProvider
     extends
@@ -283,9 +293,14 @@ final class EntityFormTemplatesProvider
   /// Loads form requirements for a given entity type by searching for
   /// published templates associated with that type.
   ///
-  /// Templates are matched by searching with the entity type name.
-  /// Organizations configure which templates apply to each entity type
-  /// via the form template admin panel.
+  /// **Naming convention:** Templates are matched by searching with the entity
+  /// type name (e.g. "client", "agent", "group"). Admins must include the
+  /// entity type in the template name or description for it to be discovered.
+  /// For example, a template named "Client KYC Form" will be found for
+  /// `FormEntityType.client`.
+  ///
+  /// TODO: Replace with an explicit `entityType` field on `FormTemplateObject`
+  /// once the proto is updated, rather than relying on text search.
   EntityFormTemplatesProvider._({
     required EntityFormTemplatesFamily super.from,
     required ({FormEntityType entityType, String organizationId})
@@ -342,9 +357,14 @@ String _$entityFormTemplatesHash() =>
 /// Loads form requirements for a given entity type by searching for
 /// published templates associated with that type.
 ///
-/// Templates are matched by searching with the entity type name.
-/// Organizations configure which templates apply to each entity type
-/// via the form template admin panel.
+/// **Naming convention:** Templates are matched by searching with the entity
+/// type name (e.g. "client", "agent", "group"). Admins must include the
+/// entity type in the template name or description for it to be discovered.
+/// For example, a template named "Client KYC Form" will be found for
+/// `FormEntityType.client`.
+///
+/// TODO: Replace with an explicit `entityType` field on `FormTemplateObject`
+/// once the proto is updated, rather than relying on text search.
 
 final class EntityFormTemplatesFamily extends $Family
     with
@@ -364,9 +384,14 @@ final class EntityFormTemplatesFamily extends $Family
   /// Loads form requirements for a given entity type by searching for
   /// published templates associated with that type.
   ///
-  /// Templates are matched by searching with the entity type name.
-  /// Organizations configure which templates apply to each entity type
-  /// via the form template admin panel.
+  /// **Naming convention:** Templates are matched by searching with the entity
+  /// type name (e.g. "client", "agent", "group"). Admins must include the
+  /// entity type in the template name or description for it to be discovered.
+  /// For example, a template named "Client KYC Form" will be found for
+  /// `FormEntityType.client`.
+  ///
+  /// TODO: Replace with an explicit `entityType` field on `FormTemplateObject`
+  /// once the proto is updated, rather than relying on text search.
 
   EntityFormTemplatesProvider call({
     required FormEntityType entityType,
@@ -505,7 +530,7 @@ final class FormSubmissionNotifierProvider
 }
 
 String _$formSubmissionNotifierHash() =>
-    r'1c835239e1fb16d1659dacf4316f16a3eafd775d';
+    r'd1a9365b97722971ccff39116af0593e7972f6a1';
 
 abstract class _$FormSubmissionNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

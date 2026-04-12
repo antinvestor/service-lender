@@ -174,7 +174,16 @@ func (b *interestAccrualBusiness) Accrue(
 	if days <= 0 {
 		days = 1
 	}
-	accrued := balance.Balance * product.InterestRate * days / (basisPointsDenominator * daysPerYear)
+	// Multiply first to maximize precision before integer division.
+	// balance * rate * days overflows at ~2.5 trillion minor units (~25B currency)
+	// which is well above any single savings account, so overflow is safe.
+	numerator := balance.Balance * product.InterestRate * days
+	denominator := int64(basisPointsDenominator) * int64(daysPerYear)
+	accrued := numerator / denominator
+	// Round up: if the remainder is >= half the denominator, add 1.
+	if remainder := numerator % denominator; remainder*2 >= denominator {
+		accrued++
+	}
 	if accrued <= 0 {
 		logger.Info("skipping accrual: computed amount is zero")
 		return nil, nil

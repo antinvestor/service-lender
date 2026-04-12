@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -377,7 +380,7 @@ class _FormRequirementWizardState
     ProductFormRequirement req,
     FormTemplateObject template,
     Map<String, dynamic> data,
-    Map<String, dynamic> fileData,
+    Map<String, Uint8List> fileData,
   ) async {
     final profileId = ref.read(currentProfileIdProvider).value ?? '';
     final messenger = ScaffoldMessenger.of(context);
@@ -393,9 +396,10 @@ class _FormRequirementWizardState
       );
 
       if (fileData.isNotEmpty) {
+        // Encode binary file data as base64 strings for storage.
         final fileRefMap = <String, dynamic>{};
         for (final entry in fileData.entries) {
-          fileRefMap[entry.key] = entry.value.toString();
+          fileRefMap[entry.key] = base64Encode(entry.value);
         }
         submission.fileRefs = mapToStruct(fileRefMap);
       }
