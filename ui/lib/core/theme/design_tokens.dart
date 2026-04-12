@@ -36,4 +36,32 @@ abstract final class DesignTokens {
   // ── Trust Standard radius ─────────────────────────────────────────────────
   static const borderRadius = 8.0;
   static final borderRadiusAll = BorderRadius.circular(borderRadius);
+
+  // ── Content width constraints ────────────────────────────────────────────
+  //
+  // On large screens, content should not stretch to fill the full viewport.
+  // These constraints keep content readable and form fields at a comfortable
+  // input width, roughly matching what a user would see on a phone or tablet.
+  //
+  // maxContentWidth: Maximum width for page-level content (lists, detail
+  //   pages, dashboards). Content is centered within the available space
+  //   when the viewport exceeds this width.
+  //
+  // maxFormWidth: Maximum width for form containers. Form fields inside
+  //   this constraint remain at a comfortable input size regardless of
+  //   how wide the browser window is.
+  //
+  // maxFieldWidth: Maximum width for individual input fields (text fields,
+  //   dropdowns, etc.). Prevents a single-line text field from stretching
+  //   across an ultra-wide monitor. Multi-line fields (textarea) can be
+  //   wider but still respect maxFormWidth.
+
+  /// Maximum width for page-level content areas.
+  static const maxContentWidth = 1080.0;
+
+  /// Maximum width for form containers (wizard steps, create dialogs, etc.).
+  static const maxFormWidth = 640.0;
+
+  /// Maximum width for individual single-line input fields.
+  static const maxFieldWidth = 480.0;
 }
