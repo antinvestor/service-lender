@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../sdk/src/identity/v1/identity.pb.dart';
 import '../../sdk/src/origination/v1/origination.pb.dart';
 import '../../features/field/data/client_data_providers.dart';
+import '../theme/design_tokens.dart';
 import 'signature_pad.dart';
 
 /// Callback when the form is submitted with the collected data.
@@ -145,12 +146,16 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
     final fields = _fieldsForSection(section);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Step indicator
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
+        // Step indicator — constrained to form width
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: DesignTokens.maxFormWidth,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
             children: [
               for (var i = 0; i < _sections.length; i++) ...[
                 if (i > 0)
@@ -186,36 +191,61 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
             ],
           ),
         ),
+          ),
+        ),
 
-        // Section title
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-          child: Text(
-            section,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+        // Section title — constrained
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: DesignTokens.maxFormWidth,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  section,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
 
-        // Fields
+        // Fields — constrained to form width so inputs don't stretch
+        // across ultra-wide screens.
         Expanded(
-          child: Form(
-            key: _formKey,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: fields.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
-              itemBuilder: (context, i) =>
-                  _buildField(context, fields[i]),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: DesignTokens.maxFormWidth,
+              ),
+              child: Form(
+                key: _formKey,
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: fields.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
+                  itemBuilder: (context, i) =>
+                      _buildField(context, fields[i]),
+                ),
+              ),
             ),
           ),
         ),
 
-        // Navigation buttons
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+        // Navigation buttons — also constrained for alignment
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: DesignTokens.maxFormWidth,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
             children: [
               if (_currentStep > 0)
                 OutlinedButton(
@@ -242,7 +272,9 @@ class _DynamicFormRendererState extends State<DynamicFormRenderer> {
                         )
                       : const Text('Submit'),
                 ),
-            ],
+              ],
+            ),
+            ),
           ),
         ),
       ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/design_tokens.dart';
+
 /// Reusable entity list page with search bar, action button, item count,
 /// and paginated item list with optional "Load More".
 class EntityListPage<T> extends StatelessWidget {
@@ -101,7 +103,10 @@ class EntityListPage<T> extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
           child: Row(
             children: [
-              Expanded(
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: DesignTokens.maxFieldWidth,
+                ),
                 child: TextField(
                   onChanged: onSearchChanged,
                   decoration: InputDecoration(
