@@ -192,7 +192,7 @@ func (b *disbursementBusiness) executeDisbursementTransfer(
 	la *models.LoanAccount,
 	disb *models.Disbursement,
 ) (*connect.Response[operationsv1.TransferOrderExecuteResponse], error) {
-	loanRequestID := loanRequestIDFromProperties(la.Properties, la.ApplicationID)
+	loanRequestID := loanRequestIDFromProperties(la.Properties, la.LoanRequestID)
 
 	return b.operationsCli.TransferOrderExecute(ctx, connect.NewRequest(
 		&operationsv1.TransferOrderExecuteRequest{

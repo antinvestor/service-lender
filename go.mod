@@ -4,14 +4,6 @@ go 1.26
 
 toolchain go1.26.1
 
-replace buf.build/gen/go/antinvestor/identity/protocolbuffers/go => ./gen/go/identity/protocolbuffers/go
-
-replace buf.build/gen/go/antinvestor/identity/connectrpc/go => ./gen/go/identity/connectrpc/go
-
-replace buf.build/gen/go/antinvestor/field/protocolbuffers/go => ./gen/go/field/protocolbuffers/go
-
-replace buf.build/gen/go/antinvestor/field/connectrpc/go => ./gen/go/field/connectrpc/go
-
 require (
 	buf.build/gen/go/antinvestor/common/protocolbuffers/go v1.36.11-20260325040325-9771112f2289.1
 	buf.build/gen/go/antinvestor/field/connectrpc/go v1.19.1-20260409140243-7acdf026d7e0.2
@@ -19,12 +11,12 @@ require (
 	buf.build/gen/go/antinvestor/files/connectrpc/go v1.19.1-20260402081919-eb61e2edf446.2
 	buf.build/gen/go/antinvestor/funding/connectrpc/go v1.19.1-20260411052609-44945e34ecd0.2
 	buf.build/gen/go/antinvestor/funding/protocolbuffers/go v1.36.11-20260411052609-44945e34ecd0.1
-	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260410052433-3df22bd61257.2
-	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260410052433-3df22bd61257.1
+	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260413201148-aa1bdcf806d5.2
+	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260413201148-aa1bdcf806d5.1
 	buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260329102121-402b2e01be6f.2
 	buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260329102121-402b2e01be6f.1
-	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260409094821-deb118e721e7.2
-	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260409094821-deb118e721e7.1
+	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.1-20260413201148-65855e0c8bc7.2
+	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260413201148-65855e0c8bc7.1
 	buf.build/gen/go/antinvestor/notification/connectrpc/go v1.19.1-20260328115053-88b513b68855.2
 	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260328115053-88b513b68855.1
 	buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260410042530-40733ae5eb81.2
@@ -85,8 +77,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/google/cel-go v0.28.0 // indirect
-	github.com/google/gnostic v0.7.1 // indirect
-	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.21.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0 // indirect
@@ -167,7 +157,6 @@ require (
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	gocloud.dev v0.45.0 // indirect
 	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect

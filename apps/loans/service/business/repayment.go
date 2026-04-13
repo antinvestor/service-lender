@@ -306,7 +306,7 @@ func (b *repaymentBusiness) emitRepaymentTransferOrders(
 ) error {
 	repID := repayment.GetID()
 	memberAccount := constants.MemberLoansAccount(la.ClientID)
-	loanRequestID := loanRequestIDFromProperties(la.Properties, la.ApplicationID)
+	loanRequestID := loanRequestIDFromProperties(la.Properties, la.LoanRequestID)
 	baseExtraData := data.JSONMap{
 		"loan_id":         la.GetID(),
 		"loan_request_id": loanRequestID,

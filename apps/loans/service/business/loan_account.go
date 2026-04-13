@@ -78,7 +78,7 @@ var validTransitions = map[loansv1.LoanStatus][]loansv1.LoanStatus{ //nolint:goc
 }
 
 type LoanAccountBusiness interface {
-	Create(ctx context.Context, applicationID string) (*loansv1.LoanAccountObject, error)
+	Create(ctx context.Context, loanRequestID string) (*loansv1.LoanAccountObject, error)
 	Get(ctx context.Context, id string) (*loansv1.LoanAccountObject, error)
 	Search(
 		ctx context.Context,
@@ -153,7 +153,7 @@ func (b *loanAccountBusiness) Create(ctx context.Context, loanRequestID string) 
 		return nil, fmt.Errorf("loan principal amount must be positive, got %d", la.PrincipalAmount)
 	}
 
-	if err = b.ensureLoanRequestFunding(ctx, logger, applicationID, la); err != nil {
+	if err = b.ensureLoanRequestFunding(ctx, logger, loanRequestID, la); err != nil {
 		return nil, err
 	}
 
@@ -523,7 +523,7 @@ func (b *loanAccountBusiness) buildStatementEntries(
 			description: "Loan disbursement",
 			debit:       la.PrincipalAmount,
 			currency:    la.CurrencyCode,
-			reference:   la.ApplicationID,
+			reference:   la.LoanRequestID,
 		})
 	}
 
@@ -715,8 +715,8 @@ func (b *loanAccountBusiness) TransitionStatus(
 		Metadata: data.JSONMap{
 			"client_id":       la.ClientID,
 			"product_id":      la.ProductID,
-			"application_id":  la.ApplicationID,
-			"loan_request_id": loanRequestIDFromProperties(la.Properties, la.ApplicationID),
+			"application_id":  la.LoanRequestID,
+			"loan_request_id": loanRequestIDFromProperties(la.Properties, la.LoanRequestID),
 		},
 		Parent: &la.BaseModel,
 	}, func(auErr error) {

@@ -17,7 +17,7 @@ import (
 // loanExportRow holds joined loan + balance data for CSV export.
 type loanExportRow struct {
 	ID                   string
-	ApplicationID        string
+	LoanRequestID        string
 	ClientID             string
 	AgentID              string
 	BranchID             string
@@ -117,7 +117,7 @@ func writeCSV(rows []loanExportRow) ([]byte, error) {
 
 	for _, r := range rows {
 		row := []string{
-			r.ID, r.ApplicationID, r.ClientID, r.AgentID, r.BranchID,
+			r.ID, r.LoanRequestID, r.ClientID, r.AgentID, r.BranchID,
 			r.OrganizationID, r.ProductID,
 			loanStatusName(r.Status), r.CurrencyCode,
 			models.MinorUnitsToString(r.PrincipalAmount),

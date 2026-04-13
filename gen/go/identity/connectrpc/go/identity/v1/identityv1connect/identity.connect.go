@@ -24,8 +24,8 @@ import (
 	http "net/http"
 	strings "strings"
 
-	v1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	connect "connectrpc.com/connect"
+	v1 "github.com/antinvestor/apis/go/identity/v1"
 	v11 "github.com/antinvestor/common/v1"
 )
 
@@ -67,6 +67,69 @@ const (
 	// IdentityServiceOrgUnitSearchProcedure is the fully-qualified name of the IdentityService's
 	// OrgUnitSearch RPC.
 	IdentityServiceOrgUnitSearchProcedure = "/identity.v1.IdentityService/OrgUnitSearch"
+	// IdentityServiceWorkforceMemberSaveProcedure is the fully-qualified name of the IdentityService's
+	// WorkforceMemberSave RPC.
+	IdentityServiceWorkforceMemberSaveProcedure = "/identity.v1.IdentityService/WorkforceMemberSave"
+	// IdentityServiceWorkforceMemberGetProcedure is the fully-qualified name of the IdentityService's
+	// WorkforceMemberGet RPC.
+	IdentityServiceWorkforceMemberGetProcedure = "/identity.v1.IdentityService/WorkforceMemberGet"
+	// IdentityServiceWorkforceMemberSearchProcedure is the fully-qualified name of the
+	// IdentityService's WorkforceMemberSearch RPC.
+	IdentityServiceWorkforceMemberSearchProcedure = "/identity.v1.IdentityService/WorkforceMemberSearch"
+	// IdentityServiceDepartmentSaveProcedure is the fully-qualified name of the IdentityService's
+	// DepartmentSave RPC.
+	IdentityServiceDepartmentSaveProcedure = "/identity.v1.IdentityService/DepartmentSave"
+	// IdentityServiceDepartmentGetProcedure is the fully-qualified name of the IdentityService's
+	// DepartmentGet RPC.
+	IdentityServiceDepartmentGetProcedure = "/identity.v1.IdentityService/DepartmentGet"
+	// IdentityServiceDepartmentSearchProcedure is the fully-qualified name of the IdentityService's
+	// DepartmentSearch RPC.
+	IdentityServiceDepartmentSearchProcedure = "/identity.v1.IdentityService/DepartmentSearch"
+	// IdentityServicePositionSaveProcedure is the fully-qualified name of the IdentityService's
+	// PositionSave RPC.
+	IdentityServicePositionSaveProcedure = "/identity.v1.IdentityService/PositionSave"
+	// IdentityServicePositionGetProcedure is the fully-qualified name of the IdentityService's
+	// PositionGet RPC.
+	IdentityServicePositionGetProcedure = "/identity.v1.IdentityService/PositionGet"
+	// IdentityServicePositionSearchProcedure is the fully-qualified name of the IdentityService's
+	// PositionSearch RPC.
+	IdentityServicePositionSearchProcedure = "/identity.v1.IdentityService/PositionSearch"
+	// IdentityServicePositionAssignmentSaveProcedure is the fully-qualified name of the
+	// IdentityService's PositionAssignmentSave RPC.
+	IdentityServicePositionAssignmentSaveProcedure = "/identity.v1.IdentityService/PositionAssignmentSave"
+	// IdentityServicePositionAssignmentGetProcedure is the fully-qualified name of the
+	// IdentityService's PositionAssignmentGet RPC.
+	IdentityServicePositionAssignmentGetProcedure = "/identity.v1.IdentityService/PositionAssignmentGet"
+	// IdentityServicePositionAssignmentSearchProcedure is the fully-qualified name of the
+	// IdentityService's PositionAssignmentSearch RPC.
+	IdentityServicePositionAssignmentSearchProcedure = "/identity.v1.IdentityService/PositionAssignmentSearch"
+	// IdentityServiceInternalTeamSaveProcedure is the fully-qualified name of the IdentityService's
+	// InternalTeamSave RPC.
+	IdentityServiceInternalTeamSaveProcedure = "/identity.v1.IdentityService/InternalTeamSave"
+	// IdentityServiceInternalTeamGetProcedure is the fully-qualified name of the IdentityService's
+	// InternalTeamGet RPC.
+	IdentityServiceInternalTeamGetProcedure = "/identity.v1.IdentityService/InternalTeamGet"
+	// IdentityServiceInternalTeamSearchProcedure is the fully-qualified name of the IdentityService's
+	// InternalTeamSearch RPC.
+	IdentityServiceInternalTeamSearchProcedure = "/identity.v1.IdentityService/InternalTeamSearch"
+	// IdentityServiceTeamMembershipSaveProcedure is the fully-qualified name of the IdentityService's
+	// TeamMembershipSave RPC.
+	IdentityServiceTeamMembershipSaveProcedure = "/identity.v1.IdentityService/TeamMembershipSave"
+	// IdentityServiceTeamMembershipGetProcedure is the fully-qualified name of the IdentityService's
+	// TeamMembershipGet RPC.
+	IdentityServiceTeamMembershipGetProcedure = "/identity.v1.IdentityService/TeamMembershipGet"
+	// IdentityServiceTeamMembershipSearchProcedure is the fully-qualified name of the IdentityService's
+	// TeamMembershipSearch RPC.
+	IdentityServiceTeamMembershipSearchProcedure = "/identity.v1.IdentityService/TeamMembershipSearch"
+	// IdentityServiceAccessRoleAssignmentSaveProcedure is the fully-qualified name of the
+	// IdentityService's AccessRoleAssignmentSave RPC.
+	IdentityServiceAccessRoleAssignmentSaveProcedure = "/identity.v1.IdentityService/AccessRoleAssignmentSave"
+	// IdentityServiceAccessRoleAssignmentGetProcedure is the fully-qualified name of the
+	// IdentityService's AccessRoleAssignmentGet RPC.
+	IdentityServiceAccessRoleAssignmentGetProcedure = "/identity.v1.IdentityService/AccessRoleAssignmentGet"
+	// IdentityServiceAccessRoleAssignmentSearchProcedure is the fully-qualified name of the
+	// IdentityService's AccessRoleAssignmentSearch RPC.
+	IdentityServiceAccessRoleAssignmentSearchProcedure = "/identity.v1.IdentityService/AccessRoleAssignmentSearch"
 	// IdentityServiceBranchSaveProcedure is the fully-qualified name of the IdentityService's
 	// BranchSave RPC.
 	IdentityServiceBranchSaveProcedure = "/identity.v1.IdentityService/BranchSave"
@@ -148,6 +211,27 @@ const (
 	// IdentityServiceClientDataHistoryProcedure is the fully-qualified name of the IdentityService's
 	// ClientDataHistory RPC.
 	IdentityServiceClientDataHistoryProcedure = "/identity.v1.IdentityService/ClientDataHistory"
+	// IdentityServiceFormTemplateSaveProcedure is the fully-qualified name of the IdentityService's
+	// FormTemplateSave RPC.
+	IdentityServiceFormTemplateSaveProcedure = "/identity.v1.IdentityService/FormTemplateSave"
+	// IdentityServiceFormTemplateGetProcedure is the fully-qualified name of the IdentityService's
+	// FormTemplateGet RPC.
+	IdentityServiceFormTemplateGetProcedure = "/identity.v1.IdentityService/FormTemplateGet"
+	// IdentityServiceFormTemplateSearchProcedure is the fully-qualified name of the IdentityService's
+	// FormTemplateSearch RPC.
+	IdentityServiceFormTemplateSearchProcedure = "/identity.v1.IdentityService/FormTemplateSearch"
+	// IdentityServiceFormTemplatePublishProcedure is the fully-qualified name of the IdentityService's
+	// FormTemplatePublish RPC.
+	IdentityServiceFormTemplatePublishProcedure = "/identity.v1.IdentityService/FormTemplatePublish"
+	// IdentityServiceFormSubmissionSaveProcedure is the fully-qualified name of the IdentityService's
+	// FormSubmissionSave RPC.
+	IdentityServiceFormSubmissionSaveProcedure = "/identity.v1.IdentityService/FormSubmissionSave"
+	// IdentityServiceFormSubmissionGetProcedure is the fully-qualified name of the IdentityService's
+	// FormSubmissionGet RPC.
+	IdentityServiceFormSubmissionGetProcedure = "/identity.v1.IdentityService/FormSubmissionGet"
+	// IdentityServiceFormSubmissionSearchProcedure is the fully-qualified name of the IdentityService's
+	// FormSubmissionSearch RPC.
+	IdentityServiceFormSubmissionSearchProcedure = "/identity.v1.IdentityService/FormSubmissionSearch"
 )
 
 // IdentityServiceClient is a client for the identity.v1.IdentityService service.
@@ -182,6 +266,90 @@ type IdentityServiceClient interface {
 		context.Context,
 		*connect.Request[v1.OrgUnitSearchRequest],
 	) (*connect.ServerStreamForClient[v1.OrgUnitSearchResponse], error)
+	WorkforceMemberSave(
+		context.Context,
+		*connect.Request[v1.WorkforceMemberSaveRequest],
+	) (*connect.Response[v1.WorkforceMemberSaveResponse], error)
+	WorkforceMemberGet(
+		context.Context,
+		*connect.Request[v1.WorkforceMemberGetRequest],
+	) (*connect.Response[v1.WorkforceMemberGetResponse], error)
+	WorkforceMemberSearch(
+		context.Context,
+		*connect.Request[v1.WorkforceMemberSearchRequest],
+	) (*connect.ServerStreamForClient[v1.WorkforceMemberSearchResponse], error)
+	DepartmentSave(
+		context.Context,
+		*connect.Request[v1.DepartmentSaveRequest],
+	) (*connect.Response[v1.DepartmentSaveResponse], error)
+	DepartmentGet(
+		context.Context,
+		*connect.Request[v1.DepartmentGetRequest],
+	) (*connect.Response[v1.DepartmentGetResponse], error)
+	DepartmentSearch(
+		context.Context,
+		*connect.Request[v1.DepartmentSearchRequest],
+	) (*connect.ServerStreamForClient[v1.DepartmentSearchResponse], error)
+	PositionSave(
+		context.Context,
+		*connect.Request[v1.PositionSaveRequest],
+	) (*connect.Response[v1.PositionSaveResponse], error)
+	PositionGet(
+		context.Context,
+		*connect.Request[v1.PositionGetRequest],
+	) (*connect.Response[v1.PositionGetResponse], error)
+	PositionSearch(
+		context.Context,
+		*connect.Request[v1.PositionSearchRequest],
+	) (*connect.ServerStreamForClient[v1.PositionSearchResponse], error)
+	PositionAssignmentSave(
+		context.Context,
+		*connect.Request[v1.PositionAssignmentSaveRequest],
+	) (*connect.Response[v1.PositionAssignmentSaveResponse], error)
+	PositionAssignmentGet(
+		context.Context,
+		*connect.Request[v1.PositionAssignmentGetRequest],
+	) (*connect.Response[v1.PositionAssignmentGetResponse], error)
+	PositionAssignmentSearch(
+		context.Context,
+		*connect.Request[v1.PositionAssignmentSearchRequest],
+	) (*connect.ServerStreamForClient[v1.PositionAssignmentSearchResponse], error)
+	InternalTeamSave(
+		context.Context,
+		*connect.Request[v1.InternalTeamSaveRequest],
+	) (*connect.Response[v1.InternalTeamSaveResponse], error)
+	InternalTeamGet(
+		context.Context,
+		*connect.Request[v1.InternalTeamGetRequest],
+	) (*connect.Response[v1.InternalTeamGetResponse], error)
+	InternalTeamSearch(
+		context.Context,
+		*connect.Request[v1.InternalTeamSearchRequest],
+	) (*connect.ServerStreamForClient[v1.InternalTeamSearchResponse], error)
+	TeamMembershipSave(
+		context.Context,
+		*connect.Request[v1.TeamMembershipSaveRequest],
+	) (*connect.Response[v1.TeamMembershipSaveResponse], error)
+	TeamMembershipGet(
+		context.Context,
+		*connect.Request[v1.TeamMembershipGetRequest],
+	) (*connect.Response[v1.TeamMembershipGetResponse], error)
+	TeamMembershipSearch(
+		context.Context,
+		*connect.Request[v1.TeamMembershipSearchRequest],
+	) (*connect.ServerStreamForClient[v1.TeamMembershipSearchResponse], error)
+	AccessRoleAssignmentSave(
+		context.Context,
+		*connect.Request[v1.AccessRoleAssignmentSaveRequest],
+	) (*connect.Response[v1.AccessRoleAssignmentSaveResponse], error)
+	AccessRoleAssignmentGet(
+		context.Context,
+		*connect.Request[v1.AccessRoleAssignmentGetRequest],
+	) (*connect.Response[v1.AccessRoleAssignmentGetResponse], error)
+	AccessRoleAssignmentSearch(
+		context.Context,
+		*connect.Request[v1.AccessRoleAssignmentSearchRequest],
+	) (*connect.ServerStreamForClient[v1.AccessRoleAssignmentSearchResponse], error)
 	// BranchSave creates or updates a legacy leaf branch record.
 	// Prefer OrgUnitSave with type BRANCH for new integrations.
 	BranchSave(
@@ -315,6 +483,41 @@ type IdentityServiceClient interface {
 		context.Context,
 		*connect.Request[v1.ClientDataHistoryRequest],
 	) (*connect.Response[v1.ClientDataHistoryResponse], error)
+	// FormTemplateSave creates or updates a form template.
+	FormTemplateSave(
+		context.Context,
+		*connect.Request[v1.FormTemplateSaveRequest],
+	) (*connect.Response[v1.FormTemplateSaveResponse], error)
+	// FormTemplateGet retrieves a form template by its ID.
+	FormTemplateGet(
+		context.Context,
+		*connect.Request[v1.FormTemplateGetRequest],
+	) (*connect.Response[v1.FormTemplateGetResponse], error)
+	// FormTemplateSearch finds form templates matching search criteria.
+	FormTemplateSearch(
+		context.Context,
+		*connect.Request[v1.FormTemplateSearchRequest],
+	) (*connect.ServerStreamForClient[v1.FormTemplateSearchResponse], error)
+	// FormTemplatePublish transitions a draft form template to published.
+	FormTemplatePublish(
+		context.Context,
+		*connect.Request[v1.FormTemplatePublishRequest],
+	) (*connect.Response[v1.FormTemplatePublishResponse], error)
+	// FormSubmissionSave creates or updates a form submission.
+	FormSubmissionSave(
+		context.Context,
+		*connect.Request[v1.FormSubmissionSaveRequest],
+	) (*connect.Response[v1.FormSubmissionSaveResponse], error)
+	// FormSubmissionGet retrieves a form submission by its ID.
+	FormSubmissionGet(
+		context.Context,
+		*connect.Request[v1.FormSubmissionGetRequest],
+	) (*connect.Response[v1.FormSubmissionGetResponse], error)
+	// FormSubmissionSearch finds form submissions matching search criteria.
+	FormSubmissionSearch(
+		context.Context,
+		*connect.Request[v1.FormSubmissionSearchRequest],
+	) (*connect.ServerStreamForClient[v1.FormSubmissionSearchResponse], error)
 }
 
 // NewIdentityServiceClient constructs a client for the identity.v1.IdentityService service. By
@@ -369,6 +572,146 @@ func NewIdentityServiceClient(
 			httpClient,
 			baseURL+IdentityServiceOrgUnitSearchProcedure,
 			connect.WithSchema(identityServiceMethods.ByName("OrgUnitSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		workforceMemberSave: connect.NewClient[v1.WorkforceMemberSaveRequest, v1.WorkforceMemberSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceWorkforceMemberSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("WorkforceMemberSave")),
+			connect.WithClientOptions(opts...),
+		),
+		workforceMemberGet: connect.NewClient[v1.WorkforceMemberGetRequest, v1.WorkforceMemberGetResponse](
+			httpClient,
+			baseURL+IdentityServiceWorkforceMemberGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("WorkforceMemberGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		workforceMemberSearch: connect.NewClient[v1.WorkforceMemberSearchRequest, v1.WorkforceMemberSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceWorkforceMemberSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("WorkforceMemberSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		departmentSave: connect.NewClient[v1.DepartmentSaveRequest, v1.DepartmentSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceDepartmentSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("DepartmentSave")),
+			connect.WithClientOptions(opts...),
+		),
+		departmentGet: connect.NewClient[v1.DepartmentGetRequest, v1.DepartmentGetResponse](
+			httpClient,
+			baseURL+IdentityServiceDepartmentGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("DepartmentGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		departmentSearch: connect.NewClient[v1.DepartmentSearchRequest, v1.DepartmentSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceDepartmentSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("DepartmentSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		positionSave: connect.NewClient[v1.PositionSaveRequest, v1.PositionSaveResponse](
+			httpClient,
+			baseURL+IdentityServicePositionSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("PositionSave")),
+			connect.WithClientOptions(opts...),
+		),
+		positionGet: connect.NewClient[v1.PositionGetRequest, v1.PositionGetResponse](
+			httpClient,
+			baseURL+IdentityServicePositionGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("PositionGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		positionSearch: connect.NewClient[v1.PositionSearchRequest, v1.PositionSearchResponse](
+			httpClient,
+			baseURL+IdentityServicePositionSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("PositionSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		positionAssignmentSave: connect.NewClient[v1.PositionAssignmentSaveRequest, v1.PositionAssignmentSaveResponse](
+			httpClient,
+			baseURL+IdentityServicePositionAssignmentSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("PositionAssignmentSave")),
+			connect.WithClientOptions(opts...),
+		),
+		positionAssignmentGet: connect.NewClient[v1.PositionAssignmentGetRequest, v1.PositionAssignmentGetResponse](
+			httpClient,
+			baseURL+IdentityServicePositionAssignmentGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("PositionAssignmentGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		positionAssignmentSearch: connect.NewClient[v1.PositionAssignmentSearchRequest, v1.PositionAssignmentSearchResponse](
+			httpClient,
+			baseURL+IdentityServicePositionAssignmentSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("PositionAssignmentSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		internalTeamSave: connect.NewClient[v1.InternalTeamSaveRequest, v1.InternalTeamSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceInternalTeamSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("InternalTeamSave")),
+			connect.WithClientOptions(opts...),
+		),
+		internalTeamGet: connect.NewClient[v1.InternalTeamGetRequest, v1.InternalTeamGetResponse](
+			httpClient,
+			baseURL+IdentityServiceInternalTeamGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("InternalTeamGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		internalTeamSearch: connect.NewClient[v1.InternalTeamSearchRequest, v1.InternalTeamSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceInternalTeamSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("InternalTeamSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		teamMembershipSave: connect.NewClient[v1.TeamMembershipSaveRequest, v1.TeamMembershipSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceTeamMembershipSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("TeamMembershipSave")),
+			connect.WithClientOptions(opts...),
+		),
+		teamMembershipGet: connect.NewClient[v1.TeamMembershipGetRequest, v1.TeamMembershipGetResponse](
+			httpClient,
+			baseURL+IdentityServiceTeamMembershipGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("TeamMembershipGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		teamMembershipSearch: connect.NewClient[v1.TeamMembershipSearchRequest, v1.TeamMembershipSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceTeamMembershipSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("TeamMembershipSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		accessRoleAssignmentSave: connect.NewClient[v1.AccessRoleAssignmentSaveRequest, v1.AccessRoleAssignmentSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceAccessRoleAssignmentSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("AccessRoleAssignmentSave")),
+			connect.WithClientOptions(opts...),
+		),
+		accessRoleAssignmentGet: connect.NewClient[v1.AccessRoleAssignmentGetRequest, v1.AccessRoleAssignmentGetResponse](
+			httpClient,
+			baseURL+IdentityServiceAccessRoleAssignmentGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("AccessRoleAssignmentGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		accessRoleAssignmentSearch: connect.NewClient[v1.AccessRoleAssignmentSearchRequest, v1.AccessRoleAssignmentSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceAccessRoleAssignmentSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("AccessRoleAssignmentSearch")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -549,44 +892,118 @@ func NewIdentityServiceClient(
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		formTemplateSave: connect.NewClient[v1.FormTemplateSaveRequest, v1.FormTemplateSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceFormTemplateSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormTemplateSave")),
+			connect.WithClientOptions(opts...),
+		),
+		formTemplateGet: connect.NewClient[v1.FormTemplateGetRequest, v1.FormTemplateGetResponse](
+			httpClient,
+			baseURL+IdentityServiceFormTemplateGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormTemplateGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		formTemplateSearch: connect.NewClient[v1.FormTemplateSearchRequest, v1.FormTemplateSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceFormTemplateSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormTemplateSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		formTemplatePublish: connect.NewClient[v1.FormTemplatePublishRequest, v1.FormTemplatePublishResponse](
+			httpClient,
+			baseURL+IdentityServiceFormTemplatePublishProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormTemplatePublish")),
+			connect.WithClientOptions(opts...),
+		),
+		formSubmissionSave: connect.NewClient[v1.FormSubmissionSaveRequest, v1.FormSubmissionSaveResponse](
+			httpClient,
+			baseURL+IdentityServiceFormSubmissionSaveProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormSubmissionSave")),
+			connect.WithClientOptions(opts...),
+		),
+		formSubmissionGet: connect.NewClient[v1.FormSubmissionGetRequest, v1.FormSubmissionGetResponse](
+			httpClient,
+			baseURL+IdentityServiceFormSubmissionGetProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormSubmissionGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		formSubmissionSearch: connect.NewClient[v1.FormSubmissionSearchRequest, v1.FormSubmissionSearchResponse](
+			httpClient,
+			baseURL+IdentityServiceFormSubmissionSearchProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("FormSubmissionSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // identityServiceClient implements IdentityServiceClient.
 type identityServiceClient struct {
-	organizationSave      *connect.Client[v1.OrganizationSaveRequest, v1.OrganizationSaveResponse]
-	organizationGet       *connect.Client[v1.OrganizationGetRequest, v1.OrganizationGetResponse]
-	organizationSearch    *connect.Client[v11.SearchRequest, v1.OrganizationSearchResponse]
-	orgUnitSave           *connect.Client[v1.OrgUnitSaveRequest, v1.OrgUnitSaveResponse]
-	orgUnitGet            *connect.Client[v1.OrgUnitGetRequest, v1.OrgUnitGetResponse]
-	orgUnitSearch         *connect.Client[v1.OrgUnitSearchRequest, v1.OrgUnitSearchResponse]
-	branchSave            *connect.Client[v1.BranchSaveRequest, v1.BranchSaveResponse]
-	branchGet             *connect.Client[v1.BranchGetRequest, v1.BranchGetResponse]
-	branchSearch          *connect.Client[v1.BranchSearchRequest, v1.BranchSearchResponse]
-	investorSave          *connect.Client[v1.InvestorSaveRequest, v1.InvestorSaveResponse]
-	investorGet           *connect.Client[v1.InvestorGetRequest, v1.InvestorGetResponse]
-	investorSearch        *connect.Client[v1.InvestorSearchRequest, v1.InvestorSearchResponse]
-	systemUserSave        *connect.Client[v1.SystemUserSaveRequest, v1.SystemUserSaveResponse]
-	systemUserGet         *connect.Client[v1.SystemUserGetRequest, v1.SystemUserGetResponse]
-	systemUserSearch      *connect.Client[v1.SystemUserSearchRequest, v1.SystemUserSearchResponse]
-	clientGroupSave       *connect.Client[v1.ClientGroupSaveRequest, v1.ClientGroupSaveResponse]
-	clientGroupGet        *connect.Client[v1.ClientGroupGetRequest, v1.ClientGroupGetResponse]
-	clientGroupSearch     *connect.Client[v1.ClientGroupSearchRequest, v1.ClientGroupSearchResponse]
-	membershipSave        *connect.Client[v1.MembershipSaveRequest, v1.MembershipSaveResponse]
-	membershipGet         *connect.Client[v1.MembershipGetRequest, v1.MembershipGetResponse]
-	membershipSearch      *connect.Client[v1.MembershipSearchRequest, v1.MembershipSearchResponse]
-	investorAccountSave   *connect.Client[v1.InvestorAccountSaveRequest, v1.InvestorAccountSaveResponse]
-	investorAccountGet    *connect.Client[v1.InvestorAccountGetRequest, v1.InvestorAccountGetResponse]
-	investorAccountSearch *connect.Client[v1.InvestorAccountSearchRequest, v1.InvestorAccountSearchResponse]
-	investorDeposit       *connect.Client[v1.InvestorDepositRequest, v1.InvestorDepositResponse]
-	investorWithdraw      *connect.Client[v1.InvestorWithdrawRequest, v1.InvestorWithdrawResponse]
-	clientDataSave        *connect.Client[v1.ClientDataSaveRequest, v1.ClientDataSaveResponse]
-	clientDataGet         *connect.Client[v1.ClientDataGetRequest, v1.ClientDataGetResponse]
-	clientDataList        *connect.Client[v1.ClientDataListRequest, v1.ClientDataListResponse]
-	clientDataVerify      *connect.Client[v1.ClientDataVerifyRequest, v1.ClientDataVerifyResponse]
-	clientDataReject      *connect.Client[v1.ClientDataRejectRequest, v1.ClientDataRejectResponse]
-	clientDataRequestInfo *connect.Client[v1.ClientDataRequestInfoRequest, v1.ClientDataRequestInfoResponse]
-	clientDataHistory     *connect.Client[v1.ClientDataHistoryRequest, v1.ClientDataHistoryResponse]
+	organizationSave           *connect.Client[v1.OrganizationSaveRequest, v1.OrganizationSaveResponse]
+	organizationGet            *connect.Client[v1.OrganizationGetRequest, v1.OrganizationGetResponse]
+	organizationSearch         *connect.Client[v11.SearchRequest, v1.OrganizationSearchResponse]
+	orgUnitSave                *connect.Client[v1.OrgUnitSaveRequest, v1.OrgUnitSaveResponse]
+	orgUnitGet                 *connect.Client[v1.OrgUnitGetRequest, v1.OrgUnitGetResponse]
+	orgUnitSearch              *connect.Client[v1.OrgUnitSearchRequest, v1.OrgUnitSearchResponse]
+	workforceMemberSave        *connect.Client[v1.WorkforceMemberSaveRequest, v1.WorkforceMemberSaveResponse]
+	workforceMemberGet         *connect.Client[v1.WorkforceMemberGetRequest, v1.WorkforceMemberGetResponse]
+	workforceMemberSearch      *connect.Client[v1.WorkforceMemberSearchRequest, v1.WorkforceMemberSearchResponse]
+	departmentSave             *connect.Client[v1.DepartmentSaveRequest, v1.DepartmentSaveResponse]
+	departmentGet              *connect.Client[v1.DepartmentGetRequest, v1.DepartmentGetResponse]
+	departmentSearch           *connect.Client[v1.DepartmentSearchRequest, v1.DepartmentSearchResponse]
+	positionSave               *connect.Client[v1.PositionSaveRequest, v1.PositionSaveResponse]
+	positionGet                *connect.Client[v1.PositionGetRequest, v1.PositionGetResponse]
+	positionSearch             *connect.Client[v1.PositionSearchRequest, v1.PositionSearchResponse]
+	positionAssignmentSave     *connect.Client[v1.PositionAssignmentSaveRequest, v1.PositionAssignmentSaveResponse]
+	positionAssignmentGet      *connect.Client[v1.PositionAssignmentGetRequest, v1.PositionAssignmentGetResponse]
+	positionAssignmentSearch   *connect.Client[v1.PositionAssignmentSearchRequest, v1.PositionAssignmentSearchResponse]
+	internalTeamSave           *connect.Client[v1.InternalTeamSaveRequest, v1.InternalTeamSaveResponse]
+	internalTeamGet            *connect.Client[v1.InternalTeamGetRequest, v1.InternalTeamGetResponse]
+	internalTeamSearch         *connect.Client[v1.InternalTeamSearchRequest, v1.InternalTeamSearchResponse]
+	teamMembershipSave         *connect.Client[v1.TeamMembershipSaveRequest, v1.TeamMembershipSaveResponse]
+	teamMembershipGet          *connect.Client[v1.TeamMembershipGetRequest, v1.TeamMembershipGetResponse]
+	teamMembershipSearch       *connect.Client[v1.TeamMembershipSearchRequest, v1.TeamMembershipSearchResponse]
+	accessRoleAssignmentSave   *connect.Client[v1.AccessRoleAssignmentSaveRequest, v1.AccessRoleAssignmentSaveResponse]
+	accessRoleAssignmentGet    *connect.Client[v1.AccessRoleAssignmentGetRequest, v1.AccessRoleAssignmentGetResponse]
+	accessRoleAssignmentSearch *connect.Client[v1.AccessRoleAssignmentSearchRequest, v1.AccessRoleAssignmentSearchResponse]
+	branchSave                 *connect.Client[v1.BranchSaveRequest, v1.BranchSaveResponse]
+	branchGet                  *connect.Client[v1.BranchGetRequest, v1.BranchGetResponse]
+	branchSearch               *connect.Client[v1.BranchSearchRequest, v1.BranchSearchResponse]
+	investorSave               *connect.Client[v1.InvestorSaveRequest, v1.InvestorSaveResponse]
+	investorGet                *connect.Client[v1.InvestorGetRequest, v1.InvestorGetResponse]
+	investorSearch             *connect.Client[v1.InvestorSearchRequest, v1.InvestorSearchResponse]
+	systemUserSave             *connect.Client[v1.SystemUserSaveRequest, v1.SystemUserSaveResponse]
+	systemUserGet              *connect.Client[v1.SystemUserGetRequest, v1.SystemUserGetResponse]
+	systemUserSearch           *connect.Client[v1.SystemUserSearchRequest, v1.SystemUserSearchResponse]
+	clientGroupSave            *connect.Client[v1.ClientGroupSaveRequest, v1.ClientGroupSaveResponse]
+	clientGroupGet             *connect.Client[v1.ClientGroupGetRequest, v1.ClientGroupGetResponse]
+	clientGroupSearch          *connect.Client[v1.ClientGroupSearchRequest, v1.ClientGroupSearchResponse]
+	membershipSave             *connect.Client[v1.MembershipSaveRequest, v1.MembershipSaveResponse]
+	membershipGet              *connect.Client[v1.MembershipGetRequest, v1.MembershipGetResponse]
+	membershipSearch           *connect.Client[v1.MembershipSearchRequest, v1.MembershipSearchResponse]
+	investorAccountSave        *connect.Client[v1.InvestorAccountSaveRequest, v1.InvestorAccountSaveResponse]
+	investorAccountGet         *connect.Client[v1.InvestorAccountGetRequest, v1.InvestorAccountGetResponse]
+	investorAccountSearch      *connect.Client[v1.InvestorAccountSearchRequest, v1.InvestorAccountSearchResponse]
+	investorDeposit            *connect.Client[v1.InvestorDepositRequest, v1.InvestorDepositResponse]
+	investorWithdraw           *connect.Client[v1.InvestorWithdrawRequest, v1.InvestorWithdrawResponse]
+	clientDataSave             *connect.Client[v1.ClientDataSaveRequest, v1.ClientDataSaveResponse]
+	clientDataGet              *connect.Client[v1.ClientDataGetRequest, v1.ClientDataGetResponse]
+	clientDataList             *connect.Client[v1.ClientDataListRequest, v1.ClientDataListResponse]
+	clientDataVerify           *connect.Client[v1.ClientDataVerifyRequest, v1.ClientDataVerifyResponse]
+	clientDataReject           *connect.Client[v1.ClientDataRejectRequest, v1.ClientDataRejectResponse]
+	clientDataRequestInfo      *connect.Client[v1.ClientDataRequestInfoRequest, v1.ClientDataRequestInfoResponse]
+	clientDataHistory          *connect.Client[v1.ClientDataHistoryRequest, v1.ClientDataHistoryResponse]
+	formTemplateSave           *connect.Client[v1.FormTemplateSaveRequest, v1.FormTemplateSaveResponse]
+	formTemplateGet            *connect.Client[v1.FormTemplateGetRequest, v1.FormTemplateGetResponse]
+	formTemplateSearch         *connect.Client[v1.FormTemplateSearchRequest, v1.FormTemplateSearchResponse]
+	formTemplatePublish        *connect.Client[v1.FormTemplatePublishRequest, v1.FormTemplatePublishResponse]
+	formSubmissionSave         *connect.Client[v1.FormSubmissionSaveRequest, v1.FormSubmissionSaveResponse]
+	formSubmissionGet          *connect.Client[v1.FormSubmissionGetRequest, v1.FormSubmissionGetResponse]
+	formSubmissionSearch       *connect.Client[v1.FormSubmissionSearchRequest, v1.FormSubmissionSearchResponse]
 }
 
 // OrganizationSave calls identity.v1.IdentityService.OrganizationSave.
@@ -635,6 +1052,174 @@ func (c *identityServiceClient) OrgUnitSearch(
 	req *connect.Request[v1.OrgUnitSearchRequest],
 ) (*connect.ServerStreamForClient[v1.OrgUnitSearchResponse], error) {
 	return c.orgUnitSearch.CallServerStream(ctx, req)
+}
+
+// WorkforceMemberSave calls identity.v1.IdentityService.WorkforceMemberSave.
+func (c *identityServiceClient) WorkforceMemberSave(
+	ctx context.Context,
+	req *connect.Request[v1.WorkforceMemberSaveRequest],
+) (*connect.Response[v1.WorkforceMemberSaveResponse], error) {
+	return c.workforceMemberSave.CallUnary(ctx, req)
+}
+
+// WorkforceMemberGet calls identity.v1.IdentityService.WorkforceMemberGet.
+func (c *identityServiceClient) WorkforceMemberGet(
+	ctx context.Context,
+	req *connect.Request[v1.WorkforceMemberGetRequest],
+) (*connect.Response[v1.WorkforceMemberGetResponse], error) {
+	return c.workforceMemberGet.CallUnary(ctx, req)
+}
+
+// WorkforceMemberSearch calls identity.v1.IdentityService.WorkforceMemberSearch.
+func (c *identityServiceClient) WorkforceMemberSearch(
+	ctx context.Context,
+	req *connect.Request[v1.WorkforceMemberSearchRequest],
+) (*connect.ServerStreamForClient[v1.WorkforceMemberSearchResponse], error) {
+	return c.workforceMemberSearch.CallServerStream(ctx, req)
+}
+
+// DepartmentSave calls identity.v1.IdentityService.DepartmentSave.
+func (c *identityServiceClient) DepartmentSave(
+	ctx context.Context,
+	req *connect.Request[v1.DepartmentSaveRequest],
+) (*connect.Response[v1.DepartmentSaveResponse], error) {
+	return c.departmentSave.CallUnary(ctx, req)
+}
+
+// DepartmentGet calls identity.v1.IdentityService.DepartmentGet.
+func (c *identityServiceClient) DepartmentGet(
+	ctx context.Context,
+	req *connect.Request[v1.DepartmentGetRequest],
+) (*connect.Response[v1.DepartmentGetResponse], error) {
+	return c.departmentGet.CallUnary(ctx, req)
+}
+
+// DepartmentSearch calls identity.v1.IdentityService.DepartmentSearch.
+func (c *identityServiceClient) DepartmentSearch(
+	ctx context.Context,
+	req *connect.Request[v1.DepartmentSearchRequest],
+) (*connect.ServerStreamForClient[v1.DepartmentSearchResponse], error) {
+	return c.departmentSearch.CallServerStream(ctx, req)
+}
+
+// PositionSave calls identity.v1.IdentityService.PositionSave.
+func (c *identityServiceClient) PositionSave(
+	ctx context.Context,
+	req *connect.Request[v1.PositionSaveRequest],
+) (*connect.Response[v1.PositionSaveResponse], error) {
+	return c.positionSave.CallUnary(ctx, req)
+}
+
+// PositionGet calls identity.v1.IdentityService.PositionGet.
+func (c *identityServiceClient) PositionGet(
+	ctx context.Context,
+	req *connect.Request[v1.PositionGetRequest],
+) (*connect.Response[v1.PositionGetResponse], error) {
+	return c.positionGet.CallUnary(ctx, req)
+}
+
+// PositionSearch calls identity.v1.IdentityService.PositionSearch.
+func (c *identityServiceClient) PositionSearch(
+	ctx context.Context,
+	req *connect.Request[v1.PositionSearchRequest],
+) (*connect.ServerStreamForClient[v1.PositionSearchResponse], error) {
+	return c.positionSearch.CallServerStream(ctx, req)
+}
+
+// PositionAssignmentSave calls identity.v1.IdentityService.PositionAssignmentSave.
+func (c *identityServiceClient) PositionAssignmentSave(
+	ctx context.Context,
+	req *connect.Request[v1.PositionAssignmentSaveRequest],
+) (*connect.Response[v1.PositionAssignmentSaveResponse], error) {
+	return c.positionAssignmentSave.CallUnary(ctx, req)
+}
+
+// PositionAssignmentGet calls identity.v1.IdentityService.PositionAssignmentGet.
+func (c *identityServiceClient) PositionAssignmentGet(
+	ctx context.Context,
+	req *connect.Request[v1.PositionAssignmentGetRequest],
+) (*connect.Response[v1.PositionAssignmentGetResponse], error) {
+	return c.positionAssignmentGet.CallUnary(ctx, req)
+}
+
+// PositionAssignmentSearch calls identity.v1.IdentityService.PositionAssignmentSearch.
+func (c *identityServiceClient) PositionAssignmentSearch(
+	ctx context.Context,
+	req *connect.Request[v1.PositionAssignmentSearchRequest],
+) (*connect.ServerStreamForClient[v1.PositionAssignmentSearchResponse], error) {
+	return c.positionAssignmentSearch.CallServerStream(ctx, req)
+}
+
+// InternalTeamSave calls identity.v1.IdentityService.InternalTeamSave.
+func (c *identityServiceClient) InternalTeamSave(
+	ctx context.Context,
+	req *connect.Request[v1.InternalTeamSaveRequest],
+) (*connect.Response[v1.InternalTeamSaveResponse], error) {
+	return c.internalTeamSave.CallUnary(ctx, req)
+}
+
+// InternalTeamGet calls identity.v1.IdentityService.InternalTeamGet.
+func (c *identityServiceClient) InternalTeamGet(
+	ctx context.Context,
+	req *connect.Request[v1.InternalTeamGetRequest],
+) (*connect.Response[v1.InternalTeamGetResponse], error) {
+	return c.internalTeamGet.CallUnary(ctx, req)
+}
+
+// InternalTeamSearch calls identity.v1.IdentityService.InternalTeamSearch.
+func (c *identityServiceClient) InternalTeamSearch(
+	ctx context.Context,
+	req *connect.Request[v1.InternalTeamSearchRequest],
+) (*connect.ServerStreamForClient[v1.InternalTeamSearchResponse], error) {
+	return c.internalTeamSearch.CallServerStream(ctx, req)
+}
+
+// TeamMembershipSave calls identity.v1.IdentityService.TeamMembershipSave.
+func (c *identityServiceClient) TeamMembershipSave(
+	ctx context.Context,
+	req *connect.Request[v1.TeamMembershipSaveRequest],
+) (*connect.Response[v1.TeamMembershipSaveResponse], error) {
+	return c.teamMembershipSave.CallUnary(ctx, req)
+}
+
+// TeamMembershipGet calls identity.v1.IdentityService.TeamMembershipGet.
+func (c *identityServiceClient) TeamMembershipGet(
+	ctx context.Context,
+	req *connect.Request[v1.TeamMembershipGetRequest],
+) (*connect.Response[v1.TeamMembershipGetResponse], error) {
+	return c.teamMembershipGet.CallUnary(ctx, req)
+}
+
+// TeamMembershipSearch calls identity.v1.IdentityService.TeamMembershipSearch.
+func (c *identityServiceClient) TeamMembershipSearch(
+	ctx context.Context,
+	req *connect.Request[v1.TeamMembershipSearchRequest],
+) (*connect.ServerStreamForClient[v1.TeamMembershipSearchResponse], error) {
+	return c.teamMembershipSearch.CallServerStream(ctx, req)
+}
+
+// AccessRoleAssignmentSave calls identity.v1.IdentityService.AccessRoleAssignmentSave.
+func (c *identityServiceClient) AccessRoleAssignmentSave(
+	ctx context.Context,
+	req *connect.Request[v1.AccessRoleAssignmentSaveRequest],
+) (*connect.Response[v1.AccessRoleAssignmentSaveResponse], error) {
+	return c.accessRoleAssignmentSave.CallUnary(ctx, req)
+}
+
+// AccessRoleAssignmentGet calls identity.v1.IdentityService.AccessRoleAssignmentGet.
+func (c *identityServiceClient) AccessRoleAssignmentGet(
+	ctx context.Context,
+	req *connect.Request[v1.AccessRoleAssignmentGetRequest],
+) (*connect.Response[v1.AccessRoleAssignmentGetResponse], error) {
+	return c.accessRoleAssignmentGet.CallUnary(ctx, req)
+}
+
+// AccessRoleAssignmentSearch calls identity.v1.IdentityService.AccessRoleAssignmentSearch.
+func (c *identityServiceClient) AccessRoleAssignmentSearch(
+	ctx context.Context,
+	req *connect.Request[v1.AccessRoleAssignmentSearchRequest],
+) (*connect.ServerStreamForClient[v1.AccessRoleAssignmentSearchResponse], error) {
+	return c.accessRoleAssignmentSearch.CallServerStream(ctx, req)
 }
 
 // BranchSave calls identity.v1.IdentityService.BranchSave.
@@ -853,6 +1438,62 @@ func (c *identityServiceClient) ClientDataHistory(
 	return c.clientDataHistory.CallUnary(ctx, req)
 }
 
+// FormTemplateSave calls identity.v1.IdentityService.FormTemplateSave.
+func (c *identityServiceClient) FormTemplateSave(
+	ctx context.Context,
+	req *connect.Request[v1.FormTemplateSaveRequest],
+) (*connect.Response[v1.FormTemplateSaveResponse], error) {
+	return c.formTemplateSave.CallUnary(ctx, req)
+}
+
+// FormTemplateGet calls identity.v1.IdentityService.FormTemplateGet.
+func (c *identityServiceClient) FormTemplateGet(
+	ctx context.Context,
+	req *connect.Request[v1.FormTemplateGetRequest],
+) (*connect.Response[v1.FormTemplateGetResponse], error) {
+	return c.formTemplateGet.CallUnary(ctx, req)
+}
+
+// FormTemplateSearch calls identity.v1.IdentityService.FormTemplateSearch.
+func (c *identityServiceClient) FormTemplateSearch(
+	ctx context.Context,
+	req *connect.Request[v1.FormTemplateSearchRequest],
+) (*connect.ServerStreamForClient[v1.FormTemplateSearchResponse], error) {
+	return c.formTemplateSearch.CallServerStream(ctx, req)
+}
+
+// FormTemplatePublish calls identity.v1.IdentityService.FormTemplatePublish.
+func (c *identityServiceClient) FormTemplatePublish(
+	ctx context.Context,
+	req *connect.Request[v1.FormTemplatePublishRequest],
+) (*connect.Response[v1.FormTemplatePublishResponse], error) {
+	return c.formTemplatePublish.CallUnary(ctx, req)
+}
+
+// FormSubmissionSave calls identity.v1.IdentityService.FormSubmissionSave.
+func (c *identityServiceClient) FormSubmissionSave(
+	ctx context.Context,
+	req *connect.Request[v1.FormSubmissionSaveRequest],
+) (*connect.Response[v1.FormSubmissionSaveResponse], error) {
+	return c.formSubmissionSave.CallUnary(ctx, req)
+}
+
+// FormSubmissionGet calls identity.v1.IdentityService.FormSubmissionGet.
+func (c *identityServiceClient) FormSubmissionGet(
+	ctx context.Context,
+	req *connect.Request[v1.FormSubmissionGetRequest],
+) (*connect.Response[v1.FormSubmissionGetResponse], error) {
+	return c.formSubmissionGet.CallUnary(ctx, req)
+}
+
+// FormSubmissionSearch calls identity.v1.IdentityService.FormSubmissionSearch.
+func (c *identityServiceClient) FormSubmissionSearch(
+	ctx context.Context,
+	req *connect.Request[v1.FormSubmissionSearchRequest],
+) (*connect.ServerStreamForClient[v1.FormSubmissionSearchResponse], error) {
+	return c.formSubmissionSearch.CallServerStream(ctx, req)
+}
+
 // IdentityServiceHandler is an implementation of the identity.v1.IdentityService service.
 type IdentityServiceHandler interface {
 	// OrganizationSave creates or updates an organization record.
@@ -886,6 +1527,97 @@ type IdentityServiceHandler interface {
 		context.Context,
 		*connect.Request[v1.OrgUnitSearchRequest],
 		*connect.ServerStream[v1.OrgUnitSearchResponse],
+	) error
+	WorkforceMemberSave(
+		context.Context,
+		*connect.Request[v1.WorkforceMemberSaveRequest],
+	) (*connect.Response[v1.WorkforceMemberSaveResponse], error)
+	WorkforceMemberGet(
+		context.Context,
+		*connect.Request[v1.WorkforceMemberGetRequest],
+	) (*connect.Response[v1.WorkforceMemberGetResponse], error)
+	WorkforceMemberSearch(
+		context.Context,
+		*connect.Request[v1.WorkforceMemberSearchRequest],
+		*connect.ServerStream[v1.WorkforceMemberSearchResponse],
+	) error
+	DepartmentSave(
+		context.Context,
+		*connect.Request[v1.DepartmentSaveRequest],
+	) (*connect.Response[v1.DepartmentSaveResponse], error)
+	DepartmentGet(
+		context.Context,
+		*connect.Request[v1.DepartmentGetRequest],
+	) (*connect.Response[v1.DepartmentGetResponse], error)
+	DepartmentSearch(
+		context.Context,
+		*connect.Request[v1.DepartmentSearchRequest],
+		*connect.ServerStream[v1.DepartmentSearchResponse],
+	) error
+	PositionSave(
+		context.Context,
+		*connect.Request[v1.PositionSaveRequest],
+	) (*connect.Response[v1.PositionSaveResponse], error)
+	PositionGet(
+		context.Context,
+		*connect.Request[v1.PositionGetRequest],
+	) (*connect.Response[v1.PositionGetResponse], error)
+	PositionSearch(
+		context.Context,
+		*connect.Request[v1.PositionSearchRequest],
+		*connect.ServerStream[v1.PositionSearchResponse],
+	) error
+	PositionAssignmentSave(
+		context.Context,
+		*connect.Request[v1.PositionAssignmentSaveRequest],
+	) (*connect.Response[v1.PositionAssignmentSaveResponse], error)
+	PositionAssignmentGet(
+		context.Context,
+		*connect.Request[v1.PositionAssignmentGetRequest],
+	) (*connect.Response[v1.PositionAssignmentGetResponse], error)
+	PositionAssignmentSearch(
+		context.Context,
+		*connect.Request[v1.PositionAssignmentSearchRequest],
+		*connect.ServerStream[v1.PositionAssignmentSearchResponse],
+	) error
+	InternalTeamSave(
+		context.Context,
+		*connect.Request[v1.InternalTeamSaveRequest],
+	) (*connect.Response[v1.InternalTeamSaveResponse], error)
+	InternalTeamGet(
+		context.Context,
+		*connect.Request[v1.InternalTeamGetRequest],
+	) (*connect.Response[v1.InternalTeamGetResponse], error)
+	InternalTeamSearch(
+		context.Context,
+		*connect.Request[v1.InternalTeamSearchRequest],
+		*connect.ServerStream[v1.InternalTeamSearchResponse],
+	) error
+	TeamMembershipSave(
+		context.Context,
+		*connect.Request[v1.TeamMembershipSaveRequest],
+	) (*connect.Response[v1.TeamMembershipSaveResponse], error)
+	TeamMembershipGet(
+		context.Context,
+		*connect.Request[v1.TeamMembershipGetRequest],
+	) (*connect.Response[v1.TeamMembershipGetResponse], error)
+	TeamMembershipSearch(
+		context.Context,
+		*connect.Request[v1.TeamMembershipSearchRequest],
+		*connect.ServerStream[v1.TeamMembershipSearchResponse],
+	) error
+	AccessRoleAssignmentSave(
+		context.Context,
+		*connect.Request[v1.AccessRoleAssignmentSaveRequest],
+	) (*connect.Response[v1.AccessRoleAssignmentSaveResponse], error)
+	AccessRoleAssignmentGet(
+		context.Context,
+		*connect.Request[v1.AccessRoleAssignmentGetRequest],
+	) (*connect.Response[v1.AccessRoleAssignmentGetResponse], error)
+	AccessRoleAssignmentSearch(
+		context.Context,
+		*connect.Request[v1.AccessRoleAssignmentSearchRequest],
+		*connect.ServerStream[v1.AccessRoleAssignmentSearchResponse],
 	) error
 	// BranchSave creates or updates a legacy leaf branch record.
 	// Prefer OrgUnitSave with type BRANCH for new integrations.
@@ -1027,6 +1759,43 @@ type IdentityServiceHandler interface {
 		context.Context,
 		*connect.Request[v1.ClientDataHistoryRequest],
 	) (*connect.Response[v1.ClientDataHistoryResponse], error)
+	// FormTemplateSave creates or updates a form template.
+	FormTemplateSave(
+		context.Context,
+		*connect.Request[v1.FormTemplateSaveRequest],
+	) (*connect.Response[v1.FormTemplateSaveResponse], error)
+	// FormTemplateGet retrieves a form template by its ID.
+	FormTemplateGet(
+		context.Context,
+		*connect.Request[v1.FormTemplateGetRequest],
+	) (*connect.Response[v1.FormTemplateGetResponse], error)
+	// FormTemplateSearch finds form templates matching search criteria.
+	FormTemplateSearch(
+		context.Context,
+		*connect.Request[v1.FormTemplateSearchRequest],
+		*connect.ServerStream[v1.FormTemplateSearchResponse],
+	) error
+	// FormTemplatePublish transitions a draft form template to published.
+	FormTemplatePublish(
+		context.Context,
+		*connect.Request[v1.FormTemplatePublishRequest],
+	) (*connect.Response[v1.FormTemplatePublishResponse], error)
+	// FormSubmissionSave creates or updates a form submission.
+	FormSubmissionSave(
+		context.Context,
+		*connect.Request[v1.FormSubmissionSaveRequest],
+	) (*connect.Response[v1.FormSubmissionSaveResponse], error)
+	// FormSubmissionGet retrieves a form submission by its ID.
+	FormSubmissionGet(
+		context.Context,
+		*connect.Request[v1.FormSubmissionGetRequest],
+	) (*connect.Response[v1.FormSubmissionGetResponse], error)
+	// FormSubmissionSearch finds form submissions matching search criteria.
+	FormSubmissionSearch(
+		context.Context,
+		*connect.Request[v1.FormSubmissionSearchRequest],
+		*connect.ServerStream[v1.FormSubmissionSearchResponse],
+	) error
 }
 
 // NewIdentityServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -1073,6 +1842,146 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 		IdentityServiceOrgUnitSearchProcedure,
 		svc.OrgUnitSearch,
 		connect.WithSchema(identityServiceMethods.ByName("OrgUnitSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceWorkforceMemberSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceWorkforceMemberSaveProcedure,
+		svc.WorkforceMemberSave,
+		connect.WithSchema(identityServiceMethods.ByName("WorkforceMemberSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceWorkforceMemberGetHandler := connect.NewUnaryHandler(
+		IdentityServiceWorkforceMemberGetProcedure,
+		svc.WorkforceMemberGet,
+		connect.WithSchema(identityServiceMethods.ByName("WorkforceMemberGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceWorkforceMemberSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceWorkforceMemberSearchProcedure,
+		svc.WorkforceMemberSearch,
+		connect.WithSchema(identityServiceMethods.ByName("WorkforceMemberSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceDepartmentSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceDepartmentSaveProcedure,
+		svc.DepartmentSave,
+		connect.WithSchema(identityServiceMethods.ByName("DepartmentSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceDepartmentGetHandler := connect.NewUnaryHandler(
+		IdentityServiceDepartmentGetProcedure,
+		svc.DepartmentGet,
+		connect.WithSchema(identityServiceMethods.ByName("DepartmentGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceDepartmentSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceDepartmentSearchProcedure,
+		svc.DepartmentSearch,
+		connect.WithSchema(identityServiceMethods.ByName("DepartmentSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServicePositionSaveHandler := connect.NewUnaryHandler(
+		IdentityServicePositionSaveProcedure,
+		svc.PositionSave,
+		connect.WithSchema(identityServiceMethods.ByName("PositionSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServicePositionGetHandler := connect.NewUnaryHandler(
+		IdentityServicePositionGetProcedure,
+		svc.PositionGet,
+		connect.WithSchema(identityServiceMethods.ByName("PositionGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServicePositionSearchHandler := connect.NewServerStreamHandler(
+		IdentityServicePositionSearchProcedure,
+		svc.PositionSearch,
+		connect.WithSchema(identityServiceMethods.ByName("PositionSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServicePositionAssignmentSaveHandler := connect.NewUnaryHandler(
+		IdentityServicePositionAssignmentSaveProcedure,
+		svc.PositionAssignmentSave,
+		connect.WithSchema(identityServiceMethods.ByName("PositionAssignmentSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServicePositionAssignmentGetHandler := connect.NewUnaryHandler(
+		IdentityServicePositionAssignmentGetProcedure,
+		svc.PositionAssignmentGet,
+		connect.WithSchema(identityServiceMethods.ByName("PositionAssignmentGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServicePositionAssignmentSearchHandler := connect.NewServerStreamHandler(
+		IdentityServicePositionAssignmentSearchProcedure,
+		svc.PositionAssignmentSearch,
+		connect.WithSchema(identityServiceMethods.ByName("PositionAssignmentSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceInternalTeamSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceInternalTeamSaveProcedure,
+		svc.InternalTeamSave,
+		connect.WithSchema(identityServiceMethods.ByName("InternalTeamSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceInternalTeamGetHandler := connect.NewUnaryHandler(
+		IdentityServiceInternalTeamGetProcedure,
+		svc.InternalTeamGet,
+		connect.WithSchema(identityServiceMethods.ByName("InternalTeamGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceInternalTeamSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceInternalTeamSearchProcedure,
+		svc.InternalTeamSearch,
+		connect.WithSchema(identityServiceMethods.ByName("InternalTeamSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceTeamMembershipSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceTeamMembershipSaveProcedure,
+		svc.TeamMembershipSave,
+		connect.WithSchema(identityServiceMethods.ByName("TeamMembershipSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceTeamMembershipGetHandler := connect.NewUnaryHandler(
+		IdentityServiceTeamMembershipGetProcedure,
+		svc.TeamMembershipGet,
+		connect.WithSchema(identityServiceMethods.ByName("TeamMembershipGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceTeamMembershipSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceTeamMembershipSearchProcedure,
+		svc.TeamMembershipSearch,
+		connect.WithSchema(identityServiceMethods.ByName("TeamMembershipSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceAccessRoleAssignmentSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceAccessRoleAssignmentSaveProcedure,
+		svc.AccessRoleAssignmentSave,
+		connect.WithSchema(identityServiceMethods.ByName("AccessRoleAssignmentSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceAccessRoleAssignmentGetHandler := connect.NewUnaryHandler(
+		IdentityServiceAccessRoleAssignmentGetProcedure,
+		svc.AccessRoleAssignmentGet,
+		connect.WithSchema(identityServiceMethods.ByName("AccessRoleAssignmentGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceAccessRoleAssignmentSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceAccessRoleAssignmentSearchProcedure,
+		svc.AccessRoleAssignmentSearch,
+		connect.WithSchema(identityServiceMethods.ByName("AccessRoleAssignmentSearch")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -1253,6 +2162,52 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	identityServiceFormTemplateSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceFormTemplateSaveProcedure,
+		svc.FormTemplateSave,
+		connect.WithSchema(identityServiceMethods.ByName("FormTemplateSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceFormTemplateGetHandler := connect.NewUnaryHandler(
+		IdentityServiceFormTemplateGetProcedure,
+		svc.FormTemplateGet,
+		connect.WithSchema(identityServiceMethods.ByName("FormTemplateGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceFormTemplateSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceFormTemplateSearchProcedure,
+		svc.FormTemplateSearch,
+		connect.WithSchema(identityServiceMethods.ByName("FormTemplateSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceFormTemplatePublishHandler := connect.NewUnaryHandler(
+		IdentityServiceFormTemplatePublishProcedure,
+		svc.FormTemplatePublish,
+		connect.WithSchema(identityServiceMethods.ByName("FormTemplatePublish")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceFormSubmissionSaveHandler := connect.NewUnaryHandler(
+		IdentityServiceFormSubmissionSaveProcedure,
+		svc.FormSubmissionSave,
+		connect.WithSchema(identityServiceMethods.ByName("FormSubmissionSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceFormSubmissionGetHandler := connect.NewUnaryHandler(
+		IdentityServiceFormSubmissionGetProcedure,
+		svc.FormSubmissionGet,
+		connect.WithSchema(identityServiceMethods.ByName("FormSubmissionGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceFormSubmissionSearchHandler := connect.NewServerStreamHandler(
+		IdentityServiceFormSubmissionSearchProcedure,
+		svc.FormSubmissionSearch,
+		connect.WithSchema(identityServiceMethods.ByName("FormSubmissionSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/identity.v1.IdentityService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IdentityServiceOrganizationSaveProcedure:
@@ -1267,6 +2222,48 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 			identityServiceOrgUnitGetHandler.ServeHTTP(w, r)
 		case IdentityServiceOrgUnitSearchProcedure:
 			identityServiceOrgUnitSearchHandler.ServeHTTP(w, r)
+		case IdentityServiceWorkforceMemberSaveProcedure:
+			identityServiceWorkforceMemberSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceWorkforceMemberGetProcedure:
+			identityServiceWorkforceMemberGetHandler.ServeHTTP(w, r)
+		case IdentityServiceWorkforceMemberSearchProcedure:
+			identityServiceWorkforceMemberSearchHandler.ServeHTTP(w, r)
+		case IdentityServiceDepartmentSaveProcedure:
+			identityServiceDepartmentSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceDepartmentGetProcedure:
+			identityServiceDepartmentGetHandler.ServeHTTP(w, r)
+		case IdentityServiceDepartmentSearchProcedure:
+			identityServiceDepartmentSearchHandler.ServeHTTP(w, r)
+		case IdentityServicePositionSaveProcedure:
+			identityServicePositionSaveHandler.ServeHTTP(w, r)
+		case IdentityServicePositionGetProcedure:
+			identityServicePositionGetHandler.ServeHTTP(w, r)
+		case IdentityServicePositionSearchProcedure:
+			identityServicePositionSearchHandler.ServeHTTP(w, r)
+		case IdentityServicePositionAssignmentSaveProcedure:
+			identityServicePositionAssignmentSaveHandler.ServeHTTP(w, r)
+		case IdentityServicePositionAssignmentGetProcedure:
+			identityServicePositionAssignmentGetHandler.ServeHTTP(w, r)
+		case IdentityServicePositionAssignmentSearchProcedure:
+			identityServicePositionAssignmentSearchHandler.ServeHTTP(w, r)
+		case IdentityServiceInternalTeamSaveProcedure:
+			identityServiceInternalTeamSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceInternalTeamGetProcedure:
+			identityServiceInternalTeamGetHandler.ServeHTTP(w, r)
+		case IdentityServiceInternalTeamSearchProcedure:
+			identityServiceInternalTeamSearchHandler.ServeHTTP(w, r)
+		case IdentityServiceTeamMembershipSaveProcedure:
+			identityServiceTeamMembershipSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceTeamMembershipGetProcedure:
+			identityServiceTeamMembershipGetHandler.ServeHTTP(w, r)
+		case IdentityServiceTeamMembershipSearchProcedure:
+			identityServiceTeamMembershipSearchHandler.ServeHTTP(w, r)
+		case IdentityServiceAccessRoleAssignmentSaveProcedure:
+			identityServiceAccessRoleAssignmentSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceAccessRoleAssignmentGetProcedure:
+			identityServiceAccessRoleAssignmentGetHandler.ServeHTTP(w, r)
+		case IdentityServiceAccessRoleAssignmentSearchProcedure:
+			identityServiceAccessRoleAssignmentSearchHandler.ServeHTTP(w, r)
 		case IdentityServiceBranchSaveProcedure:
 			identityServiceBranchSaveHandler.ServeHTTP(w, r)
 		case IdentityServiceBranchGetProcedure:
@@ -1321,6 +2318,20 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 			identityServiceClientDataRequestInfoHandler.ServeHTTP(w, r)
 		case IdentityServiceClientDataHistoryProcedure:
 			identityServiceClientDataHistoryHandler.ServeHTTP(w, r)
+		case IdentityServiceFormTemplateSaveProcedure:
+			identityServiceFormTemplateSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceFormTemplateGetProcedure:
+			identityServiceFormTemplateGetHandler.ServeHTTP(w, r)
+		case IdentityServiceFormTemplateSearchProcedure:
+			identityServiceFormTemplateSearchHandler.ServeHTTP(w, r)
+		case IdentityServiceFormTemplatePublishProcedure:
+			identityServiceFormTemplatePublishHandler.ServeHTTP(w, r)
+		case IdentityServiceFormSubmissionSaveProcedure:
+			identityServiceFormSubmissionSaveHandler.ServeHTTP(w, r)
+		case IdentityServiceFormSubmissionGetProcedure:
+			identityServiceFormSubmissionGetHandler.ServeHTTP(w, r)
+		case IdentityServiceFormSubmissionSearchProcedure:
+			identityServiceFormSubmissionSearchHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1389,6 +2400,223 @@ func (UnimplementedIdentityServiceHandler) OrgUnitSearch(
 	return connect.NewError(
 		connect.CodeUnimplemented,
 		errors.New("identity.v1.IdentityService.OrgUnitSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) WorkforceMemberSave(
+	context.Context,
+	*connect.Request[v1.WorkforceMemberSaveRequest],
+) (*connect.Response[v1.WorkforceMemberSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.WorkforceMemberSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) WorkforceMemberGet(
+	context.Context,
+	*connect.Request[v1.WorkforceMemberGetRequest],
+) (*connect.Response[v1.WorkforceMemberGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.WorkforceMemberGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) WorkforceMemberSearch(
+	context.Context,
+	*connect.Request[v1.WorkforceMemberSearchRequest],
+	*connect.ServerStream[v1.WorkforceMemberSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.WorkforceMemberSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) DepartmentSave(
+	context.Context,
+	*connect.Request[v1.DepartmentSaveRequest],
+) (*connect.Response[v1.DepartmentSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.DepartmentSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) DepartmentGet(
+	context.Context,
+	*connect.Request[v1.DepartmentGetRequest],
+) (*connect.Response[v1.DepartmentGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.DepartmentGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) DepartmentSearch(
+	context.Context,
+	*connect.Request[v1.DepartmentSearchRequest],
+	*connect.ServerStream[v1.DepartmentSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.DepartmentSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) PositionSave(
+	context.Context,
+	*connect.Request[v1.PositionSaveRequest],
+) (*connect.Response[v1.PositionSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.PositionSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) PositionGet(
+	context.Context,
+	*connect.Request[v1.PositionGetRequest],
+) (*connect.Response[v1.PositionGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.PositionGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) PositionSearch(
+	context.Context,
+	*connect.Request[v1.PositionSearchRequest],
+	*connect.ServerStream[v1.PositionSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.PositionSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) PositionAssignmentSave(
+	context.Context,
+	*connect.Request[v1.PositionAssignmentSaveRequest],
+) (*connect.Response[v1.PositionAssignmentSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.PositionAssignmentSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) PositionAssignmentGet(
+	context.Context,
+	*connect.Request[v1.PositionAssignmentGetRequest],
+) (*connect.Response[v1.PositionAssignmentGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.PositionAssignmentGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) PositionAssignmentSearch(
+	context.Context,
+	*connect.Request[v1.PositionAssignmentSearchRequest],
+	*connect.ServerStream[v1.PositionAssignmentSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.PositionAssignmentSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) InternalTeamSave(
+	context.Context,
+	*connect.Request[v1.InternalTeamSaveRequest],
+) (*connect.Response[v1.InternalTeamSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.InternalTeamSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) InternalTeamGet(
+	context.Context,
+	*connect.Request[v1.InternalTeamGetRequest],
+) (*connect.Response[v1.InternalTeamGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.InternalTeamGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) InternalTeamSearch(
+	context.Context,
+	*connect.Request[v1.InternalTeamSearchRequest],
+	*connect.ServerStream[v1.InternalTeamSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.InternalTeamSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) TeamMembershipSave(
+	context.Context,
+	*connect.Request[v1.TeamMembershipSaveRequest],
+) (*connect.Response[v1.TeamMembershipSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.TeamMembershipSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) TeamMembershipGet(
+	context.Context,
+	*connect.Request[v1.TeamMembershipGetRequest],
+) (*connect.Response[v1.TeamMembershipGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.TeamMembershipGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) TeamMembershipSearch(
+	context.Context,
+	*connect.Request[v1.TeamMembershipSearchRequest],
+	*connect.ServerStream[v1.TeamMembershipSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.TeamMembershipSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) AccessRoleAssignmentSave(
+	context.Context,
+	*connect.Request[v1.AccessRoleAssignmentSaveRequest],
+) (*connect.Response[v1.AccessRoleAssignmentSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.AccessRoleAssignmentSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) AccessRoleAssignmentGet(
+	context.Context,
+	*connect.Request[v1.AccessRoleAssignmentGetRequest],
+) (*connect.Response[v1.AccessRoleAssignmentGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.AccessRoleAssignmentGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) AccessRoleAssignmentSearch(
+	context.Context,
+	*connect.Request[v1.AccessRoleAssignmentSearchRequest],
+	*connect.ServerStream[v1.AccessRoleAssignmentSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.AccessRoleAssignmentSearch is not implemented"),
 	)
 }
 
@@ -1666,5 +2894,77 @@ func (UnimplementedIdentityServiceHandler) ClientDataHistory(
 	return nil, connect.NewError(
 		connect.CodeUnimplemented,
 		errors.New("identity.v1.IdentityService.ClientDataHistory is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormTemplateSave(
+	context.Context,
+	*connect.Request[v1.FormTemplateSaveRequest],
+) (*connect.Response[v1.FormTemplateSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormTemplateSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormTemplateGet(
+	context.Context,
+	*connect.Request[v1.FormTemplateGetRequest],
+) (*connect.Response[v1.FormTemplateGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormTemplateGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormTemplateSearch(
+	context.Context,
+	*connect.Request[v1.FormTemplateSearchRequest],
+	*connect.ServerStream[v1.FormTemplateSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormTemplateSearch is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormTemplatePublish(
+	context.Context,
+	*connect.Request[v1.FormTemplatePublishRequest],
+) (*connect.Response[v1.FormTemplatePublishResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormTemplatePublish is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormSubmissionSave(
+	context.Context,
+	*connect.Request[v1.FormSubmissionSaveRequest],
+) (*connect.Response[v1.FormSubmissionSaveResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormSubmissionSave is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormSubmissionGet(
+	context.Context,
+	*connect.Request[v1.FormSubmissionGetRequest],
+) (*connect.Response[v1.FormSubmissionGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormSubmissionGet is not implemented"),
+	)
+}
+
+func (UnimplementedIdentityServiceHandler) FormSubmissionSearch(
+	context.Context,
+	*connect.Request[v1.FormSubmissionSearchRequest],
+	*connect.ServerStream[v1.FormSubmissionSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("identity.v1.IdentityService.FormSubmissionSearch is not implemented"),
 	)
 }
