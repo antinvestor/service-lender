@@ -24,8 +24,8 @@ class LocalClients extends Table {
   /// Profile service user ID.
   TextColumn get profileId => text().withDefault(const Constant(''))();
 
-  /// Agent managing this client.
-  TextColumn get agentId => text()();
+  /// Workforce member responsible for this client (primaryRelationshipMemberId).
+  TextColumn get responsibleMemberId => text()();
 
   /// Current state (maps to STATE enum: 0=CREATED, 2=ACTIVE, etc.).
   IntColumn get state => integer().withDefault(const Constant(0))();
@@ -84,11 +84,11 @@ class AppDatabase extends _$AppDatabase {
     return into(localClients).insertOnConflictUpdate(client);
   }
 
-  /// Get all clients, optionally filtered by agent and/or search query.
-  Future<List<LocalClient>> getClients({String? agentId, String? query}) {
+  /// Get all clients, optionally filtered by responsible member and/or search query.
+  Future<List<LocalClient>> getClients({String? memberId, String? query}) {
     final q = select(localClients);
-    if (agentId != null && agentId.isNotEmpty) {
-      q.where((c) => c.agentId.equals(agentId));
+    if (memberId != null && memberId.isNotEmpty) {
+      q.where((c) => c.responsibleMemberId.equals(memberId));
     }
     if (query != null && query.isNotEmpty) {
       q.where((c) => c.name.like('%$query%') | c.profileId.like('%$query%'));

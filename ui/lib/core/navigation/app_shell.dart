@@ -128,12 +128,10 @@ class _MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
       return 'Organizations';
     }
     if (currentRoute.startsWith('/organization/org-units')) return 'Org Units';
-    if (currentRoute.startsWith('/organization/agents')) return 'Agents';
-    if (currentRoute.startsWith('/field/hierarchy')) return 'Hierarchy';
+    if (currentRoute.startsWith('/workforce/members')) return 'Workforce';
     if (currentRoute.startsWith('/field/clients')) return 'Clients';
     if (currentRoute.startsWith('/organization/investors')) return 'Investors';
-    if (currentRoute.startsWith('/field/reassignment')) return 'Reassignment';
-    if (currentRoute.startsWith('/admin/users')) return 'System Users';
+    if (currentRoute.startsWith('/admin/access-roles')) return 'Access Roles';
     if (currentRoute.startsWith('/admin/roles')) return 'Roles & Permissions';
     if (currentRoute.startsWith('/admin/audit')) return 'Audit Log';
     if (currentRoute.startsWith('/settings')) return 'Settings';

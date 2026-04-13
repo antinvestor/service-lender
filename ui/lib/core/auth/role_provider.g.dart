@@ -184,30 +184,30 @@ final class CanManageOrganizationsProvider
 String _$canManageOrganizationsHash() =>
     r'99b25fe773a6ba5fc51edaa76af2005be8566554';
 
-/// Whether the current user can manage agents
+/// Whether the current user can manage workforce members
 
-@ProviderFor(canManageAgents)
-final canManageAgentsProvider = CanManageAgentsProvider._();
+@ProviderFor(canManageWorkforce)
+final canManageWorkforceProvider = CanManageWorkforceProvider._();
 
-/// Whether the current user can manage agents
+/// Whether the current user can manage workforce members
 
-final class CanManageAgentsProvider
+final class CanManageWorkforceProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether the current user can manage agents
-  CanManageAgentsProvider._()
+  /// Whether the current user can manage workforce members
+  CanManageWorkforceProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'canManageAgentsProvider',
+        name: r'canManageWorkforceProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$canManageAgentsHash();
+  String debugGetCreateSourceHash() => _$canManageWorkforceHash();
 
   @$internal
   @override
@@ -216,11 +216,12 @@ final class CanManageAgentsProvider
 
   @override
   FutureOr<bool> create(Ref ref) {
-    return canManageAgents(ref);
+    return canManageWorkforce(ref);
   }
 }
 
-String _$canManageAgentsHash() => r'7d3d2dd5009d632ee4f89e3a2ed98ad23ed86743';
+String _$canManageWorkforceHash() =>
+    r'f962b29d8b82ee2e2970e391eccb979683cd799e';
 
 /// Whether the current user can manage clients
 
@@ -258,7 +259,7 @@ final class CanManageClientsProvider
   }
 }
 
-String _$canManageClientsHash() => r'44c453612d67b85a141349ccfab29235d6d770ae';
+String _$canManageClientsHash() => r'52d4b28ddd3fd6edcae3dd7a7bd7d4fa851d48f3';
 
 /// Whether the current user can manage investors
 
@@ -336,7 +337,7 @@ final class CanCreateApplicationsProvider
 }
 
 String _$canCreateApplicationsHash() =>
-    r'bd9185e97353b71d871f9a8b6b57f989e16318d0';
+    r'4ff03c5d53b00595c8d5418a31a824870d03581a';
 
 /// Whether the current user can manage loan products
 
@@ -532,30 +533,30 @@ final class CanRecordRepaymentsProvider
 String _$canRecordRepaymentsHash() =>
     r'b58a273644d6525f2f0876f7b54748de5509ff3f';
 
-/// Whether the current user can manage system users
+/// Whether the current user can manage access role assignments
 
-@ProviderFor(canManageSystemUsers)
-final canManageSystemUsersProvider = CanManageSystemUsersProvider._();
+@ProviderFor(canManageAccessRoles)
+final canManageAccessRolesProvider = CanManageAccessRolesProvider._();
 
-/// Whether the current user can manage system users
+/// Whether the current user can manage access role assignments
 
-final class CanManageSystemUsersProvider
+final class CanManageAccessRolesProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether the current user can manage system users
-  CanManageSystemUsersProvider._()
+  /// Whether the current user can manage access role assignments
+  CanManageAccessRolesProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'canManageSystemUsersProvider',
+        name: r'canManageAccessRolesProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$canManageSystemUsersHash();
+  String debugGetCreateSourceHash() => _$canManageAccessRolesHash();
 
   @$internal
   @override
@@ -564,12 +565,12 @@ final class CanManageSystemUsersProvider
 
   @override
   FutureOr<bool> create(Ref ref) {
-    return canManageSystemUsers(ref);
+    return canManageAccessRoles(ref);
   }
 }
 
-String _$canManageSystemUsersHash() =>
-    r'c4d5a826a88d219f9f85220c3b87905a767381b8';
+String _$canManageAccessRolesHash() =>
+    r'bbfc47eb2184a453cd4eecbc0810353a4a91a3fb';
 
 /// Whether the current user can manage penalties
 

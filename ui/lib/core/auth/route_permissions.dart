@@ -11,20 +11,22 @@ import 'role_provider.dart';
 /// An empty set means "any authenticated user can access".
 const Map<String, Set<LenderRole>> routePermissions = {
   // Admin — owner and admin only
-  '/admin/users': {LenderRole.owner, LenderRole.admin},
+  '/admin/access-roles': {LenderRole.owner, LenderRole.admin},
   '/admin/roles': {LenderRole.owner, LenderRole.admin},
   '/admin/audit': {LenderRole.owner, LenderRole.admin, LenderRole.auditor},
   '/admin/form-templates': {LenderRole.owner, LenderRole.admin},
 
-  // Organization — all view roles (not bare agents)
+  // Organization — all view roles (not bare field workers)
   '/organization/organizations': _viewRoles,
   '/organization/org-units': _viewRoles,
   '/organization/investors': _viewRoles,
 
+  // Workforce — management and broad access
+  '/workforce/members': _allViewRoles,
+  '/workforce/transfers': _fieldMgmtRoles,
+
   // Field Operations — broad access but reassignment restricted
   '/field/reassignment': _fieldMgmtRoles,
-  '/organization/agents': _allViewRoles,
-  '/field/hierarchy': _allViewRoles,
   '/field/clients': _allViewRoles,
 
   // Origination — all operational roles
@@ -75,14 +77,14 @@ const _fieldMgmtRoles = {
   LenderRole.owner,
   LenderRole.admin,
   LenderRole.manager,
-  LenderRole.agent,
+  LenderRole.fieldWorker,
 };
 
 const _allViewRoles = {
   LenderRole.owner,
   LenderRole.admin,
   LenderRole.manager,
-  LenderRole.agent,
+  LenderRole.fieldWorker,
   LenderRole.verifier,
   LenderRole.approver,
   LenderRole.auditor,

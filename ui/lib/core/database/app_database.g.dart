@@ -53,17 +53,17 @@ class $LocalClientsTable extends LocalClients
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
-  static const VerificationMeta _agentIdMeta = const VerificationMeta(
-    'agentId',
-  );
+  static const VerificationMeta _responsibleMemberIdMeta =
+      const VerificationMeta('responsibleMemberId');
   @override
-  late final GeneratedColumn<String> agentId = GeneratedColumn<String>(
-    'agent_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumn<String> responsibleMemberId =
+      GeneratedColumn<String>(
+        'responsible_member_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
   static const VerificationMeta _stateMeta = const VerificationMeta('state');
   @override
   late final GeneratedColumn<int> state = GeneratedColumn<int>(
@@ -137,7 +137,7 @@ class $LocalClientsTable extends LocalClients
     id,
     name,
     profileId,
-    agentId,
+    responsibleMemberId,
     state,
     propertiesJson,
     syncStatus,
@@ -180,13 +180,16 @@ class $LocalClientsTable extends LocalClients
         profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
       );
     }
-    if (data.containsKey('agent_id')) {
+    if (data.containsKey('responsible_member_id')) {
       context.handle(
-        _agentIdMeta,
-        agentId.isAcceptableOrUnknown(data['agent_id']!, _agentIdMeta),
+        _responsibleMemberIdMeta,
+        responsibleMemberId.isAcceptableOrUnknown(
+          data['responsible_member_id']!,
+          _responsibleMemberIdMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_agentIdMeta);
+      context.missing(_responsibleMemberIdMeta);
     }
     if (data.containsKey('state')) {
       context.handle(
@@ -246,9 +249,9 @@ class $LocalClientsTable extends LocalClients
         DriftSqlType.string,
         data['${effectivePrefix}profile_id'],
       )!,
-      agentId: attachedDatabase.typeMapping.read(
+      responsibleMemberId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}agent_id'],
+        data['${effectivePrefix}responsible_member_id'],
       )!,
       state: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -301,8 +304,8 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
   /// Profile service user ID.
   final String profileId;
 
-  /// Agent managing this client.
-  final String agentId;
+  /// Workforce member responsible for this client (primaryRelationshipMemberId).
+  final String responsibleMemberId;
 
   /// Current state (maps to STATE enum: 0=CREATED, 2=ACTIVE, etc.).
   final int state;
@@ -326,7 +329,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
     required this.id,
     required this.name,
     required this.profileId,
-    required this.agentId,
+    required this.responsibleMemberId,
     required this.state,
     required this.propertiesJson,
     required this.syncStatus,
@@ -341,7 +344,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['profile_id'] = Variable<String>(profileId);
-    map['agent_id'] = Variable<String>(agentId);
+    map['responsible_member_id'] = Variable<String>(responsibleMemberId);
     map['state'] = Variable<int>(state);
     map['properties_json'] = Variable<String>(propertiesJson);
     {
@@ -363,7 +366,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
       id: Value(id),
       name: Value(name),
       profileId: Value(profileId),
-      agentId: Value(agentId),
+      responsibleMemberId: Value(responsibleMemberId),
       state: Value(state),
       propertiesJson: Value(propertiesJson),
       syncStatus: Value(syncStatus),
@@ -385,7 +388,9 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       profileId: serializer.fromJson<String>(json['profileId']),
-      agentId: serializer.fromJson<String>(json['agentId']),
+      responsibleMemberId: serializer.fromJson<String>(
+        json['responsibleMemberId'],
+      ),
       state: serializer.fromJson<int>(json['state']),
       propertiesJson: serializer.fromJson<String>(json['propertiesJson']),
       syncStatus: $LocalClientsTable.$convertersyncStatus.fromJson(
@@ -404,7 +409,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'profileId': serializer.toJson<String>(profileId),
-      'agentId': serializer.toJson<String>(agentId),
+      'responsibleMemberId': serializer.toJson<String>(responsibleMemberId),
       'state': serializer.toJson<int>(state),
       'propertiesJson': serializer.toJson<String>(propertiesJson),
       'syncStatus': serializer.toJson<int>(
@@ -421,7 +426,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
     String? id,
     String? name,
     String? profileId,
-    String? agentId,
+    String? responsibleMemberId,
     int? state,
     String? propertiesJson,
     SyncStatus? syncStatus,
@@ -433,7 +438,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
     id: id ?? this.id,
     name: name ?? this.name,
     profileId: profileId ?? this.profileId,
-    agentId: agentId ?? this.agentId,
+    responsibleMemberId: responsibleMemberId ?? this.responsibleMemberId,
     state: state ?? this.state,
     propertiesJson: propertiesJson ?? this.propertiesJson,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -447,7 +452,9 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       profileId: data.profileId.present ? data.profileId.value : this.profileId,
-      agentId: data.agentId.present ? data.agentId.value : this.agentId,
+      responsibleMemberId: data.responsibleMemberId.present
+          ? data.responsibleMemberId.value
+          : this.responsibleMemberId,
       state: data.state.present ? data.state.value : this.state,
       propertiesJson: data.propertiesJson.present
           ? data.propertiesJson.value
@@ -468,7 +475,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('profileId: $profileId, ')
-          ..write('agentId: $agentId, ')
+          ..write('responsibleMemberId: $responsibleMemberId, ')
           ..write('state: $state, ')
           ..write('propertiesJson: $propertiesJson, ')
           ..write('syncStatus: $syncStatus, ')
@@ -485,7 +492,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
     id,
     name,
     profileId,
-    agentId,
+    responsibleMemberId,
     state,
     propertiesJson,
     syncStatus,
@@ -501,7 +508,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
           other.id == this.id &&
           other.name == this.name &&
           other.profileId == this.profileId &&
-          other.agentId == this.agentId &&
+          other.responsibleMemberId == this.responsibleMemberId &&
           other.state == this.state &&
           other.propertiesJson == this.propertiesJson &&
           other.syncStatus == this.syncStatus &&
@@ -515,7 +522,7 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
   final Value<String> id;
   final Value<String> name;
   final Value<String> profileId;
-  final Value<String> agentId;
+  final Value<String> responsibleMemberId;
   final Value<int> state;
   final Value<String> propertiesJson;
   final Value<SyncStatus> syncStatus;
@@ -527,7 +534,7 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.profileId = const Value.absent(),
-    this.agentId = const Value.absent(),
+    this.responsibleMemberId = const Value.absent(),
     this.state = const Value.absent(),
     this.propertiesJson = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -540,7 +547,7 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
     this.id = const Value.absent(),
     required String name,
     this.profileId = const Value.absent(),
-    required String agentId,
+    required String responsibleMemberId,
     this.state = const Value.absent(),
     this.propertiesJson = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -548,13 +555,13 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
-       agentId = Value(agentId);
+       responsibleMemberId = Value(responsibleMemberId);
   static Insertable<LocalClient> custom({
     Expression<int>? rowId,
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? profileId,
-    Expression<String>? agentId,
+    Expression<String>? responsibleMemberId,
     Expression<int>? state,
     Expression<String>? propertiesJson,
     Expression<int>? syncStatus,
@@ -567,7 +574,8 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (profileId != null) 'profile_id': profileId,
-      if (agentId != null) 'agent_id': agentId,
+      if (responsibleMemberId != null)
+        'responsible_member_id': responsibleMemberId,
       if (state != null) 'state': state,
       if (propertiesJson != null) 'properties_json': propertiesJson,
       if (syncStatus != null) 'sync_status': syncStatus,
@@ -582,7 +590,7 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
     Value<String>? id,
     Value<String>? name,
     Value<String>? profileId,
-    Value<String>? agentId,
+    Value<String>? responsibleMemberId,
     Value<int>? state,
     Value<String>? propertiesJson,
     Value<SyncStatus>? syncStatus,
@@ -595,7 +603,7 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
       id: id ?? this.id,
       name: name ?? this.name,
       profileId: profileId ?? this.profileId,
-      agentId: agentId ?? this.agentId,
+      responsibleMemberId: responsibleMemberId ?? this.responsibleMemberId,
       state: state ?? this.state,
       propertiesJson: propertiesJson ?? this.propertiesJson,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -620,8 +628,10 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
     if (profileId.present) {
       map['profile_id'] = Variable<String>(profileId.value);
     }
-    if (agentId.present) {
-      map['agent_id'] = Variable<String>(agentId.value);
+    if (responsibleMemberId.present) {
+      map['responsible_member_id'] = Variable<String>(
+        responsibleMemberId.value,
+      );
     }
     if (state.present) {
       map['state'] = Variable<int>(state.value);
@@ -653,7 +663,7 @@ class LocalClientsCompanion extends UpdateCompanion<LocalClient> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('profileId: $profileId, ')
-          ..write('agentId: $agentId, ')
+          ..write('responsibleMemberId: $responsibleMemberId, ')
           ..write('state: $state, ')
           ..write('propertiesJson: $propertiesJson, ')
           ..write('syncStatus: $syncStatus, ')
@@ -682,7 +692,7 @@ typedef $$LocalClientsTableCreateCompanionBuilder =
       Value<String> id,
       required String name,
       Value<String> profileId,
-      required String agentId,
+      required String responsibleMemberId,
       Value<int> state,
       Value<String> propertiesJson,
       Value<SyncStatus> syncStatus,
@@ -696,7 +706,7 @@ typedef $$LocalClientsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<String> profileId,
-      Value<String> agentId,
+      Value<String> responsibleMemberId,
       Value<int> state,
       Value<String> propertiesJson,
       Value<SyncStatus> syncStatus,
@@ -734,8 +744,8 @@ class $$LocalClientsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get agentId => $composableBuilder(
-    column: $table.agentId,
+  ColumnFilters<String> get responsibleMemberId => $composableBuilder(
+    column: $table.responsibleMemberId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -800,8 +810,8 @@ class $$LocalClientsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get agentId => $composableBuilder(
-    column: $table.agentId,
+  ColumnOrderings<String> get responsibleMemberId => $composableBuilder(
+    column: $table.responsibleMemberId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -857,8 +867,10 @@ class $$LocalClientsTableAnnotationComposer
   GeneratedColumn<String> get profileId =>
       $composableBuilder(column: $table.profileId, builder: (column) => column);
 
-  GeneratedColumn<String> get agentId =>
-      $composableBuilder(column: $table.agentId, builder: (column) => column);
+  GeneratedColumn<String> get responsibleMemberId => $composableBuilder(
+    column: $table.responsibleMemberId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get state =>
       $composableBuilder(column: $table.state, builder: (column) => column);
@@ -919,7 +931,7 @@ class $$LocalClientsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> profileId = const Value.absent(),
-                Value<String> agentId = const Value.absent(),
+                Value<String> responsibleMemberId = const Value.absent(),
                 Value<int> state = const Value.absent(),
                 Value<String> propertiesJson = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
@@ -931,7 +943,7 @@ class $$LocalClientsTableTableManager
                 id: id,
                 name: name,
                 profileId: profileId,
-                agentId: agentId,
+                responsibleMemberId: responsibleMemberId,
                 state: state,
                 propertiesJson: propertiesJson,
                 syncStatus: syncStatus,
@@ -945,7 +957,7 @@ class $$LocalClientsTableTableManager
                 Value<String> id = const Value.absent(),
                 required String name,
                 Value<String> profileId = const Value.absent(),
-                required String agentId,
+                required String responsibleMemberId,
                 Value<int> state = const Value.absent(),
                 Value<String> propertiesJson = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
@@ -957,7 +969,7 @@ class $$LocalClientsTableTableManager
                 id: id,
                 name: name,
                 profileId: profileId,
-                agentId: agentId,
+                responsibleMemberId: responsibleMemberId,
                 state: state,
                 propertiesJson: propertiesJson,
                 syncStatus: syncStatus,

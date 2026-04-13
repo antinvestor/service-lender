@@ -90,18 +90,11 @@ const _viewRoles = {
 
 const _adminRoles = {LenderRole.owner, LenderRole.admin};
 
-const _fieldRoles = {
-  LenderRole.owner,
-  LenderRole.admin,
-  LenderRole.manager,
-  LenderRole.agent,
-};
-
 const _allViewRoles = {
   LenderRole.owner,
   LenderRole.admin,
   LenderRole.manager,
-  LenderRole.agent,
+  LenderRole.fieldWorker,
   LenderRole.verifier,
   LenderRole.approver,
   LenderRole.auditor,
@@ -143,20 +136,42 @@ List<NavItem> buildNavItems() => [
         requiredRoles: _viewRoles,
       ),
       NavItem(
-        id: 'agents',
-        label: 'Agents',
-        icon: Icons.person_pin_outlined,
-        activeIcon: Icons.person_pin,
-        route: '/organization/agents',
-        requiredRoles: _allViewRoles,
-      ),
-      NavItem(
         id: 'investors',
         label: 'Investors',
         icon: Icons.trending_up_outlined,
         activeIcon: Icons.trending_up,
         route: '/organization/investors',
         requiredRoles: _viewRoles,
+      ),
+    ],
+  ),
+  NavItem(
+    id: 'workforce',
+    label: 'Workforce',
+    icon: Icons.badge_outlined,
+    activeIcon: Icons.badge,
+    requiredRoles: _allViewRoles,
+    children: [
+      NavItem(
+        id: 'workforce_members',
+        label: 'Members',
+        icon: Icons.people_outline,
+        activeIcon: Icons.people,
+        route: '/workforce/members',
+        requiredRoles: _allViewRoles,
+      ),
+      NavItem(
+        id: 'client_transfers',
+        label: 'Client Transfers',
+        icon: Icons.swap_horiz_outlined,
+        activeIcon: Icons.swap_horiz,
+        route: '/workforce/transfers',
+        requiredRoles: {
+          LenderRole.owner,
+          LenderRole.admin,
+          LenderRole.manager,
+          LenderRole.fieldWorker,
+        },
       ),
     ],
   ),
@@ -174,14 +189,6 @@ List<NavItem> buildNavItems() => [
         activeIcon: Icons.people,
         route: '/field/clients',
         requiredRoles: _allViewRoles,
-      ),
-      NavItem(
-        id: 'client_reassignment',
-        label: 'Reassignment',
-        icon: Icons.swap_horiz_outlined,
-        activeIcon: Icons.swap_horiz,
-        route: '/field/reassignment',
-        requiredRoles: _fieldRoles,
       ),
     ],
   ),
@@ -343,11 +350,11 @@ List<NavItem> buildNavItems() => [
     requiredRoles: {..._adminRoles, LenderRole.auditor},
     children: [
       NavItem(
-        id: 'system_users',
-        label: 'System Users',
-        icon: Icons.manage_accounts_outlined,
-        activeIcon: Icons.manage_accounts,
-        route: '/admin/users',
+        id: 'access_roles',
+        label: 'Access Roles',
+        icon: Icons.admin_panel_settings_outlined,
+        activeIcon: Icons.admin_panel_settings,
+        route: '/admin/access-roles',
         requiredRoles: _adminRoles,
       ),
       NavItem(

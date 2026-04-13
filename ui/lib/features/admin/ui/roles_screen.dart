@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // Data model
 // ─────────────────────────────────────────────────────────────────────────────
 
-enum _Entity { organization, branch, agent, client, investor, systemUser }
+enum _Entity { organization, orgUnit, workforceMember, client, investor, accessRole }
 
 enum _Action { create, manage, view, reassign }
 
@@ -28,11 +28,11 @@ class _Permission {
 const _allPermissions = [
   _Permission(_Entity.organization, _Action.manage),
   _Permission(_Entity.organization, _Action.view),
-  _Permission(_Entity.branch, _Action.manage),
-  _Permission(_Entity.branch, _Action.view),
-  _Permission(_Entity.agent, _Action.create),
-  _Permission(_Entity.agent, _Action.manage),
-  _Permission(_Entity.agent, _Action.view),
+  _Permission(_Entity.orgUnit, _Action.manage),
+  _Permission(_Entity.orgUnit, _Action.view),
+  _Permission(_Entity.workforceMember, _Action.create),
+  _Permission(_Entity.workforceMember, _Action.manage),
+  _Permission(_Entity.workforceMember, _Action.view),
   _Permission(_Entity.client, _Action.create),
   _Permission(_Entity.client, _Action.manage),
   _Permission(_Entity.client, _Action.view),
@@ -40,8 +40,8 @@ const _allPermissions = [
   _Permission(_Entity.investor, _Action.create),
   _Permission(_Entity.investor, _Action.manage),
   _Permission(_Entity.investor, _Action.view),
-  _Permission(_Entity.systemUser, _Action.manage),
-  _Permission(_Entity.systemUser, _Action.view),
+  _Permission(_Entity.accessRole, _Action.manage),
+  _Permission(_Entity.accessRole, _Action.view),
 ];
 
 final Set<_Permission> _allSet = _allPermissions.toSet();
@@ -50,48 +50,48 @@ final Map<String, Set<_Permission>> _rolePermissions = {
   'Owner': _allSet,
   'Admin': _allSet,
   'Manager': {
-    const _Permission(_Entity.branch, _Action.view),
-    const _Permission(_Entity.agent, _Action.create),
-    const _Permission(_Entity.agent, _Action.manage),
-    const _Permission(_Entity.agent, _Action.view),
+    const _Permission(_Entity.orgUnit, _Action.view),
+    const _Permission(_Entity.workforceMember, _Action.create),
+    const _Permission(_Entity.workforceMember, _Action.manage),
+    const _Permission(_Entity.workforceMember, _Action.view),
     const _Permission(_Entity.client, _Action.create),
     const _Permission(_Entity.client, _Action.manage),
     const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.client, _Action.reassign),
-    const _Permission(_Entity.systemUser, _Action.view),
+    const _Permission(_Entity.accessRole, _Action.view),
   },
-  'Agent': {
-    const _Permission(_Entity.agent, _Action.view),
+  'Field Worker': {
+    const _Permission(_Entity.workforceMember, _Action.view),
     const _Permission(_Entity.client, _Action.create),
     const _Permission(_Entity.client, _Action.view),
   },
   'Verifier': {
-    const _Permission(_Entity.branch, _Action.view),
-    const _Permission(_Entity.agent, _Action.view),
+    const _Permission(_Entity.orgUnit, _Action.view),
+    const _Permission(_Entity.workforceMember, _Action.view),
     const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
   },
   'Approver': {
-    const _Permission(_Entity.branch, _Action.view),
-    const _Permission(_Entity.agent, _Action.view),
+    const _Permission(_Entity.orgUnit, _Action.view),
+    const _Permission(_Entity.workforceMember, _Action.view),
     const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
   },
   'Auditor': {
     const _Permission(_Entity.organization, _Action.view),
-    const _Permission(_Entity.branch, _Action.view),
-    const _Permission(_Entity.agent, _Action.view),
+    const _Permission(_Entity.orgUnit, _Action.view),
+    const _Permission(_Entity.workforceMember, _Action.view),
     const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
-    const _Permission(_Entity.systemUser, _Action.view),
+    const _Permission(_Entity.accessRole, _Action.view),
   },
   'Viewer': {
     const _Permission(_Entity.organization, _Action.view),
-    const _Permission(_Entity.branch, _Action.view),
-    const _Permission(_Entity.agent, _Action.view),
+    const _Permission(_Entity.orgUnit, _Action.view),
+    const _Permission(_Entity.workforceMember, _Action.view),
     const _Permission(_Entity.client, _Action.view),
     const _Permission(_Entity.investor, _Action.view),
-    const _Permission(_Entity.systemUser, _Action.view),
+    const _Permission(_Entity.accessRole, _Action.view),
   },
   'Service': _allSet,
 };
@@ -99,14 +99,14 @@ final Map<String, Set<_Permission>> _rolePermissions = {
 // Column groups for the header row
 const _entityColumns = <(_Entity, List<_Action>)>[
   (_Entity.organization, [_Action.manage, _Action.view]),
-  (_Entity.branch, [_Action.manage, _Action.view]),
-  (_Entity.agent, [_Action.create, _Action.manage, _Action.view]),
+  (_Entity.orgUnit, [_Action.manage, _Action.view]),
+  (_Entity.workforceMember, [_Action.create, _Action.manage, _Action.view]),
   (
     _Entity.client,
     [_Action.create, _Action.manage, _Action.view, _Action.reassign],
   ),
   (_Entity.investor, [_Action.create, _Action.manage, _Action.view]),
-  (_Entity.systemUser, [_Action.manage, _Action.view]),
+  (_Entity.accessRole, [_Action.manage, _Action.view]),
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -115,11 +115,11 @@ const _entityColumns = <(_Entity, List<_Action>)>[
 
 String _entityLabel(_Entity e) => switch (e) {
   _Entity.organization => 'Organization',
-  _Entity.branch => 'Branch',
-  _Entity.agent => 'Agent',
+  _Entity.orgUnit => 'Org Unit',
+  _Entity.workforceMember => 'Member',
   _Entity.client => 'Client',
   _Entity.investor => 'Investor',
-  _Entity.systemUser => 'System User',
+  _Entity.accessRole => 'Access Role',
 };
 
 String _actionLabel(_Action a) => switch (a) {
@@ -249,11 +249,8 @@ class _PermissionTable extends StatelessWidget {
         verticalInside: BorderSide(color: borderColor, width: 1),
       ),
       children: [
-        // Entity group header row
         _buildEntityGroupRow(colorScheme, borderColor),
-        // Action sub-header row
         _buildActionHeaderRow(colorScheme),
-        // Data rows
         for (var i = 0; i < roles.length; i++)
           _buildDataRow(
             roles[i],
@@ -267,7 +264,6 @@ class _PermissionTable extends StatelessWidget {
 
   TableRow _buildEntityGroupRow(ColorScheme colorScheme, Color borderColor) {
     final cells = <Widget>[
-      // Empty cell for the role name column
       _headerCell('', colorScheme, isGroupHeader: true),
     ];
 
@@ -289,7 +285,6 @@ class _PermissionTable extends StatelessWidget {
         ),
       );
 
-      // Add empty cells for remaining columns in the group (merged visually)
       for (var j = 1; j < actions.length; j++) {
         cells.add(
           Container(

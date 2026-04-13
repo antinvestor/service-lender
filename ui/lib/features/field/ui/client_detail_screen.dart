@@ -27,7 +27,7 @@ class ClientDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final clientsAsync = ref.watch(clientListProvider(query: '', agentId: ''));
+    final clientsAsync = ref.watch(clientListProvider(query: '', memberId: ''));
 
     return clientsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -41,7 +41,7 @@ class ClientDetailScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             FilledButton.tonal(
               onPressed: () =>
-                  ref.invalidate(clientListProvider(query: '', agentId: '')),
+                  ref.invalidate(clientListProvider(query: '', memberId: '')),
               child: const Text('Retry'),
             ),
           ],
@@ -147,18 +147,18 @@ class _ClientDetailContent extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      if (client.agentId.isNotEmpty) ...[
+                      if (client.primaryRelationshipMemberId.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             ProfileAvatar(
-                              profileId: client.agentId,
-                              name: client.agentId,
+                              profileId: client.primaryRelationshipMemberId,
+                              name: client.primaryRelationshipMemberId,
                               size: 18,
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'Managed by agent',
+                              'Relationship manager',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -214,7 +214,7 @@ class _ClientDetailContent extends ConsumerWidget {
                     LenderRole.owner,
                     LenderRole.admin,
                     LenderRole.manager,
-                    LenderRole.agent,
+                    LenderRole.fieldWorker,
                   },
                   child: OutlinedButton.icon(
                     onPressed: () {
@@ -547,7 +547,7 @@ class _ProfileTab extends StatelessWidget {
             'Name': client.name,
             'Client ID': client.id,
             'Profile ID': client.profileId,
-            'Agent ID': client.agentId,
+            'Relationship Manager': client.primaryRelationshipMemberId,
             'State': client.state.name,
           },
         ),

@@ -20,7 +20,7 @@ part 'client_providers.g.dart';
 Future<List<ClientObject>> clientList(
   Ref ref, {
   required String query,
-  required String agentId,
+  required String memberId,
 }) async {
   final db = ref.watch(appDatabaseProvider);
   final apiClient = ref.watch(fieldServiceClientProvider);
@@ -31,7 +31,7 @@ Future<List<ClientObject>> clientList(
     try {
       final syncService = ClientSyncService(db: db, apiClient: apiClient);
       // Push any pending local records first, then pull fresh data.
-      await syncService.fullSync(query: query, agentId: agentId);
+      await syncService.fullSync(query: query, memberId: memberId);
     } catch (_) {
       // Sync failed — fall through to local data.
     }
@@ -39,7 +39,7 @@ Future<List<ClientObject>> clientList(
 
   // Always return from local database.
   final localClients = await db.getClients(
-    agentId: agentId.isNotEmpty ? agentId : null,
+    memberId: memberId.isNotEmpty ? memberId : null,
     query: query.isNotEmpty ? query : null,
   );
 
@@ -105,7 +105,7 @@ ClientObject _localToClient(LocalClient local) {
     id: local.id.isNotEmpty ? local.id : 'local_${local.rowId}',
     name: local.name,
     profileId: local.profileId,
-    agentId: local.agentId,
+    primaryRelationshipMemberId: local.responsibleMemberId,
     state: pb_enum.STATE.valueOf(local.state) ?? pb_enum.STATE.CREATED,
   );
   if (local.propertiesJson.isNotEmpty && local.propertiesJson != '{}') {

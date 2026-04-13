@@ -19,7 +19,7 @@ void main() {
 
     test('savings section visible to agent', () {
       final items = buildNavItems();
-      final agentRoles = {LenderRole.agent};
+      final agentRoles = {LenderRole.fieldWorker};
       final filtered = items
           .map((item) => item.filterByRoles(agentRoles))
           .whereType<NavItem>()

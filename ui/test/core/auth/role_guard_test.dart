@@ -34,7 +34,7 @@ void main() {
         ProviderScope(
           overrides: [
             currentUserRolesProvider.overrideWith(
-              (_) async => {LenderRole.agent},
+              (_) async => {LenderRole.fieldWorker},
             ),
           ],
           child: const MaterialApp(
@@ -101,7 +101,7 @@ void main() {
         ProviderScope(
           overrides: [
             currentUserRolesProvider.overrideWith(
-              (_) async => {LenderRole.agent, LenderRole.verifier},
+              (_) async => {LenderRole.fieldWorker, LenderRole.verifier},
             ),
           ],
           child: const MaterialApp(
@@ -125,7 +125,7 @@ void main() {
         ProviderScope(
           overrides: [
             currentUserRolesProvider.overrideWith(
-              (_) async => {LenderRole.agent},
+              (_) async => {LenderRole.fieldWorker},
             ),
           ],
           child: const MaterialApp(

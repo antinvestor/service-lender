@@ -7,8 +7,9 @@ import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../auth/data/auth_repository.dart';
-import '../data/agent_providers.dart';
+import '../../workforce/data/workforce_member_providers.dart';
 import '../data/client_providers.dart';
 
 class ClientsScreen extends ConsumerStatefulWidget {
@@ -20,18 +21,18 @@ class ClientsScreen extends ConsumerStatefulWidget {
 
 class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   String _searchQuery = '';
-  String _selectedAgentId = '';
+  String _selectedMemberId = '';
   bool _isSyncing = false;
-  bool _agentScopeInitialized = false;
+  bool _memberScopeInitialized = false;
 
-  /// Auto-scope to current user's agent ID when user is an agent.
-  void _initAgentScope(WidgetRef ref) {
-    if (_agentScopeInitialized) return;
-    _agentScopeInitialized = true;
+  /// Auto-scope to current user's workforce member ID when user is a field worker.
+  void _initMemberScope(WidgetRef ref) {
+    if (_memberScopeInitialized) return;
+    _memberScopeInitialized = true;
 
     final roles = ref.read(currentUserRolesProvider).value ?? <LenderRole>{};
-    final isAgentOnly =
-        roles.contains(LenderRole.agent) &&
+    final isFieldWorkerOnly =
+        roles.contains(LenderRole.fieldWorker) &&
         !roles.any(
           (r) =>
               r == LenderRole.owner ||
@@ -39,23 +40,25 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               r == LenderRole.manager,
         );
 
-    if (isAgentOnly) {
+    if (isFieldWorkerOnly) {
       final profileId = ref.read(currentProfileIdProvider).value;
       if (profileId != null && profileId.isNotEmpty) {
-        _selectedAgentId = profileId;
+        _selectedMemberId = profileId;
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    _initAgentScope(ref);
+    _initMemberScope(ref);
 
     final clientsAsync = ref.watch(
-      clientListProvider(query: _searchQuery, agentId: _selectedAgentId),
+      clientListProvider(query: _searchQuery, memberId: _selectedMemberId),
     );
     final canManage = ref.watch(canManageClientsProvider);
-    final agentsAsync = ref.watch(agentListProvider(query: '', branchId: ''));
+    final membersAsync = ref.watch(
+      workforceMemberListProvider(query: ''),
+    );
     final pendingCount = ref.watch(pendingSyncCountProvider).value ?? 0;
 
     return clientsAsync.when(
@@ -67,7 +70,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         itemBuilder: (_, _) => const SizedBox.shrink(),
         searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
-        filterWidget: _buildFilters(agentsAsync, pendingCount),
+        filterWidget: _buildFilters(membersAsync, pendingCount),
       ),
       error: (error, _) => EntityListPage<ClientObject>(
         title: 'Clients',
@@ -75,12 +78,12 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         items: const [],
         error: error.toString(),
         onRetry: () => ref.invalidate(
-          clientListProvider(query: _searchQuery, agentId: _selectedAgentId),
+          clientListProvider(query: _searchQuery, memberId: _selectedMemberId),
         ),
         itemBuilder: (_, _) => const SizedBox.shrink(),
         searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
-        filterWidget: _buildFilters(agentsAsync, pendingCount),
+        filterWidget: _buildFilters(membersAsync, pendingCount),
       ),
       data: (clients) => EntityListPage<ClientObject>(
         title: 'Clients',
@@ -88,13 +91,13 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         items: clients,
         hasMore: clients.length >= 500,
         itemBuilder: (context, client) =>
-            _buildClientCard(context, client, agentsAsync.value ?? []),
+            _buildClientCard(context, client, membersAsync.value ?? []),
         searchHint: 'Search clients...',
         onSearchChanged: (q) => setState(() => _searchQuery = q),
         actionLabel: 'Onboard Client',
         canAction: canManage.value ?? false,
         onAction: () => context.go('/field/clients/new'),
-        filterWidget: _buildFilters(agentsAsync, pendingCount),
+        filterWidget: _buildFilters(membersAsync, pendingCount),
       ),
     );
   }
@@ -120,13 +123,13 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   }
 
   Widget _buildFilters(
-    AsyncValue<List<AgentObject>> agentsAsync,
+    AsyncValue<List<WorkforceMemberObject>> membersAsync,
     int pendingCount,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildAgentFilter(agentsAsync),
+        _buildMemberFilter(membersAsync),
         if (pendingCount > 0) ...[
           const SizedBox(width: 8),
           Badge(
@@ -148,36 +151,48 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     );
   }
 
-  Widget _buildAgentFilter(AsyncValue<List<AgentObject>> agentsAsync) {
-    final agents = agentsAsync.value ?? [];
+  Widget _buildMemberFilter(
+    AsyncValue<List<WorkforceMemberObject>> membersAsync,
+  ) {
+    final members = membersAsync.value ?? [];
     return DropdownButton<String>(
-      value: _selectedAgentId,
-      hint: const Text('All Agents'),
+      value: _selectedMemberId,
+      hint: const Text('All Members'),
       underline: const SizedBox.shrink(),
       borderRadius: BorderRadius.circular(10),
       items: [
-        const DropdownMenuItem(value: '', child: Text('All Agents')),
-        ...agents.map(
-          (a) => DropdownMenuItem(
-            value: a.id,
-            child: Text(a.name.isNotEmpty ? a.name : a.id),
-          ),
+        const DropdownMenuItem(value: '', child: Text('All Members')),
+        ...members.map(
+          (m) {
+            final name = m.hasProperties() &&
+                    m.properties.fields.containsKey('name')
+                ? m.properties.fields['name']!.stringValue
+                : m.profileId;
+            return DropdownMenuItem(
+              value: m.id,
+              child: Text(name),
+            );
+          },
         ),
       ],
-      onChanged: (value) => setState(() => _selectedAgentId = value ?? ''),
+      onChanged: (value) => setState(() => _selectedMemberId = value ?? ''),
     );
   }
 
   Widget _buildClientCard(
     BuildContext context,
     ClientObject client,
-    List<AgentObject> agents,
+    List<WorkforceMemberObject> members,
   ) {
     final theme = Theme.of(context);
-    final agent = agents.where((a) => a.id == client.agentId).firstOrNull;
-    final agentLabel = agent != null
-        ? (agent.name.isNotEmpty ? agent.name : agent.id)
-        : client.agentId;
+    final memberId = client.primaryRelationshipMemberId;
+    final member = members.where((m) => m.id == memberId).firstOrNull;
+    final memberLabel = member != null
+        ? (member.hasProperties() &&
+                member.properties.fields.containsKey('name')
+            ? member.properties.fields['name']!.stringValue
+            : member.profileId)
+        : memberId;
     final caseStatus = client.hasProperties()
         ? _fieldString(client.properties.fields, 'approval_case_status')
         : '';
@@ -199,18 +214,18 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 2),
-            if (agent != null)
+            if (member != null)
               Row(
                 children: [
                   ProfileAvatar(
-                    profileId: agent.profileId,
-                    name: agent.name.isNotEmpty ? agent.name : 'Agent',
+                    profileId: member.profileId,
+                    name: memberLabel,
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      'Agent: $agentLabel',
+                      'Member: $memberLabel',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withAlpha(160),
                       ),
@@ -219,9 +234,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   ),
                 ],
               )
-            else if (agentLabel.isNotEmpty)
+            else if (memberLabel.isNotEmpty)
               Text(
-                'Agent: $agentLabel',
+                'Member: $memberLabel',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withAlpha(160),
                 ),

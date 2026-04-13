@@ -34,7 +34,7 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
     _scopeInitialized = true;
     final roles = ref.read(currentUserRolesProvider).value ?? <LenderRole>{};
     final isAgentOnly =
-        roles.contains(LenderRole.agent) &&
+        roles.contains(LenderRole.fieldWorker) &&
         !roles.any(
           (r) =>
               r == LenderRole.owner ||

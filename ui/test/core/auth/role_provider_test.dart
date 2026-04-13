@@ -8,7 +8,7 @@ void main() {
       expect(parseLenderRole('owner'), LenderRole.owner);
       expect(parseLenderRole('admin'), LenderRole.admin);
       expect(parseLenderRole('manager'), LenderRole.manager);
-      expect(parseLenderRole('agent'), LenderRole.agent);
+      expect(parseLenderRole('fieldworker'), LenderRole.fieldWorker);
       expect(parseLenderRole('verifier'), LenderRole.verifier);
       expect(parseLenderRole('approver'), LenderRole.approver);
       expect(parseLenderRole('auditor'), LenderRole.auditor);

@@ -12,41 +12,40 @@ import '../../../sdk/src/google/protobuf/struct.pb.dart' as struct_pb;
 import '../../../core/widgets/error_helpers.dart';
 import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/profile_badge.dart';
-import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
-import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../../core/auth/tenancy_context.dart';
-import '../../organization/data/branch_providers.dart';
+import '../../organization/data/org_unit_providers.dart';
 import '../../organization/data/organization_providers.dart';
-import '../data/agent_providers.dart';
+import '../data/workforce_member_providers.dart';
 
-/// Contact-first agent registration flow.
+/// Contact-first workforce member registration flow.
 ///
-/// Step 1: Enter contact (email or phone) → search for existing profile
+/// Step 1: Enter contact (email or phone) -> search for existing profile
 ///         - If found: show profile details, confirm and proceed
 ///         - If not found: collect name, description to create new profile
-/// Step 2: Assign to organization → branch → optional parent agent
+/// Step 2: Assign to organization -> org unit -> engagement type
 ///
-/// Agent is created in CREATED state. Activation requires T&C acceptance.
-class AgentCreateScreen extends ConsumerStatefulWidget {
-  const AgentCreateScreen({super.key});
+/// Member is created in CREATED state. Activation requires T&C acceptance.
+class WorkforceMemberCreateScreen extends ConsumerStatefulWidget {
+  const WorkforceMemberCreateScreen({super.key});
 
   @override
-  ConsumerState<AgentCreateScreen> createState() => _AgentCreateScreenState();
+  ConsumerState<WorkforceMemberCreateScreen> createState() =>
+      _WorkforceMemberCreateScreenState();
 }
 
-class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
-  int _step = 0; // 0=contact lookup, 1=placement
+class _WorkforceMemberCreateScreenState
+    extends ConsumerState<WorkforceMemberCreateScreen> {
+  int _step = 0;
   bool _saving = false;
   bool _tenancyInitialized = false;
 
   // Step 0: Contact lookup
   final _contactCtrl = TextEditingController();
-  Timer? _searchDebounce;
   _ProfileSearchState _searchState = _ProfileSearchState.idle;
   String _profileId = '';
   String _profileName = '';
-  final String _profileDescription = '';
 
   // New profile fields (when not found)
   final _nameCtrl = TextEditingController();
@@ -54,16 +53,15 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
 
   // Step 1: Placement
   String _selectedOrgId = '';
-  String _selectedBranchId = '';
-  String _selectedParentAgentId = '';
-  AgentType _agentType = AgentType.AGENT_TYPE_INDIVIDUAL;
+  String _selectedOrgUnitId = '';
+  WorkforceEngagementType _engagementType =
+      WorkforceEngagementType.WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE;
 
   @override
   void dispose() {
     _contactCtrl.dispose();
     _nameCtrl.dispose();
     _descriptionCtrl.dispose();
-    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -74,19 +72,10 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     if (tenancy.hasOrganization && _selectedOrgId.isEmpty) {
       _selectedOrgId = tenancy.organizationId;
     }
-    if (tenancy.hasBranch && _selectedBranchId.isEmpty) {
-      _selectedBranchId = tenancy.branchId;
-    }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Contact search
-  // ─────────────────────────────────────────────────────────────────────────
-
   void _onContactChanged(String value) {
-    _searchDebounce?.cancel();
     final trimmed = value.trim();
-
     if (trimmed.length < 3) {
       setState(() {
         _searchState = _ProfileSearchState.idle;
@@ -95,8 +84,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
       });
       return;
     }
-
-    // Only reset to idle — don't show spinner until search actually fires.
     if (_searchState == _ProfileSearchState.found ||
         _searchState == _ProfileSearchState.confirmed ||
         _searchState == _ProfileSearchState.notFound) {
@@ -113,17 +100,13 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
 
   Future<void> _searchProfile(String contact) async {
     final profileClient = ref.read(profileServiceClientProvider);
-
     try {
       final response = await profileClient.getByContact(
         profile_api.GetByContactRequest(contact: contact),
       );
-
       if (!mounted) return;
-
       final profile = response.data;
       final name = profile.properties.fields['name']?.stringValue ?? '';
-
       setState(() {
         _searchState = _ProfileSearchState.found;
         _profileId = profile.id;
@@ -131,7 +114,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
       });
     } on ConnectException catch (e) {
       if (!mounted) return;
-      // NOT_FOUND means no profile with this contact — allow creating new
       if (e.code == Code.notFound) {
         setState(() {
           _searchState = _ProfileSearchState.notFound;
@@ -139,7 +121,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
           _profileName = '';
         });
       } else {
-        // Auth or other errors — show as not found, log
         setState(() {
           _searchState = _ProfileSearchState.notFound;
           _profileId = '';
@@ -157,14 +138,8 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   }
 
   void _confirmExistingProfile() {
-    setState(() {
-      _searchState = _ProfileSearchState.confirmed;
-    });
+    setState(() => _searchState = _ProfileSearchState.confirmed);
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Submit
-  // ─────────────────────────────────────────────────────────────────────────
 
   bool _canProceedFromContact() {
     if (_searchState == _ProfileSearchState.confirmed) return true;
@@ -174,61 +149,45 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     return false;
   }
 
-  String get _agentName {
+  String get _memberName {
     if (_profileName.isNotEmpty) return _profileName;
     return _nameCtrl.text.trim();
   }
 
   Future<void> _submit() async {
-    if (_selectedOrgId.isEmpty || _agentName.isEmpty) return;
+    if (_selectedOrgId.isEmpty || _memberName.isEmpty) return;
 
     setState(() => _saving = true);
 
-    final agent = AgentObject(
-      name: _agentName,
+    final member = WorkforceMemberObject(
       profileId: _profileId,
       organizationId: _selectedOrgId,
-      parentAgentId: _selectedParentAgentId,
-      agentType: _agentType,
+      homeOrgUnitId: _selectedOrgUnitId,
+      engagementType: _engagementType,
       state: STATE.CREATED,
     );
 
     // Store contact detail in properties for backend profile creation
     if (_profileId.isEmpty && _contactCtrl.text.trim().isNotEmpty) {
-      agent.properties = _buildProperties();
+      member.properties = _buildProperties();
     }
 
     try {
-      final saveResponse = await ref
-          .read(fieldServiceClientProvider)
-          .agentSave(AgentSaveRequest(data: agent));
-      final savedAgent = saveResponse.data;
+      await ref
+          .read(identityServiceClientProvider)
+          .workforceMemberSave(WorkforceMemberSaveRequest(data: member));
 
-      // Assign the agent to the selected branch if one was chosen.
-      if (_selectedBranchId.isNotEmpty && savedAgent.id.isNotEmpty) {
-        await ref.read(fieldServiceClientProvider).agentBranchSave(
-              AgentBranchSaveRequest(
-                data: AgentBranchObject(
-                  agentId: savedAgent.id,
-                  branchId: _selectedBranchId,
-                  state: STATE.ACTIVE,
-                ),
-              ),
-            );
-      }
-
-      // Invalidate the agent list so it refreshes.
-      ref.invalidate(agentListProvider);
+      ref.invalidate(workforceMemberListProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Agent registered. They will receive a T&C acceptance invitation.',
+              'Member registered. They will receive an activation invitation.',
             ),
           ),
         );
-        context.go('/organization/agents');
+        context.go('/workforce/members');
       }
     } catch (e) {
       if (mounted) {
@@ -244,23 +203,18 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
   }
 
   struct_pb.Struct _buildProperties() {
-    // Build a protobuf Struct with contact and new profile info for backend processing.
-    // The backend AgentNotifier.CreateOrLinkProfile reads these.
     final propsMap = <String, dynamic>{
       'contact_detail': _contactCtrl.text.trim(),
     };
     if (_nameCtrl.text.trim().isNotEmpty) {
       propsMap['display_name'] = _nameCtrl.text.trim();
+      propsMap['name'] = _nameCtrl.text.trim();
     }
     if (_descriptionCtrl.text.trim().isNotEmpty) {
       propsMap['description'] = _descriptionCtrl.text.trim();
     }
     return mapToStruct(propsMap);
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Build
-  // ─────────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +224,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // Header
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
@@ -281,7 +234,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        onPressed: () => context.go('/organization/agents'),
+                        onPressed: () => context.go('/workforce/members'),
                       ),
                       const SizedBox(width: 8),
                       Icon(
@@ -294,13 +247,13 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Register New Agent',
+                              'Register Workforce Member',
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                             Text(
-                              'Find an existing user or create a new profile for the agent.',
+                              'Find an existing user or create a new profile.',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -317,8 +270,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
               ),
             ),
           ),
-
-          // Form content
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             sliver: SliverToBoxAdapter(
@@ -330,8 +281,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
               ),
             ),
           ),
-
-          // Actions
           SliverFillRemaining(
             hasScrollBody: false,
             child: Align(
@@ -343,9 +292,8 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                   children: [
                     if (_step > 0)
                       TextButton(
-                        onPressed: _saving
-                            ? null
-                            : () => setState(() => _step = 0),
+                        onPressed:
+                            _saving ? null : () => setState(() => _step = 0),
                         child: const Text('Back'),
                       ),
                     const SizedBox(width: 12),
@@ -371,7 +319,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                                 ),
                               )
                             : const Icon(Icons.person_add),
-                        label: const Text('Register Agent'),
+                        label: const Text('Register Member'),
                       ),
                   ],
                 ),
@@ -404,10 +352,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Step 0: Contact lookup
-  // ─────────────────────────────────────────────────────────────────────────
-
   Widget _buildContactStep(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -415,7 +359,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
         FormFieldCard(
           label: 'Email or Phone Number',
           description:
-              'Enter the agent\'s email address or phone number, then press '
+              'Enter the member\'s email address or phone number, then press '
               'Search to check if they already have a profile on the platform.',
           isRequired: true,
           child: Row(
@@ -427,8 +371,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                   decoration: InputDecoration(
                     hintText: 'e.g. jane@example.com or +254 700 123456',
                     prefixIcon: const Icon(Icons.alternate_email),
-                    suffixIcon:
-                        _searchState == _ProfileSearchState.found ||
+                    suffixIcon: _searchState == _ProfileSearchState.found ||
                             _searchState == _ProfileSearchState.confirmed
                         ? const Icon(Icons.check_circle, color: Colors.green)
                         : null,
@@ -442,8 +385,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: FilledButton.icon(
-                  onPressed:
-                      _searchState == _ProfileSearchState.searching ||
+                  onPressed: _searchState == _ProfileSearchState.searching ||
                           _contactCtrl.text.trim().length < 3
                       ? null
                       : _triggerSearch,
@@ -463,19 +405,12 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             ],
           ),
         ),
-
-        // Search result
-        if (_searchState == _ProfileSearchState.found) ...[
+        if (_searchState == _ProfileSearchState.found)
           _buildFoundProfile(theme),
-        ],
-
-        if (_searchState == _ProfileSearchState.confirmed) ...[
+        if (_searchState == _ProfileSearchState.confirmed)
           _buildConfirmedProfile(theme),
-        ],
-
-        if (_searchState == _ProfileSearchState.notFound) ...[
+        if (_searchState == _ProfileSearchState.notFound)
           _buildNewProfileForm(theme),
-        ],
       ],
     );
   }
@@ -509,9 +444,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             ProfileBadge(
               profileId: _profileId,
               name: _profileName,
-              description: _profileDescription.isNotEmpty
-                  ? _profileDescription
-                  : _contactCtrl.text.trim(),
+              description: _contactCtrl.text.trim(),
               avatarSize: 48,
             ),
             const SizedBox(height: 16),
@@ -609,8 +542,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
         ),
         FormFieldCard(
           label: 'Full Name',
-          description:
-              'The agent\'s legal or display name as it will appear in the system.',
+          description: 'The member\'s display name as it will appear.',
           isRequired: true,
           child: TextFormField(
             controller: _nameCtrl,
@@ -623,20 +555,17 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
         ),
         FormFieldCard(
           label: 'Description',
-          description:
-              'A short bio or role description. This is shown on the agent\'s profile.',
+          description: 'A short bio or role description.',
           child: TextFormField(
             controller: _descriptionCtrl,
             decoration: const InputDecoration(
-              hintText: 'e.g. Senior Field Agent, Nairobi Region',
+              hintText: 'e.g. Senior Loan Officer, Nairobi Region',
               prefixIcon: Icon(Icons.notes_outlined),
             ),
             maxLines: 2,
           ),
         ),
-
-        // Preview card
-        if (_nameCtrl.text.trim().isNotEmpty) ...[
+        if (_nameCtrl.text.trim().isNotEmpty)
           Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: Padding(
@@ -683,26 +612,18 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
               ),
             ),
           ),
-        ],
       ],
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Step 1: Placement (org → branch → parent agent → type)
-  // ─────────────────────────────────────────────────────────────────────────
-
   Widget _buildPlacementStep() {
     final orgsAsync = ref.watch(organizationListProvider(''));
-    final branchesAsync = ref.watch(branchListProvider('', _selectedOrgId));
-    final branchAgentsAsync = _selectedBranchId.isNotEmpty
-        ? ref.watch(agentListProvider(query: '', branchId: _selectedBranchId))
-        : const AsyncValue<List<AgentObject>>.data([]);
+    final orgUnitsAsync = ref.watch(orgUnitListProvider(organizationId: _selectedOrgId));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Agent preview
+        // Member preview
         Card(
           margin: const EdgeInsets.only(bottom: 20),
           child: Padding(
@@ -711,7 +632,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
               children: [
                 ProfileAvatar(
                   profileId: _profileId.isNotEmpty ? _profileId : 'new',
-                  name: _agentName,
+                  name: _memberName,
                   size: 44,
                 ),
                 const SizedBox(width: 12),
@@ -720,7 +641,7 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _agentName,
+                        _memberName,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -738,10 +659,9 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
             ),
           ),
         ),
-
         FormFieldCard(
           label: 'Organization',
-          description: 'The organization this agent will represent.',
+          description: 'The organization this member will belong to.',
           isRequired: true,
           child: orgsAsync.when(
             loading: () => const LinearProgressIndicator(),
@@ -762,20 +682,19 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                   .toList(),
               onChanged: (v) => setState(() {
                 _selectedOrgId = v ?? '';
-                _selectedBranchId = '';
-                _selectedParentAgentId = '';
+                _selectedOrgUnitId = '';
               }),
             ),
           ),
         ),
         FormFieldCard(
-          label: 'Initial Branch',
+          label: 'Home Org Unit',
           description:
-              'Optional. Assign the agent to a branch. More branches can be added later.',
-          child: branchesAsync.when(
+              'Optional. The org unit where this member will be primarily based.',
+          child: orgUnitsAsync.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Failed to load: $e'),
-            data: (branches) {
+            data: (units) {
               if (_selectedOrgId.isEmpty) {
                 return Text(
                   'Select an organization first',
@@ -783,98 +702,58 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                 );
               }
               return DropdownButtonFormField<String>(
-                initialValue: _selectedBranchId.isNotEmpty
-                    ? _selectedBranchId
-                    : null,
+                initialValue:
+                    _selectedOrgUnitId.isNotEmpty ? _selectedOrgUnitId : null,
                 decoration: const InputDecoration(
-                  hintText: 'Select branch',
-                  prefixIcon: Icon(Icons.store_outlined),
-                ),
-                items: branches
-                    .map(
-                      (b) => DropdownMenuItem(
-                        value: b.id,
-                        child: Text(b.name.isNotEmpty ? b.name : b.id),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (v) => setState(() {
-                  _selectedBranchId = v ?? '';
-                  _selectedParentAgentId = '';
-                }),
-              );
-            },
-          ),
-        ),
-        FormFieldCard(
-          label: 'Supervising Agent',
-          description:
-              'Optional. Select a parent agent to create a sub-agent. '
-              'Sub-agents are limited to one level deep.',
-          child: branchAgentsAsync.when(
-            loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Failed to load: $e'),
-            data: (agents) {
-              if (_selectedBranchId.isEmpty) {
-                return Text(
-                  'Select a branch first',
-                  style: TextStyle(color: Theme.of(context).hintColor),
-                );
-              }
-              final topLevel = agents.where((a) => a.depth <= 0).toList();
-              return DropdownButtonFormField<String>(
-                initialValue: _selectedParentAgentId.isNotEmpty
-                    ? _selectedParentAgentId
-                    : null,
-                decoration: const InputDecoration(
-                  hintText: 'None (top-level agent)',
-                  prefixIcon: Icon(Icons.supervisor_account_outlined),
+                  hintText: 'Select org unit',
+                  prefixIcon: Icon(Icons.account_tree_outlined),
                 ),
                 items: [
-                  const DropdownMenuItem(
-                    value: '',
-                    child: Text('None (top-level agent)'),
-                  ),
-                  ...topLevel.map(
-                    (a) => DropdownMenuItem(
-                      value: a.id,
-                      child: Text(a.name.isNotEmpty ? a.name : a.id),
+                  const DropdownMenuItem(value: '', child: Text('None')),
+                  ...units.map(
+                    (u) => DropdownMenuItem(
+                      value: u.id,
+                      child: Text(u.name.isNotEmpty ? u.name : u.id),
                     ),
                   ),
                 ],
                 onChanged: (v) =>
-                    setState(() => _selectedParentAgentId = v ?? ''),
+                    setState(() => _selectedOrgUnitId = v ?? ''),
               );
             },
           ),
         ),
         FormFieldCard(
-          label: 'Agent Type',
-          description:
-              'Whether this agent operates individually or on behalf of an organization.',
+          label: 'Engagement Type',
+          description: 'How this member is engaged with the organization.',
           isRequired: true,
-          child: DropdownButtonFormField<AgentType>(
-            initialValue: _agentType,
+          child: DropdownButtonFormField<WorkforceEngagementType>(
+            initialValue: _engagementType,
             decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.category_outlined),
+              prefixIcon: Icon(Icons.work_outline),
             ),
             items: const [
               DropdownMenuItem(
-                value: AgentType.AGENT_TYPE_INDIVIDUAL,
-                child: Text('Individual Agent'),
+                value:
+                    WorkforceEngagementType.WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE,
+                child: Text('Employee'),
               ),
               DropdownMenuItem(
-                value: AgentType.AGENT_TYPE_ORGANIZATION,
-                child: Text('Organizational Agent'),
+                value: WorkforceEngagementType
+                    .WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR,
+                child: Text('Contractor'),
+              ),
+              DropdownMenuItem(
+                value: WorkforceEngagementType
+                    .WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT,
+                child: Text('Service Account'),
               ),
             ],
             onChanged: (v) {
-              if (v != null) setState(() => _agentType = v);
+              if (v != null) setState(() => _engagementType = v);
             },
           ),
         ),
-
-        // Activation notice
         const SizedBox(height: 8),
         Card(
           color: Theme.of(context).colorScheme.secondaryContainer,
@@ -889,10 +768,11 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'The agent will receive a notification at ${_contactCtrl.text.trim()} '
+                    'The member will receive a notification at ${_contactCtrl.text.trim()} '
                     'to accept Terms & Conditions. Their account activates after acceptance.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      color:
+                          Theme.of(context).colorScheme.onSecondaryContainer,
                     ),
                   ),
                 ),
@@ -904,10 +784,6 @@ class _AgentCreateScreenState extends ConsumerState<AgentCreateScreen> {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 enum _ProfileSearchState { idle, searching, found, confirmed, notFound }
 
@@ -928,8 +804,8 @@ class _StepDot extends StatelessWidget {
     final color = isActive
         ? theme.colorScheme.primary
         : isCompleted
-        ? theme.colorScheme.primary.withAlpha(180)
-        : theme.colorScheme.onSurfaceVariant;
+            ? theme.colorScheme.primary.withAlpha(180)
+            : theme.colorScheme.onSurfaceVariant;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

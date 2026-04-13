@@ -203,7 +203,7 @@ class _ApplicationDetailContentState
     LenderRole.owner,
     LenderRole.admin,
     LenderRole.manager,
-    LenderRole.agent,
+    LenderRole.fieldWorker,
   };
 
   /// Roles that can accept/decline offers
@@ -218,7 +218,7 @@ class _ApplicationDetailContentState
     LenderRole.owner,
     LenderRole.admin,
     LenderRole.manager,
-    LenderRole.agent,
+    LenderRole.fieldWorker,
   };
 
   List<Widget> _buildActionButtons(BuildContext context, WidgetRef ref) {
@@ -893,7 +893,7 @@ class _DocumentsTab extends ConsumerWidget {
                       LenderRole.owner,
                       LenderRole.admin,
                       LenderRole.manager,
-                      LenderRole.agent,
+                      LenderRole.fieldWorker,
                       LenderRole.verifier,
                     },
                     child: FilledButton.icon(

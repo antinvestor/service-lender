@@ -10,21 +10,14 @@ import '../core/auth/route_permissions.dart';
 import '../core/navigation/app_shell.dart';
 import '../features/admin/ui/audit_log_screen.dart';
 import '../features/admin/ui/roles_screen.dart';
-import '../features/admin/ui/system_users_screen.dart';
-import '../features/auth/data/agent_status_provider.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
 import '../features/auth/ui/terms_screen.dart';
 import '../features/dashboard/ui/dashboard_screen.dart';
-import '../features/field/ui/agent_create_screen.dart';
-import '../features/field/ui/agent_detail_screen.dart';
-import '../features/field/ui/agents_screen.dart';
 import '../features/field/ui/client_detail_screen.dart';
 import '../features/field/ui/client_onboard_screen.dart';
 import '../features/field/ui/clients_screen.dart';
-import '../features/field/ui/hierarchy_screen.dart';
-import '../features/field/ui/reassignment_screen.dart';
 import '../features/organization/ui/org_unit_detail_screen.dart';
 import '../features/organization/ui/org_units_screen.dart';
 import '../features/organization/ui/organization_detail_screen.dart';
@@ -51,6 +44,12 @@ import '../features/savings/ui/savings_accounts_screen.dart';
 import '../features/savings/ui/savings_products_screen.dart';
 import '../features/reporting/ui/loan_book_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
+import '../features/workforce/data/workforce_member_status_provider.dart';
+import '../features/workforce/ui/access_roles_screen.dart';
+import '../features/workforce/ui/workforce_member_create_screen.dart';
+import '../features/workforce/ui/workforce_member_detail_screen.dart';
+import '../features/workforce/ui/client_team_transfer_screen.dart';
+import '../features/workforce/ui/workforce_members_screen.dart';
 
 part 'router.g.dart';
 
@@ -60,7 +59,7 @@ class AuthChangeNotifier extends ChangeNotifier {
     ref.listen(authStateProvider, (previous, next) {
       notifyListeners();
     });
-    ref.listen(agentOnboardingStatusProvider, (previous, next) {
+    ref.listen(workforceMemberStatusProvider, (previous, next) {
       notifyListeners();
     });
   }
@@ -112,15 +111,17 @@ GoRouter router(Ref ref) {
 
       // T&C check for authenticated users.
       if (isLoggedIn) {
-        final agentStatus = ref.read(agentOnboardingStatusProvider);
-        final status = agentStatus.value;
+        final memberStatus = ref.read(workforceMemberStatusProvider);
+        final status = memberStatus.value;
         if (status != null) {
-          if (!isTermsRoute && status == AgentOnboardingStatus.pendingTnc) {
+          if (!isTermsRoute &&
+              status ==
+                  WorkforceMemberOnboardingStatus.pendingActivation) {
             return '/terms';
           }
           if (isTermsRoute &&
-              (status == AgentOnboardingStatus.active ||
-                  status == AgentOnboardingStatus.notAgent)) {
+              (status == WorkforceMemberOnboardingStatus.active ||
+                  status == WorkforceMemberOnboardingStatus.notMember)) {
             return '/';
           }
         }
@@ -141,12 +142,6 @@ GoRouter router(Ref ref) {
       ),
       GoRoute(path: '/terms', builder: (context, state) => const TermsScreen()),
 
-      // All authenticated routes live inside the shell.
-      // Each route is wrapped with RouteRoleGuard to enforce
-      // permissions even when a user navigates via URL directly.
-      // All authenticated routes inside a lightweight ShellRoute.
-      // No StatefulShellBranch overhead — each page renders fresh inside
-      // the persistent sidebar shell.
       ShellRoute(
         builder: (context, state, child) => AppShellSimple(child: child),
         routes: [
@@ -206,29 +201,38 @@ GoRouter router(Ref ref) {
             builder: (context, state) =>
                 _guarded('/organization/investors', const InvestorsScreen()),
           ),
+          // Workforce routes
           GoRoute(
-            path: '/organization/agents',
-            builder: (context, state) =>
-                _guarded('/organization/agents', const AgentsScreen()),
+            path: '/workforce/members',
+            builder: (context, state) => _guarded(
+              '/workforce/members',
+              const WorkforceMembersScreen(),
+            ),
             routes: [
               GoRoute(
                 path: 'new',
-                builder: (context, state) =>
-                    _guarded('/organization/agents', const AgentCreateScreen()),
+                builder: (context, state) => _guarded(
+                  '/workforce/members',
+                  const WorkforceMemberCreateScreen(),
+                ),
               ),
               GoRoute(
-                path: ':agentId',
+                path: ':memberId',
                 builder: (context, state) => _guarded(
-                  '/organization/agents',
-                  AgentDetailScreen(agentId: state.pathParameters['agentId']!),
+                  '/workforce/members',
+                  WorkforceMemberDetailScreen(
+                    memberId: state.pathParameters['memberId']!,
+                  ),
                 ),
               ),
             ],
           ),
           GoRoute(
-            path: '/field/hierarchy',
-            builder: (context, state) =>
-                _guarded('/field/hierarchy', const HierarchyScreen()),
+            path: '/workforce/transfers',
+            builder: (context, state) => _guarded(
+              '/workforce/transfers',
+              const ClientTeamTransferScreen(),
+            ),
           ),
           GoRoute(
             path: '/field/clients',
@@ -250,11 +254,6 @@ GoRouter router(Ref ref) {
                 ),
               ),
             ],
-          ),
-          GoRoute(
-            path: '/field/reassignment',
-            builder: (context, state) =>
-                _guarded('/field/reassignment', const ReassignmentScreen()),
           ),
           GoRoute(
             path: '/origination/pending',
@@ -410,9 +409,9 @@ GoRouter router(Ref ref) {
             ),
           ),
           GoRoute(
-            path: '/admin/users',
+            path: '/admin/access-roles',
             builder: (context, state) =>
-                _guarded('/admin/users', const SystemUsersScreen()),
+                _guarded('/admin/access-roles', const AccessRolesScreen()),
           ),
           GoRoute(
             path: '/admin/roles',
@@ -478,34 +477,24 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
   Future<void> _processCallback() async {
     final authRepo = ref.read(authRepositoryProvider);
 
-    // isAuthenticated() detects the OAuth redirect result (code + state
-    // in the URL), exchanges them for tokens, and caches the session.
     final loggedIn = await authRepo.isLoggedIn();
 
     if (!mounted) return;
 
     if (loggedIn) {
-      // Reset the auth failure guard so API calls don't get blocked
-      // by a stale logout from a previous session.
       resetAuthFailureGuard();
 
-      // Determine login level from the JWT partition and initialize tenancy context.
       await _initializeTenancyFromJwt(ref);
 
       if (!mounted) return;
 
-      // Invalidate auth state so the router picks up the new session.
-      // Also invalidate agent status so it re-evaluates with fresh tokens
-      // instead of using stale results from before the OAuth redirect.
       ref.invalidate(authStateProvider);
-      ref.invalidate(agentOnboardingStatusProvider);
+      ref.invalidate(workforceMemberStatusProvider);
     }
 
-    // Navigate to root — the router redirect handles the rest.
     context.go('/');
   }
 
-  /// Initialize tenancy context from the stored login selection.
   Future<void> _initializeTenancyFromJwt(WidgetRef ref) async {
     try {
       final authRepo = ref.read(authRepositoryProvider);
@@ -523,11 +512,9 @@ class _AuthCallbackScreenState extends ConsumerState<_AuthCallbackScreen> {
           branchName: loginContext.branchName,
         );
       } else {
-        // No stored context — default to root level
         tenancy.initializeFromLogin(LoginLevel.root, partitionId: partitionId);
       }
     } catch (e) {
-      // Non-critical — tenancy defaults to root level
       debugPrint('Failed to initialize tenancy: $e');
     }
   }

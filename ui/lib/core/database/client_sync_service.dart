@@ -61,7 +61,7 @@ class ClientSyncService {
   static String? _validateLocal(LocalClient local) {
     if (local.name.trim().isEmpty) return 'Name is empty';
     if (local.name.trim().length < 2) return 'Name too short';
-    if (local.agentId.trim().isEmpty) return 'Agent ID is empty';
+    if (local.responsibleMemberId.trim().isEmpty) return 'Responsible member ID is empty';
     if (local.propertiesJson.isNotEmpty && local.propertiesJson != '{}') {
       try {
         jsonDecode(local.propertiesJson);
@@ -74,13 +74,13 @@ class ClientSyncService {
 
   /// Pull clients from the backend and store locally.
   /// Preserves any pending (unsynced) local records.
-  Future<int> pullClients({String query = '', String agentId = ''}) async {
+  Future<int> pullClients({String query = '', String memberId = ''}) async {
     final companions = <LocalClientsCompanion>[];
 
     final stream = apiClient.clientSearch(
       ClientSearchRequest(
         query: query,
-        agentId: agentId,
+        primaryRelationshipMemberId: memberId,
         cursor: PageCursor(limit: 200),
       ),
     );
@@ -104,10 +104,10 @@ class ClientSyncService {
   /// even if a just-pushed record hasn't propagated to the search index yet.
   Future<({int pushed, int pulled})> fullSync({
     String query = '',
-    String agentId = '',
+    String memberId = '',
   }) async {
     final pushed = await pushPendingClients();
-    final pulled = await pullClients(query: query, agentId: agentId);
+    final pulled = await pullClients(query: query, memberId: memberId);
     return (pushed: pushed, pulled: pulled);
   }
 
@@ -126,7 +126,7 @@ class ClientSyncService {
       id: local.id.isNotEmpty ? local.id : null,
       name: local.name,
       profileId: local.profileId,
-      agentId: local.agentId,
+      primaryRelationshipMemberId: local.responsibleMemberId,
       state: pb_enum.STATE.valueOf(local.state) ?? pb_enum.STATE.CREATED,
     );
 
@@ -158,7 +158,7 @@ class ClientSyncService {
       id: drift.Value(client.id),
       name: drift.Value(client.name),
       profileId: drift.Value(client.profileId),
-      agentId: drift.Value(client.agentId),
+      responsibleMemberId: drift.Value(client.primaryRelationshipMemberId),
       state: drift.Value(client.state.value),
       propertiesJson: drift.Value(propertiesJson),
       syncStatus: drift.Value(SyncStatus.synced),
@@ -179,7 +179,7 @@ class ClientSyncService {
       id: drift.Value(client.id.isNotEmpty ? client.id : ''),
       name: drift.Value(client.name),
       profileId: drift.Value(client.profileId),
-      agentId: drift.Value(client.agentId),
+      responsibleMemberId: drift.Value(client.primaryRelationshipMemberId),
       state: drift.Value(client.state.value),
       propertiesJson: drift.Value(propertiesJson),
       syncStatus: drift.Value(SyncStatus.pending),

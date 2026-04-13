@@ -10,7 +10,7 @@ import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../auth/data/auth_repository.dart';
-import '../../field/data/agent_providers.dart';
+import '../../workforce/data/workforce_member_providers.dart';
 import '../../geography/ui/coverage_area_field.dart';
 import '../data/org_unit_providers.dart';
 import '../data/organization_providers.dart';
@@ -97,8 +97,8 @@ class _OrgUnitDetailContentState extends ConsumerState<_OrgUnitDetailContent> {
     final canVerify = ref.watch(canManageVerificationProvider).value ?? false;
     final canApprove = ref.watch(canManageUnderwritingProvider).value ?? false;
     final props = _orgUnit.hasProperties() ? _orgUnit.properties.fields : null;
-    final agentsAsync = _orgUnit.type == OrgUnitType.ORG_UNIT_TYPE_BRANCH
-        ? ref.watch(agentListProvider(query: '', branchId: _orgUnit.id))
+    final membersAsync = _orgUnit.type == OrgUnitType.ORG_UNIT_TYPE_BRANCH
+        ? ref.watch(workforceMemberListProvider(query: '', homeOrgUnitId: _orgUnit.id))
         : null;
 
     return CustomScrollView(
@@ -289,19 +289,19 @@ class _OrgUnitDetailContentState extends ConsumerState<_OrgUnitDetailContent> {
             );
           },
         ),
-        if (agentsAsync != null) ...[
+        if (membersAsync != null) ...[
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
               child: Text(
-                'Agents',
+                'Workforce Members',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ),
-          agentsAsync.when(
+          membersAsync.when(
             loading: () => const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.all(24),
@@ -311,22 +311,26 @@ class _OrgUnitDetailContentState extends ConsumerState<_OrgUnitDetailContent> {
             error: (error, _) => SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Failed to load agents: $error'),
+                child: Text('Failed to load members: $error'),
               ),
             ),
-            data: (agents) => SliverList.builder(
-              itemCount: agents.length,
+            data: (members) => SliverList.builder(
+              itemCount: members.length,
               itemBuilder: (context, index) {
-                final agent = agents[index];
+                final member = members[index];
+                final name = member.hasProperties() &&
+                        member.properties.fields.containsKey('name')
+                    ? member.properties.fields['name']!.stringValue
+                    : member.profileId;
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                   child: Card(
                     child: ListTile(
-                      leading: const Icon(Icons.person_pin_outlined),
-                      title: Text(agent.name),
+                      leading: const Icon(Icons.badge_outlined),
+                      title: Text(name),
                       subtitle: ProfileBadge(
-                        profileId: agent.profileId,
-                        name: agent.name,
+                        profileId: member.profileId,
+                        name: name,
                       ),
                     ),
                   ),

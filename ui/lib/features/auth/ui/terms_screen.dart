@@ -8,8 +8,8 @@ import '../../../core/api/stream_helpers.dart';
 import '../../../core/logging/app_logger.dart';
 import '../../../core/theme/design_tokens.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
-import '../../../sdk/src/field/v1/field.pb.dart';
-import '../../field/data/agent_providers.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
+import '../../workforce/data/workforce_member_providers.dart';
 import '../data/auth_repository.dart';
 import '../data/auth_state_provider.dart';
 
@@ -39,27 +39,32 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
         return;
       }
 
-      // Search for the agent by profile ID.
-      final client = ref.read(fieldServiceClientProvider);
-      final stream = client.agentSearch(
-        AgentSearchRequest(query: profileId, cursor: PageCursor(limit: 10)),
+      // Search for the workforce member by profile ID.
+      final client = ref.read(identityServiceClientProvider);
+      final stream = client.workforceMemberSearch(
+        WorkforceMemberSearchRequest(
+          query: profileId,
+          cursor: PageCursor(limit: 10),
+        ),
       );
-      final agents = await collectStream(
+      final members = await collectStream(
         stream,
         extract: (response) => response.data,
         maxPages: 1,
       );
 
-      final matching = agents.where((a) => a.profileId == profileId);
+      final matching = members.where((m) => m.profileId == profileId);
       if (matching.isEmpty) {
         if (mounted) context.go('/');
         return;
       }
 
-      final agent = matching.first;
+      final member = matching.first;
 
-      // Activate the agent via the notifier.
-      await ref.read(agentProvider.notifier).acceptTerms(agent.id);
+      // Activate the member via the notifier.
+      await ref
+          .read(workforceMemberProvider.notifier)
+          .activate(member.id);
 
       if (!mounted) return;
       context.go('/');
@@ -317,9 +322,9 @@ Last Updated: April 2026
 
 By accessing and using this platform, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you do not agree to these terms, you must not use this platform.
 
-2. AGENT RESPONSIBILITIES
+2. WORKFORCE MEMBER RESPONSIBILITIES
 
-As an authorized agent, you agree to:
+As an authorized workforce member, you agree to:
 
 a) Act in good faith and in the best interests of the organization and its clients at all times.
 
@@ -367,5 +372,5 @@ These terms may be updated from time to time. Continued use of the platform afte
 
 These terms shall be governed by and construed in accordance with the laws of the jurisdiction in which the organization operates.
 
-By accepting these terms, you confirm that you understand your obligations and agree to fulfill them in the course of your duties as an authorized agent on this platform.
+By accepting these terms, you confirm that you understand your obligations and agree to fulfill them in the course of your duties as an authorized member on this platform.
 ''';

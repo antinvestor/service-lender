@@ -6,10 +6,10 @@ import 'package:lender_ui/core/auth/route_permissions.dart';
 void main() {
   group('requiredRolesForRoute', () {
     test('admin routes require owner or admin', () {
-      final roles = requiredRolesForRoute('/admin/users');
+      final roles = requiredRolesForRoute('/admin/access-roles');
       expect(roles, contains(LenderRole.owner));
       expect(roles, contains(LenderRole.admin));
-      expect(roles, isNot(contains(LenderRole.agent)));
+      expect(roles, isNot(contains(LenderRole.fieldWorker)));
       expect(roles, isNot(contains(LenderRole.viewer)));
     });
 
@@ -30,20 +30,20 @@ void main() {
       expect(roles, contains(LenderRole.owner));
       expect(roles, contains(LenderRole.admin));
       expect(roles, contains(LenderRole.manager));
-      expect(roles, contains(LenderRole.agent));
+      expect(roles, contains(LenderRole.fieldWorker));
       expect(roles, isNot(contains(LenderRole.viewer)));
     });
 
     test('clients route allows all view roles', () {
       final roles = requiredRolesForRoute('/field/clients');
-      expect(roles, contains(LenderRole.agent));
+      expect(roles, contains(LenderRole.fieldWorker));
       expect(roles, contains(LenderRole.verifier));
       expect(roles, contains(LenderRole.viewer));
     });
 
     test('child routes inherit from parent prefix', () {
       final roles = requiredRolesForRoute('/field/clients/abc123');
-      expect(roles, contains(LenderRole.agent));
+      expect(roles, contains(LenderRole.fieldWorker));
     });
 
     test('dashboard requires no specific roles', () {
@@ -58,20 +58,20 @@ void main() {
 
     test('organization routes exclude agents', () {
       final roles = requiredRolesForRoute('/organization/organizations');
-      expect(roles, isNot(contains(LenderRole.agent)));
+      expect(roles, isNot(contains(LenderRole.fieldWorker)));
       expect(roles, contains(LenderRole.viewer));
     });
 
     test('reports require view roles', () {
       final roles = requiredRolesForRoute('/reports/portfolio');
       expect(roles, contains(LenderRole.viewer));
-      expect(roles, isNot(contains(LenderRole.agent)));
+      expect(roles, isNot(contains(LenderRole.fieldWorker)));
     });
 
     test('longest prefix wins for nested routes', () {
-      // /field/clients should match /field/clients, not /organization/agents
+      // /field/clients should match /field/clients, not /workforce/members
       final clientRoles = requiredRolesForRoute('/field/clients/detail');
-      final agentRoles = requiredRolesForRoute('/organization/agents');
+      final agentRoles = requiredRolesForRoute('/workforce/members');
       // Both should be the all-view set
       expect(clientRoles, agentRoles);
     });

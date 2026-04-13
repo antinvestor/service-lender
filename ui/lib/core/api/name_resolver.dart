@@ -12,7 +12,7 @@ Future<String> clientName(Ref ref, String clientId) async {
   if (clientId.isEmpty) return '—';
   try {
     final clients = await ref.watch(
-      clientListProvider(query: '', agentId: '').future,
+      clientListProvider(query: '', memberId: '').future,
     );
     final match = clients.where((c) => c.id == clientId).firstOrNull;
     if (match != null && match.name.isNotEmpty) return match.name;

@@ -10,7 +10,7 @@ enum LenderRole {
   owner,
   admin,
   manager,
-  agent,
+  fieldWorker,
   verifier,
   approver,
   auditor,
@@ -21,6 +21,10 @@ enum LenderRole {
 
 LenderRole? parseLenderRole(String role) {
   final normalized = role.toLowerCase().replaceAll('_', '');
+  // Map legacy 'agent' role to the new 'fieldWorker' role.
+  if (normalized == 'agent' || normalized == 'fieldworker') {
+    return LenderRole.fieldWorker;
+  }
   for (final r in LenderRole.values) {
     if (r.name == normalized) return r;
   }
@@ -59,9 +63,9 @@ Future<bool> canManageOrganizations(Ref ref) async {
   return roles.any((r) => [LenderRole.owner, LenderRole.admin].contains(r));
 }
 
-/// Whether the current user can manage agents
+/// Whether the current user can manage workforce members
 @riverpod
-Future<bool> canManageAgents(Ref ref) async {
+Future<bool> canManageWorkforce(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any(
     (r) => [LenderRole.owner, LenderRole.admin, LenderRole.manager].contains(r),
@@ -77,7 +81,7 @@ Future<bool> canManageClients(Ref ref) async {
       LenderRole.owner,
       LenderRole.admin,
       LenderRole.manager,
-      LenderRole.agent,
+      LenderRole.fieldWorker,
     ].contains(r),
   );
 }
@@ -98,7 +102,7 @@ Future<bool> canCreateApplications(Ref ref) async {
       LenderRole.owner,
       LenderRole.admin,
       LenderRole.manager,
-      LenderRole.agent,
+      LenderRole.fieldWorker,
     ].contains(r),
   );
 }
@@ -148,9 +152,9 @@ Future<bool> canRecordRepayments(Ref ref) async {
   );
 }
 
-/// Whether the current user can manage system users
+/// Whether the current user can manage access role assignments
 @riverpod
-Future<bool> canManageSystemUsers(Ref ref) async {
+Future<bool> canManageAccessRoles(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
   return roles.any((r) => [LenderRole.owner, LenderRole.admin].contains(r));
 }

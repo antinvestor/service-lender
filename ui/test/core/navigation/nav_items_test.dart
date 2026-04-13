@@ -7,7 +7,7 @@ void main() {
   group('NavItem.filterByRoles', () {
     test('agent cannot see admin section', () {
       final items = buildNavItems();
-      final agentRoles = {LenderRole.agent};
+      final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
           .map((item) => item.filterByRoles(agentRoles))
@@ -23,7 +23,7 @@ void main() {
 
     test('agent cannot see organization section', () {
       final items = buildNavItems();
-      final agentRoles = {LenderRole.agent};
+      final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
           .map((item) => item.filterByRoles(agentRoles))
@@ -37,7 +37,7 @@ void main() {
 
     test('agent can see field operations', () {
       final items = buildNavItems();
-      final agentRoles = {LenderRole.agent};
+      final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
           .map((item) => item.filterByRoles(agentRoles))
@@ -51,7 +51,7 @@ void main() {
 
     test('agent can see origination', () {
       final items = buildNavItems();
-      final agentRoles = {LenderRole.agent};
+      final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
           .map((item) => item.filterByRoles(agentRoles))

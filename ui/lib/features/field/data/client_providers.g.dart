@@ -34,7 +34,7 @@ final class ClientListProvider
   /// 2. If online, sync from backend in the background and refresh.
   ClientListProvider._({
     required ClientListFamily super.from,
-    required ({String query, String agentId}) super.argument,
+    required ({String query, String memberId}) super.argument,
   }) : super(
          retry: null,
          name: r'clientListProvider',
@@ -61,8 +61,8 @@ final class ClientListProvider
 
   @override
   FutureOr<List<ClientObject>> create(Ref ref) {
-    final argument = this.argument as ({String query, String agentId});
-    return clientList(ref, query: argument.query, agentId: argument.agentId);
+    final argument = this.argument as ({String query, String memberId});
+    return clientList(ref, query: argument.query, memberId: argument.memberId);
   }
 
   @override
@@ -76,7 +76,7 @@ final class ClientListProvider
   }
 }
 
-String _$clientListHash() => r'e9e8c235ba89655b613022c8a388b5075803d480';
+String _$clientListHash() => r'6fb01b8b8c2db6700f2ffb1af92ebfd3b7c0bf6a';
 
 /// Fetches clients using an offline-first strategy:
 /// 1. Return local Drift data immediately.
@@ -86,7 +86,7 @@ final class ClientListFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<ClientObject>>,
-          ({String query, String agentId})
+          ({String query, String memberId})
         > {
   ClientListFamily._()
     : super(
@@ -101,9 +101,9 @@ final class ClientListFamily extends $Family
   /// 1. Return local Drift data immediately.
   /// 2. If online, sync from backend in the background and refresh.
 
-  ClientListProvider call({required String query, required String agentId}) =>
+  ClientListProvider call({required String query, required String memberId}) =>
       ClientListProvider._(
-        argument: (query: query, agentId: agentId),
+        argument: (query: query, memberId: memberId),
         from: this,
       );
 

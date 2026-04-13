@@ -11,7 +11,7 @@ import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../../sdk/src/origination/v1/origination.pb.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/client_providers.dart';
-import '../data/current_agent_provider.dart';
+import '../../workforce/data/current_workforce_member_provider.dart';
 
 /// Multi-step client onboarding wizard using the dynamic form renderer.
 ///
@@ -153,7 +153,7 @@ class ClientOnboardScreen extends ConsumerWidget {
 
     try {
       final profileId = ref.read(currentProfileIdProvider).value ?? '';
-      final agentId = ref.read(currentAgentIdProvider).value ?? '';
+      final memberId = ref.read(currentWorkforceMemberIdProvider).value ?? '';
 
       // Extract the name — try common field keys.
       final name = (data['full_name'] ?? data['name'] ?? '').toString().trim();
@@ -166,7 +166,7 @@ class ClientOnboardScreen extends ConsumerWidget {
       final client = ClientObject(
         name: name,
         profileId: profileId,
-        agentId: agentId,
+        primaryRelationshipMemberId: memberId,
         state: STATE.CREATED,
         properties: mapToStruct(props),
       );

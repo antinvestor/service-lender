@@ -368,7 +368,7 @@ class _ApplicationCreateScreenState
 
   Widget _buildLoanDetails() {
     final clientsAsync = ref.watch(
-      clientListProvider(query: _clientSearchQuery, agentId: ''),
+      clientListProvider(query: _clientSearchQuery, memberId: ''),
     );
 
     return Form(

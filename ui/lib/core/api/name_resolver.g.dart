@@ -65,7 +65,7 @@ final class ClientNameProvider
   }
 }
 
-String _$clientNameHash() => r'b281de2bc2f8606b3ffd5f64953a6058c057b7bd';
+String _$clientNameHash() => r'bbd9bd6842737d849006251d7ffbf3a241979759';
 
 /// Resolves a client ID to a display name.
 /// Falls back to truncated ID if not found.
