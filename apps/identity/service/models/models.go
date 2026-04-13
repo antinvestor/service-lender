@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
-	identitycommonv1 "github.com/antinvestor/common/v1"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util/decimalx"
 	money "google.golang.org/genproto/googleapis/type/money"
@@ -80,7 +80,7 @@ func (m *Organization) ToAPI() *identityv1.OrganizationObject {
 		Name:        m.Name,
 		Code:        m.Code,
 		ProfileId:   m.ProfileID,
-		State:       identitycommonv1.STATE(m.State),
+		State:       commonv1.STATE(m.State),
 		Properties:  m.Properties.ToProtoStruct(),
 		ClientId:    m.ClientID,
 		GeoId:       m.GeoID,
@@ -139,7 +139,7 @@ func (m *Branch) ToAPI() *identityv1.BranchObject {
 		Name:           m.Name,
 		Code:           m.Code,
 		GeoId:          m.GeoID,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 		ClientId:       m.ClientID,
 	}
@@ -154,7 +154,7 @@ func (m *Branch) ToOrgUnitAPI(hasChildren bool) *identityv1.OrgUnitObject {
 		Name:           m.Name,
 		Code:           m.Code,
 		GeoId:          m.GeoID,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Type:           identityv1.OrgUnitType(m.UnitType),
 		Properties:     m.Properties.ToProtoStruct(),
 		ClientId:       m.ClientID,
@@ -246,7 +246,7 @@ func (m *Agent) ToAPI() *fieldv1.AgentObject {
 		Name:           m.Name,
 		GeoId:          m.GeoID,
 		Depth:          m.Depth,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -296,7 +296,7 @@ func (m *AgentBranch) ToAPI() *fieldv1.AgentBranchObject {
 		Id:         m.GetID(),
 		AgentId:    m.AgentID,
 		BranchId:   m.BranchID,
-		State:      identitycommonv1.STATE(m.State),
+		State:      commonv1.STATE(m.State),
 		Properties: m.Properties.ToProtoStruct(),
 	}
 }
@@ -388,7 +388,7 @@ func (m *Client) ToAPI() *fieldv1.ClientObject {
 		AgentId:                     m.AgentID,
 		ProfileId:                   m.ProfileID,
 		Name:                        m.Name,
-		State:                       identitycommonv1.STATE(m.State),
+		State:                       commonv1.STATE(m.State),
 		Properties:                  props.ToProtoStruct(),
 		OwningTeamId:                m.OwningTeamID,
 		PrimaryRelationshipMemberId: m.PrimaryRelationshipMemberID,
@@ -556,7 +556,7 @@ func (m *ClientGroup) ToAPI() *identityv1.ClientGroupObject {
 		TimeZone:     m.TimeZone,
 		MinMembers:   m.MinMembers,
 		MaxMembers:   m.MaxMembers,
-		State:        identitycommonv1.STATE(m.State),
+		State:        commonv1.STATE(m.State),
 		Properties:   m.Properties.ToProtoStruct(),
 	}
 }
@@ -626,7 +626,7 @@ func (m *Membership) ToAPI() *identityv1.MembershipObject {
 		Role:           m.Role,
 		MembershipType: m.MembershipType,
 		OrderNo:        m.OrderNo,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -700,7 +700,7 @@ func (m *Investor) ToAPI() *identityv1.InvestorObject {
 		Id:         m.GetID(),
 		ProfileId:  m.ProfileID,
 		Name:       m.Name,
-		State:      identitycommonv1.STATE(m.State),
+		State:      commonv1.STATE(m.State),
 		Properties: m.Properties.ToProtoStruct(),
 	}
 }
@@ -748,7 +748,7 @@ func (m *SystemUser) ToAPI() *identityv1.SystemUserObject {
 		BranchId:         m.BranchID,
 		Role:             identityv1.SystemUserRole(m.Role),
 		ServiceAccountId: m.ServiceAccountID,
-		State:            identitycommonv1.STATE(m.State),
+		State:            commonv1.STATE(m.State),
 		Properties:       m.Properties.ToProtoStruct(),
 	}
 }
@@ -775,7 +775,7 @@ func (m *WorkforceMember) ToAPI() *identityv1.WorkforceMemberObject {
 		EngagementType: identityv1.WorkforceEngagementType(m.EngagementType),
 		HomeOrgUnitId:  m.HomeOrgUnitID,
 		GeoId:          m.GeoID,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -828,7 +828,7 @@ func (m *Department) ToAPI() *identityv1.DepartmentObject {
 		Kind:           identityv1.DepartmentKind(m.Kind),
 		Name:           m.Name,
 		Code:           m.Code,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -883,7 +883,7 @@ func (m *Position) ToAPI() *identityv1.PositionObject {
 		ReportsToPositionId: m.ReportsToPositionID,
 		Name:                m.Name,
 		Code:                m.Code,
-		State:               identitycommonv1.STATE(m.State),
+		State:               commonv1.STATE(m.State),
 		Properties:          m.Properties.ToProtoStruct(),
 	}
 }
@@ -933,7 +933,7 @@ func (m *PositionAssignment) ToAPI() *identityv1.PositionAssignmentObject {
 		MemberId:   m.MemberID,
 		PositionId: m.PositionID,
 		IsPrimary:  m.IsPrimary,
-		State:      identitycommonv1.STATE(m.State),
+		State:      commonv1.STATE(m.State),
 		Properties: m.Properties.ToProtoStruct(),
 	}
 }
@@ -990,7 +990,7 @@ func (m *InternalTeam) ToAPI() *identityv1.InternalTeamObject {
 		TeamType:       identityv1.TeamType(m.TeamType),
 		Objective:      m.Objective,
 		GeoId:          m.GeoID,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -1044,7 +1044,7 @@ func (m *TeamMembership) ToAPI() *identityv1.TeamMembershipObject {
 		MemberId:       m.MemberID,
 		MembershipRole: identityv1.TeamMembershipRole(m.MembershipRole),
 		IsPrimaryTeam:  m.IsPrimaryTeam,
-		State:          identitycommonv1.STATE(m.State),
+		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -1094,7 +1094,7 @@ func (m *AccessRoleAssignment) ToAPI() *identityv1.AccessRoleAssignmentObject {
 		RoleKey:    m.RoleKey,
 		ScopeType:  identityv1.AccessScopeType(m.ScopeType),
 		ScopeId:    m.ScopeID,
-		State:      identitycommonv1.STATE(m.State),
+		State:      commonv1.STATE(m.State),
 		Properties: m.Properties.ToProtoStruct(),
 	}
 }

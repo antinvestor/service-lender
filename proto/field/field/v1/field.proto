@@ -52,6 +52,7 @@ enum AgentType {
 
 // AgentObject represents a field agent in the lending hierarchy.
 // Agents can be assigned to multiple branches via AgentBranchObject.
+// Deprecated: use identity.v1.WorkforceMemberObject, PositionObject, and InternalTeamObject.
 message AgentObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -105,7 +106,7 @@ message AgentBranchObject {
   google.protobuf.Struct properties = 5; // Per-branch metadata (e.g. commission)
 }
 
-// ClientObject represents a loan recipient assigned to an agent.
+// ClientObject represents a loan recipient owned by a team and optionally handled by a workforce member.
 message ClientObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -116,7 +117,7 @@ message ClientObject {
   string agent_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
-  ]; // Agent managing this client
+  ]; // Deprecated legacy field handler
   string profile_id = 3 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
@@ -124,6 +125,14 @@ message ClientObject {
   string name = 4 [(buf.validate.field).string.min_len = 1]; // Display name
   common.v1.STATE state = 5; // Current state
   google.protobuf.Struct properties = 6; // Additional metadata
+  string owning_team_id = 7 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Canonical owning internal team
+  string primary_relationship_member_id = 8 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Workforce member primarily handling the relationship
 }
 
 // -----------------------------------------------------
@@ -253,8 +262,16 @@ message ClientSearchRequest {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
-  ]; // Optional filter by agent
+  ]; // Deprecated legacy filter by agent
   common.v1.PageCursor cursor = 3; // Pagination
+  string owning_team_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by owning team
+  string primary_relationship_member_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by relationship handler
 }
 
 message ClientSearchResponse {
@@ -277,6 +294,42 @@ message ClientReassignRequest {
 }
 
 message ClientReassignResponse {
+  ClientObject data = 1;
+}
+
+// ClientOwnershipTransferRequest moves a client from one owning team to another.
+message ClientOwnershipTransferRequest {
+  string client_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string new_owning_team_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reason = 3;
+}
+
+message ClientOwnershipTransferResponse {
+  ClientObject data = 1;
+}
+
+// ClientRelationshipAssignRequest changes the primary relationship handler inside the owning team.
+message ClientRelationshipAssignRequest {
+  string client_id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string member_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reason = 3;
+}
+
+message ClientRelationshipAssignResponse {
   ClientObject data = 1;
 }
 
@@ -458,7 +511,7 @@ service FieldService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "clientSave"
       summary: "Onboard or update a client"
-      description: "Onboards a new client or updates an existing one. Each client must have a unique profile ID and be assigned to an active agent."
+      description: "Onboards a new client or updates an existing one. Each client must have a unique profile ID and be owned by an internal team."
       tags: "Clients"
     };
   }
@@ -486,7 +539,7 @@ service FieldService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "clientSearch"
       summary: "Search clients"
-      description: "Searches for clients matching specified criteria. Supports filtering by agent. Returns a stream of matching client records."
+      description: "Searches for clients matching specified criteria. Supports filtering by owning team and relationship member. Returns a stream of matching client records."
       tags: "Clients"
     };
   }
@@ -499,8 +552,20 @@ service FieldService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "clientReassign"
       summary: "Reassign a client"
-      description: "Moves a client from their current agent to a different agent. Both agents must be in the same bank. Creates an audit trail of the reassignment."
+      description: "Deprecated. Client ownership is team-based and should be changed via ClientOwnershipTransfer or ClientRelationshipAssign."
       tags: "Clients"
+    };
+  }
+
+  rpc ClientOwnershipTransfer(ClientOwnershipTransferRequest) returns (ClientOwnershipTransferResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_manage"]
+    };
+  }
+
+  rpc ClientRelationshipAssign(ClientRelationshipAssignRequest) returns (ClientRelationshipAssignResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_manage"]
     };
   }
 }

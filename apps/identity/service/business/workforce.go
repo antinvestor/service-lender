@@ -1,0 +1,967 @@
+package business
+
+import (
+	"context"
+	"errors"
+	"strconv"
+
+	bufcommonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"github.com/pitabwire/frame/data"
+	"gorm.io/gorm"
+
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
+)
+
+const (
+	AccessRoleKeyApprovalVerifier      = "approval_verifier"
+	AccessRoleKeyApprovalApprover      = "approval_approver"
+	AccessRoleKeyIdentityAdministrator = "identity_administrator"
+)
+
+type WorkforceBusiness interface {
+	WorkforceMemberSave(
+		ctx context.Context,
+		obj *identityv1.WorkforceMemberObject,
+	) (*identityv1.WorkforceMemberObject, error)
+	WorkforceMemberGet(ctx context.Context, id string) (*identityv1.WorkforceMemberObject, error)
+	WorkforceMemberSearch(
+		ctx context.Context,
+		req *identityv1.WorkforceMemberSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.WorkforceMemberObject) error,
+	) error
+	DepartmentSave(ctx context.Context, obj *identityv1.DepartmentObject) (*identityv1.DepartmentObject, error)
+	DepartmentGet(ctx context.Context, id string) (*identityv1.DepartmentObject, error)
+	DepartmentSearch(
+		ctx context.Context,
+		req *identityv1.DepartmentSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.DepartmentObject) error,
+	) error
+	PositionSave(ctx context.Context, obj *identityv1.PositionObject) (*identityv1.PositionObject, error)
+	PositionGet(ctx context.Context, id string) (*identityv1.PositionObject, error)
+	PositionSearch(
+		ctx context.Context,
+		req *identityv1.PositionSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.PositionObject) error,
+	) error
+	PositionAssignmentSave(
+		ctx context.Context,
+		obj *identityv1.PositionAssignmentObject,
+	) (*identityv1.PositionAssignmentObject, error)
+	PositionAssignmentGet(ctx context.Context, id string) (*identityv1.PositionAssignmentObject, error)
+	PositionAssignmentSearch(
+		ctx context.Context,
+		req *identityv1.PositionAssignmentSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.PositionAssignmentObject) error,
+	) error
+	InternalTeamSave(ctx context.Context, obj *identityv1.InternalTeamObject) (*identityv1.InternalTeamObject, error)
+	InternalTeamGet(ctx context.Context, id string) (*identityv1.InternalTeamObject, error)
+	InternalTeamSearch(
+		ctx context.Context,
+		req *identityv1.InternalTeamSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.InternalTeamObject) error,
+	) error
+	TeamMembershipSave(
+		ctx context.Context,
+		obj *identityv1.TeamMembershipObject,
+	) (*identityv1.TeamMembershipObject, error)
+	TeamMembershipGet(ctx context.Context, id string) (*identityv1.TeamMembershipObject, error)
+	TeamMembershipSearch(
+		ctx context.Context,
+		req *identityv1.TeamMembershipSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.TeamMembershipObject) error,
+	) error
+	AccessRoleAssignmentSave(
+		ctx context.Context,
+		obj *identityv1.AccessRoleAssignmentObject,
+	) (*identityv1.AccessRoleAssignmentObject, error)
+	AccessRoleAssignmentGet(ctx context.Context, id string) (*identityv1.AccessRoleAssignmentObject, error)
+	AccessRoleAssignmentSearch(
+		ctx context.Context,
+		req *identityv1.AccessRoleAssignmentSearchRequest,
+		consumer func(ctx context.Context, batch []*identityv1.AccessRoleAssignmentObject) error,
+	) error
+}
+
+type workforceBusiness struct {
+	organizationRepo       repository.OrganizationRepository
+	orgUnitRepo            repository.OrgUnitRepository
+	workforceRepo          repository.WorkforceMemberRepository
+	departmentRepo         repository.DepartmentRepository
+	positionRepo           repository.PositionRepository
+	positionAssignmentRepo repository.PositionAssignmentRepository
+	internalTeamRepo       repository.InternalTeamRepository
+	teamMembershipRepo     repository.TeamMembershipRepository
+	accessRoleRepo         repository.AccessRoleAssignmentRepository
+}
+
+func NewWorkforceBusiness(
+	organizationRepo repository.OrganizationRepository,
+	orgUnitRepo repository.OrgUnitRepository,
+	workforceRepo repository.WorkforceMemberRepository,
+	departmentRepo repository.DepartmentRepository,
+	positionRepo repository.PositionRepository,
+	positionAssignmentRepo repository.PositionAssignmentRepository,
+	internalTeamRepo repository.InternalTeamRepository,
+	teamMembershipRepo repository.TeamMembershipRepository,
+	accessRoleRepo repository.AccessRoleAssignmentRepository,
+) WorkforceBusiness {
+	return &workforceBusiness{
+		organizationRepo:       organizationRepo,
+		orgUnitRepo:            orgUnitRepo,
+		workforceRepo:          workforceRepo,
+		departmentRepo:         departmentRepo,
+		positionRepo:           positionRepo,
+		positionAssignmentRepo: positionAssignmentRepo,
+		internalTeamRepo:       internalTeamRepo,
+		teamMembershipRepo:     teamMembershipRepo,
+		accessRoleRepo:         accessRoleRepo,
+	}
+}
+
+func (b *workforceBusiness) WorkforceMemberSave(
+	ctx context.Context,
+	obj *identityv1.WorkforceMemberObject,
+) (*identityv1.WorkforceMemberObject, error) {
+	member := models.WorkforceMemberFromAPI(ctx, obj)
+	if err := b.validateOrganization(ctx, member.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateOrgUnitInOrganization(ctx, member.HomeOrgUnitID, member.OrganizationID); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && member.State == 0 {
+		member.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistWorkforceMember(ctx, member)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return member.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) WorkforceMemberGet(
+	ctx context.Context,
+	id string,
+) (*identityv1.WorkforceMemberObject, error) {
+	member, err := b.workforceRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrWorkforceMemberNotFound
+	}
+	return member.ToAPI(), nil
+}
+
+func (b *workforceBusiness) WorkforceMemberSearch(
+	ctx context.Context,
+	req *identityv1.WorkforceMemberSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.WorkforceMemberObject) error,
+) error {
+	results, err := b.workforceRepo.Search(ctx, buildSearchQuery(
+		req.GetQuery(),
+		req.GetCursor(),
+		map[string]any{
+			"organization_id = ?":  req.GetOrganizationId(),
+			"home_org_unit_id = ?": req.GetHomeOrgUnitId(),
+		},
+	))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.WorkforceMember) error {
+		out := make([]*identityv1.WorkforceMemberObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func (b *workforceBusiness) DepartmentSave(
+	ctx context.Context,
+	obj *identityv1.DepartmentObject,
+) (*identityv1.DepartmentObject, error) {
+	department := models.DepartmentFromAPI(ctx, obj)
+	if err := b.validateOrganization(ctx, department.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateDepartmentParent(ctx, department); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && department.State == 0 {
+		department.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistDepartment(ctx, department)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return department.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) DepartmentGet(ctx context.Context, id string) (*identityv1.DepartmentObject, error) {
+	department, err := b.departmentRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrDepartmentNotFound
+	}
+	return department.ToAPI(), nil
+}
+
+func (b *workforceBusiness) DepartmentSearch(
+	ctx context.Context,
+	req *identityv1.DepartmentSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.DepartmentObject) error,
+) error {
+	filters := map[string]any{
+		"organization_id = ?": req.GetOrganizationId(),
+		"parent_id = ?":       req.GetParentId(),
+	}
+	if req.GetKind() != identityv1.DepartmentKind_DEPARTMENT_KIND_UNSPECIFIED {
+		filters["kind = ?"] = int32(req.GetKind())
+	}
+	results, err := b.departmentRepo.Search(ctx, buildSearchQuery(req.GetQuery(), req.GetCursor(), filters))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.Department) error {
+		out := make([]*identityv1.DepartmentObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func (b *workforceBusiness) PositionSave(
+	ctx context.Context,
+	obj *identityv1.PositionObject,
+) (*identityv1.PositionObject, error) {
+	position := models.PositionFromAPI(ctx, obj)
+	if err := b.validateOrganization(ctx, position.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateOrgUnitInOrganization(ctx, position.OrgUnitID, position.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateDepartmentInOrganization(ctx, position.DepartmentID, position.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateReportsToPosition(ctx, position); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && position.State == 0 {
+		position.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistPosition(ctx, position)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return position.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) PositionGet(ctx context.Context, id string) (*identityv1.PositionObject, error) {
+	position, err := b.positionRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrPositionNotFound
+	}
+	return position.ToAPI(), nil
+}
+
+func (b *workforceBusiness) PositionSearch(
+	ctx context.Context,
+	req *identityv1.PositionSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.PositionObject) error,
+) error {
+	results, err := b.positionRepo.Search(ctx, buildSearchQuery(
+		req.GetQuery(),
+		req.GetCursor(),
+		map[string]any{
+			"organization_id = ?":        req.GetOrganizationId(),
+			"org_unit_id = ?":            req.GetOrgUnitId(),
+			"department_id = ?":          req.GetDepartmentId(),
+			"reports_to_position_id = ?": req.GetReportsToPositionId(),
+		},
+	))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.Position) error {
+		out := make([]*identityv1.PositionObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func (b *workforceBusiness) PositionAssignmentSave(
+	ctx context.Context,
+	obj *identityv1.PositionAssignmentObject,
+) (*identityv1.PositionAssignmentObject, error) {
+	assignment := models.PositionAssignmentFromAPI(ctx, obj)
+	member, err := b.workforceRepo.GetByID(ctx, assignment.MemberID)
+	if err != nil {
+		return nil, ErrWorkforceMemberNotFound
+	}
+	position, err := b.positionRepo.GetByID(ctx, assignment.PositionID)
+	if err != nil {
+		return nil, ErrPositionNotFound
+	}
+	if member.OrganizationID != position.OrganizationID {
+		return nil, ErrOrgUnitNotInOrganization.Extend("member and position belong to different organizations")
+	}
+	if err := b.validatePrimaryPositionAssignment(ctx, assignment); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && assignment.State == 0 {
+		assignment.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistPositionAssignment(ctx, assignment)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return assignment.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) PositionAssignmentGet(
+	ctx context.Context,
+	id string,
+) (*identityv1.PositionAssignmentObject, error) {
+	assignment, err := b.positionAssignmentRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrPositionAssignmentNotFound
+	}
+	return assignment.ToAPI(), nil
+}
+
+func (b *workforceBusiness) PositionAssignmentSearch(
+	ctx context.Context,
+	req *identityv1.PositionAssignmentSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.PositionAssignmentObject) error,
+) error {
+	results, err := b.positionAssignmentRepo.Search(ctx, buildSearchQuery(
+		req.GetQuery(),
+		req.GetCursor(),
+		map[string]any{
+			"member_id = ?":   req.GetMemberId(),
+			"position_id = ?": req.GetPositionId(),
+		},
+	))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.PositionAssignment) error {
+		out := make([]*identityv1.PositionAssignmentObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func (b *workforceBusiness) InternalTeamSave(
+	ctx context.Context,
+	obj *identityv1.InternalTeamObject,
+) (*identityv1.InternalTeamObject, error) {
+	team := models.InternalTeamFromAPI(ctx, obj)
+	if err := b.validateOrganization(ctx, team.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateOrgUnitInOrganization(ctx, team.HomeOrgUnitID, team.OrganizationID); err != nil {
+		return nil, err
+	}
+	if err := b.validateParentTeam(ctx, team); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && team.State == 0 {
+		team.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistInternalTeam(ctx, team)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return team.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) InternalTeamGet(ctx context.Context, id string) (*identityv1.InternalTeamObject, error) {
+	team, err := b.internalTeamRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrInternalTeamNotFound
+	}
+	return team.ToAPI(), nil
+}
+
+func (b *workforceBusiness) InternalTeamSearch(
+	ctx context.Context,
+	req *identityv1.InternalTeamSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.InternalTeamObject) error,
+) error {
+	filters := map[string]any{
+		"organization_id = ?":  req.GetOrganizationId(),
+		"home_org_unit_id = ?": req.GetHomeOrgUnitId(),
+	}
+	if req.GetTeamType() != identityv1.TeamType_TEAM_TYPE_UNSPECIFIED {
+		filters["team_type = ?"] = int32(req.GetTeamType())
+	}
+	results, err := b.internalTeamRepo.Search(ctx, buildSearchQuery(req.GetQuery(), req.GetCursor(), filters))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.InternalTeam) error {
+		out := make([]*identityv1.InternalTeamObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func (b *workforceBusiness) TeamMembershipSave(
+	ctx context.Context,
+	obj *identityv1.TeamMembershipObject,
+) (*identityv1.TeamMembershipObject, error) {
+	membership := models.TeamMembershipFromAPI(ctx, obj)
+	member, err := b.workforceRepo.GetByID(ctx, membership.MemberID)
+	if err != nil {
+		return nil, ErrWorkforceMemberNotFound
+	}
+	team, err := b.internalTeamRepo.GetByID(ctx, membership.TeamID)
+	if err != nil {
+		return nil, ErrInternalTeamNotFound
+	}
+	if member.OrganizationID != team.OrganizationID {
+		return nil, ErrOrgUnitNotInOrganization.Extend("member and team belong to different organizations")
+	}
+	if err := b.validatePrimaryTeamMembership(ctx, membership); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && membership.State == 0 {
+		membership.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistTeamMembership(ctx, membership)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return membership.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) TeamMembershipGet(
+	ctx context.Context,
+	id string,
+) (*identityv1.TeamMembershipObject, error) {
+	membership, err := b.teamMembershipRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrTeamMembershipNotFound
+	}
+	return membership.ToAPI(), nil
+}
+
+func (b *workforceBusiness) TeamMembershipSearch(
+	ctx context.Context,
+	req *identityv1.TeamMembershipSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.TeamMembershipObject) error,
+) error {
+	results, err := b.teamMembershipRepo.Search(ctx, buildSearchQuery(
+		req.GetQuery(),
+		req.GetCursor(),
+		map[string]any{
+			"team_id = ?":   req.GetTeamId(),
+			"member_id = ?": req.GetMemberId(),
+		},
+	))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.TeamMembership) error {
+		out := make([]*identityv1.TeamMembershipObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func (b *workforceBusiness) AccessRoleAssignmentSave(
+	ctx context.Context,
+	obj *identityv1.AccessRoleAssignmentObject,
+) (*identityv1.AccessRoleAssignmentObject, error) {
+	assignment := models.AccessRoleAssignmentFromAPI(ctx, obj)
+	member, err := b.workforceRepo.GetByID(ctx, assignment.MemberID)
+	if err != nil {
+		return nil, ErrWorkforceMemberNotFound
+	}
+	if err := b.validateAccessScope(ctx, member, assignment); err != nil {
+		return nil, err
+	}
+	if obj.GetId() == "" && assignment.State == 0 {
+		assignment.State = int32(bufcommonv1.STATE_CREATED)
+	}
+
+	existing, isNew, err := b.persistAccessRoleAssignment(ctx, assignment)
+	if err != nil {
+		return nil, err
+	}
+	if isNew {
+		return assignment.ToAPI(), nil
+	}
+	return existing.ToAPI(), nil
+}
+
+func (b *workforceBusiness) AccessRoleAssignmentGet(
+	ctx context.Context,
+	id string,
+) (*identityv1.AccessRoleAssignmentObject, error) {
+	assignment, err := b.accessRoleRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrAccessRoleAssignmentNotFound
+	}
+	return assignment.ToAPI(), nil
+}
+
+func (b *workforceBusiness) AccessRoleAssignmentSearch(
+	ctx context.Context,
+	req *identityv1.AccessRoleAssignmentSearchRequest,
+	consumer func(ctx context.Context, batch []*identityv1.AccessRoleAssignmentObject) error,
+) error {
+	filters := map[string]any{
+		"member_id = ?": req.GetMemberId(),
+		"role_key = ?":  req.GetRoleKey(),
+		"scope_id = ?":  req.GetScopeId(),
+	}
+	if req.GetScopeType() != identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_UNSPECIFIED {
+		filters["scope_type = ?"] = int32(req.GetScopeType())
+	}
+	results, err := b.accessRoleRepo.Search(ctx, buildSearchQuery(req.GetQuery(), req.GetCursor(), filters))
+	if err != nil {
+		return err
+	}
+	return workerpoolConsumeStream(ctx, results, func(batch []*models.AccessRoleAssignment) error {
+		out := make([]*identityv1.AccessRoleAssignmentObject, 0, len(batch))
+		for _, item := range batch {
+			out = append(out, item.ToAPI())
+		}
+		return consumer(ctx, out)
+	})
+}
+
+func buildSearchQuery(query string, cursor *commonv1.PageCursor, filters map[string]any) *data.SearchQuery {
+	var searchOpts []data.SearchOption
+	if cursor != nil {
+		offset, offsetErr := strconv.Atoi(cursor.GetPage())
+		if offsetErr != nil {
+			offset = 0
+		}
+		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
+	}
+
+	andFilters := make(map[string]any, len(filters))
+	for clause, value := range filters {
+		if isEmptyFilterValue(value) {
+			continue
+		}
+		andFilters[clause] = value
+	}
+	if len(andFilters) > 0 {
+		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andFilters))
+	}
+	if query != "" {
+		searchOpts = append(searchOpts, data.WithSearchFiltersOrByValue(
+			map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": query},
+		))
+	}
+
+	return data.NewSearchQuery(searchOpts...)
+}
+
+func isEmptyFilterValue(value any) bool {
+	switch typed := value.(type) {
+	case string:
+		return typed == ""
+	case int32:
+		return typed == 0
+	default:
+		return value == nil
+	}
+}
+
+func (b *workforceBusiness) validateOrganization(ctx context.Context, organizationID string) error {
+	if organizationID == "" {
+		return ErrOrganizationNotFound
+	}
+	if _, err := b.organizationRepo.GetByID(ctx, organizationID); err != nil {
+		return ErrOrganizationNotFound
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validateOrgUnitInOrganization(
+	ctx context.Context,
+	orgUnitID, organizationID string,
+) error {
+	if orgUnitID == "" {
+		return nil
+	}
+	orgUnit, err := b.orgUnitRepo.GetByID(ctx, orgUnitID)
+	if err != nil {
+		return ErrOrgUnitNotFound
+	}
+	if organizationID != "" && orgUnit.OrganizationID != organizationID {
+		return ErrOrgUnitNotInOrganization
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validateDepartmentParent(
+	ctx context.Context,
+	department *models.Department,
+) error {
+	if department.ParentID == "" {
+		return nil
+	}
+	parent, err := b.departmentRepo.GetByID(ctx, department.ParentID)
+	if err != nil {
+		return ErrDepartmentNotFound.Extend("parent department not found")
+	}
+	if parent.OrganizationID != department.OrganizationID {
+		return ErrOrgUnitNotInOrganization.Extend("parent department belongs to another organization")
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validateDepartmentInOrganization(
+	ctx context.Context,
+	departmentID, organizationID string,
+) error {
+	if departmentID == "" {
+		return nil
+	}
+	department, err := b.departmentRepo.GetByID(ctx, departmentID)
+	if err != nil {
+		return ErrDepartmentNotFound
+	}
+	if department.OrganizationID != organizationID {
+		return ErrOrgUnitNotInOrganization.Extend("department belongs to another organization")
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validateReportsToPosition(ctx context.Context, position *models.Position) error {
+	if position.ReportsToPositionID == "" {
+		return nil
+	}
+	parent, err := b.positionRepo.GetByID(ctx, position.ReportsToPositionID)
+	if err != nil {
+		return ErrPositionNotFound.Extend("parent position not found")
+	}
+	if parent.OrganizationID != position.OrganizationID {
+		return ErrOrgUnitNotInOrganization.Extend("reporting line crosses organizations")
+	}
+	if position.GetID() != "" && parent.GetID() == position.GetID() {
+		return ErrInvalidReportingLine.Extend("position cannot report to itself")
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validatePrimaryPositionAssignment(
+	ctx context.Context,
+	assignment *models.PositionAssignment,
+) error {
+	if !assignment.IsPrimary ||
+		assignment.State == int32(bufcommonv1.STATE_INACTIVE) ||
+		assignment.State == int32(bufcommonv1.STATE_DELETED) {
+		return nil
+	}
+	existing, err := b.positionAssignmentRepo.GetActivePrimaryByMemberID(ctx, assignment.MemberID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	if existing.GetID() != assignment.GetID() {
+		return ErrPrimaryPositionAssignmentExists
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validateParentTeam(ctx context.Context, team *models.InternalTeam) error {
+	if team.ParentTeamID == "" {
+		return nil
+	}
+	parent, err := b.internalTeamRepo.GetByID(ctx, team.ParentTeamID)
+	if err != nil {
+		return ErrInternalTeamNotFound.Extend("parent team not found")
+	}
+	if parent.OrganizationID != team.OrganizationID {
+		return ErrOrgUnitNotInOrganization.Extend("parent team belongs to another organization")
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validatePrimaryTeamMembership(
+	ctx context.Context,
+	membership *models.TeamMembership,
+) error {
+	if !membership.IsPrimaryTeam ||
+		membership.State == int32(bufcommonv1.STATE_INACTIVE) ||
+		membership.State == int32(bufcommonv1.STATE_DELETED) {
+		return nil
+	}
+	existing, err := b.teamMembershipRepo.GetActivePrimaryByMemberID(ctx, membership.MemberID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	if existing.GetID() != membership.GetID() {
+		return ErrPrimaryTeamMembershipExists
+	}
+	return nil
+}
+
+func (b *workforceBusiness) validateAccessScope(
+	ctx context.Context,
+	member *models.WorkforceMember,
+	assignment *models.AccessRoleAssignment,
+) error {
+	switch identityv1.AccessScopeType(assignment.ScopeType) {
+	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL:
+		return nil
+	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORGANIZATION:
+		if assignment.ScopeID == "" || assignment.ScopeID != member.OrganizationID {
+			return ErrInvalidAccessScope
+		}
+		if _, err := b.organizationRepo.GetByID(ctx, assignment.ScopeID); err != nil {
+			return ErrOrganizationNotFound
+		}
+		return nil
+	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORG_UNIT:
+		return b.validateOrgUnitInOrganization(ctx, assignment.ScopeID, member.OrganizationID)
+	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_TEAM:
+		team, err := b.internalTeamRepo.GetByID(ctx, assignment.ScopeID)
+		if err != nil {
+			return ErrInternalTeamNotFound
+		}
+		if team.OrganizationID != member.OrganizationID {
+			return ErrInvalidAccessScope
+		}
+		return nil
+	default:
+		return ErrInvalidAccessScope
+	}
+}
+
+func (b *workforceBusiness) persistWorkforceMember(
+	ctx context.Context,
+	member *models.WorkforceMember,
+) (*models.WorkforceMember, bool, error) {
+	if member.GetID() == "" {
+		return nil, true, b.workforceRepo.Create(ctx, member)
+	}
+
+	existing, err := b.workforceRepo.GetByID(ctx, member.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrWorkforceMemberNotFound
+		}
+		return nil, false, err
+	}
+	existing.OrganizationID = member.OrganizationID
+	existing.ProfileID = member.ProfileID
+	existing.EngagementType = member.EngagementType
+	existing.HomeOrgUnitID = member.HomeOrgUnitID
+	existing.GeoID = member.GeoID
+	existing.State = member.State
+	existing.Properties = member.Properties
+	if _, err := b.workforceRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}
+
+func (b *workforceBusiness) persistDepartment(
+	ctx context.Context,
+	department *models.Department,
+) (*models.Department, bool, error) {
+	if department.GetID() == "" {
+		return nil, true, b.departmentRepo.Create(ctx, department)
+	}
+	existing, err := b.departmentRepo.GetByID(ctx, department.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrDepartmentNotFound
+		}
+		return nil, false, err
+	}
+	existing.OrganizationID = department.OrganizationID
+	existing.ParentID = department.ParentID
+	existing.Kind = department.Kind
+	existing.Name = department.Name
+	existing.Code = department.Code
+	existing.State = department.State
+	existing.Properties = department.Properties
+	if _, err := b.departmentRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}
+
+func (b *workforceBusiness) persistPosition(
+	ctx context.Context,
+	position *models.Position,
+) (*models.Position, bool, error) {
+	if position.GetID() == "" {
+		return nil, true, b.positionRepo.Create(ctx, position)
+	}
+	existing, err := b.positionRepo.GetByID(ctx, position.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrPositionNotFound
+		}
+		return nil, false, err
+	}
+	existing.OrganizationID = position.OrganizationID
+	existing.OrgUnitID = position.OrgUnitID
+	existing.DepartmentID = position.DepartmentID
+	existing.ReportsToPositionID = position.ReportsToPositionID
+	existing.Name = position.Name
+	existing.Code = position.Code
+	existing.State = position.State
+	existing.Properties = position.Properties
+	if _, err := b.positionRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}
+
+func (b *workforceBusiness) persistPositionAssignment(
+	ctx context.Context,
+	assignment *models.PositionAssignment,
+) (*models.PositionAssignment, bool, error) {
+	if assignment.GetID() == "" {
+		return nil, true, b.positionAssignmentRepo.Create(ctx, assignment)
+	}
+	existing, err := b.positionAssignmentRepo.GetByID(ctx, assignment.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrPositionAssignmentNotFound
+		}
+		return nil, false, err
+	}
+	existing.MemberID = assignment.MemberID
+	existing.PositionID = assignment.PositionID
+	existing.IsPrimary = assignment.IsPrimary
+	existing.State = assignment.State
+	existing.Properties = assignment.Properties
+	if _, err := b.positionAssignmentRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}
+
+func (b *workforceBusiness) persistInternalTeam(
+	ctx context.Context,
+	team *models.InternalTeam,
+) (*models.InternalTeam, bool, error) {
+	if team.GetID() == "" {
+		return nil, true, b.internalTeamRepo.Create(ctx, team)
+	}
+	existing, err := b.internalTeamRepo.GetByID(ctx, team.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrInternalTeamNotFound
+		}
+		return nil, false, err
+	}
+	existing.OrganizationID = team.OrganizationID
+	existing.ParentTeamID = team.ParentTeamID
+	existing.HomeOrgUnitID = team.HomeOrgUnitID
+	existing.Name = team.Name
+	existing.Code = team.Code
+	existing.TeamType = team.TeamType
+	existing.Objective = team.Objective
+	existing.GeoID = team.GeoID
+	existing.State = team.State
+	existing.Properties = team.Properties
+	if _, err := b.internalTeamRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}
+
+func (b *workforceBusiness) persistTeamMembership(
+	ctx context.Context,
+	membership *models.TeamMembership,
+) (*models.TeamMembership, bool, error) {
+	if membership.GetID() == "" {
+		return nil, true, b.teamMembershipRepo.Create(ctx, membership)
+	}
+	existing, err := b.teamMembershipRepo.GetByID(ctx, membership.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrTeamMembershipNotFound
+		}
+		return nil, false, err
+	}
+	existing.TeamID = membership.TeamID
+	existing.MemberID = membership.MemberID
+	existing.MembershipRole = membership.MembershipRole
+	existing.IsPrimaryTeam = membership.IsPrimaryTeam
+	existing.State = membership.State
+	existing.Properties = membership.Properties
+	if _, err := b.teamMembershipRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}
+
+func (b *workforceBusiness) persistAccessRoleAssignment(
+	ctx context.Context,
+	assignment *models.AccessRoleAssignment,
+) (*models.AccessRoleAssignment, bool, error) {
+	if assignment.GetID() == "" {
+		return nil, true, b.accessRoleRepo.Create(ctx, assignment)
+	}
+	existing, err := b.accessRoleRepo.GetByID(ctx, assignment.GetID())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, ErrAccessRoleAssignmentNotFound
+		}
+		return nil, false, err
+	}
+	existing.MemberID = assignment.MemberID
+	existing.RoleKey = assignment.RoleKey
+	existing.ScopeType = assignment.ScopeType
+	existing.ScopeID = assignment.ScopeID
+	existing.State = assignment.State
+	existing.Properties = assignment.Properties
+	if _, err := b.accessRoleRepo.Update(ctx, existing); err != nil {
+		return nil, false, err
+	}
+	return existing, false, nil
+}

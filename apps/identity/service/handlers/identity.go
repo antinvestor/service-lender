@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	bufcommonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
-	commonv1 "github.com/antinvestor/common/v1"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/business"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
