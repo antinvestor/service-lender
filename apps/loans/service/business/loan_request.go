@@ -32,16 +32,19 @@ type LoanRequestBusiness interface {
 type loanRequestBusiness struct {
 	eventsMan       fevents.Manager
 	loanRequestRepo repository.LoanRequestRepository
+	loanProductRepo repository.LoanProductRepository
 }
 
 func NewLoanRequestBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	loanRequestRepo repository.LoanRequestRepository,
+	loanProductRepo repository.LoanProductRepository,
 ) LoanRequestBusiness {
 	return &loanRequestBusiness{
 		eventsMan:       eventsMan,
 		loanRequestRepo: loanRequestRepo,
+		loanProductRepo: loanProductRepo,
 	}
 }
 
@@ -160,6 +163,13 @@ func (b *loanRequestBusiness) Approve(ctx context.Context, id string) (*loansv1.
 		return nil, ErrLoanRequestNotSubmitted
 	}
 
+	// Verification gate: if the product has required forms, the caller must
+	// confirm that all required data has been verified by setting the
+	// "data_verification_confirmed" property to true on the loan request.
+	if err := b.enforceProductRequirements(ctx, logger, lr); err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 	lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_APPROVED)
 	lr.DecidedAt = &now
@@ -226,6 +236,55 @@ func (b *loanRequestBusiness) Cancel(
 	}
 
 	return lr.ToAPI(), nil
+}
+
+// enforceProductRequirements checks that the loan product's required forms
+// have been satisfied before allowing approval. If the product has required
+// forms, the loan request must have "data_verification_confirmed" set to true
+// in its properties — this is set by the product service (seed, stawi) after
+// it has verified all required data via the identity service.
+func (b *loanRequestBusiness) enforceProductRequirements(
+	ctx context.Context,
+	logger *util.LogEntry,
+	lr *models.LoanRequest,
+) error {
+	if lr.ProductID == "" {
+		return nil // No product, no requirements
+	}
+
+	product, err := b.loanProductRepo.GetByID(ctx, lr.ProductID)
+	if err != nil {
+		logger.WithError(err).Warn("could not fetch loan product for requirement check")
+		return nil // Product not found locally — allow (product may be external)
+	}
+
+	requiredForms := models.RequiredFormsToAPI(product.RequiredForms)
+	if len(requiredForms) == 0 {
+		return nil // No required forms on this product
+	}
+
+	// Count how many forms are marked as required
+	requiredCount := 0
+	for _, rf := range requiredForms {
+		if rf.GetRequired() {
+			requiredCount++
+		}
+	}
+	if requiredCount == 0 {
+		return nil // Forms exist but none are mandatory
+	}
+
+	// The product service must set this property after verifying client data
+	// against identity service (FormSubmission + ClientDataEntry checks).
+	confirmed, _ := lr.Properties["data_verification_confirmed"].(bool)
+	if !confirmed {
+		logger.WithField("product_id", lr.ProductID).
+			WithField("required_forms", requiredCount).
+			Warn("loan request approval blocked — product requires data verification")
+		return ErrDataVerificationRequired
+	}
+
+	return nil
 }
 
 func isTerminalLoanRequestStatus(status int32) bool {

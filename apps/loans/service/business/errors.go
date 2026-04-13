@@ -30,6 +30,10 @@ var (
 		"loan request does not have approved terms",
 	)
 	ErrClientProductAccessNotFound = apperrors.NewError(apperrors.NotFound, "client product access not found")
+	ErrDataVerificationRequired    = apperrors.NewError(
+		apperrors.Unprocessable,
+		"loan product requires data verification; set data_verification_confirmed on the loan request after verifying all required forms",
+	)
 
 	ErrDisbursementNotFound      = apperrors.NewError(apperrors.NotFound, "disbursement not found")
 	ErrDuplicateIdempotencyKey   = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")

@@ -140,7 +140,7 @@ func setupServiceOptions(
 	auditWriter := audit.NewWriter(evtsMan)
 
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
-	lrBusiness := business.NewLoanRequestBusiness(ctx, evtsMan, loanRequestRepo)
+	lrBusiness := business.NewLoanRequestBusiness(ctx, evtsMan, loanRequestRepo, lpRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
 		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, penRepo,
