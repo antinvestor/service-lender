@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	bufcommonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
+	commonv1 "github.com/antinvestor/common/v1"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/business"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
@@ -18,6 +19,7 @@ import (
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type IdentityServer struct {
 	organizationBusiness business.OrganizationBusiness
+	orgUnitBusiness      business.OrgUnitBusiness
 	branchBusiness       business.BranchBusiness
 	clientGroupBusiness  business.ClientGroupBusiness
 	membershipBusiness   business.MembershipBusiness
@@ -30,6 +32,7 @@ type IdentityServer struct {
 
 func NewIdentityServer(
 	organizationBusiness business.OrganizationBusiness,
+	orgUnitBusiness business.OrgUnitBusiness,
 	branchBusiness business.BranchBusiness,
 	clientGroupBusiness business.ClientGroupBusiness,
 	membershipBusiness business.MembershipBusiness,
@@ -39,6 +42,7 @@ func NewIdentityServer(
 ) identityv1connect.IdentityServiceHandler {
 	return &IdentityServer{
 		organizationBusiness: organizationBusiness,
+		orgUnitBusiness:      orgUnitBusiness,
 		branchBusiness:       branchBusiness,
 		clientGroupBusiness:  clientGroupBusiness,
 		membershipBusiness:   membershipBusiness,
@@ -77,9 +81,57 @@ func (s *IdentityServer) OrganizationSearch(
 	req *connect.Request[commonv1.SearchRequest],
 	stream *connect.ServerStream[identityv1.OrganizationSearchResponse],
 ) error {
-	err := s.organizationBusiness.Search(ctx, req.Msg,
+	searchReq := &bufcommonv1.SearchRequest{
+		Query: req.Msg.GetQuery(),
+	}
+	if cursor := req.Msg.GetCursor(); cursor != nil {
+		searchReq.Cursor = &bufcommonv1.PageCursor{
+			Page:  cursor.GetPage(),
+			Limit: cursor.GetLimit(),
+		}
+	}
+	err := s.organizationBusiness.Search(ctx, searchReq,
 		func(_ context.Context, batch []*identityv1.OrganizationObject) error {
 			return stream.Send(&identityv1.OrganizationSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- Org Unit RPCs ---
+
+func (s *IdentityServer) OrgUnitSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.OrgUnitSaveRequest],
+) (*connect.Response[identityv1.OrgUnitSaveResponse], error) {
+	result, err := s.orgUnitBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.OrgUnitSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) OrgUnitGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.OrgUnitGetRequest],
+) (*connect.Response[identityv1.OrgUnitGetResponse], error) {
+	result, err := s.orgUnitBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.OrgUnitGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) OrgUnitSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.OrgUnitSearchRequest],
+	stream *connect.ServerStream[identityv1.OrgUnitSearchResponse],
+) error {
+	err := s.orgUnitBusiness.Search(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.OrgUnitObject) error {
+			return stream.Send(&identityv1.OrgUnitSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)

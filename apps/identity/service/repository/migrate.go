@@ -53,14 +53,25 @@ func preMigrate(ctx context.Context, dbPool pool.Pool) error {
 		safeRenameIndex(db, "organizations", "uq_bank_code", "uq_organization_code")
 	}
 
-	// Rename bank_id → organization_id in branches if the old column exists
-	if migrator.HasTable("branches") && migrator.HasColumn(&models.Branch{}, "bank_id") {
-		util.Log(ctx).Info("preMigrate -- renaming 'bank_id' to 'organization_id' in branches")
-		if err := db.Exec("ALTER TABLE branches RENAME COLUMN bank_id TO organization_id").Error; err != nil {
+	// Rename branches → org_units before AutoMigrate so the canonical hierarchy table is used.
+	if migrator.HasTable("branches") && !migrator.HasTable("org_units") {
+		util.Log(ctx).Info("preMigrate -- renaming 'branches' table to 'org_units'")
+		if err := db.Exec("ALTER TABLE branches RENAME TO org_units").Error; err != nil {
 			return err
 		}
 
-		safeRenameIndex(db, "branches", "idx_branch_bank", "idx_branch_organization")
+		safeRenameIndex(db, "org_units", "idx_branch_organization", "idx_branch_organization")
+		safeRenameIndex(db, "org_units", "uq_branch_code", "uq_branch_code")
+	}
+
+	// Rename bank_id → organization_id in org_units if the old column exists.
+	if migrator.HasTable("org_units") && migrator.HasColumn(&models.Branch{}, "bank_id") {
+		util.Log(ctx).Info("preMigrate -- renaming 'bank_id' to 'organization_id' in org_units")
+		if err := db.Exec("ALTER TABLE org_units RENAME COLUMN bank_id TO organization_id").Error; err != nil {
+			return err
+		}
+
+		safeRenameIndex(db, "org_units", "idx_branch_bank", "idx_branch_organization")
 	}
 
 	// Add organization_type column if it doesn't exist on organizations table

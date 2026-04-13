@@ -18,7 +18,7 @@ import 'package:protobuf/protobuf.dart' as $pb;
 import '../../common/v1/common.pb.dart' as $7;
 import '../../common/v1/common.pbenum.dart' as $7;
 import '../../google/protobuf/struct.pb.dart' as $6;
-import '../../google/type/money.pb.dart' as $9;
+import '../../google/type/money.pb.dart' as $8;
 import 'identity.pbenum.dart';
 
 export 'identity.pbenum.dart';
@@ -37,6 +37,7 @@ class OrganizationObject extends $pb.GeneratedMessage {
     OrganizationType? organizationType,
     $6.Struct? properties,
     $core.String? clientId,
+    $core.String? geoId,
   }) {
     final $result = create();
     if (id != null) {
@@ -66,6 +67,9 @@ class OrganizationObject extends $pb.GeneratedMessage {
     if (clientId != null) {
       $result.clientId = clientId;
     }
+    if (geoId != null) {
+      $result.geoId = geoId;
+    }
     return $result;
   }
   OrganizationObject._() : super();
@@ -82,6 +86,7 @@ class OrganizationObject extends $pb.GeneratedMessage {
     ..e<OrganizationType>(7, _omitFieldNames ? '' : 'organizationType', $pb.PbFieldType.OE, defaultOrMaker: OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED, valueOf: OrganizationType.valueOf, enumValues: OrganizationType.values)
     ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..aOS(9, _omitFieldNames ? '' : 'clientId')
+    ..aOS(10, _omitFieldNames ? '' : 'geoId')
     ..hasRequiredFields = false
   ;
 
@@ -188,9 +193,227 @@ class OrganizationObject extends $pb.GeneratedMessage {
   $core.bool hasClientId() => $_has(8);
   @$pb.TagNumber(9)
   void clearClientId() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.String get geoId => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set geoId($core.String v) { $_setString(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasGeoId() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearGeoId() => clearField(10);
 }
 
-/// BranchObject represents a branch within an organization, mapped to a child partition with a geographic area.
+/// OrgUnitObject represents a typed hierarchical unit within an organization.
+/// Org units can form a tree such as Region -> Zone -> Area -> Cluster -> Branch.
+class OrgUnitObject extends $pb.GeneratedMessage {
+  factory OrgUnitObject({
+    $core.String? id,
+    $core.String? organizationId,
+    $core.String? parentId,
+    $core.String? partitionId,
+    $core.String? name,
+    $core.String? code,
+    $core.String? geoId,
+    $7.STATE? state,
+    OrgUnitType? type,
+    $6.Struct? properties,
+    $core.String? clientId,
+    $core.bool? hasChildren,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
+    }
+    if (parentId != null) {
+      $result.parentId = parentId;
+    }
+    if (partitionId != null) {
+      $result.partitionId = partitionId;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (code != null) {
+      $result.code = code;
+    }
+    if (geoId != null) {
+      $result.geoId = geoId;
+    }
+    if (state != null) {
+      $result.state = state;
+    }
+    if (type != null) {
+      $result.type = type;
+    }
+    if (properties != null) {
+      $result.properties = properties;
+    }
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (hasChildren != null) {
+      $result.hasChildren = hasChildren;
+    }
+    return $result;
+  }
+  OrgUnitObject._() : super();
+  factory OrgUnitObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
+    ..aOS(3, _omitFieldNames ? '' : 'parentId')
+    ..aOS(4, _omitFieldNames ? '' : 'partitionId')
+    ..aOS(5, _omitFieldNames ? '' : 'name')
+    ..aOS(6, _omitFieldNames ? '' : 'code')
+    ..aOS(7, _omitFieldNames ? '' : 'geoId')
+    ..e<$7.STATE>(8, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..e<OrgUnitType>(9, _omitFieldNames ? '' : 'type', $pb.PbFieldType.OE, defaultOrMaker: OrgUnitType.ORG_UNIT_TYPE_UNSPECIFIED, valueOf: OrgUnitType.valueOf, enumValues: OrgUnitType.values)
+    ..aOM<$6.Struct>(10, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..aOS(11, _omitFieldNames ? '' : 'clientId')
+    ..aOB(12, _omitFieldNames ? '' : 'hasChildren')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitObject clone() => OrgUnitObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitObject copyWith(void Function(OrgUnitObject) updates) => super.copyWith((message) => updates(message as OrgUnitObject)) as OrgUnitObject;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitObject create() => OrgUnitObject._();
+  OrgUnitObject createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitObject> createRepeated() => $pb.PbList<OrgUnitObject>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitObject>(create);
+  static OrgUnitObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get organizationId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set organizationId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasOrganizationId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearOrganizationId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get parentId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set parentId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasParentId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearParentId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get partitionId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set partitionId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasPartitionId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPartitionId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get name => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set name($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasName() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearName() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get code => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set code($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCode() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCode() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get geoId => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set geoId($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasGeoId() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearGeoId() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $7.STATE get state => $_getN(7);
+  @$pb.TagNumber(8)
+  set state($7.STATE v) { setField(8, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasState() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearState() => clearField(8);
+
+  @$pb.TagNumber(9)
+  OrgUnitType get type => $_getN(8);
+  @$pb.TagNumber(9)
+  set type(OrgUnitType v) { setField(9, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasType() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearType() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $6.Struct get properties => $_getN(9);
+  @$pb.TagNumber(10)
+  set properties($6.Struct v) { setField(10, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasProperties() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearProperties() => clearField(10);
+  @$pb.TagNumber(10)
+  $6.Struct ensureProperties() => $_ensure(9);
+
+  @$pb.TagNumber(11)
+  $core.String get clientId => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set clientId($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasClientId() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearClientId() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.bool get hasChildren => $_getBF(11);
+  @$pb.TagNumber(12)
+  set hasChildren($core.bool v) { $_setBool(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasHasChildren() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearHasChildren() => clearField(12);
+}
+
+/// BranchObject is the legacy leaf-unit compatibility view.
+/// Canonical hierarchy management should use OrgUnitObject with type BRANCH.
 class BranchObject extends $pb.GeneratedMessage {
   factory BranchObject({
     $core.String? id,
@@ -1182,6 +1405,379 @@ class BranchSearchResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<BranchObject> get data => $_getList(0);
+}
+
+/// Org unit messages
+class OrgUnitSaveRequest extends $pb.GeneratedMessage {
+  factory OrgUnitSaveRequest({
+    OrgUnitObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  OrgUnitSaveRequest._() : super();
+  factory OrgUnitSaveRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitSaveRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitSaveRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<OrgUnitObject>(1, _omitFieldNames ? '' : 'data', subBuilder: OrgUnitObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitSaveRequest clone() => OrgUnitSaveRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitSaveRequest copyWith(void Function(OrgUnitSaveRequest) updates) => super.copyWith((message) => updates(message as OrgUnitSaveRequest)) as OrgUnitSaveRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSaveRequest create() => OrgUnitSaveRequest._();
+  OrgUnitSaveRequest createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitSaveRequest> createRepeated() => $pb.PbList<OrgUnitSaveRequest>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSaveRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitSaveRequest>(create);
+  static OrgUnitSaveRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  OrgUnitObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(OrgUnitObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  OrgUnitObject ensureData() => $_ensure(0);
+}
+
+class OrgUnitSaveResponse extends $pb.GeneratedMessage {
+  factory OrgUnitSaveResponse({
+    OrgUnitObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  OrgUnitSaveResponse._() : super();
+  factory OrgUnitSaveResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitSaveResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitSaveResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<OrgUnitObject>(1, _omitFieldNames ? '' : 'data', subBuilder: OrgUnitObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitSaveResponse clone() => OrgUnitSaveResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitSaveResponse copyWith(void Function(OrgUnitSaveResponse) updates) => super.copyWith((message) => updates(message as OrgUnitSaveResponse)) as OrgUnitSaveResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSaveResponse create() => OrgUnitSaveResponse._();
+  OrgUnitSaveResponse createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitSaveResponse> createRepeated() => $pb.PbList<OrgUnitSaveResponse>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSaveResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitSaveResponse>(create);
+  static OrgUnitSaveResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  OrgUnitObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(OrgUnitObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  OrgUnitObject ensureData() => $_ensure(0);
+}
+
+class OrgUnitGetRequest extends $pb.GeneratedMessage {
+  factory OrgUnitGetRequest({
+    $core.String? id,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    return $result;
+  }
+  OrgUnitGetRequest._() : super();
+  factory OrgUnitGetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitGetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitGetRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitGetRequest clone() => OrgUnitGetRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitGetRequest copyWith(void Function(OrgUnitGetRequest) updates) => super.copyWith((message) => updates(message as OrgUnitGetRequest)) as OrgUnitGetRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitGetRequest create() => OrgUnitGetRequest._();
+  OrgUnitGetRequest createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitGetRequest> createRepeated() => $pb.PbList<OrgUnitGetRequest>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitGetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitGetRequest>(create);
+  static OrgUnitGetRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+}
+
+class OrgUnitGetResponse extends $pb.GeneratedMessage {
+  factory OrgUnitGetResponse({
+    OrgUnitObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  OrgUnitGetResponse._() : super();
+  factory OrgUnitGetResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitGetResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitGetResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOM<OrgUnitObject>(1, _omitFieldNames ? '' : 'data', subBuilder: OrgUnitObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitGetResponse clone() => OrgUnitGetResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitGetResponse copyWith(void Function(OrgUnitGetResponse) updates) => super.copyWith((message) => updates(message as OrgUnitGetResponse)) as OrgUnitGetResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitGetResponse create() => OrgUnitGetResponse._();
+  OrgUnitGetResponse createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitGetResponse> createRepeated() => $pb.PbList<OrgUnitGetResponse>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitGetResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitGetResponse>(create);
+  static OrgUnitGetResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  OrgUnitObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(OrgUnitObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  OrgUnitObject ensureData() => $_ensure(0);
+}
+
+class OrgUnitSearchRequest extends $pb.GeneratedMessage {
+  factory OrgUnitSearchRequest({
+    $core.String? query,
+    $core.String? organizationId,
+    $core.String? parentId,
+    $core.bool? rootOnly,
+    OrgUnitType? type,
+    $7.PageCursor? cursor,
+  }) {
+    final $result = create();
+    if (query != null) {
+      $result.query = query;
+    }
+    if (organizationId != null) {
+      $result.organizationId = organizationId;
+    }
+    if (parentId != null) {
+      $result.parentId = parentId;
+    }
+    if (rootOnly != null) {
+      $result.rootOnly = rootOnly;
+    }
+    if (type != null) {
+      $result.type = type;
+    }
+    if (cursor != null) {
+      $result.cursor = cursor;
+    }
+    return $result;
+  }
+  OrgUnitSearchRequest._() : super();
+  factory OrgUnitSearchRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitSearchRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'query')
+    ..aOS(2, _omitFieldNames ? '' : 'organizationId')
+    ..aOS(3, _omitFieldNames ? '' : 'parentId')
+    ..aOB(4, _omitFieldNames ? '' : 'rootOnly')
+    ..e<OrgUnitType>(5, _omitFieldNames ? '' : 'type', $pb.PbFieldType.OE, defaultOrMaker: OrgUnitType.ORG_UNIT_TYPE_UNSPECIFIED, valueOf: OrgUnitType.valueOf, enumValues: OrgUnitType.values)
+    ..aOM<$7.PageCursor>(6, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitSearchRequest clone() => OrgUnitSearchRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitSearchRequest copyWith(void Function(OrgUnitSearchRequest) updates) => super.copyWith((message) => updates(message as OrgUnitSearchRequest)) as OrgUnitSearchRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSearchRequest create() => OrgUnitSearchRequest._();
+  OrgUnitSearchRequest createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitSearchRequest> createRepeated() => $pb.PbList<OrgUnitSearchRequest>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSearchRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitSearchRequest>(create);
+  static OrgUnitSearchRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get query => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set query($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasQuery() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearQuery() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get organizationId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set organizationId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasOrganizationId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearOrganizationId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get parentId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set parentId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasParentId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearParentId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get rootOnly => $_getBF(3);
+  @$pb.TagNumber(4)
+  set rootOnly($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRootOnly() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRootOnly() => clearField(4);
+
+  @$pb.TagNumber(5)
+  OrgUnitType get type => $_getN(4);
+  @$pb.TagNumber(5)
+  set type(OrgUnitType v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasType() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearType() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $7.PageCursor get cursor => $_getN(5);
+  @$pb.TagNumber(6)
+  set cursor($7.PageCursor v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCursor() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCursor() => clearField(6);
+  @$pb.TagNumber(6)
+  $7.PageCursor ensureCursor() => $_ensure(5);
+}
+
+class OrgUnitSearchResponse extends $pb.GeneratedMessage {
+  factory OrgUnitSearchResponse({
+    $core.Iterable<OrgUnitObject>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data.addAll(data);
+    }
+    return $result;
+  }
+  OrgUnitSearchResponse._() : super();
+  factory OrgUnitSearchResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OrgUnitSearchResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OrgUnitSearchResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
+    ..pc<OrgUnitObject>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.PM, subBuilder: OrgUnitObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OrgUnitSearchResponse clone() => OrgUnitSearchResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OrgUnitSearchResponse copyWith(void Function(OrgUnitSearchResponse) updates) => super.copyWith((message) => updates(message as OrgUnitSearchResponse)) as OrgUnitSearchResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSearchResponse create() => OrgUnitSearchResponse._();
+  OrgUnitSearchResponse createEmptyInstance() => create();
+  static $pb.PbList<OrgUnitSearchResponse> createRepeated() => $pb.PbList<OrgUnitSearchResponse>();
+  @$core.pragma('dart2js:noInline')
+  static OrgUnitSearchResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OrgUnitSearchResponse>(create);
+  static OrgUnitSearchResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<OrgUnitObject> get data => $_getList(0);
 }
 
 /// Investor messages
@@ -2968,11 +3564,11 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? investorId,
     $core.String? accountName,
-    $9.Money? availableBalance,
-    $9.Money? reservedBalance,
-    $9.Money? totalDeployed,
-    $9.Money? totalReturned,
-    $9.Money? maxExposure,
+    $8.Money? availableBalance,
+    $8.Money? reservedBalance,
+    $8.Money? totalDeployed,
+    $8.Money? totalReturned,
+    $8.Money? maxExposure,
     $core.String? minInterestRate,
     $6.Struct? allowedProducts,
     $6.Struct? allowedRegions,
@@ -3033,11 +3629,11 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'investorId')
     ..aOS(3, _omitFieldNames ? '' : 'accountName')
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'availableBalance', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(6, _omitFieldNames ? '' : 'reservedBalance', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'totalDeployed', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'totalReturned', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'maxExposure', subBuilder: $9.Money.create)
+    ..aOM<$8.Money>(5, _omitFieldNames ? '' : 'availableBalance', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(6, _omitFieldNames ? '' : 'reservedBalance', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(7, _omitFieldNames ? '' : 'totalDeployed', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(8, _omitFieldNames ? '' : 'totalReturned', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(9, _omitFieldNames ? '' : 'maxExposure', subBuilder: $8.Money.create)
     ..aOS(10, _omitFieldNames ? '' : 'minInterestRate')
     ..aOM<$6.Struct>(11, _omitFieldNames ? '' : 'allowedProducts', subBuilder: $6.Struct.create)
     ..aOM<$6.Struct>(12, _omitFieldNames ? '' : 'allowedRegions', subBuilder: $6.Struct.create)
@@ -3096,59 +3692,59 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
   void clearAccountName() => clearField(3);
 
   @$pb.TagNumber(5)
-  $9.Money get availableBalance => $_getN(3);
+  $8.Money get availableBalance => $_getN(3);
   @$pb.TagNumber(5)
-  set availableBalance($9.Money v) { setField(5, v); }
+  set availableBalance($8.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasAvailableBalance() => $_has(3);
   @$pb.TagNumber(5)
   void clearAvailableBalance() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensureAvailableBalance() => $_ensure(3);
+  $8.Money ensureAvailableBalance() => $_ensure(3);
 
   @$pb.TagNumber(6)
-  $9.Money get reservedBalance => $_getN(4);
+  $8.Money get reservedBalance => $_getN(4);
   @$pb.TagNumber(6)
-  set reservedBalance($9.Money v) { setField(6, v); }
+  set reservedBalance($8.Money v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasReservedBalance() => $_has(4);
   @$pb.TagNumber(6)
   void clearReservedBalance() => clearField(6);
   @$pb.TagNumber(6)
-  $9.Money ensureReservedBalance() => $_ensure(4);
+  $8.Money ensureReservedBalance() => $_ensure(4);
 
   @$pb.TagNumber(7)
-  $9.Money get totalDeployed => $_getN(5);
+  $8.Money get totalDeployed => $_getN(5);
   @$pb.TagNumber(7)
-  set totalDeployed($9.Money v) { setField(7, v); }
+  set totalDeployed($8.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasTotalDeployed() => $_has(5);
   @$pb.TagNumber(7)
   void clearTotalDeployed() => clearField(7);
   @$pb.TagNumber(7)
-  $9.Money ensureTotalDeployed() => $_ensure(5);
+  $8.Money ensureTotalDeployed() => $_ensure(5);
 
   @$pb.TagNumber(8)
-  $9.Money get totalReturned => $_getN(6);
+  $8.Money get totalReturned => $_getN(6);
   @$pb.TagNumber(8)
-  set totalReturned($9.Money v) { setField(8, v); }
+  set totalReturned($8.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasTotalReturned() => $_has(6);
   @$pb.TagNumber(8)
   void clearTotalReturned() => clearField(8);
   @$pb.TagNumber(8)
-  $9.Money ensureTotalReturned() => $_ensure(6);
+  $8.Money ensureTotalReturned() => $_ensure(6);
 
   @$pb.TagNumber(9)
-  $9.Money get maxExposure => $_getN(7);
+  $8.Money get maxExposure => $_getN(7);
   @$pb.TagNumber(9)
-  set maxExposure($9.Money v) { setField(9, v); }
+  set maxExposure($8.Money v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasMaxExposure() => $_has(7);
   @$pb.TagNumber(9)
   void clearMaxExposure() => clearField(9);
   @$pb.TagNumber(9)
-  $9.Money ensureMaxExposure() => $_ensure(7);
+  $8.Money ensureMaxExposure() => $_ensure(7);
 
   @$pb.TagNumber(10)
   $core.String get minInterestRate => $_getSZ(8);
@@ -3546,7 +4142,7 @@ class InvestorAccountSearchResponse extends $pb.GeneratedMessage {
 class InvestorDepositRequest extends $pb.GeneratedMessage {
   factory InvestorDepositRequest({
     $core.String? accountId,
-    $9.Money? amount,
+    $8.Money? amount,
   }) {
     final $result = create();
     if (accountId != null) {
@@ -3563,7 +4159,7 @@ class InvestorDepositRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'InvestorDepositRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'accountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$8.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $8.Money.create)
     ..hasRequiredFields = false
   ;
 
@@ -3598,15 +4194,15 @@ class InvestorDepositRequest extends $pb.GeneratedMessage {
   void clearAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $8.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($8.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $8.Money ensureAmount() => $_ensure(1);
 }
 
 class InvestorDepositResponse extends $pb.GeneratedMessage {
@@ -3664,7 +4260,7 @@ class InvestorDepositResponse extends $pb.GeneratedMessage {
 class InvestorWithdrawRequest extends $pb.GeneratedMessage {
   factory InvestorWithdrawRequest({
     $core.String? accountId,
-    $9.Money? amount,
+    $8.Money? amount,
   }) {
     final $result = create();
     if (accountId != null) {
@@ -3681,7 +4277,7 @@ class InvestorWithdrawRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'InvestorWithdrawRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'accountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$8.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $8.Money.create)
     ..hasRequiredFields = false
   ;
 
@@ -3716,15 +4312,15 @@ class InvestorWithdrawRequest extends $pb.GeneratedMessage {
   void clearAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $8.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($8.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $8.Money ensureAmount() => $_ensure(1);
 }
 
 class InvestorWithdrawResponse extends $pb.GeneratedMessage {
@@ -4998,6 +5594,15 @@ class IdentityServiceApi {
   ;
   $async.Future<OrganizationSearchResponse> organizationSearch($pb.ClientContext? ctx, $7.SearchRequest request) =>
     _client.invoke<OrganizationSearchResponse>(ctx, 'IdentityService', 'OrganizationSearch', request, OrganizationSearchResponse())
+  ;
+  $async.Future<OrgUnitSaveResponse> orgUnitSave($pb.ClientContext? ctx, OrgUnitSaveRequest request) =>
+    _client.invoke<OrgUnitSaveResponse>(ctx, 'IdentityService', 'OrgUnitSave', request, OrgUnitSaveResponse())
+  ;
+  $async.Future<OrgUnitGetResponse> orgUnitGet($pb.ClientContext? ctx, OrgUnitGetRequest request) =>
+    _client.invoke<OrgUnitGetResponse>(ctx, 'IdentityService', 'OrgUnitGet', request, OrgUnitGetResponse())
+  ;
+  $async.Future<OrgUnitSearchResponse> orgUnitSearch($pb.ClientContext? ctx, OrgUnitSearchRequest request) =>
+    _client.invoke<OrgUnitSearchResponse>(ctx, 'IdentityService', 'OrgUnitSearch', request, OrgUnitSearchResponse())
   ;
   $async.Future<BranchSaveResponse> branchSave($pb.ClientContext? ctx, BranchSaveRequest request) =>
     _client.invoke<BranchSaveResponse>(ctx, 'IdentityService', 'BranchSave', request, BranchSaveResponse())

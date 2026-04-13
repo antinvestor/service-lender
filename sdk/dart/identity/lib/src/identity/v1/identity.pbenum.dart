@@ -43,6 +43,32 @@ class OrganizationType extends $pb.ProtobufEnum {
   const OrganizationType._($core.int v, $core.String n) : super(v, n);
 }
 
+/// OrgUnitType defines the typed hierarchy under an organization.
+class OrgUnitType extends $pb.ProtobufEnum {
+  static const OrgUnitType ORG_UNIT_TYPE_UNSPECIFIED = OrgUnitType._(0, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_UNSPECIFIED');
+  static const OrgUnitType ORG_UNIT_TYPE_REGION = OrgUnitType._(1, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_REGION');
+  static const OrgUnitType ORG_UNIT_TYPE_ZONE = OrgUnitType._(2, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_ZONE');
+  static const OrgUnitType ORG_UNIT_TYPE_AREA = OrgUnitType._(3, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_AREA');
+  static const OrgUnitType ORG_UNIT_TYPE_CLUSTER = OrgUnitType._(4, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_CLUSTER');
+  static const OrgUnitType ORG_UNIT_TYPE_BRANCH = OrgUnitType._(5, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_BRANCH');
+  static const OrgUnitType ORG_UNIT_TYPE_OTHER = OrgUnitType._(6, _omitEnumNames ? '' : 'ORG_UNIT_TYPE_OTHER');
+
+  static const $core.List<OrgUnitType> values = <OrgUnitType> [
+    ORG_UNIT_TYPE_UNSPECIFIED,
+    ORG_UNIT_TYPE_REGION,
+    ORG_UNIT_TYPE_ZONE,
+    ORG_UNIT_TYPE_AREA,
+    ORG_UNIT_TYPE_CLUSTER,
+    ORG_UNIT_TYPE_BRANCH,
+    ORG_UNIT_TYPE_OTHER,
+  ];
+
+  static final $core.Map<$core.int, OrgUnitType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static OrgUnitType? valueOf($core.int value) => _byValue[value];
+
+  const OrgUnitType._($core.int v, $core.String n) : super(v, n);
+}
+
 /// SystemUserRole defines the role a system user plays in the lending workflow.
 class SystemUserRole extends $pb.ProtobufEnum {
   static const SystemUserRole SYSTEM_USER_ROLE_UNSPECIFIED = SystemUserRole._(0, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_UNSPECIFIED');

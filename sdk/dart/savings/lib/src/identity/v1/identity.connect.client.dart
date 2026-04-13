@@ -8,7 +8,7 @@ import "identity.pb.dart" as identityv1identity;
 import "identity.connect.spec.dart" as specs;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages organizations, branches, and system users for the platform.
+/// IdentityService manages organizations, org units, and system users for the platform.
 /// All RPCs require authentication via Bearer token.
 extension type IdentityServiceClient (connect.Transport _transport) {
   /// OrganizationSave creates or updates an organization record.
@@ -65,7 +65,62 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BranchSave creates or updates a branch record.
+  /// OrgUnitSave creates or updates a hierarchical org unit record.
+  Future<identityv1identity.OrgUnitSaveResponse> orgUnitSave(
+    identityv1identity.OrgUnitSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.orgUnitSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// OrgUnitGet retrieves an org unit by its ID.
+  Future<identityv1identity.OrgUnitGetResponse> orgUnitGet(
+    identityv1identity.OrgUnitGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.orgUnitGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// OrgUnitSearch finds org units matching search criteria.
+  Stream<identityv1identity.OrgUnitSearchResponse> orgUnitSearch(
+    identityv1identity.OrgUnitSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.orgUnitSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// BranchSave creates or updates a legacy leaf branch record.
+  /// Prefer OrgUnitSave with type BRANCH for new integrations.
   Future<identityv1identity.BranchSaveResponse> branchSave(
     identityv1identity.BranchSaveRequest input, {
     connect.Headers? headers,
@@ -83,7 +138,7 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BranchGet retrieves a branch by its ID.
+  /// BranchGet retrieves a legacy leaf branch by its ID.
   Future<identityv1identity.BranchGetResponse> branchGet(
     identityv1identity.BranchGetRequest input, {
     connect.Headers? headers,
@@ -101,7 +156,7 @@ extension type IdentityServiceClient (connect.Transport _transport) {
     );
   }
 
-  /// BranchSearch finds branches matching search criteria.
+  /// BranchSearch finds legacy leaf branches matching search criteria.
   Stream<identityv1identity.BranchSearchResponse> branchSearch(
     identityv1identity.BranchSearchRequest input, {
     connect.Headers? headers,

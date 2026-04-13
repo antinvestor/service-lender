@@ -19,7 +19,7 @@ package identity.v1;
 // -----------------------------------------------------
 // Core notes (normative):
 // - Identity Service manages the organizational backbone of the system
-// - Manages Organizations (partition mappings), Branches (sub-partitions with geo areas),
+// - Manages Organizations (partition mappings), Org Units (hierarchical sub-partitions with geo areas),
 //   and System Users (verifiers, approvers, administrators, auditors)
 // - Integrates with Profile and Partition ecosystem services
 // - All timestamps are RFC3339 / google.protobuf.Timestamp
@@ -39,7 +39,7 @@ option (gnostic.openapi.v3.document) = {
   info: {
     title: "Identity Service"
     version: "v1.0.0"
-    description: "The Identity Service manages the organizational backbone of the system including organizations, branches, and system users. Organizations map to partitions, branches represent sub-divisions with geographic areas, and system users are assigned roles for processing workflows."
+    description: "The Identity Service manages the organizational backbone of the system including organizations, hierarchical org units, and system users. Organizations map to partitions, org units represent typed sub-divisions with optional parent-child relationships, and system users are assigned roles for processing workflows."
     contact: {
       name: "Ant Investor Ltd"
       url: "https://github.com/antinvestor/service-fintech"
@@ -83,6 +83,17 @@ enum OrganizationType {
   ORGANIZATION_TYPE_NGO = 6; // Non-governmental organization
   ORGANIZATION_TYPE_GOVERNMENT = 7; // Government lending program
   ORGANIZATION_TYPE_OTHER = 8; // Other organization type
+}
+
+// OrgUnitType defines the typed hierarchy under an organization.
+enum OrgUnitType {
+  ORG_UNIT_TYPE_UNSPECIFIED = 0;
+  ORG_UNIT_TYPE_REGION = 1;
+  ORG_UNIT_TYPE_ZONE = 2;
+  ORG_UNIT_TYPE_AREA = 3;
+  ORG_UNIT_TYPE_CLUSTER = 4;
+  ORG_UNIT_TYPE_BRANCH = 5;
+  ORG_UNIT_TYPE_OTHER = 6;
 }
 
 // SystemUserRole defines the role a system user plays in the lending workflow.
@@ -137,9 +148,53 @@ message OrganizationObject {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ]; // OAuth client ID for partition-scoped login (synced to Hydra)
+  string geo_id = 10 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Geographic area identifier describing the organization's coverage
 }
 
-// BranchObject represents a branch within an organization, mapped to a child partition with a geographic area.
+// OrgUnitObject represents a typed hierarchical unit within an organization.
+// Org units can form a tree such as Region -> Zone -> Area -> Cluster -> Branch.
+message OrgUnitObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Root organization ID
+  string parent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional parent org unit ID
+  string partition_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Partition this org unit maps to
+  string name = 5 [(buf.validate.field).string.min_len = 1]; // Display name
+  string code = 6 [(buf.validate.field).string.min_len = 1]; // Unique short code
+  string geo_id = 7 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Geographic area identifier
+  common.v1.STATE state = 8; // Current state
+  OrgUnitType type = 9; // Typed hierarchy level
+  google.protobuf.Struct properties = 10; // Additional metadata
+  string client_id = 11 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // OAuth client ID for partition-scoped login (synced to Hydra)
+  bool has_children = 12; // Derived field indicating whether child units exist
+}
+
+// BranchObject is the legacy leaf-unit compatibility view.
+// Canonical hierarchy management should use OrgUnitObject with type BRANCH.
 message BranchObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -275,6 +330,48 @@ message BranchSearchRequest {
 
 message BranchSearchResponse {
   repeated BranchObject data = 1;
+}
+
+// Org unit messages
+message OrgUnitSaveRequest {
+  OrgUnitObject data = 1 [(buf.validate.field).required = true];
+}
+
+message OrgUnitSaveResponse {
+  OrgUnitObject data = 1;
+}
+
+message OrgUnitGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message OrgUnitGetResponse {
+  OrgUnitObject data = 1;
+}
+
+message OrgUnitSearchRequest {
+  string query = 1; // Free-text search
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by organization
+  string parent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ]; // Optional filter by direct parent
+  bool root_only = 4; // When true, returns only top-level org units with no parent
+  OrgUnitType type = 5; // Optional type filter
+  common.v1.PageCursor cursor = 6; // Pagination
+}
+
+message OrgUnitSearchResponse {
+  repeated OrgUnitObject data = 1;
 }
 
 // Investor messages
@@ -731,7 +828,7 @@ message ClientDataHistoryResponse {
 // Identity Service
 // -----------------------------------------------------
 
-// IdentityService manages organizations, branches, and system users for the platform.
+// IdentityService manages organizations, org units, and system users for the platform.
 // All RPCs require authentication via Bearer token.
 service IdentityService {
   option (common.v1.service_permissions) = {
@@ -911,7 +1008,49 @@ service IdentityService {
     };
   }
 
-  // BranchSave creates or updates a branch record.
+  // OrgUnitSave creates or updates a hierarchical org unit record.
+  rpc OrgUnitSave(OrgUnitSaveRequest) returns (OrgUnitSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["branch_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "orgUnitSave"
+      summary: "Create or update an org unit"
+      description: "Creates a new org unit or updates an existing one. Org units are typed hierarchical sub-divisions of organizations."
+      tags: "Org Units"
+    };
+  }
+
+  // OrgUnitGet retrieves an org unit by its ID.
+  rpc OrgUnitGet(OrgUnitGetRequest) returns (OrgUnitGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["branch_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "orgUnitGet"
+      summary: "Get an org unit by ID"
+      description: "Retrieves an org unit record by its unique identifier."
+      tags: "Org Units"
+    };
+  }
+
+  // OrgUnitSearch finds org units matching search criteria.
+  rpc OrgUnitSearch(OrgUnitSearchRequest) returns (stream OrgUnitSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["branch_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "orgUnitSearch"
+      summary: "Search org units"
+      description: "Searches for org units matching specified criteria. Supports filtering by organization, parent unit, root units, and type."
+      tags: "Org Units"
+    };
+  }
+
+  // BranchSave creates or updates a legacy leaf branch record.
+  // Prefer OrgUnitSave with type BRANCH for new integrations.
   rpc BranchSave(BranchSaveRequest) returns (BranchSaveResponse) {
     option (common.v1.method_permissions) = {
       permissions: ["branch_manage"]
@@ -924,7 +1063,7 @@ service IdentityService {
     };
   }
 
-  // BranchGet retrieves a branch by its ID.
+  // BranchGet retrieves a legacy leaf branch by its ID.
   rpc BranchGet(BranchGetRequest) returns (BranchGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (common.v1.method_permissions) = {
@@ -938,7 +1077,7 @@ service IdentityService {
     };
   }
 
-  // BranchSearch finds branches matching search criteria.
+  // BranchSearch finds legacy leaf branches matching search criteria.
   rpc BranchSearch(BranchSearchRequest) returns (stream BranchSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (common.v1.method_permissions) = {

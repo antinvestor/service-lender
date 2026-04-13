@@ -116,6 +116,7 @@ func setupServiceOptions(
 	partitionCli tenancyv1connect.TenancyServiceClient,
 ) []frame.Option {
 	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
+	orgUnitRepo := repository.NewOrgUnitRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
 	agentBranchRepo := repository.NewAgentBranchRepository(ctx, dbPool, workMan)
@@ -141,6 +142,9 @@ func setupServiceOptions(
 	)
 	approvalCaseBusiness := business.NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo, approvalCaseNotifier)
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
+	orgUnitBusiness := business.NewOrgUnitBusiness(
+		ctx, evtsMan, organizationRepo, orgUnitRepo, partitionCli, approvalCaseBusiness,
+	)
 	branchBusiness := business.NewBranchBusiness(
 		ctx, evtsMan, organizationRepo, branchRepo, partitionCli, approvalCaseBusiness,
 	)
@@ -171,7 +175,7 @@ func setupServiceOptions(
 
 	connectHandler := setupConnectServer(
 		ctx, sm,
-		organizationBusiness, branchBusiness, agentBusiness, clientBusiness,
+		organizationBusiness, orgUnitBusiness, branchBusiness, agentBusiness, clientBusiness,
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
 		loginClientBusiness, clientDataBusiness,
 	)
@@ -252,6 +256,7 @@ func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
 	organizationBusiness business.OrganizationBusiness,
+	orgUnitBusiness business.OrgUnitBusiness,
 	branchBusiness business.BranchBusiness,
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
@@ -265,6 +270,7 @@ func setupConnectServer(
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
 		organizationBusiness,
+		orgUnitBusiness,
 		branchBusiness,
 		groupBusiness,
 		membershipBusiness,

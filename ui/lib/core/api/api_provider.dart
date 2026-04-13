@@ -13,6 +13,8 @@ import '../../sdk/src/loans/v1/loans.connect.client.dart';
 import '../../sdk/src/savings/v1/savings.connect.client.dart';
 import '../../sdk/src/funding/v1/funding.connect.client.dart';
 import '../../sdk/src/operations/v1/operations.connect.client.dart';
+import 'package:antinvestor_api_geolocation/antinvestor_api_geolocation.dart'
+    show GeolocationServiceClient;
 import 'package:antinvestor_api_profile/antinvestor_api_profile.dart'
     show ProfileServiceClient;
 import 'package:antinvestor_api_notification/antinvestor_api_notification.dart'
@@ -76,6 +78,11 @@ const _notificationUrl = String.fromEnvironment(
 const _tenancyUrl = String.fromEnvironment(
   'TENANCY_URL',
   defaultValue: 'https://api.stawi.org/tenancy',
+);
+
+const _geolocationUrl = String.fromEnvironment(
+  'GEOLOCATION_URL',
+  defaultValue: 'https://api.stawi.org/geolocation',
 );
 
 /// Interceptor that injects the Bearer token into every request.
@@ -221,6 +228,10 @@ Transport fundingTransport(Ref ref) => _createTransport(ref, _fundingUrl);
 @Riverpod(keepAlive: true)
 Transport operationsTransport(Ref ref) => _createTransport(ref, _operationsUrl);
 
+@Riverpod(keepAlive: true)
+Transport geolocationTransport(Ref ref) =>
+    _createTransport(ref, _geolocationUrl);
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Service clients
 // ─────────────────────────────────────────────────────────────────────────────
@@ -235,6 +246,12 @@ IdentityServiceClient identityServiceClient(Ref ref) {
 FieldServiceClient fieldServiceClient(Ref ref) {
   final transport = ref.watch(identityTransportProvider);
   return FieldServiceClient(transport);
+}
+
+@Riverpod(keepAlive: true)
+GeolocationServiceClient geolocationServiceClient(Ref ref) {
+  final transport = ref.watch(geolocationTransportProvider);
+  return GeolocationServiceClient(transport);
 }
 
 @Riverpod(keepAlive: true)

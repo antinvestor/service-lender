@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
@@ -57,6 +58,9 @@ func (b *organizationBusiness) Save(
 
 	isNew := obj.GetId() == ""
 	organization := models.OrganizationFromAPI(ctx, obj)
+	if strings.TrimSpace(organization.GeoID) == "" {
+		return nil, ErrCoverageAreaRequired
+	}
 
 	if isNew && organization.State == 0 {
 		organization.State = int32(commonv1.STATE_CREATED.Number())

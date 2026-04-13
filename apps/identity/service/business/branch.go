@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
@@ -75,6 +76,9 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 		}
 		return result, nil
 	}
+	if strings.TrimSpace(branch.GeoID) == "" {
+		return nil, ErrCoverageAreaRequired
+	}
 
 	if isNew && branch.State == 0 {
 		branch.State = int32(commonv1.STATE_CREATED.Number())
@@ -92,6 +96,9 @@ func (b *branchBusiness) Save(ctx context.Context, obj *identityv1.BranchObject)
 	existing, err := b.branchRepo.GetByID(ctx, branch.GetID())
 	if err != nil {
 		logger.WithError(err).Warn("branch not found for update")
+		return nil, ErrBranchNotFound
+	}
+	if existing.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
 		return nil, ErrBranchNotFound
 	}
 	branch.TenantID = existing.TenantID
@@ -162,6 +169,9 @@ func (b *branchBusiness) handleApprovalAction(
 	existing, err := b.branchRepo.GetByID(ctx, branch.GetID())
 	if err != nil {
 		logger.WithError(err).Warn("branch not found for approval action")
+		return nil, ErrBranchNotFound
+	}
+	if existing.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
 		return nil, ErrBranchNotFound
 	}
 
@@ -317,6 +327,9 @@ func (b *branchBusiness) Get(ctx context.Context, id string) (*identityv1.Branch
 	if err != nil {
 		return nil, ErrBranchNotFound
 	}
+	if branch.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
+		return nil, ErrBranchNotFound
+	}
 	return branch.ToAPI(), nil
 }
 
@@ -340,6 +353,7 @@ func (b *branchBusiness) Search(
 	}
 
 	andQueryVal := map[string]any{}
+	andQueryVal["unit_type = ?"] = int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH)
 	if req.GetOrganizationId() != "" {
 		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
 	}

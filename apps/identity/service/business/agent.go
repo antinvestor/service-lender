@@ -6,6 +6,7 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -260,6 +261,9 @@ func (b *agentBusiness) SaveBranch(ctx context.Context, ab *models.AgentBranch) 
 	// Validate branch exists and belongs to agent's organization
 	branch, err := b.branchRepo.GetByID(ctx, ab.BranchID)
 	if err != nil {
+		return nil, ErrBranchNotFound
+	}
+	if branch.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
 		return nil, ErrBranchNotFound
 	}
 	if branch.OrganizationID != agent.OrganizationID {

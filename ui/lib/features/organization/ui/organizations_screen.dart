@@ -13,6 +13,7 @@ import '../../../core/widgets/state_badge.dart';
 import '../../../features/auth/data/auth_repository.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
+import '../../geography/ui/coverage_area_field.dart';
 import '../data/organization_providers.dart';
 
 class OrganizationsScreen extends ConsumerStatefulWidget {
@@ -69,9 +70,8 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
       detailBuilder: (id) => OrganizationDetailScreen(organizationId: id),
       onNavigate: (id) => context.go('/organization/organizations/$id'),
       emptyDetailMessage: 'Select an organization to view details',
-      itemBuilder: (context, organization) => _OrganizationCard(
-        organization: organization,
-      ),
+      itemBuilder: (context, organization) =>
+          _OrganizationCard(organization: organization),
     );
   }
 
@@ -173,6 +173,9 @@ class _OrganizationFormDialogState
   late final TextEditingController _codeCtrl;
   late STATE _selectedState;
   late OrganizationType _orgType;
+  late String _selectedGeoId;
+  String? _selectedGeoName;
+  String? _geoErrorText;
   bool _saving = false;
 
   bool get _isEditing => widget.organization != null;
@@ -186,6 +189,7 @@ class _OrganizationFormDialogState
     _orgType =
         widget.organization?.organizationType ??
         OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED;
+    _selectedGeoId = widget.organization?.geoId ?? '';
   }
 
   @override
@@ -197,6 +201,10 @@ class _OrganizationFormDialogState
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedGeoId.isEmpty) {
+      setState(() => _geoErrorText = 'Coverage area is required');
+      return;
+    }
 
     setState(() => _saving = true);
 
@@ -210,6 +218,7 @@ class _OrganizationFormDialogState
       state: _selectedState,
       organizationType: _orgType,
       partitionId: widget.organization?.partitionId ?? partitionId,
+      geoId: _selectedGeoId,
     );
 
     // Preserve backend-managed fields when editing.
@@ -385,6 +394,17 @@ class _OrganizationFormDialogState
                       }
                     },
                   ),
+                ),
+                CoverageAreaField(
+                  selectedAreaId: _selectedGeoId,
+                  selectedAreaName: _selectedGeoName,
+                  errorText: _geoErrorText,
+                  enabled: !_saving,
+                  onSelected: (area) => setState(() {
+                    _selectedGeoId = area?.id ?? '';
+                    _selectedGeoName = area?.name;
+                    _geoErrorText = null;
+                  }),
                 ),
                 FormFieldCard(
                   label: 'Status',

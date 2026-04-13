@@ -7,6 +7,7 @@ import (
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	identitycommonv1 "github.com/antinvestor/common/v1"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util/decimalx"
 	money "google.golang.org/genproto/googleapis/type/money"
@@ -66,6 +67,7 @@ type Organization struct {
 	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
 	ProfileID  string `gorm:"type:varchar(50)"`
 	ClientID   string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
+	GeoID      string `gorm:"type:varchar(50)"`
 	State      int32
 	Properties data.JSONMap
 }
@@ -79,9 +81,10 @@ func (m *Organization) ToAPI() *identityv1.OrganizationObject {
 		Name:        m.Name,
 		Code:        m.Code,
 		ProfileId:   m.ProfileID,
-		State:       commonv1.STATE(m.State),
+		State:       identitycommonv1.STATE(m.State),
 		Properties:  m.Properties.ToProtoStruct(),
 		ClientId:    m.ClientID,
+		GeoId:       m.GeoID,
 	}
 }
 
@@ -95,6 +98,7 @@ func OrganizationFromAPI(ctx context.Context, obj *identityv1.OrganizationObject
 		Code:      obj.GetCode(),
 		ProfileID: obj.GetProfileId(),
 		ClientID:  obj.GetClientId(),
+		GeoID:     obj.GetGeoId(),
 		State:     int32(obj.GetState()),
 	}
 
@@ -111,19 +115,22 @@ func OrganizationFromAPI(ctx context.Context, obj *identityv1.OrganizationObject
 	return model
 }
 
-// Branch represents a branch within an organization, mapped to a child partition with a geographic area.
+// Branch is the legacy leaf-unit compatibility model backed by the org_units table.
+// Canonical hierarchy management should use OrgUnitObject with UnitType set explicitly.
 type Branch struct {
 	data.BaseModel
 	OrganizationID string `gorm:"type:varchar(50);index:idx_branch_organization"`
+	ParentID       string `gorm:"type:varchar(50);index:idx_org_unit_parent"`
 	Name           string `gorm:"type:varchar(255)"`
 	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
 	GeoID          string `gorm:"type:varchar(50)"`
+	UnitType       int32  `gorm:"column:unit_type;index:idx_org_unit_type"`
 	ClientID       string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
 	State          int32
 	Properties     data.JSONMap
 }
 
-func (m *Branch) TableName() string { return "branches" }
+func (m *Branch) TableName() string { return "org_units" }
 
 func (m *Branch) ToAPI() *identityv1.BranchObject {
 	return &identityv1.BranchObject{
@@ -133,9 +140,26 @@ func (m *Branch) ToAPI() *identityv1.BranchObject {
 		Name:           m.Name,
 		Code:           m.Code,
 		GeoId:          m.GeoID,
-		State:          commonv1.STATE(m.State),
+		State:          identitycommonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 		ClientId:       m.ClientID,
+	}
+}
+
+func (m *Branch) ToOrgUnitAPI(hasChildren bool) *identityv1.OrgUnitObject {
+	return &identityv1.OrgUnitObject{
+		Id:             m.GetID(),
+		OrganizationId: m.OrganizationID,
+		ParentId:       m.ParentID,
+		PartitionId:    m.PartitionID,
+		Name:           m.Name,
+		Code:           m.Code,
+		GeoId:          m.GeoID,
+		State:          identitycommonv1.STATE(m.State),
+		Type:           identityv1.OrgUnitType(m.UnitType),
+		Properties:     m.Properties.ToProtoStruct(),
+		ClientId:       m.ClientID,
+		HasChildren:    hasChildren,
 	}
 }
 
@@ -149,6 +173,36 @@ func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
 		Name:           obj.GetName(),
 		Code:           obj.GetCode(),
 		GeoID:          obj.GetGeoId(),
+		UnitType:       int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH),
+		ClientID:       obj.GetClientId(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.PartitionID = obj.GetPartitionId()
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+func OrgUnitFromAPI(ctx context.Context, obj *identityv1.OrgUnitObject) *Branch {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Branch{
+		OrganizationID: obj.GetOrganizationId(),
+		ParentID:       obj.GetParentId(),
+		Name:           obj.GetName(),
+		Code:           obj.GetCode(),
+		GeoID:          obj.GetGeoId(),
+		UnitType:       int32(obj.GetType()),
 		ClientID:       obj.GetClientId(),
 		State:          int32(obj.GetState()),
 	}
@@ -498,7 +552,7 @@ func (m *ClientGroup) ToAPI() *identityv1.ClientGroupObject {
 		TimeZone:     m.TimeZone,
 		MinMembers:   m.MinMembers,
 		MaxMembers:   m.MaxMembers,
-		State:        commonv1.STATE(m.State),
+		State:        identitycommonv1.STATE(m.State),
 		Properties:   m.Properties.ToProtoStruct(),
 	}
 }
@@ -568,7 +622,7 @@ func (m *Membership) ToAPI() *identityv1.MembershipObject {
 		Role:           m.Role,
 		MembershipType: m.MembershipType,
 		OrderNo:        m.OrderNo,
-		State:          commonv1.STATE(m.State),
+		State:          identitycommonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -628,7 +682,7 @@ func (m *Investor) ToAPI() *identityv1.InvestorObject {
 		Id:         m.GetID(),
 		ProfileId:  m.ProfileID,
 		Name:       m.Name,
-		State:      commonv1.STATE(m.State),
+		State:      identitycommonv1.STATE(m.State),
 		Properties: m.Properties.ToProtoStruct(),
 	}
 }
@@ -676,7 +730,7 @@ func (m *SystemUser) ToAPI() *identityv1.SystemUserObject {
 		BranchId:         m.BranchID,
 		Role:             identityv1.SystemUserRole(m.Role),
 		ServiceAccountId: m.ServiceAccountID,
-		State:            commonv1.STATE(m.State),
+		State:            identitycommonv1.STATE(m.State),
 		Properties:       m.Properties.ToProtoStruct(),
 	}
 }

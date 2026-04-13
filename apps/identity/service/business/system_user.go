@@ -51,9 +51,13 @@ func (b *systemUserBusiness) Save(
 	logger := util.Log(ctx).WithField("method", "SystemUserBusiness.Save")
 
 	// Validate branch exists
-	_, err := b.branchRepo.GetByID(ctx, obj.GetBranchId())
+	branch, err := b.branchRepo.GetByID(ctx, obj.GetBranchId())
 	if err != nil {
 		logger.WithError(err).Warn("branch not found for system user")
+		return nil, ErrBranchNotFound
+	}
+	if branch.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
+		logger.Warn("org unit is not a branch for system user")
 		return nil, ErrBranchNotFound
 	}
 

@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_provider.dart';
 import '../../../core/auth/role_provider.dart';
-import '../../../core/widgets/form_field_card.dart';
+import '../../../core/widgets/dynamic_form.dart' show mapToStruct, structToMap;
 import '../../../core/widgets/state_badge.dart';
-import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
+import '../../auth/data/auth_repository.dart';
+import '../../geography/ui/coverage_area_field.dart';
+import '../data/org_unit_providers.dart';
 import '../data/organization_providers.dart';
-import '../data/branch_providers.dart';
+import 'org_unit_form_dialog.dart';
 import 'organizations_screen.dart';
 
 class OrganizationDetailScreen extends ConsumerWidget {
@@ -79,11 +81,16 @@ class _OrganizationDetailContentState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final branchesAsync = ref.watch(branchListProvider('', _organization.id));
+    final orgUnitsAsync = ref.watch(
+      orgUnitListProvider(
+        organizationId: _organization.id,
+        rootOnly: true,
+        query: '',
+      ),
+    );
 
     return CustomScrollView(
       slivers: [
-        // Back + title
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -128,8 +135,6 @@ class _OrganizationDetailContentState
             ),
           ),
         ),
-
-        // Login URL card (shown when org has a client_id)
         if (_organization.clientId.isNotEmpty)
           SliverToBoxAdapter(
             child: Padding(
@@ -140,7 +145,11 @@ class _OrganizationDetailContentState
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(Icons.link, color: theme.colorScheme.primary, size: 20),
+                      Icon(
+                        Icons.link,
+                        color: theme.colorScheme.primary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -166,8 +175,8 @@ class _OrganizationDetailContentState
                         icon: const Icon(Icons.copy, size: 18),
                         tooltip: 'Copy login URL',
                         onPressed: () {
-                          final url = '${Uri.base.origin}/login/${_organization.clientId}';
-                          // ignore: deprecated_member_use
+                          final url =
+                              '${Uri.base.origin}/login/${_organization.clientId}';
                           Clipboard.setData(ClipboardData(text: url));
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Login URL copied')),
@@ -180,22 +189,27 @@ class _OrganizationDetailContentState
               ),
             ),
           ),
-
-        // Branches section header
+        if (_organization.geoId.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: CoverageAreaSummary(areaId: _organization.geoId),
+            ),
+          ),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Row(
               children: [
                 Icon(
-                  Icons.store_outlined,
+                  Icons.account_tree_outlined,
                   size: 20,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Branches',
+                    'Top-Level Org Units',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -203,93 +217,69 @@ class _OrganizationDetailContentState
                 ),
                 if (widget.canManage)
                   FilledButton.icon(
-                    onPressed: () => _showBranchDialog(context),
+                    onPressed: () => _showOrgUnitDialog(context),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add Branch'),
+                    label: const Text('Add Org Unit'),
                   ),
               ],
             ),
           ),
         ),
-
-        // Branches list
-        branchesAsync.when(
+        orgUnitsAsync.when(
           loading: () => const SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(),
-              ),
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator()),
             ),
           ),
           error: (error, _) => SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  children: [
-                    Text('Failed to load branches: $error'),
-                    const SizedBox(height: 8),
-                    FilledButton.tonal(
-                      onPressed: () => ref.invalidate(
-                        branchListProvider('', _organization.id),
-                      ),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text('Failed to load org units: $error'),
             ),
           ),
-          data: (branches) {
-            if (branches.isEmpty) {
-              return SliverToBoxAdapter(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(48),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.store_outlined,
-                          size: 48,
-                          color: theme.colorScheme.onSurface.withAlpha(80),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No branches yet',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withAlpha(140),
-                          ),
-                        ),
-                        if (widget.canManage) ...[
-                          const SizedBox(height: 12),
-                          FilledButton.icon(
-                            onPressed: () => _showBranchDialog(context),
-                            icon: const Icon(Icons.add, size: 18),
-                            label: const Text('Add Branch'),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+          data: (orgUnits) {
+            if (orgUnits.isEmpty) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  child: Text('No org units yet'),
                 ),
               );
             }
-
-            return SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final branch = branches[index];
-                  return _BranchCard(
-                    branch: branch,
-                    organizationId: _organization.id,
-                    onEdit: widget.canManage
-                        ? () => _showBranchDialog(context, branch: branch)
-                        : null,
-                  );
-                }, childCount: branches.length),
-              ),
+            return SliverList.builder(
+              itemCount: orgUnits.length,
+              itemBuilder: (context, index) {
+                final orgUnit = orgUnits[index];
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  child: Card(
+                    child: ListTile(
+                      leading: Icon(
+                        orgUnit.type == OrgUnitType.ORG_UNIT_TYPE_BRANCH
+                            ? Icons.store_outlined
+                            : Icons.account_tree_outlined,
+                      ),
+                      title: Text(orgUnit.name),
+                      subtitle: Text(orgUnitTypeLabel(orgUnit.type)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (orgUnit.hasChildren)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: Icon(Icons.subdirectory_arrow_right),
+                            ),
+                          StateBadge(state: orgUnit.state),
+                        ],
+                      ),
+                      onTap: () => context.go(
+                        '/organization/organizations/${_organization.id}/org-units/${orgUnit.id}',
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -297,374 +287,71 @@ class _OrganizationDetailContentState
     );
   }
 
-  void _editOrganization(BuildContext context) {
-    showDialog<void>(
+  Future<void> _editOrganization(BuildContext context) async {
+    final result = await showDialog<OrganizationObject>(
       context: context,
-      builder: (dialogContext) => OrganizationFormDialog(
+      builder: (context) => OrganizationFormDialog(
         organization: _organization,
-        onSave: (updated) async {
-          final saved = await ref
-              .read(organizationProvider.notifier)
-              .save(updated);
-          if (!mounted) return;
-          setState(() => _organization = saved);
-          ScaffoldMessenger.of(this.context).showSnackBar(
-            const SnackBar(content: Text('Organization updated successfully')),
-          );
-        },
+        onSave: (updated) async {},
       ),
     );
-  }
-
-  Future<void> _showBranchDialog(
-    BuildContext context, {
-    BranchObject? branch,
-  }) async {
-    final result = await showDialog<BranchObject>(
-      context: context,
-      builder: (context) =>
-          BranchFormDialog(branch: branch, organizationId: _organization.id),
-    );
-    if (result == null || !mounted) return;
+    if (result == null || !context.mounted) return;
 
     try {
-      await ref.read(branchProvider.notifier).save(result);
+      await ref.read(organizationProvider.notifier).save(result);
       if (!context.mounted) return;
+      setState(() => _organization = result);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            branch == null
-                ? 'Branch created successfully'
-                : 'Branch updated successfully',
-          ),
-        ),
+        const SnackBar(content: Text('Organization updated successfully')),
       );
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to save branch: $e'),
+          content: Text('Failed to save organization: $e'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
   }
-}
 
-// ---------------------------------------------------------------------------
-// Branch card
-// ---------------------------------------------------------------------------
-
-class _BranchCard extends StatelessWidget {
-  const _BranchCard({
-    required this.branch,
-    required this.organizationId,
-    this.onEdit,
-  });
-
-  final BranchObject branch;
-  final String organizationId;
-  final VoidCallback? onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 2),
-      child: InkWell(
-        onTap: () => context.go(
-          '/organization/organizations/$organizationId/branches/${branch.id}',
-        ),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withAlpha(80),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.store_outlined,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      branch.name,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        if (branch.code.isNotEmpty)
-                          Text(
-                            branch.code,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withAlpha(160),
-                            ),
-                          ),
-                        if (branch.geoId.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 12,
-                            color: theme.colorScheme.onSurface.withAlpha(120),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            branch.geoId,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withAlpha(140),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              StateBadge(state: branch.state),
-              if (onEdit != null)
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  onPressed: onEdit,
-                  tooltip: 'Edit',
-                ),
-            ],
-          ),
-        ),
+  Future<void> _showOrgUnitDialog(BuildContext context) async {
+    final result = await showDialog<OrgUnitObject>(
+      context: context,
+      builder: (context) => OrgUnitFormDialog(
+        organizations: [_organization],
+        fixedOrganizationId: _organization.id,
       ),
     );
-  }
-}
+    if (result == null || !context.mounted) return;
 
-// ---------------------------------------------------------------------------
-// Branch create / edit dialog (organization is pre-set, not selectable)
-// ---------------------------------------------------------------------------
-
-class BranchFormDialog extends StatefulWidget {
-  const BranchFormDialog({
-    super.key,
-    this.branch,
-    required this.organizationId,
-  });
-
-  final BranchObject? branch;
-  final String organizationId;
-
-  @override
-  State<BranchFormDialog> createState() => BranchFormDialogState();
-}
-
-class BranchFormDialogState extends State<BranchFormDialog> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController;
-  late final TextEditingController _codeController;
-  late final TextEditingController _geoIdController;
-  late STATE _selectedState;
-
-  @override
-  void initState() {
-    super.initState();
-    final branch = widget.branch;
-    _nameController = TextEditingController(text: branch?.name ?? '');
-    _codeController = TextEditingController(text: branch?.code ?? '');
-    _geoIdController = TextEditingController(text: branch?.geoId ?? '');
-    _selectedState = branch?.state ?? STATE.CREATED;
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _codeController.dispose();
-    _geoIdController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isEditing = widget.branch != null;
-    final theme = Theme.of(context);
-
-    return AlertDialog(
-      title: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.store_outlined,
-              color: theme.colorScheme.primary,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEditing ? 'Edit Branch' : 'New Branch',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  isEditing
-                      ? 'Update the branch details below.'
-                      : 'Add a new branch office or location.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        width: 480,
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Divider(),
-                const SizedBox(height: 8),
-                FormFieldCard(
-                  label: 'Branch Name',
-                  description:
-                      'The display name for this branch office or location.',
-                  isRequired: true,
-                  child: TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. Westlands Branch',
-                      prefixIcon: Icon(Icons.business),
-                    ),
-                    textInputAction: TextInputAction.next,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Name is required' : null,
-                  ),
-                ),
-                FormFieldCard(
-                  label: 'Code',
-                  description:
-                      'A unique short identifier for reports and system references.',
-                  isRequired: true,
-                  child: TextFormField(
-                    controller: _codeController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. WL001',
-                      prefixIcon: Icon(Icons.tag),
-                    ),
-                    textCapitalization: TextCapitalization.characters,
-                    textInputAction: TextInputAction.next,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Code is required' : null,
-                  ),
-                ),
-                FormFieldCard(
-                  label: 'Geographic ID',
-                  description:
-                      'Optional geographic identifier for mapping and location services.',
-                  child: TextFormField(
-                    controller: _geoIdController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. KE-NBI-WEST',
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                    ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                ),
-                FormFieldCard(
-                  label: 'State',
-                  description: 'The operational status of this branch.',
-                  isRequired: true,
-                  child: DropdownButtonFormField<STATE>(
-                    initialValue: _selectedState,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.toggle_on_outlined),
-                    ),
-                    items:
-                        const [
-                              STATE.CREATED,
-                              STATE.CHECKED,
-                              STATE.ACTIVE,
-                              STATE.INACTIVE,
-                              STATE.DELETED,
-                            ]
-                            .map(
-                              (s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(stateLabel(s)),
-                              ),
-                            )
-                            .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _selectedState = value);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+    try {
+      final profileId = await ref.read(currentProfileIdProvider.future) ?? '';
+      final props = result.hasProperties()
+          ? structToMap(result.properties)
+          : <String, dynamic>{};
+      props['case_actor_id'] = profileId;
+      result.properties = mapToStruct(props);
+      await ref.read(orgUnitProvider.notifier).save(result);
+      ref.invalidate(
+        orgUnitListProvider(
+          organizationId: _organization.id,
+          rootOnly: true,
+          query: '',
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Org unit created successfully')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save org unit: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
-        FilledButton(
-          onPressed: _onSave,
-          child: Text(isEditing ? 'Update' : 'Create'),
-        ),
-      ],
-    );
-  }
-
-  void _onSave() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final branch = BranchObject(
-      id: widget.branch?.id ?? '',
-      organizationId: widget.organizationId,
-      name: _nameController.text.trim(),
-      code: _codeController.text.trim(),
-      geoId: _geoIdController.text.trim(),
-      state: _selectedState,
-    );
-
-    // Preserve backend-managed fields when editing.
-    if (widget.branch != null) {
-      if (widget.branch!.hasPartitionId()) {
-        branch.partitionId = widget.branch!.partitionId;
-      }
-      if (widget.branch!.hasProperties()) {
-        branch.properties = widget.branch!.properties;
-      }
+      );
     }
-
-    Navigator.of(context).pop(branch);
   }
 }

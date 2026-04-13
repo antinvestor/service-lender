@@ -25,8 +25,8 @@ import '../features/field/ui/client_onboard_screen.dart';
 import '../features/field/ui/clients_screen.dart';
 import '../features/field/ui/hierarchy_screen.dart';
 import '../features/field/ui/reassignment_screen.dart';
-import '../features/organization/ui/branch_detail_screen.dart';
-import '../features/organization/ui/branches_screen.dart';
+import '../features/organization/ui/org_unit_detail_screen.dart';
+import '../features/organization/ui/org_units_screen.dart';
 import '../features/organization/ui/organization_detail_screen.dart';
 import '../features/organization/ui/organizations_screen.dart';
 import '../features/organization/ui/investors_screen.dart';
@@ -87,7 +87,8 @@ GoRouter router(Ref ref) {
     refreshListenable: authChangeNotifier,
     redirect: (context, state) {
       final location = state.matchedLocation;
-      final isLoginRoute = location == '/login' || location.startsWith('/login/');
+      final isLoginRoute =
+          location == '/login' || location.startsWith('/login/');
       final isAuthCallback = location == '/auth/callback';
       final isTermsRoute = location == '/terms';
 
@@ -131,9 +132,8 @@ GoRouter router(Ref ref) {
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/login/:clientId',
-        builder: (context, state) => LoginScreen(
-          initialClientId: state.pathParameters['clientId'],
-        ),
+        builder: (context, state) =>
+            LoginScreen(initialClientId: state.pathParameters['clientId']),
       ),
       GoRoute(
         path: '/auth/callback',
@@ -171,11 +171,11 @@ GoRouter router(Ref ref) {
                 ),
                 routes: [
                   GoRoute(
-                    path: 'branches/:branchId',
+                    path: 'org-units/:orgUnitId',
                     builder: (context, state) => _guarded(
                       '/organization/organizations',
-                      BranchDetailScreen(
-                        branchId: state.pathParameters['branchId']!,
+                      OrgUnitDetailScreen(
+                        orgUnitId: state.pathParameters['orgUnitId']!,
                         organizationId: state.pathParameters['organizationId']!,
                       ),
                     ),
@@ -185,16 +185,16 @@ GoRouter router(Ref ref) {
             ],
           ),
           GoRoute(
-            path: '/organization/branches',
+            path: '/organization/org-units',
             builder: (context, state) =>
-                _guarded('/organization/branches', const BranchesScreen()),
+                _guarded('/organization/org-units', const OrgUnitsScreen()),
             routes: [
               GoRoute(
-                path: ':branchId',
+                path: ':orgUnitId',
                 builder: (context, state) => _guarded(
-                  '/organization/branches',
-                  BranchDetailScreen(
-                    branchId: state.pathParameters['branchId']!,
+                  '/organization/org-units',
+                  OrgUnitDetailScreen(
+                    orgUnitId: state.pathParameters['orgUnitId']!,
                     organizationId: '',
                   ),
                 ),
@@ -366,10 +366,8 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/funding/accounts',
-            builder: (context, state) => _guarded(
-              '/funding/accounts',
-              const InvestorAccountsScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/funding/accounts', const InvestorAccountsScreen()),
             routes: [
               GoRoute(
                 path: ':accountId',
@@ -428,10 +426,8 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '/admin/form-templates',
-            builder: (context, state) => _guarded(
-              '/admin/form-templates',
-              const FormTemplatesScreen(),
-            ),
+            builder: (context, state) =>
+                _guarded('/admin/form-templates', const FormTemplatesScreen()),
             routes: [
               GoRoute(
                 path: 'new',

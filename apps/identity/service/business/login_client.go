@@ -3,6 +3,7 @@ package business
 import (
 	"context"
 
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
 	tenancyv1 "buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go/tenancy/v1"
 	"connectrpc.com/connect"
@@ -88,6 +89,9 @@ func (b *loginClientBusiness) EnableForBranch(ctx context.Context, branchID stri
 
 	branch, err := b.branchRepo.GetByID(ctx, branchID)
 	if err != nil {
+		return "", ErrBranchNotFound
+	}
+	if branch.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
 		return "", ErrBranchNotFound
 	}
 

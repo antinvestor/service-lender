@@ -257,6 +257,48 @@ final class OperationsTransportProvider
 String _$operationsTransportHash() =>
     r'2be88f8c3583563184b6c5943390ef6b737780e3';
 
+@ProviderFor(geolocationTransport)
+final geolocationTransportProvider = GeolocationTransportProvider._();
+
+final class GeolocationTransportProvider
+    extends $FunctionalProvider<Transport, Transport, Transport>
+    with $Provider<Transport> {
+  GeolocationTransportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geolocationTransportProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geolocationTransportHash();
+
+  @$internal
+  @override
+  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Transport create(Ref ref) {
+    return geolocationTransport(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Transport value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Transport>(value),
+    );
+  }
+}
+
+String _$geolocationTransportHash() =>
+    r'41d3f11e369ed23febf70341e8abc24617aa56e6';
+
 @ProviderFor(identityServiceClient)
 final identityServiceClientProvider = IdentityServiceClientProvider._();
 
@@ -352,6 +394,54 @@ final class FieldServiceClientProvider
 
 String _$fieldServiceClientHash() =>
     r'daac05d4f21ac4140358443fe7fd7b3c92f0257f';
+
+@ProviderFor(geolocationServiceClient)
+final geolocationServiceClientProvider = GeolocationServiceClientProvider._();
+
+final class GeolocationServiceClientProvider
+    extends
+        $FunctionalProvider<
+          GeolocationServiceClient,
+          GeolocationServiceClient,
+          GeolocationServiceClient
+        >
+    with $Provider<GeolocationServiceClient> {
+  GeolocationServiceClientProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geolocationServiceClientProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geolocationServiceClientHash();
+
+  @$internal
+  @override
+  $ProviderElement<GeolocationServiceClient> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GeolocationServiceClient create(Ref ref) {
+    return geolocationServiceClient(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GeolocationServiceClient value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GeolocationServiceClient>(value),
+    );
+  }
+}
+
+String _$geolocationServiceClientHash() =>
+    r'e71c6e20ea8ac56ce1347edd17165039eadbb96a';
 
 @ProviderFor(originationServiceClient)
 final originationServiceClientProvider = OriginationServiceClientProvider._();

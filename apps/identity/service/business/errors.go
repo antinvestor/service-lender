@@ -4,6 +4,7 @@ import "github.com/antinvestor/service-fintech/pkg/apperrors"
 
 var (
 	ErrOrganizationNotFound = apperrors.NewError(apperrors.NotFound, "organization not found")
+	ErrOrgUnitNotFound      = apperrors.NewError(apperrors.NotFound, "org unit not found")
 	ErrBranchNotFound       = apperrors.NewError(apperrors.NotFound, "branch not found")
 	ErrAgentNotFound        = apperrors.NewError(apperrors.NotFound, "agent not found")
 	ErrClientNotFound       = apperrors.NewError(apperrors.NotFound, "client not found")
@@ -12,8 +13,12 @@ var (
 	ErrInvestorNotFound     = apperrors.NewError(apperrors.NotFound, "investor not found")
 	ErrSystemUserNotFound   = apperrors.NewError(apperrors.NotFound, "system user not found")
 
-	ErrAgentDepthExceeded      = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
-	ErrAgentBranchNotInParent  = apperrors.NewError(apperrors.BadRequest, "branch is not assigned to parent agent")
+	ErrAgentDepthExceeded       = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
+	ErrAgentBranchNotInParent   = apperrors.NewError(apperrors.BadRequest, "branch is not assigned to parent agent")
+	ErrOrgUnitNotInOrganization = apperrors.NewError(
+		apperrors.BadRequest,
+		"org unit does not belong to the specified organization",
+	)
 	ErrBranchNotInOrganization = apperrors.NewError(
 		apperrors.BadRequest,
 		"branch does not belong to agent's organization",
@@ -21,6 +26,7 @@ var (
 	ErrAgentInactive             = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
 	ErrClientAlreadyExists       = apperrors.NewError(apperrors.Conflict, "client with this profile already exists")
 	ErrReassignSameAgent         = apperrors.NewError(apperrors.BadRequest, "client is already assigned to this agent")
+	ErrCoverageAreaRequired      = apperrors.NewError(apperrors.BadRequest, "coverage area is required")
 	ErrReassignCrossOrganization = apperrors.NewError(
 		apperrors.BadRequest,
 		"cannot reassign client to agent in different organization",

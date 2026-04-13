@@ -14,6 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   app_links: ^7.0.0
   antinvestor_api_common: ^1.52.0
+  antinvestor_api_geolocation: ^0.1.0
   antinvestor_api_profile: ^1.52.0
   antinvestor_api_notification: ^1.51.0
   antinvestor_api_tenancy: ^1.54.0

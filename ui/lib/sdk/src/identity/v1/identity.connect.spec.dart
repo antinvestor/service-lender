@@ -7,7 +7,7 @@ import "package:connectrpc/connect.dart" as connect;
 import "identity.pb.dart" as identityv1identity;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages organizations, branches, and system users for the platform.
+/// IdentityService manages organizations, org units, and system users for the platform.
 /// All RPCs require authentication via Bearer token.
 abstract final class IdentityService {
   /// Fully-qualified name of the IdentityService service.
@@ -39,7 +39,34 @@ abstract final class IdentityService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// BranchSave creates or updates a branch record.
+  /// OrgUnitSave creates or updates a hierarchical org unit record.
+  static const orgUnitSave = connect.Spec(
+    '/$name/OrgUnitSave',
+    connect.StreamType.unary,
+    identityv1identity.OrgUnitSaveRequest.new,
+    identityv1identity.OrgUnitSaveResponse.new,
+  );
+
+  /// OrgUnitGet retrieves an org unit by its ID.
+  static const orgUnitGet = connect.Spec(
+    '/$name/OrgUnitGet',
+    connect.StreamType.unary,
+    identityv1identity.OrgUnitGetRequest.new,
+    identityv1identity.OrgUnitGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// OrgUnitSearch finds org units matching search criteria.
+  static const orgUnitSearch = connect.Spec(
+    '/$name/OrgUnitSearch',
+    connect.StreamType.server,
+    identityv1identity.OrgUnitSearchRequest.new,
+    identityv1identity.OrgUnitSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// BranchSave creates or updates a legacy leaf branch record.
+  /// Prefer OrgUnitSave with type BRANCH for new integrations.
   static const branchSave = connect.Spec(
     '/$name/BranchSave',
     connect.StreamType.unary,
@@ -47,7 +74,7 @@ abstract final class IdentityService {
     identityv1identity.BranchSaveResponse.new,
   );
 
-  /// BranchGet retrieves a branch by its ID.
+  /// BranchGet retrieves a legacy leaf branch by its ID.
   static const branchGet = connect.Spec(
     '/$name/BranchGet',
     connect.StreamType.unary,
@@ -56,7 +83,7 @@ abstract final class IdentityService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// BranchSearch finds branches matching search criteria.
+  /// BranchSearch finds legacy leaf branches matching search criteria.
   static const branchSearch = connect.Spec(
     '/$name/BranchSearch',
     connect.StreamType.server,

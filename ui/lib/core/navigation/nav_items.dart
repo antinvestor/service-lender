@@ -135,11 +135,11 @@ List<NavItem> buildNavItems() => [
         requiredRoles: _viewRoles,
       ),
       NavItem(
-        id: 'branches',
-        label: 'Branches',
-        icon: Icons.store_outlined,
-        activeIcon: Icons.store,
-        route: '/organization/branches',
+        id: 'org_units',
+        label: 'Org Units',
+        icon: Icons.account_tree_outlined,
+        activeIcon: Icons.account_tree,
+        route: '/organization/org-units',
         requiredRoles: _viewRoles,
       ),
       NavItem(

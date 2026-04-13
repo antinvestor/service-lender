@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
@@ -30,7 +31,12 @@ func NewBranchRepository(ctx context.Context, dbPool pool.Pool, workMan workerpo
 
 func (repo *branchRepository) GetByCode(ctx context.Context, code string) (*models.Branch, error) {
 	branch := models.Branch{}
-	err := repo.Pool().DB(ctx, true).First(&branch, "code = ?", code).Error
+	err := repo.Pool().DB(ctx, true).First(
+		&branch,
+		"code = ? AND unit_type = ?",
+		code,
+		int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH),
+	).Error
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +50,11 @@ func (repo *branchRepository) GetByOrganizationID(
 ) ([]*models.Branch, error) {
 	var branches []*models.Branch
 	err := repo.Pool().DB(ctx, true).
-		Where("organization_id = ?", organizationID).
+		Where(
+			"organization_id = ? AND unit_type = ?",
+			organizationID,
+			int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH),
+		).
 		Offset(offset).Limit(limit).
 		Find(&branches).Error
 	if err != nil {
