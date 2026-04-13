@@ -9,8 +9,11 @@ import (
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
+	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/util"
 	"gorm.io/gorm"
 
+	"github.com/antinvestor/service-fintech/apps/identity/service/events"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
@@ -86,6 +89,7 @@ type WorkforceBusiness interface {
 }
 
 type workforceBusiness struct {
+	eventsMan              fevents.Manager
 	organizationRepo       repository.OrganizationRepository
 	orgUnitRepo            repository.OrgUnitRepository
 	workforceRepo          repository.WorkforceMemberRepository
@@ -98,6 +102,7 @@ type workforceBusiness struct {
 }
 
 func NewWorkforceBusiness(
+	eventsMan fevents.Manager,
 	organizationRepo repository.OrganizationRepository,
 	orgUnitRepo repository.OrgUnitRepository,
 	workforceRepo repository.WorkforceMemberRepository,
@@ -109,6 +114,7 @@ func NewWorkforceBusiness(
 	accessRoleRepo repository.AccessRoleAssignmentRepository,
 ) WorkforceBusiness {
 	return &workforceBusiness{
+		eventsMan:              eventsMan,
 		organizationRepo:       organizationRepo,
 		orgUnitRepo:            orgUnitRepo,
 		workforceRepo:          workforceRepo,
@@ -136,14 +142,11 @@ func (b *workforceBusiness) WorkforceMemberSave(
 		member.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistWorkforceMember(ctx, member)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.WorkforceMemberSaveEvent, member); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit workforce member save event")
 		return nil, err
 	}
-	if isNew {
-		return member.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return member.ToAPI(), nil
 }
 
 func (b *workforceBusiness) WorkforceMemberGet(
@@ -197,14 +200,11 @@ func (b *workforceBusiness) DepartmentSave(
 		department.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistDepartment(ctx, department)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.DepartmentSaveEvent, department); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit department save event")
 		return nil, err
 	}
-	if isNew {
-		return department.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return department.ToAPI(), nil
 }
 
 func (b *workforceBusiness) DepartmentGet(ctx context.Context, id string) (*identityv1.DepartmentObject, error) {
@@ -261,14 +261,11 @@ func (b *workforceBusiness) PositionSave(
 		position.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistPosition(ctx, position)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.PositionSaveEvent, position); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit position save event")
 		return nil, err
 	}
-	if isNew {
-		return position.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return position.ToAPI(), nil
 }
 
 func (b *workforceBusiness) PositionGet(ctx context.Context, id string) (*identityv1.PositionObject, error) {
@@ -329,14 +326,11 @@ func (b *workforceBusiness) PositionAssignmentSave(
 		assignment.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistPositionAssignment(ctx, assignment)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.PositionAssignmentSaveEvent, assignment); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit position assignment save event")
 		return nil, err
 	}
-	if isNew {
-		return assignment.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return assignment.ToAPI(), nil
 }
 
 func (b *workforceBusiness) PositionAssignmentGet(
@@ -393,14 +387,11 @@ func (b *workforceBusiness) InternalTeamSave(
 		team.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistInternalTeam(ctx, team)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.InternalTeamSaveEvent, team); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit internal team save event")
 		return nil, err
 	}
-	if isNew {
-		return team.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return team.ToAPI(), nil
 }
 
 func (b *workforceBusiness) InternalTeamGet(ctx context.Context, id string) (*identityv1.InternalTeamObject, error) {
@@ -459,14 +450,11 @@ func (b *workforceBusiness) TeamMembershipSave(
 		membership.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistTeamMembership(ctx, membership)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.TeamMembershipSaveEvent, membership); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit team membership save event")
 		return nil, err
 	}
-	if isNew {
-		return membership.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return membership.ToAPI(), nil
 }
 
 func (b *workforceBusiness) TeamMembershipGet(
@@ -521,14 +509,11 @@ func (b *workforceBusiness) AccessRoleAssignmentSave(
 		assignment.State = int32(bufcommonv1.STATE_CREATED)
 	}
 
-	existing, isNew, err := b.persistAccessRoleAssignment(ctx, assignment)
-	if err != nil {
+	if err := b.eventsMan.Emit(ctx, events.AccessRoleAssignmentSaveEvent, assignment); err != nil {
+		util.Log(ctx).WithError(err).Error("could not emit access role assignment save event")
 		return nil, err
 	}
-	if isNew {
-		return assignment.ToAPI(), nil
-	}
-	return existing.ToAPI(), nil
+	return assignment.ToAPI(), nil
 }
 
 func (b *workforceBusiness) AccessRoleAssignmentGet(

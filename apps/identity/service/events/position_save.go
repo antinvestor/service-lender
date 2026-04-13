@@ -1,0 +1,62 @@
+package events //nolint:dupl // similar event handlers for different entity types
+
+import (
+	"context"
+	"errors"
+
+	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
+)
+
+const PositionSaveEvent = "position.save"
+
+type PositionSave struct {
+	repo repository.PositionRepository
+}
+
+func NewPositionSave(_ context.Context, repo repository.PositionRepository) *PositionSave {
+	return &PositionSave{repo: repo}
+}
+
+func (e *PositionSave) Name() string     { return PositionSaveEvent }
+func (e *PositionSave) PayloadType() any { return &models.Position{} }
+
+func (e *PositionSave) Validate(_ context.Context, payload any) error {
+	m, ok := payload.(*models.Position)
+	if !ok {
+		return errors.New("payload is not of expected type")
+	}
+	if m.GetID() == "" {
+		return errors.New("ID should already have been set")
+	}
+	return nil
+}
+
+func (e *PositionSave) Execute(ctx context.Context, payload any) error {
+	m, ok := payload.(*models.Position)
+	if !ok {
+		return errors.New("payload is not of expected type")
+	}
+
+	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "id": m.GetID()})
+	defer logger.Release()
+
+	existing, getErr := e.repo.GetByID(ctx, m.GetID())
+	if getErr == nil && existing != nil {
+		if _, err := e.repo.Update(ctx, m); err != nil {
+			logger.WithError(err).Error("could not update in db")
+			return err
+		}
+		return nil
+	}
+
+	if err := e.repo.Create(ctx, m); err != nil && !data.ErrorIsDuplicateKey(err) {
+		logger.WithError(err).Error("could not create in db")
+		return err
+	}
+
+	return nil
+}

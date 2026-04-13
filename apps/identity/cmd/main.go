@@ -177,6 +177,7 @@ func setupServiceOptions(
 		teamMembershipRepo,
 	)
 	workforceBusiness := business.NewWorkforceBusiness(
+		evtsMan,
 		organizationRepo,
 		orgUnitRepo,
 		workforceMemberRepo,
@@ -243,6 +244,9 @@ func setupServiceOptions(
 			identityevents.NewFormTemplateSave(ctx, formTemplateRepo),
 			identityevents.NewFormSubmissionSave(ctx, formSubmissionRepo),
 			identityevents.NewClientRelationshipSave(ctx, clientRelationshipRepo),
+			identityevents.NewDepartmentSave(ctx, departmentRepo),
+			identityevents.NewPositionSave(ctx, positionRepo),
+			identityevents.NewPositionAssignmentSave(ctx, positionAssignmentRepo),
 		),
 	}
 }
