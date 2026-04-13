@@ -12,10 +12,6 @@ buf.build/gen/go/antinvestor/funding/connectrpc/go v1.19.1-20260404160115-2ba9ab
 buf.build/gen/go/antinvestor/funding/connectrpc/go v1.19.1-20260404160115-2ba9ab780192.2/go.mod h1:Nw3LDbPr8zcwjys/ztnzIbOMBtJuCDcKMWAbG6ihs+s=
 buf.build/gen/go/antinvestor/funding/protocolbuffers/go v1.36.11-20260404160115-2ba9ab780192.1 h1:yTsd0G3SLFJZtUR5DvVAtyGJN/HP01VSTXAShmGPT3U=
 buf.build/gen/go/antinvestor/funding/protocolbuffers/go v1.36.11-20260404160115-2ba9ab780192.1/go.mod h1:W2kfSvEx4No+tAfBZA1DopK0pHCsMVPqYXGGMWWdCYY=
-buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260410052433-3df22bd61257.2 h1:N00n/PQO23//tKVm+3VGadA6RRaF1SpW2kij6l06q2g=
-buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.1-20260410052433-3df22bd61257.2/go.mod h1:ljKJB0xPyOer7tOK27aDj7itqvjjmcU0t72F6qoyBUM=
-buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260410052433-3df22bd61257.1 h1:dZ+4BPciWjlOUILltf8pTeN3X+tnVzJOOlH02xRbSwc=
-buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260410052433-3df22bd61257.1/go.mod h1:p/jZSURaFt7/YWQ7JXysYu33S7Z1z71Nh2X987ppfRs=
 buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260329102121-402b2e01be6f.2 h1:Up43nuDpjGtlqpOiohn1r9sKDhHtTmTqzNdGcNjz4SM=
 buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.1-20260329102121-402b2e01be6f.2/go.mod h1:ht8Ciwm6jg5Hejpq/szsNB9EISnNORCjgBA8rpaXUqA=
 buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260329102121-402b2e01be6f.1 h1:xLtgEXjqrwfDhB9eKMndl57anSBEyybKHeA39fj073s=
@@ -207,8 +203,8 @@ github.com/moby/docker-image-spec v1.3.1 h1:jMKff3w6PgbfSa69GfNg+zN/XLhfXJGnEx3N
 github.com/moby/docker-image-spec v1.3.1/go.mod h1:eKmb5VW8vQEh/BAr2yvVNvuiJuY6UIocYsFu/DxxRpo=
 github.com/moby/go-archive v0.2.0 h1:zg5QDUM2mi0JIM9fdQZWC7U8+2ZfixfTYoHL7rWUcP8=
 github.com/moby/go-archive v0.2.0/go.mod h1:mNeivT14o8xU+5q1YnNrkQVpK+dnNe/K6fHqnTg4qPU=
-github.com/moby/moby/api v1.54.1-0.20260401134807-948d5691a093 h1:KtfOf57ueLuFAS9SllMjQkr0ueJjfQL8xnSBLgeTBZI=
-github.com/moby/moby/api v1.54.1-0.20260401134807-948d5691a093/go.mod h1:+RQ6wluLwtYaTd1WnPLykIDPekkuyD/ROWQClE83pzs=
+github.com/moby/moby/api v1.54.1 h1:TqVzuJkOLsgLDDwNLmYqACUuTehOHRGKiPhvH8V3Nn4=
+github.com/moby/moby/api v1.54.1/go.mod h1:+RQ6wluLwtYaTd1WnPLykIDPekkuyD/ROWQClE83pzs=
 github.com/moby/moby/client v0.3.1-0.20260401134807-948d5691a093 h1:282YI8dPGevn2EJG4Q+09YfAEJAGyTB+eFOzNcJYwwQ=
 github.com/moby/moby/client v0.3.1-0.20260401134807-948d5691a093/go.mod h1:V16/Q7VQci0Mkto86puucoIeRyvUfNJDaISiBQuV+Ow=
 github.com/moby/patternmatcher v0.6.1 h1:qlhtafmr6kgMIJjKJMDmMWq7WLkKIo23hsrpR3x084U=
