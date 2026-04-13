@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
+import 'organization_detail_screen.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/error_helpers.dart';
 import '../../../core/widgets/form_field_card.dart';
@@ -64,10 +65,12 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
       actionLabel: 'Add Organization',
       canAction: canManage,
       onAction: () => _showOrganizationDialog(context),
+      idOf: (org) => org.id,
+      detailBuilder: (id) => OrganizationDetailScreen(organizationId: id),
+      onNavigate: (id) => context.go('/organization/organizations/$id'),
+      emptyDetailMessage: 'Select an organization to view details',
       itemBuilder: (context, organization) => _OrganizationCard(
         organization: organization,
-        onTap: () =>
-            context.go('/organization/organizations/${organization.id}'),
       ),
     );
   }
@@ -105,10 +108,9 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
 }
 
 class _OrganizationCard extends StatelessWidget {
-  const _OrganizationCard({required this.organization, required this.onTap});
+  const _OrganizationCard({required this.organization});
 
   final OrganizationObject organization;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +142,6 @@ class _OrganizationCard extends StatelessWidget {
           ),
         ),
         trailing: StateBadge(state: organization.state),
-        onTap: onTap,
       ),
     );
   }

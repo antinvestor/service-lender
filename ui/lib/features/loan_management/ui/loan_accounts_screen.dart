@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/role_provider.dart';
 import '../../../core/api/stream_helpers.dart';
-import '../../../core/responsive/breakpoints.dart';
 import '../../../core/widgets/entity_list_page.dart';
 import '../../../core/widgets/loan_status_badge.dart';
 import '../../../core/widgets/money_helpers.dart';
@@ -29,7 +28,6 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
   LoanStatus? _statusFilter;
   String _agentScope = '';
   bool _scopeInitialized = false;
-  String? _selectedLoanId;
 
   void _initAgentScope() {
     if (_scopeInitialized) return;
@@ -68,22 +66,8 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
   void _onSearchChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
-      if (mounted) {
-        setState(() {
-          _query = value.trim();
-        });
-      }
+      if (mounted) setState(() => _query = value.trim());
     });
-  }
-
-  void _selectLoan(String loanId) {
-    // On desktop: show inline detail. On mobile: navigate.
-    final width = MediaQuery.of(context).size.width;
-    if (AppBreakpoints.isDesktop(width)) {
-      setState(() => _selectedLoanId = loanId);
-    } else {
-      context.go('/loans/$loanId');
-    }
   }
 
   @override
@@ -126,32 +110,22 @@ class _LoanAccountsScreenState extends ConsumerState<LoanAccountsScreen> {
             (s) => DropdownMenuItem(value: s, child: Text(loanStatusLabel(s))),
           ),
         ],
-        onChanged: (value) {
-          setState(() => _statusFilter = value);
-        },
+        onChanged: (value) => setState(() => _statusFilter = value),
       ),
-      selectedId: _selectedLoanId,
+      // Master-detail: these 3 props are all that's needed.
+      idOf: (loan) => loan.id,
       detailBuilder: (id) => LoanAccountDetailScreen(loanId: id),
+      onNavigate: (id) => context.go('/loans/$id'),
       emptyDetailMessage: 'Select a loan to view details',
-      itemBuilder: (context, loan) => _LoanAccountCard(
-        loan: loan,
-        isSelected: loan.id == _selectedLoanId,
-        onTap: () => _selectLoan(loan.id),
-      ),
+      itemBuilder: (context, loan) => _LoanAccountCard(loan: loan),
     );
   }
 }
 
 class _LoanAccountCard extends ConsumerWidget {
-  const _LoanAccountCard({
-    required this.loan,
-    required this.onTap,
-    this.isSelected = false,
-  });
+  const _LoanAccountCard({required this.loan});
 
   final LoanAccountObject loan;
-  final VoidCallback onTap;
-  final bool isSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -159,15 +133,7 @@ class _LoanAccountCard extends ConsumerWidget {
 
     return Card(
       elevation: 0,
-      color: isSelected
-          ? theme.colorScheme.primaryContainer.withAlpha(40)
-          : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: isSelected
-            ? BorderSide(color: theme.colorScheme.primary, width: 1.5)
-            : BorderSide.none,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         leading: CircleAvatar(
@@ -204,7 +170,6 @@ class _LoanAccountCard extends ConsumerWidget {
           ],
         ),
         trailing: LoanStatusBadge(status: loan.status),
-        onTap: onTap,
       ),
     );
   }

@@ -2,14 +2,25 @@ import 'package:flutter/material.dart';
 
 import '../responsive/breakpoints.dart';
 
-/// Reusable entity list page with search bar, action button, item count,
-/// paginated item list, and optional master-detail layout.
+/// Reusable entity list page with search, actions, pagination, and
+/// automatic master-detail layout on desktop.
 ///
-/// On desktop, when [detailBuilder] is provided, the list appears on the left
-/// and the detail panel on the right. Selecting an item calls [onItemSelected]
-/// to update the detail. On mobile, [onItemSelected] should navigate to a
-/// full-screen detail page.
-class EntityListPage<T> extends StatelessWidget {
+/// To enable master-detail, provide [detailBuilder] and [idOf]:
+/// ```dart
+/// EntityListPage<LoanAccountObject>(
+///   // ... existing props ...
+///   idOf: (loan) => loan.id,
+///   detailBuilder: (id) => LoanAccountDetailScreen(loanId: id),
+///   onNavigate: (id) => context.go('/loans/$id'),
+/// )
+/// ```
+///
+/// On desktop (≥1200px): list on left, detail on right. Selection is
+/// managed internally — no state in the calling screen.
+///
+/// On mobile (<1200px): tapping an item calls [onNavigate] for full-page
+/// navigation. If [onNavigate] is null, nothing happens.
+class EntityListPage<T> extends StatefulWidget {
   const EntityListPage({
     super.key,
     required this.title,
@@ -29,15 +40,22 @@ class EntityListPage<T> extends StatelessWidget {
     this.isLoadingMore = false,
     this.onLoadMore,
     this.totalHint,
-    this.selectedId,
+    this.idOf,
     this.detailBuilder,
+    this.onNavigate,
     this.emptyDetailMessage = 'Select an item to view details',
   });
 
   final String title;
   final IconData icon;
   final List<T> items;
+
+  /// Builds a list tile/card for each item. The item's tap behavior is
+  /// handled internally — do NOT add `onTap` navigation in the builder.
+  /// If you need custom card content, wrap it in a plain widget; tapping
+  /// is wired by EntityListPage.
   final Widget Function(BuildContext context, T item) itemBuilder;
+
   final bool isLoading;
   final String? error;
   final VoidCallback? onRetry;
@@ -52,43 +70,67 @@ class EntityListPage<T> extends StatelessWidget {
   final VoidCallback? onLoadMore;
   final String? totalHint;
 
-  /// The ID of the currently selected item. Used to highlight the active
-  /// row and drive the detail panel.
-  final String? selectedId;
+  /// Extracts a unique ID from an item. Required for master-detail.
+  final String Function(T item)? idOf;
 
-  /// Builds the detail panel for the given item ID. When non-null and on
-  /// desktop, the list shows in a left panel and the detail on the right.
+  /// Builds the detail panel for a given item ID. When provided and on
+  /// desktop, the page renders as master-detail automatically.
   final Widget Function(String id)? detailBuilder;
 
-  /// Message shown in the detail area when no item is selected.
+  /// Called on mobile when an item is tapped — should navigate to the
+  /// detail page (e.g. `context.go('/loans/$id')`).
+  final void Function(String id)? onNavigate;
+
+  /// Message shown in the empty detail area before anything is selected.
   final String emptyDetailMessage;
+
+  @override
+  State<EntityListPage<T>> createState() => _EntityListPageState<T>();
+}
+
+class _EntityListPageState<T> extends State<EntityListPage<T>> {
+  String? _selectedId;
+
+  void _onItemTap(T item) {
+    final id = widget.idOf?.call(item);
+    if (id == null) return;
+
+    final width = MediaQuery.of(context).size.width;
+    if (AppBreakpoints.isDesktop(width) && widget.detailBuilder != null) {
+      setState(() => _selectedId = id);
+    } else {
+      widget.onNavigate?.call(id);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final showDetail = AppBreakpoints.isDesktop(constraints.maxWidth) &&
-            detailBuilder != null;
+            widget.detailBuilder != null;
 
-        final listPanel = _ListPanel(
-          title: title,
-          icon: icon,
-          items: items,
-          itemBuilder: itemBuilder,
-          isLoading: isLoading,
-          error: error,
-          onRetry: onRetry,
-          searchHint: searchHint,
-          onSearchChanged: onSearchChanged,
-          actionLabel: actionLabel,
-          onAction: onAction,
-          canAction: canAction,
-          filterWidget: filterWidget,
-          hasMore: hasMore,
-          isLoadingMore: isLoadingMore,
-          onLoadMore: onLoadMore,
-          totalHint: totalHint,
-          selectedId: selectedId,
+        final listPanel = _ListPanel<T>(
+          title: widget.title,
+          icon: widget.icon,
+          items: widget.items,
+          itemBuilder: widget.itemBuilder,
+          isLoading: widget.isLoading,
+          error: widget.error,
+          onRetry: widget.onRetry,
+          searchHint: widget.searchHint,
+          onSearchChanged: widget.onSearchChanged,
+          actionLabel: widget.actionLabel,
+          onAction: widget.onAction,
+          canAction: widget.canAction,
+          filterWidget: widget.filterWidget,
+          hasMore: widget.hasMore,
+          isLoadingMore: widget.isLoadingMore,
+          onLoadMore: widget.onLoadMore,
+          totalHint: widget.totalHint,
+          idOf: widget.idOf,
+          selectedId: _selectedId,
+          onItemTap: _onItemTap,
           compact: showDetail,
         );
 
@@ -98,7 +140,6 @@ class EntityListPage<T> extends StatelessWidget {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Master: list panel
             SizedBox(
               width: constraints.maxWidth * 0.38,
               child: listPanel,
@@ -107,13 +148,12 @@ class EntityListPage<T> extends StatelessWidget {
               width: 1,
               color: theme.colorScheme.outlineVariant.withAlpha(60),
             ),
-            // Detail panel
             Expanded(
-              child: selectedId != null
-                  ? detailBuilder!(selectedId!)
+              child: _selectedId != null
+                  ? widget.detailBuilder!(_selectedId!)
                   : _EmptyDetail(
-                      message: emptyDetailMessage,
-                      icon: icon,
+                      message: widget.emptyDetailMessage,
+                      icon: widget.icon,
                     ),
             ),
           ],
@@ -124,7 +164,7 @@ class EntityListPage<T> extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// List panel (used standalone on mobile, or as left panel on desktop)
+// List panel (full-screen on mobile, left panel on desktop)
 // ---------------------------------------------------------------------------
 
 class _ListPanel<T> extends StatelessWidget {
@@ -134,6 +174,7 @@ class _ListPanel<T> extends StatelessWidget {
     required this.items,
     required this.itemBuilder,
     required this.isLoading,
+    required this.onItemTap,
     this.error,
     this.onRetry,
     this.searchHint,
@@ -146,6 +187,7 @@ class _ListPanel<T> extends StatelessWidget {
     this.isLoadingMore = false,
     this.onLoadMore,
     this.totalHint,
+    this.idOf,
     this.selectedId,
     this.compact = false,
   });
@@ -167,10 +209,9 @@ class _ListPanel<T> extends StatelessWidget {
   final bool isLoadingMore;
   final VoidCallback? onLoadMore;
   final String? totalHint;
+  final String Function(T)? idOf;
   final String? selectedId;
-
-  /// When true, reduces padding and hides the icon for the compact
-  /// master panel in master-detail mode.
+  final void Function(T item) onItemTap;
   final bool compact;
 
   double get _hPad => compact ? 16 : 24;
@@ -344,7 +385,15 @@ class _ListPanel<T> extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           if (index < items.length) {
-            return itemBuilder(context, items[index]);
+            final item = items[index];
+            final id = idOf?.call(item);
+            final isSelected = id != null && id == selectedId;
+
+            return _SelectableItemWrapper(
+              isSelected: isSelected,
+              onTap: () => onItemTap(item),
+              child: itemBuilder(context, item),
+            );
           }
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -362,6 +411,44 @@ class _ListPanel<T> extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Selection wrapper — adds highlight and tap handler around any item widget
+// ---------------------------------------------------------------------------
+
+class _SelectableItemWrapper extends StatelessWidget {
+  const _SelectableItemWrapper({
+    required this.isSelected,
+    required this.onTap,
+    required this.child,
+  });
+
+  final bool isSelected;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: isSelected
+            ? BoxDecoration(
+                color: theme.colorScheme.primaryContainer.withAlpha(40),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withAlpha(120),
+                  width: 1.5,
+                ),
+              )
+            : null,
+        child: child,
       ),
     );
   }
