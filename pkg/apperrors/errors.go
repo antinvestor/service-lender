@@ -11,6 +11,7 @@ const (
 	Forbidden       = 403
 	NotFound        = 404
 	Conflict        = 409
+	Gone            = 410
 	Unprocessable   = 422
 	TooManyRequests = 429
 

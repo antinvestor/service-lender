@@ -5,6 +5,7 @@ package interceptors
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -149,8 +150,8 @@ func (a *AuditInterceptor) logEntry(
 		fields["request"] = requestBody
 	}
 
-	if resp != nil && resp.Any() != nil {
-		fields["response"] = marshalProtoMessage(resp.Any())
+	if responseBody := marshalAnyResponse(resp); responseBody != "" {
+		fields["response"] = responseBody
 	}
 
 	if callErr != nil {
@@ -221,4 +222,31 @@ func marshalProtoMessage(msg any) string {
 		return s[:maxLen] + "...(truncated)"
 	}
 	return s
+}
+
+func marshalAnyResponse(resp connect.AnyResponse) string {
+	if responseIsNil(resp) {
+		return ""
+	}
+
+	msg := resp.Any()
+	if msg == nil {
+		return ""
+	}
+
+	return marshalProtoMessage(msg)
+}
+
+func responseIsNil(resp connect.AnyResponse) bool {
+	if resp == nil {
+		return true
+	}
+
+	val := reflect.ValueOf(resp)
+	switch val.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return val.IsNil()
+	default:
+		return false
+	}
 }
