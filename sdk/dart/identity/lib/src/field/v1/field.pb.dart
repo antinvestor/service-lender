@@ -23,6 +23,7 @@ export 'field.pbenum.dart';
 
 /// AgentObject represents a field agent in the lending hierarchy.
 /// Agents can be assigned to multiple branches via AgentBranchObject.
+/// Deprecated: use identity.v1.WorkforceMemberObject, PositionObject, and InternalTeamObject.
 class AgentObject extends $pb.GeneratedMessage {
   factory AgentObject({
     $core.String? id,
@@ -319,7 +320,7 @@ class AgentBranchObject extends $pb.GeneratedMessage {
   $6.Struct ensureProperties() => $_ensure(4);
 }
 
-/// ClientObject represents a loan recipient assigned to an agent.
+/// ClientObject represents a loan recipient owned by a team and optionally handled by a workforce member.
 class ClientObject extends $pb.GeneratedMessage {
   factory ClientObject({
     $core.String? id,
@@ -328,6 +329,8 @@ class ClientObject extends $pb.GeneratedMessage {
     $core.String? name,
     $7.STATE? state,
     $6.Struct? properties,
+    $core.String? owningTeamId,
+    $core.String? primaryRelationshipMemberId,
   }) {
     final $result = create();
     if (id != null) {
@@ -348,6 +351,12 @@ class ClientObject extends $pb.GeneratedMessage {
     if (properties != null) {
       $result.properties = properties;
     }
+    if (owningTeamId != null) {
+      $result.owningTeamId = owningTeamId;
+    }
+    if (primaryRelationshipMemberId != null) {
+      $result.primaryRelationshipMemberId = primaryRelationshipMemberId;
+    }
     return $result;
   }
   ClientObject._() : super();
@@ -361,6 +370,8 @@ class ClientObject extends $pb.GeneratedMessage {
     ..aOS(4, _omitFieldNames ? '' : 'name')
     ..e<$7.STATE>(5, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
     ..aOM<$6.Struct>(6, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
+    ..aOS(7, _omitFieldNames ? '' : 'owningTeamId')
+    ..aOS(8, _omitFieldNames ? '' : 'primaryRelationshipMemberId')
     ..hasRequiredFields = false
   ;
 
@@ -440,6 +451,24 @@ class ClientObject extends $pb.GeneratedMessage {
   void clearProperties() => clearField(6);
   @$pb.TagNumber(6)
   $6.Struct ensureProperties() => $_ensure(5);
+
+  @$pb.TagNumber(7)
+  $core.String get owningTeamId => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set owningTeamId($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasOwningTeamId() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearOwningTeamId() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get primaryRelationshipMemberId => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set primaryRelationshipMemberId($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasPrimaryRelationshipMemberId() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearPrimaryRelationshipMemberId() => clearField(8);
 }
 
 /// Agent messages
@@ -1433,6 +1462,8 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
     $core.String? query,
     $core.String? agentId,
     $7.PageCursor? cursor,
+    $core.String? owningTeamId,
+    $core.String? primaryRelationshipMemberId,
   }) {
     final $result = create();
     if (query != null) {
@@ -1444,6 +1475,12 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
     if (cursor != null) {
       $result.cursor = cursor;
     }
+    if (owningTeamId != null) {
+      $result.owningTeamId = owningTeamId;
+    }
+    if (primaryRelationshipMemberId != null) {
+      $result.primaryRelationshipMemberId = primaryRelationshipMemberId;
+    }
     return $result;
   }
   ClientSearchRequest._() : super();
@@ -1454,6 +1491,8 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'agentId')
     ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOS(4, _omitFieldNames ? '' : 'owningTeamId')
+    ..aOS(5, _omitFieldNames ? '' : 'primaryRelationshipMemberId')
     ..hasRequiredFields = false
   ;
 
@@ -1506,6 +1545,24 @@ class ClientSearchRequest extends $pb.GeneratedMessage {
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
   $7.PageCursor ensureCursor() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  $core.String get owningTeamId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set owningTeamId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasOwningTeamId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearOwningTeamId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get primaryRelationshipMemberId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set primaryRelationshipMemberId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasPrimaryRelationshipMemberId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPrimaryRelationshipMemberId() => clearField(5);
 }
 
 class ClientSearchResponse extends $pb.GeneratedMessage {
@@ -1683,6 +1740,268 @@ class ClientReassignResponse extends $pb.GeneratedMessage {
   ClientObject ensureData() => $_ensure(0);
 }
 
+/// ClientOwnershipTransferRequest moves a client from one owning team to another.
+class ClientOwnershipTransferRequest extends $pb.GeneratedMessage {
+  factory ClientOwnershipTransferRequest({
+    $core.String? clientId,
+    $core.String? newOwningTeamId,
+    $core.String? reason,
+  }) {
+    final $result = create();
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (newOwningTeamId != null) {
+      $result.newOwningTeamId = newOwningTeamId;
+    }
+    if (reason != null) {
+      $result.reason = reason;
+    }
+    return $result;
+  }
+  ClientOwnershipTransferRequest._() : super();
+  factory ClientOwnershipTransferRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientOwnershipTransferRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientOwnershipTransferRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+    ..aOS(2, _omitFieldNames ? '' : 'newOwningTeamId')
+    ..aOS(3, _omitFieldNames ? '' : 'reason')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientOwnershipTransferRequest clone() => ClientOwnershipTransferRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientOwnershipTransferRequest copyWith(void Function(ClientOwnershipTransferRequest) updates) => super.copyWith((message) => updates(message as ClientOwnershipTransferRequest)) as ClientOwnershipTransferRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientOwnershipTransferRequest create() => ClientOwnershipTransferRequest._();
+  ClientOwnershipTransferRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientOwnershipTransferRequest> createRepeated() => $pb.PbList<ClientOwnershipTransferRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientOwnershipTransferRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientOwnershipTransferRequest>(create);
+  static ClientOwnershipTransferRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get clientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set clientId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClientId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get newOwningTeamId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set newOwningTeamId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasNewOwningTeamId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearNewOwningTeamId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get reason => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set reason($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasReason() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearReason() => clearField(3);
+}
+
+class ClientOwnershipTransferResponse extends $pb.GeneratedMessage {
+  factory ClientOwnershipTransferResponse({
+    ClientObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientOwnershipTransferResponse._() : super();
+  factory ClientOwnershipTransferResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientOwnershipTransferResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientOwnershipTransferResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOM<ClientObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientOwnershipTransferResponse clone() => ClientOwnershipTransferResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientOwnershipTransferResponse copyWith(void Function(ClientOwnershipTransferResponse) updates) => super.copyWith((message) => updates(message as ClientOwnershipTransferResponse)) as ClientOwnershipTransferResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientOwnershipTransferResponse create() => ClientOwnershipTransferResponse._();
+  ClientOwnershipTransferResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientOwnershipTransferResponse> createRepeated() => $pb.PbList<ClientOwnershipTransferResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientOwnershipTransferResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientOwnershipTransferResponse>(create);
+  static ClientOwnershipTransferResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientObject ensureData() => $_ensure(0);
+}
+
+/// ClientRelationshipAssignRequest changes the primary relationship handler inside the owning team.
+class ClientRelationshipAssignRequest extends $pb.GeneratedMessage {
+  factory ClientRelationshipAssignRequest({
+    $core.String? clientId,
+    $core.String? memberId,
+    $core.String? reason,
+  }) {
+    final $result = create();
+    if (clientId != null) {
+      $result.clientId = clientId;
+    }
+    if (memberId != null) {
+      $result.memberId = memberId;
+    }
+    if (reason != null) {
+      $result.reason = reason;
+    }
+    return $result;
+  }
+  ClientRelationshipAssignRequest._() : super();
+  factory ClientRelationshipAssignRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientRelationshipAssignRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientRelationshipAssignRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+    ..aOS(2, _omitFieldNames ? '' : 'memberId')
+    ..aOS(3, _omitFieldNames ? '' : 'reason')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientRelationshipAssignRequest clone() => ClientRelationshipAssignRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientRelationshipAssignRequest copyWith(void Function(ClientRelationshipAssignRequest) updates) => super.copyWith((message) => updates(message as ClientRelationshipAssignRequest)) as ClientRelationshipAssignRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientRelationshipAssignRequest create() => ClientRelationshipAssignRequest._();
+  ClientRelationshipAssignRequest createEmptyInstance() => create();
+  static $pb.PbList<ClientRelationshipAssignRequest> createRepeated() => $pb.PbList<ClientRelationshipAssignRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ClientRelationshipAssignRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientRelationshipAssignRequest>(create);
+  static ClientRelationshipAssignRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get clientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set clientId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClientId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get memberId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set memberId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMemberId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMemberId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get reason => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set reason($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasReason() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearReason() => clearField(3);
+}
+
+class ClientRelationshipAssignResponse extends $pb.GeneratedMessage {
+  factory ClientRelationshipAssignResponse({
+    ClientObject? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  ClientRelationshipAssignResponse._() : super();
+  factory ClientRelationshipAssignResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientRelationshipAssignResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientRelationshipAssignResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'field.v1'), createEmptyInstance: create)
+    ..aOM<ClientObject>(1, _omitFieldNames ? '' : 'data', subBuilder: ClientObject.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClientRelationshipAssignResponse clone() => ClientRelationshipAssignResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClientRelationshipAssignResponse copyWith(void Function(ClientRelationshipAssignResponse) updates) => super.copyWith((message) => updates(message as ClientRelationshipAssignResponse)) as ClientRelationshipAssignResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ClientRelationshipAssignResponse create() => ClientRelationshipAssignResponse._();
+  ClientRelationshipAssignResponse createEmptyInstance() => create();
+  static $pb.PbList<ClientRelationshipAssignResponse> createRepeated() => $pb.PbList<ClientRelationshipAssignResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ClientRelationshipAssignResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientRelationshipAssignResponse>(create);
+  static ClientRelationshipAssignResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ClientObject get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data(ClientObject v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+  @$pb.TagNumber(1)
+  ClientObject ensureData() => $_ensure(0);
+}
+
 class FieldServiceApi {
   $pb.RpcClient _client;
   FieldServiceApi(this._client);
@@ -1719,6 +2038,12 @@ class FieldServiceApi {
   ;
   $async.Future<ClientReassignResponse> clientReassign($pb.ClientContext? ctx, ClientReassignRequest request) =>
     _client.invoke<ClientReassignResponse>(ctx, 'FieldService', 'ClientReassign', request, ClientReassignResponse())
+  ;
+  $async.Future<ClientOwnershipTransferResponse> clientOwnershipTransfer($pb.ClientContext? ctx, ClientOwnershipTransferRequest request) =>
+    _client.invoke<ClientOwnershipTransferResponse>(ctx, 'FieldService', 'ClientOwnershipTransfer', request, ClientOwnershipTransferResponse())
+  ;
+  $async.Future<ClientRelationshipAssignResponse> clientRelationshipAssign($pb.ClientContext? ctx, ClientRelationshipAssignRequest request) =>
+    _client.invoke<ClientRelationshipAssignResponse>(ctx, 'FieldService', 'ClientRelationshipAssign', request, ClientRelationshipAssignResponse())
   ;
 }
 

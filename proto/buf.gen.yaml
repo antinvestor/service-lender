@@ -25,16 +25,6 @@ plugins:
     include_wkt: true
 
   - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/origination/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/origination/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
     out: ../sdk/dart/loans/lib/src
     include_imports: true
     include_wkt: true

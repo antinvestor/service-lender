@@ -9,6 +9,7 @@ import "identity.connect.spec.dart" as specs;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
 /// IdentityService manages organizations, org units, and system users for the platform.
+/// Canonical workforce, hierarchy, team, and access-control concepts live here.
 /// All RPCs require authentication via Bearer token.
 extension type IdentityServiceClient (connect.Transport _transport) {
   /// OrganizationSave creates or updates an organization record.
@@ -111,6 +112,363 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }) {
     return connect.Client(_transport).server(
       specs.IdentityService.orgUnitSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.WorkforceMemberSaveResponse> workforceMemberSave(
+    identityv1identity.WorkforceMemberSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.workforceMemberSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.WorkforceMemberGetResponse> workforceMemberGet(
+    identityv1identity.WorkforceMemberGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.workforceMemberGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.WorkforceMemberSearchResponse> workforceMemberSearch(
+    identityv1identity.WorkforceMemberSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.workforceMemberSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.DepartmentSaveResponse> departmentSave(
+    identityv1identity.DepartmentSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.departmentSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.DepartmentGetResponse> departmentGet(
+    identityv1identity.DepartmentGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.departmentGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.DepartmentSearchResponse> departmentSearch(
+    identityv1identity.DepartmentSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.departmentSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.PositionSaveResponse> positionSave(
+    identityv1identity.PositionSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.positionSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.PositionGetResponse> positionGet(
+    identityv1identity.PositionGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.positionGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.PositionSearchResponse> positionSearch(
+    identityv1identity.PositionSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.positionSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.PositionAssignmentSaveResponse> positionAssignmentSave(
+    identityv1identity.PositionAssignmentSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.positionAssignmentSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.PositionAssignmentGetResponse> positionAssignmentGet(
+    identityv1identity.PositionAssignmentGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.positionAssignmentGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.PositionAssignmentSearchResponse> positionAssignmentSearch(
+    identityv1identity.PositionAssignmentSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.positionAssignmentSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.InternalTeamSaveResponse> internalTeamSave(
+    identityv1identity.InternalTeamSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.internalTeamSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.InternalTeamGetResponse> internalTeamGet(
+    identityv1identity.InternalTeamGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.internalTeamGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.InternalTeamSearchResponse> internalTeamSearch(
+    identityv1identity.InternalTeamSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.internalTeamSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.TeamMembershipSaveResponse> teamMembershipSave(
+    identityv1identity.TeamMembershipSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.teamMembershipSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.TeamMembershipGetResponse> teamMembershipGet(
+    identityv1identity.TeamMembershipGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.teamMembershipGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.TeamMembershipSearchResponse> teamMembershipSearch(
+    identityv1identity.TeamMembershipSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.teamMembershipSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.AccessRoleAssignmentSaveResponse> accessRoleAssignmentSave(
+    identityv1identity.AccessRoleAssignmentSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.accessRoleAssignmentSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<identityv1identity.AccessRoleAssignmentGetResponse> accessRoleAssignmentGet(
+    identityv1identity.AccessRoleAssignmentGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.accessRoleAssignmentGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Stream<identityv1identity.AccessRoleAssignmentSearchResponse> accessRoleAssignmentSearch(
+    identityv1identity.AccessRoleAssignmentSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.accessRoleAssignmentSearch,
       input,
       signal: signal,
       headers: headers,

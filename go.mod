@@ -8,6 +8,10 @@ replace buf.build/gen/go/antinvestor/identity/protocolbuffers/go => ./gen/go/ide
 
 replace buf.build/gen/go/antinvestor/identity/connectrpc/go => ./gen/go/identity/connectrpc/go
 
+replace buf.build/gen/go/antinvestor/field/protocolbuffers/go => ./gen/go/field/protocolbuffers/go
+
+replace buf.build/gen/go/antinvestor/field/connectrpc/go => ./gen/go/field/connectrpc/go
+
 require (
 	buf.build/gen/go/antinvestor/common/protocolbuffers/go v1.36.11-20260325040325-9771112f2289.1
 	buf.build/gen/go/antinvestor/field/connectrpc/go v1.19.1-20260409140243-7acdf026d7e0.2
@@ -25,8 +29,6 @@ require (
 	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260328115053-88b513b68855.1
 	buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.1-20260410042530-40733ae5eb81.2
 	buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260410042530-40733ae5eb81.1
-	buf.build/gen/go/antinvestor/origination/connectrpc/go v1.19.1-20260412161718-2475d73224d9.2
-	buf.build/gen/go/antinvestor/origination/protocolbuffers/go v1.36.11-20260412161718-2475d73224d9.1
 	buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.1-20260329102121-be3a38195953.2
 	buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260329102121-be3a38195953.1
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260330075109-319b4e3fd9dd.2
@@ -37,6 +39,7 @@ require (
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260406091002-ec643023d3b3.1
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.4
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/pitabwire/frame v1.93.8
 	github.com/pitabwire/util v0.8.0
 	github.com/pitabwire/util/decimalx v0.7.1
@@ -81,7 +84,6 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/cel-go v0.28.0 // indirect
 	github.com/google/gnostic v0.7.1 // indirect
 	github.com/google/gnostic-models v0.7.1 // indirect

@@ -70,6 +70,7 @@ class OrgUnitType extends $pb.ProtobufEnum {
 }
 
 /// SystemUserRole defines the role a system user plays in the lending workflow.
+/// Deprecated: use AccessRoleAssignmentObject for all authorization decisions.
 class SystemUserRole extends $pb.ProtobufEnum {
   static const SystemUserRole SYSTEM_USER_ROLE_UNSPECIFIED = SystemUserRole._(0, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_UNSPECIFIED');
   static const SystemUserRole SYSTEM_USER_ROLE_VERIFIER = SystemUserRole._(1, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_VERIFIER');
@@ -89,6 +90,114 @@ class SystemUserRole extends $pb.ProtobufEnum {
   static SystemUserRole? valueOf($core.int value) => _byValue[value];
 
   const SystemUserRole._($core.int v, $core.String n) : super(v, n);
+}
+
+/// WorkforceEngagementType defines how a workforce member is engaged.
+class WorkforceEngagementType extends $pb.ProtobufEnum {
+  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED = WorkforceEngagementType._(0, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED');
+  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE = WorkforceEngagementType._(1, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE');
+  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR = WorkforceEngagementType._(2, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR');
+  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT = WorkforceEngagementType._(3, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT');
+
+  static const $core.List<WorkforceEngagementType> values = <WorkforceEngagementType> [
+    WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED,
+    WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE,
+    WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR,
+    WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT,
+  ];
+
+  static final $core.Map<$core.int, WorkforceEngagementType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WorkforceEngagementType? valueOf($core.int value) => _byValue[value];
+
+  const WorkforceEngagementType._($core.int v, $core.String n) : super(v, n);
+}
+
+/// DepartmentKind separates top-level functions from nested departments.
+class DepartmentKind extends $pb.ProtobufEnum {
+  static const DepartmentKind DEPARTMENT_KIND_UNSPECIFIED = DepartmentKind._(0, _omitEnumNames ? '' : 'DEPARTMENT_KIND_UNSPECIFIED');
+  static const DepartmentKind DEPARTMENT_KIND_FUNCTION = DepartmentKind._(1, _omitEnumNames ? '' : 'DEPARTMENT_KIND_FUNCTION');
+  static const DepartmentKind DEPARTMENT_KIND_DEPARTMENT = DepartmentKind._(2, _omitEnumNames ? '' : 'DEPARTMENT_KIND_DEPARTMENT');
+
+  static const $core.List<DepartmentKind> values = <DepartmentKind> [
+    DEPARTMENT_KIND_UNSPECIFIED,
+    DEPARTMENT_KIND_FUNCTION,
+    DEPARTMENT_KIND_DEPARTMENT,
+  ];
+
+  static final $core.Map<$core.int, DepartmentKind> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static DepartmentKind? valueOf($core.int value) => _byValue[value];
+
+  const DepartmentKind._($core.int v, $core.String n) : super(v, n);
+}
+
+/// TeamType defines the operational purpose of an internal team.
+class TeamType extends $pb.ProtobufEnum {
+  static const TeamType TEAM_TYPE_UNSPECIFIED = TeamType._(0, _omitEnumNames ? '' : 'TEAM_TYPE_UNSPECIFIED');
+  static const TeamType TEAM_TYPE_PORTFOLIO = TeamType._(1, _omitEnumNames ? '' : 'TEAM_TYPE_PORTFOLIO');
+  static const TeamType TEAM_TYPE_SERVICING = TeamType._(2, _omitEnumNames ? '' : 'TEAM_TYPE_SERVICING');
+  static const TeamType TEAM_TYPE_COLLECTIONS = TeamType._(3, _omitEnumNames ? '' : 'TEAM_TYPE_COLLECTIONS');
+  static const TeamType TEAM_TYPE_SALES = TeamType._(4, _omitEnumNames ? '' : 'TEAM_TYPE_SALES');
+  static const TeamType TEAM_TYPE_PILOT = TeamType._(5, _omitEnumNames ? '' : 'TEAM_TYPE_PILOT');
+  static const TeamType TEAM_TYPE_SHARED_SERVICE = TeamType._(6, _omitEnumNames ? '' : 'TEAM_TYPE_SHARED_SERVICE');
+
+  static const $core.List<TeamType> values = <TeamType> [
+    TEAM_TYPE_UNSPECIFIED,
+    TEAM_TYPE_PORTFOLIO,
+    TEAM_TYPE_SERVICING,
+    TEAM_TYPE_COLLECTIONS,
+    TEAM_TYPE_SALES,
+    TEAM_TYPE_PILOT,
+    TEAM_TYPE_SHARED_SERVICE,
+  ];
+
+  static final $core.Map<$core.int, TeamType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static TeamType? valueOf($core.int value) => _byValue[value];
+
+  const TeamType._($core.int v, $core.String n) : super(v, n);
+}
+
+/// TeamMembershipRole defines a member's role inside a team.
+class TeamMembershipRole extends $pb.ProtobufEnum {
+  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_UNSPECIFIED = TeamMembershipRole._(0, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_UNSPECIFIED');
+  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_LEAD = TeamMembershipRole._(1, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_LEAD');
+  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_DEPUTY = TeamMembershipRole._(2, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_DEPUTY');
+  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_MEMBER = TeamMembershipRole._(3, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_MEMBER');
+  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_SPECIALIST = TeamMembershipRole._(4, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_SPECIALIST');
+
+  static const $core.List<TeamMembershipRole> values = <TeamMembershipRole> [
+    TEAM_MEMBERSHIP_ROLE_UNSPECIFIED,
+    TEAM_MEMBERSHIP_ROLE_LEAD,
+    TEAM_MEMBERSHIP_ROLE_DEPUTY,
+    TEAM_MEMBERSHIP_ROLE_MEMBER,
+    TEAM_MEMBERSHIP_ROLE_SPECIALIST,
+  ];
+
+  static final $core.Map<$core.int, TeamMembershipRole> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static TeamMembershipRole? valueOf($core.int value) => _byValue[value];
+
+  const TeamMembershipRole._($core.int v, $core.String n) : super(v, n);
+}
+
+/// AccessScopeType defines the resource scope of an access role assignment.
+class AccessScopeType extends $pb.ProtobufEnum {
+  static const AccessScopeType ACCESS_SCOPE_TYPE_UNSPECIFIED = AccessScopeType._(0, _omitEnumNames ? '' : 'ACCESS_SCOPE_TYPE_UNSPECIFIED');
+  static const AccessScopeType ACCESS_SCOPE_TYPE_GLOBAL = AccessScopeType._(1, _omitEnumNames ? '' : 'ACCESS_SCOPE_TYPE_GLOBAL');
+  static const AccessScopeType ACCESS_SCOPE_TYPE_ORGANIZATION = AccessScopeType._(2, _omitEnumNames ? '' : 'ACCESS_SCOPE_TYPE_ORGANIZATION');
+  static const AccessScopeType ACCESS_SCOPE_TYPE_ORG_UNIT = AccessScopeType._(3, _omitEnumNames ? '' : 'ACCESS_SCOPE_TYPE_ORG_UNIT');
+  static const AccessScopeType ACCESS_SCOPE_TYPE_TEAM = AccessScopeType._(4, _omitEnumNames ? '' : 'ACCESS_SCOPE_TYPE_TEAM');
+
+  static const $core.List<AccessScopeType> values = <AccessScopeType> [
+    ACCESS_SCOPE_TYPE_UNSPECIFIED,
+    ACCESS_SCOPE_TYPE_GLOBAL,
+    ACCESS_SCOPE_TYPE_ORGANIZATION,
+    ACCESS_SCOPE_TYPE_ORG_UNIT,
+    ACCESS_SCOPE_TYPE_TEAM,
+  ];
+
+  static final $core.Map<$core.int, AccessScopeType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static AccessScopeType? valueOf($core.int value) => _byValue[value];
+
+  const AccessScopeType._($core.int v, $core.String n) : super(v, n);
 }
 
 /// DataVerificationStatus tracks the verification lifecycle of client KYC data.

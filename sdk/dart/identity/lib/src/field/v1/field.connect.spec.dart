@@ -105,4 +105,18 @@ abstract final class FieldService {
     fieldv1field.ClientReassignRequest.new,
     fieldv1field.ClientReassignResponse.new,
   );
+
+  static const clientOwnershipTransfer = connect.Spec(
+    '/$name/ClientOwnershipTransfer',
+    connect.StreamType.unary,
+    fieldv1field.ClientOwnershipTransferRequest.new,
+    fieldv1field.ClientOwnershipTransferResponse.new,
+  );
+
+  static const clientRelationshipAssign = connect.Spec(
+    '/$name/ClientRelationshipAssign',
+    connect.StreamType.unary,
+    fieldv1field.ClientRelationshipAssignRequest.new,
+    fieldv1field.ClientRelationshipAssignResponse.new,
+  );
 }

@@ -32,6 +32,8 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
   $async.Future<$8.ClientGetResponse> clientGet($pb.ServerContext ctx, $8.ClientGetRequest request);
   $async.Future<$8.ClientSearchResponse> clientSearch($pb.ServerContext ctx, $8.ClientSearchRequest request);
   $async.Future<$8.ClientReassignResponse> clientReassign($pb.ServerContext ctx, $8.ClientReassignRequest request);
+  $async.Future<$8.ClientOwnershipTransferResponse> clientOwnershipTransfer($pb.ServerContext ctx, $8.ClientOwnershipTransferRequest request);
+  $async.Future<$8.ClientRelationshipAssignResponse> clientRelationshipAssign($pb.ServerContext ctx, $8.ClientRelationshipAssignRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -46,6 +48,8 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'ClientGet': return $8.ClientGetRequest();
       case 'ClientSearch': return $8.ClientSearchRequest();
       case 'ClientReassign': return $8.ClientReassignRequest();
+      case 'ClientOwnershipTransfer': return $8.ClientOwnershipTransferRequest();
+      case 'ClientRelationshipAssign': return $8.ClientRelationshipAssignRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -63,6 +67,8 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'ClientGet': return this.clientGet(ctx, request as $8.ClientGetRequest);
       case 'ClientSearch': return this.clientSearch(ctx, request as $8.ClientSearchRequest);
       case 'ClientReassign': return this.clientReassign(ctx, request as $8.ClientReassignRequest);
+      case 'ClientOwnershipTransfer': return this.clientOwnershipTransfer(ctx, request as $8.ClientOwnershipTransferRequest);
+      case 'ClientRelationshipAssign': return this.clientRelationshipAssign(ctx, request as $8.ClientRelationshipAssignRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

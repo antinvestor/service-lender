@@ -91,6 +91,8 @@ const ClientObject$json = {
     {'1': 'name', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'name'},
     {'1': 'state', '3': 5, '4': 1, '5': 14, '6': '.common.v1.STATE', '10': 'state'},
     {'1': 'properties', '3': 6, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
+    {'1': 'owning_team_id', '3': 7, '4': 1, '5': 9, '8': {}, '10': 'owningTeamId'},
+    {'1': 'primary_relationship_member_id', '3': 8, '4': 1, '5': 9, '8': {}, '10': 'primaryRelationshipMemberId'},
   ],
 };
 
@@ -100,7 +102,10 @@ final $typed_data.Uint8List clientObjectDescriptor = $convert.base64Decode(
     'QwfVICaWQSJAoIYWdlbnRfaWQYAiABKAlCCbpIBnIEEAMYKFIHYWdlbnRJZBIoCgpwcm9maWxl'
     'X2lkGAMgASgJQgm6SAZyBBADGChSCXByb2ZpbGVJZBIbCgRuYW1lGAQgASgJQge6SARyAhABUg'
     'RuYW1lEiYKBXN0YXRlGAUgASgOMhAuY29tbW9uLnYxLlNUQVRFUgVzdGF0ZRI3Cgpwcm9wZXJ0'
-    'aWVzGAYgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJvcGVydGllcw==');
+    'aWVzGAYgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdFIKcHJvcGVydGllcxIwCg5vd25pbm'
+    'dfdGVhbV9pZBgHIAEoCUIKukgH2AEBcgIYKFIMb3duaW5nVGVhbUlkEk8KHnByaW1hcnlfcmVs'
+    'YXRpb25zaGlwX21lbWJlcl9pZBgIIAEoCUIKukgH2AEBcgIYKFIbcHJpbWFyeVJlbGF0aW9uc2'
+    'hpcE1lbWJlcklk');
 
 @$core.Deprecated('Use agentSaveRequestDescriptor instead')
 const AgentSaveRequest$json = {
@@ -350,6 +355,8 @@ const ClientSearchRequest$json = {
     {'1': 'query', '3': 1, '4': 1, '5': 9, '10': 'query'},
     {'1': 'agent_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'agentId'},
     {'1': 'cursor', '3': 3, '4': 1, '5': 11, '6': '.common.v1.PageCursor', '10': 'cursor'},
+    {'1': 'owning_team_id', '3': 4, '4': 1, '5': 9, '8': {}, '10': 'owningTeamId'},
+    {'1': 'primary_relationship_member_id', '3': 5, '4': 1, '5': 9, '8': {}, '10': 'primaryRelationshipMemberId'},
   ],
 };
 
@@ -357,7 +364,9 @@ const ClientSearchRequest$json = {
 final $typed_data.Uint8List clientSearchRequestDescriptor = $convert.base64Decode(
     'ChNDbGllbnRTZWFyY2hSZXF1ZXN0EhQKBXF1ZXJ5GAEgASgJUgVxdWVyeRInCghhZ2VudF9pZB'
     'gCIAEoCUIMukgJ2AEBcgQQAxgoUgdhZ2VudElkEi0KBmN1cnNvchgDIAEoCzIVLmNvbW1vbi52'
-    'MS5QYWdlQ3Vyc29yUgZjdXJzb3I=');
+    'MS5QYWdlQ3Vyc29yUgZjdXJzb3ISMAoOb3duaW5nX3RlYW1faWQYBCABKAlCCrpIB9gBAXICGC'
+    'hSDG93bmluZ1RlYW1JZBJPCh5wcmltYXJ5X3JlbGF0aW9uc2hpcF9tZW1iZXJfaWQYBSABKAlC'
+    'CrpIB9gBAXICGChSG3ByaW1hcnlSZWxhdGlvbnNoaXBNZW1iZXJJZA==');
 
 @$core.Deprecated('Use clientSearchResponseDescriptor instead')
 const ClientSearchResponse$json = {
@@ -401,6 +410,65 @@ const ClientReassignResponse$json = {
 final $typed_data.Uint8List clientReassignResponseDescriptor = $convert.base64Decode(
     'ChZDbGllbnRSZWFzc2lnblJlc3BvbnNlEioKBGRhdGEYASABKAsyFi5maWVsZC52MS5DbGllbn'
     'RPYmplY3RSBGRhdGE=');
+
+@$core.Deprecated('Use clientOwnershipTransferRequestDescriptor instead')
+const ClientOwnershipTransferRequest$json = {
+  '1': 'ClientOwnershipTransferRequest',
+  '2': [
+    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
+    {'1': 'new_owning_team_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'newOwningTeamId'},
+    {'1': 'reason', '3': 3, '4': 1, '5': 9, '10': 'reason'},
+  ],
+};
+
+/// Descriptor for `ClientOwnershipTransferRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientOwnershipTransferRequestDescriptor = $convert.base64Decode(
+    'Ch5DbGllbnRPd25lcnNoaXBUcmFuc2ZlclJlcXVlc3QSOAoJY2xpZW50X2lkGAEgASgJQhu6SB'
+    'hyFhADGCgyEFswLTlhLXpfLV17Myw0MH1SCGNsaWVudElkEjYKEm5ld19vd25pbmdfdGVhbV9p'
+    'ZBgCIAEoCUIJukgGcgQQAxgoUg9uZXdPd25pbmdUZWFtSWQSFgoGcmVhc29uGAMgASgJUgZyZW'
+    'Fzb24=');
+
+@$core.Deprecated('Use clientOwnershipTransferResponseDescriptor instead')
+const ClientOwnershipTransferResponse$json = {
+  '1': 'ClientOwnershipTransferResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.ClientObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientOwnershipTransferResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientOwnershipTransferResponseDescriptor = $convert.base64Decode(
+    'Ch9DbGllbnRPd25lcnNoaXBUcmFuc2ZlclJlc3BvbnNlEioKBGRhdGEYASABKAsyFi5maWVsZC'
+    '52MS5DbGllbnRPYmplY3RSBGRhdGE=');
+
+@$core.Deprecated('Use clientRelationshipAssignRequestDescriptor instead')
+const ClientRelationshipAssignRequest$json = {
+  '1': 'ClientRelationshipAssignRequest',
+  '2': [
+    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
+    {'1': 'member_id', '3': 2, '4': 1, '5': 9, '8': {}, '10': 'memberId'},
+    {'1': 'reason', '3': 3, '4': 1, '5': 9, '10': 'reason'},
+  ],
+};
+
+/// Descriptor for `ClientRelationshipAssignRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientRelationshipAssignRequestDescriptor = $convert.base64Decode(
+    'Ch9DbGllbnRSZWxhdGlvbnNoaXBBc3NpZ25SZXF1ZXN0EjgKCWNsaWVudF9pZBgBIAEoCUIbuk'
+    'gYchYQAxgoMhBbMC05YS16Xy1dezMsNDB9UghjbGllbnRJZBImCgltZW1iZXJfaWQYAiABKAlC'
+    'CbpIBnIEEAMYKFIIbWVtYmVySWQSFgoGcmVhc29uGAMgASgJUgZyZWFzb24=');
+
+@$core.Deprecated('Use clientRelationshipAssignResponseDescriptor instead')
+const ClientRelationshipAssignResponse$json = {
+  '1': 'ClientRelationshipAssignResponse',
+  '2': [
+    {'1': 'data', '3': 1, '4': 1, '5': 11, '6': '.field.v1.ClientObject', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `ClientRelationshipAssignResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientRelationshipAssignResponseDescriptor = $convert.base64Decode(
+    'CiBDbGllbnRSZWxhdGlvbnNoaXBBc3NpZ25SZXNwb25zZRIqCgRkYXRhGAEgASgLMhYuZmllbG'
+    'QudjEuQ2xpZW50T2JqZWN0UgRkYXRh');
 
 const $core.Map<$core.String, $core.dynamic> FieldServiceBase$json = {
   '1': 'FieldService',
@@ -450,6 +518,8 @@ const $core.Map<$core.String, $core.dynamic> FieldServiceBase$json = {
       '6': true,
     },
     {'1': 'ClientReassign', '2': '.field.v1.ClientReassignRequest', '3': '.field.v1.ClientReassignResponse', '4': {}},
+    {'1': 'ClientOwnershipTransfer', '2': '.field.v1.ClientOwnershipTransferRequest', '3': '.field.v1.ClientOwnershipTransferResponse', '4': {}},
+    {'1': 'ClientRelationshipAssign', '2': '.field.v1.ClientRelationshipAssignRequest', '3': '.field.v1.ClientRelationshipAssignResponse', '4': {}},
   ],
   '3': {},
 };
@@ -486,6 +556,10 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FieldServi
   '.field.v1.ClientSearchResponse': ClientSearchResponse$json,
   '.field.v1.ClientReassignRequest': ClientReassignRequest$json,
   '.field.v1.ClientReassignResponse': ClientReassignResponse$json,
+  '.field.v1.ClientOwnershipTransferRequest': ClientOwnershipTransferRequest$json,
+  '.field.v1.ClientOwnershipTransferResponse': ClientOwnershipTransferResponse$json,
+  '.field.v1.ClientRelationshipAssignRequest': ClientRelationshipAssignRequest$json,
+  '.field.v1.ClientRelationshipAssignResponse': ClientRelationshipAssignResponse$json,
 };
 
 /// Descriptor for `FieldService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -522,33 +596,38 @@ final $typed_data.Uint8List fieldServiceDescriptor = $convert.base64Decode(
     'dlbnRCcmFuY2hMaXN0UmVzcG9uc2UimgGQAgG6R4MBCgZBZ2VudHMSHUxpc3QgYWdlbnQtYnJh'
     'bmNoIGFzc2lnbm1lbnRzGklMaXN0cyBicmFuY2ggYXNzaWdubWVudHMgZm9yIGFuIGFnZW50LC'
     'BvciBhZ2VudCBhc3NpZ25tZW50cyBmb3IgYSBicmFuY2guKg9hZ2VudEJyYW5jaExpc3SCtRgM'
-    'CgphZ2VudF92aWV3MAESkwIKCkNsaWVudFNhdmUSGy5maWVsZC52MS5DbGllbnRTYXZlUmVxdW'
-    'VzdBocLmZpZWxkLnYxLkNsaWVudFNhdmVSZXNwb25zZSLJAbpHsgEKB0NsaWVudHMSGk9uYm9h'
-    'cmQgb3IgdXBkYXRlIGEgY2xpZW50Gn9PbmJvYXJkcyBhIG5ldyBjbGllbnQgb3IgdXBkYXRlcy'
+    'CgphZ2VudF92aWV3MAESkQIKCkNsaWVudFNhdmUSGy5maWVsZC52MS5DbGllbnRTYXZlUmVxdW'
+    'VzdBocLmZpZWxkLnYxLkNsaWVudFNhdmVSZXNwb25zZSLHAbpHsAEKB0NsaWVudHMSGk9uYm9h'
+    'cmQgb3IgdXBkYXRlIGEgY2xpZW50Gn1PbmJvYXJkcyBhIG5ldyBjbGllbnQgb3IgdXBkYXRlcy'
     'BhbiBleGlzdGluZyBvbmUuIEVhY2ggY2xpZW50IG11c3QgaGF2ZSBhIHVuaXF1ZSBwcm9maWxl'
-    'IElEIGFuZCBiZSBhc3NpZ25lZCB0byBhbiBhY3RpdmUgYWdlbnQuKgpjbGllbnRTYXZlgrUYDw'
-    'oNY2xpZW50X21hbmFnZRK8AQoJQ2xpZW50R2V0EhouZmllbGQudjEuQ2xpZW50R2V0UmVxdWVz'
-    'dBobLmZpZWxkLnYxLkNsaWVudEdldFJlc3BvbnNlInaQAgG6R18KB0NsaWVudHMSEkdldCBhIG'
-    'NsaWVudCBieSBJRBo1UmV0cmlldmVzIGEgY2xpZW50IHJlY29yZCBieSB0aGVpciB1bmlxdWUg'
-    'aWRlbnRpZmllci4qCWNsaWVudEdldIK1GA0KC2NsaWVudF92aWV3Eo4CCgxDbGllbnRTZWFyY2'
-    'gSHS5maWVsZC52MS5DbGllbnRTZWFyY2hSZXF1ZXN0Gh4uZmllbGQudjEuQ2xpZW50U2VhcmNo'
-    'UmVzcG9uc2UivAGQAgG6R6QBCgdDbGllbnRzEg5TZWFyY2ggY2xpZW50cxp7U2VhcmNoZXMgZm'
-    '9yIGNsaWVudHMgbWF0Y2hpbmcgc3BlY2lmaWVkIGNyaXRlcmlhLiBTdXBwb3J0cyBmaWx0ZXJp'
-    'bmcgYnkgYWdlbnQuIFJldHVybnMgYSBzdHJlYW0gb2YgbWF0Y2hpbmcgY2xpZW50IHJlY29yZH'
-    'MuKgxjbGllbnRTZWFyY2iCtRgNCgtjbGllbnRfdmlldzABEqsCCg5DbGllbnRSZWFzc2lnbhIf'
-    'LmZpZWxkLnYxLkNsaWVudFJlYXNzaWduUmVxdWVzdBogLmZpZWxkLnYxLkNsaWVudFJlYXNzaW'
-    'duUmVzcG9uc2Ui1QG6R74BCgdDbGllbnRzEhFSZWFzc2lnbiBhIGNsaWVudBqPAU1vdmVzIGEg'
-    'Y2xpZW50IGZyb20gdGhlaXIgY3VycmVudCBhZ2VudCB0byBhIGRpZmZlcmVudCBhZ2VudC4gQm'
-    '90aCBhZ2VudHMgbXVzdCBiZSBpbiB0aGUgc2FtZSBiYW5rLiBDcmVhdGVzIGFuIGF1ZGl0IHRy'
-    'YWlsIG9mIHRoZSByZWFzc2lnbm1lbnQuKg5jbGllbnRSZWFzc2lnboK1GA8KDWNsaWVudF9tYW'
-    '5hZ2Ua9gOCtRjxAwoNc2VydmljZV9maWVsZBIKYWdlbnRfdmlldxIMYWdlbnRfbWFuYWdlEhVh'
-    'Z2VudF9zdWJhZ2VudF9tYW5hZ2USC2NsaWVudF92aWV3Eg1jbGllbnRfbWFuYWdlGk8IARIKYW'
-    'dlbnRfdmlldxIMYWdlbnRfbWFuYWdlEhVhZ2VudF9zdWJhZ2VudF9tYW5hZ2USC2NsaWVudF92'
-    'aWV3Eg1jbGllbnRfbWFuYWdlGk8IAhIKYWdlbnRfdmlldxIMYWdlbnRfbWFuYWdlEhVhZ2VudF'
-    '9zdWJhZ2VudF9tYW5hZ2USC2NsaWVudF92aWV3Eg1jbGllbnRfbWFuYWdlGk8IAxIKYWdlbnRf'
-    'dmlldxIMYWdlbnRfbWFuYWdlEhVhZ2VudF9zdWJhZ2VudF9tYW5hZ2USC2NsaWVudF92aWV3Eg'
-    '1jbGllbnRfbWFuYWdlGhsIBBIKYWdlbnRfdmlldxILY2xpZW50X3ZpZXcaMggFEgphZ2VudF92'
-    'aWV3EhVhZ2VudF9zdWJhZ2VudF9tYW5hZ2USC2NsaWVudF92aWV3Gk8IBhIKYWdlbnRfdmlldx'
-    'IMYWdlbnRfbWFuYWdlEhVhZ2VudF9zdWJhZ2VudF9tYW5hZ2USC2NsaWVudF92aWV3Eg1jbGll'
-    'bnRfbWFuYWdl');
+    'IElEIGFuZCBiZSBvd25lZCBieSBhbiBpbnRlcm5hbCB0ZWFtLioKY2xpZW50U2F2ZYK1GA8KDW'
+    'NsaWVudF9tYW5hZ2USvAEKCUNsaWVudEdldBIaLmZpZWxkLnYxLkNsaWVudEdldFJlcXVlc3Qa'
+    'Gy5maWVsZC52MS5DbGllbnRHZXRSZXNwb25zZSJ2kAIBukdfCgdDbGllbnRzEhJHZXQgYSBjbG'
+    'llbnQgYnkgSUQaNVJldHJpZXZlcyBhIGNsaWVudCByZWNvcmQgYnkgdGhlaXIgdW5pcXVlIGlk'
+    'ZW50aWZpZXIuKgljbGllbnRHZXSCtRgNCgtjbGllbnRfdmlldxKtAgoMQ2xpZW50U2VhcmNoEh'
+    '0uZmllbGQudjEuQ2xpZW50U2VhcmNoUmVxdWVzdBoeLmZpZWxkLnYxLkNsaWVudFNlYXJjaFJl'
+    'c3BvbnNlItsBkAIBukfDAQoHQ2xpZW50cxIOU2VhcmNoIGNsaWVudHMamQFTZWFyY2hlcyBmb3'
+    'IgY2xpZW50cyBtYXRjaGluZyBzcGVjaWZpZWQgY3JpdGVyaWEuIFN1cHBvcnRzIGZpbHRlcmlu'
+    'ZyBieSBvd25pbmcgdGVhbSBhbmQgcmVsYXRpb25zaGlwIG1lbWJlci4gUmV0dXJucyBhIHN0cm'
+    'VhbSBvZiBtYXRjaGluZyBjbGllbnQgcmVjb3Jkcy4qDGNsaWVudFNlYXJjaIK1GA0KC2NsaWVu'
+    'dF92aWV3MAESlAIKDkNsaWVudFJlYXNzaWduEh8uZmllbGQudjEuQ2xpZW50UmVhc3NpZ25SZX'
+    'F1ZXN0GiAuZmllbGQudjEuQ2xpZW50UmVhc3NpZ25SZXNwb25zZSK+AbpHpwEKB0NsaWVudHMS'
+    'EVJlYXNzaWduIGEgY2xpZW50GnlEZXByZWNhdGVkLiBDbGllbnQgb3duZXJzaGlwIGlzIHRlYW'
+    '0tYmFzZWQgYW5kIHNob3VsZCBiZSBjaGFuZ2VkIHZpYSBDbGllbnRPd25lcnNoaXBUcmFuc2Zl'
+    'ciBvciBDbGllbnRSZWxhdGlvbnNoaXBBc3NpZ24uKg5jbGllbnRSZWFzc2lnboK1GA8KDWNsaW'
+    'VudF9tYW5hZ2USgwEKF0NsaWVudE93bmVyc2hpcFRyYW5zZmVyEiguZmllbGQudjEuQ2xpZW50'
+    'T3duZXJzaGlwVHJhbnNmZXJSZXF1ZXN0GikuZmllbGQudjEuQ2xpZW50T3duZXJzaGlwVHJhbn'
+    'NmZXJSZXNwb25zZSITgrUYDwoNY2xpZW50X21hbmFnZRKGAQoYQ2xpZW50UmVsYXRpb25zaGlw'
+    'QXNzaWduEikuZmllbGQudjEuQ2xpZW50UmVsYXRpb25zaGlwQXNzaWduUmVxdWVzdBoqLmZpZW'
+    'xkLnYxLkNsaWVudFJlbGF0aW9uc2hpcEFzc2lnblJlc3BvbnNlIhOCtRgPCg1jbGllbnRfbWFu'
+    'YWdlGvYDgrUY8QMKDXNlcnZpY2VfZmllbGQSCmFnZW50X3ZpZXcSDGFnZW50X21hbmFnZRIVYW'
+    'dlbnRfc3ViYWdlbnRfbWFuYWdlEgtjbGllbnRfdmlldxINY2xpZW50X21hbmFnZRpPCAESCmFn'
+    'ZW50X3ZpZXcSDGFnZW50X21hbmFnZRIVYWdlbnRfc3ViYWdlbnRfbWFuYWdlEgtjbGllbnRfdm'
+    'lldxINY2xpZW50X21hbmFnZRpPCAISCmFnZW50X3ZpZXcSDGFnZW50X21hbmFnZRIVYWdlbnRf'
+    'c3ViYWdlbnRfbWFuYWdlEgtjbGllbnRfdmlldxINY2xpZW50X21hbmFnZRpPCAMSCmFnZW50X3'
+    'ZpZXcSDGFnZW50X21hbmFnZRIVYWdlbnRfc3ViYWdlbnRfbWFuYWdlEgtjbGllbnRfdmlldxIN'
+    'Y2xpZW50X21hbmFnZRobCAQSCmFnZW50X3ZpZXcSC2NsaWVudF92aWV3GjIIBRIKYWdlbnRfdm'
+    'lldxIVYWdlbnRfc3ViYWdlbnRfbWFuYWdlEgtjbGllbnRfdmlldxpPCAYSCmFnZW50X3ZpZXcS'
+    'DGFnZW50X21hbmFnZRIVYWdlbnRfc3ViYWdlbnRfbWFuYWdlEgtjbGllbnRfdmlldxINY2xpZW'
+    '50X21hbmFnZQ==');
 

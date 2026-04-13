@@ -8,6 +8,7 @@ import "identity.pb.dart" as identityv1identity;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
 /// IdentityService manages organizations, org units, and system users for the platform.
+/// Canonical workforce, hierarchy, team, and access-control concepts live here.
 /// All RPCs require authentication via Bearer token.
 abstract final class IdentityService {
   /// Fully-qualified name of the IdentityService service.
@@ -62,6 +63,167 @@ abstract final class IdentityService {
     connect.StreamType.server,
     identityv1identity.OrgUnitSearchRequest.new,
     identityv1identity.OrgUnitSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const workforceMemberSave = connect.Spec(
+    '/$name/WorkforceMemberSave',
+    connect.StreamType.unary,
+    identityv1identity.WorkforceMemberSaveRequest.new,
+    identityv1identity.WorkforceMemberSaveResponse.new,
+  );
+
+  static const workforceMemberGet = connect.Spec(
+    '/$name/WorkforceMemberGet',
+    connect.StreamType.unary,
+    identityv1identity.WorkforceMemberGetRequest.new,
+    identityv1identity.WorkforceMemberGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const workforceMemberSearch = connect.Spec(
+    '/$name/WorkforceMemberSearch',
+    connect.StreamType.server,
+    identityv1identity.WorkforceMemberSearchRequest.new,
+    identityv1identity.WorkforceMemberSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const departmentSave = connect.Spec(
+    '/$name/DepartmentSave',
+    connect.StreamType.unary,
+    identityv1identity.DepartmentSaveRequest.new,
+    identityv1identity.DepartmentSaveResponse.new,
+  );
+
+  static const departmentGet = connect.Spec(
+    '/$name/DepartmentGet',
+    connect.StreamType.unary,
+    identityv1identity.DepartmentGetRequest.new,
+    identityv1identity.DepartmentGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const departmentSearch = connect.Spec(
+    '/$name/DepartmentSearch',
+    connect.StreamType.server,
+    identityv1identity.DepartmentSearchRequest.new,
+    identityv1identity.DepartmentSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const positionSave = connect.Spec(
+    '/$name/PositionSave',
+    connect.StreamType.unary,
+    identityv1identity.PositionSaveRequest.new,
+    identityv1identity.PositionSaveResponse.new,
+  );
+
+  static const positionGet = connect.Spec(
+    '/$name/PositionGet',
+    connect.StreamType.unary,
+    identityv1identity.PositionGetRequest.new,
+    identityv1identity.PositionGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const positionSearch = connect.Spec(
+    '/$name/PositionSearch',
+    connect.StreamType.server,
+    identityv1identity.PositionSearchRequest.new,
+    identityv1identity.PositionSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const positionAssignmentSave = connect.Spec(
+    '/$name/PositionAssignmentSave',
+    connect.StreamType.unary,
+    identityv1identity.PositionAssignmentSaveRequest.new,
+    identityv1identity.PositionAssignmentSaveResponse.new,
+  );
+
+  static const positionAssignmentGet = connect.Spec(
+    '/$name/PositionAssignmentGet',
+    connect.StreamType.unary,
+    identityv1identity.PositionAssignmentGetRequest.new,
+    identityv1identity.PositionAssignmentGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const positionAssignmentSearch = connect.Spec(
+    '/$name/PositionAssignmentSearch',
+    connect.StreamType.server,
+    identityv1identity.PositionAssignmentSearchRequest.new,
+    identityv1identity.PositionAssignmentSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const internalTeamSave = connect.Spec(
+    '/$name/InternalTeamSave',
+    connect.StreamType.unary,
+    identityv1identity.InternalTeamSaveRequest.new,
+    identityv1identity.InternalTeamSaveResponse.new,
+  );
+
+  static const internalTeamGet = connect.Spec(
+    '/$name/InternalTeamGet',
+    connect.StreamType.unary,
+    identityv1identity.InternalTeamGetRequest.new,
+    identityv1identity.InternalTeamGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const internalTeamSearch = connect.Spec(
+    '/$name/InternalTeamSearch',
+    connect.StreamType.server,
+    identityv1identity.InternalTeamSearchRequest.new,
+    identityv1identity.InternalTeamSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const teamMembershipSave = connect.Spec(
+    '/$name/TeamMembershipSave',
+    connect.StreamType.unary,
+    identityv1identity.TeamMembershipSaveRequest.new,
+    identityv1identity.TeamMembershipSaveResponse.new,
+  );
+
+  static const teamMembershipGet = connect.Spec(
+    '/$name/TeamMembershipGet',
+    connect.StreamType.unary,
+    identityv1identity.TeamMembershipGetRequest.new,
+    identityv1identity.TeamMembershipGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const teamMembershipSearch = connect.Spec(
+    '/$name/TeamMembershipSearch',
+    connect.StreamType.server,
+    identityv1identity.TeamMembershipSearchRequest.new,
+    identityv1identity.TeamMembershipSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const accessRoleAssignmentSave = connect.Spec(
+    '/$name/AccessRoleAssignmentSave',
+    connect.StreamType.unary,
+    identityv1identity.AccessRoleAssignmentSaveRequest.new,
+    identityv1identity.AccessRoleAssignmentSaveResponse.new,
+  );
+
+  static const accessRoleAssignmentGet = connect.Spec(
+    '/$name/AccessRoleAssignmentGet',
+    connect.StreamType.unary,
+    identityv1identity.AccessRoleAssignmentGetRequest.new,
+    identityv1identity.AccessRoleAssignmentGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  static const accessRoleAssignmentSearch = connect.Spec(
+    '/$name/AccessRoleAssignmentSearch',
+    connect.StreamType.server,
+    identityv1identity.AccessRoleAssignmentSearchRequest.new,
+    identityv1identity.AccessRoleAssignmentSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 

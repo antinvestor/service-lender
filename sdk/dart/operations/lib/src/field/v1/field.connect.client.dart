@@ -207,4 +207,38 @@ extension type FieldServiceClient (connect.Transport _transport) {
       onTrailer: onTrailer,
     );
   }
+
+  Future<fieldv1field.ClientOwnershipTransferResponse> clientOwnershipTransfer(
+    fieldv1field.ClientOwnershipTransferRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.clientOwnershipTransfer,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  Future<fieldv1field.ClientRelationshipAssignResponse> clientRelationshipAssign(
+    fieldv1field.ClientRelationshipAssignRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.clientRelationshipAssign,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
 }

@@ -4,8 +4,6 @@ modules:
     name: buf.build/antinvestor/identity
   - path: field
     name: buf.build/antinvestor/field
-  - path: origination
-    name: buf.build/antinvestor/origination
   - path: loans
     name: buf.build/antinvestor/loans
   - path: savings
