@@ -55,18 +55,18 @@ message TransferOrderSearchResponse {
 
 // IncomingPaymentNotifyRequest notifies the system of a new payment received.
 message IncomingPaymentNotifyRequest {
-  string transaction_id = 1;       // External transaction ID (idempotency key)
-  google.type.Money amount = 2;    // Payment amount
-  string payer_reference = 3;      // Payer reference (phone, account, membership ID)
-  string payer_name = 4;           // Payer name for fuzzy matching
-  string product_id = 5;           // Product context
-  string group_id = 6;             // Group context
+  string transaction_id = 1; // External transaction ID (idempotency key)
+  google.type.Money amount = 2; // Payment amount
+  string payer_reference = 3; // Payer reference (phone, account, membership ID)
+  string payer_name = 4; // Payer name for fuzzy matching
+  string product_id = 5; // Product context
+  string group_id = 6; // Group context
   google.protobuf.Struct properties = 7;
 }
 
 message IncomingPaymentNotifyResponse {
   string payment_id = 1;
-  string status = 2;               // "identified" or "unidentified"
+  string status = 2; // "identified" or "unidentified"
   google.protobuf.Struct result = 3;
 }
 

@@ -1218,24 +1218,24 @@ message InvestorWithdrawResponse {
 
 // FormFieldDefinition defines a single field in a form template.
 message FormFieldDefinition {
-  string key = 1;                    // Machine-readable key (e.g., "legal_name")
-  string label = 2;                  // Human-readable label (e.g., "Legal Entity Name")
-  FormFieldType field_type = 3;      // Field type
-  FormFieldGroup group = 4;          // Field group for categorization
-  bool required = 5;                 // Whether the field is mandatory
-  string description = 6;            // Help text shown below the field
-  string placeholder = 7;            // Placeholder text
-  string default_value = 8;          // Default value
-  string validation_pattern = 9;     // Regex validation pattern
-  string validation_message = 10;    // Custom validation error message
-  repeated string options = 11;      // Options for SELECT/MULTI_SELECT fields
-  int32 min_length = 12;             // Minimum length for text fields
-  int32 max_length = 13;             // Maximum length for text fields
-  string min_value = 14;             // Minimum value for number/currency fields
-  string max_value = 15;             // Maximum value for number/currency fields
-  int32 order = 16;                  // Display order within the section
-  string section = 17;               // Section name for grouping fields into steps
-  bool encrypted = 18;               // Whether the field value should be encrypted at rest
+  string key = 1; // Machine-readable key (e.g., "legal_name")
+  string label = 2; // Human-readable label (e.g., "Legal Entity Name")
+  FormFieldType field_type = 3; // Field type
+  FormFieldGroup group = 4; // Field group for categorization
+  bool required = 5; // Whether the field is mandatory
+  string description = 6; // Help text shown below the field
+  string placeholder = 7; // Placeholder text
+  string default_value = 8; // Default value
+  string validation_pattern = 9; // Regex validation pattern
+  string validation_message = 10; // Custom validation error message
+  repeated string options = 11; // Options for SELECT/MULTI_SELECT fields
+  int32 min_length = 12; // Minimum length for text fields
+  int32 max_length = 13; // Maximum length for text fields
+  string min_value = 14; // Minimum value for number/currency fields
+  string max_value = 15; // Maximum value for number/currency fields
+  int32 order = 16; // Display order within the section
+  string section = 17; // Section name for grouping fields into steps
+  bool encrypted = 18; // Whether the field value should be encrypted at rest
   google.protobuf.Struct properties = 19; // Additional field configuration
 }
 
@@ -1288,7 +1288,7 @@ message FormSubmissionObject {
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
-  string entity_type = 3;            // "client", "agent", "investor", "group", "loan_request"
+  string entity_type = 3; // "client", "agent", "investor", "group", "loan_request"
   string template_id = 4 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
@@ -1319,21 +1319,21 @@ message ClientDataEntryObject {
     (buf.validate.field).string.max_len = 40
   ];
   string field_key = 3 [(buf.validate.field).string.min_len = 1]; // Global key e.g. "id_front_photo"
-  string value = 4;                  // Text value or file reference ID
-  string value_type = 5;             // "text", "number", "file", "photo", "signature", "location"
+  string value = 4; // Text value or file reference ID
+  string value_type = 5; // "text", "number", "file", "photo", "signature", "location"
   DataVerificationStatus verification_status = 6;
   string reviewer_id = 7 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ]; // Profile ID of verifier
-  string reviewer_comment = 8;       // Reason for rejection or more-info request
+  string reviewer_comment = 8; // Reason for rejection or more-info request
   string source_entity_id = 9 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ]; // Which entity collected this (loan request, client onboard, etc.)
-  int32 revision = 10;               // Auto-incremented on resubmission
-  string verified_at = 11;           // RFC3339 timestamp
-  string expires_at = 12;            // RFC3339 timestamp (empty = never expires)
+  int32 revision = 10; // Auto-incremented on resubmission
+  string verified_at = 11; // RFC3339 timestamp
+  string expires_at = 12; // RFC3339 timestamp (empty = never expires)
   google.protobuf.Struct properties = 13;
 }
 
@@ -1350,14 +1350,14 @@ message ClientDataEntryHistoryObject {
     (buf.validate.field).string.max_len = 40
   ]; // FK to ClientDataEntryObject
   int32 revision = 3;
-  string value = 4;                  // Value at this revision
-  string action = 5;                 // "submitted", "verified", "rejected", "more_info", "expired"
+  string value = 4; // Value at this revision
+  string action = 5; // "submitted", "verified", "rejected", "more_info", "expired"
   string actor_id = 6 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ]; // Profile ID of who performed this
-  string comment = 7;               // Reason/note
-  string created_at = 8;            // RFC3339 timestamp
+  string comment = 7; // Reason/note
+  string created_at = 8; // RFC3339 timestamp
 }
 
 // Save/update client data (agent submitting)
@@ -1878,101 +1878,143 @@ service IdentityService {
   }
 
   rpc WorkforceMemberSave(WorkforceMemberSaveRequest) returns (WorkforceMemberSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["workforce_member_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["workforce_member_manage"]
+    };
   }
 
   rpc WorkforceMemberGet(WorkforceMemberGetRequest) returns (WorkforceMemberGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["workforce_member_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["workforce_member_view"]
+    };
   }
 
   rpc WorkforceMemberSearch(WorkforceMemberSearchRequest) returns (stream WorkforceMemberSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["workforce_member_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["workforce_member_view"]
+    };
   }
 
   rpc DepartmentSave(DepartmentSaveRequest) returns (DepartmentSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["department_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["department_manage"]
+    };
   }
 
   rpc DepartmentGet(DepartmentGetRequest) returns (DepartmentGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["department_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["department_view"]
+    };
   }
 
   rpc DepartmentSearch(DepartmentSearchRequest) returns (stream DepartmentSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["department_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["department_view"]
+    };
   }
 
   rpc PositionSave(PositionSaveRequest) returns (PositionSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["position_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["position_manage"]
+    };
   }
 
   rpc PositionGet(PositionGetRequest) returns (PositionGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["position_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["position_view"]
+    };
   }
 
   rpc PositionSearch(PositionSearchRequest) returns (stream PositionSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["position_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["position_view"]
+    };
   }
 
   rpc PositionAssignmentSave(PositionAssignmentSaveRequest) returns (PositionAssignmentSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["position_assignment_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["position_assignment_manage"]
+    };
   }
 
   rpc PositionAssignmentGet(PositionAssignmentGetRequest) returns (PositionAssignmentGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["position_assignment_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["position_assignment_view"]
+    };
   }
 
   rpc PositionAssignmentSearch(PositionAssignmentSearchRequest) returns (stream PositionAssignmentSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["position_assignment_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["position_assignment_view"]
+    };
   }
 
   rpc InternalTeamSave(InternalTeamSaveRequest) returns (InternalTeamSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["team_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["team_manage"]
+    };
   }
 
   rpc InternalTeamGet(InternalTeamGetRequest) returns (InternalTeamGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["team_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["team_view"]
+    };
   }
 
   rpc InternalTeamSearch(InternalTeamSearchRequest) returns (stream InternalTeamSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["team_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["team_view"]
+    };
   }
 
   rpc TeamMembershipSave(TeamMembershipSaveRequest) returns (TeamMembershipSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["team_membership_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["team_membership_manage"]
+    };
   }
 
   rpc TeamMembershipGet(TeamMembershipGetRequest) returns (TeamMembershipGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["team_membership_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["team_membership_view"]
+    };
   }
 
   rpc TeamMembershipSearch(TeamMembershipSearchRequest) returns (stream TeamMembershipSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["team_membership_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["team_membership_view"]
+    };
   }
 
   rpc AccessRoleAssignmentSave(AccessRoleAssignmentSaveRequest) returns (AccessRoleAssignmentSaveResponse) {
-    option (common.v1.method_permissions) = { permissions: ["access_role_assignment_manage"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["access_role_assignment_manage"]
+    };
   }
 
   rpc AccessRoleAssignmentGet(AccessRoleAssignmentGetRequest) returns (AccessRoleAssignmentGetResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["access_role_assignment_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["access_role_assignment_view"]
+    };
   }
 
   rpc AccessRoleAssignmentSearch(AccessRoleAssignmentSearchRequest) returns (stream AccessRoleAssignmentSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = { permissions: ["access_role_assignment_view"] };
+    option (common.v1.method_permissions) = {
+      permissions: ["access_role_assignment_view"]
+    };
   }
 
   // BranchSave creates or updates a legacy leaf branch record.

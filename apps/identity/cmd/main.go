@@ -213,6 +213,7 @@ func setupServiceOptions(
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
 		loginClientBusiness, clientDataBusiness,
 		formTemplateBusiness, formSubmissionBusiness,
+		clientRelationshipBusiness,
 	)
 
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
@@ -311,6 +312,7 @@ func setupConnectServer(
 	clientDataBusiness business.ClientDataBusiness,
 	formTemplateBusiness business.FormTemplateBusiness,
 	formSubmissionBusiness business.FormSubmissionBusiness,
+	clientRelationshipBusiness business.ClientRelationshipBusiness,
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(

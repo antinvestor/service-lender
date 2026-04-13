@@ -43,6 +43,7 @@ type approvalWorkflowEnv struct {
 	agentRepo        repository.AgentRepository
 	agentBranchRepo  repository.AgentBranchRepository
 	clientRepo       repository.ClientRepository
+	internalTeamRepo repository.InternalTeamRepository
 	clcrRepo         repository.CreditLimitChangeRequestRepository
 	approvalCaseRepo repository.ApprovalCaseRepository
 	orgUnitBusiness  OrgUnitBusiness
@@ -237,9 +238,10 @@ func (s *approvalWorkflowSuite) TestClientPhoneChangeActualizesOnlyAfterApproval
 	client := env.createClient(agent, "Jane Doe", "+256700000111")
 
 	updated, err := env.clientBusiness.Save(env.ctx, &fieldv1.ClientObject{
-		Id:      client.GetID(),
-		AgentId: agent.GetID(),
-		Name:    client.Name,
+		Id:           client.GetID(),
+		AgentId:      agent.GetID(),
+		OwningTeamId: client.OwningTeamID,
+		Name:         client.Name,
 		Properties: propertiesStruct(map[string]any{
 			clientPhoneNumberKey: "+256700000222",
 			caseActorIDKey:       "agent-profile-1",
@@ -256,9 +258,10 @@ func (s *approvalWorkflowSuite) TestClientPhoneChangeActualizesOnlyAfterApproval
 	s.Equal(approvalCaseStatusPendingVerification, pendingClient.Properties.GetString(approvalCaseStatusKey))
 
 	verified, err := env.clientBusiness.Save(env.ctx, &fieldv1.ClientObject{
-		Id:      client.GetID(),
-		AgentId: agent.GetID(),
-		Name:    client.Name,
+		Id:           client.GetID(),
+		AgentId:      agent.GetID(),
+		OwningTeamId: client.OwningTeamID,
+		Name:         client.Name,
 		Properties: propertiesStruct(map[string]any{
 			caseActionKey:  approvalCaseActionVerify,
 			caseActorIDKey: "profile-verifier",
@@ -275,9 +278,10 @@ func (s *approvalWorkflowSuite) TestClientPhoneChangeActualizesOnlyAfterApproval
 	s.Equal("+256700000222", verifiedClient.Properties.GetString(clientPendingPhoneNumberKey))
 
 	approved, err := env.clientBusiness.Save(env.ctx, &fieldv1.ClientObject{
-		Id:      client.GetID(),
-		AgentId: agent.GetID(),
-		Name:    client.Name,
+		Id:           client.GetID(),
+		AgentId:      agent.GetID(),
+		OwningTeamId: client.OwningTeamID,
+		Name:         client.Name,
 		Properties: propertiesStruct(map[string]any{
 			caseActionKey:  approvalCaseActionApprove,
 			caseActorIDKey: "profile-approver",
@@ -410,6 +414,7 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 		agentRepo:        agentRepo,
 		agentBranchRepo:  agentBranchRepo,
 		clientRepo:       clientRepo,
+		internalTeamRepo: internalTeamRepo,
 		clcrRepo:         clcrRepo,
 		approvalCaseRepo: approvalCaseRepo,
 		orgUnitBusiness:  orgUnitBusiness,
@@ -548,11 +553,27 @@ func (e *approvalWorkflowEnv) assignAgentToBranch(agent *models.Agent, branch *m
 
 func (e *approvalWorkflowEnv) createClient(agent *models.Agent, name, phone string) *models.Client {
 	claims := security.ClaimsFromContext(e.ctx)
+
+	// Create a team for the client (validation requires it).
+	team := &models.InternalTeam{
+		OrganizationID: agent.OrganizationID,
+		Name:           "Team for " + name,
+		State:          int32(commonv1.STATE_ACTIVE),
+	}
+	team.GenID(e.ctx)
+	if claims != nil {
+		team.TenantID = claims.GetTenantID()
+		team.PartitionID = claims.GetPartitionID()
+	}
+	// Best-effort: ignore duplicate if team already exists.
+	_ = e.internalTeamRepo.Create(e.ctx, team)
+
 	client := &models.Client{
-		AgentID:    agent.GetID(),
-		Name:       name,
-		State:      int32(commonv1.STATE_ACTIVE),
-		Properties: data.JSONMap{clientPhoneNumberKey: phone},
+		AgentID:      agent.GetID(),
+		OwningTeamID: team.GetID(),
+		Name:         name,
+		State:        int32(commonv1.STATE_ACTIVE),
+		Properties:   data.JSONMap{clientPhoneNumberKey: phone},
 	}
 	client.GenID(e.ctx)
 	if claims != nil {

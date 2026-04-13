@@ -191,11 +191,11 @@ enum RepaymentFrequency {
 
 // ProductFormRequirement defines a form template required by a product.
 message ProductFormRequirement {
-  string template_id = 1;           // FormTemplate ID (in identity service)
-  string stage = 2;                 // When required: "application", "verification", "disbursement"
-  bool required = 3;                // Whether this form must be completed before advancing
-  int32 order = 4;                  // Display order within the stage
-  string description = 5;           // Why this form is needed (shown to agent)
+  string template_id = 1; // FormTemplate ID (in identity service)
+  string stage = 2; // When required: "application", "verification", "disbursement"
+  bool required = 3; // Whether this form must be completed before advancing
+  int32 order = 4; // Display order within the stage
+  string description = 5; // Why this form is needed (shown to agent)
 }
 
 // LoanProductObject defines loan terms, rates, fees, and limits for an organization.
@@ -278,7 +278,7 @@ message LoanRequestObject {
   string decided_at = 18;
   string loan_account_id = 19; // Set when loan account is created
   // Source tracking: which product service created this request.
-  string source_service = 20;  // e.g. "seed", "stawi", "manual"
+  string source_service = 20; // e.g. "seed", "stawi", "manual"
   string source_request_id = 21; // ID in the source service (e.g. seed_loan_request.id)
   string idempotency_key = 22;
   google.protobuf.Struct properties = 23;
