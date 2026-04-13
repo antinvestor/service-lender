@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../sdk/src/origination/v1/origination.pbenum.dart';
+import '../../sdk/src/loans/v1/loans.pbenum.dart';
 
-/// Displays a colored badge for application status.
-class ApplicationStatusBadge extends StatelessWidget {
-  const ApplicationStatusBadge({super.key, required this.status});
+/// Displays a colored badge for loan request status.
+class LoanRequestStatusBadge extends StatelessWidget {
+  const LoanRequestStatusBadge({super.key, required this.status});
 
-  final ApplicationStatus status;
+  final LoanRequestStatus status;
 
   @override
   Widget build(BuildContext context) {
@@ -28,78 +28,48 @@ class ApplicationStatusBadge extends StatelessWidget {
     );
   }
 
-  static (String, Color) _statusInfo(ApplicationStatus status) {
+  static (String, Color) _statusInfo(LoanRequestStatus status) {
     return switch (status) {
-      ApplicationStatus.APPLICATION_STATUS_DRAFT => ('Draft', Colors.grey),
-      ApplicationStatus.APPLICATION_STATUS_SUBMITTED => (
+      LoanRequestStatus.LOAN_REQUEST_STATUS_DRAFT => ('Draft', Colors.grey),
+      LoanRequestStatus.LOAN_REQUEST_STATUS_SUBMITTED => (
         'Submitted',
         Colors.blue,
       ),
-      ApplicationStatus.APPLICATION_STATUS_KYC_PENDING => (
-        'KYC Pending',
-        Colors.orange,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_DOCUMENTS_PENDING => (
-        'Documents Pending',
-        Colors.orange,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_VERIFICATION => (
-        'Verification',
-        Colors.purple,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_UNDERWRITING => (
-        'Underwriting',
-        Colors.indigo,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_APPROVED => (
+      LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED => (
         'Approved',
-        Colors.teal,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED => (
-        'Terms Ready',
-        Colors.teal,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => (
-        'Terms Accepted',
         Colors.green,
       ),
-      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => (
-        'Loan Created',
-        Colors.green,
-      ),
-      ApplicationStatus.APPLICATION_STATUS_REJECTED => ('Rejected', Colors.red),
-      ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => (
-        'Terms Declined',
+      LoanRequestStatus.LOAN_REQUEST_STATUS_REJECTED => (
+        'Rejected',
         Colors.red,
       ),
-      ApplicationStatus.APPLICATION_STATUS_CANCELLED => (
+      LoanRequestStatus.LOAN_REQUEST_STATUS_CANCELLED => (
         'Cancelled',
         Colors.red,
       ),
-      ApplicationStatus.APPLICATION_STATUS_EXPIRED => ('Expired', Colors.red),
+      LoanRequestStatus.LOAN_REQUEST_STATUS_EXPIRED => (
+        'Expired',
+        Colors.red,
+      ),
+      LoanRequestStatus.LOAN_REQUEST_STATUS_LOAN_CREATED => (
+        'Loan Created',
+        Colors.green,
+      ),
       _ => ('Unknown', Colors.grey),
     };
   }
 }
 
-/// Returns a human-readable label for an ApplicationStatus.
-String applicationStatusLabel(ApplicationStatus status) {
+/// Returns a human-readable label for a LoanRequestStatus.
+String loanRequestStatusLabel(LoanRequestStatus status) {
   return switch (status) {
-    ApplicationStatus.APPLICATION_STATUS_DRAFT => 'Draft',
-    ApplicationStatus.APPLICATION_STATUS_SUBMITTED => 'Submitted',
-    ApplicationStatus.APPLICATION_STATUS_KYC_PENDING => 'KYC Pending',
-    ApplicationStatus.APPLICATION_STATUS_DOCUMENTS_PENDING =>
-      'Documents Pending',
-    ApplicationStatus.APPLICATION_STATUS_VERIFICATION => 'Verification',
-    ApplicationStatus.APPLICATION_STATUS_UNDERWRITING => 'Underwriting',
-    ApplicationStatus.APPLICATION_STATUS_APPROVED => 'Approved',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED => 'Terms Ready',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => 'Terms Accepted',
-    ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => 'Loan Created',
-    ApplicationStatus.APPLICATION_STATUS_REJECTED => 'Rejected',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => 'Terms Declined',
-    ApplicationStatus.APPLICATION_STATUS_CANCELLED => 'Cancelled',
-    ApplicationStatus.APPLICATION_STATUS_EXPIRED => 'Expired',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_DRAFT => 'Draft',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_SUBMITTED => 'Submitted',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED => 'Approved',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_REJECTED => 'Rejected',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_CANCELLED => 'Cancelled',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_EXPIRED => 'Expired',
+    LoanRequestStatus.LOAN_REQUEST_STATUS_LOAN_CREATED => 'Loan Created',
     _ => 'Unknown',
   };
 }

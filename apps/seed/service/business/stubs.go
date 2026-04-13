@@ -28,15 +28,13 @@ func (AlwaysVerifiedKYC) VerifyClient(ctx context.Context, clientID string) (KYC
 }
 
 // StubLoanCreator is a placeholder LoanCreator that records the intent
-// of each stage without actually calling the upstream origination/
-// loans/operations services. It returns synthetic ids the seed
-// business layer can persist on the LoanRequest row so the audit
-// trail is complete.
+// of each stage without actually calling the upstream loans service.
+// It returns synthetic ids the seed business layer can persist on the
+// LoanRequest row so the audit trail is complete.
 //
 // PRODUCTION DEPLOYMENTS MUST REPLACE THIS with a real implementation
-// backed by originationv1connect.OriginationServiceClient and
-// loansv1connect.LoanManagementServiceClient, chained through
-// ApplicationSave → ApplicationAcceptOffer → LoanAccountCreate →
+// backed by loansv1connect.LoanManagementServiceClient, chained through
+// LoanRequestSave → LoanRequestApprove → LoanAccountCreate →
 // DisbursementCreate.
 type StubLoanCreator struct{}
 

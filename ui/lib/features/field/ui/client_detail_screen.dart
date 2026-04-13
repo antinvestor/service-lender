@@ -15,9 +15,9 @@ import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
-import '../../../sdk/src/origination/v1/origination.pbenum.dart';
+import '../../../sdk/src/loans/v1/loans.pbenum.dart';
 import '../../loan_management/data/loan_account_providers.dart';
-import '../../origination/data/application_providers.dart';
+import '../../loan_management/data/loan_request_providers.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/client_providers.dart';
 
@@ -219,7 +219,7 @@ class _ClientDetailContent extends ConsumerWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       // Navigate to application creation with client pre-selected
-                      context.go('/origination/applications');
+                      context.go('/loans/requests');
                     },
                     icon: const Icon(Icons.description_outlined, size: 18),
                     label: const Text('New Application'),
@@ -730,7 +730,7 @@ class _ApplicationsTab extends ConsumerWidget {
             final app = apps[index];
             return Card(
               child: InkWell(
-                onTap: () => context.go('/origination/applications/${app.id}'),
+                onTap: () => context.go('/loans/requests/${app.id}'),
                 borderRadius: DesignTokens.borderRadiusAll,
                 child: Padding(
                   padding: const EdgeInsets.all(16),

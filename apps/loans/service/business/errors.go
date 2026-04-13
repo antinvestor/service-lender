@@ -18,21 +18,21 @@ var (
 	ErrRestructureNotPending      = apperrors.NewError(apperrors.Unprocessable, "restructure is not in pending state")
 	ErrPenaltyAlreadyWaived       = apperrors.NewError(apperrors.Unprocessable, "penalty is already waived")
 
-	ErrDisbursementNotFound        = apperrors.NewError(apperrors.NotFound, "disbursement not found")
-	ErrDuplicateIdempotencyKey     = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")
-	ErrApplicationNotFound         = apperrors.NewError(apperrors.NotFound, "origination application not found")
-	ErrApplicationNotOfferAccepted = apperrors.NewError(
+	ErrLoanRequestNotFound     = apperrors.NewError(apperrors.NotFound, "loan request not found")
+	ErrLoanRequestNotSubmitted = apperrors.NewError(
 		apperrors.Unprocessable,
-		"application offer has not been accepted",
+		"loan request is not in submitted status",
 	)
-	ErrApplicationTermsNotApproved = apperrors.NewError(
+	ErrLoanRequestTerminal    = apperrors.NewError(apperrors.Unprocessable, "loan request is in a terminal status")
+	ErrLoanRequestNotApproved = apperrors.NewError(apperrors.Unprocessable, "loan request is not approved")
+	ErrLoanRequestTermsNotSet = apperrors.NewError(
 		apperrors.Unprocessable,
-		"application does not have approved loan terms",
+		"loan request does not have approved terms",
 	)
-	ErrOriginationServiceUnavailable = apperrors.NewError(
-		apperrors.ServiceUnavailable,
-		"origination service is not available",
-	)
+	ErrClientProductAccessNotFound = apperrors.NewError(apperrors.NotFound, "client product access not found")
+
+	ErrDisbursementNotFound      = apperrors.NewError(apperrors.NotFound, "disbursement not found")
+	ErrDuplicateIdempotencyKey   = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")
 	ErrFundingServiceUnavailable = apperrors.NewError(
 		apperrors.ServiceUnavailable,
 		"funding service is not available",

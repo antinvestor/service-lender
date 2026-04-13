@@ -17,8 +17,8 @@
 //
 //  3. LoanRequest     — a customer-initiated loan request. This is the
 //     seed product's own record of "the customer asked for X"; the
-//     downstream application in origination and loan account in loans
-//     are linked back to it via application_id and loan_account_id.
+//     downstream loan request and loan account in the loans service
+//     are linked back to it via loan_request_id and loan_account_id.
 package models
 
 import (

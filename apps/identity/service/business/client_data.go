@@ -52,7 +52,7 @@ func (b *clientDataBusiness) Save(ctx context.Context, entry *models.ClientDataE
 		// Update existing entry: increment revision, update value, reset status to COLLECTED
 		existing.Value = entry.Value
 		existing.ValueType = entry.ValueType
-		existing.SourceApplicationID = entry.SourceApplicationID
+		existing.SourceEntityID = entry.SourceEntityID
 		existing.Revision++
 		existing.VerificationStatus = int32(identityv1.DataVerificationStatus_DATA_VERIFICATION_STATUS_COLLECTED)
 		existing.ReviewerID = ""

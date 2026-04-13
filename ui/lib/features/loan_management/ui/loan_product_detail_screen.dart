@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/widgets/dynamic_form.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/state_badge.dart';
-import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../data/loan_product_providers.dart';
 
 class LoanProductDetailScreen extends ConsumerWidget {

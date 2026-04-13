@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../sdk/src/identity/v1/identity.pb.dart';
-import '../../sdk/src/origination/v1/origination.pb.dart';
+import '../../sdk/src/identity/v1/identity.pb.dart';
 import '../../features/field/data/client_data_providers.dart';
 import '../theme/design_tokens.dart';
 import 'signature_pad.dart';

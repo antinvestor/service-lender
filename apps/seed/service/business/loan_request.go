@@ -47,9 +47,8 @@ type KYCVerifier interface {
 // directly) lets the seed package stay decoupled from the exact proto
 // surface and makes it trivial to test.
 type LoanCreator interface {
-	// CreateApplication creates an upstream application record (either
-	// in origination or inline inside the loan account, depending on
-	// the deployment) and returns the application id.
+	// CreateApplication creates a loan request in the loans service
+	// and returns the loan request id.
 	CreateApplication(
 		ctx context.Context,
 		req LoanCreationRequest,

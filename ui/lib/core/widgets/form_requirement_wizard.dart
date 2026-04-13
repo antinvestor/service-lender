@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/dynamic_form.dart' show mapToStruct;
-import '../../sdk/src/origination/v1/origination.pb.dart';
+import '../../sdk/src/identity/v1/identity.pb.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../data/form_template_providers.dart';
 import 'dynamic_form_renderer.dart';

@@ -13,10 +13,6 @@ type FundingConfig struct {
 	IdentityServiceURI                   string `envDefault:"127.0.0.1:7001"                  env:"IDENTITY_SERVICE_URI"`
 	IdentityServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-identity" env:"IDENTITY_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
-	// Origination service
-	OriginationServiceURI                   string `envDefault:"127.0.0.1:7010"                         env:"ORIGINATION_SERVICE_URI"`
-	OriginationServiceWorkloadAPITargetPath string `envDefault:"/ns/origination/sa/service-origination" env:"ORIGINATION_SERVICE_WORKLOAD_API_TARGET_PATH"`
-
 	// Loan management service
 	LoanMgmtServiceURI                   string `envDefault:"127.0.0.1:7011"                 env:"LOAN_MGMT_SERVICE_URI"`
 	LoanMgmtServiceWorkloadAPITargetPath string `envDefault:"/ns/loans/sa/service-loan-mgmt" env:"LOAN_MGMT_SERVICE_WORKLOAD_API_TARGET_PATH"`
@@ -52,7 +48,6 @@ type FundingConfig struct {
 func (c *FundingConfig) ServiceEndpoints() clients.ServiceEndpoints {
 	return clients.ServiceEndpoints{
 		IdentityURI:     c.IdentityServiceURI,
-		OriginationURI:  c.OriginationServiceURI,
 		LoanMgmtURI:     c.LoanMgmtServiceURI,
 		LedgerURI:       c.LedgerServiceURI,
 		PaymentURI:      c.PaymentServiceURI,

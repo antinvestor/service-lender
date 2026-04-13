@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
@@ -23,13 +25,27 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		util.Log(ctx).WithError(err).Warn("preMigrate -- non-fatal pre-migration issue")
 	}
 
-	return dbManager.Migrate(ctx, dbPool, migrationPath,
+	if err := dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.Organization{}, &models.Branch{}, &models.Agent{}, &models.AgentBranch{},
-		&models.Client{}, &models.ClientAssignmentHistory{}, &models.CreditLimitChangeRequest{},
+		&models.Client{}, &models.ClientAssignmentHistory{}, &models.ClientResponsibilityHistory{},
+		&models.CreditLimitChangeRequest{},
 		&models.ApprovalCase{},
 		&models.ClientGroup{}, &models.Membership{},
 		&models.Investor{}, &models.SystemUser{},
-		&models.ClientDataEntry{}, &models.ClientDataEntryHistory{})
+		&models.WorkforceMember{}, &models.Department{}, &models.Position{},
+		&models.PositionAssignment{}, &models.InternalTeam{}, &models.TeamMembership{},
+		&models.AccessRoleAssignment{},
+		&models.ClientDataEntry{}, &models.ClientDataEntryHistory{},
+		&models.FormTemplate{}, &models.FormSubmission{}); err != nil {
+		return err
+	}
+
+	if err := postMigrate(ctx, dbPool); err != nil {
+		util.Log(ctx).WithError(err).Error("postMigrate -- failed")
+		return err
+	}
+
+	return nil
 }
 
 // preMigrate handles structural changes that must happen before GORM AutoMigrate.
@@ -98,4 +114,253 @@ func preMigrate(ctx context.Context, dbPool pool.Pool) error {
 func safeRenameIndex(db *gorm.DB, _, oldName, newName string) {
 	// PostgreSQL syntax for renaming indexes
 	db.Exec("ALTER INDEX IF EXISTS " + oldName + " RENAME TO " + newName)
+}
+
+type searchableTerm struct {
+	Weight string
+	Expr   string
+}
+
+type searchableSpec struct {
+	Table string
+	Terms []searchableTerm
+}
+
+func postMigrate(ctx context.Context, dbPool pool.Pool) error {
+	db := dbPool.DB(ctx, false)
+	if db == nil {
+		return nil
+	}
+
+	specs := []searchableSpec{
+		{
+			Table: "organizations",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "A", Expr: "coalesce(%scode, '')"},
+				{Weight: "B", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sclient_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "org_units",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "A", Expr: "coalesce(%scode, '')"},
+				{Weight: "B", Expr: "coalesce(%sgeo_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sclient_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sparent_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "agents",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "A", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sgeo_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sparent_agent_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "clients",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "B", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sowning_team_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sprimary_relationship_member_id, '')"},
+				{Weight: "C", Expr: "coalesce(%scurrency_code, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "client_groups",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "B", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "C", Expr: "coalesce(%scurrency_code, '')"},
+				{Weight: "C", Expr: "coalesce(%stime_zone, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "memberships",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "B", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "B", Expr: "coalesce(%scontact_id, '')"},
+				{Weight: "C", Expr: "coalesce(%stime_zone, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "investors",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "B", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "system_users",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "A", Expr: "coalesce(%sservice_account_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sbranch_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "workforce_members",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sprofile_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sorganization_id, '')"},
+				{Weight: "B", Expr: "coalesce(%shome_org_unit_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sgeo_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "departments",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "A", Expr: "coalesce(%scode, '')"},
+				{Weight: "B", Expr: "coalesce(%sorganization_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sparent_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "positions",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "A", Expr: "coalesce(%scode, '')"},
+				{Weight: "B", Expr: "coalesce(%sorganization_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sorg_unit_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sdepartment_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sreports_to_position_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "position_assignments",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%smember_id, '')"},
+				{Weight: "A", Expr: "coalesce(%sposition_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "internal_teams",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%sname, '')"},
+				{Weight: "A", Expr: "coalesce(%scode, '')"},
+				{Weight: "B", Expr: "coalesce(%sorganization_id, '')"},
+				{Weight: "B", Expr: "coalesce(%shome_org_unit_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sobjective, '')"},
+				{Weight: "B", Expr: "coalesce(%sgeo_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "team_memberships",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%steam_id, '')"},
+				{Weight: "A", Expr: "coalesce(%smember_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+		{
+			Table: "access_role_assignments",
+			Terms: []searchableTerm{
+				{Weight: "A", Expr: "coalesce(%srole_key, '')"},
+				{Weight: "A", Expr: "coalesce(%smember_id, '')"},
+				{Weight: "B", Expr: "coalesce(%sscope_id, '')"},
+				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
+			},
+		},
+	}
+
+	for _, spec := range specs {
+		if err := ensureSearchableColumn(ctx, db, spec); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func ensureSearchableColumn(ctx context.Context, db *gorm.DB, spec searchableSpec) error {
+	functionName := fmt.Sprintf("%s_searchable_update", spec.Table)
+	triggerName := fmt.Sprintf("%s_searchable_trigger", spec.Table)
+	indexName := fmt.Sprintf("idx_%s_searchable", spec.Table)
+
+	if err := db.Exec("ALTER TABLE " + spec.Table + " ADD COLUMN IF NOT EXISTS searchable tsvector").Error; err != nil {
+		util.Log(ctx).WithField("table", spec.Table).WithError(err).Error("failed to add searchable column")
+		return err
+	}
+
+	functionSQL := fmt.Sprintf(
+		`CREATE OR REPLACE FUNCTION %s() RETURNS trigger AS $$
+BEGIN
+  NEW.searchable := %s;
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;`,
+		functionName,
+		buildSearchableExpression(spec.Terms, "NEW."),
+	)
+	if err := db.Exec(functionSQL).Error; err != nil {
+		util.Log(ctx).
+			WithField("table", spec.Table).
+			WithError(err).
+			Error("failed to create searchable trigger function")
+		return err
+	}
+
+	if err := db.Exec("DROP TRIGGER IF EXISTS " + triggerName + " ON " + spec.Table).Error; err != nil {
+		util.Log(ctx).WithField("table", spec.Table).WithError(err).Error("failed to drop searchable trigger")
+		return err
+	}
+
+	triggerSQL := fmt.Sprintf(
+		"CREATE TRIGGER %s BEFORE INSERT OR UPDATE ON %s FOR EACH ROW EXECUTE FUNCTION %s()",
+		triggerName,
+		spec.Table,
+		functionName,
+	)
+	if err := db.Exec(triggerSQL).Error; err != nil {
+		util.Log(ctx).WithField("table", spec.Table).WithError(err).Error("failed to create searchable trigger")
+		return err
+	}
+
+	backfillSQL := fmt.Sprintf("UPDATE %s SET searchable = %s", spec.Table, buildSearchableExpression(spec.Terms, ""))
+	if err := db.Exec(backfillSQL).Error; err != nil {
+		util.Log(ctx).WithField("table", spec.Table).WithError(err).Error("failed to backfill searchable column")
+		return err
+	}
+
+	indexSQL := fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s USING GIN (searchable)", indexName, spec.Table)
+	if err := db.Exec(indexSQL).Error; err != nil {
+		util.Log(ctx).WithField("table", spec.Table).WithError(err).Error("failed to create searchable index")
+		return err
+	}
+
+	return nil
+}
+
+func buildSearchableExpression(terms []searchableTerm, prefix string) string {
+	parts := make([]string, 0, len(terms))
+	for _, term := range terms {
+		expr := fmt.Sprintf(term.Expr, prefix)
+		parts = append(parts, fmt.Sprintf(
+			"setweight(to_tsvector('english', %s), '%s')",
+			expr,
+			term.Weight,
+		))
+	}
+
+	return strings.Join(parts, " || ")
 }

@@ -1,6 +1,6 @@
 // Package main is the entry point for the seed direct-to-client
 // lending service. Seed composes the existing fintech platform
-// primitives — identity, origination, loans, operations, the ledger —
+// primitives — identity, loans, operations, the ledger —
 // behind a customer-facing RequestLoan API and a credit profile
 // progression that rewards successful repayments with higher limits.
 //
@@ -22,8 +22,7 @@
 //
 //   - LoanCreator: today the binary ships with StubLoanCreator, a
 //     development stub. Production deployments must inject a real
-//     implementation backed by origination and loan management
-//     service clients.
+//     implementation backed by the loan management service client.
 //
 // Both extension points are behind Go interfaces so swapping in a
 // real implementation is a matter of changing a single constructor
@@ -93,7 +92,7 @@ func main() {
 	auditWriter := audit.NewWriter(evtsMan)
 
 	// Extension points — swap StubLoanCreator and AlwaysVerifiedKYC for
-	// real implementations wired to origination/loans/identity before
+	// real implementations wired to loans/identity before
 	// deploying to production. See service/business/stubs.go for the
 	// contracts they must satisfy.
 	kycVerifier := business.AlwaysVerifiedKYC{}

@@ -8,7 +8,6 @@ import '../../features/auth/data/auth_state_provider.dart';
 import '../logging/app_logger.dart';
 import '../../sdk/src/identity/v1/identity.connect.client.dart';
 import '../../sdk/src/field/v1/field.connect.client.dart';
-import '../../sdk/src/origination/v1/origination.connect.client.dart';
 import '../../sdk/src/loans/v1/loans.connect.client.dart';
 import '../../sdk/src/savings/v1/savings.connect.client.dart';
 import '../../sdk/src/funding/v1/funding.connect.client.dart';
@@ -38,11 +37,6 @@ part 'api_provider.g.dart';
 const _loansUrl = String.fromEnvironment(
   'LOANS_URL',
   defaultValue: 'https://api.antinvestor.com/loans',
-);
-
-const _originationUrl = String.fromEnvironment(
-  'ORIGINATION_URL',
-  defaultValue: 'https://api.antinvestor.com/origination',
 );
 
 const _identityUrl = String.fromEnvironment(
@@ -213,10 +207,6 @@ Transport _createTransport(Ref ref, String baseUrl) {
 Transport loansTransport(Ref ref) => _createTransport(ref, _loansUrl);
 
 @Riverpod(keepAlive: true)
-Transport originationTransport(Ref ref) =>
-    _createTransport(ref, _originationUrl);
-
-@Riverpod(keepAlive: true)
 Transport identityTransport(Ref ref) => _createTransport(ref, _identityUrl);
 
 @Riverpod(keepAlive: true)
@@ -252,12 +242,6 @@ FieldServiceClient fieldServiceClient(Ref ref) {
 GeolocationServiceClient geolocationServiceClient(Ref ref) {
   final transport = ref.watch(geolocationTransportProvider);
   return GeolocationServiceClient(transport);
-}
-
-@Riverpod(keepAlive: true)
-OriginationServiceClient originationServiceClient(Ref ref) {
-  final transport = ref.watch(originationTransportProvider);
-  return OriginationServiceClient(transport);
 }
 
 @Riverpod(keepAlive: true)

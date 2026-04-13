@@ -20,6 +20,7 @@ import (
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type LoanManagementServer struct {
 	lpBusiness        business.LoanProductBusiness
+	lrBusiness        business.LoanRequestBusiness
 	laBusiness        business.LoanAccountBusiness
 	repBusiness       business.RepaymentBusiness
 	scheduleBusiness  business.RepaymentScheduleBusiness
@@ -35,6 +36,7 @@ type LoanManagementServer struct {
 
 func NewLoanManagementServer(
 	lpBusiness business.LoanProductBusiness,
+	lrBusiness business.LoanRequestBusiness,
 	laBusiness business.LoanAccountBusiness,
 	repBusiness business.RepaymentBusiness,
 	scheduleBusiness business.RepaymentScheduleBusiness,
@@ -47,6 +49,7 @@ func NewLoanManagementServer(
 ) loansv1connect.LoanManagementServiceHandler {
 	return &LoanManagementServer{
 		lpBusiness:        lpBusiness,
+		lrBusiness:        lrBusiness,
 		laBusiness:        laBusiness,
 		repBusiness:       repBusiness,
 		scheduleBusiness:  scheduleBusiness,
@@ -59,13 +62,114 @@ func NewLoanManagementServer(
 	}
 }
 
+// --- LoanProduct RPCs ---
+
+func (s *LoanManagementServer) LoanProductSave(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanProductSaveRequest],
+) (*connect.Response[loansv1.LoanProductSaveResponse], error) {
+	result, err := s.lpBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanProductSaveResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) LoanProductGet(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanProductGetRequest],
+) (*connect.Response[loansv1.LoanProductGetResponse], error) {
+	result, err := s.lpBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanProductGetResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) LoanProductSearch(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanProductSearchRequest],
+	stream *connect.ServerStream[loansv1.LoanProductSearchResponse],
+) error {
+	return s.lpBusiness.Search(ctx, req.Msg, func(ctx context.Context, batch []*loansv1.LoanProductObject) error {
+		return stream.Send(&loansv1.LoanProductSearchResponse{Data: batch})
+	})
+}
+
+// --- LoanRequest RPCs ---
+
+func (s *LoanManagementServer) LoanRequestSave(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanRequestSaveRequest],
+) (*connect.Response[loansv1.LoanRequestSaveResponse], error) {
+	result, err := s.lrBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanRequestSaveResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) LoanRequestGet(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanRequestGetRequest],
+) (*connect.Response[loansv1.LoanRequestGetResponse], error) {
+	result, err := s.lrBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanRequestGetResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) LoanRequestSearch(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanRequestSearchRequest],
+	stream *connect.ServerStream[loansv1.LoanRequestSearchResponse],
+) error {
+	return s.lrBusiness.Search(ctx, req.Msg, func(ctx context.Context, batch []*loansv1.LoanRequestObject) error {
+		return stream.Send(&loansv1.LoanRequestSearchResponse{Data: batch})
+	})
+}
+
+func (s *LoanManagementServer) LoanRequestApprove(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanRequestApproveRequest],
+) (*connect.Response[loansv1.LoanRequestApproveResponse], error) {
+	result, err := s.lrBusiness.Approve(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanRequestApproveResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) LoanRequestReject(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanRequestRejectRequest],
+) (*connect.Response[loansv1.LoanRequestRejectResponse], error) {
+	result, err := s.lrBusiness.Reject(ctx, req.Msg.GetId(), req.Msg.GetReason())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanRequestRejectResponse{Data: result}), nil
+}
+
+func (s *LoanManagementServer) LoanRequestCancel(
+	ctx context.Context,
+	req *connect.Request[loansv1.LoanRequestCancelRequest],
+) (*connect.Response[loansv1.LoanRequestCancelResponse], error) {
+	result, err := s.lrBusiness.Cancel(ctx, req.Msg.GetId(), req.Msg.GetReason())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&loansv1.LoanRequestCancelResponse{Data: result}), nil
+}
+
 // --- LoanAccount RPCs ---
 
 func (s *LoanManagementServer) LoanAccountCreate(
 	ctx context.Context,
 	req *connect.Request[loansv1.LoanAccountCreateRequest],
 ) (*connect.Response[loansv1.LoanAccountCreateResponse], error) {
-	result, err := s.laBusiness.Create(ctx, req.Msg.GetApplicationId())
+	result, err := s.laBusiness.Create(ctx, req.Msg.GetLoanRequestId())
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}

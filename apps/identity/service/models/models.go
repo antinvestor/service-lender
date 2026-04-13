@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	identitycommonv1 "github.com/antinvestor/common/v1"
@@ -247,7 +246,7 @@ func (m *Agent) ToAPI() *fieldv1.AgentObject {
 		Name:           m.Name,
 		GeoId:          m.GeoID,
 		Depth:          m.Depth,
-		State:          commonv1.STATE(m.State),
+		State:          identitycommonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
 	}
 }
@@ -297,7 +296,7 @@ func (m *AgentBranch) ToAPI() *fieldv1.AgentBranchObject {
 		Id:         m.GetID(),
 		AgentId:    m.AgentID,
 		BranchId:   m.BranchID,
-		State:      commonv1.STATE(m.State),
+		State:      identitycommonv1.STATE(m.State),
 		Properties: m.Properties.ToProtoStruct(),
 	}
 }
@@ -325,9 +324,8 @@ func AgentBranchFromAPI(ctx context.Context, obj *fieldv1.AgentBranchObject) *Ag
 	return model
 }
 
-// Client represents a loan recipient always assigned to an agent.
-// Clients exist independently of groups. Product-level code links
-// clients to memberships where needed.
+// Client represents a loan recipient owned by a team and optionally handled by a workforce member.
+// Clients exist independently of groups. Product-level code links clients to memberships where needed.
 //
 // Credit limits:
 //   - SystemCreditLimit: hard maximum that evolves with client performance.
@@ -337,14 +335,16 @@ func AgentBranchFromAPI(ctx context.Context, obj *fieldv1.AgentBranchObject) *Ag
 //   - Effective limit = min(SystemCreditLimit, AgentCreditLimit).
 type Client struct {
 	data.BaseModel
-	AgentID           string `gorm:"type:varchar(50);index:idx_client_agent;not null"`
-	ProfileID         string `gorm:"type:varchar(50);uniqueIndex:uq_client_profile"`
-	Name              string `gorm:"type:varchar(255)"`
-	CurrencyCode      string `gorm:"type:varchar(3)"`
-	SystemCreditLimit int64  // minor units — hard max, performance-based
-	AgentCreditLimit  int64  // minor units — agent-controlled, 0 to SystemCreditLimit
-	State             int32
-	Properties        data.JSONMap
+	AgentID                     string `gorm:"column:agent_id;type:varchar(50);index:idx_client_agent"`
+	OwningTeamID                string `gorm:"type:varchar(50);index:idx_client_owning_team;not null;default:''"`
+	PrimaryRelationshipMemberID string `gorm:"type:varchar(50);index:idx_client_primary_member"`
+	ProfileID                   string `gorm:"type:varchar(50);uniqueIndex:uq_client_profile"`
+	Name                        string `gorm:"type:varchar(255)"`
+	CurrencyCode                string `gorm:"type:varchar(3)"`
+	SystemCreditLimit           int64
+	AgentCreditLimit            int64
+	State                       int32
+	Properties                  data.JSONMap
 }
 
 func (m *Client) TableName() string { return "clients" }
@@ -384,12 +384,14 @@ func (m *Client) ToAPI() *fieldv1.ClientObject {
 	props["currency_code"] = m.CurrencyCode
 
 	return &fieldv1.ClientObject{
-		Id:         m.GetID(),
-		AgentId:    m.AgentID,
-		ProfileId:  m.ProfileID,
-		Name:       m.Name,
-		State:      commonv1.STATE(m.State),
-		Properties: props.ToProtoStruct(),
+		Id:                          m.GetID(),
+		AgentId:                     m.AgentID,
+		ProfileId:                   m.ProfileID,
+		Name:                        m.Name,
+		State:                       identitycommonv1.STATE(m.State),
+		Properties:                  props.ToProtoStruct(),
+		OwningTeamId:                m.OwningTeamID,
+		PrimaryRelationshipMemberId: m.PrimaryRelationshipMemberID,
 	}
 }
 
@@ -399,10 +401,12 @@ func ClientFromAPI(ctx context.Context, obj *fieldv1.ClientObject) *Client {
 	}
 
 	model := &Client{
-		AgentID:   obj.GetAgentId(),
-		ProfileID: obj.GetProfileId(),
-		Name:      obj.GetName(),
-		State:     int32(obj.GetState()),
+		AgentID:                     obj.GetAgentId(),
+		OwningTeamID:                obj.GetOwningTeamId(),
+		PrimaryRelationshipMemberID: obj.GetPrimaryRelationshipMemberId(),
+		ProfileID:                   obj.GetProfileId(),
+		Name:                        obj.GetName(),
+		State:                       int32(obj.GetState()),
 	}
 
 	if obj.GetProperties() != nil {
@@ -655,7 +659,7 @@ func MembershipFromAPI(ctx context.Context, obj *identityv1.MembershipObject) *M
 	return model
 }
 
-// ClientAssignmentHistory records client reassignment events.
+// ClientAssignmentHistory records deprecated client-to-agent reassignment events.
 type ClientAssignmentHistory struct {
 	data.BaseModel
 	ClientID        string `gorm:"type:varchar(50);index:idx_cah_client"`
@@ -665,6 +669,20 @@ type ClientAssignmentHistory struct {
 }
 
 func (m *ClientAssignmentHistory) TableName() string { return "client_assignment_history" }
+
+// ClientResponsibilityHistory records changes to canonical team ownership and relationship handling.
+type ClientResponsibilityHistory struct {
+	data.BaseModel
+	ClientID               string `gorm:"type:varchar(50);index:idx_crh_client"`
+	PreviousOwningTeamID   string `gorm:"type:varchar(50)"`
+	NewOwningTeamID        string `gorm:"type:varchar(50)"`
+	PreviousRelationshipID string `gorm:"type:varchar(50)"`
+	NewRelationshipID      string `gorm:"type:varchar(50)"`
+	Reason                 string `gorm:"type:text"`
+	AssignmentKind         string `gorm:"type:varchar(50);index:idx_crh_assignment_kind"`
+}
+
+func (m *ClientResponsibilityHistory) TableName() string { return "client_responsibility_history" }
 
 // Investor represents an independent investor linked to a profile.
 type Investor struct {
@@ -735,39 +753,413 @@ func (m *SystemUser) ToAPI() *identityv1.SystemUserObject {
 	}
 }
 
+// WorkforceMember represents a worker in the organization.
+type WorkforceMember struct {
+	data.BaseModel
+	OrganizationID string `gorm:"type:varchar(50);index:idx_workforce_member_organization;not null"`
+	ProfileID      string `gorm:"type:varchar(50);index:idx_workforce_member_profile"`
+	EngagementType int32
+	HomeOrgUnitID  string `gorm:"type:varchar(50);index:idx_workforce_member_home_org_unit"`
+	GeoID          string `gorm:"type:varchar(50)"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *WorkforceMember) TableName() string { return "workforce_members" }
+
+func (m *WorkforceMember) ToAPI() *identityv1.WorkforceMemberObject {
+	return &identityv1.WorkforceMemberObject{
+		Id:             m.GetID(),
+		OrganizationId: m.OrganizationID,
+		ProfileId:      m.ProfileID,
+		EngagementType: identityv1.WorkforceEngagementType(m.EngagementType),
+		HomeOrgUnitId:  m.HomeOrgUnitID,
+		GeoId:          m.GeoID,
+		State:          identitycommonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
+	}
+}
+
+func WorkforceMemberFromAPI(ctx context.Context, obj *identityv1.WorkforceMemberObject) *WorkforceMember {
+	if obj == nil {
+		return nil
+	}
+
+	model := &WorkforceMember{
+		OrganizationID: obj.GetOrganizationId(),
+		ProfileID:      obj.GetProfileId(),
+		EngagementType: int32(obj.GetEngagementType()),
+		HomeOrgUnitID:  obj.GetHomeOrgUnitId(),
+		GeoID:          obj.GetGeoId(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// Department represents a functional grouping node.
+type Department struct {
+	data.BaseModel
+	OrganizationID string `gorm:"type:varchar(50);index:idx_department_organization;uniqueIndex:uq_department_org_code;not null"`
+	ParentID       string `gorm:"type:varchar(50);index:idx_department_parent"`
+	Kind           int32
+	Name           string `gorm:"type:varchar(255)"`
+	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_department_org_code"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *Department) TableName() string { return "departments" }
+
+func (m *Department) ToAPI() *identityv1.DepartmentObject {
+	return &identityv1.DepartmentObject{
+		Id:             m.GetID(),
+		OrganizationId: m.OrganizationID,
+		ParentId:       m.ParentID,
+		Kind:           identityv1.DepartmentKind(m.Kind),
+		Name:           m.Name,
+		Code:           m.Code,
+		State:          identitycommonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
+	}
+}
+
+func DepartmentFromAPI(ctx context.Context, obj *identityv1.DepartmentObject) *Department {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Department{
+		OrganizationID: obj.GetOrganizationId(),
+		ParentID:       obj.GetParentId(),
+		Kind:           int32(obj.GetKind()),
+		Name:           obj.GetName(),
+		Code:           obj.GetCode(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// Position represents a reporting seat in the organization.
+type Position struct {
+	data.BaseModel
+	OrganizationID      string `gorm:"type:varchar(50);index:idx_position_organization;uniqueIndex:uq_position_org_code;not null"`
+	OrgUnitID           string `gorm:"type:varchar(50);index:idx_position_org_unit"`
+	DepartmentID        string `gorm:"type:varchar(50);index:idx_position_department"`
+	ReportsToPositionID string `gorm:"type:varchar(50);index:idx_position_reports_to"`
+	Name                string `gorm:"type:varchar(255)"`
+	Code                string `gorm:"type:varchar(50);uniqueIndex:uq_position_org_code"`
+	State               int32
+	Properties          data.JSONMap
+}
+
+func (m *Position) TableName() string { return "positions" }
+
+func (m *Position) ToAPI() *identityv1.PositionObject {
+	return &identityv1.PositionObject{
+		Id:                  m.GetID(),
+		OrganizationId:      m.OrganizationID,
+		OrgUnitId:           m.OrgUnitID,
+		DepartmentId:        m.DepartmentID,
+		ReportsToPositionId: m.ReportsToPositionID,
+		Name:                m.Name,
+		Code:                m.Code,
+		State:               identitycommonv1.STATE(m.State),
+		Properties:          m.Properties.ToProtoStruct(),
+	}
+}
+
+func PositionFromAPI(ctx context.Context, obj *identityv1.PositionObject) *Position {
+	if obj == nil {
+		return nil
+	}
+
+	model := &Position{
+		OrganizationID:      obj.GetOrganizationId(),
+		OrgUnitID:           obj.GetOrgUnitId(),
+		DepartmentID:        obj.GetDepartmentId(),
+		ReportsToPositionID: obj.GetReportsToPositionId(),
+		Name:                obj.GetName(),
+		Code:                obj.GetCode(),
+		State:               int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// PositionAssignment assigns a workforce member to a position.
+type PositionAssignment struct {
+	data.BaseModel
+	MemberID   string `gorm:"type:varchar(50);index:idx_position_assignment_member;not null"`
+	PositionID string `gorm:"type:varchar(50);index:idx_position_assignment_position;not null"`
+	IsPrimary  bool   `gorm:"index:idx_position_assignment_primary"`
+	State      int32
+	Properties data.JSONMap
+}
+
+func (m *PositionAssignment) TableName() string { return "position_assignments" }
+
+func (m *PositionAssignment) ToAPI() *identityv1.PositionAssignmentObject {
+	return &identityv1.PositionAssignmentObject{
+		Id:         m.GetID(),
+		MemberId:   m.MemberID,
+		PositionId: m.PositionID,
+		IsPrimary:  m.IsPrimary,
+		State:      identitycommonv1.STATE(m.State),
+		Properties: m.Properties.ToProtoStruct(),
+	}
+}
+
+func PositionAssignmentFromAPI(ctx context.Context, obj *identityv1.PositionAssignmentObject) *PositionAssignment {
+	if obj == nil {
+		return nil
+	}
+
+	model := &PositionAssignment{
+		MemberID:   obj.GetMemberId(),
+		PositionID: obj.GetPositionId(),
+		IsPrimary:  obj.GetIsPrimary(),
+		State:      int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// InternalTeam represents an execution team with a business objective.
+type InternalTeam struct {
+	data.BaseModel
+	OrganizationID string `gorm:"type:varchar(50);index:idx_internal_team_organization;uniqueIndex:uq_internal_team_org_code;not null"`
+	ParentTeamID   string `gorm:"type:varchar(50);index:idx_internal_team_parent"`
+	HomeOrgUnitID  string `gorm:"type:varchar(50);index:idx_internal_team_org_unit"`
+	Name           string `gorm:"type:varchar(255)"`
+	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_internal_team_org_code"`
+	TeamType       int32
+	Objective      string `gorm:"type:text"`
+	GeoID          string `gorm:"type:varchar(50)"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *InternalTeam) TableName() string { return "internal_teams" }
+
+func (m *InternalTeam) ToAPI() *identityv1.InternalTeamObject {
+	return &identityv1.InternalTeamObject{
+		Id:             m.GetID(),
+		OrganizationId: m.OrganizationID,
+		ParentTeamId:   m.ParentTeamID,
+		HomeOrgUnitId:  m.HomeOrgUnitID,
+		Name:           m.Name,
+		Code:           m.Code,
+		TeamType:       identityv1.TeamType(m.TeamType),
+		Objective:      m.Objective,
+		GeoId:          m.GeoID,
+		State:          identitycommonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
+	}
+}
+
+func InternalTeamFromAPI(ctx context.Context, obj *identityv1.InternalTeamObject) *InternalTeam {
+	if obj == nil {
+		return nil
+	}
+
+	model := &InternalTeam{
+		OrganizationID: obj.GetOrganizationId(),
+		ParentTeamID:   obj.GetParentTeamId(),
+		HomeOrgUnitID:  obj.GetHomeOrgUnitId(),
+		Name:           obj.GetName(),
+		Code:           obj.GetCode(),
+		TeamType:       int32(obj.GetTeamType()),
+		Objective:      obj.GetObjective(),
+		GeoID:          obj.GetGeoId(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// TeamMembership assigns a workforce member to an internal team.
+type TeamMembership struct {
+	data.BaseModel
+	TeamID         string `gorm:"type:varchar(50);index:idx_team_membership_team;not null"`
+	MemberID       string `gorm:"type:varchar(50);index:idx_team_membership_member;not null"`
+	MembershipRole int32
+	IsPrimaryTeam  bool `gorm:"index:idx_team_membership_primary"`
+	State          int32
+	Properties     data.JSONMap
+}
+
+func (m *TeamMembership) TableName() string { return "team_memberships" }
+
+func (m *TeamMembership) ToAPI() *identityv1.TeamMembershipObject {
+	return &identityv1.TeamMembershipObject{
+		Id:             m.GetID(),
+		TeamId:         m.TeamID,
+		MemberId:       m.MemberID,
+		MembershipRole: identityv1.TeamMembershipRole(m.MembershipRole),
+		IsPrimaryTeam:  m.IsPrimaryTeam,
+		State:          identitycommonv1.STATE(m.State),
+		Properties:     m.Properties.ToProtoStruct(),
+	}
+}
+
+func TeamMembershipFromAPI(ctx context.Context, obj *identityv1.TeamMembershipObject) *TeamMembership {
+	if obj == nil {
+		return nil
+	}
+
+	model := &TeamMembership{
+		TeamID:         obj.GetTeamId(),
+		MemberID:       obj.GetMemberId(),
+		MembershipRole: int32(obj.GetMembershipRole()),
+		IsPrimaryTeam:  obj.GetIsPrimaryTeam(),
+		State:          int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
+// AccessRoleAssignment grants explicit authorization at a given scope.
+type AccessRoleAssignment struct {
+	data.BaseModel
+	MemberID   string `gorm:"type:varchar(50);index:idx_access_role_assignment_member;not null"`
+	RoleKey    string `gorm:"type:varchar(100);index:idx_access_role_assignment_role;not null"`
+	ScopeType  int32  `gorm:"index:idx_access_role_assignment_scope"`
+	ScopeID    string `gorm:"type:varchar(50);index:idx_access_role_assignment_scope"`
+	State      int32
+	Properties data.JSONMap
+}
+
+func (m *AccessRoleAssignment) TableName() string { return "access_role_assignments" }
+
+func (m *AccessRoleAssignment) ToAPI() *identityv1.AccessRoleAssignmentObject {
+	return &identityv1.AccessRoleAssignmentObject{
+		Id:         m.GetID(),
+		MemberId:   m.MemberID,
+		RoleKey:    m.RoleKey,
+		ScopeType:  identityv1.AccessScopeType(m.ScopeType),
+		ScopeId:    m.ScopeID,
+		State:      identitycommonv1.STATE(m.State),
+		Properties: m.Properties.ToProtoStruct(),
+	}
+}
+
+func AccessRoleAssignmentFromAPI(
+	ctx context.Context,
+	obj *identityv1.AccessRoleAssignmentObject,
+) *AccessRoleAssignment {
+	if obj == nil {
+		return nil
+	}
+
+	model := &AccessRoleAssignment{
+		MemberID:  obj.GetMemberId(),
+		RoleKey:   obj.GetRoleKey(),
+		ScopeType: int32(obj.GetScopeType()),
+		ScopeID:   obj.GetScopeId(),
+		State:     int32(obj.GetState()),
+	}
+
+	if obj.GetProperties() != nil {
+		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
+	}
+
+	model.GenID(ctx)
+	if model.ValidXID(obj.GetId()) {
+		model.ID = obj.GetId()
+	}
+
+	return model
+}
+
 // ClientDataEntry stores a single piece of client KYC data.
 // The (ClientID, FieldKey) pair is unique — resubmissions increment Revision.
 type ClientDataEntry struct {
 	data.BaseModel
-	ClientID            string `gorm:"type:varchar(50);uniqueIndex:uq_cde_client_key,priority:1;not null"`
-	FieldKey            string `gorm:"type:varchar(100);uniqueIndex:uq_cde_client_key,priority:2;not null"`
-	Value               string `gorm:"type:text"`
-	ValueType           string `gorm:"type:varchar(20)"`
-	VerificationStatus  int32  // matches DataVerificationStatus enum
-	ReviewerID          string `gorm:"type:varchar(50)"`
-	ReviewerComment     string `gorm:"type:text"`
-	SourceApplicationID string `gorm:"type:varchar(50)"`
-	Revision            int32
-	VerifiedAt          *time.Time
-	ExpiresAt           *time.Time
-	Properties          data.JSONMap
+	ClientID           string `gorm:"type:varchar(50);uniqueIndex:uq_cde_client_key,priority:1;not null"`
+	FieldKey           string `gorm:"type:varchar(100);uniqueIndex:uq_cde_client_key,priority:2;not null"`
+	Value              string `gorm:"type:text"`
+	ValueType          string `gorm:"type:varchar(20)"`
+	VerificationStatus int32  // matches DataVerificationStatus enum
+	ReviewerID         string `gorm:"type:varchar(50)"`
+	ReviewerComment    string `gorm:"type:text"`
+	SourceEntityID     string `gorm:"type:varchar(50)"`
+	Revision           int32
+	VerifiedAt         *time.Time
+	ExpiresAt          *time.Time
+	Properties         data.JSONMap
 }
 
 func (m *ClientDataEntry) TableName() string { return "client_data_entries" }
 
 func (m *ClientDataEntry) ToAPI() *identityv1.ClientDataEntryObject {
 	obj := &identityv1.ClientDataEntryObject{
-		Id:                  m.GetID(),
-		ClientId:            m.ClientID,
-		FieldKey:            m.FieldKey,
-		Value:               m.Value,
-		ValueType:           m.ValueType,
-		VerificationStatus:  identityv1.DataVerificationStatus(m.VerificationStatus),
-		ReviewerId:          m.ReviewerID,
-		ReviewerComment:     m.ReviewerComment,
-		SourceApplicationId: m.SourceApplicationID,
-		Revision:            m.Revision,
-		Properties:          m.Properties.ToProtoStruct(),
+		Id:                 m.GetID(),
+		ClientId:           m.ClientID,
+		FieldKey:           m.FieldKey,
+		Value:              m.Value,
+		ValueType:          m.ValueType,
+		VerificationStatus: identityv1.DataVerificationStatus(m.VerificationStatus),
+		ReviewerId:         m.ReviewerID,
+		ReviewerComment:    m.ReviewerComment,
+		SourceEntityId:     m.SourceEntityID,
+		Revision:           m.Revision,
+		Properties:         m.Properties.ToProtoStruct(),
 	}
 	if m.VerifiedAt != nil {
 		obj.VerifiedAt = m.VerifiedAt.Format(time.RFC3339)
@@ -784,15 +1176,15 @@ func ClientDataEntryFromAPI(ctx context.Context, obj *identityv1.ClientDataEntry
 	}
 
 	model := &ClientDataEntry{
-		ClientID:            obj.GetClientId(),
-		FieldKey:            obj.GetFieldKey(),
-		Value:               obj.GetValue(),
-		ValueType:           obj.GetValueType(),
-		VerificationStatus:  int32(obj.GetVerificationStatus()),
-		ReviewerID:          obj.GetReviewerId(),
-		ReviewerComment:     obj.GetReviewerComment(),
-		SourceApplicationID: obj.GetSourceApplicationId(),
-		Revision:            obj.GetRevision(),
+		ClientID:           obj.GetClientId(),
+		FieldKey:           obj.GetFieldKey(),
+		Value:              obj.GetValue(),
+		ValueType:          obj.GetValueType(),
+		VerificationStatus: int32(obj.GetVerificationStatus()),
+		ReviewerID:         obj.GetReviewerId(),
+		ReviewerComment:    obj.GetReviewerComment(),
+		SourceEntityID:     obj.GetSourceEntityId(),
+		Revision:           obj.GetRevision(),
 	}
 
 	if obj.GetProperties() != nil {

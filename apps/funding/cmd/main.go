@@ -7,9 +7,9 @@ import (
 
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingpb "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
+	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
+	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
-	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
-	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
@@ -80,7 +80,7 @@ func main() {
 		return
 	}
 
-	// Platform clients for external service calls (origination, loan mgmt, ledger, etc.)
+	// Platform clients for external service calls (loan mgmt, ledger, identity, etc.)
 	platformClients, pcErr := clients.NewPlatformClients(ctx, &cfg, cfg.ServiceEndpoints())
 	if pcErr != nil {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
@@ -124,9 +124,9 @@ func setupServiceOptions(
 	// Legacy Stawi request repository used as a compatibility source while canonical
 	// request data is still split across services.
 	loRepo := stawirepo.NewLoanOfferRepository(ctx, dbPool, workMan)
-	var originationCli originationv1connect.OriginationServiceClient
+	var loanMgmtCli loansv1connect.LoanManagementServiceClient
 	if platformClients != nil {
-		originationCli = platformClients.LenderOrigination
+		loanMgmtCli = platformClients.LenderLoanMgmt
 	}
 
 	// Business logic
@@ -135,7 +135,7 @@ func setupServiceOptions(
 		evtsMan,
 		lfRepo,
 		faRepo,
-		&loanRequestAdapter{repo: loRepo, originationCli: originationCli},
+		&loanRequestAdapter{repo: loRepo, loanMgmtCli: loanMgmtCli},
 		iaRepo,
 		ftRepo,
 		platformClients,
@@ -192,10 +192,10 @@ func handleDatabaseMigration(
 
 var errLoanRequestNotFound = errors.New("loan request not found")
 
-// loanRequestAdapter bridges legacy origination sources into a canonical loan-request view.
+// loanRequestAdapter bridges loan offer and loan request sources into a canonical loan-request view.
 type loanRequestAdapter struct {
-	repo           stawirepo.LoanOfferRepository
-	originationCli originationv1connect.OriginationServiceClient
+	repo        stawirepo.LoanOfferRepository
+	loanMgmtCli loansv1connect.LoanManagementServiceClient
 }
 
 func (a *loanRequestAdapter) GetByID(ctx context.Context, id string) (*business.LoanRequestInfo, error) {
@@ -206,13 +206,13 @@ func (a *loanRequestAdapter) GetByID(ctx context.Context, id string) (*business.
 		}
 	}
 
-	if a.originationCli != nil {
-		resp, err := a.originationCli.ApplicationGet(
+	if a.loanMgmtCli != nil {
+		resp, err := a.loanMgmtCli.LoanRequestGet(
 			ctx,
-			connect.NewRequest(&originationv1.ApplicationGetRequest{Id: id}),
+			connect.NewRequest(&loansv1.LoanRequestGetRequest{Id: id}),
 		)
 		if err == nil && resp.Msg.GetData() != nil {
-			return applicationToRequestInfo(resp.Msg.GetData()), nil
+			return loanRequestToRequestInfo(resp.Msg.GetData()), nil
 		}
 	}
 
@@ -232,21 +232,21 @@ func loanOfferToRequestInfo(o *stawimodels.LoanOffer) *business.LoanRequestInfo 
 	return info
 }
 
-func applicationToRequestInfo(app *originationv1.ApplicationObject) *business.LoanRequestInfo {
-	if app == nil {
+func loanRequestToRequestInfo(lr *loansv1.LoanRequestObject) *business.LoanRequestInfo {
+	if lr == nil {
 		return nil
 	}
 
-	amount, currency := fundingmodels.MoneyToMinorUnits(app.GetApprovedAmount())
+	amount, currency := fundingmodels.MoneyToMinorUnits(lr.GetApprovedAmount())
 	if amount <= 0 {
-		amount, currency = fundingmodels.MoneyToMinorUnits(app.GetRequestedAmount())
+		amount, currency = fundingmodels.MoneyToMinorUnits(lr.GetRequestedAmount())
 	}
 
-	properties := (&data.JSONMap{}).FromProtoStruct(app.GetProperties())
+	properties := (&data.JSONMap{}).FromProtoStruct(lr.GetProperties())
 	if properties == nil {
 		properties = data.JSONMap{}
 	}
-	properties["interest_rate"] = float64(fundingmodels.StringToBasisPoints(app.GetInterestRate()))
+	properties["interest_rate"] = float64(fundingmodels.StringToBasisPoints(lr.GetInterestRate()))
 
 	info := &business.LoanRequestInfo{
 		Amount:     amount,
@@ -254,7 +254,7 @@ func applicationToRequestInfo(app *originationv1.ApplicationObject) *business.Lo
 		Properties: properties,
 	}
 	info.GenID(context.Background())
-	info.ID = app.GetId()
+	info.ID = lr.GetId()
 	return info
 }
 

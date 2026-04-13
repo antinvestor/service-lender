@@ -121,24 +121,31 @@ func setupServiceOptions(
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
 	agentBranchRepo := repository.NewAgentBranchRepository(ctx, dbPool, workMan)
 	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
-	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
+	clientHistoryRepo := repository.NewClientResponsibilityHistoryRepository(ctx, dbPool, workMan)
 	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
 	approvalCaseRepo := repository.NewApprovalCaseRepository(ctx, dbPool, workMan)
 	groupRepo := repository.NewClientGroupRepository(ctx, dbPool, workMan)
 	membershipRepo := repository.NewMembershipRepository(ctx, dbPool, workMan)
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
 	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
+	workforceMemberRepo := repository.NewWorkforceMemberRepository(ctx, dbPool, workMan)
+	departmentRepo := repository.NewDepartmentRepository(ctx, dbPool, workMan)
+	positionRepo := repository.NewPositionRepository(ctx, dbPool, workMan)
+	positionAssignmentRepo := repository.NewPositionAssignmentRepository(ctx, dbPool, workMan)
+	internalTeamRepo := repository.NewInternalTeamRepository(ctx, dbPool, workMan)
+	teamMembershipRepo := repository.NewTeamMembershipRepository(ctx, dbPool, workMan)
+	accessRoleAssignmentRepo := repository.NewAccessRoleAssignmentRepository(ctx, dbPool, workMan)
 	clientDataEntryRepo := repository.NewClientDataEntryRepository(ctx, dbPool, workMan)
 	clientDataHistoryRepo := repository.NewClientDataEntryHistoryRepository(ctx, dbPool, workMan)
 
 	approvalCaseNotifier := business.NewApprovalCaseNotifier(
 		agentNotifier.Client(),
 		agentNotifier.ProfileClient(),
-		systemUserRepo,
-		branchRepo,
+		workforceMemberRepo,
+		orgUnitRepo,
 		clientRepo,
-		agentRepo,
-		agentBranchRepo,
+		internalTeamRepo,
+		accessRoleAssignmentRepo,
 	)
 	approvalCaseBusiness := business.NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo, approvalCaseNotifier)
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
@@ -159,13 +166,37 @@ func setupServiceOptions(
 		agentNotifier,
 	)
 	clientBusiness := business.NewClientBusiness(
-		ctx, evtsMan, agentRepo, clientRepo, cahRepo, clcrRepo, approvalCaseBusiness,
+		ctx,
+		evtsMan,
+		clientRepo,
+		clientHistoryRepo,
+		clcrRepo,
+		approvalCaseBusiness,
+		workforceMemberRepo,
+		internalTeamRepo,
+		teamMembershipRepo,
+	)
+	workforceBusiness := business.NewWorkforceBusiness(
+		organizationRepo,
+		orgUnitRepo,
+		workforceMemberRepo,
+		departmentRepo,
+		positionRepo,
+		positionAssignmentRepo,
+		internalTeamRepo,
+		teamMembershipRepo,
+		accessRoleAssignmentRepo,
 	)
 	groupBusiness := business.NewClientGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
 	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 	clientDataBusiness := business.NewClientDataBusiness(ctx, evtsMan, clientDataEntryRepo, clientDataHistoryRepo)
+
+	formTemplateRepo := repository.NewFormTemplateRepository(ctx, dbPool, workMan)
+	formSubmissionRepo := repository.NewFormSubmissionRepository(ctx, dbPool, workMan)
+	formTemplateBusiness := business.NewFormTemplateBusiness(ctx, evtsMan, formTemplateRepo)
+	formSubmissionBusiness := business.NewFormSubmissionBusiness(ctx, evtsMan, formSubmissionRepo)
 
 	oauthRedirectURIs := strings.Split(cfg.OAuthRedirectURIs, ",")
 	oauthAudiences := strings.Split(cfg.OAuthAudiences, ",")
@@ -175,9 +206,10 @@ func setupServiceOptions(
 
 	connectHandler := setupConnectServer(
 		ctx, sm,
-		organizationBusiness, orgUnitBusiness, branchBusiness, agentBusiness, clientBusiness,
+		organizationBusiness, orgUnitBusiness, branchBusiness, workforceBusiness, agentBusiness, clientBusiness,
 		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
 		loginClientBusiness, clientDataBusiness,
+		formTemplateBusiness, formSubmissionBusiness,
 	)
 
 	identitySD := identitypb.File_identity_v1_identity_proto.Services().ByName("IdentityService")
@@ -200,6 +232,12 @@ func setupServiceOptions(
 			identityevents.NewApprovalCaseSave(ctx, approvalCaseRepo),
 			identityevents.NewClientDataEntrySave(ctx, clientDataEntryRepo),
 			identityevents.NewClientDataEntryHistorySave(ctx, clientDataHistoryRepo),
+			identityevents.NewWorkforceMemberSave(ctx, workforceMemberRepo),
+			identityevents.NewInternalTeamSave(ctx, internalTeamRepo),
+			identityevents.NewTeamMembershipSave(ctx, teamMembershipRepo),
+			identityevents.NewAccessRoleAssignmentSave(ctx, accessRoleAssignmentRepo),
+			identityevents.NewFormTemplateSave(ctx, formTemplateRepo),
+			identityevents.NewFormSubmissionSave(ctx, formSubmissionRepo),
 		),
 	}
 }
@@ -258,6 +296,7 @@ func setupConnectServer(
 	organizationBusiness business.OrganizationBusiness,
 	orgUnitBusiness business.OrgUnitBusiness,
 	branchBusiness business.BranchBusiness,
+	workforceBusiness business.WorkforceBusiness,
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
 	groupBusiness business.ClientGroupBusiness,
@@ -266,17 +305,22 @@ func setupConnectServer(
 	suBusiness business.SystemUserBusiness,
 	loginClientBusiness business.LoginClientBusiness,
 	clientDataBusiness business.ClientDataBusiness,
+	formTemplateBusiness business.FormTemplateBusiness,
+	formSubmissionBusiness business.FormSubmissionBusiness,
 ) http.Handler {
 	// Create handlers with injected dependencies
 	identityHandler := handlers.NewIdentityServer(
 		organizationBusiness,
 		orgUnitBusiness,
 		branchBusiness,
+		workforceBusiness,
 		groupBusiness,
 		membershipBusiness,
 		investorBusiness,
 		suBusiness,
 		clientDataBusiness,
+		formTemplateBusiness,
+		formSubmissionBusiness,
 	)
 	fieldHandler := handlers.NewFieldServer(
 		agentBusiness,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../sdk/src/origination/v1/origination.pbenum.dart';
+import '../../sdk/src/loans/v1/loans.pbenum.dart';
 
 /// Visual pipeline stepper showing application workflow progress.
 class ApplicationWorkflowStepper extends StatelessWidget {

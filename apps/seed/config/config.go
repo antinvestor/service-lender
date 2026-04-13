@@ -7,9 +7,9 @@ import (
 // SeedConfig is the service configuration for the seed direct-to-client
 // lending product. Seed composes existing platform services rather than
 // duplicating primitives: identity provides KYC and client lookup,
-// origination owns the application record, loans owns the loan account
-// and repayment history, operations issues the transfer orders, and
-// the ledger keeps the double-entry record.
+// loans owns loan requests, loan accounts, and repayment history,
+// operations issues the transfer orders, and the ledger keeps the
+// double-entry record.
 type SeedConfig struct {
 	config.ConfigurationDefault
 
@@ -17,13 +17,8 @@ type SeedConfig struct {
 	IdentityServiceURI                   string `envDefault:"127.0.0.1:7001"                  env:"IDENTITY_SERVICE_URI"`
 	IdentityServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-identity" env:"IDENTITY_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
-	// Origination service — used to create the application record that
-	// precedes any loan account.
-	OriginationServiceURI                   string `envDefault:"127.0.0.1:7010"                         env:"ORIGINATION_SERVICE_URI"`
-	OriginationServiceWorkloadAPITargetPath string `envDefault:"/ns/origination/sa/service-origination" env:"ORIGINATION_SERVICE_WORKLOAD_API_TARGET_PATH"`
-
-	// Loans service — used to create the loan account, trigger disbursement,
-	// and observe paid-off transitions that feed the credit profile.
+	// Loans service — used to create loan requests, loan accounts, trigger
+	// disbursement, and observe paid-off transitions that feed the credit profile.
 	LoanMgmtServiceURI                   string `envDefault:"127.0.0.1:7011"                 env:"LOAN_MGMT_SERVICE_URI"`
 	LoanMgmtServiceWorkloadAPITargetPath string `envDefault:"/ns/loans/sa/service-loan-mgmt" env:"LOAN_MGMT_SERVICE_WORKLOAD_API_TARGET_PATH"`
 

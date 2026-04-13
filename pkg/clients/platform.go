@@ -10,7 +10,6 @@ import (
 	"buf.build/gen/go/antinvestor/ledger/connectrpc/go/v1/ledgerv1connect"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
-	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	"buf.build/gen/go/antinvestor/payment/connectrpc/go/v1/paymentv1connect"
 	"buf.build/gen/go/antinvestor/profile/connectrpc/go/profile/v1/profilev1connect"
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
@@ -25,7 +24,6 @@ import (
 // If an endpoint is empty, its client is skipped during initialisation.
 type ServiceEndpoints struct {
 	IdentityURI     string
-	OriginationURI  string
 	LoanMgmtURI     string
 	SavingsURI      string
 	LedgerURI       string
@@ -40,7 +38,6 @@ type ServiceEndpoints struct {
 type PlatformClients struct {
 	LenderIdentity     fieldv1connect.FieldServiceClient
 	LenderRegistry     identityv1connect.IdentityServiceClient
-	LenderOrigination  originationv1connect.OriginationServiceClient
 	LenderLoanMgmt     loansv1connect.LoanManagementServiceClient
 	LenderSavings      savingsv1connect.SavingsServiceClient
 	LedgerClient       ledgerv1connect.LedgerServiceClient
@@ -77,14 +74,6 @@ func NewPlatformClients(ctx context.Context, cfg any, ep ServiceEndpoints) (*Pla
 		"lender-registry",
 		func(c identityv1connect.IdentityServiceClient) { pc.LenderRegistry = c },
 		identityv1connect.NewIdentityServiceClient,
-	)
-	initServiceClient(
-		b,
-		ep.OriginationURI,
-		"service_origination",
-		"lender-origination",
-		func(c originationv1connect.OriginationServiceClient) { pc.LenderOrigination = c },
-		originationv1connect.NewOriginationServiceClient,
 	)
 	initServiceClient(
 		b,

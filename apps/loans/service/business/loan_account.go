@@ -13,8 +13,6 @@ import (
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
-	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
-	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
@@ -105,7 +103,7 @@ type loanAccountBusiness struct {
 	statusChangeRepo repository.LoanStatusChangeRepository
 	repaymentRepo    repository.RepaymentRepository
 	penaltyRepo      repository.PenaltyRepository
-	originationCli   originationv1connect.OriginationServiceClient
+	loanRequestRepo  repository.LoanRequestRepository
 	fundingCli       fundingv1connect.FundingServiceClient
 	scheduleBusiness RepaymentScheduleBusiness
 	operationsCli    operationsv1connect.OperationsServiceClient
@@ -121,7 +119,7 @@ func NewLoanAccountBusiness(
 	statusChangeRepo repository.LoanStatusChangeRepository,
 	repaymentRepo repository.RepaymentRepository,
 	penaltyRepo repository.PenaltyRepository,
-	originationCli originationv1connect.OriginationServiceClient,
+	loanRequestRepo repository.LoanRequestRepository,
 	fundingCli fundingv1connect.FundingServiceClient,
 	scheduleBusiness RepaymentScheduleBusiness,
 	operationsCli operationsv1connect.OperationsServiceClient,
@@ -135,7 +133,7 @@ func NewLoanAccountBusiness(
 		statusChangeRepo: statusChangeRepo,
 		repaymentRepo:    repaymentRepo,
 		penaltyRepo:      penaltyRepo,
-		originationCli:   originationCli,
+		loanRequestRepo:  loanRequestRepo,
 		fundingCli:       fundingCli,
 		scheduleBusiness: scheduleBusiness,
 		operationsCli:    operationsCli,
@@ -143,14 +141,10 @@ func NewLoanAccountBusiness(
 	}
 }
 
-func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) (*loansv1.LoanAccountObject, error) {
+func (b *loanAccountBusiness) Create(ctx context.Context, loanRequestID string) (*loansv1.LoanAccountObject, error) {
 	logger := util.Log(ctx).WithField("method", "LoanAccountBusiness.Create")
 
-	if b.originationCli == nil {
-		return nil, ErrOriginationServiceUnavailable
-	}
-
-	la, lp, err := b.populateLoanFromApplication(ctx, logger, applicationID)
+	la, lp, err := b.populateLoanFromRequest(ctx, logger, loanRequestID)
 	if err != nil {
 		return nil, err
 	}
@@ -182,59 +176,57 @@ func (b *loanAccountBusiness) Create(ctx context.Context, applicationID string) 
 	return la.ToAPI(), nil
 }
 
-// populateLoanFromApplication fetches the application from origination and
-// populates a LoanAccount with its data and optional product defaults.
-func (b *loanAccountBusiness) populateLoanFromApplication(
+// populateLoanFromRequest reads the local LoanRequest and populates a
+// LoanAccount with its data and optional product defaults.
+func (b *loanAccountBusiness) populateLoanFromRequest(
 	ctx context.Context,
 	logger *util.LogEntry,
-	applicationID string,
+	loanRequestID string,
 ) (*models.LoanAccount, *models.LoanProduct, error) {
 	la := &models.LoanAccount{
-		ApplicationID: applicationID,
+		LoanRequestID: loanRequestID,
 		Status:        int32(loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT),
 		Properties: data.JSONMap{
-			"loan_request_id": applicationID,
+			"loan_request_id": loanRequestID,
 		},
 	}
 
-	appResp, appErr := b.originationCli.ApplicationGet(ctx, connect.NewRequest(
-		&originationv1.ApplicationGetRequest{Id: applicationID},
-	))
-	if appErr != nil {
-		logger.WithError(appErr).Error("could not fetch application from origination service")
-		return nil, nil, ErrApplicationNotFound
+	lr, lrErr := b.loanRequestRepo.GetByID(ctx, loanRequestID)
+	if lrErr != nil {
+		logger.WithError(lrErr).Error("could not fetch loan request")
+		return nil, nil, ErrLoanRequestNotFound
 	}
 
-	app := appResp.Msg.GetData()
-	if app.GetStatus() != originationv1.ApplicationStatus_APPLICATION_STATUS_OFFER_ACCEPTED {
-		return nil, nil, ErrApplicationNotOfferAccepted
+	if lr.Status != int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_APPROVED) {
+		return nil, nil, ErrLoanRequestNotApproved
 	}
-	la.ProductID = app.GetProductId()
-	la.ClientID = app.GetClientId()
-	la.AgentID = app.GetAgentId()
-	la.BranchID = app.GetBranchId()
-	la.OrganizationID = app.GetOrganizationId()
-	approvedAmount, approvedCurrency := models.MoneyToMinorUnits(app.GetApprovedAmount())
-	la.CurrencyCode = approvedCurrency
-	la.PrincipalAmount = approvedAmount
-	la.InterestRate = models.StringToBasisPoints(app.GetInterestRate())
-	la.TermDays = app.GetApprovedTermDays()
-	if app.GetProperties() != nil {
-		la.Properties = (&data.JSONMap{}).FromProtoStruct(app.GetProperties())
+
+	la.ProductID = lr.ProductID
+	la.ClientID = lr.ClientID
+	la.AgentID = lr.AgentID
+	la.BranchID = lr.BranchID
+	la.OrganizationID = lr.OrganizationID
+	la.CurrencyCode = lr.CurrencyCode
+	la.PrincipalAmount = lr.ApprovedAmount
+	la.InterestRate = lr.InterestRate
+	la.TermDays = lr.ApprovedTermDays
+
+	if lr.Properties != nil {
+		la.Properties = lr.Properties
 		if la.Properties == nil {
 			la.Properties = data.JSONMap{}
 		}
 	}
-	la.Properties["loan_request_id"] = applicationID
+	la.Properties["loan_request_id"] = loanRequestID
 	if paymentAccountRef := loanRequestStringProperty(la.Properties, "payment_account_ref"); paymentAccountRef != "" {
 		la.PaymentAccountRef = paymentAccountRef
 	}
 
-	lp := b.applyProductDefaults(ctx, logger, la, app.GetProductId())
+	lp := b.applyProductDefaults(ctx, logger, la, lr.ProductID)
 	applyLedgerDefaults(la)
 
 	if la.PrincipalAmount <= 0 || la.TermDays <= 0 {
-		return nil, nil, ErrApplicationTermsNotApproved
+		return nil, nil, ErrLoanRequestTermsNotSet
 	}
 
 	return la, lp, nil

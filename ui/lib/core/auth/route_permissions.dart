@@ -29,10 +29,9 @@ const Map<String, Set<LenderRole>> routePermissions = {
   '/field/reassignment': _fieldMgmtRoles,
   '/field/clients': _allViewRoles,
 
-  // Origination — all operational roles
-  '/origination/pending': _allViewRoles,
-  '/origination/applications': _allViewRoles,
-  '/origination/templates': {LenderRole.owner, LenderRole.admin},
+  // Loan Requests — all operational roles
+  '/loans/requests/pending': _allViewRoles,
+  '/loans/requests': _allViewRoles,
 
   // Loan Management — all operational roles
   '/loans/products': _allViewRoles,

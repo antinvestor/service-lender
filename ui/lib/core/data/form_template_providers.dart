@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../api/api_provider.dart';
 import '../api/stream_helpers.dart';
 import '../../sdk/src/common/v1/common.pb.dart';
-import '../../sdk/src/origination/v1/origination.pb.dart';
+import '../../sdk/src/identity/v1/identity.pb.dart';
 
 part 'form_template_providers.g.dart';
 
@@ -14,7 +14,7 @@ class FormTemplateList extends _$FormTemplateList {
     String query, {
     String organizationId = '',
   }) async {
-    final client = ref.watch(originationServiceClientProvider);
+    final client = ref.watch(identityServiceClientProvider);
     final request = FormTemplateSearchRequest(
       query: query,
       cursor: PageCursor(limit: 50),
@@ -35,7 +35,7 @@ class FormTemplateList extends _$FormTemplateList {
 class FormTemplateDetail extends _$FormTemplateDetail {
   @override
   Future<FormTemplateObject> build(String id) async {
-    final client = ref.watch(originationServiceClientProvider);
+    final client = ref.watch(identityServiceClientProvider);
     final response = await client.formTemplateGet(FormTemplateGetRequest(id: id));
     return response.data;
   }
@@ -49,7 +49,7 @@ class FormTemplateNotifier extends _$FormTemplateNotifier {
   }
 
   Future<FormTemplateObject> save(FormTemplateObject template) async {
-    final client = ref.read(originationServiceClientProvider);
+    final client = ref.read(identityServiceClientProvider);
     final response = await client.formTemplateSave(
       FormTemplateSaveRequest(data: template),
     );
@@ -59,7 +59,7 @@ class FormTemplateNotifier extends _$FormTemplateNotifier {
   }
 
   Future<FormTemplateObject> publish(String id) async {
-    final client = ref.read(originationServiceClientProvider);
+    final client = ref.read(identityServiceClientProvider);
     final response = await client.formTemplatePublish(
       FormTemplatePublishRequest(id: id),
     );
@@ -91,7 +91,7 @@ Future<List<FormTemplateObject>> entityFormTemplates(
   required FormEntityType entityType,
   String organizationId = '',
 }) async {
-  final client = ref.watch(originationServiceClientProvider);
+  final client = ref.watch(identityServiceClientProvider);
   final request = FormTemplateSearchRequest(
     entityType: entityType.name,
     status: FormTemplateStatus.FORM_TEMPLATE_STATUS_PUBLISHED,
@@ -112,7 +112,7 @@ class FormSubmissionList extends _$FormSubmissionList {
   Future<List<FormSubmissionObject>> build({
     required String applicationId,
   }) async {
-    final client = ref.watch(originationServiceClientProvider);
+    final client = ref.watch(identityServiceClientProvider);
     final request = FormSubmissionSearchRequest(
       applicationId: applicationId,
       cursor: PageCursor(limit: 50),
@@ -133,7 +133,7 @@ class FormSubmissionNotifier extends _$FormSubmissionNotifier {
   }
 
   Future<FormSubmissionObject> save(FormSubmissionObject submission) async {
-    final client = ref.read(originationServiceClientProvider);
+    final client = ref.read(identityServiceClientProvider);
     final response = await client.formSubmissionSave(
       FormSubmissionSaveRequest(data: submission),
     );

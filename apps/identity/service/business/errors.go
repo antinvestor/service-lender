@@ -3,15 +3,22 @@ package business
 import "github.com/antinvestor/service-fintech/pkg/apperrors"
 
 var (
-	ErrOrganizationNotFound = apperrors.NewError(apperrors.NotFound, "organization not found")
-	ErrOrgUnitNotFound      = apperrors.NewError(apperrors.NotFound, "org unit not found")
-	ErrBranchNotFound       = apperrors.NewError(apperrors.NotFound, "branch not found")
-	ErrAgentNotFound        = apperrors.NewError(apperrors.NotFound, "agent not found")
-	ErrClientNotFound       = apperrors.NewError(apperrors.NotFound, "client not found")
-	ErrGroupNotFound        = apperrors.NewError(apperrors.NotFound, "group not found")
-	ErrMembershipNotFound   = apperrors.NewError(apperrors.NotFound, "membership not found")
-	ErrInvestorNotFound     = apperrors.NewError(apperrors.NotFound, "investor not found")
-	ErrSystemUserNotFound   = apperrors.NewError(apperrors.NotFound, "system user not found")
+	ErrOrganizationNotFound         = apperrors.NewError(apperrors.NotFound, "organization not found")
+	ErrOrgUnitNotFound              = apperrors.NewError(apperrors.NotFound, "org unit not found")
+	ErrBranchNotFound               = apperrors.NewError(apperrors.NotFound, "branch not found")
+	ErrAgentNotFound                = apperrors.NewError(apperrors.NotFound, "agent not found")
+	ErrClientNotFound               = apperrors.NewError(apperrors.NotFound, "client not found")
+	ErrGroupNotFound                = apperrors.NewError(apperrors.NotFound, "group not found")
+	ErrMembershipNotFound           = apperrors.NewError(apperrors.NotFound, "membership not found")
+	ErrInvestorNotFound             = apperrors.NewError(apperrors.NotFound, "investor not found")
+	ErrSystemUserNotFound           = apperrors.NewError(apperrors.NotFound, "system user not found")
+	ErrWorkforceMemberNotFound      = apperrors.NewError(apperrors.NotFound, "workforce member not found")
+	ErrDepartmentNotFound           = apperrors.NewError(apperrors.NotFound, "department not found")
+	ErrPositionNotFound             = apperrors.NewError(apperrors.NotFound, "position not found")
+	ErrPositionAssignmentNotFound   = apperrors.NewError(apperrors.NotFound, "position assignment not found")
+	ErrInternalTeamNotFound         = apperrors.NewError(apperrors.NotFound, "internal team not found")
+	ErrTeamMembershipNotFound       = apperrors.NewError(apperrors.NotFound, "team membership not found")
+	ErrAccessRoleAssignmentNotFound = apperrors.NewError(apperrors.NotFound, "access role assignment not found")
 
 	ErrAgentDepthExceeded       = apperrors.NewError(apperrors.Unprocessable, "agent hierarchy depth limit exceeded")
 	ErrAgentBranchNotInParent   = apperrors.NewError(apperrors.BadRequest, "branch is not assigned to parent agent")
@@ -23,14 +30,47 @@ var (
 		apperrors.BadRequest,
 		"branch does not belong to agent's organization",
 	)
-	ErrAgentInactive             = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
-	ErrClientAlreadyExists       = apperrors.NewError(apperrors.Conflict, "client with this profile already exists")
-	ErrReassignSameAgent         = apperrors.NewError(apperrors.BadRequest, "client is already assigned to this agent")
-	ErrCoverageAreaRequired      = apperrors.NewError(apperrors.BadRequest, "coverage area is required")
+	ErrAgentInactive       = apperrors.NewError(apperrors.Unprocessable, "agent is not active")
+	ErrClientAlreadyExists = apperrors.NewError(
+		apperrors.Conflict,
+		"client with this profile already exists",
+	)
+	ErrReassignSameAgent = apperrors.NewError(
+		apperrors.BadRequest,
+		"client is already assigned to this agent",
+	)
+	ErrCoverageAreaRequired = apperrors.NewError(apperrors.BadRequest, "coverage area is required")
+	ErrOwningTeamRequired   = apperrors.NewError(apperrors.BadRequest, "owning team is required")
+	ErrMemberNotInTeam      = apperrors.NewError(
+		apperrors.BadRequest,
+		"member is not assigned to the owning team",
+	)
+	ErrInvalidReportingLine = apperrors.NewError(apperrors.BadRequest, "invalid reporting line")
+	ErrDeprecatedAgentModel = apperrors.NewError(
+		apperrors.Gone,
+		"agent model has been retired; use workforce members and teams",
+	)
+	ErrDeprecatedSystemUserModel = apperrors.NewError(
+		apperrors.Gone,
+		"system user model has been retired; use access role assignments",
+	)
+	ErrDeprecatedClientAgentReassignment = apperrors.NewError(
+		apperrors.Gone,
+		"client agent reassignment has been retired; transfer team ownership or assign a relationship member",
+	)
 	ErrReassignCrossOrganization = apperrors.NewError(
 		apperrors.BadRequest,
 		"cannot reassign client to agent in different organization",
 	)
+	ErrPrimaryPositionAssignmentExists = apperrors.NewError(
+		apperrors.Conflict,
+		"member already has an active primary position assignment",
+	)
+	ErrPrimaryTeamMembershipExists = apperrors.NewError(
+		apperrors.Conflict,
+		"member already has an active primary team membership",
+	)
+	ErrInvalidAccessScope = apperrors.NewError(apperrors.BadRequest, "invalid access scope")
 
 	ErrCreditLimitNegative     = apperrors.NewError(apperrors.BadRequest, "credit limit cannot be negative")
 	ErrAgentLimitExceedsSystem = apperrors.NewError(
@@ -83,4 +123,7 @@ var (
 	)
 
 	ErrClientDataEntryNotFound = apperrors.NewError(apperrors.NotFound, "client data entry not found")
+	ErrFormTemplateNotFound    = apperrors.NewError(apperrors.NotFound, "form template not found")
+	ErrFormTemplateNotDraft    = apperrors.NewError(apperrors.Unprocessable, "form template is not in draft status")
+	ErrFormSubmissionNotFound  = apperrors.NewError(apperrors.NotFound, "form submission not found")
 )

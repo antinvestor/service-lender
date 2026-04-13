@@ -6,8 +6,6 @@ import (
 
 type LoanManagementConfig struct {
 	config.ConfigurationDefault
-	OriginationServiceURI                    string `envDefault:"127.0.0.1:7010"                           env:"ORIGINATION_SERVICE_URI"`
-	OriginationServiceWorkloadAPITargetPath  string `envDefault:"/ns/origination/sa/service-origination"   env:"ORIGINATION_SERVICE_WORKLOAD_API_TARGET_PATH"`
 	IdentityServiceURI                       string `envDefault:"127.0.0.1:7001"                           env:"IDENTITY_SERVICE_URI"`
 	IdentityServiceWorkloadAPITargetPath     string `envDefault:"/ns/identity/sa/service-identity"         env:"IDENTITY_SERVICE_WORKLOAD_API_TARGET_PATH"`
 	LedgerServiceURI                         string `envDefault:"127.0.0.1:7020"                           env:"LEDGER_SERVICE_URI"`

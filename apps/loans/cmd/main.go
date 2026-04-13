@@ -9,7 +9,6 @@ import (
 	loanspb "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
-	"buf.build/gen/go/antinvestor/origination/connectrpc/go/origination/v1/originationv1connect"
 	"connectrpc.com/connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
@@ -69,12 +68,6 @@ func main() {
 	}
 
 	// Setup external service clients
-	originationCli, err := setupOriginationClient(ctx, cfg)
-	if err != nil {
-		log.WithError(err).
-			Warn("main -- Could not setup origination client, loan creation will use application ID only")
-	}
-
 	notificationCli, notifErr := setupNotificationClient(ctx, cfg)
 	if notifErr != nil {
 		log.WithError(notifErr).
@@ -107,7 +100,6 @@ func main() {
 		evtsMan,
 		dbPool,
 		workMan,
-		originationCli,
 		fundingCli,
 		loanNotifier,
 		operationsCli,
@@ -127,12 +119,13 @@ func setupServiceOptions(
 	evtsMan fevents.Manager,
 	dbPool pool.Pool,
 	workMan workerpool.Manager,
-	originationCli originationv1connect.OriginationServiceClient,
 	fundingCli fundingv1connect.FundingServiceClient,
 	loanNotifier *business.LoanNotifier,
 	operationsCli operationsv1connect.OperationsServiceClient,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
+	loanRequestRepo := repository.NewLoanRequestRepository(ctx, dbPool, workMan)
+	cpaRepo := repository.NewClientProductAccessRepository(ctx, dbPool, workMan)
 	laRepo := repository.NewLoanAccountRepository(ctx, dbPool, workMan)
 	rsRepo := repository.NewRepaymentScheduleRepository(ctx, dbPool, workMan)
 	seRepo := repository.NewScheduleEntryRepository(ctx, dbPool, workMan)
@@ -147,10 +140,11 @@ func setupServiceOptions(
 	auditWriter := audit.NewWriter(evtsMan)
 
 	lpBusiness := business.NewLoanProductBusiness(ctx, evtsMan, lpRepo)
+	lrBusiness := business.NewLoanRequestBusiness(ctx, evtsMan, loanRequestRepo)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
 		ctx, evtsMan, lpRepo, laRepo, lbRepo, lscRepo, repRepo, penRepo,
-		originationCli, fundingCli, scheduleBusiness, operationsCli, auditWriter,
+		loanRequestRepo, fundingCli, scheduleBusiness, operationsCli, auditWriter,
 	)
 	// paidOffHook is currently nil here. A deployment that runs seed
 	// inside the loans process (or wires an RPC client for a seed
@@ -186,7 +180,7 @@ func setupServiceOptions(
 	portfolioBusiness := business.NewPortfolioBusiness(ctx, dbPool)
 
 	connectHandler := setupConnectServer(ctx, sm,
-		lpBusiness, laBusiness, repBusiness, scheduleBusiness,
+		lpBusiness, lrBusiness, laBusiness, repBusiness, scheduleBusiness,
 		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, disbBusiness, lscRepo)
 
 	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
@@ -196,6 +190,8 @@ func setupServiceOptions(
 		frame.WithPermissionRegistration(sd),
 		frame.WithRegisterEvents(
 			lmevents.NewLoanProductSave(ctx, lpRepo),
+			lmevents.NewLoanRequestSave(ctx, loanRequestRepo),
+			lmevents.NewClientProductAccessSave(ctx, cpaRepo),
 			lmevents.NewLoanAccountSave(ctx, laRepo),
 			lmevents.NewRepaymentScheduleSave(ctx, rsRepo),
 			lmevents.NewScheduleEntrySave(ctx, seRepo),
@@ -224,17 +220,6 @@ func handleDatabaseMigration(
 		return true
 	}
 	return false
-}
-
-func setupOriginationClient(
-	ctx context.Context,
-	cfg aconfig.LoanManagementConfig,
-) (originationv1connect.OriginationServiceClient, error) {
-	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
-		Endpoint:              cfg.OriginationServiceURI,
-		WorkloadAPITargetPath: cfg.OriginationServiceWorkloadAPITargetPath,
-		Audiences:             []string{"service_origination"},
-	}, originationv1connect.NewOriginationServiceClient)
 }
 
 func setupNotificationClient(
@@ -274,6 +259,7 @@ func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
 	lpBusiness business.LoanProductBusiness,
+	lrBusiness business.LoanRequestBusiness,
 	laBusiness business.LoanAccountBusiness,
 	repBusiness business.RepaymentBusiness,
 	scheduleBusiness business.RepaymentScheduleBusiness,
@@ -287,6 +273,7 @@ func setupConnectServer(
 	// Create handler with injected dependencies
 	lmHandler := handlers.NewLoanManagementServer(
 		lpBusiness,
+		lrBusiness,
 		laBusiness,
 		repBusiness,
 		scheduleBusiness,

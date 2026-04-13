@@ -97,12 +97,57 @@ enum OrgUnitType {
 }
 
 // SystemUserRole defines the role a system user plays in the lending workflow.
+// Deprecated: use AccessRoleAssignmentObject for all authorization decisions.
 enum SystemUserRole {
   SYSTEM_USER_ROLE_UNSPECIFIED = 0;
   SYSTEM_USER_ROLE_VERIFIER = 1; // Verifies loan applications and client data
   SYSTEM_USER_ROLE_APPROVER = 2; // Approves or rejects loan applications
   SYSTEM_USER_ROLE_ADMINISTRATOR = 3; // Manages system configuration and users
   SYSTEM_USER_ROLE_AUDITOR = 4; // Read-only access for compliance and audit
+}
+
+// WorkforceEngagementType defines how a workforce member is engaged.
+enum WorkforceEngagementType {
+  WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED = 0;
+  WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE = 1;
+  WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR = 2;
+  WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT = 3;
+}
+
+// DepartmentKind separates top-level functions from nested departments.
+enum DepartmentKind {
+  DEPARTMENT_KIND_UNSPECIFIED = 0;
+  DEPARTMENT_KIND_FUNCTION = 1;
+  DEPARTMENT_KIND_DEPARTMENT = 2;
+}
+
+// TeamType defines the operational purpose of an internal team.
+enum TeamType {
+  TEAM_TYPE_UNSPECIFIED = 0;
+  TEAM_TYPE_PORTFOLIO = 1;
+  TEAM_TYPE_SERVICING = 2;
+  TEAM_TYPE_COLLECTIONS = 3;
+  TEAM_TYPE_SALES = 4;
+  TEAM_TYPE_PILOT = 5;
+  TEAM_TYPE_SHARED_SERVICE = 6;
+}
+
+// TeamMembershipRole defines a member's role inside a team.
+enum TeamMembershipRole {
+  TEAM_MEMBERSHIP_ROLE_UNSPECIFIED = 0;
+  TEAM_MEMBERSHIP_ROLE_LEAD = 1;
+  TEAM_MEMBERSHIP_ROLE_DEPUTY = 2;
+  TEAM_MEMBERSHIP_ROLE_MEMBER = 3;
+  TEAM_MEMBERSHIP_ROLE_SPECIALIST = 4;
+}
+
+// AccessScopeType defines the resource scope of an access role assignment.
+enum AccessScopeType {
+  ACCESS_SCOPE_TYPE_UNSPECIFIED = 0;
+  ACCESS_SCOPE_TYPE_GLOBAL = 1;
+  ACCESS_SCOPE_TYPE_ORGANIZATION = 2;
+  ACCESS_SCOPE_TYPE_ORG_UNIT = 3;
+  ACCESS_SCOPE_TYPE_TEAM = 4;
 }
 
 // DataVerificationStatus tracks the verification lifecycle of client KYC data.
@@ -114,6 +159,43 @@ enum DataVerificationStatus {
   DATA_VERIFICATION_STATUS_REJECTED = 4;
   DATA_VERIFICATION_STATUS_MORE_INFO_NEEDED = 5;
   DATA_VERIFICATION_STATUS_EXPIRED = 6;
+}
+
+// FormFieldType defines the type of a form field.
+enum FormFieldType {
+  FORM_FIELD_TYPE_UNSPECIFIED = 0;
+  FORM_FIELD_TYPE_TEXT = 1;
+  FORM_FIELD_TYPE_NUMBER = 2;
+  FORM_FIELD_TYPE_CURRENCY = 3;
+  FORM_FIELD_TYPE_PHONE = 4;
+  FORM_FIELD_TYPE_EMAIL = 5;
+  FORM_FIELD_TYPE_DATE = 6;
+  FORM_FIELD_TYPE_SELECT = 7;
+  FORM_FIELD_TYPE_MULTI_SELECT = 8;
+  FORM_FIELD_TYPE_PHOTO = 9;
+  FORM_FIELD_TYPE_FILE = 10;
+  FORM_FIELD_TYPE_LOCATION = 11;
+  FORM_FIELD_TYPE_SIGNATURE = 12;
+  FORM_FIELD_TYPE_CHECKBOX = 13;
+  FORM_FIELD_TYPE_TEXTAREA = 14;
+}
+
+// FormFieldGroup categorizes fields for display and encryption.
+enum FormFieldGroup {
+  FORM_FIELD_GROUP_UNSPECIFIED = 0;
+  FORM_FIELD_GROUP_PERSONAL = 1;
+  FORM_FIELD_GROUP_FINANCIAL = 2;
+  FORM_FIELD_GROUP_LEGAL = 3;
+  FORM_FIELD_GROUP_DOCUMENTS = 4;
+  FORM_FIELD_GROUP_LOCATION = 5;
+}
+
+// FormTemplateStatus defines the lifecycle state of a form template.
+enum FormTemplateStatus {
+  FORM_TEMPLATE_STATUS_UNSPECIFIED = 0;
+  FORM_TEMPLATE_STATUS_DRAFT = 1;
+  FORM_TEMPLATE_STATUS_PUBLISHED = 2;
+  FORM_TEMPLATE_STATUS_ARCHIVED = 3;
 }
 
 // -----------------------------------------------------
@@ -244,6 +326,7 @@ message InvestorObject {
 }
 
 // SystemUserObject represents a user with a specific role in the lending workflow.
+// Deprecated: use WorkforceMemberObject + AccessRoleAssignmentObject.
 message SystemUserObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -266,6 +349,185 @@ message SystemUserObject {
   ]; // Optional service account for automated actions
   common.v1.STATE state = 6; // Current state
   google.protobuf.Struct properties = 7; // Additional metadata
+}
+
+// WorkforceMemberObject represents a worker in the organization.
+message WorkforceMemberObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string profile_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  WorkforceEngagementType engagement_type = 4;
+  string home_org_unit_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string geo_id = 6 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.STATE state = 7;
+  google.protobuf.Struct properties = 8;
+}
+
+// DepartmentObject represents a functional grouping node.
+message DepartmentObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string parent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DepartmentKind kind = 4;
+  string name = 5 [(buf.validate.field).string.min_len = 1];
+  string code = 6 [(buf.validate.field).string.min_len = 1];
+  common.v1.STATE state = 7;
+  google.protobuf.Struct properties = 8;
+}
+
+// PositionObject represents a reporting seat in the organization.
+message PositionObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string org_unit_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string department_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reports_to_position_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 6 [(buf.validate.field).string.min_len = 1];
+  string code = 7 [(buf.validate.field).string.min_len = 1];
+  common.v1.STATE state = 8;
+  google.protobuf.Struct properties = 9;
+}
+
+// PositionAssignmentObject assigns a workforce member to a position.
+message PositionAssignmentObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string member_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string position_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  bool is_primary = 4;
+  common.v1.STATE state = 5;
+  google.protobuf.Struct properties = 6;
+}
+
+// InternalTeamObject represents an execution team for a business objective.
+message InternalTeamObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string parent_team_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string home_org_unit_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 5 [(buf.validate.field).string.min_len = 1];
+  string code = 6 [(buf.validate.field).string.min_len = 1];
+  TeamType team_type = 7;
+  string objective = 8;
+  string geo_id = 9 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.STATE state = 10;
+  google.protobuf.Struct properties = 11;
+}
+
+// TeamMembershipObject assigns a workforce member to an internal team.
+message TeamMembershipObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string team_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string member_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  TeamMembershipRole membership_role = 4;
+  bool is_primary_team = 5;
+  common.v1.STATE state = 6;
+  google.protobuf.Struct properties = 7;
+}
+
+// AccessRoleAssignmentObject grants explicit access at a given scope.
+message AccessRoleAssignmentObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string member_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string role_key = 3 [(buf.validate.field).string.min_len = 1];
+  AccessScopeType scope_type = 4;
+  string scope_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.STATE state = 6;
+  google.protobuf.Struct properties = 7;
 }
 
 // -----------------------------------------------------
@@ -438,6 +700,284 @@ message SystemUserSearchRequest {
 
 message SystemUserSearchResponse {
   repeated SystemUserObject data = 1;
+}
+
+// Workforce member messages
+message WorkforceMemberSaveRequest {
+  WorkforceMemberObject data = 1 [(buf.validate.field).required = true];
+}
+
+message WorkforceMemberSaveResponse {
+  WorkforceMemberObject data = 1;
+}
+
+message WorkforceMemberGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message WorkforceMemberGetResponse {
+  WorkforceMemberObject data = 1;
+}
+
+message WorkforceMemberSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string home_org_unit_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 4;
+}
+
+message WorkforceMemberSearchResponse {
+  repeated WorkforceMemberObject data = 1;
+}
+
+// Department messages
+message DepartmentSaveRequest {
+  DepartmentObject data = 1 [(buf.validate.field).required = true];
+}
+
+message DepartmentSaveResponse {
+  DepartmentObject data = 1;
+}
+
+message DepartmentGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message DepartmentGetResponse {
+  DepartmentObject data = 1;
+}
+
+message DepartmentSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string parent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  DepartmentKind kind = 4;
+  common.v1.PageCursor cursor = 5;
+}
+
+message DepartmentSearchResponse {
+  repeated DepartmentObject data = 1;
+}
+
+// Position messages
+message PositionSaveRequest {
+  PositionObject data = 1 [(buf.validate.field).required = true];
+}
+
+message PositionSaveResponse {
+  PositionObject data = 1;
+}
+
+message PositionGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message PositionGetResponse {
+  PositionObject data = 1;
+}
+
+message PositionSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string org_unit_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string department_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string reports_to_position_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 6;
+}
+
+message PositionSearchResponse {
+  repeated PositionObject data = 1;
+}
+
+// Position assignment messages
+message PositionAssignmentSaveRequest {
+  PositionAssignmentObject data = 1 [(buf.validate.field).required = true];
+}
+
+message PositionAssignmentSaveResponse {
+  PositionAssignmentObject data = 1;
+}
+
+message PositionAssignmentGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message PositionAssignmentGetResponse {
+  PositionAssignmentObject data = 1;
+}
+
+message PositionAssignmentSearchRequest {
+  string query = 1;
+  string member_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string position_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 4;
+}
+
+message PositionAssignmentSearchResponse {
+  repeated PositionAssignmentObject data = 1;
+}
+
+// Internal team messages
+message InternalTeamSaveRequest {
+  InternalTeamObject data = 1 [(buf.validate.field).required = true];
+}
+
+message InternalTeamSaveResponse {
+  InternalTeamObject data = 1;
+}
+
+message InternalTeamGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message InternalTeamGetResponse {
+  InternalTeamObject data = 1;
+}
+
+message InternalTeamSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string home_org_unit_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  TeamType team_type = 4;
+  common.v1.PageCursor cursor = 5;
+}
+
+message InternalTeamSearchResponse {
+  repeated InternalTeamObject data = 1;
+}
+
+// Team membership messages
+message TeamMembershipSaveRequest {
+  TeamMembershipObject data = 1 [(buf.validate.field).required = true];
+}
+
+message TeamMembershipSaveResponse {
+  TeamMembershipObject data = 1;
+}
+
+message TeamMembershipGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message TeamMembershipGetResponse {
+  TeamMembershipObject data = 1;
+}
+
+message TeamMembershipSearchRequest {
+  string query = 1;
+  string team_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string member_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 4;
+}
+
+message TeamMembershipSearchResponse {
+  repeated TeamMembershipObject data = 1;
+}
+
+// Access role assignment messages
+message AccessRoleAssignmentSaveRequest {
+  AccessRoleAssignmentObject data = 1 [(buf.validate.field).required = true];
+}
+
+message AccessRoleAssignmentSaveResponse {
+  AccessRoleAssignmentObject data = 1;
+}
+
+message AccessRoleAssignmentGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message AccessRoleAssignmentGetResponse {
+  AccessRoleAssignmentObject data = 1;
+}
+
+message AccessRoleAssignmentSearchRequest {
+  string query = 1;
+  string member_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string role_key = 3;
+  AccessScopeType scope_type = 4;
+  string scope_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 6;
+}
+
+message AccessRoleAssignmentSearchResponse {
+  repeated AccessRoleAssignmentObject data = 1;
 }
 
 // -----------------------------------------------------
@@ -676,6 +1216,94 @@ message InvestorWithdrawResponse {
 // ClientDataEntry Messages
 // -----------------------------------------------------
 
+// FormFieldDefinition defines a single field in a form template.
+message FormFieldDefinition {
+  string key = 1;                    // Machine-readable key (e.g., "legal_name")
+  string label = 2;                  // Human-readable label (e.g., "Legal Entity Name")
+  FormFieldType field_type = 3;      // Field type
+  FormFieldGroup group = 4;          // Field group for categorization
+  bool required = 5;                 // Whether the field is mandatory
+  string description = 6;            // Help text shown below the field
+  string placeholder = 7;            // Placeholder text
+  string default_value = 8;          // Default value
+  string validation_pattern = 9;     // Regex validation pattern
+  string validation_message = 10;    // Custom validation error message
+  repeated string options = 11;      // Options for SELECT/MULTI_SELECT fields
+  int32 min_length = 12;             // Minimum length for text fields
+  int32 max_length = 13;             // Maximum length for text fields
+  string min_value = 14;             // Minimum value for number/currency fields
+  string max_value = 15;             // Maximum value for number/currency fields
+  int32 order = 16;                  // Display order within the section
+  string section = 17;               // Section name for grouping fields into steps
+  bool encrypted = 18;               // Whether the field value should be encrypted at rest
+  google.protobuf.Struct properties = 19; // Additional field configuration
+}
+
+// FormTemplateObject defines a reusable form schema for dynamic data collection.
+//
+// Form templates are the backbone of dynamic data collection across the
+// platform. A single template can be used for loan origination KYC,
+// client onboarding, group membership registration, investor KYC, or
+// any other structured data collection requirement.
+//
+// The entity_type field determines which domain the template serves
+// (e.g. "client", "agent", "investor", "group", "loan_request").
+message FormTemplateObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 3 [(buf.validate.field).string.min_len = 1];
+  string description = 4;
+  int32 version = 5;
+  FormTemplateStatus status = 6;
+  repeated FormFieldDefinition fields = 7;
+  repeated string sections = 8;
+  google.protobuf.Struct validation_rules = 9;
+  google.protobuf.Struct properties = 10;
+  // The entity type this template is designed for. Used to filter
+  // templates when loading requirements for a specific domain.
+  // Standard values: "client", "agent", "investor", "group", "loan_request".
+  string entity_type = 11;
+}
+
+// FormSubmissionObject captures filled form data for an entity.
+//
+// Submissions are linked to an owning entity via entity_id.
+// The entity_type matches FormTemplateObject.entity_type.
+message FormSubmissionObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string entity_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string entity_type = 3;            // "client", "agent", "investor", "group", "loan_request"
+  string template_id = 4 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  int32 template_version = 5;
+  string submitted_by = 6 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  google.protobuf.Struct data = 7;
+  google.protobuf.Struct file_refs = 8;
+  common.v1.STATE state = 9;
+  google.protobuf.Struct properties = 10;
+}
+
 // ClientDataEntryObject stores a single piece of client KYC data.
 // Field keys are global identifiers shared across form templates.
 // Verified data is reusable across multiple applications.
@@ -699,10 +1327,10 @@ message ClientDataEntryObject {
     (buf.validate.field).string.max_len = 40
   ]; // Profile ID of verifier
   string reviewer_comment = 8;       // Reason for rejection or more-info request
-  string source_application_id = 9 [
+  string source_entity_id = 9 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
-  ]; // Which application collected this
+  ]; // Which entity collected this (loan request, client onboard, etc.)
   int32 revision = 10;               // Auto-incremented on resubmission
   string verified_at = 11;           // RFC3339 timestamp
   string expires_at = 12;            // RFC3339 timestamp (empty = never expires)
@@ -824,11 +1452,103 @@ message ClientDataHistoryResponse {
   repeated ClientDataEntryHistoryObject data = 1;
 }
 
+// --- FormTemplate ---
+
+message FormTemplateSaveRequest {
+  FormTemplateObject data = 1 [(buf.validate.field).required = true];
+}
+
+message FormTemplateSaveResponse {
+  FormTemplateObject data = 1;
+}
+
+message FormTemplateGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message FormTemplateGetResponse {
+  FormTemplateObject data = 1;
+}
+
+message FormTemplateSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  FormTemplateStatus status = 3;
+  common.v1.PageCursor cursor = 4;
+  // Filter templates by entity type (e.g. "client", "group", "loan_request").
+  string entity_type = 5;
+}
+
+message FormTemplateSearchResponse {
+  repeated FormTemplateObject data = 1;
+}
+
+message FormTemplatePublishRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message FormTemplatePublishResponse {
+  FormTemplateObject data = 1;
+}
+
+// --- FormSubmission ---
+
+message FormSubmissionSaveRequest {
+  FormSubmissionObject data = 1 [(buf.validate.field).required = true];
+}
+
+message FormSubmissionSaveResponse {
+  FormSubmissionObject data = 1;
+}
+
+message FormSubmissionGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message FormSubmissionGetResponse {
+  FormSubmissionObject data = 1;
+}
+
+message FormSubmissionSearchRequest {
+  string entity_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string entity_type = 2;
+  string template_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  common.v1.PageCursor cursor = 4;
+}
+
+message FormSubmissionSearchResponse {
+  repeated FormSubmissionObject data = 1;
+}
+
 // -----------------------------------------------------
 // Identity Service
 // -----------------------------------------------------
 
-// IdentityService manages organizations, org units, and system users for the platform.
+// IdentityService manages organizations, org units, system users, form templates,
+// and data collection for the platform.
+// Canonical workforce, hierarchy, team, and access-control concepts live here.
 // All RPCs require authentication via Bearer token.
 service IdentityService {
   option (common.v1.service_permissions) = {
@@ -838,6 +1558,20 @@ service IdentityService {
       "organization_manage",
       "branch_view",
       "branch_manage",
+      "workforce_member_view",
+      "workforce_member_manage",
+      "department_view",
+      "department_manage",
+      "position_view",
+      "position_manage",
+      "position_assignment_view",
+      "position_assignment_manage",
+      "team_view",
+      "team_manage",
+      "team_membership_view",
+      "team_membership_manage",
+      "access_role_assignment_view",
+      "access_role_assignment_manage",
       "investor_view",
       "investor_manage",
       "system_user_view",
@@ -850,7 +1584,11 @@ service IdentityService {
       "investor_account_manage",
       "client_data_view",
       "client_data_manage",
-      "client_data_verify"
+      "client_data_verify",
+      "form_template_view",
+      "form_template_manage",
+      "form_submission_view",
+      "form_submission_manage"
     ]
     role_bindings: [
       {
@@ -860,6 +1598,20 @@ service IdentityService {
           "organization_manage",
           "branch_view",
           "branch_manage",
+          "workforce_member_view",
+          "workforce_member_manage",
+          "department_view",
+          "department_manage",
+          "position_view",
+          "position_manage",
+          "position_assignment_view",
+          "position_assignment_manage",
+          "team_view",
+          "team_manage",
+          "team_membership_view",
+          "team_membership_manage",
+          "access_role_assignment_view",
+          "access_role_assignment_manage",
           "investor_view",
           "investor_manage",
           "system_user_view",
@@ -872,7 +1624,11 @@ service IdentityService {
           "investor_account_manage",
           "client_data_view",
           "client_data_manage",
-          "client_data_verify"
+          "client_data_verify",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       },
       {
@@ -882,6 +1638,20 @@ service IdentityService {
           "organization_manage",
           "branch_view",
           "branch_manage",
+          "workforce_member_view",
+          "workforce_member_manage",
+          "department_view",
+          "department_manage",
+          "position_view",
+          "position_manage",
+          "position_assignment_view",
+          "position_assignment_manage",
+          "team_view",
+          "team_manage",
+          "team_membership_view",
+          "team_membership_manage",
+          "access_role_assignment_view",
+          "access_role_assignment_manage",
           "investor_view",
           "investor_manage",
           "system_user_view",
@@ -894,7 +1664,11 @@ service IdentityService {
           "investor_account_manage",
           "client_data_view",
           "client_data_manage",
-          "client_data_verify"
+          "client_data_verify",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       },
       {
@@ -904,6 +1678,20 @@ service IdentityService {
           "organization_manage",
           "branch_view",
           "branch_manage",
+          "workforce_member_view",
+          "workforce_member_manage",
+          "department_view",
+          "department_manage",
+          "position_view",
+          "position_manage",
+          "position_assignment_view",
+          "position_assignment_manage",
+          "team_view",
+          "team_manage",
+          "team_membership_view",
+          "team_membership_manage",
+          "access_role_assignment_view",
+          "access_role_assignment_manage",
           "investor_view",
           "investor_account_view",
           "system_user_view",
@@ -913,7 +1701,11 @@ service IdentityService {
           "membership_manage",
           "client_data_view",
           "client_data_manage",
-          "client_data_verify"
+          "client_data_verify",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       },
       {
@@ -921,12 +1713,21 @@ service IdentityService {
         permissions: [
           "organization_view",
           "branch_view",
+          "workforce_member_view",
+          "department_view",
+          "position_view",
+          "position_assignment_view",
+          "team_view",
+          "team_membership_view",
+          "access_role_assignment_view",
           "investor_view",
           "investor_account_view",
           "system_user_view",
           "client_group_view",
           "membership_view",
-          "client_data_view"
+          "client_data_view",
+          "form_template_view",
+          "form_submission_view"
         ]
       },
       {
@@ -934,12 +1735,21 @@ service IdentityService {
         permissions: [
           "organization_view",
           "branch_view",
+          "workforce_member_view",
+          "department_view",
+          "position_view",
+          "position_assignment_view",
+          "team_view",
+          "team_membership_view",
+          "access_role_assignment_view",
           "investor_view",
           "investor_account_view",
           "system_user_view",
           "client_group_view",
           "membership_view",
-          "client_data_view"
+          "client_data_view",
+          "form_template_view",
+          "form_submission_view"
         ]
       },
       {
@@ -949,6 +1759,20 @@ service IdentityService {
           "organization_manage",
           "branch_view",
           "branch_manage",
+          "workforce_member_view",
+          "workforce_member_manage",
+          "department_view",
+          "department_manage",
+          "position_view",
+          "position_manage",
+          "position_assignment_view",
+          "position_assignment_manage",
+          "team_view",
+          "team_manage",
+          "team_membership_view",
+          "team_membership_manage",
+          "access_role_assignment_view",
+          "access_role_assignment_manage",
           "investor_view",
           "investor_manage",
           "system_user_view",
@@ -961,7 +1785,11 @@ service IdentityService {
           "investor_account_manage",
           "client_data_view",
           "client_data_manage",
-          "client_data_verify"
+          "client_data_verify",
+          "form_template_view",
+          "form_template_manage",
+          "form_submission_view",
+          "form_submission_manage"
         ]
       }
     ]
@@ -1047,6 +1875,104 @@ service IdentityService {
       description: "Searches for org units matching specified criteria. Supports filtering by organization, parent unit, root units, and type."
       tags: "Org Units"
     };
+  }
+
+  rpc WorkforceMemberSave(WorkforceMemberSaveRequest) returns (WorkforceMemberSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["workforce_member_manage"] };
+  }
+
+  rpc WorkforceMemberGet(WorkforceMemberGetRequest) returns (WorkforceMemberGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["workforce_member_view"] };
+  }
+
+  rpc WorkforceMemberSearch(WorkforceMemberSearchRequest) returns (stream WorkforceMemberSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["workforce_member_view"] };
+  }
+
+  rpc DepartmentSave(DepartmentSaveRequest) returns (DepartmentSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["department_manage"] };
+  }
+
+  rpc DepartmentGet(DepartmentGetRequest) returns (DepartmentGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["department_view"] };
+  }
+
+  rpc DepartmentSearch(DepartmentSearchRequest) returns (stream DepartmentSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["department_view"] };
+  }
+
+  rpc PositionSave(PositionSaveRequest) returns (PositionSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["position_manage"] };
+  }
+
+  rpc PositionGet(PositionGetRequest) returns (PositionGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["position_view"] };
+  }
+
+  rpc PositionSearch(PositionSearchRequest) returns (stream PositionSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["position_view"] };
+  }
+
+  rpc PositionAssignmentSave(PositionAssignmentSaveRequest) returns (PositionAssignmentSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["position_assignment_manage"] };
+  }
+
+  rpc PositionAssignmentGet(PositionAssignmentGetRequest) returns (PositionAssignmentGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["position_assignment_view"] };
+  }
+
+  rpc PositionAssignmentSearch(PositionAssignmentSearchRequest) returns (stream PositionAssignmentSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["position_assignment_view"] };
+  }
+
+  rpc InternalTeamSave(InternalTeamSaveRequest) returns (InternalTeamSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["team_manage"] };
+  }
+
+  rpc InternalTeamGet(InternalTeamGetRequest) returns (InternalTeamGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["team_view"] };
+  }
+
+  rpc InternalTeamSearch(InternalTeamSearchRequest) returns (stream InternalTeamSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["team_view"] };
+  }
+
+  rpc TeamMembershipSave(TeamMembershipSaveRequest) returns (TeamMembershipSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["team_membership_manage"] };
+  }
+
+  rpc TeamMembershipGet(TeamMembershipGetRequest) returns (TeamMembershipGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["team_membership_view"] };
+  }
+
+  rpc TeamMembershipSearch(TeamMembershipSearchRequest) returns (stream TeamMembershipSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["team_membership_view"] };
+  }
+
+  rpc AccessRoleAssignmentSave(AccessRoleAssignmentSaveRequest) returns (AccessRoleAssignmentSaveResponse) {
+    option (common.v1.method_permissions) = { permissions: ["access_role_assignment_manage"] };
+  }
+
+  rpc AccessRoleAssignmentGet(AccessRoleAssignmentGetRequest) returns (AccessRoleAssignmentGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["access_role_assignment_view"] };
+  }
+
+  rpc AccessRoleAssignmentSearch(AccessRoleAssignmentSearchRequest) returns (stream AccessRoleAssignmentSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = { permissions: ["access_role_assignment_view"] };
   }
 
   // BranchSave creates or updates a legacy leaf branch record.
@@ -1417,6 +2343,105 @@ service IdentityService {
       summary: "Get data entry revision history"
       description: "Retrieves the full revision history for a client data entry."
       tags: "ClientData"
+    };
+  }
+
+  // --- FormTemplate RPCs ---
+
+  // FormTemplateSave creates or updates a form template.
+  rpc FormTemplateSave(FormTemplateSaveRequest) returns (FormTemplateSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplateSave"
+      summary: "Create or update a form template"
+      description: "Creates or updates a reusable form template for dynamic data collection."
+      tags: "FormTemplates"
+    };
+  }
+
+  // FormTemplateGet retrieves a form template by its ID.
+  rpc FormTemplateGet(FormTemplateGetRequest) returns (FormTemplateGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplateGet"
+      summary: "Get a form template by ID"
+      description: "Retrieves a form template by its unique identifier."
+      tags: "FormTemplates"
+    };
+  }
+
+  // FormTemplateSearch finds form templates matching search criteria.
+  rpc FormTemplateSearch(FormTemplateSearchRequest) returns (stream FormTemplateSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplateSearch"
+      summary: "Search form templates"
+      description: "Searches for form templates by organization, status, entity type, and text query."
+      tags: "FormTemplates"
+    };
+  }
+
+  // FormTemplatePublish transitions a draft form template to published.
+  rpc FormTemplatePublish(FormTemplatePublishRequest) returns (FormTemplatePublishResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["form_template_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formTemplatePublish"
+      summary: "Publish a form template"
+      description: "Transitions a draft form template to published, making it available for use."
+      tags: "FormTemplates"
+    };
+  }
+
+  // --- FormSubmission RPCs ---
+
+  // FormSubmissionSave creates or updates a form submission.
+  rpc FormSubmissionSave(FormSubmissionSaveRequest) returns (FormSubmissionSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["form_submission_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formSubmissionSave"
+      summary: "Save a form submission"
+      description: "Creates or updates a form submission with collected data for an entity."
+      tags: "FormSubmissions"
+    };
+  }
+
+  // FormSubmissionGet retrieves a form submission by its ID.
+  rpc FormSubmissionGet(FormSubmissionGetRequest) returns (FormSubmissionGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_submission_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formSubmissionGet"
+      summary: "Get a form submission by ID"
+      description: "Retrieves a form submission by its unique identifier."
+      tags: "FormSubmissions"
+    };
+  }
+
+  // FormSubmissionSearch finds form submissions matching search criteria.
+  rpc FormSubmissionSearch(FormSubmissionSearchRequest) returns (stream FormSubmissionSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["form_submission_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "formSubmissionSearch"
+      summary: "Search form submissions"
+      description: "Searches for form submissions by entity, template, and entity type."
+      tags: "FormSubmissions"
     };
   }
 }

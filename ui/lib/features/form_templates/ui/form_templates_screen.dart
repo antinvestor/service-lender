@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/stream_helpers.dart';
 import '../../../core/widgets/entity_list_page.dart';
-import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../../core/data/form_template_providers.dart';
 
 /// Lists all form templates with search, status filter, and create action.

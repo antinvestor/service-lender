@@ -4,7 +4,7 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
-import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 
 part 'dashboard_providers.g.dart';
 
@@ -12,7 +12,7 @@ part 'dashboard_providers.g.dart';
 /// Uses a single page with limit 1 to get count efficiently.
 @riverpod
 Future<int> applicationCountByStatus(Ref ref, ApplicationStatus status) async {
-  final client = ref.watch(originationServiceClientProvider);
+  final client = ref.watch(loanManagementServiceClientProvider);
   final request = ApplicationSearchRequest(cursor: PageCursor(limit: 1));
   request.status = status;
 

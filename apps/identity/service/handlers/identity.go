@@ -18,14 +18,17 @@ import (
 // IdentityServer implements the IdentityService RPC handler.
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type IdentityServer struct {
-	organizationBusiness business.OrganizationBusiness
-	orgUnitBusiness      business.OrgUnitBusiness
-	branchBusiness       business.BranchBusiness
-	clientGroupBusiness  business.ClientGroupBusiness
-	membershipBusiness   business.MembershipBusiness
-	investorBusiness     business.InvestorBusiness
-	suBusiness           business.SystemUserBusiness
-	clientDataBusiness   business.ClientDataBusiness
+	organizationBusiness   business.OrganizationBusiness
+	orgUnitBusiness        business.OrgUnitBusiness
+	branchBusiness         business.BranchBusiness
+	workforceBusiness      business.WorkforceBusiness
+	clientGroupBusiness    business.ClientGroupBusiness
+	membershipBusiness     business.MembershipBusiness
+	investorBusiness       business.InvestorBusiness
+	suBusiness             business.SystemUserBusiness
+	clientDataBusiness     business.ClientDataBusiness
+	formTemplateBusiness   business.FormTemplateBusiness
+	formSubmissionBusiness business.FormSubmissionBusiness
 
 	identityv1connect.UnimplementedIdentityServiceHandler
 }
@@ -34,21 +37,27 @@ func NewIdentityServer(
 	organizationBusiness business.OrganizationBusiness,
 	orgUnitBusiness business.OrgUnitBusiness,
 	branchBusiness business.BranchBusiness,
+	workforceBusiness business.WorkforceBusiness,
 	clientGroupBusiness business.ClientGroupBusiness,
 	membershipBusiness business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
 	suBusiness business.SystemUserBusiness,
 	clientDataBusiness business.ClientDataBusiness,
+	formTemplateBusiness business.FormTemplateBusiness,
+	formSubmissionBusiness business.FormSubmissionBusiness,
 ) identityv1connect.IdentityServiceHandler {
 	return &IdentityServer{
-		organizationBusiness: organizationBusiness,
-		orgUnitBusiness:      orgUnitBusiness,
-		branchBusiness:       branchBusiness,
-		clientGroupBusiness:  clientGroupBusiness,
-		membershipBusiness:   membershipBusiness,
-		investorBusiness:     investorBusiness,
-		suBusiness:           suBusiness,
-		clientDataBusiness:   clientDataBusiness,
+		organizationBusiness:   organizationBusiness,
+		orgUnitBusiness:        orgUnitBusiness,
+		branchBusiness:         branchBusiness,
+		workforceBusiness:      workforceBusiness,
+		clientGroupBusiness:    clientGroupBusiness,
+		membershipBusiness:     membershipBusiness,
+		investorBusiness:       investorBusiness,
+		suBusiness:             suBusiness,
+		clientDataBusiness:     clientDataBusiness,
+		formTemplateBusiness:   formTemplateBusiness,
+		formSubmissionBusiness: formSubmissionBusiness,
 	}
 }
 
@@ -249,6 +258,267 @@ func (s *IdentityServer) SystemUserSearch(
 	err := s.suBusiness.Search(ctx, req.Msg,
 		func(_ context.Context, batch []*identityv1.SystemUserObject) error {
 			return stream.Send(&identityv1.SystemUserSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+// --- Workforce RPCs ---
+
+func (s *IdentityServer) WorkforceMemberSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.WorkforceMemberSaveRequest],
+) (*connect.Response[identityv1.WorkforceMemberSaveResponse], error) {
+	result, err := s.workforceBusiness.WorkforceMemberSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.WorkforceMemberSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) WorkforceMemberGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.WorkforceMemberGetRequest],
+) (*connect.Response[identityv1.WorkforceMemberGetResponse], error) {
+	result, err := s.workforceBusiness.WorkforceMemberGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.WorkforceMemberGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) WorkforceMemberSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.WorkforceMemberSearchRequest],
+	stream *connect.ServerStream[identityv1.WorkforceMemberSearchResponse],
+) error {
+	err := s.workforceBusiness.WorkforceMemberSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.WorkforceMemberObject) error {
+			return stream.Send(&identityv1.WorkforceMemberSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *IdentityServer) DepartmentSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.DepartmentSaveRequest],
+) (*connect.Response[identityv1.DepartmentSaveResponse], error) {
+	result, err := s.workforceBusiness.DepartmentSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.DepartmentSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) DepartmentGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.DepartmentGetRequest],
+) (*connect.Response[identityv1.DepartmentGetResponse], error) {
+	result, err := s.workforceBusiness.DepartmentGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.DepartmentGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) DepartmentSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.DepartmentSearchRequest],
+	stream *connect.ServerStream[identityv1.DepartmentSearchResponse],
+) error {
+	err := s.workforceBusiness.DepartmentSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.DepartmentObject) error {
+			return stream.Send(&identityv1.DepartmentSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *IdentityServer) PositionSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.PositionSaveRequest],
+) (*connect.Response[identityv1.PositionSaveResponse], error) {
+	result, err := s.workforceBusiness.PositionSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.PositionSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) PositionGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.PositionGetRequest],
+) (*connect.Response[identityv1.PositionGetResponse], error) {
+	result, err := s.workforceBusiness.PositionGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.PositionGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) PositionSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.PositionSearchRequest],
+	stream *connect.ServerStream[identityv1.PositionSearchResponse],
+) error {
+	err := s.workforceBusiness.PositionSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.PositionObject) error {
+			return stream.Send(&identityv1.PositionSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *IdentityServer) PositionAssignmentSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.PositionAssignmentSaveRequest],
+) (*connect.Response[identityv1.PositionAssignmentSaveResponse], error) {
+	result, err := s.workforceBusiness.PositionAssignmentSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.PositionAssignmentSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) PositionAssignmentGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.PositionAssignmentGetRequest],
+) (*connect.Response[identityv1.PositionAssignmentGetResponse], error) {
+	result, err := s.workforceBusiness.PositionAssignmentGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.PositionAssignmentGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) PositionAssignmentSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.PositionAssignmentSearchRequest],
+	stream *connect.ServerStream[identityv1.PositionAssignmentSearchResponse],
+) error {
+	err := s.workforceBusiness.PositionAssignmentSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.PositionAssignmentObject) error {
+			return stream.Send(&identityv1.PositionAssignmentSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *IdentityServer) InternalTeamSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.InternalTeamSaveRequest],
+) (*connect.Response[identityv1.InternalTeamSaveResponse], error) {
+	result, err := s.workforceBusiness.InternalTeamSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.InternalTeamSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) InternalTeamGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.InternalTeamGetRequest],
+) (*connect.Response[identityv1.InternalTeamGetResponse], error) {
+	result, err := s.workforceBusiness.InternalTeamGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.InternalTeamGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) InternalTeamSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.InternalTeamSearchRequest],
+	stream *connect.ServerStream[identityv1.InternalTeamSearchResponse],
+) error {
+	err := s.workforceBusiness.InternalTeamSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.InternalTeamObject) error {
+			return stream.Send(&identityv1.InternalTeamSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *IdentityServer) TeamMembershipSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.TeamMembershipSaveRequest],
+) (*connect.Response[identityv1.TeamMembershipSaveResponse], error) {
+	result, err := s.workforceBusiness.TeamMembershipSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.TeamMembershipSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) TeamMembershipGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.TeamMembershipGetRequest],
+) (*connect.Response[identityv1.TeamMembershipGetResponse], error) {
+	result, err := s.workforceBusiness.TeamMembershipGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.TeamMembershipGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) TeamMembershipSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.TeamMembershipSearchRequest],
+	stream *connect.ServerStream[identityv1.TeamMembershipSearchResponse],
+) error {
+	err := s.workforceBusiness.TeamMembershipSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.TeamMembershipObject) error {
+			return stream.Send(&identityv1.TeamMembershipSearchResponse{Data: batch})
+		})
+	if err != nil {
+		return apperrors.CleanErr(err)
+	}
+	return nil
+}
+
+func (s *IdentityServer) AccessRoleAssignmentSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.AccessRoleAssignmentSaveRequest],
+) (*connect.Response[identityv1.AccessRoleAssignmentSaveResponse], error) {
+	result, err := s.workforceBusiness.AccessRoleAssignmentSave(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.AccessRoleAssignmentSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) AccessRoleAssignmentGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.AccessRoleAssignmentGetRequest],
+) (*connect.Response[identityv1.AccessRoleAssignmentGetResponse], error) {
+	result, err := s.workforceBusiness.AccessRoleAssignmentGet(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.AccessRoleAssignmentGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) AccessRoleAssignmentSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.AccessRoleAssignmentSearchRequest],
+	stream *connect.ServerStream[identityv1.AccessRoleAssignmentSearchResponse],
+) error {
+	err := s.workforceBusiness.AccessRoleAssignmentSearch(ctx, req.Msg,
+		func(_ context.Context, batch []*identityv1.AccessRoleAssignmentObject) error {
+			return stream.Send(&identityv1.AccessRoleAssignmentSearchResponse{Data: batch})
 		})
 	if err != nil {
 		return apperrors.CleanErr(err)
@@ -457,4 +727,91 @@ func parseInt(s string) (int, error) {
 	var v int
 	_, err := fmt.Sscanf(s, "%d", &v)
 	return v, err
+}
+
+// --- FormTemplate RPCs ---
+
+func (s *IdentityServer) FormTemplateSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormTemplateSaveRequest],
+) (*connect.Response[identityv1.FormTemplateSaveResponse], error) {
+	result, err := s.formTemplateBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.FormTemplateSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) FormTemplateGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormTemplateGetRequest],
+) (*connect.Response[identityv1.FormTemplateGetResponse], error) {
+	result, err := s.formTemplateBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.FormTemplateGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) FormTemplateSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormTemplateSearchRequest],
+	stream *connect.ServerStream[identityv1.FormTemplateSearchResponse],
+) error {
+	return s.formTemplateBusiness.Search(
+		ctx,
+		req.Msg,
+		func(ctx context.Context, batch []*identityv1.FormTemplateObject) error {
+			return stream.Send(&identityv1.FormTemplateSearchResponse{Data: batch})
+		},
+	)
+}
+
+func (s *IdentityServer) FormTemplatePublish(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormTemplatePublishRequest],
+) (*connect.Response[identityv1.FormTemplatePublishResponse], error) {
+	result, err := s.formTemplateBusiness.Publish(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.FormTemplatePublishResponse{Data: result}), nil
+}
+
+// --- FormSubmission RPCs ---
+
+func (s *IdentityServer) FormSubmissionSave(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormSubmissionSaveRequest],
+) (*connect.Response[identityv1.FormSubmissionSaveResponse], error) {
+	result, err := s.formSubmissionBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.FormSubmissionSaveResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) FormSubmissionGet(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormSubmissionGetRequest],
+) (*connect.Response[identityv1.FormSubmissionGetResponse], error) {
+	result, err := s.formSubmissionBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&identityv1.FormSubmissionGetResponse{Data: result}), nil
+}
+
+func (s *IdentityServer) FormSubmissionSearch(
+	ctx context.Context,
+	req *connect.Request[identityv1.FormSubmissionSearchRequest],
+	stream *connect.ServerStream[identityv1.FormSubmissionSearchResponse],
+) error {
+	return s.formSubmissionBusiness.Search(
+		ctx,
+		req.Msg,
+		func(ctx context.Context, batch []*identityv1.FormSubmissionObject) error {
+			return stream.Send(&identityv1.FormSubmissionSearchResponse{Data: batch})
+		},
+	)
 }

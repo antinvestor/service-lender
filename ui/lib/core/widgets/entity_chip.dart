@@ -104,7 +104,7 @@ class EntityChip extends ConsumerWidget {
     final route = switch (type) {
       EntityType.client => '/field/clients/$id',
       EntityType.product => '/loans/products',
-      EntityType.application => '/origination/applications/$id',
+      EntityType.application => '/loans/requests/$id',
       EntityType.loan => '/loans/$id',
       EntityType.agent => '/organization/agents',
     };

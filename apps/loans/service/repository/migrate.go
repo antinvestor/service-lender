@@ -26,6 +26,8 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.LoanProduct{},
+		&models.LoanRequest{},
+		&models.ClientProductAccess{},
 		&models.LoanAccount{},
 		&models.RepaymentSchedule{},
 		&models.ScheduleEntry{},

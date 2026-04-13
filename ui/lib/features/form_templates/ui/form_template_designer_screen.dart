@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../sdk/src/origination/v1/origination.pb.dart';
+import '../../../sdk/src/identity/v1/identity.pb.dart';
 import '../../../core/data/form_template_providers.dart';
 
 /// Admin screen for designing KYC form templates.

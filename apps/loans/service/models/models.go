@@ -6,7 +6,6 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
-	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"github.com/pitabwire/frame/data"
 )
 
@@ -16,7 +15,7 @@ import (
 
 type LoanAccount struct {
 	data.BaseModel
-	ApplicationID                 string `gorm:"type:varchar(50);uniqueIndex:uq_loan_app"`
+	LoanRequestID                 string `gorm:"type:varchar(50);uniqueIndex:uq_loan_request"`
 	ProductID                     string `gorm:"type:varchar(50);index:idx_la_product"`
 	ClientID                      string `gorm:"type:varchar(50);index:idx_la_client"`
 	AgentID                       string `gorm:"type:varchar(50);index:idx_la_agent"`
@@ -47,7 +46,7 @@ func (m *LoanAccount) TableName() string { return "loan_accounts" }
 func (m *LoanAccount) ToAPI() *loansv1.LoanAccountObject {
 	return &loansv1.LoanAccountObject{
 		Id:                            m.GetID(),
-		ApplicationId:                 m.ApplicationID,
+		LoanRequestId:                 m.LoanRequestID,
 		ProductId:                     m.ProductID,
 		ClientId:                      m.ClientID,
 		AgentId:                       m.AgentID,
@@ -81,7 +80,7 @@ func LoanAccountFromAPI(ctx context.Context, obj *loansv1.LoanAccountObject) *Lo
 	principalAmount, principalCurrency := MoneyToMinorUnits(obj.GetPrincipalAmount())
 
 	model := &LoanAccount{
-		ApplicationID:                 obj.GetApplicationId(),
+		LoanRequestID:                 obj.GetLoanRequestId(),
 		ProductID:                     obj.GetProductId(),
 		ClientID:                      obj.GetClientId(),
 		AgentID:                       obj.GetAgentId(),
@@ -327,23 +326,24 @@ type LoanProduct struct {
 	GracePeriodDays      int32
 	FeeStructure         data.JSONMap
 	EligibilityCriteria  data.JSONMap
+	RequiredForms        data.JSONMap // JSON array of ProductFormRequirement
 	State                int32
 	Properties           data.JSONMap
 }
 
 func (m *LoanProduct) TableName() string { return "loan_products" }
 
-func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
-	return &originationv1.LoanProductObject{
+func (m *LoanProduct) ToAPI() *loansv1.LoanProductObject {
+	return &loansv1.LoanProductObject{
 		Id:                   m.GetID(),
 		OrganizationId:       m.OrganizationID,
 		Name:                 m.Name,
 		Code:                 m.Code,
 		Description:          m.Description,
-		ProductType:          originationv1.LoanProductType(m.ProductType),
+		ProductType:          loansv1.LoanProductType(m.ProductType),
 		CurrencyCode:         m.CurrencyCode,
-		InterestMethod:       originationv1.InterestMethod(m.InterestMethod),
-		RepaymentFrequency:   originationv1.RepaymentFrequency(m.RepaymentFrequency),
+		InterestMethod:       loansv1.InterestMethod(m.InterestMethod),
+		RepaymentFrequency:   loansv1.RepaymentFrequency(m.RepaymentFrequency),
 		MinAmount:            MinorUnitsToMoney(m.MinAmount, m.CurrencyCode),
 		MaxAmount:            MinorUnitsToMoney(m.MaxAmount, m.CurrencyCode),
 		MinTermDays:          m.MinTermDays,
@@ -357,10 +357,11 @@ func (m *LoanProduct) ToAPI() *originationv1.LoanProductObject {
 		EligibilityCriteria:  m.EligibilityCriteria.ToProtoStruct(),
 		State:                commonv1.STATE(m.State),
 		Properties:           m.Properties.ToProtoStruct(),
+		RequiredForms:        RequiredFormsToAPI(m.RequiredForms),
 	}
 }
 
-func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObject) *LoanProduct {
+func LoanProductFromAPI(ctx context.Context, obj *loansv1.LoanProductObject) *LoanProduct {
 	if obj == nil {
 		return nil
 	}
@@ -386,6 +387,7 @@ func LoanProductFromAPI(ctx context.Context, obj *originationv1.LoanProductObjec
 		InsuranceFeePercent:  StringToBasisPoints(obj.GetInsuranceFeePercent()),
 		LatePenaltyRate:      StringToBasisPoints(obj.GetLatePenaltyRate()),
 		GracePeriodDays:      obj.GetGracePeriodDays(),
+		RequiredForms:        RequiredFormsFromAPI(obj.GetRequiredForms()),
 		State:                int32(obj.GetState()),
 	}
 

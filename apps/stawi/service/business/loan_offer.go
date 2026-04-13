@@ -9,7 +9,6 @@ import (
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
-	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
 	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -224,8 +223,8 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 	return result, nil
 }
 
-// createLoanFromOffer creates a loan application and account via origination and
-// loan management services, updating the offer and result map with the IDs.
+// createLoanFromOffer creates a loan request and account via the loan
+// management service, updating the offer and result map with the IDs.
 func (b *loanOfferBusiness) createLoanFromOffer(
 	ctx context.Context,
 	logger *util.LogEntry,
@@ -233,37 +232,47 @@ func (b *loanOfferBusiness) createLoanFromOffer(
 	offerID string,
 	result map[string]interface{},
 ) {
-	if b.clients == nil || b.clients.LenderOrigination == nil {
-		logger.Warn("origination client not available, skipping loan account creation")
+	if b.clients == nil || b.clients.LenderLoanMgmt == nil {
+		logger.Warn("loan management client not available, skipping loan account creation")
 		return
 	}
 
 	offerMoney := minorUnitsToMoney(offer.Amount, offer.Currency)
-	appObj := &originationv1.ApplicationObject{
+	lrObj := &loansv1.LoanRequestObject{
 		RequestedAmount: offerMoney,
 		ApprovedAmount:  offerMoney,
 		Purpose:         fmt.Sprintf("Group loan offer %s", offerID),
+		SourceService:   "stawi",
+		SourceRequestId: offerID,
+		Status:          loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_SUBMITTED,
 	}
-	appResp, appErr := b.clients.LenderOrigination.ApplicationSave(ctx, connect.NewRequest(
-		&originationv1.ApplicationSaveRequest{Data: appObj},
+	lrResp, lrErr := b.clients.LenderLoanMgmt.LoanRequestSave(ctx, connect.NewRequest(
+		&loansv1.LoanRequestSaveRequest{Data: lrObj},
 	))
-	if appErr != nil {
-		logger.WithError(appErr).Warn("could not create loan application via origination")
+	if lrErr != nil {
+		logger.WithError(lrErr).Warn("could not create loan request via loan management")
 		return
 	}
-	if appResp.Msg.GetData() == nil {
+	if lrResp.Msg.GetData() == nil {
 		return
 	}
 
-	offer.ApplicationID = appResp.Msg.GetData().GetId()
-	result["application_id"] = offer.ApplicationID
+	loanRequestID := lrResp.Msg.GetData().GetId()
+	offer.ApplicationID = loanRequestID
+	result["loan_request_id"] = loanRequestID
 
-	if b.clients.LenderLoanMgmt == nil || offer.ApplicationID == "" {
+	// Approve the loan request to create the loan account
+	approveResp, approveErr := b.clients.LenderLoanMgmt.LoanRequestApprove(ctx, connect.NewRequest(
+		&loansv1.LoanRequestApproveRequest{Id: loanRequestID},
+	))
+	if approveErr != nil {
+		logger.WithError(approveErr).Warn("could not approve loan request")
 		return
 	}
+	_ = approveResp
 
 	loanResp, loanErr := b.clients.LenderLoanMgmt.LoanAccountCreate(ctx, connect.NewRequest(
-		&loansv1.LoanAccountCreateRequest{ApplicationId: offer.ApplicationID},
+		&loansv1.LoanAccountCreateRequest{LoanRequestId: loanRequestID},
 	))
 	if loanErr != nil {
 		logger.WithError(loanErr).Warn("could not create loan account via loan management")

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	originationv1 "buf.build/gen/go/antinvestor/origination/protocolbuffers/go/origination/v1"
+	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
@@ -15,12 +15,12 @@ import (
 )
 
 type LoanProductBusiness interface {
-	Save(ctx context.Context, obj *originationv1.LoanProductObject) (*originationv1.LoanProductObject, error)
-	Get(ctx context.Context, id string) (*originationv1.LoanProductObject, error)
+	Save(ctx context.Context, obj *loansv1.LoanProductObject) (*loansv1.LoanProductObject, error)
+	Get(ctx context.Context, id string) (*loansv1.LoanProductObject, error)
 	Search(
 		ctx context.Context,
-		req *originationv1.LoanProductSearchRequest,
-		consumer func(ctx context.Context, batch []*originationv1.LoanProductObject) error,
+		req *loansv1.LoanProductSearchRequest,
+		consumer func(ctx context.Context, batch []*loansv1.LoanProductObject) error,
 	) error
 }
 
@@ -42,8 +42,8 @@ func NewLoanProductBusiness(
 
 func (b *loanProductBusiness) Save(
 	ctx context.Context,
-	obj *originationv1.LoanProductObject,
-) (*originationv1.LoanProductObject, error) {
+	obj *loansv1.LoanProductObject,
+) (*loansv1.LoanProductObject, error) {
 	logger := util.Log(ctx).WithField("method", "LoanProductBusiness.Save")
 
 	lp := models.LoanProductFromAPI(ctx, obj)
@@ -57,7 +57,7 @@ func (b *loanProductBusiness) Save(
 	return lp.ToAPI(), nil
 }
 
-func (b *loanProductBusiness) Get(ctx context.Context, id string) (*originationv1.LoanProductObject, error) {
+func (b *loanProductBusiness) Get(ctx context.Context, id string) (*loansv1.LoanProductObject, error) {
 	lp, err := b.loanProductRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrLoanProductNotFound
@@ -67,8 +67,8 @@ func (b *loanProductBusiness) Get(ctx context.Context, id string) (*originationv
 
 func (b *loanProductBusiness) Search(
 	ctx context.Context,
-	req *originationv1.LoanProductSearchRequest,
-	consumer func(ctx context.Context, batch []*originationv1.LoanProductObject) error,
+	req *loansv1.LoanProductSearchRequest,
+	consumer func(ctx context.Context, batch []*loansv1.LoanProductObject) error,
 ) error {
 	logger := util.Log(ctx).WithField("method", "LoanProductBusiness.Search")
 
@@ -87,7 +87,7 @@ func (b *loanProductBusiness) Search(
 	if req.GetOrganizationId() != "" {
 		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
 	}
-	if req.GetProductType() != originationv1.LoanProductType_LOAN_PRODUCT_TYPE_UNSPECIFIED {
+	if req.GetProductType() != loansv1.LoanProductType_LOAN_PRODUCT_TYPE_UNSPECIFIED {
 		andQueryVal["product_type = ?"] = int32(req.GetProductType())
 	}
 
@@ -111,7 +111,7 @@ func (b *loanProductBusiness) Search(
 	}
 
 	return workerpoolConsumeStream(ctx, results, func(res []*models.LoanProduct) error {
-		var apiResults []*originationv1.LoanProductObject
+		var apiResults []*loansv1.LoanProductObject
 		for _, lp := range res {
 			apiResults = append(apiResults, lp.ToAPI())
 		}

@@ -1,0 +1,241 @@
+package business
+
+import (
+	"context"
+	"strconv"
+	"time"
+
+	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
+	"github.com/pitabwire/frame/data"
+	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-fintech/apps/loans/service/events"
+	"github.com/antinvestor/service-fintech/apps/loans/service/models"
+	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+)
+
+type LoanRequestBusiness interface {
+	Save(ctx context.Context, obj *loansv1.LoanRequestObject) (*loansv1.LoanRequestObject, error)
+	Get(ctx context.Context, id string) (*loansv1.LoanRequestObject, error)
+	GetModel(ctx context.Context, id string) (*models.LoanRequest, error)
+	Search(
+		ctx context.Context,
+		req *loansv1.LoanRequestSearchRequest,
+		consumer func(ctx context.Context, batch []*loansv1.LoanRequestObject) error,
+	) error
+	Approve(ctx context.Context, id string) (*loansv1.LoanRequestObject, error)
+	Reject(ctx context.Context, id string, reason string) (*loansv1.LoanRequestObject, error)
+	Cancel(ctx context.Context, id string, reason string) (*loansv1.LoanRequestObject, error)
+}
+
+type loanRequestBusiness struct {
+	eventsMan       fevents.Manager
+	loanRequestRepo repository.LoanRequestRepository
+}
+
+func NewLoanRequestBusiness(
+	_ context.Context,
+	eventsMan fevents.Manager,
+	loanRequestRepo repository.LoanRequestRepository,
+) LoanRequestBusiness {
+	return &loanRequestBusiness{
+		eventsMan:       eventsMan,
+		loanRequestRepo: loanRequestRepo,
+	}
+}
+
+func (b *loanRequestBusiness) Save(
+	ctx context.Context,
+	obj *loansv1.LoanRequestObject,
+) (*loansv1.LoanRequestObject, error) {
+	logger := util.Log(ctx).WithField("method", "LoanRequestBusiness.Save")
+
+	lr := models.LoanRequestFromAPI(ctx, obj)
+
+	if lr.Status == 0 {
+		lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_DRAFT)
+	}
+
+	err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr)
+	if err != nil {
+		logger.WithError(err).Error("could not emit loan request save event")
+		return nil, err
+	}
+
+	return lr.ToAPI(), nil
+}
+
+func (b *loanRequestBusiness) Get(ctx context.Context, id string) (*loansv1.LoanRequestObject, error) {
+	lr, err := b.loanRequestRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrLoanRequestNotFound
+	}
+	return lr.ToAPI(), nil
+}
+
+func (b *loanRequestBusiness) GetModel(ctx context.Context, id string) (*models.LoanRequest, error) {
+	lr, err := b.loanRequestRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrLoanRequestNotFound
+	}
+	return lr, nil
+}
+
+func (b *loanRequestBusiness) Search(
+	ctx context.Context,
+	req *loansv1.LoanRequestSearchRequest,
+	consumer func(ctx context.Context, batch []*loansv1.LoanRequestObject) error,
+) error {
+	logger := util.Log(ctx).WithField("method", "LoanRequestBusiness.Search")
+
+	var searchOpts []data.SearchOption
+
+	cursor := req.GetCursor()
+	if cursor != nil {
+		offset, offsetErr := strconv.Atoi(cursor.GetPage())
+		if offsetErr != nil {
+			offset = 0
+		}
+		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
+	}
+
+	andQueryVal := map[string]any{}
+	if req.GetClientId() != "" {
+		andQueryVal["client_id = ?"] = req.GetClientId()
+	}
+	if req.GetAgentId() != "" {
+		andQueryVal["agent_id = ?"] = req.GetAgentId()
+	}
+	if req.GetBranchId() != "" {
+		andQueryVal["branch_id = ?"] = req.GetBranchId()
+	}
+	if req.GetOrganizationId() != "" {
+		andQueryVal["organization_id = ?"] = req.GetOrganizationId()
+	}
+	if req.GetStatus() != loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_UNSPECIFIED {
+		andQueryVal["status = ?"] = int32(req.GetStatus())
+	}
+	if req.GetSourceService() != "" {
+		andQueryVal["source_service = ?"] = req.GetSourceService()
+	}
+
+	if len(andQueryVal) > 0 {
+		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
+	}
+
+	if req.GetQuery() != "" {
+		searchOpts = append(searchOpts,
+			data.WithSearchFiltersOrByValue(
+				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
+			),
+		)
+	}
+
+	query := data.NewSearchQuery(searchOpts...)
+	results, err := b.loanRequestRepo.Search(ctx, query)
+	if err != nil {
+		logger.WithError(err).Error("failed to search loan requests")
+		return err
+	}
+
+	return workerpoolConsumeStream(ctx, results, func(res []*models.LoanRequest) error {
+		var apiResults []*loansv1.LoanRequestObject
+		for _, lr := range res {
+			apiResults = append(apiResults, lr.ToAPI())
+		}
+		return consumer(ctx, apiResults)
+	})
+}
+
+func (b *loanRequestBusiness) Approve(ctx context.Context, id string) (*loansv1.LoanRequestObject, error) {
+	logger := util.Log(ctx).WithField("method", "LoanRequestBusiness.Approve")
+
+	lr, err := b.loanRequestRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrLoanRequestNotFound
+	}
+
+	if lr.Status != int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_SUBMITTED) {
+		return nil, ErrLoanRequestNotSubmitted
+	}
+
+	now := time.Now()
+	lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_APPROVED)
+	lr.DecidedAt = &now
+
+	if err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); err != nil {
+		logger.WithError(err).Error("could not emit loan request approve event")
+		return nil, err
+	}
+
+	return lr.ToAPI(), nil
+}
+
+func (b *loanRequestBusiness) Reject(
+	ctx context.Context,
+	id string,
+	reason string,
+) (*loansv1.LoanRequestObject, error) {
+	logger := util.Log(ctx).WithField("method", "LoanRequestBusiness.Reject")
+
+	lr, err := b.loanRequestRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrLoanRequestNotFound
+	}
+
+	if isTerminalLoanRequestStatus(lr.Status) {
+		return nil, ErrLoanRequestTerminal
+	}
+
+	now := time.Now()
+	lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_REJECTED)
+	lr.RejectionReason = reason
+	lr.DecidedAt = &now
+
+	if err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); err != nil {
+		logger.WithError(err).Error("could not emit loan request reject event")
+		return nil, err
+	}
+
+	return lr.ToAPI(), nil
+}
+
+func (b *loanRequestBusiness) Cancel(
+	ctx context.Context,
+	id string,
+	reason string,
+) (*loansv1.LoanRequestObject, error) {
+	logger := util.Log(ctx).WithField("method", "LoanRequestBusiness.Cancel")
+
+	lr, err := b.loanRequestRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrLoanRequestNotFound
+	}
+
+	if isTerminalLoanRequestStatus(lr.Status) {
+		return nil, ErrLoanRequestTerminal
+	}
+
+	lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_CANCELLED)
+	lr.RejectionReason = reason
+
+	if err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); err != nil {
+		logger.WithError(err).Error("could not emit loan request cancel event")
+		return nil, err
+	}
+
+	return lr.ToAPI(), nil
+}
+
+func isTerminalLoanRequestStatus(status int32) bool {
+	switch loansv1.LoanRequestStatus(status) {
+	case loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_LOAN_CREATED,
+		loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_CANCELLED,
+		loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_REJECTED,
+		loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_EXPIRED:
+		return true
+	default:
+		return false
+	}
+}

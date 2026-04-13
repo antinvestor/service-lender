@@ -18,10 +18,11 @@ package loans.v1;
 
 // -----------------------------------------------------
 // Core notes (normative):
-// - Loan Management Service manages active loans, disbursements, repayments,
-//   schedules, penalties, restructures, and reconciliation
-// - Handles the full loan lifecycle from disbursement through to closure
-// - Integrates with Origination, Identity, Ledger, Payment, and Notification services
+// - Loan Management Service manages loan products, loan requests, active loans,
+//   disbursements, repayments, schedules, penalties, restructures, and reconciliation
+// - Handles the full loan lifecycle from product definition through to closure
+// - Product services (seed, stawi) create loan requests after their own acquisition workflows
+// - Integrates with Identity, Ledger, Payment, and Notification services
 // - All timestamps are RFC3339 / google.protobuf.Timestamp
 // - All monetary amounts use google.type.Money for precision
 // -----------------------------------------------------
@@ -145,8 +146,28 @@ enum ReconciliationStatus {
   RECONCILIATION_STATUS_DISPUTED = 4;
 }
 
+// LoanProductType defines the type of loan product.
+enum LoanProductType {
+  LOAN_PRODUCT_TYPE_UNSPECIFIED = 0;
+  LOAN_PRODUCT_TYPE_TERM = 1;
+  LOAN_PRODUCT_TYPE_REVOLVING = 2;
+  LOAN_PRODUCT_TYPE_BULLET = 3;
+  LOAN_PRODUCT_TYPE_GRADUATED = 4;
+}
+
+// LoanRequestStatus defines the current stage of a loan request.
+enum LoanRequestStatus {
+  LOAN_REQUEST_STATUS_UNSPECIFIED = 0;
+  LOAN_REQUEST_STATUS_DRAFT = 1;
+  LOAN_REQUEST_STATUS_SUBMITTED = 2;
+  LOAN_REQUEST_STATUS_APPROVED = 3;
+  LOAN_REQUEST_STATUS_REJECTED = 4;
+  LOAN_REQUEST_STATUS_CANCELLED = 5;
+  LOAN_REQUEST_STATUS_EXPIRED = 6;
+  LOAN_REQUEST_STATUS_LOAN_CREATED = 7;
+}
+
 // InterestMethod defines how interest is calculated on a loan.
-// Duplicated from origination.v1 for module independence.
 enum InterestMethod {
   INTEREST_METHOD_UNSPECIFIED = 0;
   INTEREST_METHOD_FLAT = 1;
@@ -155,7 +176,6 @@ enum InterestMethod {
 }
 
 // RepaymentFrequency defines the repayment schedule frequency.
-// Duplicated from origination.v1 for module independence.
 enum RepaymentFrequency {
   REPAYMENT_FREQUENCY_UNSPECIFIED = 0;
   REPAYMENT_FREQUENCY_DAILY = 1;
@@ -169,7 +189,124 @@ enum RepaymentFrequency {
 // Entity Messages
 // -----------------------------------------------------
 
-// LoanAccountObject represents an active loan linked to a client and origination application.
+// ProductFormRequirement defines a form template required by a product.
+message ProductFormRequirement {
+  string template_id = 1;           // FormTemplate ID (in identity service)
+  string stage = 2;                 // When required: "application", "verification", "disbursement"
+  bool required = 3;                // Whether this form must be completed before advancing
+  int32 order = 4;                  // Display order within the stage
+  string description = 5;           // Why this form is needed (shown to agent)
+}
+
+// LoanProductObject defines loan terms, rates, fees, and limits for an organization.
+message LoanProductObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string organization_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string name = 3 [(buf.validate.field).string.min_len = 1];
+  string code = 4 [(buf.validate.field).string.min_len = 1];
+  string description = 5;
+  LoanProductType product_type = 6;
+  string currency_code = 7 [(buf.validate.field).string.len = 3]; // ISO 4217
+  InterestMethod interest_method = 8;
+  RepaymentFrequency repayment_frequency = 9;
+  google.type.Money min_amount = 10;
+  google.type.Money max_amount = 11;
+  int32 min_term_days = 12;
+  int32 max_term_days = 13;
+  string annual_interest_rate = 14; // Decimal percentage e.g. "12.5"
+  string processing_fee_percent = 15;
+  string insurance_fee_percent = 16;
+  string late_penalty_rate = 17;
+  int32 grace_period_days = 18;
+  google.protobuf.Struct fee_structure = 19;
+  google.protobuf.Struct eligibility_criteria = 20;
+  common.v1.STATE state = 21;
+  google.protobuf.Struct properties = 22;
+  repeated ProductFormRequirement required_forms = 23; // Form templates required for this product
+}
+
+// LoanRequestObject represents a loan request created by a product service.
+// Product services (seed, stawi, etc.) create loan requests after completing
+// their own acquisition and verification workflows. A loan account is created
+// only when the request is approved and all product-required data is verified.
+message LoanRequestObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string product_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string client_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string organization_id = 6 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  LoanRequestStatus status = 7;
+  google.type.Money requested_amount = 8;
+  google.type.Money approved_amount = 9;
+  int32 requested_term_days = 10;
+  int32 approved_term_days = 11;
+  string interest_rate = 12; // Decimal percentage at approval
+  string currency_code = 13;
+  string purpose = 14;
+  string rejection_reason = 15;
+  string offer_expires_at = 16; // RFC3339
+  string submitted_at = 17;
+  string decided_at = 18;
+  string loan_account_id = 19; // Set when loan account is created
+  // Source tracking: which product service created this request.
+  string source_service = 20;  // e.g. "seed", "stawi", "manual"
+  string source_request_id = 21; // ID in the source service (e.g. seed_loan_request.id)
+  string idempotency_key = 22;
+  google.protobuf.Struct properties = 23;
+}
+
+// ClientProductAccessObject controls which loan products a client can access.
+// When no rows exist for a product, all clients have access (open product).
+// When rows exist, only listed clients can apply.
+message ClientProductAccessObject {
+  string id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string client_id = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string product_id = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string granted_by = 4;
+  common.v1.STATE state = 5;
+}
+
+// LoanAccountObject represents an active loan linked to a client and loan request.
 message LoanAccountObject {
   string id = 1 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -177,7 +314,7 @@ message LoanAccountObject {
     (buf.validate.field).string.max_len = 40,
     (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
   ];
-  string application_id = 2 [
+  string loan_request_id = 2 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
@@ -407,7 +544,7 @@ message LoanStatementEntry {
 // --- LoanAccount ---
 
 message LoanAccountCreateRequest {
-  string application_id = 1 [
+  string loan_request_id = 1 [
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
@@ -723,32 +860,167 @@ message LoanStatusChangeSearchResponse {
   repeated LoanStatusChangeObject data = 1;
 }
 
-// --- Loan Request (direct client) ---
+// --- LoanProduct ---
 
-// LoanRequestRequest is the client-facing API for direct client loan requests.
-// Clients call this from app/USSD. The system validates eligibility, runs
-// automated risk checks, and routes to the responsible agent for approval.
-message LoanRequestRequest {
-  string client_id = 1 [
+message LoanProductSaveRequest {
+  LoanProductObject data = 1 [(buf.validate.field).required = true];
+}
+
+message LoanProductSaveResponse {
+  LoanProductObject data = 1;
+}
+
+message LoanProductGetRequest {
+  string id = 1 [
     (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message LoanProductGetResponse {
+  LoanProductObject data = 1;
+}
+
+message LoanProductSearchRequest {
+  string query = 1;
+  string organization_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  LoanProductType product_type = 3;
+  common.v1.PageCursor cursor = 4;
+}
+
+message LoanProductSearchResponse {
+  repeated LoanProductObject data = 1;
+}
+
+// --- LoanRequest ---
+
+message LoanRequestSaveRequest {
+  LoanRequestObject data = 1 [(buf.validate.field).required = true];
+}
+
+message LoanRequestSaveResponse {
+  LoanRequestObject data = 1;
+}
+
+message LoanRequestGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message LoanRequestGetResponse {
+  LoanRequestObject data = 1;
+}
+
+message LoanRequestSearchRequest {
+  string query = 1;
+  string client_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string agent_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string branch_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  string organization_id = 5 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ];
+  LoanRequestStatus status = 6;
+  string source_service = 7;
+  common.v1.PageCursor cursor = 8;
+}
+
+message LoanRequestSearchResponse {
+  repeated LoanRequestObject data = 1;
+}
+
+message LoanRequestApproveRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message LoanRequestApproveResponse {
+  LoanRequestObject data = 1;
+}
+
+message LoanRequestRejectRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message LoanRequestRejectResponse {
+  LoanRequestObject data = 1;
+}
+
+message LoanRequestCancelRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+  string reason = 2;
+}
+
+message LoanRequestCancelResponse {
+  LoanRequestObject data = 1;
+}
+
+// --- ClientProductAccess ---
+
+message ClientProductAccessSaveRequest {
+  ClientProductAccessObject data = 1 [(buf.validate.field).required = true];
+}
+
+message ClientProductAccessSaveResponse {
+  ClientProductAccessObject data = 1;
+}
+
+message ClientProductAccessGetRequest {
+  string id = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 40,
+    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+  ];
+}
+
+message ClientProductAccessGetResponse {
+  ClientProductAccessObject data = 1;
+}
+
+message ClientProductAccessSearchRequest {
+  string client_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ];
   string product_id = 2 [
-    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ];
-  google.type.Money requested_amount = 3;
-  int32 requested_term_days = 4;
-  // Field 5 removed (currency_code now in Money).
-  string purpose = 6;
-  google.protobuf.Struct properties = 7;
+  common.v1.PageCursor cursor = 3;
 }
 
-message LoanRequestResponse {
-  string request_id = 1; // application ID for tracking
-  string status = 2; // current status e.g. "UNDERWRITING"
-  bool risk_assessment_passed = 3;
-  string message = 4; // human-readable status message
+message ClientProductAccessSearchResponse {
+  repeated ClientProductAccessObject data = 1;
 }
 
 // --- Portfolio ---
@@ -816,6 +1088,13 @@ service LoanManagementService {
   option (common.v1.service_permissions) = {
     namespace: "service_loans"
     permissions: [
+      "loan_product_view",
+      "loan_product_manage",
+      "loan_request_view",
+      "loan_request_manage",
+      "loan_request_submit",
+      "client_product_access_view",
+      "client_product_access_manage",
       "loan_view",
       "loan_manage",
       "disbursement_view",
@@ -835,6 +1114,13 @@ service LoanManagementService {
       {
         role: ROLE_OWNER
         permissions: [
+          "loan_product_view",
+          "loan_product_manage",
+          "loan_request_view",
+          "loan_request_manage",
+          "loan_request_submit",
+          "client_product_access_view",
+          "client_product_access_manage",
           "loan_view",
           "loan_manage",
           "disbursement_view",
@@ -854,6 +1140,13 @@ service LoanManagementService {
       {
         role: ROLE_ADMIN
         permissions: [
+          "loan_product_view",
+          "loan_product_manage",
+          "loan_request_view",
+          "loan_request_manage",
+          "loan_request_submit",
+          "client_product_access_view",
+          "client_product_access_manage",
           "loan_view",
           "loan_manage",
           "disbursement_view",
@@ -873,6 +1166,11 @@ service LoanManagementService {
       {
         role: ROLE_OPERATOR
         permissions: [
+          "loan_product_view",
+          "loan_request_view",
+          "loan_request_manage",
+          "loan_request_submit",
+          "client_product_access_view",
           "loan_view",
           "disbursement_view",
           "repayment_view",
@@ -886,6 +1184,9 @@ service LoanManagementService {
       {
         role: ROLE_VIEWER
         permissions: [
+          "loan_product_view",
+          "loan_request_view",
+          "client_product_access_view",
           "loan_view",
           "disbursement_view",
           "repayment_view",
@@ -897,6 +1198,8 @@ service LoanManagementService {
       {
         role: ROLE_MEMBER
         permissions: [
+          "loan_product_view",
+          "loan_request_view",
           "loan_view",
           "disbursement_view",
           "repayment_view",
@@ -907,6 +1210,13 @@ service LoanManagementService {
       {
         role: ROLE_SERVICE
         permissions: [
+          "loan_product_view",
+          "loan_product_manage",
+          "loan_request_view",
+          "loan_request_manage",
+          "loan_request_submit",
+          "client_product_access_view",
+          "client_product_access_manage",
           "loan_view",
           "loan_manage",
           "disbursement_view",
@@ -926,7 +1236,178 @@ service LoanManagementService {
     ]
   };
 
-  // LoanAccountCreate creates a new loan account from an approved application.
+  // --- LoanProduct RPCs ---
+
+  // LoanProductSave creates or updates a loan product.
+  rpc LoanProductSave(LoanProductSaveRequest) returns (LoanProductSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_product_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanProductSave"
+      summary: "Create or update a loan product"
+      description: "Creates or updates a loan product definition."
+      tags: "LoanProducts"
+    };
+  }
+
+  // LoanProductGet retrieves a loan product by its ID.
+  rpc LoanProductGet(LoanProductGetRequest) returns (LoanProductGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_product_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanProductGet"
+      summary: "Get a loan product by ID"
+      description: "Retrieves a loan product by its unique identifier."
+      tags: "LoanProducts"
+    };
+  }
+
+  // LoanProductSearch finds loan products matching search criteria.
+  rpc LoanProductSearch(LoanProductSearchRequest) returns (stream LoanProductSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_product_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanProductSearch"
+      summary: "Search loan products"
+      description: "Searches for loan products by organization, type, and text query."
+      tags: "LoanProducts"
+    };
+  }
+
+  // --- LoanRequest RPCs ---
+
+  // LoanRequestSave creates or updates a loan request. Called by product services
+  // (seed, stawi, etc.) after completing their own acquisition workflows.
+  rpc LoanRequestSave(LoanRequestSaveRequest) returns (LoanRequestSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_request_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequestSave"
+      summary: "Create or update a loan request"
+      description: "Creates or updates a loan request. Product services call this after completing eligibility, KYC, and underwriting."
+      tags: "LoanRequests"
+    };
+  }
+
+  // LoanRequestGet retrieves a loan request by its ID.
+  rpc LoanRequestGet(LoanRequestGetRequest) returns (LoanRequestGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_request_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequestGet"
+      summary: "Get a loan request by ID"
+      description: "Retrieves a loan request by its unique identifier."
+      tags: "LoanRequests"
+    };
+  }
+
+  // LoanRequestSearch finds loan requests matching search criteria.
+  rpc LoanRequestSearch(LoanRequestSearchRequest) returns (stream LoanRequestSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_request_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequestSearch"
+      summary: "Search loan requests"
+      description: "Searches for loan requests by client, product, status, and source service."
+      tags: "LoanRequests"
+    };
+  }
+
+  // LoanRequestApprove approves a loan request and creates the loan account.
+  rpc LoanRequestApprove(LoanRequestApproveRequest) returns (LoanRequestApproveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_request_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequestApprove"
+      summary: "Approve a loan request"
+      description: "Approves a submitted loan request, transitions to APPROVED, and creates the loan account."
+      tags: "LoanRequests"
+    };
+  }
+
+  // LoanRequestReject rejects a loan request with a reason.
+  rpc LoanRequestReject(LoanRequestRejectRequest) returns (LoanRequestRejectResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_request_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequestReject"
+      summary: "Reject a loan request"
+      description: "Rejects a loan request with a reason."
+      tags: "LoanRequests"
+    };
+  }
+
+  // LoanRequestCancel cancels a loan request.
+  rpc LoanRequestCancel(LoanRequestCancelRequest) returns (LoanRequestCancelResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["loan_request_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "loanRequestCancel"
+      summary: "Cancel a loan request"
+      description: "Cancels a non-terminal loan request."
+      tags: "LoanRequests"
+    };
+  }
+
+  // --- ClientProductAccess RPCs ---
+
+  // ClientProductAccessSave creates or updates a client product access record.
+  rpc ClientProductAccessSave(ClientProductAccessSaveRequest) returns (ClientProductAccessSaveResponse) {
+    option (common.v1.method_permissions) = {
+      permissions: ["client_product_access_manage"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientProductAccessSave"
+      summary: "Grant product access to a client"
+      description: "Creates or updates a client product access record."
+      tags: "ClientProductAccess"
+    };
+  }
+
+  // ClientProductAccessGet retrieves a client product access record.
+  rpc ClientProductAccessGet(ClientProductAccessGetRequest) returns (ClientProductAccessGetResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_product_access_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientProductAccessGet"
+      summary: "Get a client product access record"
+      description: "Retrieves a client product access record by its ID."
+      tags: "ClientProductAccess"
+    };
+  }
+
+  // ClientProductAccessSearch finds client product access records.
+  rpc ClientProductAccessSearch(ClientProductAccessSearchRequest) returns (stream ClientProductAccessSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (common.v1.method_permissions) = {
+      permissions: ["client_product_access_view"]
+    };
+    option (gnostic.openapi.v3.operation) = {
+      operation_id: "clientProductAccessSearch"
+      summary: "Search client product access"
+      description: "Searches for client product access records by client and product."
+      tags: "ClientProductAccess"
+    };
+  }
+
+  // --- LoanAccount RPCs ---
+
+  // LoanAccountCreate creates a new loan account from an approved loan request.
   rpc LoanAccountCreate(LoanAccountCreateRequest) returns (LoanAccountCreateResponse) {
     option (common.v1.method_permissions) = {
       permissions: ["loan_manage"]
@@ -934,7 +1415,7 @@ service LoanManagementService {
     option (gnostic.openapi.v3.operation) = {
       operation_id: "loanAccountCreate"
       summary: "Create a loan account"
-      description: "Creates a new loan account from an approved origination application."
+      description: "Creates a new loan account from an approved loan request."
       tags: "LoanAccounts"
     };
   }
@@ -1235,21 +1716,6 @@ service LoanManagementService {
       summary: "Search loan status changes"
       description: "Retrieves the status change audit trail for a loan account."
       tags: "Audit"
-    };
-  }
-
-  // LoanRequest is the client-facing API for direct client loan requests.
-  // Clients call this from app/USSD. The system validates eligibility,
-  // runs automated risk checks, and routes to the responsible agent.
-  rpc LoanRequest(LoanRequestRequest) returns (LoanRequestResponse) {
-    option (common.v1.method_permissions) = {
-      permissions: ["loan_manage"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "loanRequest"
-      summary: "Request a loan (direct client)"
-      description: "A client-facing API for direct client loan requests. Validates eligibility, runs automated risk checks, and routes to the agent for approval. Returns the request status and reference for tracking."
-      tags: "LoanRequest"
     };
   }
 

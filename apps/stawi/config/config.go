@@ -13,10 +13,6 @@ type StawiConfig struct {
 	IdentityServiceURI                   string `envDefault:"127.0.0.1:7001"                   env:"IDENTITY_SERVICE_URI"`
 	IdentityServiceWorkloadAPITargetPath string `envDefault:"/ns/identity/sa/service-identity" env:"IDENTITY_SERVICE_WORKLOAD_API_TARGET_PATH"`
 
-	// Origination service
-	OriginationServiceURI                   string `envDefault:"127.0.0.1:7010"                         env:"ORIGINATION_SERVICE_URI"`
-	OriginationServiceWorkloadAPITargetPath string `envDefault:"/ns/origination/sa/service-origination" env:"ORIGINATION_SERVICE_WORKLOAD_API_TARGET_PATH"`
-
 	// Loan management service
 	LoanMgmtServiceURI                   string `envDefault:"127.0.0.1:7011"               env:"LOANMGMT_SERVICE_URI"`
 	LoanMgmtServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-loans" env:"LOANMGMT_SERVICE_WORKLOAD_API_TARGET_PATH"`
@@ -54,7 +50,6 @@ type StawiConfig struct {
 func (c *StawiConfig) ServiceEndpoints() clients.ServiceEndpoints {
 	return clients.ServiceEndpoints{
 		IdentityURI:     c.IdentityServiceURI,
-		OriginationURI:  c.OriginationServiceURI,
 		LoanMgmtURI:     c.LoanMgmtServiceURI,
 		SavingsURI:      c.SavingsServiceURI,
 		LedgerURI:       c.LedgerServiceURI,
