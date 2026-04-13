@@ -15,8 +15,9 @@ import (
 // FieldServer implements the FieldService RPC handler.
 // Tenant-level permission checks are handled by the FunctionAccessInterceptor.
 type FieldServer struct {
-	agentBusiness  business.AgentBusiness
-	clientBusiness business.ClientBusiness
+	agentBusiness              business.AgentBusiness
+	clientBusiness             business.ClientBusiness
+	clientRelationshipBusiness business.ClientRelationshipBusiness
 
 	fieldv1connect.UnimplementedFieldServiceHandler
 }
@@ -24,10 +25,12 @@ type FieldServer struct {
 func NewFieldServer(
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
+	clientRelationshipBusiness business.ClientRelationshipBusiness,
 ) fieldv1connect.FieldServiceHandler {
 	return &FieldServer{
-		agentBusiness:  agentBusiness,
-		clientBusiness: clientBusiness,
+		agentBusiness:              agentBusiness,
+		clientBusiness:             clientBusiness,
+		clientRelationshipBusiness: clientRelationshipBusiness,
 	}
 }
 
@@ -186,4 +189,53 @@ func (s *FieldServer) ClientReassign(
 		return nil, apperrors.CleanErr(err)
 	}
 	return connect.NewResponse(&fieldv1.ClientReassignResponse{Data: result}), nil
+}
+
+func (s *FieldServer) ClientOwnershipTransfer(
+	ctx context.Context,
+	req *connect.Request[fieldv1.ClientOwnershipTransferRequest],
+) (*connect.Response[fieldv1.ClientOwnershipTransferResponse], error) {
+	result, err := s.clientBusiness.TransferOwnership(ctx, req.Msg)
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&fieldv1.ClientOwnershipTransferResponse{Data: result}), nil
+}
+
+// --- ClientRelationship RPCs ---
+
+func (s *FieldServer) ClientRelationshipSave(
+	ctx context.Context,
+	req *connect.Request[fieldv1.ClientRelationshipSaveRequest],
+) (*connect.Response[fieldv1.ClientRelationshipSaveResponse], error) {
+	result, err := s.clientRelationshipBusiness.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&fieldv1.ClientRelationshipSaveResponse{Data: result}), nil
+}
+
+func (s *FieldServer) ClientRelationshipGet(
+	ctx context.Context,
+	req *connect.Request[fieldv1.ClientRelationshipGetRequest],
+) (*connect.Response[fieldv1.ClientRelationshipGetResponse], error) {
+	result, err := s.clientRelationshipBusiness.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, apperrors.CleanErr(err)
+	}
+	return connect.NewResponse(&fieldv1.ClientRelationshipGetResponse{Data: result}), nil
+}
+
+func (s *FieldServer) ClientRelationshipSearch(
+	ctx context.Context,
+	req *connect.Request[fieldv1.ClientRelationshipSearchRequest],
+	stream *connect.ServerStream[fieldv1.ClientRelationshipSearchResponse],
+) error {
+	return s.clientRelationshipBusiness.Search(
+		ctx,
+		req.Msg,
+		func(ctx context.Context, batch []*fieldv1.ClientRelationshipObject) error {
+			return stream.Send(&fieldv1.ClientRelationshipSearchResponse{Data: batch})
+		},
+	)
 }

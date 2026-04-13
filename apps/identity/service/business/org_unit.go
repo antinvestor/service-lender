@@ -95,8 +95,28 @@ func (b *orgUnitBusiness) Save(
 	}
 
 	if isNew {
+		commandProps := entityProperties(orgUnit.Properties)
 		orgUnit.TenantID = org.TenantID
-		return b.submitOrgUnitCreateCase(ctx, logger, orgUnit)
+		orgUnit.PartitionID, err = b.resolveParentPartitionID(ctx, orgUnit)
+		if err != nil {
+			return nil, err
+		}
+		stripCaseCommand(orgUnit.Properties)
+
+		if err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, orgUnit); err != nil {
+			logger.WithError(err).Error("could not emit org unit save event")
+			return nil, err
+		}
+		if createErr := b.submitOrgUnitCreateCase(
+			ctx,
+			logger,
+			orgUnit,
+			caseActorID(commandProps),
+			caseComment(commandProps),
+		); createErr != nil {
+			logger.WithError(createErr).Warn("org unit created without approval case metadata")
+		}
+		return b.toAPI(ctx, orgUnit)
 	}
 
 	existing, err := b.orgUnitRepo.GetByID(ctx, orgUnit.GetID())
@@ -138,8 +158,9 @@ func (b *orgUnitBusiness) submitOrgUnitCreateCase(
 	ctx context.Context,
 	logger *util.LogEntry,
 	orgUnit *models.Branch,
-) (*identityv1.OrgUnitObject, error) {
-	actorID := caseActorID(orgUnit.Properties)
+	actorID, comment string,
+) error {
+	actorID = resolveCaseActorID(ctx, actorID, orgUnit.CreatedBy)
 	requestedState := orgUnit.State
 	if requestedState == 0 {
 		requestedState = int32(commonv1.STATE_CREATED.Number())
@@ -151,7 +172,7 @@ func (b *orgUnitBusiness) submitOrgUnitCreateCase(
 		CaseType:            approvalCaseTypeBranchCreate,
 		Summary:             fmt.Sprintf("Org unit %s requires verification and approval", orgUnit.Name),
 		RequestedBy:         actorID,
-		Comment:             caseComment(orgUnit.Properties),
+		Comment:             comment,
 		RequireVerification: true,
 		Payload: map[string]any{
 			"organization_id": orgUnit.OrganizationID,
@@ -162,20 +183,17 @@ func (b *orgUnitBusiness) submitOrgUnitCreateCase(
 	})
 	if err != nil {
 		logger.WithError(err).Error("could not create org unit approval case")
-		return nil, err
+		return err
 	}
 
-	orgUnit.State = int32(commonv1.STATE_CREATED.Number())
-	orgUnit.PartitionID = ""
-	stripCaseCommand(orgUnit.Properties)
 	orgUnit.Properties = applyApprovalCaseSnapshot(orgUnit.Properties, approvalCase)
 
 	if err = b.eventsMan.Emit(ctx, events.BranchSaveEvent, orgUnit); err != nil {
 		logger.WithError(err).Error("could not emit org unit save event")
-		return nil, err
+		return err
 	}
 
-	return b.toAPI(ctx, orgUnit)
+	return nil
 }
 
 func (b *orgUnitBusiness) handleApprovalAction(
@@ -251,11 +269,11 @@ func (b *orgUnitBusiness) approveOrgUnitCase(
 		return nil, err
 	}
 
-	if existing.PartitionID == "" {
-		parentPartitionID, partitionErr := b.resolveParentPartitionID(ctx, existing)
-		if partitionErr != nil {
-			return nil, partitionErr
-		}
+	parentPartitionID, partitionErr := b.resolveParentPartitionID(ctx, existing)
+	if partitionErr != nil {
+		return nil, partitionErr
+	}
+	if existing.PartitionID == "" || existing.PartitionID == parentPartitionID {
 		organization, orgErr := b.organizationRepo.GetByID(ctx, existing.OrganizationID)
 		if orgErr != nil {
 			return nil, ErrOrganizationNotFound
@@ -313,9 +331,7 @@ func (b *orgUnitBusiness) rejectOrgUnitCase(
 	if err != nil {
 		return nil, err
 	}
-	if existing.PartitionID == "" {
-		existing.State = int32(commonv1.STATE_INACTIVE.Number())
-	}
+	existing.State = int32(commonv1.STATE_INACTIVE.Number())
 	return rejectedCase, nil
 }
 

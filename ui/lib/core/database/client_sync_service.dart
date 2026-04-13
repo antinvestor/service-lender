@@ -80,7 +80,7 @@ class ClientSyncService {
     final stream = apiClient.clientSearch(
       ClientSearchRequest(
         query: query,
-        primaryRelationshipMemberId: memberId,
+        owningTeamId: memberId,
         cursor: PageCursor(limit: 200),
       ),
     );
@@ -126,7 +126,7 @@ class ClientSyncService {
       id: local.id.isNotEmpty ? local.id : null,
       name: local.name,
       profileId: local.profileId,
-      primaryRelationshipMemberId: local.responsibleMemberId,
+      owningTeamId: local.responsibleMemberId,
       state: pb_enum.STATE.valueOf(local.state) ?? pb_enum.STATE.CREATED,
     );
 
@@ -158,7 +158,7 @@ class ClientSyncService {
       id: drift.Value(client.id),
       name: drift.Value(client.name),
       profileId: drift.Value(client.profileId),
-      responsibleMemberId: drift.Value(client.primaryRelationshipMemberId),
+      responsibleMemberId: drift.Value(client.owningTeamId),
       state: drift.Value(client.state.value),
       propertiesJson: drift.Value(propertiesJson),
       syncStatus: drift.Value(SyncStatus.synced),
@@ -179,7 +179,7 @@ class ClientSyncService {
       id: drift.Value(client.id.isNotEmpty ? client.id : ''),
       name: drift.Value(client.name),
       profileId: drift.Value(client.profileId),
-      responsibleMemberId: drift.Value(client.primaryRelationshipMemberId),
+      responsibleMemberId: drift.Value(client.owningTeamId),
       state: drift.Value(client.state.value),
       propertiesJson: drift.Value(propertiesJson),
       syncStatus: drift.Value(SyncStatus.pending),

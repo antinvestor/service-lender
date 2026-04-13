@@ -147,13 +147,13 @@ class _ClientDetailContent extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      if (client.primaryRelationshipMemberId.isNotEmpty) ...[
+                      if (client.owningTeamId.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             ProfileAvatar(
-                              profileId: client.primaryRelationshipMemberId,
-                              name: client.primaryRelationshipMemberId,
+                              profileId: client.owningTeamId,
+                              name: client.owningTeamId,
                               size: 18,
                             ),
                             const SizedBox(width: 6),
@@ -547,7 +547,7 @@ class _ProfileTab extends StatelessWidget {
             'Name': client.name,
             'Client ID': client.id,
             'Profile ID': client.profileId,
-            'Relationship Manager': client.primaryRelationshipMemberId,
+            'Relationship Manager': client.owningTeamId,
             'State': client.state.name,
           },
         ),

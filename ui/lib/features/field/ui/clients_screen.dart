@@ -185,7 +185,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     List<WorkforceMemberObject> members,
   ) {
     final theme = Theme.of(context);
-    final memberId = client.primaryRelationshipMemberId;
+    final memberId = client.owningTeamId;
     final member = members.where((m) => m.id == memberId).firstOrNull;
     final memberLabel = member != null
         ? (member.hasProperties() &&

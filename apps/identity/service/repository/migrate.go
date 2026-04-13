@@ -36,7 +36,8 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.PositionAssignment{}, &models.InternalTeam{}, &models.TeamMembership{},
 		&models.AccessRoleAssignment{},
 		&models.ClientDataEntry{}, &models.ClientDataEntryHistory{},
-		&models.FormTemplate{}, &models.FormSubmission{}); err != nil {
+		&models.FormTemplate{}, &models.FormSubmission{},
+		&models.ClientRelationship{}); err != nil {
 		return err
 	}
 
@@ -170,7 +171,6 @@ func postMigrate(ctx context.Context, dbPool pool.Pool) error {
 				{Weight: "A", Expr: "coalesce(%sname, '')"},
 				{Weight: "B", Expr: "coalesce(%sprofile_id, '')"},
 				{Weight: "B", Expr: "coalesce(%sowning_team_id, '')"},
-				{Weight: "B", Expr: "coalesce(%sprimary_relationship_member_id, '')"},
 				{Weight: "C", Expr: "coalesce(%scurrency_code, '')"},
 				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
 			},

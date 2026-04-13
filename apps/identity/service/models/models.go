@@ -324,7 +324,8 @@ func AgentBranchFromAPI(ctx context.Context, obj *fieldv1.AgentBranchObject) *Ag
 	return model
 }
 
-// Client represents a loan recipient owned by a team and optionally handled by a workforce member.
+// Client represents a loan recipient owned by a team.
+// Client-to-member relationships are managed via client_relationships table.
 // Clients exist independently of groups. Product-level code links clients to memberships where needed.
 //
 // Credit limits:
@@ -335,16 +336,15 @@ func AgentBranchFromAPI(ctx context.Context, obj *fieldv1.AgentBranchObject) *Ag
 //   - Effective limit = min(SystemCreditLimit, AgentCreditLimit).
 type Client struct {
 	data.BaseModel
-	AgentID                     string `gorm:"column:agent_id;type:varchar(50);index:idx_client_agent"`
-	OwningTeamID                string `gorm:"type:varchar(50);index:idx_client_owning_team;not null;default:''"`
-	PrimaryRelationshipMemberID string `gorm:"type:varchar(50);index:idx_client_primary_member"`
-	ProfileID                   string `gorm:"type:varchar(50);uniqueIndex:uq_client_profile"`
-	Name                        string `gorm:"type:varchar(255)"`
-	CurrencyCode                string `gorm:"type:varchar(3)"`
-	SystemCreditLimit           int64
-	AgentCreditLimit            int64
-	State                       int32
-	Properties                  data.JSONMap
+	AgentID           string `gorm:"column:agent_id;type:varchar(50);index:idx_client_agent"`
+	OwningTeamID      string `gorm:"type:varchar(50);index:idx_client_owning_team;not null;default:''"`
+	ProfileID         string `gorm:"type:varchar(50);uniqueIndex:uq_client_profile"`
+	Name              string `gorm:"type:varchar(255)"`
+	CurrencyCode      string `gorm:"type:varchar(3)"`
+	SystemCreditLimit int64
+	AgentCreditLimit  int64
+	State             int32
+	Properties        data.JSONMap
 }
 
 func (m *Client) TableName() string { return "clients" }
@@ -384,14 +384,13 @@ func (m *Client) ToAPI() *fieldv1.ClientObject {
 	props["currency_code"] = m.CurrencyCode
 
 	return &fieldv1.ClientObject{
-		Id:                          m.GetID(),
-		AgentId:                     m.AgentID,
-		ProfileId:                   m.ProfileID,
-		Name:                        m.Name,
-		State:                       commonv1.STATE(m.State),
-		Properties:                  props.ToProtoStruct(),
-		OwningTeamId:                m.OwningTeamID,
-		PrimaryRelationshipMemberId: m.PrimaryRelationshipMemberID,
+		Id:           m.GetID(),
+		AgentId:      m.AgentID,
+		ProfileId:    m.ProfileID,
+		Name:         m.Name,
+		State:        commonv1.STATE(m.State),
+		Properties:   props.ToProtoStruct(),
+		OwningTeamId: m.OwningTeamID,
 	}
 }
 
@@ -401,12 +400,11 @@ func ClientFromAPI(ctx context.Context, obj *fieldv1.ClientObject) *Client {
 	}
 
 	model := &Client{
-		AgentID:                     obj.GetAgentId(),
-		OwningTeamID:                obj.GetOwningTeamId(),
-		PrimaryRelationshipMemberID: obj.GetPrimaryRelationshipMemberId(),
-		ProfileID:                   obj.GetProfileId(),
-		Name:                        obj.GetName(),
-		State:                       int32(obj.GetState()),
+		AgentID:      obj.GetAgentId(),
+		OwningTeamID: obj.GetOwningTeamId(),
+		ProfileID:    obj.GetProfileId(),
+		Name:         obj.GetName(),
+		State:        int32(obj.GetState()),
 	}
 
 	if obj.GetProperties() != nil {

@@ -198,6 +198,9 @@ func setupServiceOptions(
 	formTemplateBusiness := business.NewFormTemplateBusiness(ctx, evtsMan, formTemplateRepo)
 	formSubmissionBusiness := business.NewFormSubmissionBusiness(ctx, evtsMan, formSubmissionRepo)
 
+	clientRelationshipRepo := repository.NewClientRelationshipRepository(ctx, dbPool, workMan)
+	clientRelationshipBusiness := business.NewClientRelationshipBusiness(ctx, evtsMan, clientRelationshipRepo)
+
 	oauthRedirectURIs := strings.Split(cfg.OAuthRedirectURIs, ",")
 	oauthAudiences := strings.Split(cfg.OAuthAudiences, ",")
 	loginClientBusiness := business.NewLoginClientBusiness(
@@ -238,6 +241,7 @@ func setupServiceOptions(
 			identityevents.NewAccessRoleAssignmentSave(ctx, accessRoleAssignmentRepo),
 			identityevents.NewFormTemplateSave(ctx, formTemplateRepo),
 			identityevents.NewFormSubmissionSave(ctx, formSubmissionRepo),
+			identityevents.NewClientRelationshipSave(ctx, clientRelationshipRepo),
 		),
 	}
 }
@@ -325,6 +329,7 @@ func setupConnectServer(
 	fieldHandler := handlers.NewFieldServer(
 		agentBusiness,
 		clientBusiness,
+		clientRelationshipBusiness,
 	)
 
 	auth := sm.GetAuthorizer(ctx)

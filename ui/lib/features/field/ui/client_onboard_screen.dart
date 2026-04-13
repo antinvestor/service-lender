@@ -166,7 +166,7 @@ class ClientOnboardScreen extends ConsumerWidget {
       final client = ClientObject(
         name: name,
         profileId: profileId,
-        primaryRelationshipMemberId: memberId,
+        owningTeamId: memberId,
         state: STATE.CREATED,
         properties: mapToStruct(props),
       );

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 	"gorm.io/gorm"
 
@@ -98,6 +99,8 @@ func (b *approvalCaseBusiness) Submit(
 	ctx context.Context,
 	submission ApprovalCaseSubmission,
 ) (*models.ApprovalCase, error) {
+	submission.RequestedBy = resolveCaseActorID(ctx, submission.RequestedBy, "")
+
 	if submission.SubjectType == "" || submission.SubjectID == "" || submission.CaseType == "" {
 		return nil, ErrApprovalCaseSubjectRequired
 	}
@@ -144,6 +147,7 @@ func (b *approvalCaseBusiness) Verify(
 	ctx context.Context,
 	caseID, actorID, comment string,
 ) (*models.ApprovalCase, error) {
+	actorID = resolveCaseActorID(ctx, actorID, "")
 	if actorID == "" {
 		return nil, ErrApprovalCaseActorRequired
 	}
@@ -177,6 +181,7 @@ func (b *approvalCaseBusiness) Approve(
 	ctx context.Context,
 	caseID, actorID, comment string,
 ) (*models.ApprovalCase, error) {
+	actorID = resolveCaseActorID(ctx, actorID, "")
 	if actorID == "" {
 		return nil, ErrApprovalCaseActorRequired
 	}
@@ -210,6 +215,7 @@ func (b *approvalCaseBusiness) Reject(
 	ctx context.Context,
 	caseID, actorID, comment string,
 ) (*models.ApprovalCase, error) {
+	actorID = resolveCaseActorID(ctx, actorID, "")
 	if actorID == "" {
 		return nil, ErrApprovalCaseActorRequired
 	}
@@ -271,6 +277,20 @@ func caseAction(props map[string]any) string {
 
 func caseActorID(props map[string]any) string {
 	return strings.TrimSpace(stringValue(props[caseActorIDKey]))
+}
+
+func resolveCaseActorID(ctx context.Context, actorID, createdBy string) string {
+	if actorID = strings.TrimSpace(actorID); actorID != "" {
+		return actorID
+	}
+	if createdBy = strings.TrimSpace(createdBy); createdBy != "" {
+		return createdBy
+	}
+	claims := security.ClaimsFromContext(ctx)
+	if claims == nil {
+		return ""
+	}
+	return strings.TrimSpace(claims.GetProfileID())
 }
 
 func caseComment(props map[string]any) string {

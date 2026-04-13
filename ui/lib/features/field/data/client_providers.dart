@@ -105,7 +105,7 @@ ClientObject _localToClient(LocalClient local) {
     id: local.id.isNotEmpty ? local.id : 'local_${local.rowId}',
     name: local.name,
     profileId: local.profileId,
-    primaryRelationshipMemberId: local.responsibleMemberId,
+    owningTeamId: local.responsibleMemberId,
     state: pb_enum.STATE.valueOf(local.state) ?? pb_enum.STATE.CREATED,
   );
   if (local.propertiesJson.isNotEmpty && local.propertiesJson != '{}') {

@@ -13,6 +13,7 @@ import (
 type ClientRepository interface {
 	datastore.BaseRepository[*models.Client]
 	GetByAgentID(ctx context.Context, agentID string, offset, limit int) ([]*models.Client, error)
+	GetByOwningTeamID(ctx context.Context, teamID string, offset, limit int) ([]*models.Client, error)
 	GetByProfileID(ctx context.Context, profileID string) (*models.Client, error)
 }
 
@@ -44,6 +45,22 @@ func (repo *clientRepository) GetByAgentID(
 	return clients, nil
 }
 
+func (repo *clientRepository) GetByOwningTeamID(
+	ctx context.Context,
+	teamID string,
+	offset, limit int,
+) ([]*models.Client, error) {
+	var clients []*models.Client
+	err := repo.Pool().DB(ctx, true).
+		Where("owning_team_id = ?", teamID).
+		Offset(offset).Limit(limit).
+		Find(&clients).Error
+	if err != nil {
+		return nil, err
+	}
+	return clients, nil
+}
+
 func (repo *clientRepository) GetByProfileID(ctx context.Context, profileID string) (*models.Client, error) {
 	client := models.Client{}
 	err := repo.Pool().DB(ctx, true).First(&client, "profile_id = ?", profileID).Error
@@ -51,4 +68,27 @@ func (repo *clientRepository) GetByProfileID(ctx context.Context, profileID stri
 		return nil, err
 	}
 	return &client, nil
+}
+
+type ClientResponsibilityHistoryRepository interface {
+	datastore.BaseRepository[*models.ClientResponsibilityHistory]
+}
+
+type clientResponsibilityHistoryRepository struct {
+	datastore.BaseRepository[*models.ClientResponsibilityHistory]
+}
+
+func NewClientResponsibilityHistoryRepository(
+	ctx context.Context,
+	dbPool pool.Pool,
+	workMan workerpool.Manager,
+) ClientResponsibilityHistoryRepository {
+	return &clientResponsibilityHistoryRepository{
+		BaseRepository: datastore.NewBaseRepository[*models.ClientResponsibilityHistory](
+			ctx,
+			dbPool,
+			workMan,
+			func() *models.ClientResponsibilityHistory { return &models.ClientResponsibilityHistory{} },
+		),
+	}
 }

@@ -29,35 +29,40 @@ const (
 	maxCaseRecipients    = 500
 )
 
+type approvalScope struct {
+	scopeType identityv1.AccessScopeType
+	scopeIDs  []string
+}
+
 // ApprovalCaseNotifier dispatches workflow notifications for reusable approval cases.
 // Delivery is best effort and never blocks the underlying business transition.
 type ApprovalCaseNotifier struct {
-	client          notificationv1connect.NotificationServiceClient
-	profileClient   profilev1connect.ProfileServiceClient
-	systemUserRepo  repository.SystemUserRepository
-	branchRepo      repository.BranchRepository
-	clientRepo      repository.ClientRepository
-	agentRepo       repository.AgentRepository
-	agentBranchRepo repository.AgentBranchRepository
+	client           notificationv1connect.NotificationServiceClient
+	profileClient    profilev1connect.ProfileServiceClient
+	workforceRepo    repository.WorkforceMemberRepository
+	orgUnitRepo      repository.OrgUnitRepository
+	clientRepo       repository.ClientRepository
+	internalTeamRepo repository.InternalTeamRepository
+	accessRoleRepo   repository.AccessRoleAssignmentRepository
 }
 
 func NewApprovalCaseNotifier(
 	client notificationv1connect.NotificationServiceClient,
 	profileClient profilev1connect.ProfileServiceClient,
-	systemUserRepo repository.SystemUserRepository,
-	branchRepo repository.BranchRepository,
+	workforceRepo repository.WorkforceMemberRepository,
+	orgUnitRepo repository.OrgUnitRepository,
 	clientRepo repository.ClientRepository,
-	agentRepo repository.AgentRepository,
-	agentBranchRepo repository.AgentBranchRepository,
+	internalTeamRepo repository.InternalTeamRepository,
+	accessRoleRepo repository.AccessRoleAssignmentRepository,
 ) *ApprovalCaseNotifier {
 	return &ApprovalCaseNotifier{
-		client:          client,
-		profileClient:   profileClient,
-		systemUserRepo:  systemUserRepo,
-		branchRepo:      branchRepo,
-		clientRepo:      clientRepo,
-		agentRepo:       agentRepo,
-		agentBranchRepo: agentBranchRepo,
+		client:           client,
+		profileClient:    profileClient,
+		workforceRepo:    workforceRepo,
+		orgUnitRepo:      orgUnitRepo,
+		clientRepo:       clientRepo,
+		internalTeamRepo: internalTeamRepo,
+		accessRoleRepo:   accessRoleRepo,
 	}
 }
 
@@ -70,14 +75,14 @@ func (n *ApprovalCaseNotifier) NotifySubmitted(ctx context.Context, approvalCase
 	case approvalCaseStatusPendingVerification:
 		n.notifyRole(ctx,
 			approvalCase,
-			identityv1.SystemUserRole_SYSTEM_USER_ROLE_VERIFIER,
+			AccessRoleKeyApprovalVerifier,
 			approvalCaseVerificationRequiredTemplate,
 			notificationv1.PRIORITY_HIGH,
 		)
 	case approvalCaseStatusPendingApproval:
 		n.notifyRole(ctx,
 			approvalCase,
-			identityv1.SystemUserRole_SYSTEM_USER_ROLE_APPROVER,
+			AccessRoleKeyApprovalApprover,
 			approvalCaseApprovalRequiredTemplate,
 			notificationv1.PRIORITY_HIGH,
 		)
@@ -90,7 +95,7 @@ func (n *ApprovalCaseNotifier) NotifyVerified(ctx context.Context, approvalCase 
 	}
 	n.notifyRole(ctx,
 		approvalCase,
-		identityv1.SystemUserRole_SYSTEM_USER_ROLE_APPROVER,
+		AccessRoleKeyApprovalApprover,
 		approvalCaseApprovalRequiredTemplate,
 		notificationv1.PRIORITY_HIGH,
 	)
@@ -107,7 +112,7 @@ func (n *ApprovalCaseNotifier) NotifyRejected(ctx context.Context, approvalCase 
 func (n *ApprovalCaseNotifier) notifyRole(
 	ctx context.Context,
 	approvalCase *models.ApprovalCase,
-	role identityv1.SystemUserRole,
+	roleKey string,
 	template string,
 	priority notificationv1.PRIORITY,
 ) {
@@ -115,10 +120,10 @@ func (n *ApprovalCaseNotifier) notifyRole(
 		"component": "ApprovalCaseNotifier",
 		"case_id":   approvalCase.GetID(),
 		"template":  template,
-		"role":      role.String(),
+		"role_key":  roleKey,
 	})
 
-	profileIDs, err := n.caseProfileRecipients(ctx, approvalCase, int32(role))
+	profileIDs, err := n.caseProfileRecipients(ctx, approvalCase, roleKey)
 	if err != nil {
 		logger.WithError(err).Warn("could not resolve approval case recipients")
 		return
@@ -147,184 +152,181 @@ func (n *ApprovalCaseNotifier) notifyRequester(
 func (n *ApprovalCaseNotifier) caseProfileRecipients(
 	ctx context.Context,
 	approvalCase *models.ApprovalCase,
-	role int32,
+	roleKey string,
 ) ([]string, error) {
-	if approvalCase == nil || n.systemUserRepo == nil {
+	if approvalCase == nil || n.accessRoleRepo == nil || n.workforceRepo == nil {
 		return nil, nil
 	}
 
+	var scopes []approvalScope
 	switch approvalCase.SubjectType {
 	case approvalCaseSubjectBranch:
-		return n.branchCaseRecipients(ctx, approvalCase, role)
+		resolvedScopes, err := n.orgUnitCaseScopes(ctx, approvalCase)
+		if err != nil {
+			return nil, err
+		}
+		scopes = resolvedScopes
 	case approvalCaseSubjectClient:
-		return n.clientCaseRecipients(ctx, approvalCase.SubjectID, role)
+		resolvedScopes, err := n.clientCaseScopes(ctx, approvalCase.SubjectID)
+		if err != nil {
+			return nil, err
+		}
+		scopes = resolvedScopes
 	default:
-		return n.profileIDsForRole(ctx, role)
+		scopes = []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}
 	}
+
+	return n.profileIDsForRoleAcrossScopes(ctx, roleKey, scopes)
 }
 
-func (n *ApprovalCaseNotifier) branchCaseRecipients(
+func (n *ApprovalCaseNotifier) orgUnitCaseScopes(
 	ctx context.Context,
 	approvalCase *models.ApprovalCase,
-	role int32,
-) ([]string, error) {
-	if n.branchRepo == nil {
-		return n.profileIDsForRole(ctx, role)
+) ([]approvalScope, error) {
+	if n.orgUnitRepo == nil {
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
 	}
 
-	organizationID := ""
-	branch, err := n.branchRepo.GetByID(ctx, approvalCase.SubjectID)
-	if err == nil && branch != nil {
-		organizationID = branch.OrganizationID
-	}
-	if organizationID == "" {
-		organizationID = stringValue(approvalCase.Payload["organization_id"])
-	}
-
-	branchIDs := map[string]struct{}{}
-	if organizationID != "" {
-		branches, orgErr := n.branchRepo.GetByOrganizationID(ctx, organizationID, 0, maxCaseRecipients)
-		if orgErr == nil {
-			for _, item := range branches {
-				if item == nil || item.GetID() == "" {
-					continue
-				}
-				branchIDs[item.GetID()] = struct{}{}
-			}
-		}
-	}
-	if len(branchIDs) == 0 && branch != nil && branch.GetID() != "" {
-		branchIDs[branch.GetID()] = struct{}{}
-	}
-
-	profileIDs, err := n.profileIDsForBranches(ctx, branchIDs, role)
+	orgUnit, err := n.orgUnitRepo.GetByID(ctx, approvalCase.SubjectID)
 	if err != nil {
-		return nil, err
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
 	}
-	if len(profileIDs) == 0 {
-		return n.profileIDsForRole(ctx, role)
+
+	scopes := []approvalScope{
+		{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORG_UNIT, scopeIDs: []string{orgUnit.GetID()}},
 	}
-	return profileIDs, nil
+	if orgUnit.OrganizationID != "" {
+		scopes = append(scopes, approvalScope{
+			scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORGANIZATION,
+			scopeIDs:  []string{orgUnit.OrganizationID},
+		})
+	}
+	scopes = append(scopes, approvalScope{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL})
+	return scopes, nil
 }
 
-func (n *ApprovalCaseNotifier) clientCaseRecipients(
-	ctx context.Context,
-	clientID string,
-	role int32,
-) ([]string, error) {
-	if n.clientRepo == nil || n.agentRepo == nil || n.agentBranchRepo == nil {
-		return n.profileIDsForRole(ctx, role)
+func (n *ApprovalCaseNotifier) clientCaseScopes(ctx context.Context, clientID string) ([]approvalScope, error) {
+	if n.clientRepo == nil {
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
 	}
 
 	client, err := n.clientRepo.GetByID(ctx, clientID)
 	if err != nil {
-		return n.profileIDsForRole(ctx, role)
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
 	}
 
-	agent, err := n.agentRepo.GetByID(ctx, client.AgentID)
-	if err != nil {
-		return n.profileIDsForRole(ctx, role)
-	}
-
-	assignments, err := n.agentBranchRepo.GetByAgentID(ctx, agent.GetID())
-	if err != nil {
-		return n.profileIDsForRole(ctx, role)
-	}
-
-	branchIDs := make(map[string]struct{}, len(assignments))
-	for _, assignment := range assignments {
-		if assignment == nil || assignment.BranchID == "" {
-			continue
+	scopes := make([]approvalScope, 0, 4)
+	if client.OwningTeamID != "" {
+		scopes = append(scopes, approvalScope{
+			scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_TEAM,
+			scopeIDs:  []string{client.OwningTeamID},
+		})
+		if n.internalTeamRepo != nil {
+			team, teamErr := n.internalTeamRepo.GetByID(ctx, client.OwningTeamID)
+			if teamErr == nil {
+				if team.HomeOrgUnitID != "" {
+					scopes = append(scopes, approvalScope{
+						scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORG_UNIT,
+						scopeIDs:  []string{team.HomeOrgUnitID},
+					})
+				}
+				if team.OrganizationID != "" {
+					scopes = append(scopes, approvalScope{
+						scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORGANIZATION,
+						scopeIDs:  []string{team.OrganizationID},
+					})
+				}
+			}
 		}
-		branchIDs[assignment.BranchID] = struct{}{}
 	}
+	scopes = append(scopes, approvalScope{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL})
+	return scopes, nil
+}
 
-	profileIDs, err := n.profileIDsForBranches(ctx, branchIDs, role)
+func (n *ApprovalCaseNotifier) profileIDsForRoleAcrossScopes(
+	ctx context.Context,
+	roleKey string,
+	scopes []approvalScope,
+) ([]string, error) {
+	assignments, err := n.resolveAssignments(ctx, roleKey, scopes)
 	if err != nil {
 		return nil, err
 	}
-	if len(profileIDs) == 0 {
-		return n.profileIDsForRole(ctx, role)
+	if len(assignments) == 0 && roleKey != AccessRoleKeyIdentityAdministrator {
+		assignments, err = n.resolveAssignments(ctx, AccessRoleKeyIdentityAdministrator, scopes)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(assignments) == 0 {
+		return nil, nil
+	}
+
+	memberIDs := make([]string, 0, len(assignments))
+	seenMembers := make(map[string]struct{}, len(assignments))
+	for _, assignment := range assignments {
+		if assignment == nil || assignment.MemberID == "" {
+			continue
+		}
+		if _, exists := seenMembers[assignment.MemberID]; exists {
+			continue
+		}
+		seenMembers[assignment.MemberID] = struct{}{}
+		memberIDs = append(memberIDs, assignment.MemberID)
+	}
+
+	members, err := n.workforceRepo.GetByIDs(ctx, memberIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	profileIDs := make([]string, 0, len(members))
+	seenProfiles := make(map[string]struct{}, len(members))
+	for _, member := range members {
+		if member == nil || member.ProfileID == "" {
+			continue
+		}
+		if _, exists := seenProfiles[member.ProfileID]; exists {
+			continue
+		}
+		seenProfiles[member.ProfileID] = struct{}{}
+		profileIDs = append(profileIDs, member.ProfileID)
 	}
 	return profileIDs, nil
 }
 
-func (n *ApprovalCaseNotifier) profileIDsForBranches(
+func (n *ApprovalCaseNotifier) resolveAssignments(
 	ctx context.Context,
-	branchIDs map[string]struct{},
-	role int32,
-) ([]string, error) {
-	if len(branchIDs) == 0 || n.systemUserRepo == nil {
-		return nil, nil
-	}
-
+	roleKey string,
+	scopes []approvalScope,
+) ([]*models.AccessRoleAssignment, error) {
 	seen := map[string]struct{}{}
-	var profileIDs []string
+	assignments := make([]*models.AccessRoleAssignment, 0, maxCaseRecipients)
 
-	appendUsers := func(users []*models.SystemUser) {
-		for _, user := range users {
-			if user == nil || user.ProfileID == "" {
-				continue
-			}
-			if _, found := seen[user.ProfileID]; found {
-				continue
-			}
-			seen[user.ProfileID] = struct{}{}
-			profileIDs = append(profileIDs, user.ProfileID)
-		}
-	}
-
-	for branchID := range branchIDs {
-		users, err := n.systemUserRepo.GetByBranchAndRole(ctx, branchID, role, 0, maxCaseRecipients)
-		if err != nil {
-			return nil, err
-		}
-		appendUsers(users)
-	}
-
-	if len(profileIDs) == 0 && role != int32(identityv1.SystemUserRole_SYSTEM_USER_ROLE_ADMINISTRATOR) {
-		admins, err := n.profileIDsForBranches(
+	for _, scope := range scopes {
+		items, err := n.accessRoleRepo.GetActiveByRoleAndScopes(
 			ctx,
-			branchIDs,
-			int32(identityv1.SystemUserRole_SYSTEM_USER_ROLE_ADMINISTRATOR),
+			roleKey,
+			scope.scopeType,
+			scope.scopeIDs,
+			maxCaseRecipients,
 		)
 		if err != nil {
 			return nil, err
 		}
-		profileIDs = append(profileIDs, admins...)
-	}
-
-	return profileIDs, nil
-}
-
-func (n *ApprovalCaseNotifier) profileIDsForRole(ctx context.Context, role int32) ([]string, error) {
-	if n.systemUserRepo == nil {
-		return nil, nil
-	}
-
-	users, err := n.systemUserRepo.GetByRole(ctx, role, 0, maxCaseRecipients)
-	if err != nil {
-		return nil, err
-	}
-
-	seen := map[string]struct{}{}
-	profileIDs := make([]string, 0, len(users))
-	for _, user := range users {
-		if user == nil || user.ProfileID == "" {
-			continue
+		for _, item := range items {
+			if item == nil || item.GetID() == "" {
+				continue
+			}
+			if _, exists := seen[item.GetID()]; exists {
+				continue
+			}
+			seen[item.GetID()] = struct{}{}
+			assignments = append(assignments, item)
 		}
-		if _, found := seen[user.ProfileID]; found {
-			continue
-		}
-		seen[user.ProfileID] = struct{}{}
-		profileIDs = append(profileIDs, user.ProfileID)
 	}
 
-	if len(profileIDs) == 0 && role != int32(identityv1.SystemUserRole_SYSTEM_USER_ROLE_ADMINISTRATOR) {
-		return n.profileIDsForRole(ctx, int32(identityv1.SystemUserRole_SYSTEM_USER_ROLE_ADMINISTRATOR))
-	}
-
-	return profileIDs, nil
+	return assignments, nil
 }
 
 func (n *ApprovalCaseNotifier) sendToProfiles(

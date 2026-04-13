@@ -10,7 +10,6 @@ import (
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
-	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/events"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
@@ -26,6 +25,10 @@ type ClientBusiness interface {
 		consumer func(ctx context.Context, batch []*fieldv1.ClientObject) error,
 	) error
 	Reassign(ctx context.Context, req *fieldv1.ClientReassignRequest) (*fieldv1.ClientObject, error)
+	TransferOwnership(
+		ctx context.Context,
+		req *fieldv1.ClientOwnershipTransferRequest,
+	) (*fieldv1.ClientObject, error)
 	SetAgentCreditLimit(ctx context.Context, clientID string, amount int64) error
 	RequestSystemCreditLimitChange(
 		ctx context.Context,
@@ -39,51 +42,51 @@ type ClientBusiness interface {
 }
 
 type clientBusiness struct {
-	eventsMan     fevents.Manager
-	agentRepo     repository.AgentRepository
-	clientRepo    repository.ClientRepository
-	cahRepo       repository.ClientAssignmentHistoryRepository
-	clcrRepo      repository.CreditLimitChangeRequestRepository
-	approvalCases ApprovalCaseBusiness
+	eventsMan          fevents.Manager
+	clientRepo         repository.ClientRepository
+	clientHistoryRepo  repository.ClientResponsibilityHistoryRepository
+	clcrRepo           repository.CreditLimitChangeRequestRepository
+	approvalCases      ApprovalCaseBusiness
+	workforceRepo      repository.WorkforceMemberRepository
+	internalTeamRepo   repository.InternalTeamRepository
+	teamMembershipRepo repository.TeamMembershipRepository
 }
 
 func NewClientBusiness(_ context.Context, eventsMan fevents.Manager,
-	agentRepo repository.AgentRepository,
 	clientRepo repository.ClientRepository,
-	cahRepo repository.ClientAssignmentHistoryRepository,
+	clientHistoryRepo repository.ClientResponsibilityHistoryRepository,
 	clcrRepo repository.CreditLimitChangeRequestRepository,
 	approvalCases ApprovalCaseBusiness,
+	workforceRepo repository.WorkforceMemberRepository,
+	internalTeamRepo repository.InternalTeamRepository,
+	teamMembershipRepo repository.TeamMembershipRepository,
 ) ClientBusiness {
 	return &clientBusiness{
-		eventsMan:     eventsMan,
-		agentRepo:     agentRepo,
-		clientRepo:    clientRepo,
-		cahRepo:       cahRepo,
-		clcrRepo:      clcrRepo,
-		approvalCases: approvalCases,
+		eventsMan:          eventsMan,
+		clientRepo:         clientRepo,
+		clientHistoryRepo:  clientHistoryRepo,
+		clcrRepo:           clcrRepo,
+		approvalCases:      approvalCases,
+		workforceRepo:      workforceRepo,
+		internalTeamRepo:   internalTeamRepo,
+		teamMembershipRepo: teamMembershipRepo,
 	}
 }
 
 func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.ClientObject) (*fieldv1.ClientObject, error) {
 	logger := util.Log(ctx).WithField("method", "ClientBusiness.Save")
-
-	// Validate agent exists and is active (required for all clients)
-	agent, err := b.agentRepo.GetByID(ctx, obj.GetAgentId())
-	if err != nil {
-		logger.WithError(err).Warn("agent not found for client")
-		return nil, ErrAgentNotFound
-	}
-
-	{
-		if commonv1.STATE(agent.State) != commonv1.STATE_ACTIVE &&
-			commonv1.STATE(agent.State) != commonv1.STATE_CREATED {
-			return nil, ErrAgentInactive
-		}
-	}
+	var err error
 
 	isNew := obj.GetId() == ""
 	client := models.ClientFromAPI(ctx, obj)
 	client.Properties = normalizeClientPhoneProperties(entityProperties(client.Properties))
+	if client.OwningTeamID == "" {
+		return nil, ErrOwningTeamRequired
+	}
+	if err := b.validateOwnership(ctx, client.OwningTeamID, ""); err != nil {
+		logger.WithError(err).Warn("invalid client ownership")
+		return nil, err
+	}
 
 	if isNew && client.State == 0 {
 		client.State = int32(commonv1.STATE_CREATED.Number())
@@ -109,6 +112,9 @@ func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.ClientObject) (*
 
 		client.TenantID = existing.TenantID
 		client.PartitionID = existing.PartitionID
+		if client.AgentID == "" {
+			client.AgentID = existing.AgentID
+		}
 		client.CurrencyCode = existing.CurrencyCode
 		client.SystemCreditLimit = existing.SystemCreditLimit
 		client.AgentCreditLimit = existing.AgentCreditLimit
@@ -272,6 +278,12 @@ func (b *clientBusiness) Search(
 	if req.GetAgentId() != "" {
 		andQueryVal["agent_id = ?"] = req.GetAgentId()
 	}
+	if req.GetOwningTeamId() != "" {
+		andQueryVal["owning_team_id = ?"] = req.GetOwningTeamId()
+	}
+	if req.GetMemberId() != "" {
+		andQueryVal["member_id = ?"] = req.GetMemberId()
+	}
 
 	if len(andQueryVal) > 0 {
 		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
@@ -305,64 +317,80 @@ func (b *clientBusiness) Reassign(
 	ctx context.Context,
 	req *fieldv1.ClientReassignRequest,
 ) (*fieldv1.ClientObject, error) {
-	logger := util.Log(ctx).WithField("method", "ClientBusiness.Reassign")
+	return nil, ErrDeprecatedClientAgentReassignment
+}
 
+func (b *clientBusiness) TransferOwnership(
+	ctx context.Context,
+	req *fieldv1.ClientOwnershipTransferRequest,
+) (*fieldv1.ClientObject, error) {
 	client, err := b.clientRepo.GetByID(ctx, req.GetClientId())
 	if err != nil {
 		return nil, ErrClientNotFound
 	}
-
-	if client.AgentID == req.GetNewAgentId() {
-		return nil, ErrReassignSameAgent
-	}
-
-	// Validate new agent exists
-	newAgent, err := b.agentRepo.GetByID(ctx, req.GetNewAgentId())
-	if err != nil {
-		return nil, ErrAgentNotFound.Extend("new agent not found")
-	}
-
-	// Validate both agents are in the same organization
-	oldAgent, err := b.agentRepo.GetByID(ctx, client.AgentID)
-	if err != nil {
-		return nil, ErrAgentNotFound.Extend("current agent not found")
-	}
-	if oldAgent.OrganizationID != newAgent.OrganizationID {
-		return nil, ErrReassignCrossOrganization
-	}
-
-	// Create assignment history and update client in a transaction
-	history := &models.ClientAssignmentHistory{
-		ClientID:        client.GetID(),
-		PreviousAgentID: client.AgentID,
-		NewAgentID:      req.GetNewAgentId(),
-		Reason:          req.GetReason(),
-	}
-	history.GenID(ctx)
-
-	err = b.clientRepo.Pool().DB(ctx, false).Transaction(func(tx *gorm.DB) error {
-		if txErr := tx.Create(history).Error; txErr != nil {
-			return txErr
-		}
-
-		client.AgentID = req.GetNewAgentId()
-		if txErr := tx.Model(client).Update("agent_id", client.AgentID).Error; txErr != nil {
-			return txErr
-		}
-
-		return nil
-	})
-	if err != nil {
-		logger.WithError(err).Error("could not reassign client")
+	if err := b.validateOwnership(ctx, req.GetNewOwningTeamId(), ""); err != nil {
 		return nil, err
 	}
 
-	logger.WithField("client_id", client.GetID()).
-		WithField("old_agent", history.PreviousAgentID).
-		WithField("new_agent", history.NewAgentID).
-		Info("client reassigned")
+	previousTeamID := client.OwningTeamID
+	client.OwningTeamID = req.GetNewOwningTeamId()
 
+	if err := b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
+		return nil, err
+	}
+	b.recordResponsibilityHistory(
+		ctx,
+		client.GetID(),
+		previousTeamID,
+		client.OwningTeamID,
+		"",
+		"",
+		req.GetReason(),
+		"ownership_transfer",
+	)
 	return client.ToAPI(), nil
+}
+
+func (b *clientBusiness) validateOwnership(ctx context.Context, teamID, memberID string) error {
+	if teamID == "" {
+		return ErrOwningTeamRequired
+	}
+	if _, err := b.internalTeamRepo.GetByID(ctx, teamID); err != nil {
+		return ErrInternalTeamNotFound
+	}
+	if memberID == "" {
+		return nil
+	}
+	if _, err := b.workforceRepo.GetByID(ctx, memberID); err != nil {
+		return ErrWorkforceMemberNotFound
+	}
+	if _, err := b.teamMembershipRepo.GetActiveMembership(ctx, teamID, memberID); err != nil {
+		return ErrMemberNotInTeam
+	}
+	return nil
+}
+
+func (b *clientBusiness) recordResponsibilityHistory(
+	ctx context.Context,
+	clientID, previousTeamID, newTeamID, previousMemberID, newMemberID, reason, kind string,
+) {
+	if b.clientHistoryRepo == nil {
+		return
+	}
+	history := &models.ClientResponsibilityHistory{
+		ClientID:               clientID,
+		PreviousOwningTeamID:   previousTeamID,
+		NewOwningTeamID:        newTeamID,
+		PreviousRelationshipID: previousMemberID,
+		NewRelationshipID:      newMemberID,
+		Reason:                 reason,
+		AssignmentKind:         kind,
+	}
+	history.GenID(ctx)
+	if err := b.clientHistoryRepo.Create(ctx, history); err != nil {
+		util.Log(ctx).WithError(err).WithField("client_id", clientID).
+			Warn("could not persist client responsibility history")
+	}
 }
 
 // SetAgentCreditLimit allows the responsible agent to set the client's

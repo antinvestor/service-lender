@@ -24,7 +24,7 @@ class LocalClients extends Table {
   /// Profile service user ID.
   TextColumn get profileId => text().withDefault(const Constant(''))();
 
-  /// Workforce member responsible for this client (primaryRelationshipMemberId).
+  /// Workforce member responsible for this client (owningTeamId).
   TextColumn get responsibleMemberId => text()();
 
   /// Current state (maps to STATE enum: 0=CREATED, 2=ACTIVE, etc.).

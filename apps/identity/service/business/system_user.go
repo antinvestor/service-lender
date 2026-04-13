@@ -2,16 +2,10 @@ package business
 
 import (
 	"context"
-	"strconv"
 
-	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
-	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
-	"github.com/pitabwire/util"
 
-	"github.com/antinvestor/service-fintech/apps/identity/service/events"
-	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
 )
 
@@ -44,97 +38,18 @@ func NewSystemUserBusiness(
 	}
 }
 
-func (b *systemUserBusiness) Save(
-	ctx context.Context,
-	obj *identityv1.SystemUserObject,
-) (*identityv1.SystemUserObject, error) {
-	logger := util.Log(ctx).WithField("method", "SystemUserBusiness.Save")
-
-	// Validate branch exists
-	branch, err := b.branchRepo.GetByID(ctx, obj.GetBranchId())
-	if err != nil {
-		logger.WithError(err).Warn("branch not found for system user")
-		return nil, ErrBranchNotFound
-	}
-	if branch.UnitType != int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH) {
-		logger.Warn("org unit is not a branch for system user")
-		return nil, ErrBranchNotFound
-	}
-
-	isNew := obj.GetId() == ""
-	su := models.SystemUserFromAPI(ctx, obj)
-
-	if isNew && su.State == 0 {
-		su.State = int32(commonv1.STATE_CREATED.Number())
-	}
-
-	err = b.eventsMan.Emit(ctx, events.SystemUserSaveEvent, su)
-	if err != nil {
-		logger.WithError(err).Error("could not emit system user save event")
-		return nil, err
-	}
-
-	return su.ToAPI(), nil
+func (b *systemUserBusiness) Save(context.Context, *identityv1.SystemUserObject) (*identityv1.SystemUserObject, error) {
+	return nil, ErrDeprecatedSystemUserModel
 }
 
-func (b *systemUserBusiness) Get(ctx context.Context, id string) (*identityv1.SystemUserObject, error) {
-	su, err := b.systemUserRepo.GetByID(ctx, id)
-	if err != nil {
-		return nil, ErrSystemUserNotFound
-	}
-	return su.ToAPI(), nil
+func (b *systemUserBusiness) Get(context.Context, string) (*identityv1.SystemUserObject, error) {
+	return nil, ErrDeprecatedSystemUserModel
 }
 
 func (b *systemUserBusiness) Search(
-	ctx context.Context,
-	req *identityv1.SystemUserSearchRequest,
-	consumer func(ctx context.Context, batch []*identityv1.SystemUserObject) error,
+	context.Context,
+	*identityv1.SystemUserSearchRequest,
+	func(context.Context, []*identityv1.SystemUserObject) error,
 ) error {
-	logger := util.Log(ctx).WithField("method", "SystemUserBusiness.Search")
-
-	var searchOpts []data.SearchOption
-
-	cursor := req.GetCursor()
-	if cursor != nil {
-		offset, offsetErr := strconv.Atoi(cursor.GetPage())
-		if offsetErr != nil {
-			offset = 0
-		}
-		searchOpts = append(searchOpts, data.WithSearchOffset(offset), data.WithSearchLimit(int(cursor.GetLimit())))
-	}
-
-	andQueryVal := map[string]any{}
-	if req.GetRole() != identityv1.SystemUserRole_SYSTEM_USER_ROLE_UNSPECIFIED {
-		andQueryVal["role = ?"] = int32(req.GetRole())
-	}
-	if req.GetBranchId() != "" {
-		andQueryVal["branch_id = ?"] = req.GetBranchId()
-	}
-
-	if len(andQueryVal) > 0 {
-		searchOpts = append(searchOpts, data.WithSearchFiltersAndByValue(andQueryVal))
-	}
-
-	if req.GetQuery() != "" {
-		searchOpts = append(searchOpts,
-			data.WithSearchFiltersOrByValue(
-				map[string]any{"searchable @@ websearch_to_tsquery( 'english', ?) ": req.GetQuery()},
-			),
-		)
-	}
-
-	query := data.NewSearchQuery(searchOpts...)
-	results, err := b.systemUserRepo.Search(ctx, query)
-	if err != nil {
-		logger.WithError(err).Error("failed to search system users")
-		return err
-	}
-
-	return workerpoolConsumeStream(ctx, results, func(res []*models.SystemUser) error {
-		var apiResults []*identityv1.SystemUserObject
-		for _, su := range res {
-			apiResults = append(apiResults, su.ToAPI())
-		}
-		return consumer(ctx, apiResults)
-	})
+	return ErrDeprecatedSystemUserModel
 }

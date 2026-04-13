@@ -1,0 +1,172 @@
+package repository
+
+import (
+	"context"
+	"testing"
+
+	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/pitabwire/frame"
+	"github.com/pitabwire/frame/data"
+	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	"github.com/pitabwire/frame/frametests"
+	"github.com/pitabwire/frame/frametests/definition"
+	"github.com/pitabwire/frame/frametests/deps/testpostgres"
+	"github.com/pitabwire/frame/security"
+	"github.com/pitabwire/util"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/antinvestor/service-fintech/apps/identity/service/models"
+)
+
+type migrateSuite struct {
+	frametests.FrameBaseTestSuite
+}
+
+func TestMigrateSuite(t *testing.T) {
+	suite.Run(t, new(migrateSuite))
+}
+
+func (s *migrateSuite) SetupSuite() {
+	s.InitResourceFunc = func(_ context.Context) []definition.TestResource {
+		return []definition.TestResource{
+			testpostgres.NewWithOpts(
+				"identity_migrate",
+				definition.WithUserName("ant"),
+				definition.WithCredential("s3cr3t"),
+				definition.WithEnableLogging(false),
+			),
+		}
+	}
+	s.FrameBaseTestSuite.SetupSuite()
+}
+
+func (s *migrateSuite) TestPostMigrateAddsSearchableColumnsAndSupportsSearchQueries() {
+	ctx := (&security.AuthenticationClaims{
+		TenantID:    "tenant-migrate",
+		PartitionID: "partition-migrate",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject: "profile-migrate",
+		},
+	}).ClaimsToContext(s.T().Context())
+
+	db := s.databaseResource(ctx)
+	dsn, cleanup, err := db.GetRandomisedDS(ctx, util.RandomAlphaNumericString(8))
+	s.Require().NoError(err)
+	s.T().Cleanup(func() {
+		cleanup(ctx)
+	})
+
+	ctx, svc := frame.NewServiceWithContext(
+		ctx,
+		frame.WithName("identity-migrate-test"),
+		frame.WithDatastore(pool.WithConnection(dsn.String(), false)),
+	)
+	s.T().Cleanup(func() {
+		svc.Stop(ctx)
+	})
+	svc.Init(ctx)
+
+	dbPool := svc.DatastoreManager().GetPool(ctx, datastore.DefaultPoolName)
+	s.Require().NotNil(dbPool)
+
+	s.Require().NoError(dbPool.DB(ctx, false).AutoMigrate(
+		&models.Organization{},
+		&models.Branch{},
+		&models.Agent{},
+		&models.Client{},
+		&models.ClientGroup{},
+		&models.Membership{},
+		&models.Investor{},
+		&models.SystemUser{},
+	))
+	s.Require().NoError(postMigrate(ctx, dbPool))
+
+	s.assertSearchableColumnExists(ctx, dbPool, "organizations")
+	s.assertSearchableColumnExists(ctx, dbPool, "org_units")
+	s.assertSearchableColumnExists(ctx, dbPool, "agents")
+	s.assertSearchableColumnExists(ctx, dbPool, "clients")
+	s.assertSearchableColumnExists(ctx, dbPool, "client_groups")
+	s.assertSearchableColumnExists(ctx, dbPool, "memberships")
+	s.assertSearchableColumnExists(ctx, dbPool, "investors")
+	s.assertSearchableColumnExists(ctx, dbPool, "system_users")
+
+	org := &models.Organization{
+		Name:       "Seed Capital",
+		Code:       "seedcapital",
+		State:      int32(commonv1.STATE_ACTIVE),
+		Properties: data.JSONMap{"display_name": "Seed Capital Ltd"},
+	}
+	org.GenID(ctx)
+	org.PartitionID = "org-partition"
+	s.Require().NoError(dbPool.DB(ctx, false).Create(org).Error)
+
+	unit := &models.Branch{
+		OrganizationID: org.GetID(),
+		Name:           "Northern Region",
+		Code:           "north-region",
+		GeoID:          "gulu",
+		UnitType:       2,
+		State:          int32(commonv1.STATE_ACTIVE),
+		Properties:     data.JSONMap{"label": "Regional Office"},
+	}
+	unit.GenID(ctx)
+	unit.PartitionID = "unit-partition"
+	s.Require().NoError(dbPool.DB(ctx, false).Create(unit).Error)
+
+	agent := &models.Agent{
+		OrganizationID: org.GetID(),
+		Name:           "Alice Branch",
+		ProfileID:      "profile-alice",
+		State:          int32(commonv1.STATE_ACTIVE),
+		Properties:     data.JSONMap{"contact_detail": "alice@example.com"},
+	}
+	agent.GenID(ctx)
+	s.Require().NoError(dbPool.DB(ctx, false).Create(agent).Error)
+
+	s.assertSearchMatches(ctx, dbPool, "organizations", "seedcapital")
+	s.assertSearchMatches(ctx, dbPool, "org_units", "north")
+	s.assertSearchMatches(ctx, dbPool, "agents", "profile-alice")
+}
+
+func (s *migrateSuite) assertSearchableColumnExists(ctx context.Context, dbPool pool.Pool, table string) {
+	s.T().Helper()
+
+	var exists bool
+	err := dbPool.DB(ctx, true).Raw(`
+		SELECT EXISTS (
+			SELECT 1
+			FROM information_schema.columns
+			WHERE table_schema = 'public'
+			  AND table_name = ?
+			  AND column_name = 'searchable'
+		)
+	`, table).Scan(&exists).Error
+	s.Require().NoError(err)
+	s.True(exists, "expected searchable column on %s", table)
+}
+
+func (s *migrateSuite) assertSearchMatches(ctx context.Context, dbPool pool.Pool, table, query string) {
+	s.T().Helper()
+
+	var count int64
+	err := dbPool.DB(ctx, true).Raw(
+		"SELECT COUNT(*) FROM "+table+" WHERE searchable @@ websearch_to_tsquery('english', ?)",
+		query,
+	).Scan(&count).Error
+	s.Require().NoError(err)
+	s.Greater(count, int64(0), "expected search match in %s for query %q", table, query)
+}
+
+func (s *migrateSuite) databaseResource(ctx context.Context) definition.DependancyConn {
+	s.T().Helper()
+
+	for _, resource := range s.Resources() {
+		if resource.Name() == testpostgres.PostgresqlDBImage && resource.GetDS(ctx).IsDB() {
+			return resource
+		}
+	}
+	s.T().Fatal("postgres test resource not found")
+	return nil
+}

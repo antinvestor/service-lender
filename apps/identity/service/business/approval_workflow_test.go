@@ -8,6 +8,7 @@ import (
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/pitabwire/frame"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/datastore"
@@ -17,6 +18,7 @@ import (
 	"github.com/pitabwire/frame/frametests/definition"
 	"github.com/pitabwire/frame/frametests/deps/testpostgres"
 	"github.com/pitabwire/frame/queue"
+	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -34,14 +36,16 @@ type approvalWorkflowSuite struct {
 type approvalWorkflowEnv struct {
 	t                *testing.T
 	ctx              context.Context
+	eventsMan        fevents.Manager
 	organizationRepo repository.OrganizationRepository
+	orgUnitRepo      repository.OrgUnitRepository
 	branchRepo       repository.BranchRepository
 	agentRepo        repository.AgentRepository
 	agentBranchRepo  repository.AgentBranchRepository
 	clientRepo       repository.ClientRepository
-	cahRepo          repository.ClientAssignmentHistoryRepository
 	clcrRepo         repository.CreditLimitChangeRequestRepository
 	approvalCaseRepo repository.ApprovalCaseRepository
+	orgUnitBusiness  OrgUnitBusiness
 	branchBusiness   BranchBusiness
 	clientBusiness   ClientBusiness
 }
@@ -64,7 +68,7 @@ func (s *approvalWorkflowSuite) SetupSuite() {
 	s.FrameBaseTestSuite.SetupSuite()
 }
 
-func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseWithoutPartition() {
+func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseInParentPartition() {
 	env := s.newEnv()
 	org := env.createOrganization("Org Branch Create", "org-branch-create")
 
@@ -72,18 +76,19 @@ func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseWithoutP
 		OrganizationId: org.GetID(),
 		Name:           "Central Branch",
 		Code:           "central-branch",
+		GeoId:          "kampala",
 		Properties: propertiesStruct(map[string]any{
 			caseActorIDKey: "profile-requestor",
 		}),
 	})
 	s.Require().NoError(err)
 	s.Require().NotEmpty(result.GetId())
-	s.Require().Empty(result.GetPartitionId())
+	s.Require().Equal(org.PartitionID, result.GetPartitionId())
 
 	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
 	s.Require().NoError(err)
 	s.Equal(approvalCaseStatusPendingVerification, savedBranch.Properties.GetString(approvalCaseStatusKey))
-	s.Empty(savedBranch.PartitionID)
+	s.Equal(org.PartitionID, savedBranch.PartitionID)
 
 	approvalCase, err := env.approvalCaseRepo.GetOpenBySubject(
 		env.ctx,
@@ -96,6 +101,90 @@ func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseWithoutP
 	s.Equal("profile-requestor", approvalCase.RequestedBy)
 }
 
+func (s *approvalWorkflowSuite) TestBranchSaveWithoutCaseActorUsesAuthenticatedCreator() {
+	env := s.newEnv()
+	org := env.createOrganization("Org Branch Actor Fallback", "org-branch-actor-fallback")
+
+	result, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+		OrganizationId: org.GetID(),
+		Name:           "Claims Branch",
+		Code:           "claims-branch",
+		GeoId:          "kampala",
+	})
+	s.Require().NoError(err)
+
+	approvalCase, err := env.approvalCaseRepo.GetOpenBySubject(
+		env.ctx,
+		approvalCaseSubjectBranch,
+		result.GetId(),
+		approvalCaseTypeBranchCreate,
+	)
+	s.Require().NoError(err)
+	s.Equal("profile-requestor", approvalCase.RequestedBy)
+
+	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	s.Require().NoError(err)
+	s.Equal("profile-requestor", savedBranch.CreatedBy)
+	s.Equal(approvalCaseStatusPendingVerification, savedBranch.Properties.GetString(approvalCaseStatusKey))
+}
+
+func (s *approvalWorkflowSuite) TestBranchSavePersistsWhenApprovalCaseSubmissionFails() {
+	env := s.newEnv()
+	org := env.createOrganization("Org Branch No Block", "org-branch-no-block")
+
+	branchBusiness := NewBranchBusiness(
+		env.ctx,
+		env.eventsMan,
+		env.organizationRepo,
+		env.branchRepo,
+		nil,
+		&approvalCaseBusinessStub{submitErr: ErrApprovalCaseActorRequired},
+	)
+
+	result, err := branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+		OrganizationId: org.GetID(),
+		Name:           "Workflow Fallback Branch",
+		Code:           "workflow-fallback-branch",
+		GeoId:          "gulu",
+	})
+	s.Require().NoError(err)
+	s.Require().NotEmpty(result.GetId())
+
+	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	s.Require().NoError(err)
+	s.Equal("Workflow Fallback Branch", savedBranch.Name)
+	s.Empty(savedBranch.Properties.GetString(approvalCaseStatusKey))
+}
+
+func (s *approvalWorkflowSuite) TestOrgUnitSavePersistsWhenApprovalCaseSubmissionFails() {
+	env := s.newEnv()
+	org := env.createOrganization("Org Unit No Block", "org-unit-no-block")
+
+	orgUnitBusiness := NewOrgUnitBusiness(
+		env.ctx,
+		env.eventsMan,
+		env.organizationRepo,
+		env.orgUnitRepo,
+		nil,
+		&approvalCaseBusinessStub{submitErr: ErrApprovalCaseActorRequired},
+	)
+
+	result, err := orgUnitBusiness.Save(env.ctx, &identityv1.OrgUnitObject{
+		OrganizationId: org.GetID(),
+		Name:           "North Region",
+		Code:           "north-region",
+		GeoId:          "north",
+		Type:           identityv1.OrgUnitType_ORG_UNIT_TYPE_REGION,
+	})
+	s.Require().NoError(err)
+	s.Require().NotEmpty(result.GetId())
+
+	savedUnit, err := env.orgUnitRepo.GetByID(env.ctx, result.GetId())
+	s.Require().NoError(err)
+	s.Equal("North Region", savedUnit.Name)
+	s.Empty(savedUnit.Properties.GetString(approvalCaseStatusKey))
+}
+
 func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingApproval() {
 	env := s.newEnv()
 	org := env.createOrganization("Org Branch Verify", "org-branch-verify")
@@ -104,6 +193,7 @@ func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingAp
 		OrganizationId: org.GetID(),
 		Name:           "North Branch",
 		Code:           "north-branch",
+		GeoId:          "gulu",
 		Properties: propertiesStruct(map[string]any{
 			caseActorIDKey: "profile-requestor",
 		}),
@@ -115,6 +205,7 @@ func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingAp
 		OrganizationId: org.GetID(),
 		Name:           "North Branch",
 		Code:           "north-branch",
+		GeoId:          "gulu",
 		Properties: propertiesStruct(map[string]any{
 			caseActionKey:  approvalCaseActionVerify,
 			caseActorIDKey: "profile-verifier",
@@ -215,6 +306,14 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 	s.T().Helper()
 
 	ctx := s.T().Context()
+	ctx = (&security.AuthenticationClaims{
+		TenantID:    "tenant-test",
+		PartitionID: "partition-test",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject: "profile-requestor",
+		},
+	}).ClaimsToContext(ctx)
+
 	db := s.databaseResource(ctx)
 	dsn, cleanup, err := db.GetRandomisedDS(ctx, util.RandomAlphaNumericString(8))
 	s.Require().NoError(err)
@@ -244,18 +343,26 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 		&models.AgentBranch{},
 		&models.Client{},
 		&models.ClientAssignmentHistory{},
+		&models.ClientResponsibilityHistory{},
 		&models.CreditLimitChangeRequest{},
 		&models.ApprovalCase{},
+		&models.WorkforceMember{},
+		&models.InternalTeam{},
+		&models.TeamMembership{},
 	))
 
 	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
+	orgUnitRepo := repository.NewOrgUnitRepository(ctx, dbPool, workMan)
 	branchRepo := repository.NewBranchRepository(ctx, dbPool, workMan)
 	agentRepo := repository.NewAgentRepository(ctx, dbPool, workMan)
 	agentBranchRepo := repository.NewAgentBranchRepository(ctx, dbPool, workMan)
 	clientRepo := repository.NewClientRepository(ctx, dbPool, workMan)
-	cahRepo := repository.NewClientAssignmentHistoryRepository(ctx, dbPool, workMan)
+	clientHistoryRepo := repository.NewClientResponsibilityHistoryRepository(ctx, dbPool, workMan)
 	clcrRepo := repository.NewCreditLimitChangeRequestRepository(ctx, dbPool, workMan)
 	approvalCaseRepo := repository.NewApprovalCaseRepository(ctx, dbPool, workMan)
+	workforceMemberRepo := repository.NewWorkforceMemberRepository(ctx, dbPool, workMan)
+	internalTeamRepo := repository.NewInternalTeamRepository(ctx, dbPool, workMan)
+	teamMembershipRepo := repository.NewTeamMembershipRepository(ctx, dbPool, workMan)
 
 	evtsMan := newImmediateEventsManager(
 		identityevents.NewOrganizationSave(ctx, organizationRepo),
@@ -265,6 +372,14 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 	)
 
 	approvalCaseBusiness := NewApprovalCaseBusiness(ctx, evtsMan, approvalCaseRepo, nil)
+	orgUnitBusiness := NewOrgUnitBusiness(
+		ctx,
+		evtsMan,
+		organizationRepo,
+		orgUnitRepo,
+		nil,
+		approvalCaseBusiness,
+	)
 	branchBusiness := NewBranchBusiness(
 		ctx,
 		evtsMan,
@@ -276,24 +391,28 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 	clientBusiness := NewClientBusiness(
 		ctx,
 		evtsMan,
-		agentRepo,
 		clientRepo,
-		cahRepo,
+		clientHistoryRepo,
 		clcrRepo,
 		approvalCaseBusiness,
+		workforceMemberRepo,
+		internalTeamRepo,
+		teamMembershipRepo,
 	)
 
 	return &approvalWorkflowEnv{
 		t:                s.T(),
 		ctx:              ctx,
+		eventsMan:        evtsMan,
 		organizationRepo: organizationRepo,
+		orgUnitRepo:      orgUnitRepo,
 		branchRepo:       branchRepo,
 		agentRepo:        agentRepo,
 		agentBranchRepo:  agentBranchRepo,
 		clientRepo:       clientRepo,
-		cahRepo:          cahRepo,
 		clcrRepo:         clcrRepo,
 		approvalCaseRepo: approvalCaseRepo,
+		orgUnitBusiness:  orgUnitBusiness,
 		branchBusiness:   branchBusiness,
 		clientBusiness:   clientBusiness,
 	}
@@ -351,6 +470,7 @@ func (s *approvalWorkflowSuite) databaseResource(ctx context.Context) definition
 }
 
 func (e *approvalWorkflowEnv) createOrganization(name, code string) *models.Organization {
+	claims := security.ClaimsFromContext(e.ctx)
 	org := &models.Organization{
 		Name:       name,
 		Code:       code,
@@ -360,8 +480,10 @@ func (e *approvalWorkflowEnv) createOrganization(name, code string) *models.Orga
 		Properties: data.JSONMap{},
 	}
 	org.GenID(e.ctx)
-	org.TenantID = util.IDString()
-	org.PartitionID = util.IDString()
+	if claims != nil {
+		org.TenantID = claims.GetTenantID()
+		org.PartitionID = claims.GetPartitionID()
+	}
 	require.NoError(e.t, e.organizationRepo.Create(e.ctx, org))
 	return org
 }
@@ -370,6 +492,7 @@ func (e *approvalWorkflowEnv) createBranch(
 	org *models.Organization,
 	name, code string,
 ) *models.Branch {
+	claims := security.ClaimsFromContext(e.ctx)
 	branch := &models.Branch{
 		OrganizationID: org.GetID(),
 		Name:           name,
@@ -378,8 +501,10 @@ func (e *approvalWorkflowEnv) createBranch(
 		Properties:     data.JSONMap{},
 	}
 	branch.GenID(e.ctx)
-	branch.TenantID = org.TenantID
-	branch.PartitionID = util.IDString()
+	if claims != nil {
+		branch.TenantID = claims.GetTenantID()
+		branch.PartitionID = claims.GetPartitionID()
+	}
 	require.NoError(e.t, e.branchRepo.Create(e.ctx, branch))
 	return branch
 }
@@ -388,6 +513,7 @@ func (e *approvalWorkflowEnv) createAgent(
 	org *models.Organization,
 	name, profileID string,
 ) *models.Agent {
+	claims := security.ClaimsFromContext(e.ctx)
 	agent := &models.Agent{
 		OrganizationID: org.GetID(),
 		Name:           name,
@@ -396,12 +522,16 @@ func (e *approvalWorkflowEnv) createAgent(
 		Properties:     data.JSONMap{},
 	}
 	agent.GenID(e.ctx)
-	agent.TenantID = org.TenantID
+	if claims != nil {
+		agent.TenantID = claims.GetTenantID()
+		agent.PartitionID = claims.GetPartitionID()
+	}
 	require.NoError(e.t, e.agentRepo.Create(e.ctx, agent))
 	return agent
 }
 
 func (e *approvalWorkflowEnv) assignAgentToBranch(agent *models.Agent, branch *models.Branch) {
+	claims := security.ClaimsFromContext(e.ctx)
 	assignment := &models.AgentBranch{
 		AgentID:    agent.GetID(),
 		BranchID:   branch.GetID(),
@@ -409,11 +539,15 @@ func (e *approvalWorkflowEnv) assignAgentToBranch(agent *models.Agent, branch *m
 		Properties: data.JSONMap{},
 	}
 	assignment.GenID(e.ctx)
-	assignment.TenantID = branch.TenantID
+	if claims != nil {
+		assignment.TenantID = claims.GetTenantID()
+		assignment.PartitionID = claims.GetPartitionID()
+	}
 	require.NoError(e.t, e.agentBranchRepo.Create(e.ctx, assignment))
 }
 
 func (e *approvalWorkflowEnv) createClient(agent *models.Agent, name, phone string) *models.Client {
+	claims := security.ClaimsFromContext(e.ctx)
 	client := &models.Client{
 		AgentID:    agent.GetID(),
 		Name:       name,
@@ -421,7 +555,10 @@ func (e *approvalWorkflowEnv) createClient(agent *models.Agent, name, phone stri
 		Properties: data.JSONMap{clientPhoneNumberKey: phone},
 	}
 	client.GenID(e.ctx)
-	client.TenantID = agent.TenantID
+	if claims != nil {
+		client.TenantID = claims.GetTenantID()
+		client.PartitionID = claims.GetPartitionID()
+	}
 	require.NoError(e.t, e.clientRepo.Create(e.ctx, client))
 	return client
 }
@@ -429,4 +566,43 @@ func (e *approvalWorkflowEnv) createClient(agent *models.Agent, name, phone stri
 func propertiesStruct(values map[string]any) *structpb.Struct {
 	props := data.JSONMap(values)
 	return (&props).ToProtoStruct()
+}
+
+type approvalCaseBusinessStub struct {
+	submitErr error
+}
+
+func (s *approvalCaseBusinessStub) Submit(
+	_ context.Context,
+	_ ApprovalCaseSubmission,
+) (*models.ApprovalCase, error) {
+	return nil, s.submitErr
+}
+
+func (s *approvalCaseBusinessStub) Verify(
+	_ context.Context,
+	_, _, _ string,
+) (*models.ApprovalCase, error) {
+	panic("unexpected Verify call")
+}
+
+func (s *approvalCaseBusinessStub) Approve(
+	_ context.Context,
+	_, _, _ string,
+) (*models.ApprovalCase, error) {
+	panic("unexpected Approve call")
+}
+
+func (s *approvalCaseBusinessStub) Reject(
+	_ context.Context,
+	_, _, _ string,
+) (*models.ApprovalCase, error) {
+	panic("unexpected Reject call")
+}
+
+func (s *approvalCaseBusinessStub) GetOpenBySubject(
+	_ context.Context,
+	_, _, _ string,
+) (*models.ApprovalCase, error) {
+	panic("unexpected GetOpenBySubject call")
 }

@@ -122,8 +122,9 @@ var (
 		"failed to create login client for partition",
 	)
 
-	ErrClientDataEntryNotFound = apperrors.NewError(apperrors.NotFound, "client data entry not found")
-	ErrFormTemplateNotFound    = apperrors.NewError(apperrors.NotFound, "form template not found")
-	ErrFormTemplateNotDraft    = apperrors.NewError(apperrors.Unprocessable, "form template is not in draft status")
-	ErrFormSubmissionNotFound  = apperrors.NewError(apperrors.NotFound, "form submission not found")
+	ErrClientDataEntryNotFound    = apperrors.NewError(apperrors.NotFound, "client data entry not found")
+	ErrFormTemplateNotFound       = apperrors.NewError(apperrors.NotFound, "form template not found")
+	ErrFormTemplateNotDraft       = apperrors.NewError(apperrors.Unprocessable, "form template is not in draft status")
+	ErrFormSubmissionNotFound     = apperrors.NewError(apperrors.NotFound, "form submission not found")
+	ErrClientRelationshipNotFound = apperrors.NewError(apperrors.NotFound, "client relationship not found")
 )
