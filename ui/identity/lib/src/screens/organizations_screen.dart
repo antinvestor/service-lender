@@ -258,49 +258,40 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
               org.geoId = formData.geoId;
             }
 
-            // Pack wizard data into properties Struct so the backend
-            // can create the profile, address, and contacts.
-            final props = <String, Value>{};
-            if (formData.description.isNotEmpty) {
-              props['description'] =
-                  Value(stringValue: formData.description);
-            }
-            if (formData.domainName.isNotEmpty) {
-              props['domain_name'] =
-                  Value(stringValue: formData.domainName);
-            }
-            if (formData.street.isNotEmpty) {
-              props['address_street'] =
-                  Value(stringValue: formData.street);
-            }
-            if (formData.city.isNotEmpty) {
-              props['address_city'] = Value(stringValue: formData.city);
-            }
-            if (formData.country.isNotEmpty) {
-              props['address_country'] =
-                  Value(stringValue: formData.country);
-            }
-            if (formData.postalCode.isNotEmpty) {
-              props['address_postal_code'] =
-                  Value(stringValue: formData.postalCode);
-            }
-            if (formData.contacts.isNotEmpty) {
-              props['contacts'] = Value(
-                listValue: ListValue(
-                  values: formData.contacts
-                      .map(
-                        (c) => Value(
-                          structValue: Struct(fields: {
-                            'purpose': Value(stringValue: c.purpose.name),
-                            'type': Value(stringValue: c.type.name),
-                            'value': Value(stringValue: c.value),
-                          }),
-                        ),
-                      )
-                      .toList(),
-                ),
-              );
-            }
+            // Merge wizard data into existing properties (preserve backend-set keys).
+            final existingFields = org.hasProperties()
+                ? Map<String, Value>.from(org.properties.fields)
+                : <String, Value>{};
+            final props = existingFields;
+            // Always set wizard fields (overwrites previous values).
+            props['description'] =
+                Value(stringValue: formData.description);
+            props['domain_name'] =
+                Value(stringValue: formData.domainName);
+            props['address_street'] =
+                Value(stringValue: formData.street);
+            props['address_city'] =
+                Value(stringValue: formData.city);
+            props['address_country'] =
+                Value(stringValue: formData.country);
+            props['address_postal_code'] =
+                Value(stringValue: formData.postalCode);
+            // Contacts — always overwrite with current list.
+            props['contacts'] = Value(
+              listValue: ListValue(
+                values: formData.contacts
+                    .map(
+                      (c) => Value(
+                        structValue: Struct(fields: {
+                          'purpose': Value(stringValue: c.purpose.name),
+                          'type': Value(stringValue: c.type.name),
+                          'value': Value(stringValue: c.value),
+                        }),
+                      ),
+                    )
+                    .toList(),
+              ),
+            );
             if (formData.parentOrganizationId != null) {
               props['parent_organization_id'] =
                   Value(stringValue: formData.parentOrganizationId!);
