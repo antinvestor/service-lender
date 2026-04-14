@@ -19,25 +19,23 @@ Future<String> uploadPublicImage(
   // Use provided accessorId or default to 'public_access' (must match [0-9a-z_-]{3,40}).
   final accessors = [accessorId ?? 'public_access'];
 
-  // Build the upload stream: first metadata, then chunks.
-  final requests = <UploadContentRequest>[
-    UploadContentRequest(
-      metadata: UploadMetadata(
-        contentType: _contentTypeForFilename(filename),
-        filename: filename,
-        totalSize: Int64(bytes.length),
-        visibility: MediaMetadata_Visibility.VISIBILITY_PUBLIC,
-        accessorId: accessors,
-      ),
+  // Send metadata + full bytes in a single request message.
+  // Connect web transport may not support multi-message client streaming,
+  // so we combine metadata and chunk into one message.
+  final request = UploadContentRequest(
+    metadata: UploadMetadata(
+      contentType: _contentTypeForFilename(filename),
+      filename: filename,
+      totalSize: Int64(bytes.length),
+      visibility: MediaMetadata_Visibility.VISIBILITY_PUBLIC,
+      accessorId: accessors,
     ),
-    // Send bytes in chunks of 64 KB.
-    for (var offset = 0; offset < bytes.length; offset += 65536)
-      UploadContentRequest(
-        chunk: bytes.sublist(offset, (offset + 65536).clamp(0, bytes.length)),
-      ),
-  ];
+    chunk: bytes,
+  );
 
-  final response = await client.uploadContent(Stream.fromIterable(requests));
+  final response = await client.uploadContent(
+    Stream.fromIterable([request]),
+  );
   return response.contentUri;
 }
 
