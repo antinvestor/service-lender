@@ -383,7 +383,7 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 	teamMembershipRepo := repository.NewTeamMembershipRepository(ctx, dbPool, workMan)
 
 	evtsMan := newImmediateEventsManager(
-		identityevents.NewOrganizationSave(ctx, organizationRepo),
+		identityevents.NewOrganizationSave(ctx, organizationRepo, nil),
 		identityevents.NewBranchSave(ctx, branchRepo),
 		identityevents.NewClientSave(ctx, clientRepo),
 		identityevents.NewApprovalCaseSave(ctx, approvalCaseRepo),

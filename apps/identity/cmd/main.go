@@ -87,7 +87,6 @@ func main() {
 	if err != nil {
 		log.WithError(err).Fatal("main -- Could not setup profile client")
 	}
-	_ = profileCli // Used for profile validation in future
 
 	partitionCli, err := setupTenancyClient(ctx, cfg)
 	if err != nil {
@@ -109,7 +108,17 @@ func main() {
 	}
 
 	// Initialise repositories, business logic, handlers, and events
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, cfg, agentNotifier, partitionCli)
+	serviceOptions := setupServiceOptions(
+		ctx,
+		sm,
+		evtsMan,
+		dbPool,
+		workMan,
+		cfg,
+		agentNotifier,
+		partitionCli,
+		profileCli,
+	)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -128,6 +137,7 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 	cfg aconfig.IdentityConfig,
 	agentNotifier *business.AgentNotifier,
 	partitionCli tenancyv1connect.TenancyServiceClient,
+	profileCli profilev1connect.ProfileServiceClient,
 ) []frame.Option {
 	organizationRepo := repository.NewOrganizationRepository(ctx, dbPool, workMan)
 	orgUnitRepo := repository.NewOrgUnitRepository(ctx, dbPool, workMan)
@@ -239,7 +249,7 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 		frame.WithPermissionRegistration(identitySD),
 		frame.WithPermissionRegistration(fieldSD),
 		frame.WithRegisterEvents(
-			identityevents.NewOrganizationSave(ctx, organizationRepo),
+			identityevents.NewOrganizationSave(ctx, organizationRepo, profileCli),
 			identityevents.NewBranchSave(ctx, branchRepo),
 			identityevents.NewAgentSave(ctx, agentRepo),
 			identityevents.NewClientSave(ctx, clientRepo),

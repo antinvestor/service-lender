@@ -111,7 +111,7 @@ func (s *orgUnitSuite) newEnv() *orgUnitTestEnv {
 	approvalCaseRepo := repository.NewApprovalCaseRepository(ctx, dbPool, workMan)
 
 	evtsMan := newImmediateEventsManager(
-		identityevents.NewOrganizationSave(ctx, organizationRepo),
+		identityevents.NewOrganizationSave(ctx, organizationRepo, nil),
 		identityevents.NewBranchSave(ctx, branchRepo),
 		identityevents.NewApprovalCaseSave(ctx, approvalCaseRepo),
 	)
