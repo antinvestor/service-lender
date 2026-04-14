@@ -32,7 +32,7 @@ require (
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/pitabwire/frame v1.93.9
+	github.com/pitabwire/frame v1.94.0
 	github.com/pitabwire/util v0.8.0
 	github.com/pitabwire/util/decimalx v0.7.1
 	github.com/pitabwire/util/money v0.7.1
