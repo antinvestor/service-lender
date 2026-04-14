@@ -1,0 +1,45 @@
+import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
+import 'package:antinvestor_ui_core/api/stream_helpers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'identity_transport_provider.dart';
+
+/// Search organizations by query string.
+final organizationListProvider =
+    FutureProvider.family<List<OrganizationObject>, String>(
+        (ref, query) async {
+  final client = ref.watch(identityServiceClientProvider);
+  final request = SearchRequest(query: query, cursor: PageCursor(limit: 50));
+  return collectStream(
+    client.organizationSearch(request),
+    extract: (response) => response.data,
+  );
+});
+
+/// Notifier for organization mutations (create, update).
+class OrganizationNotifier extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
+
+  IdentityServiceClient get _client =>
+      ref.read(identityServiceClientProvider);
+
+  Future<OrganizationObject> save(OrganizationObject organization) async {
+    state = const AsyncValue.loading();
+    try {
+      final response = await _client.organizationSave(
+        OrganizationSaveRequest(data: organization),
+      );
+      ref.invalidate(organizationListProvider);
+      state = const AsyncValue.data(null);
+      return response.data;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
+  }
+}
+
+final organizationNotifierProvider =
+    NotifierProvider<OrganizationNotifier, AsyncValue<void>>(
+        OrganizationNotifier.new);

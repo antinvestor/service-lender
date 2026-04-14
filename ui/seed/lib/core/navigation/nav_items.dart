@@ -1,0 +1,128 @@
+import 'package:flutter/material.dart';
+
+/// A single navigation item that can contain children (submenus).
+///
+/// Visibility is gated by [requiredPermissions] (batch-checked at startup).
+/// Items with no requiredPermissions are always visible.
+class NavItem {
+  const NavItem({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.activeIcon,
+    this.route,
+    this.children = const [],
+    this.requiredPermissions = const {},
+    this.badge,
+  });
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final IconData? activeIcon;
+  final String? route;
+  final List<NavItem> children;
+  final Set<String> requiredPermissions;
+  final String? badge;
+
+  bool get hasChildren => children.isNotEmpty;
+
+  bool matchesRoute(String currentRoute) {
+    if (route != null && currentRoute.startsWith(route!)) return true;
+    return children.any((c) => c.matchesRoute(currentRoute));
+  }
+
+  /// Filter by granted permissions. Returns null if user can't see it.
+  NavItem? filterByPermissions(Set<String> userPermissions) {
+    if (requiredPermissions.isNotEmpty &&
+        userPermissions.intersection(requiredPermissions).isEmpty) {
+      return null;
+    }
+
+    final filteredChildren = children
+        .map((c) => c.filterByPermissions(userPermissions))
+        .whereType<NavItem>()
+        .toList();
+
+    if (route == null && filteredChildren.isEmpty && children.isNotEmpty) {
+      return null;
+    }
+
+    return NavItem(
+      id: id,
+      label: label,
+      icon: icon,
+      activeIcon: activeIcon,
+      route: route,
+      children: filteredChildren,
+      requiredPermissions: requiredPermissions,
+      badge: badge,
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Navigation tree — Seed product
+// ─────────────────────────────────────────────────────────────────────────────
+
+List<NavItem> buildNavItems() => [
+  const NavItem(
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: Icons.dashboard_outlined,
+    activeIcon: Icons.dashboard,
+    route: '/',
+  ),
+  const NavItem(
+    id: 'organization',
+    label: 'Organization',
+    icon: Icons.business_outlined,
+    activeIcon: Icons.business,
+    children: [
+      NavItem(
+        id: 'organizations',
+        label: 'Organizations',
+        icon: Icons.account_balance_outlined,
+        activeIcon: Icons.account_balance,
+        route: '/organizations',
+      ),
+      NavItem(
+        id: 'org_units',
+        label: 'Org Units',
+        icon: Icons.account_tree_outlined,
+        activeIcon: Icons.account_tree,
+        route: '/org-units',
+      ),
+      NavItem(
+        id: 'investors',
+        label: 'Investors',
+        icon: Icons.trending_up_outlined,
+        activeIcon: Icons.trending_up,
+        route: '/investors',
+      ),
+    ],
+  ),
+  const NavItem(
+    id: 'workforce',
+    label: 'Workforce',
+    icon: Icons.badge_outlined,
+    activeIcon: Icons.badge,
+    children: [
+      NavItem(
+        id: 'workforce_members',
+        label: 'Members',
+        icon: Icons.people_outline,
+        activeIcon: Icons.people,
+        route: '/workforce',
+      ),
+      NavItem(
+        id: 'access_roles',
+        label: 'Access Roles',
+        icon: Icons.admin_panel_settings_outlined,
+        activeIcon: Icons.admin_panel_settings,
+        route: '/access-roles',
+        requiredPermissions: {'access_role_manage'},
+      ),
+    ],
+  ),
+];
