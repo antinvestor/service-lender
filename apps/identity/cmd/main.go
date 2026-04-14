@@ -197,7 +197,7 @@ func setupServiceOptions(
 	formTemplateRepo := repository.NewFormTemplateRepository(ctx, dbPool, workMan)
 	formSubmissionRepo := repository.NewFormSubmissionRepository(ctx, dbPool, workMan)
 	formTemplateBusiness := business.NewFormTemplateBusiness(ctx, evtsMan, formTemplateRepo)
-	formSubmissionBusiness := business.NewFormSubmissionBusiness(ctx, evtsMan, formSubmissionRepo)
+	formSubmissionBusiness := business.NewFormSubmissionBusiness(ctx, evtsMan, formSubmissionRepo, formTemplateRepo)
 
 	clientRelationshipRepo := repository.NewClientRelationshipRepository(ctx, dbPool, workMan)
 	clientRelationshipBusiness := business.NewClientRelationshipBusiness(ctx, evtsMan, clientRelationshipRepo)

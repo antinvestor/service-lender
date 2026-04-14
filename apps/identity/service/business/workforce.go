@@ -498,6 +498,9 @@ func (b *workforceBusiness) AccessRoleAssignmentSave(
 	obj *identityv1.AccessRoleAssignmentObject,
 ) (*identityv1.AccessRoleAssignmentObject, error) {
 	assignment := models.AccessRoleAssignmentFromAPI(ctx, obj)
+	if assignment.RoleKey == "" {
+		return nil, ErrInvalidRoleKey
+	}
 	member, err := b.workforceRepo.GetByID(ctx, assignment.MemberID)
 	if err != nil {
 		return nil, ErrWorkforceMemberNotFound
@@ -627,12 +630,31 @@ func (b *workforceBusiness) validateDepartmentParent(
 	if department.ParentID == "" {
 		return nil
 	}
+	if department.GetID() != "" && department.GetID() == department.ParentID {
+		return ErrCircularParentChain
+	}
 	parent, err := b.departmentRepo.GetByID(ctx, department.ParentID)
 	if err != nil {
 		return ErrDepartmentNotFound.Extend("parent department not found")
 	}
 	if parent.OrganizationID != department.OrganizationID {
 		return ErrOrgUnitNotInOrganization.Extend("parent department belongs to another organization")
+	}
+	// Detect circular parent chains (max 20 levels deep).
+	if department.GetID() != "" {
+		visited := map[string]bool{department.GetID(): true}
+		current := parent
+		for depth := 0; depth < 20 && current.ParentID != ""; depth++ {
+			if visited[current.ParentID] {
+				return ErrCircularParentChain
+			}
+			visited[current.GetID()] = true
+			ancestor, aErr := b.departmentRepo.GetByID(ctx, current.ParentID)
+			if aErr != nil {
+				break
+			}
+			current = ancestor
+		}
 	}
 	return nil
 }
@@ -697,12 +719,31 @@ func (b *workforceBusiness) validateParentTeam(ctx context.Context, team *models
 	if team.ParentTeamID == "" {
 		return nil
 	}
+	if team.GetID() != "" && team.GetID() == team.ParentTeamID {
+		return ErrCircularParentChain
+	}
 	parent, err := b.internalTeamRepo.GetByID(ctx, team.ParentTeamID)
 	if err != nil {
 		return ErrInternalTeamNotFound.Extend("parent team not found")
 	}
 	if parent.OrganizationID != team.OrganizationID {
 		return ErrOrgUnitNotInOrganization.Extend("parent team belongs to another organization")
+	}
+	// Detect circular parent chains (max 20 levels deep).
+	if team.GetID() != "" {
+		visited := map[string]bool{team.GetID(): true}
+		current := parent
+		for depth := 0; depth < 20 && current.ParentTeamID != ""; depth++ {
+			if visited[current.ParentTeamID] {
+				return ErrCircularParentChain
+			}
+			visited[current.GetID()] = true
+			ancestor, aErr := b.internalTeamRepo.GetByID(ctx, current.ParentTeamID)
+			if aErr != nil {
+				break
+			}
+			current = ancestor
+		}
 	}
 	return nil
 }

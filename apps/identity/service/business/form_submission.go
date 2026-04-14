@@ -27,16 +27,19 @@ type FormSubmissionBusiness interface {
 type formSubmissionBusiness struct {
 	eventsMan          fevents.Manager
 	formSubmissionRepo repository.FormSubmissionRepository
+	formTemplateRepo   repository.FormTemplateRepository
 }
 
 func NewFormSubmissionBusiness(
 	_ context.Context,
 	eventsMan fevents.Manager,
 	formSubmissionRepo repository.FormSubmissionRepository,
+	formTemplateRepo repository.FormTemplateRepository,
 ) FormSubmissionBusiness {
 	return &formSubmissionBusiness{
 		eventsMan:          eventsMan,
 		formSubmissionRepo: formSubmissionRepo,
+		formTemplateRepo:   formTemplateRepo,
 	}
 }
 
@@ -48,6 +51,13 @@ func (b *formSubmissionBusiness) Save(
 
 	fs := models.FormSubmissionFromAPI(ctx, obj)
 
+	// Validate submission against template if template ID is provided.
+	if fs.TemplateID != "" {
+		if err := b.validateAgainstTemplate(ctx, logger, fs); err != nil {
+			return nil, err
+		}
+	}
+
 	err := b.eventsMan.Emit(ctx, events.FormSubmissionSaveEvent, fs)
 	if err != nil {
 		logger.WithError(err).Error("could not emit form submission save event")
@@ -55,6 +65,56 @@ func (b *formSubmissionBusiness) Save(
 	}
 
 	return fs.ToAPI(), nil
+}
+
+// validateAgainstTemplate checks that the form submission includes all required
+// fields defined in the form template and that the template is published.
+func (b *formSubmissionBusiness) validateAgainstTemplate(
+	ctx context.Context,
+	logger *util.LogEntry,
+	fs *models.FormSubmission,
+) error {
+	template, err := b.formTemplateRepo.GetByID(ctx, fs.TemplateID)
+	if err != nil {
+		return ErrFormTemplateNotFound
+	}
+
+	// Template must be published before accepting submissions.
+	if template.Status != int32(identityv1.FormTemplateStatus_FORM_TEMPLATE_STATUS_PUBLISHED) {
+		return ErrFormTemplateNotPublished
+	}
+
+	// Store template version at submission time.
+	fs.TemplateVersion = template.Version
+
+	// Check required fields are present in submission data.
+	fields := models.FieldsToAPI(template.Fields)
+	if len(fields) == 0 || fs.Data == nil {
+		return nil
+	}
+
+	var missingFields []string
+	for _, field := range fields {
+		if !field.GetRequired() {
+			continue
+		}
+		key := field.GetKey()
+		if key == "" {
+			continue
+		}
+		if _, exists := fs.Data[key]; !exists {
+			missingFields = append(missingFields, key)
+		}
+	}
+
+	if len(missingFields) > 0 {
+		logger.WithField("missing_fields", missingFields).
+			WithField("template_id", fs.TemplateID).
+			Warn("form submission missing required fields")
+		return ErrFormSubmissionMissingFields
+	}
+
+	return nil
 }
 
 func (b *formSubmissionBusiness) Get(ctx context.Context, id string) (*identityv1.FormSubmissionObject, error) {

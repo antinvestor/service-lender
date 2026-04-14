@@ -46,6 +46,7 @@ var (
 		"member is not assigned to the owning team",
 	)
 	ErrInvalidReportingLine = apperrors.NewError(apperrors.BadRequest, "invalid reporting line")
+	ErrCircularParentChain  = apperrors.NewError(apperrors.BadRequest, "circular parent chain detected")
 	ErrDeprecatedAgentModel = apperrors.NewError(
 		apperrors.Gone,
 		"agent model has been retired; use workforce members and teams",
@@ -71,6 +72,7 @@ var (
 		"member already has an active primary team membership",
 	)
 	ErrInvalidAccessScope = apperrors.NewError(apperrors.BadRequest, "invalid access scope")
+	ErrInvalidRoleKey     = apperrors.NewError(apperrors.BadRequest, "role key is required")
 
 	ErrCreditLimitNegative     = apperrors.NewError(apperrors.BadRequest, "credit limit cannot be negative")
 	ErrAgentLimitExceedsSystem = apperrors.NewError(
@@ -122,9 +124,17 @@ var (
 		"failed to create login client for partition",
 	)
 
-	ErrClientDataEntryNotFound    = apperrors.NewError(apperrors.NotFound, "client data entry not found")
-	ErrFormTemplateNotFound       = apperrors.NewError(apperrors.NotFound, "form template not found")
-	ErrFormTemplateNotDraft       = apperrors.NewError(apperrors.Unprocessable, "form template is not in draft status")
-	ErrFormSubmissionNotFound     = apperrors.NewError(apperrors.NotFound, "form submission not found")
+	ErrClientDataEntryNotFound  = apperrors.NewError(apperrors.NotFound, "client data entry not found")
+	ErrFormTemplateNotFound     = apperrors.NewError(apperrors.NotFound, "form template not found")
+	ErrFormTemplateNotDraft     = apperrors.NewError(apperrors.Unprocessable, "form template is not in draft status")
+	ErrFormTemplateNotPublished = apperrors.NewError(
+		apperrors.Unprocessable,
+		"form template must be published to accept submissions",
+	)
+	ErrFormSubmissionNotFound      = apperrors.NewError(apperrors.NotFound, "form submission not found")
+	ErrFormSubmissionMissingFields = apperrors.NewError(
+		apperrors.BadRequest,
+		"form submission is missing required fields defined in the template",
+	)
 	ErrClientRelationshipNotFound = apperrors.NewError(apperrors.NotFound, "client relationship not found")
 )

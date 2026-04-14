@@ -807,11 +807,11 @@ func WorkforceMemberFromAPI(ctx context.Context, obj *identityv1.WorkforceMember
 // Department represents a functional grouping node.
 type Department struct {
 	data.BaseModel
-	OrganizationID string `gorm:"type:varchar(50);index:idx_department_organization;uniqueIndex:uq_department_org_code;not null"`
+	OrganizationID string `gorm:"type:varchar(50);index:idx_department_organization;uniqueIndex:uq_department_org_code,priority:1;uniqueIndex:uq_department_org_name,priority:1;not null"`
 	ParentID       string `gorm:"type:varchar(50);index:idx_department_parent"`
 	Kind           int32
-	Name           string `gorm:"type:varchar(255)"`
-	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_department_org_code"`
+	Name           string `gorm:"type:varchar(255);uniqueIndex:uq_department_org_name,priority:2"`
+	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_department_org_code,priority:2"`
 	State          int32
 	Properties     data.JSONMap
 }
@@ -963,11 +963,11 @@ func PositionAssignmentFromAPI(ctx context.Context, obj *identityv1.PositionAssi
 // InternalTeam represents an execution team with a business objective.
 type InternalTeam struct {
 	data.BaseModel
-	OrganizationID string `gorm:"type:varchar(50);index:idx_internal_team_organization;uniqueIndex:uq_internal_team_org_code;not null"`
+	OrganizationID string `gorm:"type:varchar(50);index:idx_internal_team_organization;uniqueIndex:uq_internal_team_org_code,priority:1;uniqueIndex:uq_internal_team_org_name,priority:1;not null"`
 	ParentTeamID   string `gorm:"type:varchar(50);index:idx_internal_team_parent"`
 	HomeOrgUnitID  string `gorm:"type:varchar(50);index:idx_internal_team_org_unit"`
-	Name           string `gorm:"type:varchar(255)"`
-	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_internal_team_org_code"`
+	Name           string `gorm:"type:varchar(255);uniqueIndex:uq_internal_team_org_name,priority:2"`
+	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_internal_team_org_code,priority:2"`
 	TeamType       int32
 	Objective      string `gorm:"type:text"`
 	GeoID          string `gorm:"type:varchar(50)"`

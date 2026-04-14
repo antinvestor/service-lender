@@ -41,7 +41,7 @@ func (m *FormTemplate) ToAPI() *identityv1.FormTemplateObject {
 		Properties:      m.Properties.ToProtoStruct(),
 	}
 
-	obj.Fields = fieldsToAPI(m.Fields)
+	obj.Fields = FieldsToAPI(m.Fields)
 	obj.Sections = sectionsToAPI(m.Sections)
 
 	return obj
@@ -148,7 +148,7 @@ func FormSubmissionFromAPI(ctx context.Context, obj *identityv1.FormSubmissionOb
 // Field conversion helpers
 // ---------------------------------------------------------------------------
 
-func fieldsToAPI(jm data.JSONMap) []*identityv1.FormFieldDefinition {
+func FieldsToAPI(jm data.JSONMap) []*identityv1.FormFieldDefinition {
 	if jm == nil {
 		return nil
 	}

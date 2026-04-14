@@ -151,6 +151,24 @@ func (b *orgUnitBusiness) validateParent(ctx context.Context, orgUnit *models.Br
 	if parent.OrganizationID != orgUnit.OrganizationID {
 		return ErrOrgUnitNotInOrganization
 	}
+
+	// Detect circular parent chains (max 20 levels deep).
+	if orgUnit.GetID() != "" {
+		visited := map[string]bool{orgUnit.GetID(): true}
+		current := parent
+		for depth := 0; depth < 20 && current.ParentID != ""; depth++ {
+			if visited[current.ParentID] {
+				return ErrCircularParentChain
+			}
+			visited[current.GetID()] = true
+			ancestor, aErr := b.orgUnitRepo.GetByID(ctx, current.ParentID)
+			if aErr != nil {
+				break
+			}
+			current = ancestor
+		}
+	}
+
 	return nil
 }
 
