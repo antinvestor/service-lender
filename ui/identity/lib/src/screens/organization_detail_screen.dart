@@ -383,46 +383,87 @@ class _OrganizationDetailContentState
                 ),
               );
             }
-            return SliverList.builder(
-              itemCount: orgUnits.length,
-              itemBuilder: (context, index) {
-                final orgUnit = orgUnits[index];
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: theme.colorScheme.outlineVariant.withAlpha(38),
-                      ),
-                    ),
-                    child: ListTile(
-                      leading: Icon(
-                        orgUnit.type == OrgUnitType.ORG_UNIT_TYPE_BRANCH
-                            ? Icons.store_outlined
-                            : Icons.account_tree_outlined,
-                      ),
-                      title: Text(orgUnit.name),
-                      subtitle: Text(orgUnitTypeLabel(orgUnit.type)),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (orgUnit.hasChildren)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 8),
-                              child: Icon(Icons.subdirectory_arrow_right),
-                            ),
-                          StateBadge(state: toCommonState(orgUnit.state)),
-                        ],
-                      ),
-                      onTap: () => context.go(
-                        '/organization/organizations/${_organization.id}/org-units/${orgUnit.id}',
-                      ),
+            return SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(
+                      color:
+                          theme.colorScheme.outlineVariant.withAlpha(38),
                     ),
                   ),
-                );
-              },
+                  clipBehavior: Clip.antiAlias,
+                  child: DataTable(
+                    showCheckboxColumn: false,
+                    columns: const [
+                      DataColumn(
+                          label: SizedBox(width: 100, child: Text('ID'))),
+                      DataColumn(label: Text('NAME')),
+                      DataColumn(label: Text('TYPE')),
+                      DataColumn(label: Text('CODE')),
+                      DataColumn(label: Text('STATE')),
+                    ],
+                    rows: orgUnits.map((orgUnit) {
+                      final shortId = orgUnit.id.length > 12
+                          ? '${orgUnit.id.substring(0, 12)}…'
+                          : orgUnit.id;
+                      return DataRow(
+                        onSelectChanged: (_) => context.go(
+                          '/org-units/${orgUnit.id}',
+                        ),
+                        cells: [
+                          DataCell(
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SelectableText(
+                                  shortId,
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(
+                                    fontFamily: 'monospace',
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                InkWell(
+                                  onTap: () {
+                                    Clipboard.setData(
+                                      ClipboardData(text: orgUnit.id),
+                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        content: Text('ID copied'),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.copy,
+                                    size: 14,
+                                    color: theme
+                                        .colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(Text(orgUnit.name)),
+                          DataCell(Text(orgUnitTypeLabel(orgUnit.type))),
+                          DataCell(Text(orgUnit.code)),
+                          DataCell(
+                            StateBadge(
+                                state: toCommonState(orgUnit.state)),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
             );
           },
         ),
