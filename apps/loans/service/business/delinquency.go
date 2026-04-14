@@ -14,6 +14,12 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 )
 
+const (
+	delinquencyBatchSize      = 500
+	hoursPerDay               = 24
+	basisPointsPenaltyDivisor = 10000
+)
+
 // DelinquencyScanner detects overdue loans and transitions them to DELINQUENT
 // or DEFAULT status based on configured thresholds. It also applies late
 // penalties for overdue schedule entries.
@@ -61,7 +67,11 @@ func NewDelinquencyScanner(
 // ScanAndTransition scans all active and delinquent loans for overdue
 // schedule entries and transitions their status accordingly.
 // Returns the number of loans processed and any error.
-func (s *DelinquencyScanner) ScanAndTransition(ctx context.Context) (int, error) {
+//
+//nolint:gocognit // sequential scan logic
+func (s *DelinquencyScanner) ScanAndTransition(
+	ctx context.Context,
+) (int, error) {
 	logger := util.Log(ctx).WithField("method", "DelinquencyScanner.ScanAndTransition")
 	now := time.Now()
 	processed := 0
@@ -72,7 +82,7 @@ func (s *DelinquencyScanner) ScanAndTransition(ctx context.Context) (int, error)
 			data.WithSearchFiltersAndByValue(map[string]any{
 				"status = ?": int32(loansv1.LoanStatus_LOAN_STATUS_ACTIVE),
 			}),
-			data.WithSearchLimit(500),
+			data.WithSearchLimit(delinquencyBatchSize),
 		),
 	)
 	if err != nil {
@@ -106,7 +116,7 @@ func (s *DelinquencyScanner) ScanAndTransition(ctx context.Context) (int, error)
 			data.WithSearchFiltersAndByValue(map[string]any{
 				"status = ?": int32(loansv1.LoanStatus_LOAN_STATUS_DELINQUENT),
 			}),
-			data.WithSearchLimit(500),
+			data.WithSearchLimit(delinquencyBatchSize),
 		),
 	)
 	if err != nil {
@@ -153,7 +163,7 @@ func (s *DelinquencyScanner) computeDaysPastDue(
 	if earliest.DueDate == nil {
 		return 0
 	}
-	days := int(now.Sub(*earliest.DueDate).Hours() / 24)
+	days := int(now.Sub(*earliest.DueDate).Hours() / hoursPerDay)
 	if days < 0 {
 		return 0
 	}
@@ -187,7 +197,7 @@ func (s *DelinquencyScanner) applyLatePenalties(
 		}
 
 		// Calculate penalty: late_penalty_rate (basis points) × outstanding amount
-		penaltyAmount := (entry.Outstanding * product.LatePenaltyRate) / 10000
+		penaltyAmount := (entry.Outstanding * product.LatePenaltyRate) / basisPointsPenaltyDivisor
 		if penaltyAmount <= 0 {
 			continue
 		}

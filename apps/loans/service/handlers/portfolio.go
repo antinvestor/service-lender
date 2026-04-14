@@ -109,7 +109,9 @@ func handlePortfolioExport(pb business.PortfolioBusiness) http.HandlerFunc {
 		filename := "loan_book_" + time.Now().Format("20060102_150405") + ".csv"
 		w.Header().Set("Content-Type", "text/csv")
 		w.Header().Set("Content-Disposition", "attachment; filename=\""+filename+"\"")
-		if _, writeErr := w.Write(csvData); writeErr != nil {
+
+		_, writeErr := w.Write(csvData) //nolint:gosec // server-generated CSV served as attachment
+		if writeErr != nil {
 			logger.WithError(writeErr).Error("could not write CSV response")
 		}
 	}

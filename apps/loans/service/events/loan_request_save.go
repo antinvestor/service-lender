@@ -1,4 +1,4 @@
-package events
+package events //nolint:dupl // similar event handlers for different entity types
 
 import (
 	"context"

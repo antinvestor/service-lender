@@ -234,7 +234,7 @@ func (s *FieldServer) ClientRelationshipSearch(
 	return s.clientRelationshipBusiness.Search(
 		ctx,
 		req.Msg,
-		func(ctx context.Context, batch []*fieldv1.ClientRelationshipObject) error {
+		func(_ context.Context, batch []*fieldv1.ClientRelationshipObject) error {
 			return stream.Send(&fieldv1.ClientRelationshipSearchResponse{Data: batch})
 		},
 	)

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
@@ -46,14 +45,11 @@ func (r *transferOrderRepository) GetByReference(
 	reference string,
 ) (*models.TransferOrder, error) {
 	if reference == "" {
-		return nil, nil
+		return nil, gorm.ErrRecordNotFound
 	}
 	entity := &models.TransferOrder{}
 	err := r.dbPool.DB(ctx, true).Where("reference = ?", reference).First(entity).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	return entity, nil

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strconv"
 
-	bufcommonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
@@ -139,7 +138,7 @@ func (b *workforceBusiness) WorkforceMemberSave(
 		return nil, err
 	}
 	if obj.GetId() == "" && member.State == 0 {
-		member.State = int32(bufcommonv1.STATE_CREATED)
+		member.State = int32(commonv1.STATE_CREATED)
 	}
 
 	if err := b.eventsMan.Emit(ctx, events.WorkforceMemberSaveEvent, member); err != nil {
@@ -197,7 +196,7 @@ func (b *workforceBusiness) DepartmentSave(
 		return nil, err
 	}
 	if obj.GetId() == "" && department.State == 0 {
-		department.State = int32(bufcommonv1.STATE_CREATED)
+		department.State = int32(commonv1.STATE_CREATED)
 	}
 
 	if err := b.eventsMan.Emit(ctx, events.DepartmentSaveEvent, department); err != nil {
@@ -215,6 +214,7 @@ func (b *workforceBusiness) DepartmentGet(ctx context.Context, id string) (*iden
 	return department.ToAPI(), nil
 }
 
+//nolint:dupl // similar search logic for different entity types
 func (b *workforceBusiness) DepartmentSearch(
 	ctx context.Context,
 	req *identityv1.DepartmentSearchRequest,
@@ -258,7 +258,7 @@ func (b *workforceBusiness) PositionSave(
 		return nil, err
 	}
 	if obj.GetId() == "" && position.State == 0 {
-		position.State = int32(bufcommonv1.STATE_CREATED)
+		position.State = int32(commonv1.STATE_CREATED)
 	}
 
 	if err := b.eventsMan.Emit(ctx, events.PositionSaveEvent, position); err != nil {
@@ -303,6 +303,7 @@ func (b *workforceBusiness) PositionSearch(
 	})
 }
 
+//nolint:dupl // similar validation logic for different entity types
 func (b *workforceBusiness) PositionAssignmentSave(
 	ctx context.Context,
 	obj *identityv1.PositionAssignmentObject,
@@ -319,16 +320,16 @@ func (b *workforceBusiness) PositionAssignmentSave(
 	if member.OrganizationID != position.OrganizationID {
 		return nil, ErrOrgUnitNotInOrganization.Extend("member and position belong to different organizations")
 	}
-	if err := b.validatePrimaryPositionAssignment(ctx, assignment); err != nil {
-		return nil, err
+	if errValidate := b.validatePrimaryPositionAssignment(ctx, assignment); errValidate != nil {
+		return nil, errValidate
 	}
 	if obj.GetId() == "" && assignment.State == 0 {
-		assignment.State = int32(bufcommonv1.STATE_CREATED)
+		assignment.State = int32(commonv1.STATE_CREATED)
 	}
 
-	if err := b.eventsMan.Emit(ctx, events.PositionAssignmentSaveEvent, assignment); err != nil {
-		util.Log(ctx).WithError(err).Error("could not emit position assignment save event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.PositionAssignmentSaveEvent, assignment); errEmit != nil {
+		util.Log(ctx).WithError(errEmit).Error("could not emit position assignment save event")
+		return nil, errEmit
 	}
 	return assignment.ToAPI(), nil
 }
@@ -384,7 +385,7 @@ func (b *workforceBusiness) InternalTeamSave(
 		return nil, err
 	}
 	if obj.GetId() == "" && team.State == 0 {
-		team.State = int32(bufcommonv1.STATE_CREATED)
+		team.State = int32(commonv1.STATE_CREATED)
 	}
 
 	if err := b.eventsMan.Emit(ctx, events.InternalTeamSaveEvent, team); err != nil {
@@ -402,6 +403,7 @@ func (b *workforceBusiness) InternalTeamGet(ctx context.Context, id string) (*id
 	return team.ToAPI(), nil
 }
 
+//nolint:dupl // similar search logic for different entity types
 func (b *workforceBusiness) InternalTeamSearch(
 	ctx context.Context,
 	req *identityv1.InternalTeamSearchRequest,
@@ -427,6 +429,7 @@ func (b *workforceBusiness) InternalTeamSearch(
 	})
 }
 
+//nolint:dupl // similar validation logic for different entity types
 func (b *workforceBusiness) TeamMembershipSave(
 	ctx context.Context,
 	obj *identityv1.TeamMembershipObject,
@@ -443,16 +446,16 @@ func (b *workforceBusiness) TeamMembershipSave(
 	if member.OrganizationID != team.OrganizationID {
 		return nil, ErrOrgUnitNotInOrganization.Extend("member and team belong to different organizations")
 	}
-	if err := b.validatePrimaryTeamMembership(ctx, membership); err != nil {
-		return nil, err
+	if errValidate := b.validatePrimaryTeamMembership(ctx, membership); errValidate != nil {
+		return nil, errValidate
 	}
 	if obj.GetId() == "" && membership.State == 0 {
-		membership.State = int32(bufcommonv1.STATE_CREATED)
+		membership.State = int32(commonv1.STATE_CREATED)
 	}
 
-	if err := b.eventsMan.Emit(ctx, events.TeamMembershipSaveEvent, membership); err != nil {
-		util.Log(ctx).WithError(err).Error("could not emit team membership save event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.TeamMembershipSaveEvent, membership); errEmit != nil {
+		util.Log(ctx).WithError(errEmit).Error("could not emit team membership save event")
+		return nil, errEmit
 	}
 	return membership.ToAPI(), nil
 }
@@ -505,16 +508,16 @@ func (b *workforceBusiness) AccessRoleAssignmentSave(
 	if err != nil {
 		return nil, ErrWorkforceMemberNotFound
 	}
-	if err := b.validateAccessScope(ctx, member, assignment); err != nil {
-		return nil, err
+	if errScope := b.validateAccessScope(ctx, member, assignment); errScope != nil {
+		return nil, errScope
 	}
 	if obj.GetId() == "" && assignment.State == 0 {
-		assignment.State = int32(bufcommonv1.STATE_CREATED)
+		assignment.State = int32(commonv1.STATE_CREATED)
 	}
 
-	if err := b.eventsMan.Emit(ctx, events.AccessRoleAssignmentSaveEvent, assignment); err != nil {
-		util.Log(ctx).WithError(err).Error("could not emit access role assignment save event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.AccessRoleAssignmentSaveEvent, assignment); errEmit != nil {
+		util.Log(ctx).WithError(errEmit).Error("could not emit access role assignment save event")
+		return nil, errEmit
 	}
 	return assignment.ToAPI(), nil
 }
@@ -623,6 +626,7 @@ func (b *workforceBusiness) validateOrgUnitInOrganization(
 	return nil
 }
 
+//nolint:dupl // similar parent-chain validation for different entity types
 func (b *workforceBusiness) validateDepartmentParent(
 	ctx context.Context,
 	department *models.Department,
@@ -651,7 +655,8 @@ func (b *workforceBusiness) validateDepartmentParent(
 			visited[current.GetID()] = true
 			ancestor, aErr := b.departmentRepo.GetByID(ctx, current.ParentID)
 			if aErr != nil {
-				break
+				// Cannot resolve further ancestors; stop walking the chain.
+				return nil //nolint:nilerr // partial chain walk is not an error
 			}
 			current = ancestor
 		}
@@ -698,8 +703,8 @@ func (b *workforceBusiness) validatePrimaryPositionAssignment(
 	assignment *models.PositionAssignment,
 ) error {
 	if !assignment.IsPrimary ||
-		assignment.State == int32(bufcommonv1.STATE_INACTIVE) ||
-		assignment.State == int32(bufcommonv1.STATE_DELETED) {
+		assignment.State == int32(commonv1.STATE_INACTIVE) ||
+		assignment.State == int32(commonv1.STATE_DELETED) {
 		return nil
 	}
 	existing, err := b.positionAssignmentRepo.GetActivePrimaryByMemberID(ctx, assignment.MemberID)
@@ -715,6 +720,7 @@ func (b *workforceBusiness) validatePrimaryPositionAssignment(
 	return nil
 }
 
+//nolint:dupl // similar parent-chain validation for different entity types
 func (b *workforceBusiness) validateParentTeam(ctx context.Context, team *models.InternalTeam) error {
 	if team.ParentTeamID == "" {
 		return nil
@@ -740,7 +746,8 @@ func (b *workforceBusiness) validateParentTeam(ctx context.Context, team *models
 			visited[current.GetID()] = true
 			ancestor, aErr := b.internalTeamRepo.GetByID(ctx, current.ParentTeamID)
 			if aErr != nil {
-				break
+				// Cannot resolve further ancestors; stop walking the chain.
+				return nil //nolint:nilerr // partial chain walk is not an error
 			}
 			current = ancestor
 		}
@@ -753,8 +760,8 @@ func (b *workforceBusiness) validatePrimaryTeamMembership(
 	membership *models.TeamMembership,
 ) error {
 	if !membership.IsPrimaryTeam ||
-		membership.State == int32(bufcommonv1.STATE_INACTIVE) ||
-		membership.State == int32(bufcommonv1.STATE_DELETED) {
+		membership.State == int32(commonv1.STATE_INACTIVE) ||
+		membership.State == int32(commonv1.STATE_DELETED) {
 		return nil
 	}
 	existing, err := b.teamMembershipRepo.GetActivePrimaryByMemberID(ctx, membership.MemberID)
@@ -776,6 +783,8 @@ func (b *workforceBusiness) validateAccessScope(
 	assignment *models.AccessRoleAssignment,
 ) error {
 	switch identityv1.AccessScopeType(assignment.ScopeType) {
+	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_UNSPECIFIED:
+		return ErrInvalidAccessScope
 	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL:
 		return nil
 	case identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_ORGANIZATION:
@@ -800,194 +809,4 @@ func (b *workforceBusiness) validateAccessScope(
 	default:
 		return ErrInvalidAccessScope
 	}
-}
-
-func (b *workforceBusiness) persistWorkforceMember(
-	ctx context.Context,
-	member *models.WorkforceMember,
-) (*models.WorkforceMember, bool, error) {
-	if member.GetID() == "" {
-		return nil, true, b.workforceRepo.Create(ctx, member)
-	}
-
-	existing, err := b.workforceRepo.GetByID(ctx, member.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrWorkforceMemberNotFound
-		}
-		return nil, false, err
-	}
-	existing.OrganizationID = member.OrganizationID
-	existing.ProfileID = member.ProfileID
-	existing.EngagementType = member.EngagementType
-	existing.HomeOrgUnitID = member.HomeOrgUnitID
-	existing.GeoID = member.GeoID
-	existing.State = member.State
-	existing.Properties = member.Properties
-	if _, err := b.workforceRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
-}
-
-func (b *workforceBusiness) persistDepartment(
-	ctx context.Context,
-	department *models.Department,
-) (*models.Department, bool, error) {
-	if department.GetID() == "" {
-		return nil, true, b.departmentRepo.Create(ctx, department)
-	}
-	existing, err := b.departmentRepo.GetByID(ctx, department.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrDepartmentNotFound
-		}
-		return nil, false, err
-	}
-	existing.OrganizationID = department.OrganizationID
-	existing.ParentID = department.ParentID
-	existing.Kind = department.Kind
-	existing.Name = department.Name
-	existing.Code = department.Code
-	existing.State = department.State
-	existing.Properties = department.Properties
-	if _, err := b.departmentRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
-}
-
-func (b *workforceBusiness) persistPosition(
-	ctx context.Context,
-	position *models.Position,
-) (*models.Position, bool, error) {
-	if position.GetID() == "" {
-		return nil, true, b.positionRepo.Create(ctx, position)
-	}
-	existing, err := b.positionRepo.GetByID(ctx, position.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrPositionNotFound
-		}
-		return nil, false, err
-	}
-	existing.OrganizationID = position.OrganizationID
-	existing.OrgUnitID = position.OrgUnitID
-	existing.DepartmentID = position.DepartmentID
-	existing.ReportsToPositionID = position.ReportsToPositionID
-	existing.Name = position.Name
-	existing.Code = position.Code
-	existing.State = position.State
-	existing.Properties = position.Properties
-	if _, err := b.positionRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
-}
-
-func (b *workforceBusiness) persistPositionAssignment(
-	ctx context.Context,
-	assignment *models.PositionAssignment,
-) (*models.PositionAssignment, bool, error) {
-	if assignment.GetID() == "" {
-		return nil, true, b.positionAssignmentRepo.Create(ctx, assignment)
-	}
-	existing, err := b.positionAssignmentRepo.GetByID(ctx, assignment.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrPositionAssignmentNotFound
-		}
-		return nil, false, err
-	}
-	existing.MemberID = assignment.MemberID
-	existing.PositionID = assignment.PositionID
-	existing.IsPrimary = assignment.IsPrimary
-	existing.State = assignment.State
-	existing.Properties = assignment.Properties
-	if _, err := b.positionAssignmentRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
-}
-
-func (b *workforceBusiness) persistInternalTeam(
-	ctx context.Context,
-	team *models.InternalTeam,
-) (*models.InternalTeam, bool, error) {
-	if team.GetID() == "" {
-		return nil, true, b.internalTeamRepo.Create(ctx, team)
-	}
-	existing, err := b.internalTeamRepo.GetByID(ctx, team.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrInternalTeamNotFound
-		}
-		return nil, false, err
-	}
-	existing.OrganizationID = team.OrganizationID
-	existing.ParentTeamID = team.ParentTeamID
-	existing.HomeOrgUnitID = team.HomeOrgUnitID
-	existing.Name = team.Name
-	existing.Code = team.Code
-	existing.TeamType = team.TeamType
-	existing.Objective = team.Objective
-	existing.GeoID = team.GeoID
-	existing.State = team.State
-	existing.Properties = team.Properties
-	if _, err := b.internalTeamRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
-}
-
-func (b *workforceBusiness) persistTeamMembership(
-	ctx context.Context,
-	membership *models.TeamMembership,
-) (*models.TeamMembership, bool, error) {
-	if membership.GetID() == "" {
-		return nil, true, b.teamMembershipRepo.Create(ctx, membership)
-	}
-	existing, err := b.teamMembershipRepo.GetByID(ctx, membership.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrTeamMembershipNotFound
-		}
-		return nil, false, err
-	}
-	existing.TeamID = membership.TeamID
-	existing.MemberID = membership.MemberID
-	existing.MembershipRole = membership.MembershipRole
-	existing.IsPrimaryTeam = membership.IsPrimaryTeam
-	existing.State = membership.State
-	existing.Properties = membership.Properties
-	if _, err := b.teamMembershipRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
-}
-
-func (b *workforceBusiness) persistAccessRoleAssignment(
-	ctx context.Context,
-	assignment *models.AccessRoleAssignment,
-) (*models.AccessRoleAssignment, bool, error) {
-	if assignment.GetID() == "" {
-		return nil, true, b.accessRoleRepo.Create(ctx, assignment)
-	}
-	existing, err := b.accessRoleRepo.GetByID(ctx, assignment.GetID())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false, ErrAccessRoleAssignmentNotFound
-		}
-		return nil, false, err
-	}
-	existing.MemberID = assignment.MemberID
-	existing.RoleKey = assignment.RoleKey
-	existing.ScopeType = assignment.ScopeType
-	existing.ScopeID = assignment.ScopeID
-	existing.State = assignment.State
-	existing.Properties = assignment.Properties
-	if _, err := b.accessRoleRepo.Update(ctx, existing); err != nil {
-		return nil, false, err
-	}
-	return existing, false, nil
 }

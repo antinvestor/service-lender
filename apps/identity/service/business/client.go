@@ -83,9 +83,9 @@ func (b *clientBusiness) Save(ctx context.Context, obj *fieldv1.ClientObject) (*
 	if client.OwningTeamID == "" {
 		return nil, ErrOwningTeamRequired
 	}
-	if err := b.validateOwnership(ctx, client.OwningTeamID, ""); err != nil {
-		logger.WithError(err).Warn("invalid client ownership")
-		return nil, err
+	if errOwn := b.validateOwnership(ctx, client.OwningTeamID, ""); errOwn != nil {
+		logger.WithError(errOwn).Warn("invalid client ownership")
+		return nil, errOwn
 	}
 
 	if isNew && client.State == 0 {
@@ -255,7 +255,6 @@ func (b *clientBusiness) Get(ctx context.Context, id string) (*fieldv1.ClientObj
 	return client.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *clientBusiness) Search(
 	ctx context.Context,
 	req *fieldv1.ClientSearchRequest,
@@ -314,8 +313,8 @@ func (b *clientBusiness) Search(
 }
 
 func (b *clientBusiness) Reassign(
-	ctx context.Context,
-	req *fieldv1.ClientReassignRequest,
+	_ context.Context,
+	_ *fieldv1.ClientReassignRequest,
 ) (*fieldv1.ClientObject, error) {
 	return nil, ErrDeprecatedClientAgentReassignment
 }
@@ -328,15 +327,15 @@ func (b *clientBusiness) TransferOwnership(
 	if err != nil {
 		return nil, ErrClientNotFound
 	}
-	if err := b.validateOwnership(ctx, req.GetNewOwningTeamId(), ""); err != nil {
-		return nil, err
+	if errOwn := b.validateOwnership(ctx, req.GetNewOwningTeamId(), ""); errOwn != nil {
+		return nil, errOwn
 	}
 
 	previousTeamID := client.OwningTeamID
 	client.OwningTeamID = req.GetNewOwningTeamId()
 
-	if err := b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); err != nil {
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.ClientSaveEvent, client); errEmit != nil {
+		return nil, errEmit
 	}
 	b.recordResponsibilityHistory(
 		ctx,

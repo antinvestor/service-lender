@@ -140,8 +140,9 @@ func (s *Server) handleGetCreditProfile(w http.ResponseWriter, r *http.Request) 
 	// Expect /api/v1/seed/credit-profiles/{client_id}/{currency}
 	const prefix = "/api/v1/seed/credit-profiles/"
 	path := strings.TrimPrefix(r.URL.Path, prefix)
-	parts := strings.SplitN(path, "/", 2)
-	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+	const expectedPathParts = 2
+	parts := strings.SplitN(path, "/", expectedPathParts)
+	if len(parts) != expectedPathParts || parts[0] == "" || parts[1] == "" {
 		writeError(w, http.StatusBadRequest, "path must be /{client_id}/{currency}", nil)
 		return
 	}

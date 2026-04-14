@@ -60,7 +60,7 @@ func NewDisbursementBusiness(
 	}
 }
 
-func (b *disbursementBusiness) Create(
+func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursement pipeline
 	ctx context.Context,
 	req *loansv1.DisbursementCreateRequest,
 ) (*loansv1.DisbursementObject, error) {

@@ -166,17 +166,17 @@ func (b *loanRequestBusiness) Approve(ctx context.Context, id string) (*loansv1.
 	// Verification gate: if the product has required forms, the caller must
 	// confirm that all required data has been verified by setting the
 	// "data_verification_confirmed" property to true on the loan request.
-	if err := b.enforceProductRequirements(ctx, logger, lr); err != nil {
-		return nil, err
+	if errReq := b.enforceProductRequirements(ctx, logger, lr); errReq != nil {
+		return nil, errReq
 	}
 
 	now := time.Now()
 	lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_APPROVED)
 	lr.DecidedAt = &now
 
-	if err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); err != nil {
-		logger.WithError(err).Error("could not emit loan request approve event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); errEmit != nil {
+		logger.WithError(errEmit).Error("could not emit loan request approve event")
+		return nil, errEmit
 	}
 
 	return lr.ToAPI(), nil
@@ -203,9 +203,9 @@ func (b *loanRequestBusiness) Reject(
 	lr.RejectionReason = reason
 	lr.DecidedAt = &now
 
-	if err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); err != nil {
-		logger.WithError(err).Error("could not emit loan request reject event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); errEmit != nil {
+		logger.WithError(errEmit).Error("could not emit loan request reject event")
+		return nil, errEmit
 	}
 
 	return lr.ToAPI(), nil
@@ -230,9 +230,9 @@ func (b *loanRequestBusiness) Cancel(
 	lr.Status = int32(loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_CANCELLED)
 	lr.RejectionReason = reason
 
-	if err := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); err != nil {
-		logger.WithError(err).Error("could not emit loan request cancel event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.LoanRequestSaveEvent, lr); errEmit != nil {
+		logger.WithError(errEmit).Error("could not emit loan request cancel event")
+		return nil, errEmit
 	}
 
 	return lr.ToAPI(), nil
@@ -288,7 +288,7 @@ func (b *loanRequestBusiness) enforceProductRequirements(
 }
 
 func isTerminalLoanRequestStatus(status int32) bool {
-	switch loansv1.LoanRequestStatus(status) {
+	switch loansv1.LoanRequestStatus(status) { //nolint:exhaustive // only terminal states matter
 	case loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_LOAN_CREATED,
 		loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_CANCELLED,
 		loansv1.LoanRequestStatus_LOAN_REQUEST_STATUS_REJECTED,

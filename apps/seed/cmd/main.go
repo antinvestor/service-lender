@@ -73,14 +73,15 @@ func main() {
 
 	if cfg.DoDatabaseMigrate() {
 		if migErr := repository.Migrate(ctx, dbManager, cfg.GetDatabaseMigrationPath()); migErr != nil {
-			log.WithError(migErr).Fatal("main -- could not migrate successfully")
+			log.WithError(migErr).Error("main -- could not migrate successfully")
 		}
 		return
 	}
 
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
-		log.Fatal("main -- database pool is nil; check DATABASE_PRIMARY_URL")
+		log.Error("main -- database pool is nil; check DATABASE_PRIMARY_URL")
+		return
 	}
 
 	// Repositories.

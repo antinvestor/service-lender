@@ -2,13 +2,11 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/pitabwire/frame/datastore"
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/workerpool"
-	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/savings/service/models"
 )
@@ -53,9 +51,6 @@ func (r *interestAccrualRepository) GetByAccountAndPeriod(
 		Where("savings_account_id = ? AND period_end = ?", savingsAccountID, periodEnd).
 		First(entity).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	return entity, nil

@@ -13,4 +13,8 @@ var (
 	ErrInsufficientBalance     = apperrors.NewError(apperrors.Unprocessable, "insufficient balance for withdrawal")
 	ErrInvalidStatusTransition = apperrors.NewError(apperrors.Unprocessable, "invalid status transition")
 	ErrDuplicateIdempotencyKey = apperrors.NewError(apperrors.Conflict, "duplicate idempotency key")
+	ErrAccountNotActive        = apperrors.NewError(apperrors.Unprocessable, "savings account is not active")
+	ErrProductRateZero         = apperrors.NewError(apperrors.Unprocessable, "product interest rate is zero")
+	ErrBalanceZero             = apperrors.NewError(apperrors.Unprocessable, "savings account balance is zero")
+	ErrAccrualAmountZero       = apperrors.NewError(apperrors.Unprocessable, "computed accrual amount is zero")
 )

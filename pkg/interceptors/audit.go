@@ -243,7 +243,7 @@ func responseIsNil(resp connect.AnyResponse) bool {
 	}
 
 	val := reflect.ValueOf(resp)
-	switch val.Kind() {
+	switch val.Kind() { //nolint:exhaustive // only nilable kinds need checking
 	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		return val.IsNil()
 	default:

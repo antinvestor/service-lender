@@ -136,5 +136,9 @@ var (
 		apperrors.BadRequest,
 		"form submission is missing required fields defined in the template",
 	)
+	ErrFormSubmissionInlineFileData = apperrors.NewError(
+		apperrors.BadRequest,
+		"file fields must contain content URIs from the files service, not inline base64 or data URI data; upload files directly to the files service first",
+	)
 	ErrClientRelationshipNotFound = apperrors.NewError(apperrors.NotFound, "client relationship not found")
 )

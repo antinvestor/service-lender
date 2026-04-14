@@ -342,7 +342,6 @@ func (b *branchBusiness) Get(ctx context.Context, id string) (*identityv1.Branch
 	return branch.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *branchBusiness) Search(
 	ctx context.Context,
 	req *identityv1.BranchSearchRequest,

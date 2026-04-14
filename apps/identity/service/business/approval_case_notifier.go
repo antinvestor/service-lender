@@ -161,17 +161,9 @@ func (n *ApprovalCaseNotifier) caseProfileRecipients(
 	var scopes []approvalScope
 	switch approvalCase.SubjectType {
 	case approvalCaseSubjectBranch:
-		resolvedScopes, err := n.orgUnitCaseScopes(ctx, approvalCase)
-		if err != nil {
-			return nil, err
-		}
-		scopes = resolvedScopes
+		scopes = n.orgUnitCaseScopes(ctx, approvalCase)
 	case approvalCaseSubjectClient:
-		resolvedScopes, err := n.clientCaseScopes(ctx, approvalCase.SubjectID)
-		if err != nil {
-			return nil, err
-		}
-		scopes = resolvedScopes
+		scopes = n.clientCaseScopes(ctx, approvalCase.SubjectID)
 	default:
 		scopes = []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}
 	}
@@ -182,14 +174,15 @@ func (n *ApprovalCaseNotifier) caseProfileRecipients(
 func (n *ApprovalCaseNotifier) orgUnitCaseScopes(
 	ctx context.Context,
 	approvalCase *models.ApprovalCase,
-) ([]approvalScope, error) {
+) []approvalScope {
 	if n.orgUnitRepo == nil {
-		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}
 	}
 
 	orgUnit, err := n.orgUnitRepo.GetByID(ctx, approvalCase.SubjectID)
 	if err != nil {
-		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
+		// Cannot resolve org unit; fall back to global scope.
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}
 	}
 
 	scopes := []approvalScope{
@@ -202,20 +195,24 @@ func (n *ApprovalCaseNotifier) orgUnitCaseScopes(
 		})
 	}
 	scopes = append(scopes, approvalScope{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL})
-	return scopes, nil
+	return scopes
 }
 
-func (n *ApprovalCaseNotifier) clientCaseScopes(ctx context.Context, clientID string) ([]approvalScope, error) {
+const maxClientCaseScopes = 4
+
+//nolint:nestif // scope resolution inherently requires nested team lookups
+func (n *ApprovalCaseNotifier) clientCaseScopes(ctx context.Context, clientID string) []approvalScope {
 	if n.clientRepo == nil {
-		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}
 	}
 
 	client, err := n.clientRepo.GetByID(ctx, clientID)
 	if err != nil {
-		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}, nil
+		// Cannot resolve client; fall back to global scope.
+		return []approvalScope{{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL}}
 	}
 
-	scopes := make([]approvalScope, 0, 4)
+	scopes := make([]approvalScope, 0, maxClientCaseScopes)
 	if client.OwningTeamID != "" {
 		scopes = append(scopes, approvalScope{
 			scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_TEAM,
@@ -240,7 +237,7 @@ func (n *ApprovalCaseNotifier) clientCaseScopes(ctx context.Context, clientID st
 		}
 	}
 	scopes = append(scopes, approvalScope{scopeType: identityv1.AccessScopeType_ACCESS_SCOPE_TYPE_GLOBAL})
-	return scopes, nil
+	return scopes
 }
 
 func (n *ApprovalCaseNotifier) profileIDsForRoleAcrossScopes(

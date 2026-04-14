@@ -18,7 +18,11 @@ type formTemplateRepository struct {
 	datastore.BaseRepository[*models.FormTemplate]
 }
 
-func NewFormTemplateRepository(ctx context.Context, dbPool pool.Pool, workMan workerpool.Manager) FormTemplateRepository {
+func NewFormTemplateRepository(
+	ctx context.Context,
+	dbPool pool.Pool,
+	workMan workerpool.Manager,
+) FormTemplateRepository {
 	return &formTemplateRepository{
 		BaseRepository: datastore.NewBaseRepository[*models.FormTemplate](
 			ctx, dbPool, workMan, func() *models.FormTemplate { return &models.FormTemplate{} },

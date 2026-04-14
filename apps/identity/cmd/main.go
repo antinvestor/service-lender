@@ -105,7 +105,7 @@ func main() {
 	}
 }
 
-func setupServiceOptions(
+func setupServiceOptions( //nolint:funlen // sequential service wiring
 	ctx context.Context,
 	sm security.Manager,
 	evtsMan fevents.Manager,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	bufcommonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
@@ -90,11 +89,11 @@ func (s *IdentityServer) OrganizationSearch(
 	req *connect.Request[commonv1.SearchRequest],
 	stream *connect.ServerStream[identityv1.OrganizationSearchResponse],
 ) error {
-	searchReq := &bufcommonv1.SearchRequest{
+	searchReq := &commonv1.SearchRequest{
 		Query: req.Msg.GetQuery(),
 	}
 	if cursor := req.Msg.GetCursor(); cursor != nil {
-		searchReq.Cursor = &bufcommonv1.PageCursor{
+		searchReq.Cursor = &commonv1.PageCursor{
 			Page:  cursor.GetPage(),
 			Limit: cursor.GetLimit(),
 		}
@@ -761,7 +760,7 @@ func (s *IdentityServer) FormTemplateSearch(
 	return s.formTemplateBusiness.Search(
 		ctx,
 		req.Msg,
-		func(ctx context.Context, batch []*identityv1.FormTemplateObject) error {
+		func(_ context.Context, batch []*identityv1.FormTemplateObject) error {
 			return stream.Send(&identityv1.FormTemplateSearchResponse{Data: batch})
 		},
 	)
@@ -810,7 +809,7 @@ func (s *IdentityServer) FormSubmissionSearch(
 	return s.formSubmissionBusiness.Search(
 		ctx,
 		req.Msg,
-		func(ctx context.Context, batch []*identityv1.FormSubmissionObject) error {
+		func(_ context.Context, batch []*identityv1.FormSubmissionObject) error {
 			return stream.Send(&identityv1.FormSubmissionSearchResponse{Data: batch})
 		},
 	)

@@ -91,10 +91,12 @@ func main() {
 	// silently drop postings against a partially-wired deployment.
 	platformClients, pcErr := clients.NewPlatformClients(ctx, &cfg, cfg.ServiceEndpoints())
 	if pcErr != nil {
-		log.WithError(pcErr).Fatal("main -- could not initialise platform clients")
+		log.WithError(pcErr).Error("main -- could not initialise platform clients")
+		return
 	}
 	if platformClients == nil || platformClients.LedgerClient == nil {
-		log.Fatal("main -- ledger client is required but was not configured")
+		log.Error("main -- ledger client is required but was not configured")
+		return
 	}
 
 	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, identityCli, platformClients)

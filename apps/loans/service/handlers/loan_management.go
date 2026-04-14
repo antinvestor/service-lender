@@ -91,7 +91,7 @@ func (s *LoanManagementServer) LoanProductSearch(
 	req *connect.Request[loansv1.LoanProductSearchRequest],
 	stream *connect.ServerStream[loansv1.LoanProductSearchResponse],
 ) error {
-	return s.lpBusiness.Search(ctx, req.Msg, func(ctx context.Context, batch []*loansv1.LoanProductObject) error {
+	return s.lpBusiness.Search(ctx, req.Msg, func(_ context.Context, batch []*loansv1.LoanProductObject) error {
 		return stream.Send(&loansv1.LoanProductSearchResponse{Data: batch})
 	})
 }
@@ -125,7 +125,7 @@ func (s *LoanManagementServer) LoanRequestSearch(
 	req *connect.Request[loansv1.LoanRequestSearchRequest],
 	stream *connect.ServerStream[loansv1.LoanRequestSearchResponse],
 ) error {
-	return s.lrBusiness.Search(ctx, req.Msg, func(ctx context.Context, batch []*loansv1.LoanRequestObject) error {
+	return s.lrBusiness.Search(ctx, req.Msg, func(_ context.Context, batch []*loansv1.LoanRequestObject) error {
 		return stream.Send(&loansv1.LoanRequestSearchResponse{Data: batch})
 	})
 }

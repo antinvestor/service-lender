@@ -28,6 +28,9 @@ import (
 // between minor-unit int64 (our internal representation) and the Money proto.
 const reconciliationMoneyDecimals = 2
 
+// ErrBalancesMatch indicates that a reconciliation check found no discrepancy.
+var ErrBalancesMatch = errors.New("balances match")
+
 // Discrepancy represents a balance mismatch between what the local transfer
 // order ledger says an account should hold and what the external Ledger
 // service reports.
@@ -170,7 +173,7 @@ func (r *Reconciler) ReconcileAccount(
 	}
 
 	if actual == expected {
-		return nil, nil
+		return nil, ErrBalancesMatch
 	}
 
 	return &Discrepancy{
@@ -248,6 +251,10 @@ func (r *Reconciler) reconcileAccountInto(
 
 	disc, err := r.ReconcileAccount(ctx, accountRef)
 	if err != nil {
+		if errors.Is(err, ErrBalancesMatch) {
+			result.MatchedAccounts++
+			return
+		}
 		result.Errors = append(result.Errors,
 			fmt.Sprintf("account %s: %v", accountRef, err))
 		return

@@ -169,7 +169,7 @@ func (s *migrateSuite) assertSearchMatches(ctx context.Context, dbPool pool.Pool
 		query,
 	).Scan(&count).Error
 	s.Require().NoError(err)
-	s.Greater(count, int64(0), "expected search match in %s for query %q", table, query)
+	s.Positive(count, "expected search match in %s for query %q", table, query)
 }
 
 func (s *migrateSuite) databaseResource(ctx context.Context) definition.DependancyConn {

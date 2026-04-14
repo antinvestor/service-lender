@@ -17,7 +17,10 @@ type FormSubmissionSave struct {
 	formSubmissionRepo repository.FormSubmissionRepository
 }
 
-func NewFormSubmissionSave(_ context.Context, formSubmissionRepo repository.FormSubmissionRepository) *FormSubmissionSave {
+func NewFormSubmissionSave(
+	_ context.Context,
+	formSubmissionRepo repository.FormSubmissionRepository,
+) *FormSubmissionSave {
 	return &FormSubmissionSave{formSubmissionRepo: formSubmissionRepo}
 }
 

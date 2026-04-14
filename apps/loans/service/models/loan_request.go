@@ -182,13 +182,13 @@ func RequiredFormsToAPI(jm data.JSONMap) []*loansv1.ProductFormRequirement {
 		return nil
 	}
 
-	b, err := json.Marshal(raw)
+	rawBytes, err := json.Marshal(raw)
 	if err != nil {
 		return nil
 	}
 
 	var reqs []ProductFormRequirement
-	if err := json.Unmarshal(b, &reqs); err != nil {
+	if errUnmarshal := json.Unmarshal(rawBytes, &reqs); errUnmarshal != nil {
 		return nil
 	}
 

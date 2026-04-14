@@ -11,6 +11,9 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 )
 
+// scheduleEntryStatusPaid corresponds to ScheduleEntryStatus_SCHEDULE_ENTRY_STATUS_PAID.
+const scheduleEntryStatusPaid = 3
+
 type ScheduleEntryRepository interface {
 	datastore.BaseRepository[*models.ScheduleEntry]
 	GetByScheduleID(ctx context.Context, scheduleID string) ([]*models.ScheduleEntry, error)
@@ -57,7 +60,7 @@ func (repo *scheduleEntryRepository) GetOverdueEntries(
 	var entries []*models.ScheduleEntry
 	err := repo.Pool().DB(ctx, true).
 		Where("loan_account_id = ? AND due_date < ? AND status != ? AND outstanding > 0",
-			loanAccountID, asOf, int32(3)). // 3 = PAID status
+			loanAccountID, asOf, int32(scheduleEntryStatusPaid)).
 		Order("due_date ASC").
 		Find(&entries).Error
 	if err != nil {

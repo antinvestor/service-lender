@@ -193,7 +193,7 @@ func NewLoanRequestBusiness(
 // intermediate state with an informative status and reason, and
 // returns the error to the caller so retries can resume from the
 // last-good point.
-func (b *loanRequestBusiness) RequestLoan(
+func (b *loanRequestBusiness) RequestLoan( //nolint:gocognit,funlen // multi-step loan origination pipeline
 	ctx context.Context,
 	req RequestLoanInput,
 ) (*models.LoanRequest, error) {
@@ -484,7 +484,7 @@ func (b *loanRequestBusiness) ensureClientSuspense(
 	logger *util.LogEntry,
 	clientID, currencyCode string,
 	lr *models.LoanRequest,
-) error {
+) error { //nolint:unparam // error return reserved for future AccountRefEnsure RPC
 	accountName := constants.ClientSuspenseAccount(clientID)
 
 	b.auditWriter.RecordOrLog(ctx, audit.Record{

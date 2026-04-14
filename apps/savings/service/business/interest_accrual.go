@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"gorm.io/gorm"
+
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
@@ -119,7 +121,7 @@ func (b *interestAccrualBusiness) Get(ctx context.Context, id string) (*savingsv
 //
 // Skips accounts with a zero or negative balance on the accrual base, since
 // there is nothing to compute interest on.
-func (b *interestAccrualBusiness) Accrue(
+func (b *interestAccrualBusiness) Accrue( //nolint:funlen // sequential accrual pipeline
 	ctx context.Context,
 	savingsAccountID string,
 	periodStart, periodEnd time.Time,
@@ -131,9 +133,9 @@ func (b *interestAccrualBusiness) Accrue(
 		return nil, errors.New("period end must be after period start")
 	}
 
-	existing, err := b.iaRepo.GetByAccountAndPeriod(ctx, savingsAccountID, periodEnd)
-	if err != nil {
-		return nil, fmt.Errorf("lookup accrual: %w", err)
+	existing, lookupErr := b.iaRepo.GetByAccountAndPeriod(ctx, savingsAccountID, periodEnd)
+	if lookupErr != nil && !errors.Is(lookupErr, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("lookup accrual: %w", lookupErr)
 	}
 	if existing != nil {
 		return existing.ToAPI(), nil
@@ -145,7 +147,7 @@ func (b *interestAccrualBusiness) Accrue(
 	}
 	if savingsv1.SavingsAccountStatus(sa.Status) != savingsv1.SavingsAccountStatus_SAVINGS_ACCOUNT_STATUS_ACTIVE {
 		logger.Info("skipping accrual on non-active savings account")
-		return nil, nil
+		return nil, ErrAccountNotActive
 	}
 	if sa.LedgerAccountID == "" || sa.ProductID == "" {
 		return nil, fmt.Errorf("savings account %s is missing product or ledger account", savingsAccountID)
@@ -158,7 +160,7 @@ func (b *interestAccrualBusiness) Accrue(
 	if product.InterestRate <= 0 {
 		logger.WithField("product_id", sa.ProductID).
 			Info("skipping accrual: product interest rate is zero")
-		return nil, nil
+		return nil, ErrProductRateZero
 	}
 
 	balance, err := b.sbRepo.GetBySavingsAccountID(ctx, savingsAccountID)
@@ -167,10 +169,11 @@ func (b *interestAccrualBusiness) Accrue(
 	}
 	if balance.Balance <= 0 {
 		logger.Info("skipping accrual: zero balance")
-		return nil, nil
+		return nil, ErrBalanceZero
 	}
 
-	days := int64(periodEnd.Sub(periodStart).Hours() / 24)
+	const hoursPerDay = 24
+	days := int64(periodEnd.Sub(periodStart).Hours() / hoursPerDay)
 	if days <= 0 {
 		days = 1
 	}
@@ -186,7 +189,7 @@ func (b *interestAccrualBusiness) Accrue(
 	}
 	if accrued <= 0 {
 		logger.Info("skipping accrual: computed amount is zero")
-		return nil, nil
+		return nil, ErrAccrualAmountZero
 	}
 
 	ia := &models.InterestAccrual{

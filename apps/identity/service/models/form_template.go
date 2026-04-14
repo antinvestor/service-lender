@@ -148,51 +148,52 @@ func FormSubmissionFromAPI(ctx context.Context, obj *identityv1.FormSubmissionOb
 // Field conversion helpers
 // ---------------------------------------------------------------------------
 
+//nolint:gocognit // sequential field extraction from generic map
 func FieldsToAPI(jm data.JSONMap) []*identityv1.FormFieldDefinition {
 	if jm == nil {
 		return nil
 	}
-	raw, ok := jm["items"]
-	if !ok {
+	raw, okRaw := jm["items"]
+	if !okRaw {
 		return nil
 	}
-	items, ok := raw.([]any)
-	if !ok {
+	items, okItems := raw.([]any)
+	if !okItems {
 		return nil
 	}
 
 	var result []*identityv1.FormFieldDefinition
 	for _, item := range items {
-		m, ok := item.(map[string]any)
-		if !ok {
+		m, okMap := item.(map[string]any)
+		if !okMap {
 			continue
 		}
 		fd := &identityv1.FormFieldDefinition{}
-		if v, ok := m["key"].(string); ok {
+		if v, okField := m["key"].(string); okField {
 			fd.Key = v
 		}
-		if v, ok := m["label"].(string); ok {
+		if v, okField := m["label"].(string); okField {
 			fd.Label = v
 		}
-		if v, ok := m["field_type"].(float64); ok {
+		if v, okField := m["field_type"].(float64); okField {
 			fd.FieldType = identityv1.FormFieldType(int32(v))
 		}
-		if v, ok := m["group"].(float64); ok {
+		if v, okField := m["group"].(float64); okField {
 			fd.Group = identityv1.FormFieldGroup(int32(v))
 		}
-		if v, ok := m["required"].(bool); ok {
+		if v, okField := m["required"].(bool); okField {
 			fd.Required = v
 		}
-		if v, ok := m["description"].(string); ok {
+		if v, okField := m["description"].(string); okField {
 			fd.Description = v
 		}
-		if v, ok := m["section"].(string); ok {
+		if v, okField := m["section"].(string); okField {
 			fd.Section = v
 		}
-		if v, ok := m["order"].(float64); ok {
+		if v, okField := m["order"].(float64); okField {
 			fd.Order = int32(v)
 		}
-		if v, ok := m["encrypted"].(bool); ok {
+		if v, okField := m["encrypted"].(bool); okField {
 			fd.Encrypted = v
 		}
 		result = append(result, fd)
@@ -225,17 +226,17 @@ func sectionsToAPI(jm data.JSONMap) []string {
 	if jm == nil {
 		return nil
 	}
-	raw, ok := jm["items"]
-	if !ok {
+	raw, okRaw := jm["items"]
+	if !okRaw {
 		return nil
 	}
-	items, ok := raw.([]any)
-	if !ok {
+	items, okItems := raw.([]any)
+	if !okItems {
 		return nil
 	}
 	var result []string
 	for _, item := range items {
-		if s, ok := item.(string); ok {
+		if s, okStr := item.(string); okStr {
 			result = append(result, s)
 		}
 	}

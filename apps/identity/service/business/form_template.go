@@ -142,9 +142,9 @@ func (b *formTemplateBusiness) Publish(ctx context.Context, id string) (*identit
 	ft.Status = int32(identityv1.FormTemplateStatus_FORM_TEMPLATE_STATUS_PUBLISHED)
 	ft.Version++
 
-	if err := b.eventsMan.Emit(ctx, events.FormTemplateSaveEvent, ft); err != nil {
-		logger.WithError(err).Error("could not emit form template publish event")
-		return nil, err
+	if errEmit := b.eventsMan.Emit(ctx, events.FormTemplateSaveEvent, ft); errEmit != nil {
+		logger.WithError(errEmit).Error("could not emit form template publish event")
+		return nil, errEmit
 	}
 
 	return ft.ToAPI(), nil

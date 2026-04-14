@@ -143,6 +143,7 @@ func (b *approvalCaseBusiness) Submit(
 	return approvalCase, nil
 }
 
+//nolint:dupl // similar transition logic for different approval states
 func (b *approvalCaseBusiness) Verify(
 	ctx context.Context,
 	caseID, actorID, comment string,
@@ -177,6 +178,7 @@ func (b *approvalCaseBusiness) Verify(
 	return approvalCase, nil
 }
 
+//nolint:dupl // similar transition logic for different approval states
 func (b *approvalCaseBusiness) Approve(
 	ctx context.Context,
 	caseID, actorID, comment string,

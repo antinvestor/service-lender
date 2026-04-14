@@ -86,7 +86,7 @@ func NewRepaymentBusiness(
 	}
 }
 
-func (b *repaymentBusiness) Record(
+func (b *repaymentBusiness) Record( //nolint:funlen // sequential repayment pipeline
 	ctx context.Context,
 	req *loansv1.RepaymentRecordRequest,
 ) (*loansv1.RepaymentObject, error) {
@@ -251,7 +251,7 @@ func (b *repaymentBusiness) applyRepaymentToBalance(
 		)
 	}
 
-	if fresh.TotalOutstanding <= 0 {
+	if fresh.TotalOutstanding <= 0 { //nolint:nestif // paid-off transition involves multiple side effects
 		la.Status = int32(loansv1.LoanStatus_LOAN_STATUS_PAID_OFF)
 		if emitErr := b.eventsMan.Emit(ctx, events.LoanAccountSaveEvent, la); emitErr != nil {
 			logger.WithError(emitErr).Error("could not transition loan to PAID_OFF")

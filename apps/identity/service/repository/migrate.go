@@ -51,7 +51,12 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 
 // preMigrate handles structural changes that must happen before GORM AutoMigrate.
 // Currently renames the 'banks' table to 'organizations' and updates foreign key columns.
-func preMigrate(ctx context.Context, dbPool pool.Pool) error {
+//
+//nolint:gocognit // migration steps are inherently sequential
+func preMigrate(
+	ctx context.Context,
+	dbPool pool.Pool,
+) error {
 	db := dbPool.DB(ctx, false)
 	if db == nil {
 		return nil
@@ -127,7 +132,7 @@ type searchableSpec struct {
 	Terms []searchableTerm
 }
 
-func postMigrate(ctx context.Context, dbPool pool.Pool) error {
+func postMigrate(ctx context.Context, dbPool pool.Pool) error { //nolint:funlen // sequential post-migration setup
 	db := dbPool.DB(ctx, false)
 	if db == nil {
 		return nil

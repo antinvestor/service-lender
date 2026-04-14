@@ -163,7 +163,8 @@ func (b *orgUnitBusiness) validateParent(ctx context.Context, orgUnit *models.Br
 			visited[current.GetID()] = true
 			ancestor, aErr := b.orgUnitRepo.GetByID(ctx, current.ParentID)
 			if aErr != nil {
-				break
+				// Cannot resolve further ancestors; stop walking the chain.
+				return nil //nolint:nilerr // partial chain walk is not an error
 			}
 			current = ancestor
 		}
