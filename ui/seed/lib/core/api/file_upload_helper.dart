@@ -11,9 +11,13 @@ import 'files_provider.dart';
 Future<String> uploadPublicImage(
   WidgetRef ref,
   Uint8List bytes,
-  String filename,
-) async {
+  String filename, {
+  String? accessorId,
+}) async {
   final client = ref.read(filesServiceClientProvider);
+
+  // Use provided accessorId or default to '*' (public access).
+  final accessors = [accessorId ?? '*'];
 
   // Build the upload stream: first metadata, then chunks.
   final requests = <UploadContentRequest>[
@@ -23,6 +27,7 @@ Future<String> uploadPublicImage(
         filename: filename,
         totalSize: Int64(bytes.length),
         visibility: MediaMetadata_Visibility.VISIBILITY_PUBLIC,
+        accessorId: accessors,
       ),
     ),
     // Send bytes in chunks of 64 KB.
