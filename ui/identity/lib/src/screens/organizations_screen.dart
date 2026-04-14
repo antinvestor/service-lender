@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
 import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:antinvestor_ui_core/widgets/admin_entity_list_page.dart';
 import 'package:antinvestor_ui_core/widgets/error_helpers.dart';
 import 'package:antinvestor_ui_core/widgets/form_field_card.dart';
@@ -355,6 +358,7 @@ class OrganizationFormData {
     this.phones = const [],
     this.parentOrganizationId,
     this.logoContentUri,
+    this.logoBytes,
     this.geoId = '',
     this.geoDescription = '',
   });
@@ -370,8 +374,11 @@ class OrganizationFormData {
   final String? parentOrganizationId;
 
   /// Content URI from the files service after logo upload.
-  /// Stored in organization properties for the backend to create the profile.
   final String? logoContentUri;
+
+  /// Raw image bytes picked locally. The host app's onSave callback
+  /// can upload these to the files service and set logoContentUri.
+  final Uint8List? logoBytes;
 
   /// The coverage area identifier (e.g. "global", "continent:africa",
   /// "country:kenya", "region:kenya:rift_valley", "city:kenya:nairobi").
@@ -443,6 +450,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   late final TextEditingController _descriptionCtrl;
   String? _logoFileName;
   String? _logoContentUri;
+  Uint8List? _logoBytes;
   late final TextEditingController _emailCtrl;
   late final TextEditingController _phoneCtrl;
   final List<String> _emails = [];
@@ -581,32 +589,47 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
   Future<void> _pickLogo() async {
     setState(() => _isPickingLogo = true);
+    try {
+      // Pick image using image_picker (works on web + mobile).
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+      if (image == null || !mounted) {
+        if (mounted) setState(() => _isPickingLogo = false);
+        return;
+      }
 
-    // If host app provides a custom picker+upload, use it.
-    if (widget.onPickLogo != null) {
-      try {
+      final bytes = await image.readAsBytes();
+
+      // If host app provides an upload callback, upload and get URL.
+      if (widget.onPickLogo != null) {
         final result = await widget.onPickLogo!();
         if (mounted) {
           setState(() {
             _logoFileName = result.fileName;
             _logoContentUri = result.contentUri;
+            _logoBytes = bytes;
             _isPickingLogo = false;
           });
         }
-      } catch (_) {
-        if (mounted) setState(() => _isPickingLogo = false);
+        return;
       }
-      return;
-    }
 
-    // No upload callback available — inform the user.
-    if (mounted) {
-      setState(() => _isPickingLogo = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Logo upload requires the files service to be configured.'),
-        ),
-      );
+      // No upload callback — store bytes locally. The onSave callback
+      // receives logoBytes and can upload during save.
+      if (mounted) {
+        setState(() {
+          _logoFileName = image.name;
+          _logoBytes = bytes;
+          _isPickingLogo = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isPickingLogo = false);
     }
   }
 
@@ -705,6 +728,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
                 ? _parentOrgId
                 : null,
         logoContentUri: _logoContentUri,
+        logoBytes: _logoBytes,
         geoId: _buildGeoId(),
         geoDescription: _buildGeoDescription(),
       );
@@ -818,11 +842,13 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
             child: _LogoBadge(
               fileName: _logoFileName,
               logoUrl: _logoContentUri,
+              logoBytes: _logoBytes,
               isLoading: _isPickingLogo,
               onTap: _isPickingLogo ? null : () => _pickLogo(),
               onRemove: () => setState(() {
                 _logoFileName = null;
                 _logoContentUri = null;
+                _logoBytes = null;
               }),
             ),
           ),
@@ -1268,7 +1294,8 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
           onPressed: _isPickingLogo ||
                   (!_isEditing &&
                       _currentStep == 0 &&
-                      _logoContentUri == null)
+                      _logoContentUri == null &&
+                      _logoBytes == null)
               ? null
               : _next,
           icon: const Icon(Icons.arrow_forward, size: 18),
@@ -1423,15 +1450,15 @@ class _LogoBadge extends StatelessWidget {
   const _LogoBadge({
     this.fileName,
     this.logoUrl,
+    this.logoBytes,
     this.isLoading = false,
     required this.onTap,
     this.onRemove,
   });
 
   final String? fileName;
-
-  /// Network URL (contentUri) of the uploaded logo.
   final String? logoUrl;
+  final Uint8List? logoBytes;
   final bool isLoading;
   final VoidCallback? onTap;
   final VoidCallback? onRemove;
@@ -1439,7 +1466,7 @@ class _LogoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hasLogo = logoUrl != null && logoUrl!.isNotEmpty;
+    final hasLogo = (logoUrl != null && logoUrl!.isNotEmpty) || logoBytes != null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1454,8 +1481,11 @@ class _LogoBadge extends StatelessWidget {
                 backgroundColor: hasLogo
                     ? theme.colorScheme.primaryContainer
                     : theme.colorScheme.surfaceContainerHighest,
-                backgroundImage:
-                    hasLogo ? NetworkImage(logoUrl!) : null,
+                backgroundImage: logoUrl != null && logoUrl!.isNotEmpty
+                    ? NetworkImage(logoUrl!)
+                    : logoBytes != null
+                        ? MemoryImage(logoBytes!)
+                        : null,
                 child: isLoading || hasLogo
                     ? null
                     : Icon(
