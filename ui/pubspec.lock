@@ -33,6 +33,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.52.0"
+  antinvestor_api_field:
+    dependency: transitive
+    description:
+      name: antinvestor_api_field
+      sha256: d1757f3e0d7c42ca4c7deac014e79d99ad4f2819ec2e1fb6ca768ffdc2ffb3c6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  antinvestor_api_funding:
+    dependency: transitive
+    description:
+      name: antinvestor_api_funding
+      sha256: "8251a8f84e05fa9a97643459fe979f48b21c309e8b5b7bb5847b7c599e128ac3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   antinvestor_api_geolocation:
     dependency: "direct main"
     description:
@@ -41,6 +57,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
+  antinvestor_api_identity:
+    dependency: transitive
+    description:
+      name: antinvestor_api_identity
+      sha256: f3cdd7f1edc3dcda4b262113f91251e47fb0818a229eddde1300e97fc5ec4cc3
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  antinvestor_api_loans:
+    dependency: transitive
+    description:
+      name: antinvestor_api_loans
+      sha256: d5eaf4f45588269a94dbdf117d459f3d5fb0b8872c29079a1ad902fc0b4a871c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   antinvestor_api_notification:
     dependency: "direct main"
     description:
@@ -49,6 +81,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.53.0"
+  antinvestor_api_operations:
+    dependency: transitive
+    description:
+      name: antinvestor_api_operations
+      sha256: "07fcd3c43ebc1191e2ed314e2b93587b432532b209664f62500994982ad3bf02"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   antinvestor_api_profile:
     dependency: "direct main"
     description:
@@ -57,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.53.0"
+  antinvestor_api_savings:
+    dependency: transitive
+    description:
+      name: antinvestor_api_savings
+      sha256: cdd568712f10a24676a259276dccaee382590448ce423ca53fcc055ff9492bf9
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   antinvestor_api_tenancy:
     dependency: "direct main"
     description:
@@ -65,6 +113,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.54.0"
+  antinvestor_ui_core:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_core
+      sha256: "7b8a0cdc83cfef3781e4c9f77a4ae7fb238267ed0f2cb40a8d3a2b43d1a6c5a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  antinvestor_ui_funding:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_funding
+      sha256: "99cdf334954694c2fafbb48988a6d764a6bc8ce05f9526b4fc62c1d8378c8314"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  antinvestor_ui_identity:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_identity
+      sha256: "120760e4f57c660f268dd566a84a707aa00f7a9ae0dc7f9fc37b1e53864575db"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  antinvestor_ui_loans:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_loans
+      sha256: "99f41c87cfdd5bb85ec05843d4c38b84184ce8c638a7227f9a3dd6d9b00f5314"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  antinvestor_ui_operations:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_operations
+      sha256: "4891fe6f264a43f91ee8a39993742b1b957aef240750e75c764d0dd938c4dea7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  antinvestor_ui_savings:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_savings
+      sha256: d059b0551aab0a482e98f729d6626cff6e82a48182479ef1b0968091fb2f15cb
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   app_links:
     dependency: "direct main"
     description:
@@ -313,6 +409,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0+2"
+  csv:
+    dependency: transitive
+    description:
+      name: csv
+      sha256: "2e0a52fb729f2faacd19c9c0c954ff450bba37aa8ab999410309e2342e7013a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.0.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -596,10 +700,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "48fb2f42ad057476fa4b733cb95e9f9ea7b0b010bb349ea491dca7dbdb18ffc4"
+      sha256: "5540e4a3f416dd4a93458257b908eb88353cbd0fb5b0a3d1bd7d849ba1e88735"
       url: "https://pub.dev"
     source: hosted
-    version: "17.2.0"
+    version: "17.2.1"
   google_fonts:
     dependency: "direct main"
     description:

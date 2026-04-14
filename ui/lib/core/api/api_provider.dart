@@ -22,62 +22,8 @@ import 'package:antinvestor_api_tenancy/antinvestor_api_tenancy.dart'
     show TenancyServiceClient;
 import 'http_client_native.dart'
     if (dart.library.js_interop) 'http_client_web.dart';
+import '../config/app_config.dart';
 part 'api_provider.g.dart';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Per-service base URLs.
-//
-// Each deployed service gets its own gateway path prefix on
-// api.antinvestor.com, following the same pattern as other Antinvestor
-// products (tenancy, profile, payment, etc.).
-//
-// Override at build time with --dart-define for local development.
-// ─────────────────────────────────────────────────────────────────────────────
-
-const _loansUrl = String.fromEnvironment(
-  'LOANS_URL',
-  defaultValue: 'https://api.antinvestor.com/loans',
-);
-
-const _identityUrl = String.fromEnvironment(
-  'IDENTITY_URL',
-  defaultValue: 'https://api.antinvestor.com/identity',
-);
-
-const _savingsUrl = String.fromEnvironment(
-  'SAVINGS_URL',
-  defaultValue: 'https://api.antinvestor.com/savings',
-);
-
-const _fundingUrl = String.fromEnvironment(
-  'FUNDING_URL',
-  defaultValue: 'https://api.antinvestor.com/funding',
-);
-
-const _operationsUrl = String.fromEnvironment(
-  'OPERATIONS_URL',
-  defaultValue: 'https://api.antinvestor.com/operations',
-);
-
-const _profileUrl = String.fromEnvironment(
-  'PROFILE_URL',
-  defaultValue: 'https://api.stawi.org/profile',
-);
-
-const _notificationUrl = String.fromEnvironment(
-  'NOTIFICATION_URL',
-  defaultValue: 'https://api.stawi.org/notification',
-);
-
-const _tenancyUrl = String.fromEnvironment(
-  'TENANCY_URL',
-  defaultValue: 'https://api.stawi.org/tenancy',
-);
-
-const _geolocationUrl = String.fromEnvironment(
-  'GEOLOCATION_URL',
-  defaultValue: 'https://api.stawi.org/geolocation',
-);
 
 /// Interceptor that injects the Bearer token into every request.
 ///
@@ -204,23 +150,28 @@ Transport _createTransport(Ref ref, String baseUrl) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Riverpod(keepAlive: true)
-Transport loansTransport(Ref ref) => _createTransport(ref, _loansUrl);
+Transport loansTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.loansBaseUrl);
 
 @Riverpod(keepAlive: true)
-Transport identityTransport(Ref ref) => _createTransport(ref, _identityUrl);
+Transport identityTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.identityBaseUrl);
 
 @Riverpod(keepAlive: true)
-Transport savingsTransport(Ref ref) => _createTransport(ref, _savingsUrl);
+Transport savingsTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.savingsBaseUrl);
 
 @Riverpod(keepAlive: true)
-Transport fundingTransport(Ref ref) => _createTransport(ref, _fundingUrl);
+Transport fundingTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.fundingBaseUrl);
 
 @Riverpod(keepAlive: true)
-Transport operationsTransport(Ref ref) => _createTransport(ref, _operationsUrl);
+Transport operationsTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.operationsBaseUrl);
 
 @Riverpod(keepAlive: true)
 Transport geolocationTransport(Ref ref) =>
-    _createTransport(ref, _geolocationUrl);
+    _createTransport(ref, AppConfig.geolocationBaseUrl);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Service clients
@@ -273,11 +224,12 @@ OperationsServiceClient operationsServiceClient(Ref ref) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Riverpod(keepAlive: true)
-Transport profileTransport(Ref ref) => _createTransport(ref, _profileUrl);
+Transport profileTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.profileBaseUrl);
 
 @Riverpod(keepAlive: true)
 Transport notificationTransport(Ref ref) =>
-    _createTransport(ref, _notificationUrl);
+    _createTransport(ref, AppConfig.notificationBaseUrl);
 
 @Riverpod(keepAlive: true)
 ProfileServiceClient profileServiceClient(Ref ref) {
@@ -292,7 +244,8 @@ NotificationServiceClient notificationServiceClient(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Transport tenancyTransport(Ref ref) => _createTransport(ref, _tenancyUrl);
+Transport tenancyTransport(Ref ref) =>
+    _createTransport(ref, AppConfig.tenancyBaseUrl);
 
 @Riverpod(keepAlive: true)
 TenancyServiceClient tenancyServiceClient(Ref ref) {

@@ -8,12 +8,14 @@ part of 'nav_state.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provides the filtered navigation items based on current user roles.
+/// Provides the filtered navigation items based on current user roles
+/// AND granted permissions (batch-checked at startup).
 
 @ProviderFor(filteredNavItems)
 final filteredNavItemsProvider = FilteredNavItemsProvider._();
 
-/// Provides the filtered navigation items based on current user roles.
+/// Provides the filtered navigation items based on current user roles
+/// AND granted permissions (batch-checked at startup).
 
 final class FilteredNavItemsProvider
     extends
@@ -23,7 +25,8 @@ final class FilteredNavItemsProvider
           FutureOr<List<NavItem>>
         >
     with $FutureModifier<List<NavItem>>, $FutureProvider<List<NavItem>> {
-  /// Provides the filtered navigation items based on current user roles.
+  /// Provides the filtered navigation items based on current user roles
+  /// AND granted permissions (batch-checked at startup).
   FilteredNavItemsProvider._()
     : super(
         from: null,
@@ -50,7 +53,7 @@ final class FilteredNavItemsProvider
   }
 }
 
-String _$filteredNavItemsHash() => r'bc6fc2671f9ec88b066995284fe15ce41ffd1ad1';
+String _$filteredNavItemsHash() => r'46624ead32bd92b75016ea81325e62801a045f1e';
 
 @ProviderFor(sidebarExpansion)
 final sidebarExpansionProvider = SidebarExpansionProvider._();

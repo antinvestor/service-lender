@@ -9,7 +9,7 @@ void main() {
       final items = buildNavItems();
       final adminRoles = {LenderRole.admin};
       final filtered = items
-          .map((item) => item.filterByRoles(adminRoles))
+          .map((item) => item.filterByAccess(adminRoles, const {}))
           .whereType<NavItem>()
           .toList();
       final ids = _collectIds(filtered);
@@ -21,7 +21,7 @@ void main() {
       final items = buildNavItems();
       final agentRoles = {LenderRole.fieldWorker};
       final filtered = items
-          .map((item) => item.filterByRoles(agentRoles))
+          .map((item) => item.filterByAccess(agentRoles, const {}))
           .whereType<NavItem>()
           .toList();
       final ids = _collectIds(filtered);
@@ -32,7 +32,7 @@ void main() {
       final items = buildNavItems();
       final noRoles = <LenderRole>{};
       final filtered = items
-          .map((item) => item.filterByRoles(noRoles))
+          .map((item) => item.filterByAccess(noRoles, const {}))
           .whereType<NavItem>()
           .toList();
       final ids = _collectIds(filtered);

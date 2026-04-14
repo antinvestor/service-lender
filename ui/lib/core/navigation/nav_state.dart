@@ -1,3 +1,4 @@
+import 'package:antinvestor_ui_core/permissions/permission_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -6,13 +7,15 @@ import 'nav_items.dart';
 
 part 'nav_state.g.dart';
 
-/// Provides the filtered navigation items based on current user roles.
+/// Provides the filtered navigation items based on current user roles
+/// AND granted permissions (batch-checked at startup).
 @Riverpod(keepAlive: true)
 Future<List<NavItem>> filteredNavItems(Ref ref) async {
   final roles = await ref.watch(currentUserRolesProvider.future);
+  final permissions = await ref.watch(userPermissionsProvider.future);
   final allItems = buildNavItems();
   return allItems
-      .map((item) => item.filterByRoles(roles))
+      .map((item) => item.filterByAccess(roles, permissions))
       .whereType<NavItem>()
       .toList();
 }

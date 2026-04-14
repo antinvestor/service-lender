@@ -4,13 +4,13 @@ import 'package:lender_ui/core/auth/role_provider.dart';
 import 'package:lender_ui/core/navigation/nav_items.dart';
 
 void main() {
-  group('NavItem.filterByRoles', () {
+  group('NavItem.filterByAccess', () {
     test('agent cannot see admin section', () {
       final items = buildNavItems();
       final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
-          .map((item) => item.filterByRoles(agentRoles))
+          .map((item) => item.filterByAccess(agentRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -26,7 +26,7 @@ void main() {
       final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
-          .map((item) => item.filterByRoles(agentRoles))
+          .map((item) => item.filterByAccess(agentRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -40,7 +40,7 @@ void main() {
       final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
-          .map((item) => item.filterByRoles(agentRoles))
+          .map((item) => item.filterByAccess(agentRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -54,7 +54,7 @@ void main() {
       final agentRoles = {LenderRole.fieldWorker};
 
       final filtered = items
-          .map((item) => item.filterByRoles(agentRoles))
+          .map((item) => item.filterByAccess(agentRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -68,7 +68,7 @@ void main() {
       final adminRoles = {LenderRole.admin};
 
       final filtered = items
-          .map((item) => item.filterByRoles(adminRoles))
+          .map((item) => item.filterByAccess(adminRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -88,7 +88,7 @@ void main() {
       final auditorRoles = {LenderRole.auditor};
 
       final filtered = items
-          .map((item) => item.filterByRoles(auditorRoles))
+          .map((item) => item.filterByAccess(auditorRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -106,7 +106,7 @@ void main() {
       final verifierRoles = {LenderRole.verifier};
 
       final filtered = items
-          .map((item) => item.filterByRoles(verifierRoles))
+          .map((item) => item.filterByAccess(verifierRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -119,7 +119,7 @@ void main() {
       final viewerRoles = {LenderRole.viewer};
 
       final filtered = items
-          .map((item) => item.filterByRoles(viewerRoles))
+          .map((item) => item.filterByAccess(viewerRoles, const {}))
           .whereType<NavItem>()
           .toList();
 
@@ -132,7 +132,7 @@ void main() {
       final noRoles = <LenderRole>{};
 
       final filtered = items
-          .map((item) => item.filterByRoles(noRoles))
+          .map((item) => item.filterByAccess(noRoles, const {}))
           .whereType<NavItem>()
           .toList();
 

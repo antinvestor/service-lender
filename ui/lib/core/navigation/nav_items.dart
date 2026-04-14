@@ -12,6 +12,7 @@ class NavItem {
     this.route,
     this.children = const [],
     this.requiredRoles = const {},
+    this.requiredPermissions = const {},
     this.badge,
   });
 
@@ -29,6 +30,10 @@ class NavItem {
   /// If non-empty, user must have at least one of these roles.
   final Set<LenderRole> requiredRoles;
 
+  /// If non-empty, user must have at least one of these permission keys.
+  /// Checked via ui_core's userPermissionsProvider.
+  final Set<String> requiredPermissions;
+
   /// Optional badge text (e.g. count).
   final String? badge;
 
@@ -40,17 +45,25 @@ class NavItem {
     return children.any((c) => c.matchesRoute(currentRoute));
   }
 
-  /// Filter this item by roles. Returns null if user can't see it.
-  NavItem? filterByRoles(Set<LenderRole> userRoles) {
-    // If no role restriction, allow. Otherwise check intersection.
+  /// Filter this item by roles and permissions.
+  /// Returns null if user can't see it.
+  NavItem? filterByAccess(
+      Set<LenderRole> userRoles, Set<String> userPermissions) {
+    // Check roles: if required, user must have at least one.
     if (requiredRoles.isNotEmpty &&
         userRoles.intersection(requiredRoles).isEmpty) {
       return null;
     }
 
+    // Check permissions: if required, user must have at least one.
+    if (requiredPermissions.isNotEmpty &&
+        userPermissions.intersection(requiredPermissions).isEmpty) {
+      return null;
+    }
+
     // Filter children recursively
     final filteredChildren = children
-        .map((c) => c.filterByRoles(userRoles))
+        .map((c) => c.filterByAccess(userRoles, userPermissions))
         .whereType<NavItem>()
         .toList();
 
@@ -67,9 +80,11 @@ class NavItem {
       route: route,
       children: filteredChildren,
       requiredRoles: requiredRoles,
+      requiredPermissions: requiredPermissions,
       badge: badge,
     );
   }
+
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
