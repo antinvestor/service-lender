@@ -1,3 +1,17 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package models
 
 import (
@@ -62,13 +76,15 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 // Organization represents a top-level lending institution mapped to a partition.
 type Organization struct {
 	data.BaseModel
-	Name       string `gorm:"type:varchar(255)"`
-	Code       string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
-	ProfileID  string `gorm:"type:varchar(50)"`
-	ClientID   string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
-	GeoID      string `gorm:"type:varchar(50)"`
-	State      int32
-	Properties data.JSONMap
+	Name        string `gorm:"type:varchar(255)"`
+	Code        string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
+	ProfileID   string `gorm:"type:varchar(50)"`
+	ClientID    string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
+	GeoID       string `gorm:"type:varchar(50)"`
+	ParentID    string `gorm:"type:varchar(50);index"`
+	HasChildren bool   `gorm:"default:false"`
+	State       int32
+	Properties  data.JSONMap
 }
 
 func (m *Organization) TableName() string { return "organizations" }
@@ -84,6 +100,8 @@ func (m *Organization) ToAPI() *identityv1.OrganizationObject {
 		Properties:  m.Properties.ToProtoStruct(),
 		ClientId:    m.ClientID,
 		GeoId:       m.GeoID,
+		ParentId:    m.ParentID,
+		HasChildren: m.HasChildren,
 	}
 }
 
@@ -98,6 +116,7 @@ func OrganizationFromAPI(ctx context.Context, obj *identityv1.OrganizationObject
 		ProfileID: obj.GetProfileId(),
 		ClientID:  obj.GetClientId(),
 		GeoID:     obj.GetGeoId(),
+		ParentID:  obj.GetParentId(),
 		State:     int32(obj.GetState()),
 	}
 

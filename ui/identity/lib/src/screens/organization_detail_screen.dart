@@ -106,6 +106,14 @@ class _OrganizationDetailContentState
         type: OrgUnitType.ORG_UNIT_TYPE_UNSPECIFIED,
       )),
     );
+    final childOrgsAsync = _organization.hasChildren
+        ? ref.watch(
+            filteredOrganizationListProvider((
+              query: '',
+              parentId: _organization.id,
+            )),
+          )
+        : null;
 
     return Center(
       child: ConstrainedBox(
@@ -158,6 +166,52 @@ class _OrganizationDetailContentState
           ),
         ),
 
+        // -- Parent organization link -------------------------------------------
+        if (_organization.parentId.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: theme.colorScheme.outlineVariant.withAlpha(38),
+                  ),
+                ),
+                color: theme.colorScheme.secondaryContainer.withAlpha(40),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => context.go(
+                    '/organization/organizations/${_organization.parentId}',
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(Icons.arrow_upward,
+                            size: 18, color: theme.colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Parent Organization',
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Icon(Icons.chevron_right,
+                            size: 18,
+                            color: theme.colorScheme.onSurfaceVariant),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
         // -- Profile card -----------------------------------------------------
         SliverToBoxAdapter(
           child: Padding(
@@ -182,6 +236,98 @@ class _OrganizationDetailContentState
               child: _buildClientIdCard(theme),
             ),
           ),
+
+        // -- Child Organizations ------------------------------------------------
+        if (childOrgsAsync != null) ...[
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.corporate_fare,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Child Organizations',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          childOrgsAsync.when(
+            loading: () => const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
+            error: (error, _) => SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Failed to load child organizations: $error'),
+              ),
+            ),
+            data: (childOrgs) {
+              if (childOrgs.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
+                    child: Text('No child organizations yet'),
+                  ),
+                );
+              }
+              return SliverList.builder(
+                itemCount: childOrgs.length,
+                itemBuilder: (context, index) {
+                  final child = childOrgs[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                    child: Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color:
+                              theme.colorScheme.outlineVariant.withAlpha(38),
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Icon(Icons.account_balance,
+                            color: theme.colorScheme.primary),
+                        title: Text(child.name),
+                        subtitle: Text(orgTypeLabel(child.organizationType)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (child.hasChildren)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child:
+                                    Icon(Icons.subdirectory_arrow_right),
+                              ),
+                            StateBadge(
+                                state: toCommonState(child.state)),
+                          ],
+                        ),
+                        onTap: () => context.go(
+                          '/organization/organizations/${child.id}',
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
 
         // -- Org Units header -------------------------------------------------
         SliverToBoxAdapter(

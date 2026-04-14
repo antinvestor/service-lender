@@ -16,6 +16,32 @@ final organizationListProvider =
   );
 });
 
+/// Parameters for filtered organization search.
+typedef OrganizationSearchParams = ({
+  String query,
+  String parentId,
+});
+
+/// Search organizations with extras filter (e.g. parent_id).
+final filteredOrganizationListProvider =
+    FutureProvider.family<List<OrganizationObject>, OrganizationSearchParams>(
+        (ref, params) async {
+  final client = ref.watch(identityServiceClientProvider);
+  final extras = <String, Value>{};
+  if (params.parentId.isNotEmpty) {
+    extras['parent_id'] = Value(stringValue: params.parentId);
+  }
+  final request = SearchRequest(
+    query: params.query,
+    cursor: PageCursor(limit: 50),
+    extras: extras.isNotEmpty ? Struct(fields: extras) : null,
+  );
+  return collectStream(
+    client.organizationSearch(request),
+    extract: (response) => response.data,
+  );
+});
+
 /// Notifier for organization mutations (create, update).
 class OrganizationNotifier extends Notifier<AsyncValue<void>> {
   @override

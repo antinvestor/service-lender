@@ -743,8 +743,14 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
           _isPickingLogo = false;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _isPickingLogo = false);
+    } catch (e) {
+      debugPrint('[OrganizationWizard] Logo pick/upload error: $e');
+      if (mounted) {
+        setState(() => _isPickingLogo = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logo upload failed: $e')),
+        );
+      }
     }
   }
 
@@ -828,7 +834,10 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
       final org = (widget.organization ?? OrganizationObject())
         ..name = _nameCtrl.text.trim()
         ..code = _codeCtrl.text.trim()
-        ..organizationType = _orgType;
+        ..organizationType = _orgType
+        ..parentId = (_parentOrgId != null && _parentOrgId!.isNotEmpty)
+            ? _parentOrgId!
+            : '';
 
       final formData = OrganizationFormData(
         organization: org,

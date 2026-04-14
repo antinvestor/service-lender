@@ -38,6 +38,8 @@ class OrganizationObject extends $pb.GeneratedMessage {
     $6.Struct? properties,
     $core.String? clientId,
     $core.String? geoId,
+    $core.String? parentId,
+    $core.bool? hasChildren,
   }) {
     final $result = create();
     if (id != null) {
@@ -70,6 +72,12 @@ class OrganizationObject extends $pb.GeneratedMessage {
     if (geoId != null) {
       $result.geoId = geoId;
     }
+    if (parentId != null) {
+      $result.parentId = parentId;
+    }
+    if (hasChildren != null) {
+      $result.hasChildren = hasChildren;
+    }
     return $result;
   }
   OrganizationObject._() : super();
@@ -87,6 +95,8 @@ class OrganizationObject extends $pb.GeneratedMessage {
     ..aOM<$6.Struct>(8, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..aOS(9, _omitFieldNames ? '' : 'clientId')
     ..aOS(10, _omitFieldNames ? '' : 'geoId')
+    ..aOS(11, _omitFieldNames ? '' : 'parentId')
+    ..aOB(12, _omitFieldNames ? '' : 'hasChildren')
     ..hasRequiredFields = false
   ;
 
@@ -202,6 +212,24 @@ class OrganizationObject extends $pb.GeneratedMessage {
   $core.bool hasGeoId() => $_has(9);
   @$pb.TagNumber(10)
   void clearGeoId() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.String get parentId => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set parentId($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasParentId() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearParentId() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.bool get hasChildren => $_getBF(11);
+  @$pb.TagNumber(12)
+  set hasChildren($core.bool v) { $_setBool(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasHasChildren() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearHasChildren() => clearField(12);
 }
 
 /// OrgUnitObject represents a typed hierarchical unit within an organization.

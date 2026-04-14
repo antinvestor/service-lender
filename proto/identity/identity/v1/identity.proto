@@ -234,6 +234,11 @@ message OrganizationObject {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ]; // Geographic area identifier describing the organization's coverage
+  string parent_id = 11 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 40
+  ]; // Parent organization ID for hierarchy
+  bool has_children = 12; // Whether this org has child organizations
 }
 
 // OrgUnitObject represents a typed hierarchical unit within an organization.

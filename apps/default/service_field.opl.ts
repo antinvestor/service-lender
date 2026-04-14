@@ -37,6 +37,8 @@ class service_field implements Namespace {
     granted_agent_subagent_manage: (profile_user | service_field)[]
     granted_client_view: (profile_user | service_field)[]
     granted_client_manage: (profile_user | service_field)[]
+    granted_client_relationship_view: (profile_user | service_field)[]
+    granted_client_relationship_manage: (profile_user | service_field)[]
   }
 
   permits = {
@@ -56,7 +58,6 @@ class service_field implements Namespace {
       this.related.service.includes(ctx.subject) ||
       this.related.granted_agent_manage.includes(ctx.subject),
 
-    // Allows a super agent (member role) to manage their own sub-agents
     agent_subagent_manage: (ctx: Context): boolean =>
       this.related.admin.includes(ctx.subject) ||
       this.related.member.includes(ctx.subject) ||
@@ -80,5 +81,21 @@ class service_field implements Namespace {
       this.related.owner.includes(ctx.subject) ||
       this.related.service.includes(ctx.subject) ||
       this.related.granted_client_manage.includes(ctx.subject),
+
+    client_relationship_view: (ctx: Context): boolean =>
+      this.related.admin.includes(ctx.subject) ||
+      this.related.member.includes(ctx.subject) ||
+      this.related.operator.includes(ctx.subject) ||
+      this.related.owner.includes(ctx.subject) ||
+      this.related.service.includes(ctx.subject) ||
+      this.related.viewer.includes(ctx.subject) ||
+      this.related.granted_client_relationship_view.includes(ctx.subject),
+
+    client_relationship_manage: (ctx: Context): boolean =>
+      this.related.admin.includes(ctx.subject) ||
+      this.related.operator.includes(ctx.subject) ||
+      this.related.owner.includes(ctx.subject) ||
+      this.related.service.includes(ctx.subject) ||
+      this.related.granted_client_relationship_manage.includes(ctx.subject),
   }
 }

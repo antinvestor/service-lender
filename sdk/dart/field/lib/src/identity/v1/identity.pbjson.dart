@@ -282,6 +282,8 @@ const OrganizationObject$json = {
     {'1': 'properties', '3': 8, '4': 1, '5': 11, '6': '.google.protobuf.Struct', '10': 'properties'},
     {'1': 'client_id', '3': 9, '4': 1, '5': 9, '8': {}, '10': 'clientId'},
     {'1': 'geo_id', '3': 10, '4': 1, '5': 9, '8': {}, '10': 'geoId'},
+    {'1': 'parent_id', '3': 11, '4': 1, '5': 9, '8': {}, '10': 'parentId'},
+    {'1': 'has_children', '3': 12, '4': 1, '5': 8, '10': 'hasChildren'},
   ],
 };
 
@@ -295,7 +297,8 @@ final $typed_data.Uint8List organizationObjectDescriptor = $convert.base64Decode
     'UYByABKA4yHS5pZGVudGl0eS52MS5Pcmdhbml6YXRpb25UeXBlUhBvcmdhbml6YXRpb25UeXBl'
     'EjcKCnByb3BlcnRpZXMYCCABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Ugpwcm9wZXJ0aW'
     'VzEicKCWNsaWVudF9pZBgJIAEoCUIKukgH2AEBcgIYKFIIY2xpZW50SWQSIQoGZ2VvX2lkGAog'
-    'ASgJQgq6SAfYAQFyAhgoUgVnZW9JZA==');
+    'ASgJQgq6SAfYAQFyAhgoUgVnZW9JZBInCglwYXJlbnRfaWQYCyABKAlCCrpIB9gBAXICGChSCH'
+    'BhcmVudElkEiEKDGhhc19jaGlsZHJlbhgMIAEoCFILaGFzQ2hpbGRyZW4=');
 
 @$core.Deprecated('Use orgUnitObjectDescriptor instead')
 const OrgUnitObject$json = {
