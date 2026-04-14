@@ -2,15 +2,19 @@ import 'dart:typed_data';
 
 import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
 import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:antinvestor_ui_core/widgets/admin_entity_list_page.dart';
 import 'package:antinvestor_ui_core/widgets/error_helpers.dart';
 import 'package:antinvestor_ui_core/widgets/form_field_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../providers/organization_providers.dart';
+
+// ---------------------------------------------------------------------------
+// Public helpers
+// ---------------------------------------------------------------------------
 
 /// Human-readable label for OrganizationType.
 String orgTypeLabel(OrganizationType type) => switch (type) {
@@ -25,6 +29,125 @@ String orgTypeLabel(OrganizationType type) => switch (type) {
       OrganizationType.ORGANIZATION_TYPE_OTHER => 'Other',
       _ => type.name,
     };
+
+// ---------------------------------------------------------------------------
+// Contact model
+// ---------------------------------------------------------------------------
+
+enum ContactPurpose { general, support, billing, admin, hr, technical }
+
+enum ContactType { email, phone }
+
+class OrganizationContact {
+  const OrganizationContact({
+    required this.purpose,
+    required this.type,
+    required this.value,
+  });
+
+  final ContactPurpose purpose;
+  final ContactType type;
+  final String value;
+
+  Map<String, String> toMap() => {
+        'purpose': purpose.name,
+        'type': type.name,
+        'value': value,
+      };
+
+  static OrganizationContact? fromMap(Map<String, dynamic> map) {
+    final purposeStr = map['purpose'] as String?;
+    final typeStr = map['type'] as String?;
+    final value = map['value'] as String?;
+    if (purposeStr == null || typeStr == null || value == null) return null;
+
+    final purpose = ContactPurpose.values.where((e) => e.name == purposeStr);
+    final type = ContactType.values.where((e) => e.name == typeStr);
+    if (purpose.isEmpty || type.isEmpty) return null;
+
+    return OrganizationContact(
+      purpose: purpose.first,
+      type: type.first,
+      value: value,
+    );
+  }
+}
+
+String contactPurposeLabel(ContactPurpose p) => switch (p) {
+      ContactPurpose.general => 'General',
+      ContactPurpose.support => 'Support',
+      ContactPurpose.billing => 'Billing',
+      ContactPurpose.admin => 'Admin',
+      ContactPurpose.hr => 'HR',
+      ContactPurpose.technical => 'Technical',
+    };
+
+// ---------------------------------------------------------------------------
+// Form data
+// ---------------------------------------------------------------------------
+
+/// All data collected by the multi-step organization creation wizard.
+class OrganizationFormData {
+  OrganizationFormData({
+    required this.organization,
+    this.description = '',
+    this.domainName = '',
+    this.contacts = const [],
+    this.street = '',
+    this.city = '',
+    this.country = '',
+    this.postalCode = '',
+    this.parentOrganizationId,
+    this.logoContentUri,
+    this.logoBytes,
+    this.geoId = '',
+    this.geoDescription = '',
+  });
+
+  final OrganizationObject organization;
+  final String description;
+  final String domainName;
+  final List<OrganizationContact> contacts;
+  final String street;
+  final String city;
+  final String country;
+  final String postalCode;
+  final String? parentOrganizationId;
+
+  /// Content URI from the files service after logo upload.
+  final String? logoContentUri;
+
+  /// Raw image bytes picked locally. The host app's onSave callback
+  /// can upload these to the files service and set logoContentUri.
+  final Uint8List? logoBytes;
+
+  /// The coverage area identifier (e.g. "global", "continent:africa",
+  /// "country:kenya", "region:kenya:rift_valley", "city:kenya:nairobi").
+  final String geoId;
+
+  /// Human-readable coverage area description (e.g. "Kenya, East Africa").
+  final String geoDescription;
+}
+
+// ---------------------------------------------------------------------------
+// Coverage scope
+// ---------------------------------------------------------------------------
+
+/// Coverage scope levels for the cascading area selector.
+enum _CoverageScope {
+  global('Global'),
+  continent('Continent'),
+  country('Country'),
+  region('Region'),
+  city('City');
+
+  const _CoverageScope(this.label);
+  final String label;
+}
+
+// ---------------------------------------------------------------------------
+// Organizations list screen
+// ---------------------------------------------------------------------------
 
 class OrganizationsScreen extends ConsumerStatefulWidget {
   const OrganizationsScreen({
@@ -98,8 +221,12 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
         }
       },
       detailBuilder: (org) => _OrganizationDetail(organization: org),
-      exportRow: (org) =>
-          [org.name, orgTypeLabel(org.organizationType), org.state.name, org.id],
+      exportRow: (org) => [
+        org.name,
+        orgTypeLabel(org.organizationType),
+        org.state.name,
+        org.id,
+      ],
     );
   }
 
@@ -133,13 +260,16 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
               props['description'] =
                   Value(stringValue: formData.description);
             }
+            if (formData.domainName.isNotEmpty) {
+              props['domain_name'] =
+                  Value(stringValue: formData.domainName);
+            }
             if (formData.street.isNotEmpty) {
               props['address_street'] =
                   Value(stringValue: formData.street);
             }
             if (formData.city.isNotEmpty) {
-              props['address_city'] =
-                  Value(stringValue: formData.city);
+              props['address_city'] = Value(stringValue: formData.city);
             }
             if (formData.country.isNotEmpty) {
               props['address_country'] =
@@ -149,20 +279,19 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
               props['address_postal_code'] =
                   Value(stringValue: formData.postalCode);
             }
-            if (formData.emails.isNotEmpty) {
-              props['contacts_email'] = Value(
+            if (formData.contacts.isNotEmpty) {
+              props['contacts'] = Value(
                 listValue: ListValue(
-                  values: formData.emails
-                      .map((e) => Value(stringValue: e))
-                      .toList(),
-                ),
-              );
-            }
-            if (formData.phones.isNotEmpty) {
-              props['contacts_phone'] = Value(
-                listValue: ListValue(
-                  values: formData.phones
-                      .map((p) => Value(stringValue: p))
+                  values: formData.contacts
+                      .map(
+                        (c) => Value(
+                          structValue: Struct(fields: {
+                            'purpose': Value(stringValue: c.purpose.name),
+                            'type': Value(stringValue: c.type.name),
+                            'value': Value(stringValue: c.value),
+                          }),
+                        ),
+                      )
                       .toList(),
                 ),
               );
@@ -208,6 +337,10 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Inline detail (used by AdminEntityListPage)
+// ---------------------------------------------------------------------------
 
 class _OrganizationDetail extends StatelessWidget {
   const _OrganizationDetail({required this.organization});
@@ -271,9 +404,13 @@ class _OrganizationDetail extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Small shared widgets
+// ---------------------------------------------------------------------------
+
 class _StatePill extends StatelessWidget {
   const _StatePill(this.state);
-  final dynamic state; // STATE enum from identity SDK
+  final dynamic state;
 
   @override
   Widget build(BuildContext context) {
@@ -345,65 +482,16 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-/// All data collected by the multi-step organization creation wizard.
-class OrganizationFormData {
-  OrganizationFormData({
-    required this.organization,
-    this.description = '',
-    this.street = '',
-    this.city = '',
-    this.country = '',
-    this.postalCode = '',
-    this.emails = const [],
-    this.phones = const [],
-    this.parentOrganizationId,
-    this.logoContentUri,
-    this.logoBytes,
-    this.geoId = '',
-    this.geoDescription = '',
-  });
+// ---------------------------------------------------------------------------
+// 3-step wizard dialog
+// ---------------------------------------------------------------------------
 
-  final OrganizationObject organization;
-  final String description;
-  final String street;
-  final String city;
-  final String country;
-  final String postalCode;
-  final List<String> emails;
-  final List<String> phones;
-  final String? parentOrganizationId;
-
-  /// Content URI from the files service after logo upload.
-  final String? logoContentUri;
-
-  /// Raw image bytes picked locally. The host app's onSave callback
-  /// can upload these to the files service and set logoContentUri.
-  final Uint8List? logoBytes;
-
-  /// The coverage area identifier (e.g. "global", "continent:africa",
-  /// "country:kenya", "region:kenya:rift_valley", "city:kenya:nairobi").
-  final String geoId;
-
-  /// Human-readable coverage area description (e.g. "Kenya, East Africa").
-  final String geoDescription;
-}
-
-/// Coverage scope levels for the cascading area selector.
-enum _CoverageScope {
-  global('Global'),
-  continent('Continent'),
-  country('Country'),
-  region('Region'),
-  city('City');
-
-  const _CoverageScope(this.label);
-  final String label;
-}
-
-/// Two-step wizard dialog for creating an organization.
+/// Three-step wizard dialog for creating / editing an organization.
 ///
-/// Step 1 collects basic info and profile (name, code, type, parent,
-/// description, logo, contacts). Step 2 collects address and coverage area.
+/// Step 1 — Details (name, code, type, domain, parent, description, logo)
+/// Step 2 — Contacts (purpose + type + value, with chip list)
+/// Step 3 — Location (address + coverage area)
+///
 /// Calls [onSave] with the aggregated [OrganizationFormData].
 class OrganizationFormDialog extends StatefulWidget {
   const OrganizationFormDialog({
@@ -420,7 +508,6 @@ class OrganizationFormDialog extends StatefulWidget {
   final List<OrganizationObject> existingOrganizations;
 
   /// Callback to pick and upload a logo. Returns (fileName, contentUri).
-  /// The host app wires this to a file picker + files service upload.
   final Future<({String fileName, String contentUri})> Function()? onPickLogo;
 
   final Future<void> Function(OrganizationFormData formData) onSave;
@@ -430,9 +517,8 @@ class OrganizationFormDialog extends StatefulWidget {
 }
 
 class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
-  static const _stepCount = 2;
-
-  static const _stepLabels = ['Details', 'Location'];
+  static const _stepCount = 3;
+  static const _stepLabels = ['Details', 'Contacts', 'Location'];
 
   final _formKeys = List.generate(_stepCount, (_) => GlobalKey<FormState>());
 
@@ -442,21 +528,24 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
   bool get _isEditing => widget.organization != null;
 
-  // -- Step 1: Basic Info + Profile ------------------------------------------
+  // -- Step 1: Details --------------------------------------------------------
   late final TextEditingController _nameCtrl;
   late final TextEditingController _codeCtrl;
   late OrganizationType _orgType;
   String? _parentOrgId;
   late final TextEditingController _descriptionCtrl;
+  late final TextEditingController _domainCtrl;
   String? _logoFileName;
   String? _logoContentUri;
   Uint8List? _logoBytes;
-  late final TextEditingController _emailCtrl;
-  late final TextEditingController _phoneCtrl;
-  final List<String> _emails = [];
-  final List<String> _phones = [];
 
-  // -- Step 2: Address + Coverage Area ---------------------------------------
+  // -- Step 2: Contacts -------------------------------------------------------
+  ContactPurpose _contactPurpose = ContactPurpose.general;
+  ContactType _contactType = ContactType.email;
+  late final TextEditingController _contactValueCtrl;
+  final List<OrganizationContact> _contacts = [];
+
+  // -- Step 3: Location -------------------------------------------------------
   late final TextEditingController _streetCtrl;
   late final TextEditingController _cityCtrl;
   late final TextEditingController _countryCtrl;
@@ -467,7 +556,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   late final TextEditingController _coverageRegionCtrl;
   late final TextEditingController _coverageCityCtrl;
 
-  // -- Org type dropdown values ----------------------------------------------
+  // -- Org type dropdown values -----------------------------------------------
   static const _orgTypes = [
     OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED,
     OrganizationType.ORGANIZATION_TYPE_BANK,
@@ -488,7 +577,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     'Oceania',
   ];
 
-  static String _orgTypeLabel(OrganizationType type) => orgTypeLabel(type);
+  // -- Lifecycle --------------------------------------------------------------
 
   @override
   void initState() {
@@ -497,29 +586,34 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     _codeCtrl = TextEditingController(text: widget.organization?.code ?? '');
     _orgType = widget.organization?.organizationType ??
         OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED;
-    // Pre-populate from properties when editing.
+
     final props = widget.organization?.properties;
-    _descriptionCtrl = TextEditingController(
-        text: _propStr(props, 'description'));
-    _emailCtrl = TextEditingController();
-    _phoneCtrl = TextEditingController();
-    _streetCtrl = TextEditingController(
-        text: _propStr(props, 'address_street'));
-    _cityCtrl = TextEditingController(
-        text: _propStr(props, 'address_city'));
-    _countryCtrl = TextEditingController(
-        text: _propStr(props, 'address_country'));
-    _postalCodeCtrl = TextEditingController(
-        text: _propStr(props, 'address_postal_code'));
+    _descriptionCtrl =
+        TextEditingController(text: _propStr(props, 'description'));
+    _domainCtrl =
+        TextEditingController(text: _propStr(props, 'domain_name'));
+    _contactValueCtrl = TextEditingController();
+
+    _streetCtrl =
+        TextEditingController(text: _propStr(props, 'address_street'));
+    _cityCtrl =
+        TextEditingController(text: _propStr(props, 'address_city'));
+    _countryCtrl =
+        TextEditingController(text: _propStr(props, 'address_country'));
+    _postalCodeCtrl =
+        TextEditingController(text: _propStr(props, 'address_postal_code'));
     _coverageCountryCtrl = TextEditingController();
     _coverageRegionCtrl = TextEditingController();
     _coverageCityCtrl = TextEditingController();
 
-    // Pre-populate contact lists from properties.
-    _emails.addAll(_propListStr(props, 'contacts_email'));
-    _phones.addAll(_propListStr(props, 'contacts_phone'));
+    // Pre-populate parent org id.
+    final parentId = _propStr(props, 'parent_organization_id');
+    if (parentId.isNotEmpty) _parentOrgId = parentId;
 
-    // Pre-populate logo from properties.
+    // Pre-populate contacts from structured property.
+    _contacts.addAll(_readContactsFromProps(props));
+
+    // Pre-populate logo.
     final logoUri = _propStr(props, 'logo_content_uri');
     if (logoUri.isNotEmpty) _logoContentUri = logoUri;
   }
@@ -531,14 +625,23 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     return field.stringValue;
   }
 
-  static List<String> _propListStr(Struct? props, String key) {
+  static List<OrganizationContact> _readContactsFromProps(Struct? props) {
     if (props == null) return [];
-    final field = props.fields[key];
+    final field = props.fields['contacts'];
     if (field == null || !field.hasListValue()) return [];
-    return field.listValue.values
-        .where((v) => v.hasStringValue())
-        .map((v) => v.stringValue)
-        .toList();
+    final result = <OrganizationContact>[];
+    for (final v in field.listValue.values) {
+      if (!v.hasStructValue()) continue;
+      final m = <String, dynamic>{};
+      for (final entry in v.structValue.fields.entries) {
+        if (entry.value.hasStringValue()) {
+          m[entry.key] = entry.value.stringValue;
+        }
+      }
+      final contact = OrganizationContact.fromMap(m);
+      if (contact != null) result.add(contact);
+    }
+    return result;
   }
 
   @override
@@ -546,8 +649,8 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     _nameCtrl.dispose();
     _codeCtrl.dispose();
     _descriptionCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
+    _domainCtrl.dispose();
+    _contactValueCtrl.dispose();
     _streetCtrl.dispose();
     _cityCtrl.dispose();
     _countryCtrl.dispose();
@@ -558,39 +661,48 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     super.dispose();
   }
 
-  // -- Navigation ------------------------------------------------------------
+  // -- Navigation -------------------------------------------------------------
 
   void _next() {
-    // Auto-add any typed but un-added contacts before advancing.
-    _flushPendingContacts();
+    _flushPendingContact();
     if (!_formKeys[_currentStep].currentState!.validate()) return;
+    if (_currentStep == 1 && _contacts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('At least one contact is required')),
+      );
+      return;
+    }
     setState(() => _currentStep++);
-  }
-
-  /// Add any text left in the email/phone fields to the chip lists.
-  void _flushPendingContacts() {
-    final email = _emailCtrl.text.trim();
-    if (email.isNotEmpty && email.contains('@') && !_emails.contains(email)) {
-      _emails.add(email);
-      _emailCtrl.clear();
-    }
-    final phone = _phoneCtrl.text.trim();
-    if (phone.isNotEmpty && !_phones.contains(phone)) {
-      _phones.add(phone);
-      _phoneCtrl.clear();
-    }
   }
 
   void _back() {
     setState(() => _currentStep--);
   }
 
-  // -- Logo picker -----------------------------------------------------------
+  /// Auto-add any text left in the contact value field.
+  void _flushPendingContact() {
+    final value = _contactValueCtrl.text.trim();
+    if (value.isEmpty) return;
+    if (_contactType == ContactType.email && !value.contains('@')) return;
+    final contact = OrganizationContact(
+      purpose: _contactPurpose,
+      type: _contactType,
+      value: value,
+    );
+    if (!_contacts.any((c) =>
+        c.purpose == contact.purpose &&
+        c.type == contact.type &&
+        c.value == contact.value)) {
+      _contacts.add(contact);
+      _contactValueCtrl.clear();
+    }
+  }
+
+  // -- Logo picker ------------------------------------------------------------
 
   Future<void> _pickLogo() async {
     setState(() => _isPickingLogo = true);
     try {
-      // Pick image using image_picker (works on web + mobile).
       final picker = ImagePicker();
       final image = await picker.pickImage(
         source: ImageSource.gallery,
@@ -605,7 +717,6 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
       final bytes = await image.readAsBytes();
 
-      // If host app provides an upload callback, upload and get URL.
       if (widget.onPickLogo != null) {
         final result = await widget.onPickLogo!();
         if (mounted) {
@@ -619,8 +730,6 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
         return;
       }
 
-      // No upload callback — store bytes locally. The onSave callback
-      // receives logoBytes and can upload during save.
       if (mounted) {
         setState(() {
           _logoFileName = image.name;
@@ -633,29 +742,31 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     }
   }
 
-  // -- Contact helpers -------------------------------------------------------
+  // -- Contact helpers --------------------------------------------------------
 
-  void _addEmail() {
-    final value = _emailCtrl.text.trim();
-    if (value.isEmpty || !value.contains('@')) return;
-    setState(() {
-      _emails.add(value);
-      _emailCtrl.clear();
-    });
-  }
-
-  void _addPhone() {
-    final value = _phoneCtrl.text.trim();
+  void _addContact() {
+    final value = _contactValueCtrl.text.trim();
     if (value.isEmpty) return;
+    if (_contactType == ContactType.email && !value.contains('@')) return;
+    final contact = OrganizationContact(
+      purpose: _contactPurpose,
+      type: _contactType,
+      value: value,
+    );
+    if (_contacts.any((c) =>
+        c.purpose == contact.purpose &&
+        c.type == contact.type &&
+        c.value == contact.value)) {
+      return;
+    }
     setState(() {
-      _phones.add(value);
-      _phoneCtrl.clear();
+      _contacts.add(contact);
+      _contactValueCtrl.clear();
     });
   }
 
-  // -- Coverage area helpers -------------------------------------------------
+  // -- Coverage area helpers --------------------------------------------------
 
-  /// Builds a geoId from the current coverage scope selection.
   String _buildGeoId() {
     switch (_coverageScope) {
       case _CoverageScope.global:
@@ -682,7 +793,6 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     }
   }
 
-  /// Builds a human-readable description of the coverage area.
   String _buildGeoDescription() {
     switch (_coverageScope) {
       case _CoverageScope.global:
@@ -702,10 +812,10 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     }
   }
 
-  // -- Submit ----------------------------------------------------------------
+  // -- Submit -----------------------------------------------------------------
 
   Future<void> _submit() async {
-    _flushPendingContacts();
+    _flushPendingContact();
     if (!_formKeys[_currentStep].currentState!.validate()) return;
     setState(() => _saving = true);
     try {
@@ -717,12 +827,12 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
       final formData = OrganizationFormData(
         organization: org,
         description: _descriptionCtrl.text.trim(),
+        domainName: _domainCtrl.text.trim(),
+        contacts: List.unmodifiable(_contacts),
         street: _streetCtrl.text.trim(),
         city: _cityCtrl.text.trim(),
         country: _countryCtrl.text.trim(),
         postalCode: _postalCodeCtrl.text.trim(),
-        emails: List.unmodifiable(_emails),
-        phones: List.unmodifiable(_phones),
         parentOrganizationId:
             (_parentOrgId != null && _parentOrgId!.isNotEmpty)
                 ? _parentOrgId
@@ -740,7 +850,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     }
   }
 
-  // -- Build -----------------------------------------------------------------
+  // -- Build ------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -823,12 +933,13 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   Widget _buildCurrentStep(ThemeData theme) {
     return switch (_currentStep) {
       0 => _buildDetailsStep(theme),
-      1 => _buildLocationStep(),
+      1 => _buildContactsStep(theme),
+      2 => _buildLocationStep(),
       _ => const SizedBox.shrink(),
     };
   }
 
-  // -- Step 1: Details (Basic Info + Profile) --------------------------------
+  // -- Step 1: Details --------------------------------------------------------
 
   Widget _buildDetailsStep(ThemeData theme) {
     return Form(
@@ -902,13 +1013,27 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
                   .map(
                     (t) => DropdownMenuItem(
                       value: t,
-                      child: Text(_orgTypeLabel(t)),
+                      child: Text(orgTypeLabel(t)),
                     ),
                   )
                   .toList(),
               onChanged: (v) {
                 if (v != null) setState(() => _orgType = v);
               },
+            ),
+          ),
+          FormFieldCard(
+            label: 'Domain Name',
+            description:
+                'The organization\'s internet domain (e.g. "stawi.org").',
+            child: TextFormField(
+              controller: _domainCtrl,
+              decoration: const InputDecoration(
+                hintText: 'e.g. stawi.org',
+                prefixIcon: Icon(Icons.language),
+              ),
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.next,
             ),
           ),
           if (widget.existingOrganizations.isNotEmpty)
@@ -952,134 +1077,151 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
               textInputAction: TextInputAction.newline,
             ),
           ),
-
-          // Email contacts
-          FormFieldCard(
-            label: 'Email Contacts',
-            description:
-                'Add one or more email addresses for the organization.',
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _emailCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'e.g. info@example.com',
-                          prefixIcon: Icon(Icons.email_outlined),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _addEmail(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton.filled(
-                      onPressed: _addEmail,
-                      icon: const Icon(Icons.add),
-                      tooltip: 'Add email',
-                    ),
-                  ],
-                ),
-                if (_emails.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: _emails
-                          .asMap()
-                          .entries
-                          .map(
-                            (e) => Chip(
-                              avatar: Icon(Icons.email,
-                                  size: 16,
-                                  color: theme.colorScheme.primary),
-                              label: Text(e.value),
-                              deleteIcon: const Icon(Icons.close, size: 16),
-                              onDeleted: () =>
-                                  setState(() => _emails.removeAt(e.key)),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Phone contacts
-          FormFieldCard(
-            label: 'Phone Contacts',
-            description:
-                'Add one or more phone numbers for the organization.',
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _phoneCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'e.g. +254 700 123 456',
-                          prefixIcon: Icon(Icons.phone_outlined),
-                        ),
-                        keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _addPhone(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton.filled(
-                      onPressed: _addPhone,
-                      icon: const Icon(Icons.add),
-                      tooltip: 'Add phone',
-                    ),
-                  ],
-                ),
-                if (_phones.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: _phones
-                          .asMap()
-                          .entries
-                          .map(
-                            (e) => Chip(
-                              avatar: Icon(Icons.phone,
-                                  size: 16,
-                                  color: theme.colorScheme.primary),
-                              label: Text(e.value),
-                              deleteIcon: const Icon(Icons.close, size: 16),
-                              onDeleted: () =>
-                                  setState(() => _phones.removeAt(e.key)),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
-  // -- Step 2: Location (Address + Coverage Area) ----------------------------
+  // -- Step 2: Contacts -------------------------------------------------------
+
+  Widget _buildContactsStep(ThemeData theme) {
+    return Form(
+      key: _formKeys[1],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FormFieldCard(
+            label: 'Add Contact',
+            description: 'Each contact has a purpose, type, and value.',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Purpose dropdown
+                DropdownButtonFormField<ContactPurpose>(
+                  value: _contactPurpose,
+                  decoration: const InputDecoration(
+                    labelText: 'Purpose',
+                    prefixIcon: Icon(Icons.label_outlined),
+                  ),
+                  items: ContactPurpose.values
+                      .map(
+                        (p) => DropdownMenuItem(
+                          value: p,
+                          child: Text(contactPurposeLabel(p)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _contactPurpose = v);
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // Type segmented button
+                Row(
+                  children: [
+                    Text('Type:',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        )),
+                    const SizedBox(width: 12),
+                    SegmentedButton<ContactType>(
+                      segments: const [
+                        ButtonSegment(
+                          value: ContactType.email,
+                          label: Text('Email'),
+                          icon: Icon(Icons.email_outlined),
+                        ),
+                        ButtonSegment(
+                          value: ContactType.phone,
+                          label: Text('Phone'),
+                          icon: Icon(Icons.phone_outlined),
+                        ),
+                      ],
+                      selected: {_contactType},
+                      onSelectionChanged: (v) {
+                        setState(() => _contactType = v.first);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Value field + add button
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _contactValueCtrl,
+                        decoration: InputDecoration(
+                          hintText: _contactType == ContactType.email
+                              ? 'e.g. info@example.com'
+                              : 'e.g. +254 700 123 456',
+                          prefixIcon: Icon(
+                            _contactType == ContactType.email
+                                ? Icons.email_outlined
+                                : Icons.phone_outlined,
+                          ),
+                        ),
+                        keyboardType: _contactType == ContactType.email
+                            ? TextInputType.emailAddress
+                            : TextInputType.phone,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _addContact(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      onPressed: _addContact,
+                      icon: const Icon(Icons.add),
+                      tooltip: 'Add contact',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Contact chips
+          if (_contacts.isNotEmpty)
+            FormFieldCard(
+              label: 'Contacts (${_contacts.length})',
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: _contacts.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final c = entry.value;
+                  return Chip(
+                    avatar: Icon(
+                      c.type == ContactType.email
+                          ? Icons.email
+                          : Icons.phone,
+                      size: 16,
+                      color: theme.colorScheme.primary,
+                    ),
+                    label: Text(
+                      '${contactPurposeLabel(c.purpose)}: ${c.value}',
+                    ),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () =>
+                        setState(() => _contacts.removeAt(idx)),
+                  );
+                }).toList(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // -- Step 3: Location -------------------------------------------------------
 
   Widget _buildLocationStep() {
     return Form(
-      key: _formKeys[1],
+      key: _formKeys[2],
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1273,56 +1415,58 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     }
   }
 
-  // -- Actions ---------------------------------------------------------------
+  // -- Actions ----------------------------------------------------------------
 
   List<Widget> _buildActions(ThemeData theme) {
     return [
-      TextButton(
-        onPressed: _saving ? null : () => Navigator.of(context).pop(),
-        child: const Text('Cancel'),
-      ),
-      const Spacer(),
-      if (_currentStep > 0)
-        OutlinedButton.icon(
-          onPressed: _saving ? null : _back,
-          icon: const Icon(Icons.arrow_back, size: 18),
-          label: const Text('Back'),
-        ),
-      const SizedBox(width: 8),
-      if (_currentStep < _stepCount - 1)
-        FilledButton.icon(
-          onPressed: _isPickingLogo ||
-                  (!_isEditing &&
-                      _currentStep == 0 &&
-                      _logoContentUri == null &&
-                      _logoBytes == null)
-              ? null
-              : _next,
-          icon: const Icon(Icons.arrow_forward, size: 18),
-          label: const Text('Next'),
-        )
-      else
-        FilledButton.icon(
-          onPressed: _saving ? null : _submit,
-          icon: _saving
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Icon(_isEditing ? Icons.save : Icons.add),
-          label: Text(
-            _isEditing ? 'Update Organization' : 'Create Organization',
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: _saving ? null : () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
           ),
-        ),
+          if (_currentStep > 0) ...[
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: _saving ? null : _back,
+              icon: const Icon(Icons.arrow_back, size: 18),
+              label: const Text('Back'),
+            ),
+          ],
+          const SizedBox(width: 8),
+          if (_currentStep < _stepCount - 1)
+            FilledButton.icon(
+              onPressed: _next,
+              icon: const Icon(Icons.arrow_forward, size: 18),
+              label: const Text('Next'),
+            )
+          else
+            FilledButton.icon(
+              onPressed: _saving ? null : _submit,
+              icon: _saving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Icon(_isEditing ? Icons.save : Icons.add),
+              label: Text(
+                _isEditing ? 'Update Organization' : 'Create Organization',
+              ),
+            ),
+        ],
+      ),
     ];
   }
 }
 
-// -- Step Indicator -----------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Step Indicator
+// ---------------------------------------------------------------------------
 
 class _StepIndicator extends StatelessWidget {
   const _StepIndicator({
@@ -1346,7 +1490,8 @@ class _StepIndicator extends StatelessWidget {
         children: [
           for (int i = 0; i < stepCount; i++) ...[
             if (i > 0)
-              Expanded(
+              SizedBox(
+                width: 48,
                 child: Container(
                   height: 2,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -1439,13 +1584,10 @@ class _StepDot extends StatelessWidget {
   }
 }
 
-// -- Logo Badge ---------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Logo Badge
+// ---------------------------------------------------------------------------
 
-/// Circular avatar badge for logo upload.
-///
-/// Empty state: grey background with camera icon.
-/// With logo: displays the uploaded logo via [NetworkImage].
-/// Tapping triggers [onTap] for logo pick/upload.
 class _LogoBadge extends StatelessWidget {
   const _LogoBadge({
     this.fileName,
@@ -1466,7 +1608,8 @@ class _LogoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hasLogo = (logoUrl != null && logoUrl!.isNotEmpty) || logoBytes != null;
+    final hasLogo =
+        (logoUrl != null && logoUrl!.isNotEmpty) || logoBytes != null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -369,6 +369,8 @@ class _OrganizationDetailContentState
       ),
       if (_organization.code.isNotEmpty)
         _InfoItem(label: 'Code', value: _organization.code),
+      if (_prop('domain_name').isNotEmpty)
+        _InfoItem(label: 'Domain', value: _prop('domain_name')),
       if (_organization.geoId.isNotEmpty)
         _InfoItem(label: 'Coverage Area', value: _organization.geoId),
       if (_organization.profileId.isNotEmpty)
@@ -388,17 +390,10 @@ class _OrganizationDetailContentState
           _InfoItem(label: 'Address', value: addressParts.join('\n')),
         );
       }
-      final emails = _propList('contacts_email');
-      if (emails.isNotEmpty) {
-        rightItems
-            .add(_InfoItem(label: 'Email', value: emails.join('\n')));
-      }
-      final phones = _propList('contacts_phone');
-      if (phones.isNotEmpty) {
-        rightItems
-            .add(_InfoItem(label: 'Phone', value: phones.join('\n')));
-      }
     }
+
+    // Read structured contacts from properties.
+    final contacts = _readContacts();
 
     return Card(
       elevation: 0,
@@ -410,47 +405,98 @@ class _OrganizationDetailContentState
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // Use two columns when wide enough, single column on narrow screens
-            if (constraints.maxWidth >= 480) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: leftItems
-                          .map((item) => _InfoTile(
-                              label: item.label, value: item.value))
-                          .toList(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth >= 480) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: leftItems
+                              .map((item) => _InfoTile(
+                                  label: item.label, value: item.value))
+                              .toList(),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: rightItems
+                              .map((item) => _InfoTile(
+                                  label: item.label, value: item.value))
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [...leftItems, ...rightItems]
+                      .map((item) =>
+                          _InfoTile(label: item.label, value: item.value))
+                      .toList(),
+                );
+              },
+            ),
+            if (contacts.isNotEmpty) ...[
+              const Divider(height: 32),
+              Text(
+                'Contacts',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: contacts.map((c) {
+                  return Chip(
+                    avatar: Icon(
+                      c.type == ContactType.email
+                          ? Icons.email
+                          : Icons.phone,
+                      size: 16,
+                      color: theme.colorScheme.primary,
                     ),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: rightItems
-                          .map((item) => _InfoTile(
-                              label: item.label, value: item.value))
-                          .toList(),
+                    label: Text(
+                      '${contactPurposeLabel(c.purpose)}: ${c.value}',
                     ),
-                  ),
-                ],
-              );
-            }
-            // Single column for narrow screens
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [...leftItems, ...rightItems]
-                  .map((item) =>
-                      _InfoTile(label: item.label, value: item.value))
-                  .toList(),
-            );
-          },
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
         ),
       ),
     );
+  }
+
+  /// Read structured contacts from the organization's properties.
+  List<OrganizationContact> _readContacts() {
+    if (!_organization.hasProperties()) return const [];
+    final field = _organization.properties.fields['contacts'];
+    if (field == null || !field.hasListValue()) return const [];
+    final result = <OrganizationContact>[];
+    for (final v in field.listValue.values) {
+      if (!v.hasStructValue()) continue;
+      final m = <String, dynamic>{};
+      for (final entry in v.structValue.fields.entries) {
+        if (entry.value.hasStringValue()) {
+          m[entry.key] = entry.value.stringValue;
+        }
+      }
+      final contact = OrganizationContact.fromMap(m);
+      if (contact != null) result.add(contact);
+    }
+    return result;
   }
 
   // -- Client ID card ---------------------------------------------------------
@@ -525,16 +571,6 @@ class _OrganizationDetailContentState
     return field.stringValue;
   }
 
-  /// Read a list property from the organization's Struct.
-  List<String> _propList(String key) {
-    if (!_organization.hasProperties()) return const [];
-    final field = _organization.properties.fields[key];
-    if (field == null || !field.hasListValue()) return const [];
-    return field.listValue.values
-        .where((v) => v.hasStringValue())
-        .map((v) => v.stringValue)
-        .toList();
-  }
 
   // -- Actions ----------------------------------------------------------------
 
