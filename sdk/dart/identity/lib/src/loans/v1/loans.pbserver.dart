@@ -21,6 +21,18 @@ import 'loans.pbjson.dart';
 export 'loans.pb.dart';
 
 abstract class LoanManagementServiceBase extends $pb.GeneratedService {
+  $async.Future<$12.LoanProductSaveResponse> loanProductSave($pb.ServerContext ctx, $12.LoanProductSaveRequest request);
+  $async.Future<$12.LoanProductGetResponse> loanProductGet($pb.ServerContext ctx, $12.LoanProductGetRequest request);
+  $async.Future<$12.LoanProductSearchResponse> loanProductSearch($pb.ServerContext ctx, $12.LoanProductSearchRequest request);
+  $async.Future<$12.LoanRequestSaveResponse> loanRequestSave($pb.ServerContext ctx, $12.LoanRequestSaveRequest request);
+  $async.Future<$12.LoanRequestGetResponse> loanRequestGet($pb.ServerContext ctx, $12.LoanRequestGetRequest request);
+  $async.Future<$12.LoanRequestSearchResponse> loanRequestSearch($pb.ServerContext ctx, $12.LoanRequestSearchRequest request);
+  $async.Future<$12.LoanRequestApproveResponse> loanRequestApprove($pb.ServerContext ctx, $12.LoanRequestApproveRequest request);
+  $async.Future<$12.LoanRequestRejectResponse> loanRequestReject($pb.ServerContext ctx, $12.LoanRequestRejectRequest request);
+  $async.Future<$12.LoanRequestCancelResponse> loanRequestCancel($pb.ServerContext ctx, $12.LoanRequestCancelRequest request);
+  $async.Future<$12.ClientProductAccessSaveResponse> clientProductAccessSave($pb.ServerContext ctx, $12.ClientProductAccessSaveRequest request);
+  $async.Future<$12.ClientProductAccessGetResponse> clientProductAccessGet($pb.ServerContext ctx, $12.ClientProductAccessGetRequest request);
+  $async.Future<$12.ClientProductAccessSearchResponse> clientProductAccessSearch($pb.ServerContext ctx, $12.ClientProductAccessSearchRequest request);
   $async.Future<$12.LoanAccountCreateResponse> loanAccountCreate($pb.ServerContext ctx, $12.LoanAccountCreateRequest request);
   $async.Future<$12.LoanAccountGetResponse> loanAccountGet($pb.ServerContext ctx, $12.LoanAccountGetRequest request);
   $async.Future<$12.LoanAccountSearchResponse> loanAccountSearch($pb.ServerContext ctx, $12.LoanAccountSearchRequest request);
@@ -44,12 +56,23 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
   $async.Future<$12.ReconciliationSearchResponse> reconciliationSearch($pb.ServerContext ctx, $12.ReconciliationSearchRequest request);
   $async.Future<$12.InitiateCollectionResponse> initiateCollection($pb.ServerContext ctx, $12.InitiateCollectionRequest request);
   $async.Future<$12.LoanStatusChangeSearchResponse> loanStatusChangeSearch($pb.ServerContext ctx, $12.LoanStatusChangeSearchRequest request);
-  $async.Future<$12.LoanRequestResponse> loanRequest($pb.ServerContext ctx, $12.LoanRequestRequest request);
   $async.Future<$12.PortfolioSummaryResponse> portfolioSummary($pb.ServerContext ctx, $12.PortfolioSummaryRequest request);
   $async.Future<$12.PortfolioExportResponse> portfolioExport($pb.ServerContext ctx, $12.PortfolioExportRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
+      case 'LoanProductSave': return $12.LoanProductSaveRequest();
+      case 'LoanProductGet': return $12.LoanProductGetRequest();
+      case 'LoanProductSearch': return $12.LoanProductSearchRequest();
+      case 'LoanRequestSave': return $12.LoanRequestSaveRequest();
+      case 'LoanRequestGet': return $12.LoanRequestGetRequest();
+      case 'LoanRequestSearch': return $12.LoanRequestSearchRequest();
+      case 'LoanRequestApprove': return $12.LoanRequestApproveRequest();
+      case 'LoanRequestReject': return $12.LoanRequestRejectRequest();
+      case 'LoanRequestCancel': return $12.LoanRequestCancelRequest();
+      case 'ClientProductAccessSave': return $12.ClientProductAccessSaveRequest();
+      case 'ClientProductAccessGet': return $12.ClientProductAccessGetRequest();
+      case 'ClientProductAccessSearch': return $12.ClientProductAccessSearchRequest();
       case 'LoanAccountCreate': return $12.LoanAccountCreateRequest();
       case 'LoanAccountGet': return $12.LoanAccountGetRequest();
       case 'LoanAccountSearch': return $12.LoanAccountSearchRequest();
@@ -73,7 +96,6 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
       case 'ReconciliationSearch': return $12.ReconciliationSearchRequest();
       case 'InitiateCollection': return $12.InitiateCollectionRequest();
       case 'LoanStatusChangeSearch': return $12.LoanStatusChangeSearchRequest();
-      case 'LoanRequest': return $12.LoanRequestRequest();
       case 'PortfolioSummary': return $12.PortfolioSummaryRequest();
       case 'PortfolioExport': return $12.PortfolioExportRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
@@ -82,6 +104,18 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
 
   $async.Future<$pb.GeneratedMessage> handleCall($pb.ServerContext ctx, $core.String methodName, $pb.GeneratedMessage request) {
     switch (methodName) {
+      case 'LoanProductSave': return this.loanProductSave(ctx, request as $12.LoanProductSaveRequest);
+      case 'LoanProductGet': return this.loanProductGet(ctx, request as $12.LoanProductGetRequest);
+      case 'LoanProductSearch': return this.loanProductSearch(ctx, request as $12.LoanProductSearchRequest);
+      case 'LoanRequestSave': return this.loanRequestSave(ctx, request as $12.LoanRequestSaveRequest);
+      case 'LoanRequestGet': return this.loanRequestGet(ctx, request as $12.LoanRequestGetRequest);
+      case 'LoanRequestSearch': return this.loanRequestSearch(ctx, request as $12.LoanRequestSearchRequest);
+      case 'LoanRequestApprove': return this.loanRequestApprove(ctx, request as $12.LoanRequestApproveRequest);
+      case 'LoanRequestReject': return this.loanRequestReject(ctx, request as $12.LoanRequestRejectRequest);
+      case 'LoanRequestCancel': return this.loanRequestCancel(ctx, request as $12.LoanRequestCancelRequest);
+      case 'ClientProductAccessSave': return this.clientProductAccessSave(ctx, request as $12.ClientProductAccessSaveRequest);
+      case 'ClientProductAccessGet': return this.clientProductAccessGet(ctx, request as $12.ClientProductAccessGetRequest);
+      case 'ClientProductAccessSearch': return this.clientProductAccessSearch(ctx, request as $12.ClientProductAccessSearchRequest);
       case 'LoanAccountCreate': return this.loanAccountCreate(ctx, request as $12.LoanAccountCreateRequest);
       case 'LoanAccountGet': return this.loanAccountGet(ctx, request as $12.LoanAccountGetRequest);
       case 'LoanAccountSearch': return this.loanAccountSearch(ctx, request as $12.LoanAccountSearchRequest);
@@ -105,7 +139,6 @@ abstract class LoanManagementServiceBase extends $pb.GeneratedService {
       case 'ReconciliationSearch': return this.reconciliationSearch(ctx, request as $12.ReconciliationSearchRequest);
       case 'InitiateCollection': return this.initiateCollection(ctx, request as $12.InitiateCollectionRequest);
       case 'LoanStatusChangeSearch': return this.loanStatusChangeSearch(ctx, request as $12.LoanStatusChangeSearchRequest);
-      case 'LoanRequest': return this.loanRequest(ctx, request as $12.LoanRequestRequest);
       case 'PortfolioSummary': return this.portfolioSummary(ctx, request as $12.PortfolioSummaryRequest);
       case 'PortfolioExport': return this.portfolioExport(ctx, request as $12.PortfolioExportRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');

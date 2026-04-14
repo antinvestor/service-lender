@@ -44,6 +44,10 @@ import '../features/workforce/ui/workforce_member_create_screen.dart';
 import '../features/workforce/ui/workforce_member_detail_screen.dart';
 import '../features/workforce/ui/client_team_transfer_screen.dart';
 import '../features/workforce/ui/workforce_members_screen.dart';
+import '../features/form_templates/ui/form_templates_screen.dart';
+import '../features/form_templates/ui/form_template_designer_screen.dart';
+import '../features/loan_management/ui/loan_requests_screen.dart';
+import '../features/loan_management/ui/loan_request_detail_screen.dart';
 
 part 'router.g.dart';
 
@@ -249,8 +253,31 @@ GoRouter router(Ref ref) {
               ),
             ],
           ),
-          // TODO: Add loan request routes after Dart SDK regeneration
-          // from the new loans.proto LoanRequest types.
+          GoRoute(
+            path: '/loans/requests/pending',
+            builder: (context, state) => _guarded(
+              '/loans/requests/pending',
+              const LoanRequestsScreen(pendingOnly: true),
+            ),
+          ),
+          GoRoute(
+            path: '/loans/requests',
+            builder: (context, state) => _guarded(
+              '/loans/requests',
+              const LoanRequestsScreen(),
+            ),
+            routes: [
+              GoRoute(
+                path: ':requestId',
+                builder: (context, state) => _guarded(
+                  '/loans/requests',
+                  LoanRequestDetailScreen(
+                    requestId: state.pathParameters['requestId']!,
+                  ),
+                ),
+              ),
+            ],
+          ),
           GoRoute(
             path: '/loans/products',
             builder: (context, state) =>

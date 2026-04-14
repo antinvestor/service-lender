@@ -33,7 +33,9 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
   $async.Future<$8.ClientSearchResponse> clientSearch($pb.ServerContext ctx, $8.ClientSearchRequest request);
   $async.Future<$8.ClientReassignResponse> clientReassign($pb.ServerContext ctx, $8.ClientReassignRequest request);
   $async.Future<$8.ClientOwnershipTransferResponse> clientOwnershipTransfer($pb.ServerContext ctx, $8.ClientOwnershipTransferRequest request);
-  $async.Future<$8.ClientRelationshipAssignResponse> clientRelationshipAssign($pb.ServerContext ctx, $8.ClientRelationshipAssignRequest request);
+  $async.Future<$8.ClientRelationshipSaveResponse> clientRelationshipSave($pb.ServerContext ctx, $8.ClientRelationshipSaveRequest request);
+  $async.Future<$8.ClientRelationshipGetResponse> clientRelationshipGet($pb.ServerContext ctx, $8.ClientRelationshipGetRequest request);
+  $async.Future<$8.ClientRelationshipSearchResponse> clientRelationshipSearch($pb.ServerContext ctx, $8.ClientRelationshipSearchRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -49,7 +51,9 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'ClientSearch': return $8.ClientSearchRequest();
       case 'ClientReassign': return $8.ClientReassignRequest();
       case 'ClientOwnershipTransfer': return $8.ClientOwnershipTransferRequest();
-      case 'ClientRelationshipAssign': return $8.ClientRelationshipAssignRequest();
+      case 'ClientRelationshipSave': return $8.ClientRelationshipSaveRequest();
+      case 'ClientRelationshipGet': return $8.ClientRelationshipGetRequest();
+      case 'ClientRelationshipSearch': return $8.ClientRelationshipSearchRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -68,7 +72,9 @@ abstract class FieldServiceBase extends $pb.GeneratedService {
       case 'ClientSearch': return this.clientSearch(ctx, request as $8.ClientSearchRequest);
       case 'ClientReassign': return this.clientReassign(ctx, request as $8.ClientReassignRequest);
       case 'ClientOwnershipTransfer': return this.clientOwnershipTransfer(ctx, request as $8.ClientOwnershipTransferRequest);
-      case 'ClientRelationshipAssign': return this.clientRelationshipAssign(ctx, request as $8.ClientRelationshipAssignRequest);
+      case 'ClientRelationshipSave': return this.clientRelationshipSave(ctx, request as $8.ClientRelationshipSaveRequest);
+      case 'ClientRelationshipGet': return this.clientRelationshipGet(ctx, request as $8.ClientRelationshipGetRequest);
+      case 'ClientRelationshipSearch': return this.clientRelationshipSearch(ctx, request as $8.ClientRelationshipSearchRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

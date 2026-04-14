@@ -3,37 +3,28 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../sdk/src/loans/v1/loans.pbenum.dart';
 
-/// Visual pipeline stepper showing application workflow progress.
-class ApplicationWorkflowStepper extends StatelessWidget {
-  const ApplicationWorkflowStepper({super.key, required this.status});
-  final ApplicationStatus status;
+/// Visual pipeline stepper showing loan request workflow progress.
+class LoanRequestWorkflowStepper extends StatelessWidget {
+  const LoanRequestWorkflowStepper({super.key, required this.status});
+  final LoanRequestStatus status;
 
   static const _steps = [
-    ('Draft', ApplicationStatus.APPLICATION_STATUS_DRAFT),
-    ('Submitted', ApplicationStatus.APPLICATION_STATUS_SUBMITTED),
-    ('Verification', ApplicationStatus.APPLICATION_STATUS_VERIFICATION),
-    ('Underwriting', ApplicationStatus.APPLICATION_STATUS_UNDERWRITING),
-    ('Terms', ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED),
-    ('Loan', ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED),
+    ('Draft', LoanRequestStatus.LOAN_REQUEST_STATUS_DRAFT),
+    ('Submitted', LoanRequestStatus.LOAN_REQUEST_STATUS_SUBMITTED),
+    ('Approved', LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED),
+    ('Loan Created', LoanRequestStatus.LOAN_REQUEST_STATUS_LOAN_CREATED),
   ];
 
   int get _currentIndex {
-    // Map status to step index
     return switch (status) {
-      ApplicationStatus.APPLICATION_STATUS_DRAFT => 0,
-      ApplicationStatus.APPLICATION_STATUS_SUBMITTED => 1,
-      ApplicationStatus.APPLICATION_STATUS_KYC_PENDING ||
-      ApplicationStatus.APPLICATION_STATUS_DOCUMENTS_PENDING ||
-      ApplicationStatus.APPLICATION_STATUS_VERIFICATION => 2,
-      ApplicationStatus.APPLICATION_STATUS_UNDERWRITING => 3,
-      ApplicationStatus.APPLICATION_STATUS_APPROVED ||
-      ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED ||
-      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED => 4,
-      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => 5,
-      ApplicationStatus.APPLICATION_STATUS_REJECTED ||
-      ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED ||
-      ApplicationStatus.APPLICATION_STATUS_CANCELLED ||
-      ApplicationStatus.APPLICATION_STATUS_EXPIRED => -1, // Terminal/rejected
+      LoanRequestStatus.LOAN_REQUEST_STATUS_DRAFT => 0,
+      LoanRequestStatus.LOAN_REQUEST_STATUS_SUBMITTED => 1,
+      LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED => 2,
+      LoanRequestStatus.LOAN_REQUEST_STATUS_LOAN_CREATED => 3,
+      LoanRequestStatus.LOAN_REQUEST_STATUS_REJECTED ||
+      LoanRequestStatus.LOAN_REQUEST_STATUS_CANCELLED ||
+      LoanRequestStatus.LOAN_REQUEST_STATUS_EXPIRED =>
+        -1,
       _ => 0,
     };
   }
@@ -99,12 +90,11 @@ class ApplicationWorkflowStepper extends StatelessWidget {
   }
 
   String get _terminalLabel => switch (status) {
-    ApplicationStatus.APPLICATION_STATUS_REJECTED => 'Rejected',
-    ApplicationStatus.APPLICATION_STATUS_OFFER_DECLINED => 'Offer Declined',
-    ApplicationStatus.APPLICATION_STATUS_CANCELLED => 'Cancelled',
-    ApplicationStatus.APPLICATION_STATUS_EXPIRED => 'Expired',
-    _ => 'Closed',
-  };
+        LoanRequestStatus.LOAN_REQUEST_STATUS_REJECTED => 'Rejected',
+        LoanRequestStatus.LOAN_REQUEST_STATUS_CANCELLED => 'Cancelled',
+        LoanRequestStatus.LOAN_REQUEST_STATUS_EXPIRED => 'Expired',
+        _ => 'Closed',
+      };
 }
 
 class _StepDot extends StatelessWidget {
@@ -136,25 +126,25 @@ class _StepDot extends StatelessWidget {
             color: isCompleted
                 ? color
                 : isCurrent
-                ? color.withAlpha(30)
-                : Colors.transparent,
+                    ? color.withAlpha(30)
+                    : Colors.transparent,
             border: Border.all(color: color, width: 2),
             shape: BoxShape.circle,
           ),
           child: isCompleted
               ? const Icon(Icons.check, size: 14, color: Colors.white)
               : isCurrent
-              ? Center(
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                )
-              : null,
+                  ? Center(
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                  : null,
         ),
         const SizedBox(height: 4),
         Text(

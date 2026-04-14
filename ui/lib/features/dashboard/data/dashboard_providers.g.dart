@@ -8,37 +8,34 @@ part of 'dashboard_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Fetches count of applications in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
+/// Fetches count of loan requests in a given status.
 
-@ProviderFor(applicationCountByStatus)
-final applicationCountByStatusProvider = ApplicationCountByStatusFamily._();
+@ProviderFor(loanRequestCountByStatus)
+final loanRequestCountByStatusProvider = LoanRequestCountByStatusFamily._();
 
-/// Fetches count of applications in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
+/// Fetches count of loan requests in a given status.
 
-final class ApplicationCountByStatusProvider
+final class LoanRequestCountByStatusProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
-  /// Fetches count of applications in a given status.
-  /// Uses a single page with limit 1 to get count efficiently.
-  ApplicationCountByStatusProvider._({
-    required ApplicationCountByStatusFamily super.from,
-    required ApplicationStatus super.argument,
+  /// Fetches count of loan requests in a given status.
+  LoanRequestCountByStatusProvider._({
+    required LoanRequestCountByStatusFamily super.from,
+    required LoanRequestStatus super.argument,
   }) : super(
          retry: null,
-         name: r'applicationCountByStatusProvider',
+         name: r'loanRequestCountByStatusProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$applicationCountByStatusHash();
+  String debugGetCreateSourceHash() => _$loanRequestCountByStatusHash();
 
   @override
   String toString() {
-    return r'applicationCountByStatusProvider'
+    return r'loanRequestCountByStatusProvider'
         ''
         '($argument)';
   }
@@ -50,13 +47,13 @@ final class ApplicationCountByStatusProvider
 
   @override
   FutureOr<int> create(Ref ref) {
-    final argument = this.argument as ApplicationStatus;
-    return applicationCountByStatus(ref, argument);
+    final argument = this.argument as LoanRequestStatus;
+    return loanRequestCountByStatus(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is ApplicationCountByStatusProvider &&
+    return other is LoanRequestCountByStatusProvider &&
         other.argument == argument;
   }
 
@@ -66,47 +63,42 @@ final class ApplicationCountByStatusProvider
   }
 }
 
-String _$applicationCountByStatusHash() =>
-    r'5b6026f2349cbec032e599ff5befbf99e181fddd';
+String _$loanRequestCountByStatusHash() =>
+    r'8a0e89f60c7c922cce518230179ae2d28ca59f1e';
 
-/// Fetches count of applications in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
+/// Fetches count of loan requests in a given status.
 
-final class ApplicationCountByStatusFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<int>, ApplicationStatus> {
-  ApplicationCountByStatusFamily._()
+final class LoanRequestCountByStatusFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<int>, LoanRequestStatus> {
+  LoanRequestCountByStatusFamily._()
     : super(
         retry: null,
-        name: r'applicationCountByStatusProvider',
+        name: r'loanRequestCountByStatusProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  /// Fetches count of applications in a given status.
-  /// Uses a single page with limit 1 to get count efficiently.
+  /// Fetches count of loan requests in a given status.
 
-  ApplicationCountByStatusProvider call(ApplicationStatus status) =>
-      ApplicationCountByStatusProvider._(argument: status, from: this);
+  LoanRequestCountByStatusProvider call(LoanRequestStatus status) =>
+      LoanRequestCountByStatusProvider._(argument: status, from: this);
 
   @override
-  String toString() => r'applicationCountByStatusProvider';
+  String toString() => r'loanRequestCountByStatusProvider';
 }
 
 /// Fetches count of loan accounts in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
 
 @ProviderFor(loanCountByStatus)
 final loanCountByStatusProvider = LoanCountByStatusFamily._();
 
 /// Fetches count of loan accounts in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
 
 final class LoanCountByStatusProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
   /// Fetches count of loan accounts in a given status.
-  /// Uses a single page with limit 1 to get count efficiently.
   LoanCountByStatusProvider._({
     required LoanCountByStatusFamily super.from,
     required LoanStatus super.argument,
@@ -153,7 +145,6 @@ final class LoanCountByStatusProvider
 String _$loanCountByStatusHash() => r'c3b07985f825e34f55808087f877c3168ae5bdcf';
 
 /// Fetches count of loan accounts in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
 
 final class LoanCountByStatusFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<int>, LoanStatus> {
@@ -167,7 +158,6 @@ final class LoanCountByStatusFamily extends $Family
       );
 
   /// Fetches count of loan accounts in a given status.
-  /// Uses a single page with limit 1 to get count efficiently.
 
   LoanCountByStatusProvider call(LoanStatus status) =>
       LoanCountByStatusProvider._(argument: status, from: this);
@@ -178,28 +168,28 @@ final class LoanCountByStatusFamily extends $Family
 
 /// Convenience providers for specific dashboard metrics.
 
-@ProviderFor(pendingVerificationCount)
-final pendingVerificationCountProvider = PendingVerificationCountProvider._();
+@ProviderFor(pendingApprovalCount)
+final pendingApprovalCountProvider = PendingApprovalCountProvider._();
 
 /// Convenience providers for specific dashboard metrics.
 
-final class PendingVerificationCountProvider
+final class PendingApprovalCountProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
   /// Convenience providers for specific dashboard metrics.
-  PendingVerificationCountProvider._()
+  PendingApprovalCountProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'pendingVerificationCountProvider',
+        name: r'pendingApprovalCountProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$pendingVerificationCountHash();
+  String debugGetCreateSourceHash() => _$pendingApprovalCountHash();
 
   @$internal
   @override
@@ -208,32 +198,32 @@ final class PendingVerificationCountProvider
 
   @override
   FutureOr<int> create(Ref ref) {
-    return pendingVerificationCount(ref);
+    return pendingApprovalCount(ref);
   }
 }
 
-String _$pendingVerificationCountHash() =>
-    r'f21728859fa544c1e44e81cec882d00abcbba09b';
+String _$pendingApprovalCountHash() =>
+    r'8100ff88d906a53a17f55f487766de670dcae806';
 
-@ProviderFor(pendingUnderwritingCount)
-final pendingUnderwritingCountProvider = PendingUnderwritingCountProvider._();
+@ProviderFor(approvedRequestsCount)
+final approvedRequestsCountProvider = ApprovedRequestsCountProvider._();
 
-final class PendingUnderwritingCountProvider
+final class ApprovedRequestsCountProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
-  PendingUnderwritingCountProvider._()
+  ApprovedRequestsCountProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'pendingUnderwritingCountProvider',
+        name: r'approvedRequestsCountProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$pendingUnderwritingCountHash();
+  String debugGetCreateSourceHash() => _$approvedRequestsCountHash();
 
   @$internal
   @override
@@ -242,45 +232,12 @@ final class PendingUnderwritingCountProvider
 
   @override
   FutureOr<int> create(Ref ref) {
-    return pendingUnderwritingCount(ref);
+    return approvedRequestsCount(ref);
   }
 }
 
-String _$pendingUnderwritingCountHash() =>
-    r'327e10486dfb1fff5f1d8cbbe01902da8fac854c';
-
-@ProviderFor(offerPendingCount)
-final offerPendingCountProvider = OfferPendingCountProvider._();
-
-final class OfferPendingCountProvider
-    extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
-    with $FutureModifier<int>, $FutureProvider<int> {
-  OfferPendingCountProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'offerPendingCountProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$offerPendingCountHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<int> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<int> create(Ref ref) {
-    return offerPendingCount(ref);
-  }
-}
-
-String _$offerPendingCountHash() => r'c880932ad66e7f37526be74d9f0879036e1a00b0';
+String _$approvedRequestsCountHash() =>
+    r'b62f764741de36a4acc538b776195517584b0613';
 
 @ProviderFor(activeLoansCount)
 final activeLoansCountProvider = ActiveLoansCountProvider._();

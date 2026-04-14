@@ -7,7 +7,8 @@ import "package:connectrpc/connect.dart" as connect;
 import "identity.pb.dart" as identityv1identity;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages organizations, org units, and system users for the platform.
+/// IdentityService manages organizations, org units, system users, form templates,
+/// and data collection for the platform.
 /// Canonical workforce, hierarchy, team, and access-control concepts live here.
 /// All RPCs require authentication via Bearer token.
 abstract final class IdentityService {
@@ -456,6 +457,66 @@ abstract final class IdentityService {
     connect.StreamType.unary,
     identityv1identity.ClientDataHistoryRequest.new,
     identityv1identity.ClientDataHistoryResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormTemplateSave creates or updates a form template.
+  static const formTemplateSave = connect.Spec(
+    '/$name/FormTemplateSave',
+    connect.StreamType.unary,
+    identityv1identity.FormTemplateSaveRequest.new,
+    identityv1identity.FormTemplateSaveResponse.new,
+  );
+
+  /// FormTemplateGet retrieves a form template by its ID.
+  static const formTemplateGet = connect.Spec(
+    '/$name/FormTemplateGet',
+    connect.StreamType.unary,
+    identityv1identity.FormTemplateGetRequest.new,
+    identityv1identity.FormTemplateGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormTemplateSearch finds form templates matching search criteria.
+  static const formTemplateSearch = connect.Spec(
+    '/$name/FormTemplateSearch',
+    connect.StreamType.server,
+    identityv1identity.FormTemplateSearchRequest.new,
+    identityv1identity.FormTemplateSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormTemplatePublish transitions a draft form template to published.
+  static const formTemplatePublish = connect.Spec(
+    '/$name/FormTemplatePublish',
+    connect.StreamType.unary,
+    identityv1identity.FormTemplatePublishRequest.new,
+    identityv1identity.FormTemplatePublishResponse.new,
+  );
+
+  /// FormSubmissionSave creates or updates a form submission.
+  static const formSubmissionSave = connect.Spec(
+    '/$name/FormSubmissionSave',
+    connect.StreamType.unary,
+    identityv1identity.FormSubmissionSaveRequest.new,
+    identityv1identity.FormSubmissionSaveResponse.new,
+  );
+
+  /// FormSubmissionGet retrieves a form submission by its ID.
+  static const formSubmissionGet = connect.Spec(
+    '/$name/FormSubmissionGet',
+    connect.StreamType.unary,
+    identityv1identity.FormSubmissionGetRequest.new,
+    identityv1identity.FormSubmissionGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// FormSubmissionSearch finds form submissions matching search criteria.
+  static const formSubmissionSearch = connect.Spec(
+    '/$name/FormSubmissionSearch',
+    connect.StreamType.server,
+    identityv1identity.FormSubmissionSearchRequest.new,
+    identityv1identity.FormSubmissionSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 }

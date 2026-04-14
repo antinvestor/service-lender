@@ -14,8 +14,11 @@ import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/profile_badge.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pbenum.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../loan_management/data/loan_account_providers.dart';
 import '../../loan_management/data/loan_request_providers.dart';
 import '../../auth/data/auth_repository.dart';
@@ -680,7 +683,7 @@ class _ApplicationsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final appsAsync = ref.watch(
-      applicationListProvider('', clientId: clientId),
+      loanRequestListProvider(query: clientId),
     );
 
     return appsAsync.when(
@@ -693,7 +696,7 @@ class _ApplicationsTab extends ConsumerWidget {
             const SizedBox(height: 8),
             FilledButton.tonal(
               onPressed: () => ref.invalidate(
-                applicationListProvider('', clientId: clientId),
+                loanRequestListProvider(query: clientId),
               ),
               child: const Text('Retry'),
             ),
@@ -766,7 +769,7 @@ class _ApplicationsTab extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      ApplicationStatusBadge(status: app.status),
+                      LoanRequestStatusBadge(status: app.status),
                     ],
                   ),
                 ),
@@ -778,13 +781,13 @@ class _ApplicationsTab extends ConsumerWidget {
     );
   }
 
-  Color _statusColor(ApplicationStatus status) {
+  Color _statusColor(LoanRequestStatus status) {
     return switch (status) {
-      ApplicationStatus.APPLICATION_STATUS_APPROVED ||
-      ApplicationStatus.APPLICATION_STATUS_OFFER_ACCEPTED ||
-      ApplicationStatus.APPLICATION_STATUS_LOAN_CREATED => Colors.green,
-      ApplicationStatus.APPLICATION_STATUS_REJECTED ||
-      ApplicationStatus.APPLICATION_STATUS_CANCELLED => Colors.red,
+      LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED ||
+      LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED ||
+      LoanRequestStatus.LOAN_REQUEST_STATUS_LOAN_CREATED => Colors.green,
+      LoanRequestStatus.LOAN_REQUEST_STATUS_REJECTED ||
+      LoanRequestStatus.LOAN_REQUEST_STATUS_CANCELLED => Colors.red,
       _ => Colors.blue,
     };
   }

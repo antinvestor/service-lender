@@ -113,10 +113,29 @@ abstract final class FieldService {
     fieldv1field.ClientOwnershipTransferResponse.new,
   );
 
-  static const clientRelationshipAssign = connect.Spec(
-    '/$name/ClientRelationshipAssign',
+  /// ClientRelationshipSave creates or updates a client-member relationship.
+  static const clientRelationshipSave = connect.Spec(
+    '/$name/ClientRelationshipSave',
     connect.StreamType.unary,
-    fieldv1field.ClientRelationshipAssignRequest.new,
-    fieldv1field.ClientRelationshipAssignResponse.new,
+    fieldv1field.ClientRelationshipSaveRequest.new,
+    fieldv1field.ClientRelationshipSaveResponse.new,
+  );
+
+  /// ClientRelationshipGet retrieves a client relationship by ID.
+  static const clientRelationshipGet = connect.Spec(
+    '/$name/ClientRelationshipGet',
+    connect.StreamType.unary,
+    fieldv1field.ClientRelationshipGetRequest.new,
+    fieldv1field.ClientRelationshipGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// ClientRelationshipSearch finds client relationships matching criteria.
+  static const clientRelationshipSearch = connect.Spec(
+    '/$name/ClientRelationshipSearch',
+    connect.StreamType.server,
+    fieldv1field.ClientRelationshipSearchRequest.new,
+    fieldv1field.ClientRelationshipSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
   );
 }

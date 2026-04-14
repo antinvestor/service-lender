@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/dynamic_form.dart' show mapToStruct;
 import '../../sdk/src/identity/v1/identity.pb.dart';
+import '../../sdk/src/loans/v1/loans.pb.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../data/form_template_providers.dart';
 import 'dynamic_form_renderer.dart';
@@ -16,7 +17,7 @@ import 'dynamic_form_renderer.dart';
 /// group setup, stawi products, or any flow that has form requirements.
 ///
 /// [entityId] is the owning entity (application ID, client ID, group ID, etc.)
-/// used as the `applicationId` in FormSubmissionObject.
+/// used as the `entityId` in FormSubmissionObject.
 class FormRequirementWizard extends ConsumerStatefulWidget {
   const FormRequirementWizard({
     super.key,
@@ -388,7 +389,7 @@ class _FormRequirementWizardState
 
     try {
       final submission = FormSubmissionObject(
-        applicationId: widget.entityId,
+        entityId: widget.entityId,
         templateId: req.templateId,
         templateVersion: template.version,
         submittedBy: profileId,

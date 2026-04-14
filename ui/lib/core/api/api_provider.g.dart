@@ -50,48 +50,6 @@ final class LoansTransportProvider
 
 String _$loansTransportHash() => r'6f327f930f7e903335c1005578e9d55c4fd8e2fa';
 
-@ProviderFor(originationTransport)
-final originationTransportProvider = OriginationTransportProvider._();
-
-final class OriginationTransportProvider
-    extends $FunctionalProvider<Transport, Transport, Transport>
-    with $Provider<Transport> {
-  OriginationTransportProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'originationTransportProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$originationTransportHash();
-
-  @$internal
-  @override
-  $ProviderElement<Transport> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  Transport create(Ref ref) {
-    return originationTransport(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Transport value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Transport>(value),
-    );
-  }
-}
-
-String _$originationTransportHash() =>
-    r'3a23823e744224ae2f737826ab703d80ec07a3cb';
-
 @ProviderFor(identityTransport)
 final identityTransportProvider = IdentityTransportProvider._();
 
@@ -442,54 +400,6 @@ final class GeolocationServiceClientProvider
 
 String _$geolocationServiceClientHash() =>
     r'e71c6e20ea8ac56ce1347edd17165039eadbb96a';
-
-@ProviderFor(originationServiceClient)
-final originationServiceClientProvider = OriginationServiceClientProvider._();
-
-final class OriginationServiceClientProvider
-    extends
-        $FunctionalProvider<
-          OriginationServiceClient,
-          OriginationServiceClient,
-          OriginationServiceClient
-        >
-    with $Provider<OriginationServiceClient> {
-  OriginationServiceClientProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'originationServiceClientProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$originationServiceClientHash();
-
-  @$internal
-  @override
-  $ProviderElement<OriginationServiceClient> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  OriginationServiceClient create(Ref ref) {
-    return originationServiceClient(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(OriginationServiceClient value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<OriginationServiceClient>(value),
-    );
-  }
-}
-
-String _$originationServiceClientHash() =>
-    r'1815a2feb9e1b611d005ccc50fbba286196ad0dc';
 
 @ProviderFor(loanManagementServiceClient)
 final loanManagementServiceClientProvider =

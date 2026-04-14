@@ -110,11 +110,11 @@ Future<List<FormTemplateObject>> entityFormTemplates(
 class FormSubmissionList extends _$FormSubmissionList {
   @override
   Future<List<FormSubmissionObject>> build({
-    required String applicationId,
+    required String entityId,
   }) async {
     final client = ref.watch(identityServiceClientProvider);
     final request = FormSubmissionSearchRequest(
-      applicationId: applicationId,
+      entityId: entityId,
       cursor: PageCursor(limit: 50),
     );
 
@@ -138,10 +138,10 @@ class FormSubmissionNotifier extends _$FormSubmissionNotifier {
       FormSubmissionSaveRequest(data: submission),
     );
     // Invalidate only the specific entity's submission list.
-    final entityId = response.data.applicationId;
+    final entityId = response.data.entityId;
     if (entityId.isNotEmpty) {
       ref.invalidate(
-        formSubmissionListProvider(applicationId: entityId),
+        formSubmissionListProvider(entityId: entityId),
       );
     }
     return response.data;

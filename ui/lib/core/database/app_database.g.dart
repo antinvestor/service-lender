@@ -304,7 +304,7 @@ class LocalClient extends DataClass implements Insertable<LocalClient> {
   /// Profile service user ID.
   final String profileId;
 
-  /// Workforce member responsible for this client (primaryRelationshipMemberId).
+  /// Workforce member responsible for this client (owningTeamId).
   final String responsibleMemberId;
 
   /// Current state (maps to STATE enum: 0=CREATED, 2=ACTIVE, etc.).

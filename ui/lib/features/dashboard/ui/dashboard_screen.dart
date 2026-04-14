@@ -65,9 +65,9 @@ class _RoleDashboard extends ConsumerWidget {
         return RefreshIndicator(
           onRefresh: () async {
             // Invalidate all metric providers
-            ref.invalidate(pendingVerificationCountProvider);
-            ref.invalidate(pendingUnderwritingCountProvider);
-            ref.invalidate(offerPendingCountProvider);
+            ref.invalidate(pendingApprovalCountProvider);
+            ref.invalidate(approvedRequestsCountProvider);
+            ref.invalidate(pendingDisbursementCountProvider);
             ref.invalidate(activeLoansCountProvider);
             ref.invalidate(pendingDisbursementCountProvider);
             ref.invalidate(delinquentLoansCountProvider);
@@ -210,7 +210,7 @@ class _RoleDashboard extends ConsumerWidget {
           label: 'Offer Pending',
           icon: Icons.local_offer_outlined,
           accentColor: Colors.teal,
-          countAsync: ref.watch(offerPendingCountProvider),
+          countAsync: ref.watch(pendingDisbursementCountProvider),
           onTap: () => context.go('/loans/requests'),
         ),
       ],
@@ -219,21 +219,21 @@ class _RoleDashboard extends ConsumerWidget {
           label: 'Pending Verification',
           icon: Icons.verified_user_outlined,
           accentColor: Colors.purple,
-          countAsync: ref.watch(pendingVerificationCountProvider),
+          countAsync: ref.watch(pendingApprovalCountProvider),
           onTap: () => context.go('/loans/requests/pending'),
         ),
         _MetricCard(
           label: 'Pending Underwriting',
           icon: Icons.gavel_outlined,
           accentColor: Colors.indigo,
-          countAsync: ref.watch(pendingUnderwritingCountProvider),
+          countAsync: ref.watch(approvedRequestsCountProvider),
           onTap: () => context.go('/loans/requests/pending'),
         ),
         _MetricCard(
           label: 'Offer Pending',
           icon: Icons.local_offer_outlined,
           accentColor: Colors.teal,
-          countAsync: ref.watch(offerPendingCountProvider),
+          countAsync: ref.watch(pendingDisbursementCountProvider),
           onTap: () => context.go('/loans/requests'),
         ),
         _MetricCard(
@@ -249,21 +249,21 @@ class _RoleDashboard extends ConsumerWidget {
           label: 'Pending Verification',
           icon: Icons.verified_user_outlined,
           accentColor: Colors.purple,
-          countAsync: ref.watch(pendingVerificationCountProvider),
+          countAsync: ref.watch(pendingApprovalCountProvider),
           onTap: () => context.go('/loans/requests'),
         ),
         _MetricCard(
           label: 'Pending Underwriting',
           icon: Icons.gavel_outlined,
           accentColor: Colors.indigo,
-          countAsync: ref.watch(pendingUnderwritingCountProvider),
+          countAsync: ref.watch(approvedRequestsCountProvider),
           onTap: () => context.go('/loans/requests'),
         ),
         _MetricCard(
           label: 'Offer Pending',
           icon: Icons.local_offer_outlined,
           accentColor: Colors.teal,
-          countAsync: ref.watch(offerPendingCountProvider),
+          countAsync: ref.watch(pendingDisbursementCountProvider),
           onTap: () => context.go('/loans/requests'),
         ),
         _MetricCard(

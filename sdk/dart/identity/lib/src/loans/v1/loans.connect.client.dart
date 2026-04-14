@@ -11,7 +11,224 @@ import "loans.connect.spec.dart" as specs;
 /// schedules, penalties, restructures, and reconciliation.
 /// All RPCs require authentication via Bearer token.
 extension type LoanManagementServiceClient (connect.Transport _transport) {
-  /// LoanAccountCreate creates a new loan account from an approved application.
+  /// LoanProductSave creates or updates a loan product.
+  Future<loansv1loans.LoanProductSaveResponse> loanProductSave(
+    loansv1loans.LoanProductSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanProductSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanProductGet retrieves a loan product by its ID.
+  Future<loansv1loans.LoanProductGetResponse> loanProductGet(
+    loansv1loans.LoanProductGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanProductGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanProductSearch finds loan products matching search criteria.
+  Stream<loansv1loans.LoanProductSearchResponse> loanProductSearch(
+    loansv1loans.LoanProductSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.LoanManagementService.loanProductSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanRequestSave creates or updates a loan request. Called by product services
+  /// (seed, stawi, etc.) after completing their own acquisition workflows.
+  Future<loansv1loans.LoanRequestSaveResponse> loanRequestSave(
+    loansv1loans.LoanRequestSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanRequestSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanRequestGet retrieves a loan request by its ID.
+  Future<loansv1loans.LoanRequestGetResponse> loanRequestGet(
+    loansv1loans.LoanRequestGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanRequestGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanRequestSearch finds loan requests matching search criteria.
+  Stream<loansv1loans.LoanRequestSearchResponse> loanRequestSearch(
+    loansv1loans.LoanRequestSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.LoanManagementService.loanRequestSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanRequestApprove approves a loan request and creates the loan account.
+  Future<loansv1loans.LoanRequestApproveResponse> loanRequestApprove(
+    loansv1loans.LoanRequestApproveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanRequestApprove,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanRequestReject rejects a loan request with a reason.
+  Future<loansv1loans.LoanRequestRejectResponse> loanRequestReject(
+    loansv1loans.LoanRequestRejectRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanRequestReject,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanRequestCancel cancels a loan request.
+  Future<loansv1loans.LoanRequestCancelResponse> loanRequestCancel(
+    loansv1loans.LoanRequestCancelRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.loanRequestCancel,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientProductAccessSave creates or updates a client product access record.
+  Future<loansv1loans.ClientProductAccessSaveResponse> clientProductAccessSave(
+    loansv1loans.ClientProductAccessSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.clientProductAccessSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientProductAccessGet retrieves a client product access record.
+  Future<loansv1loans.ClientProductAccessGetResponse> clientProductAccessGet(
+    loansv1loans.ClientProductAccessGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.LoanManagementService.clientProductAccessGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientProductAccessSearch finds client product access records.
+  Stream<loansv1loans.ClientProductAccessSearchResponse> clientProductAccessSearch(
+    loansv1loans.ClientProductAccessSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.LoanManagementService.clientProductAccessSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// LoanAccountCreate creates a new loan account from an approved loan request.
   Future<loansv1loans.LoanAccountCreateResponse> loanAccountCreate(
     loansv1loans.LoanAccountCreateRequest input, {
     connect.Headers? headers,
@@ -417,26 +634,6 @@ extension type LoanManagementServiceClient (connect.Transport _transport) {
   }) {
     return connect.Client(_transport).server(
       specs.LoanManagementService.loanStatusChangeSearch,
-      input,
-      signal: signal,
-      headers: headers,
-      onHeader: onHeader,
-      onTrailer: onTrailer,
-    );
-  }
-
-  /// LoanRequest is the client-facing API for direct client loan requests.
-  /// Clients call this from app/USSD. The system validates eligibility,
-  /// runs automated risk checks, and routes to the responsible agent.
-  Future<loansv1loans.LoanRequestResponse> loanRequest(
-    loansv1loans.LoanRequestRequest input, {
-    connect.Headers? headers,
-    connect.AbortSignal? signal,
-    Function(connect.Headers)? onHeader,
-    Function(connect.Headers)? onTrailer,
-  }) {
-    return connect.Client(_transport).unary(
-      specs.LoanManagementService.loanRequest,
       input,
       signal: signal,
       headers: headers,

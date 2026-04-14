@@ -76,6 +76,13 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
   $async.Future<$11.ClientDataRejectResponse> clientDataReject($pb.ServerContext ctx, $11.ClientDataRejectRequest request);
   $async.Future<$11.ClientDataRequestInfoResponse> clientDataRequestInfo($pb.ServerContext ctx, $11.ClientDataRequestInfoRequest request);
   $async.Future<$11.ClientDataHistoryResponse> clientDataHistory($pb.ServerContext ctx, $11.ClientDataHistoryRequest request);
+  $async.Future<$11.FormTemplateSaveResponse> formTemplateSave($pb.ServerContext ctx, $11.FormTemplateSaveRequest request);
+  $async.Future<$11.FormTemplateGetResponse> formTemplateGet($pb.ServerContext ctx, $11.FormTemplateGetRequest request);
+  $async.Future<$11.FormTemplateSearchResponse> formTemplateSearch($pb.ServerContext ctx, $11.FormTemplateSearchRequest request);
+  $async.Future<$11.FormTemplatePublishResponse> formTemplatePublish($pb.ServerContext ctx, $11.FormTemplatePublishRequest request);
+  $async.Future<$11.FormSubmissionSaveResponse> formSubmissionSave($pb.ServerContext ctx, $11.FormSubmissionSaveRequest request);
+  $async.Future<$11.FormSubmissionGetResponse> formSubmissionGet($pb.ServerContext ctx, $11.FormSubmissionGetRequest request);
+  $async.Future<$11.FormSubmissionSearchResponse> formSubmissionSearch($pb.ServerContext ctx, $11.FormSubmissionSearchRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -133,6 +140,13 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'ClientDataReject': return $11.ClientDataRejectRequest();
       case 'ClientDataRequestInfo': return $11.ClientDataRequestInfoRequest();
       case 'ClientDataHistory': return $11.ClientDataHistoryRequest();
+      case 'FormTemplateSave': return $11.FormTemplateSaveRequest();
+      case 'FormTemplateGet': return $11.FormTemplateGetRequest();
+      case 'FormTemplateSearch': return $11.FormTemplateSearchRequest();
+      case 'FormTemplatePublish': return $11.FormTemplatePublishRequest();
+      case 'FormSubmissionSave': return $11.FormSubmissionSaveRequest();
+      case 'FormSubmissionGet': return $11.FormSubmissionGetRequest();
+      case 'FormSubmissionSearch': return $11.FormSubmissionSearchRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -193,6 +207,13 @@ abstract class IdentityServiceBase extends $pb.GeneratedService {
       case 'ClientDataReject': return this.clientDataReject(ctx, request as $11.ClientDataRejectRequest);
       case 'ClientDataRequestInfo': return this.clientDataRequestInfo(ctx, request as $11.ClientDataRequestInfoRequest);
       case 'ClientDataHistory': return this.clientDataHistory(ctx, request as $11.ClientDataHistoryRequest);
+      case 'FormTemplateSave': return this.formTemplateSave(ctx, request as $11.FormTemplateSaveRequest);
+      case 'FormTemplateGet': return this.formTemplateGet(ctx, request as $11.FormTemplateGetRequest);
+      case 'FormTemplateSearch': return this.formTemplateSearch(ctx, request as $11.FormTemplateSearchRequest);
+      case 'FormTemplatePublish': return this.formTemplatePublish(ctx, request as $11.FormTemplatePublishRequest);
+      case 'FormSubmissionSave': return this.formSubmissionSave(ctx, request as $11.FormSubmissionSaveRequest);
+      case 'FormSubmissionGet': return this.formSubmissionGet(ctx, request as $11.FormSubmissionGetRequest);
+      case 'FormSubmissionSearch': return this.formSubmissionSearch(ctx, request as $11.FormSubmissionSearchRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

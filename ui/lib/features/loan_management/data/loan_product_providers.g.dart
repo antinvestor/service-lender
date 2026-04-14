@@ -50,7 +50,7 @@ final class LoanProductListProvider
   }
 }
 
-String _$loanProductListHash() => r'df3959bd44f01656855c7457246db3795aadb279';
+String _$loanProductListHash() => r'0f5f7588bc8b2eb2ec4209e998a8023baf5d3266';
 
 final class LoanProductListFamily extends $Family
     with
@@ -164,7 +164,7 @@ final class LoanProductDetailProvider
   }
 }
 
-String _$loanProductDetailHash() => r'b42ba8be829fa24efad1c865c864d505a13accc0';
+String _$loanProductDetailHash() => r'2f16dc83dfa5a90072642fd3b6a8d64157cda585';
 
 final class LoanProductDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<LoanProductObject>, String> {
@@ -209,7 +209,7 @@ final class LoanProductNotifierProvider
 }
 
 String _$loanProductNotifierHash() =>
-    r'87a817711b3570ba8f03db49f099a35a2076163e';
+    r'f95d46cecb80ebf3462f7adfeff2b39e21262c27';
 
 abstract class _$LoanProductNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

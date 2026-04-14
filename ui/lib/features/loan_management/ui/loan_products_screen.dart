@@ -10,7 +10,7 @@ import '../../../core/widgets/form_field_card.dart';
 import '../../../core/widgets/money_helpers.dart';
 import '../../../core/widgets/state_badge.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
-import '../../../sdk/src/identity/v1/identity.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../organization/data/organization_providers.dart';
 import '../data/loan_product_providers.dart';
 

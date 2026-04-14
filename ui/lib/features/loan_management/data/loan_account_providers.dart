@@ -62,10 +62,10 @@ class LoanAccountNotifier extends _$LoanAccountNotifier {
   @override
   FutureOr<void> build() {}
 
-  Future<LoanAccountObject> createFromApplication(String applicationId) async {
+  Future<LoanAccountObject> createFromRequest(String loanRequestId) async {
     final client = ref.read(loanManagementServiceClientProvider);
     final response = await client.loanAccountCreate(
-      LoanAccountCreateRequest(applicationId: applicationId),
+      LoanAccountCreateRequest(loanRequestId: loanRequestId),
     );
     ref.invalidate(loanAccountListProvider);
     return response.data;

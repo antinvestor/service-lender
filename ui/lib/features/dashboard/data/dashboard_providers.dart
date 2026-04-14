@@ -4,27 +4,27 @@ import '../../../core/api/api_provider.dart';
 import '../../../core/api/stream_helpers.dart';
 import '../../../sdk/src/common/v1/common.pb.dart';
 import '../../../sdk/src/loans/v1/loans.pb.dart';
-import '../../../sdk/src/identity/v1/identity.pb.dart';
 
 part 'dashboard_providers.g.dart';
 
-/// Fetches count of applications in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
+/// Fetches count of loan requests in a given status.
 @riverpod
-Future<int> applicationCountByStatus(Ref ref, ApplicationStatus status) async {
+Future<int> loanRequestCountByStatus(
+  Ref ref,
+  LoanRequestStatus status,
+) async {
   final client = ref.watch(loanManagementServiceClientProvider);
-  final request = ApplicationSearchRequest(cursor: PageCursor(limit: 1));
+  final request = LoanRequestSearchRequest(cursor: PageCursor(limit: 1));
   request.status = status;
 
   return countStream(
-    client.applicationSearch(request),
+    client.loanRequestSearch(request),
     count: (response) => response.data.length,
     maxPages: 1,
   );
 }
 
 /// Fetches count of loan accounts in a given status.
-/// Uses a single page with limit 1 to get count efficiently.
 @riverpod
 Future<int> loanCountByStatus(Ref ref, LoanStatus status) async {
   final client = ref.watch(loanManagementServiceClientProvider);
@@ -40,25 +40,18 @@ Future<int> loanCountByStatus(Ref ref, LoanStatus status) async {
 
 /// Convenience providers for specific dashboard metrics.
 @riverpod
-Future<int> pendingVerificationCount(Ref ref) => ref.watch(
-  applicationCountByStatusProvider(
-    ApplicationStatus.APPLICATION_STATUS_VERIFICATION,
-  ).future,
-);
+Future<int> pendingApprovalCount(Ref ref) => ref.watch(
+      loanRequestCountByStatusProvider(
+        LoanRequestStatus.LOAN_REQUEST_STATUS_SUBMITTED,
+      ).future,
+    );
 
 @riverpod
-Future<int> pendingUnderwritingCount(Ref ref) => ref.watch(
-  applicationCountByStatusProvider(
-    ApplicationStatus.APPLICATION_STATUS_UNDERWRITING,
-  ).future,
-);
-
-@riverpod
-Future<int> offerPendingCount(Ref ref) => ref.watch(
-  applicationCountByStatusProvider(
-    ApplicationStatus.APPLICATION_STATUS_OFFER_GENERATED,
-  ).future,
-);
+Future<int> approvedRequestsCount(Ref ref) => ref.watch(
+      loanRequestCountByStatusProvider(
+        LoanRequestStatus.LOAN_REQUEST_STATUS_APPROVED,
+      ).future,
+    );
 
 @riverpod
 Future<int> activeLoansCount(Ref ref) =>
@@ -66,10 +59,12 @@ Future<int> activeLoansCount(Ref ref) =>
 
 @riverpod
 Future<int> pendingDisbursementCount(Ref ref) => ref.watch(
-  loanCountByStatusProvider(LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT).future,
-);
+      loanCountByStatusProvider(
+        LoanStatus.LOAN_STATUS_PENDING_DISBURSEMENT,
+      ).future,
+    );
 
 @riverpod
 Future<int> delinquentLoansCount(Ref ref) => ref.watch(
-  loanCountByStatusProvider(LoanStatus.LOAN_STATUS_DELINQUENT).future,
-);
+      loanCountByStatusProvider(LoanStatus.LOAN_STATUS_DELINQUENT).future,
+    );

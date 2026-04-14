@@ -13,7 +13,110 @@ abstract final class LoanManagementService {
   /// Fully-qualified name of the LoanManagementService service.
   static const name = 'loans.v1.LoanManagementService';
 
-  /// LoanAccountCreate creates a new loan account from an approved application.
+  /// LoanProductSave creates or updates a loan product.
+  static const loanProductSave = connect.Spec(
+    '/$name/LoanProductSave',
+    connect.StreamType.unary,
+    loansv1loans.LoanProductSaveRequest.new,
+    loansv1loans.LoanProductSaveResponse.new,
+  );
+
+  /// LoanProductGet retrieves a loan product by its ID.
+  static const loanProductGet = connect.Spec(
+    '/$name/LoanProductGet',
+    connect.StreamType.unary,
+    loansv1loans.LoanProductGetRequest.new,
+    loansv1loans.LoanProductGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// LoanProductSearch finds loan products matching search criteria.
+  static const loanProductSearch = connect.Spec(
+    '/$name/LoanProductSearch',
+    connect.StreamType.server,
+    loansv1loans.LoanProductSearchRequest.new,
+    loansv1loans.LoanProductSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// LoanRequestSave creates or updates a loan request. Called by product services
+  /// (seed, stawi, etc.) after completing their own acquisition workflows.
+  static const loanRequestSave = connect.Spec(
+    '/$name/LoanRequestSave',
+    connect.StreamType.unary,
+    loansv1loans.LoanRequestSaveRequest.new,
+    loansv1loans.LoanRequestSaveResponse.new,
+  );
+
+  /// LoanRequestGet retrieves a loan request by its ID.
+  static const loanRequestGet = connect.Spec(
+    '/$name/LoanRequestGet',
+    connect.StreamType.unary,
+    loansv1loans.LoanRequestGetRequest.new,
+    loansv1loans.LoanRequestGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// LoanRequestSearch finds loan requests matching search criteria.
+  static const loanRequestSearch = connect.Spec(
+    '/$name/LoanRequestSearch',
+    connect.StreamType.server,
+    loansv1loans.LoanRequestSearchRequest.new,
+    loansv1loans.LoanRequestSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// LoanRequestApprove approves a loan request and creates the loan account.
+  static const loanRequestApprove = connect.Spec(
+    '/$name/LoanRequestApprove',
+    connect.StreamType.unary,
+    loansv1loans.LoanRequestApproveRequest.new,
+    loansv1loans.LoanRequestApproveResponse.new,
+  );
+
+  /// LoanRequestReject rejects a loan request with a reason.
+  static const loanRequestReject = connect.Spec(
+    '/$name/LoanRequestReject',
+    connect.StreamType.unary,
+    loansv1loans.LoanRequestRejectRequest.new,
+    loansv1loans.LoanRequestRejectResponse.new,
+  );
+
+  /// LoanRequestCancel cancels a loan request.
+  static const loanRequestCancel = connect.Spec(
+    '/$name/LoanRequestCancel',
+    connect.StreamType.unary,
+    loansv1loans.LoanRequestCancelRequest.new,
+    loansv1loans.LoanRequestCancelResponse.new,
+  );
+
+  /// ClientProductAccessSave creates or updates a client product access record.
+  static const clientProductAccessSave = connect.Spec(
+    '/$name/ClientProductAccessSave',
+    connect.StreamType.unary,
+    loansv1loans.ClientProductAccessSaveRequest.new,
+    loansv1loans.ClientProductAccessSaveResponse.new,
+  );
+
+  /// ClientProductAccessGet retrieves a client product access record.
+  static const clientProductAccessGet = connect.Spec(
+    '/$name/ClientProductAccessGet',
+    connect.StreamType.unary,
+    loansv1loans.ClientProductAccessGetRequest.new,
+    loansv1loans.ClientProductAccessGetResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// ClientProductAccessSearch finds client product access records.
+  static const clientProductAccessSearch = connect.Spec(
+    '/$name/ClientProductAccessSearch',
+    connect.StreamType.server,
+    loansv1loans.ClientProductAccessSearchRequest.new,
+    loansv1loans.ClientProductAccessSearchResponse.new,
+    idempotency: connect.Idempotency.noSideEffects,
+  );
+
+  /// LoanAccountCreate creates a new loan account from an approved loan request.
   static const loanAccountCreate = connect.Spec(
     '/$name/LoanAccountCreate',
     connect.StreamType.unary,
@@ -208,16 +311,6 @@ abstract final class LoanManagementService {
     loansv1loans.LoanStatusChangeSearchRequest.new,
     loansv1loans.LoanStatusChangeSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
-  );
-
-  /// LoanRequest is the client-facing API for direct client loan requests.
-  /// Clients call this from app/USSD. The system validates eligibility,
-  /// runs automated risk checks, and routes to the responsible agent.
-  static const loanRequest = connect.Spec(
-    '/$name/LoanRequest',
-    connect.StreamType.unary,
-    loansv1loans.LoanRequestRequest.new,
-    loansv1loans.LoanRequestResponse.new,
   );
 
   /// PortfolioSummary returns aggregated financial metrics across a filtered

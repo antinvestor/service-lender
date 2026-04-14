@@ -50,7 +50,7 @@ final class FormTemplateListProvider
   }
 }
 
-String _$formTemplateListHash() => r'028abb32c12bf2036c688d20e8363410a81de77f';
+String _$formTemplateListHash() => r'f65f8f1582a270462dbb582f5998c2f4fa79a3b4';
 
 final class FormTemplateListFamily extends $Family
     with
@@ -159,7 +159,7 @@ final class FormTemplateDetailProvider
 }
 
 String _$formTemplateDetailHash() =>
-    r'ec1c2f25f312fdad3dc39cd84a2c24f8883dcb96';
+    r'17fb93b64ee804663a2330bbef47dc0b903517db';
 
 final class FormTemplateDetailFamily extends $Family
     with
@@ -233,7 +233,7 @@ final class FormTemplateNotifierProvider
 }
 
 String _$formTemplateNotifierHash() =>
-    r'f8b360fa4cbf89c9d6b396d11b51cf3bff2ba6a5';
+    r'3e9dbe17c2f167982939d457517916f154d3a978';
 
 abstract class _$FormTemplateNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -334,7 +334,7 @@ final class EntityFormTemplatesProvider
 }
 
 String _$entityFormTemplatesHash() =>
-    r'342db01ab0084226380459b2d20117ba03573ec2';
+    r'91ff1e6eb0ec35b0d94eac06e0cb1fe5424d6ea7';
 
 /// Loads published form templates for a given entity type.
 ///
@@ -418,7 +418,7 @@ final class FormSubmissionListProvider
 }
 
 String _$formSubmissionListHash() =>
-    r'362df6900009763df3bd51473594321c2dfd40d0';
+    r'eb7828e11e60d7ec677d1208eb30d4c84064835f';
 
 final class FormSubmissionListFamily extends $Family
     with
@@ -438,8 +438,8 @@ final class FormSubmissionListFamily extends $Family
         isAutoDispose: true,
       );
 
-  FormSubmissionListProvider call({required String applicationId}) =>
-      FormSubmissionListProvider._(argument: applicationId, from: this);
+  FormSubmissionListProvider call({required String entityId}) =>
+      FormSubmissionListProvider._(argument: entityId, from: this);
 
   @override
   String toString() => r'formSubmissionListProvider';
@@ -448,9 +448,9 @@ final class FormSubmissionListFamily extends $Family
 abstract class _$FormSubmissionList
     extends $AsyncNotifier<List<FormSubmissionObject>> {
   late final _$args = ref.$arg as String;
-  String get applicationId => _$args;
+  String get entityId => _$args;
 
-  FutureOr<List<FormSubmissionObject>> build({required String applicationId});
+  FutureOr<List<FormSubmissionObject>> build({required String entityId});
   @$mustCallSuper
   @override
   void runBuild() {
@@ -471,7 +471,7 @@ abstract class _$FormSubmissionList
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(applicationId: _$args));
+    element.handleCreate(ref, () => build(entityId: _$args));
   }
 }
 
@@ -500,7 +500,7 @@ final class FormSubmissionNotifierProvider
 }
 
 String _$formSubmissionNotifierHash() =>
-    r'd1a9365b97722971ccff39116af0593e7972f6a1';
+    r'ec047215b23922e5bae65546dae0616a597cf888';
 
 abstract class _$FormSubmissionNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();

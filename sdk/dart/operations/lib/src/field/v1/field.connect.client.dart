@@ -225,15 +225,52 @@ extension type FieldServiceClient (connect.Transport _transport) {
     );
   }
 
-  Future<fieldv1field.ClientRelationshipAssignResponse> clientRelationshipAssign(
-    fieldv1field.ClientRelationshipAssignRequest input, {
+  /// ClientRelationshipSave creates or updates a client-member relationship.
+  Future<fieldv1field.ClientRelationshipSaveResponse> clientRelationshipSave(
+    fieldv1field.ClientRelationshipSaveRequest input, {
     connect.Headers? headers,
     connect.AbortSignal? signal,
     Function(connect.Headers)? onHeader,
     Function(connect.Headers)? onTrailer,
   }) {
     return connect.Client(_transport).unary(
-      specs.FieldService.clientRelationshipAssign,
+      specs.FieldService.clientRelationshipSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientRelationshipGet retrieves a client relationship by ID.
+  Future<fieldv1field.ClientRelationshipGetResponse> clientRelationshipGet(
+    fieldv1field.ClientRelationshipGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.FieldService.clientRelationshipGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// ClientRelationshipSearch finds client relationships matching criteria.
+  Stream<fieldv1field.ClientRelationshipSearchResponse> clientRelationshipSearch(
+    fieldv1field.ClientRelationshipSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.FieldService.clientRelationshipSearch,
       input,
       signal: signal,
       headers: headers,

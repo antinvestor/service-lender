@@ -8,7 +8,8 @@ import "identity.pb.dart" as identityv1identity;
 import "identity.connect.spec.dart" as specs;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages organizations, org units, and system users for the platform.
+/// IdentityService manages organizations, org units, system users, form templates,
+/// and data collection for the platform.
 /// Canonical workforce, hierarchy, team, and access-control concepts live here.
 /// All RPCs require authentication via Bearer token.
 extension type IdentityServiceClient (connect.Transport _transport) {
@@ -956,6 +957,132 @@ extension type IdentityServiceClient (connect.Transport _transport) {
   }) {
     return connect.Client(_transport).unary(
       specs.IdentityService.clientDataHistory,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplateSave creates or updates a form template.
+  Future<identityv1identity.FormTemplateSaveResponse> formTemplateSave(
+    identityv1identity.FormTemplateSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.formTemplateSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplateGet retrieves a form template by its ID.
+  Future<identityv1identity.FormTemplateGetResponse> formTemplateGet(
+    identityv1identity.FormTemplateGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.formTemplateGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplateSearch finds form templates matching search criteria.
+  Stream<identityv1identity.FormTemplateSearchResponse> formTemplateSearch(
+    identityv1identity.FormTemplateSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.formTemplateSearch,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormTemplatePublish transitions a draft form template to published.
+  Future<identityv1identity.FormTemplatePublishResponse> formTemplatePublish(
+    identityv1identity.FormTemplatePublishRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.formTemplatePublish,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormSubmissionSave creates or updates a form submission.
+  Future<identityv1identity.FormSubmissionSaveResponse> formSubmissionSave(
+    identityv1identity.FormSubmissionSaveRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.formSubmissionSave,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormSubmissionGet retrieves a form submission by its ID.
+  Future<identityv1identity.FormSubmissionGetResponse> formSubmissionGet(
+    identityv1identity.FormSubmissionGetRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).unary(
+      specs.IdentityService.formSubmissionGet,
+      input,
+      signal: signal,
+      headers: headers,
+      onHeader: onHeader,
+      onTrailer: onTrailer,
+    );
+  }
+
+  /// FormSubmissionSearch finds form submissions matching search criteria.
+  Stream<identityv1identity.FormSubmissionSearchResponse> formSubmissionSearch(
+    identityv1identity.FormSubmissionSearchRequest input, {
+    connect.Headers? headers,
+    connect.AbortSignal? signal,
+    Function(connect.Headers)? onHeader,
+    Function(connect.Headers)? onTrailer,
+  }) {
+    return connect.Client(_transport).server(
+      specs.IdentityService.formSubmissionSearch,
       input,
       signal: signal,
       headers: headers,

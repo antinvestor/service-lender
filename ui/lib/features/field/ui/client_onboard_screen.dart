@@ -9,6 +9,7 @@ import '../../../core/widgets/dynamic_form_renderer.dart';
 import '../../../sdk/src/common/v1/common.pbenum.dart';
 import '../../../sdk/src/field/v1/field.pb.dart';
 import '../../../sdk/src/identity/v1/identity.pb.dart';
+import '../../../sdk/src/loans/v1/loans.pb.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/client_providers.dart';
 import '../../workforce/data/current_workforce_member_provider.dart';

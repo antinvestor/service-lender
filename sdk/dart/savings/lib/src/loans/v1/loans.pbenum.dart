@@ -185,8 +185,57 @@ class ReconciliationStatus extends $pb.ProtobufEnum {
   const ReconciliationStatus._($core.int v, $core.String n) : super(v, n);
 }
 
+/// LoanProductType defines the type of loan product.
+class LoanProductType extends $pb.ProtobufEnum {
+  static const LoanProductType LOAN_PRODUCT_TYPE_UNSPECIFIED = LoanProductType._(0, _omitEnumNames ? '' : 'LOAN_PRODUCT_TYPE_UNSPECIFIED');
+  static const LoanProductType LOAN_PRODUCT_TYPE_TERM = LoanProductType._(1, _omitEnumNames ? '' : 'LOAN_PRODUCT_TYPE_TERM');
+  static const LoanProductType LOAN_PRODUCT_TYPE_REVOLVING = LoanProductType._(2, _omitEnumNames ? '' : 'LOAN_PRODUCT_TYPE_REVOLVING');
+  static const LoanProductType LOAN_PRODUCT_TYPE_BULLET = LoanProductType._(3, _omitEnumNames ? '' : 'LOAN_PRODUCT_TYPE_BULLET');
+  static const LoanProductType LOAN_PRODUCT_TYPE_GRADUATED = LoanProductType._(4, _omitEnumNames ? '' : 'LOAN_PRODUCT_TYPE_GRADUATED');
+
+  static const $core.List<LoanProductType> values = <LoanProductType> [
+    LOAN_PRODUCT_TYPE_UNSPECIFIED,
+    LOAN_PRODUCT_TYPE_TERM,
+    LOAN_PRODUCT_TYPE_REVOLVING,
+    LOAN_PRODUCT_TYPE_BULLET,
+    LOAN_PRODUCT_TYPE_GRADUATED,
+  ];
+
+  static final $core.Map<$core.int, LoanProductType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static LoanProductType? valueOf($core.int value) => _byValue[value];
+
+  const LoanProductType._($core.int v, $core.String n) : super(v, n);
+}
+
+/// LoanRequestStatus defines the current stage of a loan request.
+class LoanRequestStatus extends $pb.ProtobufEnum {
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_UNSPECIFIED = LoanRequestStatus._(0, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_UNSPECIFIED');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_DRAFT = LoanRequestStatus._(1, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_DRAFT');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_SUBMITTED = LoanRequestStatus._(2, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_SUBMITTED');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_APPROVED = LoanRequestStatus._(3, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_APPROVED');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_REJECTED = LoanRequestStatus._(4, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_REJECTED');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_CANCELLED = LoanRequestStatus._(5, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_CANCELLED');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_EXPIRED = LoanRequestStatus._(6, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_EXPIRED');
+  static const LoanRequestStatus LOAN_REQUEST_STATUS_LOAN_CREATED = LoanRequestStatus._(7, _omitEnumNames ? '' : 'LOAN_REQUEST_STATUS_LOAN_CREATED');
+
+  static const $core.List<LoanRequestStatus> values = <LoanRequestStatus> [
+    LOAN_REQUEST_STATUS_UNSPECIFIED,
+    LOAN_REQUEST_STATUS_DRAFT,
+    LOAN_REQUEST_STATUS_SUBMITTED,
+    LOAN_REQUEST_STATUS_APPROVED,
+    LOAN_REQUEST_STATUS_REJECTED,
+    LOAN_REQUEST_STATUS_CANCELLED,
+    LOAN_REQUEST_STATUS_EXPIRED,
+    LOAN_REQUEST_STATUS_LOAN_CREATED,
+  ];
+
+  static final $core.Map<$core.int, LoanRequestStatus> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static LoanRequestStatus? valueOf($core.int value) => _byValue[value];
+
+  const LoanRequestStatus._($core.int v, $core.String n) : super(v, n);
+}
+
 /// InterestMethod defines how interest is calculated on a loan.
-/// Duplicated from origination.v1 for module independence.
 class InterestMethod extends $pb.ProtobufEnum {
   static const InterestMethod INTEREST_METHOD_UNSPECIFIED = InterestMethod._(0, _omitEnumNames ? '' : 'INTEREST_METHOD_UNSPECIFIED');
   static const InterestMethod INTEREST_METHOD_FLAT = InterestMethod._(1, _omitEnumNames ? '' : 'INTEREST_METHOD_FLAT');
@@ -207,7 +256,6 @@ class InterestMethod extends $pb.ProtobufEnum {
 }
 
 /// RepaymentFrequency defines the repayment schedule frequency.
-/// Duplicated from origination.v1 for module independence.
 class RepaymentFrequency extends $pb.ProtobufEnum {
   static const RepaymentFrequency REPAYMENT_FREQUENCY_UNSPECIFIED = RepaymentFrequency._(0, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_UNSPECIFIED');
   static const RepaymentFrequency REPAYMENT_FREQUENCY_DAILY = RepaymentFrequency._(1, _omitEnumNames ? '' : 'REPAYMENT_FREQUENCY_DAILY');
