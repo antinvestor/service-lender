@@ -16,8 +16,8 @@ Future<String> uploadPublicImage(
 }) async {
   final client = ref.read(filesServiceClientProvider);
 
-  // Use provided accessorId or default to '*' (public access).
-  final accessors = [accessorId ?? '*'];
+  // Use provided accessorId or default to 'public_access' (must match [0-9a-z_-]{3,40}).
+  final accessors = [accessorId ?? 'public_access'];
 
   // Build the upload stream: first metadata, then chunks.
   final requests = <UploadContentRequest>[
