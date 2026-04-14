@@ -153,8 +153,14 @@ class _OrganizationDetailContentState
                   ),
                 ),
                 StateBadge(state: toCommonState(_organization.state)),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: () => _setAsActiveOrganization(context),
+                  icon: const Icon(Icons.check_circle_outline, size: 18),
+                  label: const Text('Set Active'),
+                ),
                 if (widget.canManage) ...[
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Edit Organization',
@@ -237,26 +243,20 @@ class _OrganizationDetailContentState
             ),
           ),
 
-        // -- Child Organizations ------------------------------------------------
+        // -- Sub-Organizations DataTable -----------------------------------------
         if (childOrgsAsync != null) ...[
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.corporate_fare,
-                    size: 20,
-                    color: theme.colorScheme.primary,
-                  ),
+                  Icon(Icons.corporate_fare,
+                      size: 20, color: theme.colorScheme.primary),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'Child Organizations',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: Text('Sub-Organizations',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -265,14 +265,13 @@ class _OrganizationDetailContentState
           childOrgsAsync.when(
             loading: () => const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(child: CircularProgressIndicator()),
-              ),
+                  padding: EdgeInsets.all(32),
+                  child: Center(child: CircularProgressIndicator())),
             ),
             error: (error, _) => SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Failed to load child organizations: $error'),
+                child: Text('Failed to load sub-organizations: $error'),
               ),
             ),
             data: (childOrgs) {
@@ -280,50 +279,82 @@ class _OrganizationDetailContentState
                 return const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
-                    child: Text('No child organizations yet'),
+                    child: Text('No sub-organizations yet'),
                   ),
                 );
               }
-              return SliverList.builder(
-                itemCount: childOrgs.length,
-                itemBuilder: (context, index) {
-                  final child = childOrgs[index];
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                    child: Card(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color:
-                              theme.colorScheme.outlineVariant.withAlpha(38),
-                        ),
-                      ),
-                      child: ListTile(
-                        leading: Icon(Icons.account_balance,
-                            color: theme.colorScheme.primary),
-                        title: Text(child.name),
-                        subtitle: Text(orgTypeLabel(child.organizationType)),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (child.hasChildren)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 8),
-                                child:
-                                    Icon(Icons.subdirectory_arrow_right),
-                              ),
-                            StateBadge(
-                                state: toCommonState(child.state)),
-                          ],
-                        ),
-                        onTap: () => context.go(
-                          '/organization/organizations/${child.id}',
-                        ),
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color: theme.colorScheme.outlineVariant
+                            .withAlpha(38),
                       ),
                     ),
-                  );
-                },
+                    clipBehavior: Clip.antiAlias,
+                    child: DataTable(
+                      showCheckboxColumn: false,
+                      columns: const [
+                        DataColumn(
+                            label:
+                                SizedBox(width: 100, child: Text('ID'))),
+                        DataColumn(label: Text('NAME')),
+                        DataColumn(label: Text('TYPE')),
+                        DataColumn(label: Text('CODE')),
+                        DataColumn(label: Text('STATE')),
+                      ],
+                      rows: childOrgs.map((child) {
+                        final shortId = child.id.length > 12
+                            ? '${child.id.substring(0, 12)}…'
+                            : child.id;
+                        return DataRow(
+                          onSelectChanged: (_) => context.go(
+                            '/organizations/${child.id}',
+                          ),
+                          cells: [
+                            DataCell(Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SelectableText(shortId,
+                                    style: theme.textTheme.bodySmall
+                                        ?.copyWith(
+                                      fontFamily: 'monospace',
+                                      fontSize: 11,
+                                    )),
+                                const SizedBox(width: 4),
+                                InkWell(
+                                  onTap: () {
+                                    Clipboard.setData(
+                                        ClipboardData(text: child.id));
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                      content: Text('ID copied'),
+                                      duration: Duration(seconds: 1),
+                                    ));
+                                  },
+                                  child: Icon(Icons.copy,
+                                      size: 14,
+                                      color: theme
+                                          .colorScheme.onSurfaceVariant),
+                                ),
+                              ],
+                            )),
+                            DataCell(Text(child.name)),
+                            DataCell(Text(
+                                orgTypeLabel(child.organizationType))),
+                            DataCell(Text(child.code)),
+                            DataCell(StateBadge(
+                                state: toCommonState(child.state))),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
               );
             },
           ),
@@ -782,6 +813,23 @@ class _OrganizationDetailContentState
 
 
   // -- Actions ----------------------------------------------------------------
+
+  void _setAsActiveOrganization(BuildContext context) {
+    final tenancy = ref.read(tenancyContextProvider);
+    tenancy.selectOrganization(
+      _organization.id,
+      _organization.name,
+      partitionId: _organization.partitionId,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${_organization.name} set as active organization',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   Future<void> _editOrganization(BuildContext context) async {
     showDialog<void>(
