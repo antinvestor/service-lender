@@ -440,7 +440,7 @@ func (b *orgUnitBusiness) Search(
 		andQueryVal["parent_id = ?"] = req.GetParentId()
 	}
 	if req.GetRootOnly() {
-		andQueryVal["(parent_id IS NULL OR parent_id = ?)"] = ""
+		andQueryVal["parent_id IS NULL OR parent_id = ''"] = ""
 	}
 	if req.GetType() != identityv1.OrgUnitType_ORG_UNIT_TYPE_UNSPECIFIED {
 		andQueryVal["unit_type = ?"] = int32(req.GetType())
