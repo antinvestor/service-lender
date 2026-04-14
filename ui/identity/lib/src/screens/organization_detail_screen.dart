@@ -97,8 +97,12 @@ class _OrganizationDetailContentState
       )),
     );
 
-    return CustomScrollView(
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1080),
+        child: CustomScrollView(
       slivers: [
+        // -- Header -----------------------------------------------------------
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -143,60 +147,33 @@ class _OrganizationDetailContentState
             ),
           ),
         ),
+
+        // -- Profile card -----------------------------------------------------
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: _buildProfileCard(theme),
+          ),
+        ),
+
+        // -- Info grid --------------------------------------------------------
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: _buildInfoGrid(theme),
+          ),
+        ),
+
+        // -- Client ID card ---------------------------------------------------
         if (_organization.clientId.isNotEmpty)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-              child: Card(
-                color: theme.colorScheme.primaryContainer.withAlpha(40),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.link,
-                        color: theme.colorScheme.primary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Client ID',
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            SelectableText(
-                              _organization.clientId,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                fontFamily: 'monospace',
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.copy, size: 18),
-                        tooltip: 'Copy client ID',
-                        onPressed: () {
-                          Clipboard.setData(
-                            ClipboardData(text: _organization.clientId),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Client ID copied')),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: _buildClientIdCard(theme),
             ),
           ),
+
+        // -- Org Units header -------------------------------------------------
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
@@ -226,6 +203,8 @@ class _OrganizationDetailContentState
             ),
           ),
         ),
+
+        // -- Org Units list ---------------------------------------------------
         orgUnitsAsync.when(
           loading: () => const SliverToBoxAdapter(
             child: Padding(
@@ -255,6 +234,13 @@ class _OrganizationDetailContentState
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                   child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color: theme.colorScheme.outlineVariant.withAlpha(38),
+                      ),
+                    ),
                     child: ListTile(
                       leading: Icon(
                         orgUnit.type == OrgUnitType.ORG_UNIT_TYPE_BRANCH
@@ -285,8 +271,272 @@ class _OrganizationDetailContentState
           },
         ),
       ],
+    ),
+      ),
     );
   }
+
+  // -- Profile card -----------------------------------------------------------
+
+  Widget _buildProfileCard(ThemeData theme) {
+    final initial = _organization.name.isNotEmpty
+        ? _organization.name[0].toUpperCase()
+        : '?';
+    final logoUri = _prop('logo_content_uri');
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withAlpha(38),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 48,
+              backgroundColor: theme.colorScheme.primaryContainer,
+              backgroundImage:
+                  logoUri.isNotEmpty ? NetworkImage(logoUri) : null,
+              child: logoUri.isNotEmpty
+                  ? null
+                  : Text(
+                      initial,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _organization.name,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      orgTypeLabel(_organization.organizationType),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (_prop('description').isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      _prop('description'),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            StateBadge(state: toCommonState(_organization.state)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // -- Info grid --------------------------------------------------------------
+
+  Widget _buildInfoGrid(ThemeData theme) {
+    final leftItems = <_InfoItem>[
+      _InfoItem(
+        label: 'Organization Type',
+        value: orgTypeLabel(_organization.organizationType),
+      ),
+      if (_organization.code.isNotEmpty)
+        _InfoItem(label: 'Code', value: _organization.code),
+      if (_organization.geoId.isNotEmpty)
+        _InfoItem(label: 'Coverage Area', value: _organization.geoId),
+      if (_organization.profileId.isNotEmpty)
+        _InfoItem(label: 'Profile ID', value: _organization.profileId),
+    ];
+
+    final rightItems = <_InfoItem>[];
+    if (_organization.hasProperties()) {
+      final addressParts = [
+        _prop('address_street'),
+        _prop('address_city'),
+        _prop('address_country'),
+        _prop('address_postal_code'),
+      ].where((s) => s.isNotEmpty);
+      if (addressParts.isNotEmpty) {
+        rightItems.add(
+          _InfoItem(label: 'Address', value: addressParts.join('\n')),
+        );
+      }
+      final emails = _propList('contacts_email');
+      if (emails.isNotEmpty) {
+        rightItems
+            .add(_InfoItem(label: 'Email', value: emails.join('\n')));
+      }
+      final phones = _propList('contacts_phone');
+      if (phones.isNotEmpty) {
+        rightItems
+            .add(_InfoItem(label: 'Phone', value: phones.join('\n')));
+      }
+    }
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withAlpha(38),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Use two columns when wide enough, single column on narrow screens
+            if (constraints.maxWidth >= 480) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: leftItems
+                          .map((item) => _InfoTile(
+                              label: item.label, value: item.value))
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: rightItems
+                          .map((item) => _InfoTile(
+                              label: item.label, value: item.value))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              );
+            }
+            // Single column for narrow screens
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [...leftItems, ...rightItems]
+                  .map((item) =>
+                      _InfoTile(label: item.label, value: item.value))
+                  .toList(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // -- Client ID card ---------------------------------------------------------
+
+  Widget _buildClientIdCard(ThemeData theme) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withAlpha(38),
+        ),
+      ),
+      color: theme.colorScheme.primaryContainer.withAlpha(40),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Row(
+          children: [
+            Icon(
+              Icons.link,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Client ID',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  SelectableText(
+                    _organization.clientId,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontFamily: 'monospace',
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.copy, size: 18),
+              tooltip: 'Copy client ID',
+              onPressed: () {
+                Clipboard.setData(
+                  ClipboardData(text: _organization.clientId),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Client ID copied')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // -- Property helpers -------------------------------------------------------
+
+  /// Read a string property from the organization's Struct.
+  String _prop(String key) {
+    if (!_organization.hasProperties()) return '';
+    final field = _organization.properties.fields[key];
+    if (field == null || !field.hasStringValue()) return '';
+    return field.stringValue;
+  }
+
+  /// Read a list property from the organization's Struct.
+  List<String> _propList(String key) {
+    if (!_organization.hasProperties()) return const [];
+    final field = _organization.properties.fields[key];
+    if (field == null || !field.hasListValue()) return const [];
+    return field.listValue.values
+        .where((v) => v.hasStringValue())
+        .map((v) => v.stringValue)
+        .toList();
+  }
+
+  // -- Actions ----------------------------------------------------------------
 
   Future<void> _editOrganization(BuildContext context) async {
     showDialog<void>(
@@ -341,5 +591,48 @@ class _OrganizationDetailContentState
         ),
       );
     }
+  }
+}
+
+// -- Data class for info items ------------------------------------------------
+
+class _InfoItem {
+  const _InfoItem({required this.label, required this.value});
+  final String label;
+  final String value;
+}
+
+// -- Info tile widget ---------------------------------------------------------
+
+class _InfoTile extends StatelessWidget {
+  const _InfoTile({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

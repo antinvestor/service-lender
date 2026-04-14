@@ -1,8 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
 import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:antinvestor_ui_core/widgets/admin_entity_list_page.dart';
 import 'package:antinvestor_ui_core/widgets/error_helpers.dart';
 import 'package:antinvestor_ui_core/widgets/form_field_card.dart';
@@ -434,6 +431,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
   int _currentStep = 0;
   bool _saving = false;
+  bool _isPickingLogo = false;
 
   bool get _isEditing => widget.organization != null;
 
@@ -445,7 +443,6 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   late final TextEditingController _descriptionCtrl;
   String? _logoFileName;
   String? _logoContentUri;
-  Uint8List? _logoBytes;
   late final TextEditingController _emailCtrl;
   late final TextEditingController _phoneCtrl;
   final List<String> _emails = [];
@@ -492,16 +489,48 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     _codeCtrl = TextEditingController(text: widget.organization?.code ?? '');
     _orgType = widget.organization?.organizationType ??
         OrganizationType.ORGANIZATION_TYPE_UNSPECIFIED;
-    _descriptionCtrl = TextEditingController();
+    // Pre-populate from properties when editing.
+    final props = widget.organization?.properties;
+    _descriptionCtrl = TextEditingController(
+        text: _propStr(props, 'description'));
     _emailCtrl = TextEditingController();
     _phoneCtrl = TextEditingController();
-    _streetCtrl = TextEditingController();
-    _cityCtrl = TextEditingController();
-    _countryCtrl = TextEditingController();
-    _postalCodeCtrl = TextEditingController();
+    _streetCtrl = TextEditingController(
+        text: _propStr(props, 'address_street'));
+    _cityCtrl = TextEditingController(
+        text: _propStr(props, 'address_city'));
+    _countryCtrl = TextEditingController(
+        text: _propStr(props, 'address_country'));
+    _postalCodeCtrl = TextEditingController(
+        text: _propStr(props, 'address_postal_code'));
     _coverageCountryCtrl = TextEditingController();
     _coverageRegionCtrl = TextEditingController();
     _coverageCityCtrl = TextEditingController();
+
+    // Pre-populate contact lists from properties.
+    _emails.addAll(_propListStr(props, 'contacts_email'));
+    _phones.addAll(_propListStr(props, 'contacts_phone'));
+
+    // Pre-populate logo from properties.
+    final logoUri = _propStr(props, 'logo_content_uri');
+    if (logoUri.isNotEmpty) _logoContentUri = logoUri;
+  }
+
+  static String _propStr(Struct? props, String key) {
+    if (props == null) return '';
+    final field = props.fields[key];
+    if (field == null || !field.hasStringValue()) return '';
+    return field.stringValue;
+  }
+
+  static List<String> _propListStr(Struct? props, String key) {
+    if (props == null) return [];
+    final field = props.fields[key];
+    if (field == null || !field.hasListValue()) return [];
+    return field.listValue.values
+        .where((v) => v.hasStringValue())
+        .map((v) => v.stringValue)
+        .toList();
   }
 
   @override
@@ -524,8 +553,24 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   // -- Navigation ------------------------------------------------------------
 
   void _next() {
+    // Auto-add any typed but un-added contacts before advancing.
+    _flushPendingContacts();
     if (!_formKeys[_currentStep].currentState!.validate()) return;
     setState(() => _currentStep++);
+  }
+
+  /// Add any text left in the email/phone fields to the chip lists.
+  void _flushPendingContacts() {
+    final email = _emailCtrl.text.trim();
+    if (email.isNotEmpty && email.contains('@') && !_emails.contains(email)) {
+      _emails.add(email);
+      _emailCtrl.clear();
+    }
+    final phone = _phoneCtrl.text.trim();
+    if (phone.isNotEmpty && !_phones.contains(phone)) {
+      _phones.add(phone);
+      _phoneCtrl.clear();
+    }
   }
 
   void _back() {
@@ -535,35 +580,34 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   // -- Logo picker -----------------------------------------------------------
 
   Future<void> _pickLogo() async {
+    setState(() => _isPickingLogo = true);
+
     // If host app provides a custom picker+upload, use it.
     if (widget.onPickLogo != null) {
       try {
         final result = await widget.onPickLogo!();
-        setState(() {
-          _logoFileName = result.fileName;
-          _logoContentUri = result.contentUri;
-        });
-      } catch (_) {}
+        if (mounted) {
+          setState(() {
+            _logoFileName = result.fileName;
+            _logoContentUri = result.contentUri;
+            _isPickingLogo = false;
+          });
+        }
+      } catch (_) {
+        if (mounted) setState(() => _isPickingLogo = false);
+      }
       return;
     }
 
-    // Built-in picker using image_picker (works on web + mobile).
-    try {
-      final picker = ImagePicker();
-      final image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
+    // No upload callback available — inform the user.
+    if (mounted) {
+      setState(() => _isPickingLogo = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Logo upload requires the files service to be configured.'),
+        ),
       );
-      if (image == null) return;
-
-      final bytes = await image.readAsBytes();
-      setState(() {
-        _logoFileName = image.name;
-        _logoBytes = bytes;
-      });
-    } catch (_) {}
+    }
   }
 
   // -- Contact helpers -------------------------------------------------------
@@ -638,6 +682,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   // -- Submit ----------------------------------------------------------------
 
   Future<void> _submit() async {
+    _flushPendingContacts();
     if (!_formKeys[_currentStep].currentState!.validate()) return;
     setState(() => _saving = true);
     try {
@@ -772,12 +817,12 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
           Center(
             child: _LogoBadge(
               fileName: _logoFileName,
-              logoBytes: _logoBytes,
-              onTap: () => _pickLogo(),
+              logoUrl: _logoContentUri,
+              isLoading: _isPickingLogo,
+              onTap: _isPickingLogo ? null : () => _pickLogo(),
               onRemove: () => setState(() {
                 _logoFileName = null;
                 _logoContentUri = null;
-                _logoBytes = null;
               }),
             ),
           ),
@@ -1220,7 +1265,12 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
       const SizedBox(width: 8),
       if (_currentStep < _stepCount - 1)
         FilledButton.icon(
-          onPressed: _next,
+          onPressed: _isPickingLogo ||
+                  (!_isEditing &&
+                      _currentStep == 0 &&
+                      _logoContentUri == null)
+              ? null
+              : _next,
           icon: const Icon(Icons.arrow_forward, size: 18),
           label: const Text('Next'),
         )
@@ -1262,26 +1312,31 @@ class _StepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Row(
-      children: [
-        for (int i = 0; i < stepCount; i++) ...[
-          if (i > 0)
-            Expanded(
-              child: Container(
-                height: 2,
-                color: i <= currentStep
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outlineVariant,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (int i = 0; i < stepCount; i++) ...[
+            if (i > 0)
+              Expanded(
+                child: Container(
+                  height: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  color: i <= currentStep
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.outlineVariant,
+                ),
               ),
+            _StepDot(
+              index: i,
+              label: labels[i],
+              isActive: i == currentStep,
+              isCompleted: i < currentStep,
             ),
-          _StepDot(
-            index: i,
-            label: labels[i],
-            isActive: i == currentStep,
-            isCompleted: i < currentStep,
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -1362,51 +1417,81 @@ class _StepDot extends StatelessWidget {
 /// Circular avatar badge for logo upload.
 ///
 /// Empty state: grey background with camera icon.
-/// With logo: checkmark icon with the file name.
+/// With logo: displays the uploaded logo via [NetworkImage].
 /// Tapping triggers [onTap] for logo pick/upload.
 class _LogoBadge extends StatelessWidget {
   const _LogoBadge({
     this.fileName,
-    this.logoBytes,
+    this.logoUrl,
+    this.isLoading = false,
     required this.onTap,
     this.onRemove,
   });
 
   final String? fileName;
-  final Uint8List? logoBytes;
-  final VoidCallback onTap;
+
+  /// Network URL (contentUri) of the uploaded logo.
+  final String? logoUrl;
+  final bool isLoading;
+  final VoidCallback? onTap;
   final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hasLogo = logoBytes != null || fileName != null;
+    final hasLogo = logoUrl != null && logoUrl!.isNotEmpty;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
           onTap: onTap,
-          child: CircleAvatar(
-            radius: 48,
-            backgroundColor: hasLogo
-                ? theme.colorScheme.primaryContainer
-                : theme.colorScheme.surfaceContainerHighest,
-            backgroundImage:
-                logoBytes != null ? MemoryImage(logoBytes!) : null,
-            child: logoBytes != null
-                ? null
-                : Icon(
-                    hasLogo ? Icons.check_circle : Icons.camera_alt_outlined,
-                    size: 32,
-                    color: hasLogo
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircleAvatar(
+                radius: 48,
+                backgroundColor: hasLogo
+                    ? theme.colorScheme.primaryContainer
+                    : theme.colorScheme.surfaceContainerHighest,
+                backgroundImage:
+                    hasLogo ? NetworkImage(logoUrl!) : null,
+                child: isLoading || hasLogo
+                    ? null
+                    : Icon(
+                        Icons.camera_alt_outlined,
+                        size: 32,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+              ),
+              if (isLoading)
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface.withAlpha(180),
+                    shape: BoxShape.circle,
                   ),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(strokeWidth: 2.5),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
-        if (hasLogo)
+        if (isLoading)
+          Text(
+            'Uploading...',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          )
+        else if (hasLogo)
           TextButton.icon(
             onPressed: onRemove,
             icon: const Icon(Icons.close, size: 14),
