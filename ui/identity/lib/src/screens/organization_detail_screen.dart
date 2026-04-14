@@ -24,6 +24,7 @@ class OrganizationDetailScreen extends ConsumerWidget {
     this.canManage = true,
     this.backRoute = '/organization/organizations',
     this.onPickLogo,
+    this.filesBaseUrl,
   });
 
   final String organizationId;
@@ -32,6 +33,10 @@ class OrganizationDetailScreen extends ConsumerWidget {
 
   /// Callback to upload logo bytes. Passed through to [OrganizationFormDialog].
   final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
+
+  /// Base URL for the files service (e.g. https://api.stawi.org/files).
+  /// Used to convert mxc:// URIs to HTTP download URLs.
+  final String? filesBaseUrl;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,6 +58,7 @@ class OrganizationDetailScreen extends ConsumerWidget {
           canManage: canManage,
           backRoute: backRoute,
           onPickLogo: onPickLogo,
+          filesBaseUrl: filesBaseUrl,
         );
       },
     );
@@ -73,12 +79,14 @@ class _OrganizationDetailContent extends ConsumerStatefulWidget {
     required this.canManage,
     required this.backRoute,
     this.onPickLogo,
+    this.filesBaseUrl,
   });
 
   final OrganizationObject organization;
   final bool canManage;
   final String backRoute;
   final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
+  final String? filesBaseUrl;
 
   @override
   ConsumerState<_OrganizationDetailContent> createState() =>
@@ -523,7 +531,14 @@ class _OrganizationDetailContentState
     final initial = _organization.name.isNotEmpty
         ? _organization.name[0].toUpperCase()
         : '?';
-    final logoUri = _prop('logo_content_uri');
+    var logoUri = _prop('logo_content_uri');
+    // Convert mxc:// URIs to HTTP URLs for NetworkImage.
+    if (logoUri.startsWith('mxc://') && widget.filesBaseUrl != null) {
+      final parts = logoUri.substring(6).split('/');
+      if (parts.length >= 2) {
+        logoUri = '${widget.filesBaseUrl}/v1/media/download/${parts[0]}/${parts[1]}';
+      }
+    }
 
     return Card(
       elevation: 0,

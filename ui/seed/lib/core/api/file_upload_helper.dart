@@ -49,6 +49,22 @@ Future<String> uploadPublicImage(
     throw Exception('Upload succeeded but no content_uri in response');
   }
 
-  debugPrint('[FileUpload] Content URI: $contentUri');
-  return contentUri;
+  // Convert mxc:// URI to HTTP download URL.
+  // mxc://server_name/media_id → {filesBaseUrl}/v1/media/download/server_name/media_id
+  final httpUrl = mxcToHttpUrl(contentUri);
+  debugPrint('[FileUpload] Content URI: $contentUri → $httpUrl');
+  return httpUrl;
+}
+
+/// Convert an mxc:// content URI to an HTTP download URL.
+///
+/// Format: mxc://server_name/media_id
+/// Result: {filesBaseUrl}/v1/media/download/server_name/media_id
+String mxcToHttpUrl(String mxcUri) {
+  if (!mxcUri.startsWith('mxc://')) return mxcUri; // already HTTP
+  final parts = mxcUri.substring(6).split('/'); // remove "mxc://"
+  if (parts.length < 2) return mxcUri;
+  final serverName = parts[0];
+  final mediaId = parts[1];
+  return '${AppConfig.filesBaseUrl}/v1/media/download/$serverName/$mediaId';
 }

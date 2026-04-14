@@ -6,6 +6,7 @@ import 'package:antinvestor_ui_identity/antinvestor_ui_identity.dart';
 
 import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
 import '../core/api/file_upload_helper.dart';
+import '../core/config/app_config.dart';
 import '../core/responsive/seed_shell.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_state_provider.dart';
@@ -116,6 +117,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                     backRoute: '/organizations',
                     onPickLogo: (bytes, filename) =>
                         uploadPublicImage(ref, bytes, filename),
+                    filesBaseUrl: AppConfig.filesBaseUrl,
                   ),
                 ),
               ),
