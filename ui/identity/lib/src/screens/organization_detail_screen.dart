@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
 import 'package:antinvestor_ui_audit/antinvestor_ui_audit.dart';
+import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
 import 'package:antinvestor_ui_core/widgets/state_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
