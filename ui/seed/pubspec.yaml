@@ -42,6 +42,8 @@ dev_dependencies:
 dependency_overrides:
   antinvestor_ui_core:
     path: ../../../common/ui_core
+  antinvestor_api_identity:
+    path: ../../sdk/dart/identity
 
 flutter:
   uses-material-design: true
