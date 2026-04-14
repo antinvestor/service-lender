@@ -1,3 +1,5 @@
+import 'package:antinvestor_ui_audit/antinvestor_ui_audit.dart'
+    show auditTransportProvider;
 import 'package:antinvestor_ui_core/analytics/analytics_provider.dart';
 import 'package:antinvestor_ui_core/api/api_base.dart';
 import 'package:antinvestor_ui_core/auth/role_provider.dart';
@@ -66,6 +68,11 @@ void main() {
         identityTransportProvider.overrideWith((ref) {
           final auth = ref.watch(authTokenProviderProvider);
           return createTransport(auth, baseUrl: AppConfig.identityBaseUrl);
+        }),
+
+        auditTransportProvider.overrideWith((ref) {
+          final auth = ref.watch(authTokenProviderProvider);
+          return createTransport(auth, baseUrl: AppConfig.auditBaseUrl);
         }),
       ],
       child: const SeedApp(),

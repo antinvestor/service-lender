@@ -44,12 +44,26 @@ abstract final class AppConfig {
   static String get tenancyBaseUrl =>
       _tenancyExplicit.isNotEmpty ? _tenancyExplicit : '$_apiBaseUrl/tenancy';
 
+  // ── Files service endpoint ─────────────────────────────────────────
+
+  static const String _filesExplicit = String.fromEnvironment('FILES_URL');
+  static String get filesBaseUrl =>
+      _filesExplicit.isNotEmpty ? _filesExplicit : '$_apiBaseUrl/files';
+
+  // ── Audit service endpoint ─────────────────────────────────────────
+
+  static const String _auditExplicit = String.fromEnvironment('AUDIT_URL');
+  static String get auditBaseUrl =>
+      _auditExplicit.isNotEmpty ? _auditExplicit : '$_apiBaseUrl/audit';
+
   // ── All endpoints (for diagnostics) ─────────────────────────────────────
 
   static Map<String, String> get allEndpoints => {
         'identity': identityBaseUrl,
         'profile': profileBaseUrl,
         'tenancy': tenancyBaseUrl,
+        'files': filesBaseUrl,
+        'audit': auditBaseUrl,
       };
 
   // ── Connection settings ─────────────────────────────────────────────────

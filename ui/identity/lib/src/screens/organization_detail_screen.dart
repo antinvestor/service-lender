@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
+import 'package:antinvestor_ui_audit/antinvestor_ui_audit.dart';
 import 'package:antinvestor_ui_core/widgets/state_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,11 +22,15 @@ class OrganizationDetailScreen extends ConsumerWidget {
     required this.organizationId,
     this.canManage = true,
     this.backRoute = '/organization/organizations',
+    this.onPickLogo,
   });
 
   final String organizationId;
   final bool canManage;
   final String backRoute;
+
+  /// Callback to upload logo bytes. Passed through to [OrganizationFormDialog].
+  final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,6 +51,7 @@ class OrganizationDetailScreen extends ConsumerWidget {
           organization: organization,
           canManage: canManage,
           backRoute: backRoute,
+          onPickLogo: onPickLogo,
         );
       },
     );
@@ -63,11 +71,13 @@ class _OrganizationDetailContent extends ConsumerStatefulWidget {
     required this.organization,
     required this.canManage,
     required this.backRoute,
+    this.onPickLogo,
   });
 
   final OrganizationObject organization;
   final bool canManage;
   final String backRoute;
+  final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
 
   @override
   ConsumerState<_OrganizationDetailContent> createState() =>
@@ -269,6 +279,18 @@ class _OrganizationDetailContentState
               },
             );
           },
+        ),
+
+        // -- Audit Trail -------------------------------------------------------
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+            child: ObjectAuditTrail(
+              resourceType: 'organization',
+              resourceId: _organization.id,
+              maxEntries: 20,
+            ),
+          ),
         ),
       ],
     ),
@@ -580,6 +602,7 @@ class _OrganizationDetailContentState
       barrierDismissible: false,
       builder: (context) => OrganizationFormDialog(
         organization: _organization,
+        onPickLogo: widget.onPickLogo,
         onSave: (formData) async {
           final org = formData.organization;
           await ref

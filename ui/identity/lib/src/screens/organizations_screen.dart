@@ -154,10 +154,14 @@ class OrganizationsScreen extends ConsumerStatefulWidget {
     super.key,
     this.canManage = true,
     this.onNavigate,
+    this.onPickLogo,
   });
 
   final bool canManage;
   final void Function(String id)? onNavigate;
+
+  /// Callback to upload logo bytes. Passed through to [OrganizationFormDialog].
+  final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
 
   @override
   ConsumerState<OrganizationsScreen> createState() =>
@@ -240,6 +244,7 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
       barrierDismissible: false,
       builder: (dialogContext) => OrganizationFormDialog(
         existingOrganizations: existingOrgs,
+        onPickLogo: widget.onPickLogo,
         onSave: (formData) async {
           try {
             final tenancy = ref.read(tenancyContextProvider);
@@ -507,8 +512,9 @@ class OrganizationFormDialog extends StatefulWidget {
   /// Existing organizations available for parent selection.
   final List<OrganizationObject> existingOrganizations;
 
-  /// Callback to pick and upload a logo. Returns (fileName, contentUri).
-  final Future<({String fileName, String contentUri})> Function()? onPickLogo;
+  /// Callback to upload logo bytes. Receives the image bytes and filename,
+  /// returns the content URI from the files service.
+  final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
 
   final Future<void> Function(OrganizationFormData formData) onSave;
 
@@ -718,11 +724,11 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
       final bytes = await image.readAsBytes();
 
       if (widget.onPickLogo != null) {
-        final result = await widget.onPickLogo!();
+        final contentUri = await widget.onPickLogo!(bytes, image.name);
         if (mounted) {
           setState(() {
-            _logoFileName = result.fileName;
-            _logoContentUri = result.contentUri;
+            _logoFileName = image.name;
+            _logoContentUri = contentUri;
             _logoBytes = bytes;
             _isPickingLogo = false;
           });

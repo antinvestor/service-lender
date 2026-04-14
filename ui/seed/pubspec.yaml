@@ -13,10 +13,14 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.9
   antinvestor_ui_core: ^0.2.0
+  antinvestor_ui_audit: ^0.2.0
   antinvestor_ui_identity:
     path: ../identity
   antinvestor_api_common: ^1.52.0
+  antinvestor_api_files: ^1.54.0
   connectrpc: ^1.0.0
+  fixnum: ^1.1.0
+  image_picker: ^1.1.2
   flutter_riverpod: ^3.3.1
   flutter_secure_storage: ^10.0.0
   go_router: ^17.2.0

@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.0.1"
+  antinvestor_api_audit:
+    dependency: transitive
+    description:
+      name: antinvestor_api_audit
+      sha256: "8affeed97394b2b6e8d216617dcddf5d6ce409f3b8c3cf9163d98b3fda627034"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   antinvestor_api_common:
     dependency: "direct main"
     description:
@@ -33,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  antinvestor_api_files:
+    dependency: "direct main"
+    description:
+      name: antinvestor_api_files
+      sha256: "591aa620d782f26308d372496bb82e98116801086bf5e615f3c388981770b124"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.54.0"
   antinvestor_api_identity:
     dependency: transitive
     description:
@@ -49,6 +65,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.54.0"
+  antinvestor_ui_audit:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_audit
+      sha256: a770db59522f436d3505262a630aaebea8975ba3cc33d342c4bbb76abf975d3f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   antinvestor_ui_core:
     dependency: "direct main"
     description:
@@ -320,7 +344,7 @@ packages:
     source: hosted
     version: "0.9.3+5"
   fixnum:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: fixnum
       sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
@@ -599,7 +623,7 @@ packages:
     source: hosted
     version: "4.1.2"
   image_picker:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image_picker
       sha256: "784210112be18ea55f69d7076e2c656a4e24949fa9e76429fe53af0c0f4fa320"
@@ -662,6 +686,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.2"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.2"
   io:
     dependency: transitive
     description:
