@@ -20,6 +20,9 @@ import (
 	"strconv"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
@@ -28,6 +31,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/savings/service/events"
 	"github.com/antinvestor/service-fintech/apps/savings/service/models"
 	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 type SavingsAccountBusiness interface {
@@ -99,6 +103,12 @@ func (b *savingsAccountBusiness) Create(
 			return nil, balErr
 		}
 	}
+
+	audit := constants.AuditTrailFromContext(ctx)
+	SavingsAccountsOpened.Add(ctx, 1, metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+	))
 
 	return sa.ToAPI(), nil
 }
