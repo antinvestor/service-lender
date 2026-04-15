@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: antinvestor_api_identity
-      sha256: "12ae84677a275939e0623818708da1a82cc2f39a4093985b1a0ae6519220118a"
+      sha256: d88b46e61205dd42cf9fe28b5163584c3f760fb4f8c2d7f4847584034abd3abd
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   antinvestor_api_profile:
     dependency: transitive
     description:
@@ -93,10 +93,10 @@ packages:
     dependency: "direct main"
     description:
       name: antinvestor_ui_geolocation
-      sha256: "35b6dfe5bff9a3a080c2d97a6cfe673aaf5bfc4db2951bcfef6c90c5ee471ed9"
+      sha256: "0749c910bc93579325d67278a5de199236deab82d65abd40b6e4de3b47db7402"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.2.1"
   antinvestor_ui_profile:
     dependency: "direct main"
     description:
