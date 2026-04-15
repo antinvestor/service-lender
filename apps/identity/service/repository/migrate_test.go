@@ -116,7 +116,6 @@ func (s *migrateSuite) TestPostMigrateAddsSearchableColumnsAndSupportsSearchQuer
 	s.assertSearchableColumnExists(ctx, dbPool, "client_groups")
 	s.assertSearchableColumnExists(ctx, dbPool, "memberships")
 	s.assertSearchableColumnExists(ctx, dbPool, "investors")
-	s.assertSearchableColumnExists(ctx, dbPool, "system_users")
 
 	org := &models.Organization{
 		Name:       "Seed Capital",

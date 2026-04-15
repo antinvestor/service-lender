@@ -223,15 +223,6 @@ func postMigrate(ctx context.Context, dbPool pool.Pool) error { //nolint:funlen 
 			},
 		},
 		{
-			Table: "system_users",
-			Terms: []searchableTerm{
-				{Weight: "A", Expr: "coalesce(%sprofile_id, '')"},
-				{Weight: "A", Expr: "coalesce(%sservice_account_id, '')"},
-				{Weight: "B", Expr: "coalesce(%sbranch_id, '')"},
-				{Weight: "C", Expr: "coalesce(%sproperties::text, '')"},
-			},
-		},
-		{
 			Table: "workforce_members",
 			Terms: []searchableTerm{
 				{Weight: "A", Expr: "coalesce(%sprofile_id, '')"},
