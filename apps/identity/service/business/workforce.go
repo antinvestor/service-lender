@@ -19,6 +19,9 @@ import (
 	"errors"
 	"strconv"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
@@ -29,6 +32,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/identity/service/events"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
 	"github.com/antinvestor/service-fintech/apps/identity/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/constants"
 )
 
 const (
@@ -155,10 +159,24 @@ func (b *workforceBusiness) WorkforceMemberSave(
 		member.State = int32(commonv1.STATE_CREATED)
 	}
 
+	isNew := obj.GetId() == ""
+
 	if err := b.eventsMan.Emit(ctx, events.WorkforceMemberSaveEvent, member); err != nil {
 		util.Log(ctx).WithError(err).Error("could not emit workforce member save event")
 		return nil, err
 	}
+
+	audit := constants.AuditTrailFromContext(ctx)
+	memberAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+	)
+	if isNew {
+		IdentityWorkforceAdded.Add(ctx, 1, memberAttrs)
+	} else if member.State == int32(commonv1.STATE_INACTIVE) || member.State == int32(commonv1.STATE_DELETED) {
+		IdentityWorkforceRemoved.Add(ctx, 1, memberAttrs)
+	}
+
 	return member.ToAPI(), nil
 }
 

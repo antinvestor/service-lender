@@ -20,6 +20,9 @@ import (
 	"strconv"
 	"strings"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
@@ -130,6 +133,12 @@ func (b *orgUnitBusiness) Save(
 		); createErr != nil {
 			logger.WithError(createErr).Warn("org unit created without approval case metadata")
 		}
+
+		IdentityOrgUnitsCreated.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("tenant_id", orgUnit.TenantID),
+			attribute.String("partition_id", orgUnit.PartitionID),
+		))
+
 		return b.toAPI(ctx, orgUnit)
 	}
 
