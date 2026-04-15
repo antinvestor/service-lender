@@ -107,9 +107,7 @@ class _OrganizationFormWizardState
   void _prefillFromExisting() {
     final org = widget.organization!;
     _codeCtrl.text = org.code;
-    if (org.hasProperties() && org.properties.fields.containsKey('domain_name')) {
-      _domainCtrl.text = org.properties.fields['domain_name']!.stringValue;
-    }
+    _domainCtrl.text = org.domain;
     _orgType = orgTypeLabel(org.organizationType);
     _geoId = org.geoId;
 
@@ -421,12 +419,7 @@ class _OrganizationFormWizardState
       final org = widget.organization ?? OrganizationObject();
       org.name = _nameCtrl.text.trim();
       org.code = _codeCtrl.text.trim();
-      // Store domain in organization properties
-      final domainValue = _domainCtrl.text.trim();
-      if (domainValue.isNotEmpty) {
-        final orgProps = org.ensureProperties().fields;
-        orgProps['domain_name'] = Value(stringValue: domainValue);
-      }
+      org.domain = _domainCtrl.text.trim();
       org.geoId = _geoId;
 
       // Set org type from text input

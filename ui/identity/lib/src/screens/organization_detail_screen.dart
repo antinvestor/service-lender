@@ -432,8 +432,8 @@ class _OrganizationDetailContentState
     if (_organization.code.isNotEmpty) {
       items.add(_InfoTile(label: 'Code', value: _organization.code));
     }
-    if (_prop('domain_name').isNotEmpty) {
-      items.add(_InfoTile(label: 'Domain', value: _prop('domain_name')));
+    if (_organization.domain.isNotEmpty) {
+      items.add(_InfoTile(label: 'Domain', value: _organization.domain));
     }
     // Coverage area is displayed via AreaBadge widget below the info grid.
     if (_organization.profileId.isNotEmpty) {
