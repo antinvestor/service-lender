@@ -41,7 +41,7 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
-	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
+	"github.com/antinvestor/common/audit"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/identity/config"
 	"github.com/antinvestor/service-fintech/apps/identity/service/authz"
@@ -379,8 +379,8 @@ func setupConnectServer(
 	)
 
 	// Layer 3: Audit interceptor logs all non-idempotent calls and failed reads.
-	identityAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_identity")
-	fieldAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_field")
+	identityAuditInterceptor := audit.NewInterceptor("service_identity", nil)
+	fieldAuditInterceptor := audit.NewInterceptor("service_field", nil)
 
 	identityInterceptorList, err := connectInterceptors.DefaultList(
 		ctx,

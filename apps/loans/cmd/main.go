@@ -38,7 +38,7 @@ import (
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 
-	auditInterceptors "github.com/antinvestor/service-fintech/pkg/interceptors"
+	auditmw "github.com/antinvestor/common/audit"
 
 	aconfig "github.com/antinvestor/service-fintech/apps/loans/config"
 	"github.com/antinvestor/service-fintech/apps/loans/service/authz"
@@ -312,7 +312,7 @@ func setupConnectServer(
 	functionChecker := authorizer.NewFunctionChecker(auth, svcPerms.Namespace)
 	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
 
-	loansAuditInterceptor := auditInterceptors.NewAuditInterceptor("service_loans")
+	loansAuditInterceptor := auditmw.NewInterceptor("service_loans", nil)
 	defaultInterceptorList, err := connectInterceptors.DefaultList(
 		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor, loansAuditInterceptor)
 	if err != nil {

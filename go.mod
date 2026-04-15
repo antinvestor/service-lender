@@ -31,6 +31,7 @@ require (
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260406091002-ec643023d3b3.1
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.4
+	github.com/antinvestor/common/audit v0.0.0-20260415113035-1d4f4c1d6b8d
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/pitabwire/frame v1.94.1
 	github.com/pitabwire/util v0.8.0
@@ -43,6 +44,8 @@ require (
 )
 
 require (
+	buf.build/gen/go/antinvestor/audit/connectrpc/go v1.19.1-20260407152515-18e28354ce96.2 // indirect
+	buf.build/gen/go/antinvestor/audit/protocolbuffers/go v1.36.11-20260407152515-18e28354ce96.1 // indirect
 	buf.build/gen/go/antinvestor/files/protocolbuffers/go v1.36.11-20260402081919-eb61e2edf446.1 // indirect
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
 	buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1 // indirect
