@@ -23,6 +23,7 @@ export 'src/screens/roles_screen.dart';
 export 'src/screens/form_templates_screen.dart';
 export 'src/screens/teams_screen.dart';
 export 'src/screens/departments_screen.dart';
+export 'src/screens/organization_form_wizard.dart';
 
 // New providers
 export 'src/providers/department_providers.dart';
