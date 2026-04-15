@@ -58,8 +58,8 @@ class OrganizationFormWizard extends ConsumerStatefulWidget {
 
 class _OrganizationFormWizardState
     extends ConsumerState<OrganizationFormWizard> {
-  static const _stepCount = 4;
-  static const _stepLabels = ['Contact', 'Details', 'Contacts', 'Location'];
+  static const _stepCount = 5;
+  static const _stepLabels = ['Contact', 'Details', 'Contacts', 'Address', 'Area'];
 
   final _formKeys = List.generate(_stepCount, (_) => GlobalKey<FormState>());
   int _currentStep = 0;
@@ -454,7 +454,8 @@ class _OrganizationFormWizardState
                   _buildStep1Contact(theme),
                   _buildStep2Details(theme),
                   _buildStep3Contacts(theme),
-                  _buildStep4Location(theme),
+                  _buildStep4Address(theme),
+                  _buildStep5Area(theme),
                 ],
               ),
             ),
@@ -992,10 +993,10 @@ class _OrganizationFormWizardState
   }
 
   // =========================================================================
-  // Step 4: Location (address on profile + geoId on org)
+  // Step 4: Physical address
   // =========================================================================
 
-  Widget _buildStep4Location(ThemeData theme) {
+  Widget _buildStep4Address(ThemeData theme) {
     return Form(
       key: _formKeys[3],
       child: SingleChildScrollView(
@@ -1004,9 +1005,15 @@ class _OrganizationFormWizardState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Physical address and coverage area',
+              'Physical address',
               style: theme.textTheme.titleSmall
                   ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Enter the main office or registered address for this organization.',
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             FormFieldCard(
@@ -1055,11 +1062,40 @@ class _OrganizationFormWizardState
                 ),
               ),
             ),
-            const Divider(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // Step 5: Coverage area
+  // =========================================================================
+
+  Widget _buildStep5Area(ThemeData theme) {
+    return Form(
+      key: _formKeys[4],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Coverage area',
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Select the geographic area this organization operates in.',
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
             AreaPickerField(
               selectedAreaId: _geoId,
               label: 'Coverage Area',
-              description: 'The geographic area this organization operates in.',
+              description: 'The geographic region where this organization provides services.',
               isRequired: true,
               onSelected: (area) => setState(() {
                 _geoId = area?.id ?? '';

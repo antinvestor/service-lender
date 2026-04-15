@@ -41,14 +41,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  antinvestor_api_geolocation:
+    dependency: transitive
+    description:
+      name: antinvestor_api_geolocation
+      sha256: "375bddb74888bc2222e30fe306efa8aaa00170f177b1e4e3986a8f895befa400"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   antinvestor_api_identity:
     dependency: "direct main"
     description:
       name: antinvestor_api_identity
-      sha256: f3cdd7f1edc3dcda4b262113f91251e47fb0818a229eddde1300e97fc5ec4cc3
+      sha256: "12ae84677a275939e0623818708da1a82cc2f39a4093985b1a0ae6519220118a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.3.0"
+  antinvestor_api_profile:
+    dependency: transitive
+    description:
+      name: antinvestor_api_profile
+      sha256: fb540379b01a5c2b899a74a4ef0c8ceec96ff43846d9b18488a628cf0ab734c5
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.53.0"
   antinvestor_api_tenancy:
     dependency: "direct main"
     description:
@@ -70,6 +86,22 @@ packages:
     description:
       name: antinvestor_ui_core
       sha256: "7b8a0cdc83cfef3781e4c9f77a4ae7fb238267ed0f2cb40a8d3a2b43d1a6c5a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  antinvestor_ui_geolocation:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_geolocation
+      sha256: "35b6dfe5bff9a3a080c2d97a6cfe673aaf5bfc4db2951bcfef6c90c5ee471ed9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  antinvestor_ui_profile:
+    dependency: "direct main"
+    description:
+      name: antinvestor_ui_profile
+      sha256: b828c3bbe0230b9563252d599df98eb62caf9e57a2b5689fc0b9ddc04834d494
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
@@ -1041,10 +1073,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "45caa6c5917fa127b5dbcfbd1fa60b14e583afdc08bfc96dda38886ca252eb60"
+      sha256: "046d3928e16fa4dc46e8350415661755ab759d9fc97fc21b5ab295f71e4f0499"
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.2"
+    version: "15.1.0"
   watcher:
     dependency: transitive
     description:
