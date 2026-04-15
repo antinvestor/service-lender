@@ -177,35 +177,43 @@ class _OrganizationFormWizardState
     setState(() {
       _profileSearching = true;
       _profileSearched = false;
+      _foundProfile = null;
     });
     try {
-      final result =
-          await ref.read(profileByContactProvider(contact).future);
+      // Use direct client call to avoid FutureProvider caching stale errors.
+      final client = ref.read(profileServiceClientProvider);
+      final request = profile.GetByContactRequest()..contact = contact;
+      final response = await client.getByContact(request)
+          .timeout(const Duration(seconds: 10));
+      final result = response.data;
       if (!mounted) return;
 
       // Profile found — check if an organization already uses this profile
-      final orgs = await ref.read(
-        filteredOrganizationListProvider((
-          query: '',
-          parentId: '', // no parent filter
-        )).future,
-      );
-      final linkedOrg = orgs
-          .where((o) => o.profileId == result.id)
-          .toList();
-
-      if (linkedOrg.isNotEmpty && mounted) {
-        // Organization exists with this profile → redirect to it
-        Navigator.pop(context);
-        context.go('/organizations/${linkedOrg.first.id}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Organization "${linkedOrg.first.name}" already exists for this profile',
-            ),
-          ),
+      try {
+        final orgs = await ref.read(
+          filteredOrganizationListProvider((
+            query: '',
+            parentId: '', // no parent filter
+          )).future,
         );
-        return;
+        final linkedOrg = orgs
+            .where((o) => o.profileId == result.id)
+            .toList();
+
+        if (linkedOrg.isNotEmpty && mounted) {
+          Navigator.pop(context);
+          context.go('/organizations/${linkedOrg.first.id}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Organization "${linkedOrg.first.name}" already exists for this profile',
+              ),
+            ),
+          );
+          return;
+        }
+      } catch (_) {
+        // If org check fails, still proceed with the found profile
       }
 
       if (mounted) {
@@ -217,8 +225,8 @@ class _OrganizationFormWizardState
           _descriptionCtrl.text = _extractProp(result, 'description');
         });
       }
-    } catch (_) {
-      // Profile not found — allow creation
+    } catch (e) {
+      // Profile not found or error — show creation form
       if (mounted) {
         setState(() {
           _foundProfile = null;
@@ -323,15 +331,31 @@ class _OrganizationFormWizardState
   }
 
   // -- Navigation
-  void _next() {
+  Future<void> _next() async {
     if (_currentStep == 0) {
-      // Must have a profile before proceeding
-      if (_foundProfile == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Search for or create a profile first')),
-        );
-        return;
+      if (_foundProfile != null) {
+        // Profile already resolved — proceed.
+      } else if (!_profileSearched) {
+        // Haven't searched yet — search first.
+        if (_contactCtrl.text.trim().isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Enter a contact to search')),
+          );
+          return;
+        }
+        await _searchProfile();
+        // If profile was found, proceed; if not, the creation form is now visible.
+        if (_foundProfile == null) return;
+      } else {
+        // Searched but not found — auto-create if name is filled.
+        if (_nameCtrl.text.trim().isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Enter a name to create the profile')),
+          );
+          return;
+        }
+        await _createProfile();
+        if (_foundProfile == null) return; // creation failed
       }
     }
     if (!_formKeys[_currentStep].currentState!.validate()) return;
@@ -613,7 +637,7 @@ class _OrganizationFormWizardState
   }
 
   // =========================================================================
-  // Step 1: Contact search → find/create profile (uses ProfileResolver)
+  // Step 1: Contact search → find/create profile
   // =========================================================================
 
   Widget _buildStep1Contact(ThemeData theme) {
@@ -631,28 +655,166 @@ class _OrganizationFormWizardState
             ),
             const SizedBox(height: 4),
             Text(
-              'We will search for an existing profile. If not found, you can create one.',
+              'We will search for an existing profile. If not found, fill in the details and click Next to create one.',
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-            ProfileResolver(
-              profileType: profile.ProfileType.INSTITUTION,
-              resolvedProfile: _foundProfile,
-              onPickAvatar: widget.onPickLogo,
-              contactLabel: 'Organization email or phone',
-              nameLabel: 'Organization Name',
-              nameHint: 'e.g. Stawi Capital Limited',
-              onProfileResolved: (resolved) {
-                setState(() {
-                  _foundProfile = resolved;
-                  _nameCtrl.text = _extractName(resolved);
-                  _descriptionCtrl.text = _extractProp(resolved, 'description');
-                });
-                // Check if org already exists for this profile
-                _checkExistingOrg(resolved.id);
-              },
+
+            // Contact search field
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _contactCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'Organization email or phone',
+                      prefixIcon: const Icon(Icons.contact_mail_outlined),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onSubmitted: (_) => _searchProfile(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton.icon(
+                  onPressed: _profileSearching ? null : _searchProfile,
+                  icon: _profileSearching
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.search, size: 18),
+                  label: const Text('Search'),
+                ),
+              ],
             ),
+
+            const SizedBox(height: 16),
+
+            // Profile found
+            if (_profileSearched && _foundProfile != null)
+              Card(
+                elevation: 0,
+                color: theme.colorScheme.primaryContainer.withAlpha(40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                      color: theme.colorScheme.primary.withAlpha(60)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle,
+                          color: theme.colorScheme.primary, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Profile found',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.primary)),
+                            ProfileBadge(
+                              profileId: _foundProfile!.id,
+                              name: _extractName(_foundProfile!),
+                              avatarSize: 32,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // Profile not found — show creation fields
+            if (_profileSearched && _foundProfile == null)
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                      color: theme.colorScheme.outlineVariant.withAlpha(60)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline,
+                              color: theme.colorScheme.secondary, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'No profile found. Fill in details below and click Next to create.',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.secondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: GestureDetector(
+                          onTap: _pickAvatar,
+                          child: CircleAvatar(
+                            radius: 40,
+                            backgroundColor:
+                                theme.colorScheme.primaryContainer,
+                            backgroundImage: _avatarBytes != null
+                                ? MemoryImage(_avatarBytes!)
+                                : null,
+                            child: _avatarBytes == null
+                                ? Icon(Icons.add_a_photo,
+                                    color: theme.colorScheme.primary,
+                                    size: 24)
+                                : null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _nameCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Organization Name',
+                          hintText: 'e.g. Stawi Capital Limited',
+                          prefixIcon: const Icon(Icons.business),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                        validator: (v) => (_profileSearched &&
+                                _foundProfile == null &&
+                                (v == null || v.trim().isEmpty))
+                            ? 'Name is required to create a profile'
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _descriptionCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          hintText: 'Brief description',
+                          prefixIcon: const Icon(Icons.description_outlined),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                        maxLines: 2,
+                      ),
+                      if (_creatingProfile) ...[
+                        const SizedBox(height: 12),
+                        const Center(child: CircularProgressIndicator()),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
