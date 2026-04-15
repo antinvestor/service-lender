@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:antinvestor_ui_profile/antinvestor_ui_profile.dart'
+    show ProfileInlineManager;
 import '../providers/identity_transport_provider.dart';
 import '../providers/org_unit_providers.dart';
 import '../providers/organization_providers.dart';
@@ -234,6 +236,16 @@ class _OrgUnitDetailContentState
                 child: _buildInfoCard(theme),
               ),
             ),
+
+            // -- Profile contacts & addresses (inline management)
+            if (_orgUnit.profileId.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  child: ProfileInlineManager(
+                      profileId: _orgUnit.profileId),
+                ),
+              ),
 
             // -- Login URL
             if (_orgUnit.clientId.isNotEmpty)

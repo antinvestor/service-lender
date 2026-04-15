@@ -17,6 +17,8 @@ import '../providers/org_unit_providers.dart';
 import '../providers/organization_providers.dart';
 import '../widgets/org_unit_helpers.dart';
 import '../widgets/state_helpers.dart';
+import 'package:antinvestor_ui_profile/antinvestor_ui_profile.dart'
+    show ProfileInlineManager;
 import 'org_unit_form_dialog.dart';
 import 'organization_form_wizard.dart';
 import 'organizations_screen.dart';
@@ -178,7 +180,7 @@ class _OrganizationDetailContentState
           ),
         ),
 
-        // -- Profile section (avatar, name, contacts, addresses) ---------------
+        // -- Profile header (avatar, name, type, description) -------------------
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -227,6 +229,16 @@ class _OrganizationDetailContentState
                   ),
                 ),
               ),
+            ),
+          ),
+
+        // -- Profile contacts & addresses (inline management) -------------------
+        if (_organization.profileId.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: ProfileInlineManager(
+                  profileId: _organization.profileId),
             ),
           ),
 
@@ -801,68 +813,7 @@ class _ProfileSection extends ConsumerWidget {
           ),
         ),
 
-        // Profile-based contacts & addresses (if profile exists)
-        if (profileAsync != null) ...[
-          profileAsync.when(
-            loading: () => const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (e, _) => const SizedBox.shrink(),
-            data: (profile) {
-              final contacts = profile.contacts;
-              final addresses = profile.addresses;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Contacts from profile
-                  if (contacts.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Card(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                            color: theme.colorScheme.outlineVariant
-                                .withAlpha(38)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _SectionHeader(
-                              icon: Icons.contacts_outlined,
-                              title: 'Contacts',
-                            ),
-                            const SizedBox(height: 8),
-                            ...contacts.map((contact) =>
-                                ContactListTile(contact: contact)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  // Addresses from profile
-                  if (addresses.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _SectionHeader(
-                        icon: Icons.location_on_outlined,
-                        title: 'Addresses',
-                      ),
-                    ),
-                    ...addresses.map((address) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: AddressTile(address: address),
-                    )),
-                  ],
-                ],
-              );
-            },
-          ),
-        ],
+        // Contacts and addresses are managed via ProfileInlineManager above.
       ],
     );
   }
