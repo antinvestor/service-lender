@@ -59,4 +59,7 @@ ALTER TABLE team_memberships RENAME COLUMN membership_role_new TO membership_rol
 -- Add new fields from proto changes
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS domain VARCHAR(255) DEFAULT '';
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS organization_type INTEGER DEFAULT 0;
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS parent_id VARCHAR(50) DEFAULT '';
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS has_children BOOLEAN DEFAULT FALSE;
+CREATE INDEX IF NOT EXISTS idx_organization_parent ON organizations (parent_id);
 ALTER TABLE org_units ADD COLUMN IF NOT EXISTS profile_id VARCHAR(50) DEFAULT '';

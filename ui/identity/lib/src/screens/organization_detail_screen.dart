@@ -18,6 +18,7 @@ import '../providers/organization_providers.dart';
 import '../widgets/org_unit_helpers.dart';
 import '../widgets/state_helpers.dart';
 import 'org_unit_form_dialog.dart';
+import 'organization_form_wizard.dart';
 import 'organizations_screen.dart';
 
 class OrganizationDetailScreen extends ConsumerWidget {
@@ -113,14 +114,12 @@ class _OrganizationDetailContentState
         type: OrgUnitType.ORG_UNIT_TYPE_UNSPECIFIED,
       )),
     );
-    final childOrgsAsync = _organization.hasChildren
-        ? ref.watch(
-            filteredOrganizationListProvider((
-              query: '',
-              parentId: _organization.id,
-            )),
-          )
-        : null;
+    final childOrgsAsync = ref.watch(
+      filteredOrganizationListProvider((
+        query: '',
+        parentId: _organization.id,
+      )),
+    );
 
     return Center(
       child: ConstrainedBox(
@@ -240,18 +239,28 @@ class _OrganizationDetailContentState
             ),
           ),
 
-        // -- Sub-Organizations -----------------------------------------------
-        if (childOrgsAsync != null) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-              child: _SectionHeader(
-                icon: Icons.corporate_fare,
-                title: 'Sub-Organizations',
-              ),
+        // -- Sub-Organizations (always shown, with create button) ---------------
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            child: Row(
+              children: [
+                _SectionHeader(
+                  icon: Icons.corporate_fare,
+                  title: 'Sub-Organizations',
+                ),
+                const Spacer(),
+                if (widget.canManage)
+                  FilledButton.icon(
+                    onPressed: () => _showChildOrgWizard(context),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add Child Org'),
+                  ),
+              ],
             ),
           ),
-          childOrgsAsync.when(
+        ),
+        childOrgsAsync.when(
             loading: () => const SliverToBoxAdapter(
               child: Padding(
                   padding: EdgeInsets.all(32),
@@ -292,7 +301,6 @@ class _OrganizationDetailContentState
               );
             },
           ),
-        ],
 
         // -- Org Units -------------------------------------------------------
         SliverToBoxAdapter(
@@ -527,6 +535,33 @@ class _OrganizationDetailContentState
       SnackBar(
         content: Text('${_organization.name} set as active organization'),
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _showChildOrgWizard(BuildContext context) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => OrganizationFormWizard(
+        onPickLogo: widget.onPickLogo,
+        onSave: (result) async {
+          final org = result.organization;
+          org.parentId = _organization.id;
+          org.profileId = result.profileId;
+          if (org.partitionId.isEmpty) {
+            org.partitionId = _organization.partitionId;
+          }
+          await ref.read(organizationNotifierProvider.notifier).save(org);
+          // Refresh child list
+          ref.invalidate(filteredOrganizationListProvider);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Child organization created')),
+            );
+          }
+        },
       ),
     );
   }

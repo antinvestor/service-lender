@@ -54,4 +54,6 @@ ALTER TABLE team_memberships RENAME COLUMN membership_role_old TO membership_rol
 -- Remove new fields
 ALTER TABLE organizations DROP COLUMN IF EXISTS domain;
 ALTER TABLE organizations DROP COLUMN IF EXISTS organization_type;
+ALTER TABLE organizations DROP COLUMN IF EXISTS parent_id;
+ALTER TABLE organizations DROP COLUMN IF EXISTS has_children;
 ALTER TABLE org_units DROP COLUMN IF EXISTS profile_id;
