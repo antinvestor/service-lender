@@ -107,7 +107,9 @@ class _OrganizationFormWizardState
   void _prefillFromExisting() {
     final org = widget.organization!;
     _codeCtrl.text = org.code;
-    _domainCtrl.text = org.domain;
+    if (org.hasProperties() && org.properties.fields.containsKey('domain_name')) {
+      _domainCtrl.text = org.properties.fields['domain_name']!.stringValue;
+    }
     _orgType = orgTypeLabel(org.organizationType);
     _geoId = org.geoId;
 
@@ -399,11 +401,32 @@ class _OrganizationFormWizardState
             );
       }
 
+      // Update profile properties (name, description)
+      if (_foundProfile != null) {
+        final profileProps = <String, profile.Value>{};
+        profileProps['name'] = profile.Value(stringValue: _nameCtrl.text.trim());
+        if (_descriptionCtrl.text.trim().isNotEmpty) {
+          profileProps['description'] =
+              profile.Value(stringValue: _descriptionCtrl.text.trim());
+        }
+
+        final client = ref.read(profileServiceClientProvider);
+        await client.update(profile.UpdateRequest(
+          id: _foundProfile!.id,
+          properties: profile.Struct(fields: profileProps),
+        )).timeout(const Duration(seconds: 10));
+      }
+
       // Build the organization object
       final org = widget.organization ?? OrganizationObject();
       org.name = _nameCtrl.text.trim();
       org.code = _codeCtrl.text.trim();
-      org.domain = _domainCtrl.text.trim();
+      // Store domain in organization properties
+      final domainValue = _domainCtrl.text.trim();
+      if (domainValue.isNotEmpty) {
+        final orgProps = org.ensureProperties().fields;
+        orgProps['domain_name'] = Value(stringValue: domainValue);
+      }
       org.geoId = _geoId;
 
       // Set org type from text input
