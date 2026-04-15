@@ -175,28 +175,13 @@ func (b *paymentRoutingBusiness) IdentifyPayment(
 			}
 			logger.WithField("membership_id", result.MembershipID).
 				Info(fmt.Sprintf("payment identified via strategy %d: %s", i+1, s.name))
-
-			idAudit := constants.AuditTrailFromContext(ctx)
-			idAttrs := metric.WithAttributes(
-				attribute.String("tenant_id", idAudit.TenantID),
-				attribute.String("partition_id", idAudit.PartitionID),
-				attribute.String("currency", payment.Currency),
-			)
-			OpsPaymentsReceived.Add(ctx, 1, idAttrs)
-			OpsPaymentsAmount.Add(ctx, float64(payment.Amount)/100.0, idAttrs)
-
+			recordPaymentIdentified(ctx, payment)
 			return b.buildIdentificationResult(payment, result), nil
 		}
 	}
 
 	logger.Warn("payment could not be identified, routing to unidentified account")
-
-	umAudit := constants.AuditTrailFromContext(ctx)
-	OpsPaymentsUnmatched.Add(ctx, 1, metric.WithAttributes(
-		attribute.String("tenant_id", umAudit.TenantID),
-		attribute.String("partition_id", umAudit.PartitionID),
-	))
-
+	recordPaymentUnmatched(ctx)
 	unidentified := map[string]interface{}{
 		"payment_id": payment.GetID(),
 		"strategy":   "unidentified",
@@ -206,6 +191,27 @@ func (b *paymentRoutingBusiness) IdentifyPayment(
 		unidentified["unidentified_account"] = constants.ProductUnidentifiedAccount(productID)
 	}
 	return unidentified, nil
+}
+
+// recordPaymentIdentified emits OTel counters for a successfully identified payment.
+func recordPaymentIdentified(ctx context.Context, payment *models.IncomingPayment) {
+	idAudit := constants.AuditTrailFromContext(ctx)
+	idAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", idAudit.TenantID),
+		attribute.String("partition_id", idAudit.PartitionID),
+		attribute.String("currency", payment.Currency),
+	)
+	OpsPaymentsReceived.Add(ctx, 1, idAttrs)
+	OpsPaymentsAmount.Add(ctx, float64(payment.Amount)/minorUnitsPerMajor, idAttrs)
+}
+
+// recordPaymentUnmatched emits OTel counter for a payment that could not be identified.
+func recordPaymentUnmatched(ctx context.Context) {
+	umAudit := constants.AuditTrailFromContext(ctx)
+	OpsPaymentsUnmatched.Add(ctx, 1, metric.WithAttributes(
+		attribute.String("tenant_id", umAudit.TenantID),
+		attribute.String("partition_id", umAudit.PartitionID),
+	))
 }
 
 func (b *paymentRoutingBusiness) loadOrCreateIncomingPayment(

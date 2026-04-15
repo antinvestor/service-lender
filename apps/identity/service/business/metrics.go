@@ -19,8 +19,10 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
+//nolint:gochecknoglobals // OTel metric instruments are registered at package level per SDK convention.
 var identityMeter = otel.Meter("service-identity")
 
+//nolint:gochecknoglobals // OTel metric instruments are registered at package level per SDK convention.
 var (
 	IdentityOrganizationsCreated, _ = identityMeter.Int64Counter("identity_organizations_created_total",
 		metric.WithDescription("New organizations created"),

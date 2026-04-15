@@ -172,7 +172,7 @@ func (b *investorAccountBusiness) Deposit(
 		attribute.String("currency", account.Currency),
 	)
 	FundingDeposits.Add(ctx, 1, depAttrs)
-	FundingDepositsAmount.Add(ctx, float64(amount)/100.0, depAttrs)
+	FundingDepositsAmount.Add(ctx, float64(amount)/minorUnitsPerMajor, depAttrs)
 
 	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).
 		Info("investor deposit processed")
@@ -258,7 +258,7 @@ func (b *investorAccountBusiness) Withdraw(
 		attribute.String("currency", fresh.Currency),
 	)
 	FundingWithdrawals.Add(ctx, 1, wdrAttrs)
-	FundingWithdrawalsAmount.Add(ctx, float64(amount)/100.0, wdrAttrs)
+	FundingWithdrawalsAmount.Add(ctx, float64(amount)/minorUnitsPerMajor, wdrAttrs)
 
 	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).
 		Info("investor withdrawal processed")

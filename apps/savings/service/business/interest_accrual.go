@@ -266,7 +266,7 @@ func (b *interestAccrualBusiness) Accrue( //nolint:funlen // sequential accrual 
 	})
 
 	audit := constants.AuditTrailFromContext(ctx)
-	SavingsInterestAccruedAmount.Add(ctx, float64(accrued)/100.0, metric.WithAttributes(
+	SavingsInterestAccruedAmount.Add(ctx, float64(accrued)/minorUnitsPerMajor, metric.WithAttributes(
 		attribute.String("tenant_id", audit.TenantID),
 		attribute.String("partition_id", audit.PartitionID),
 		attribute.String("currency", sa.CurrencyCode),

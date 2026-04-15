@@ -209,7 +209,7 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 		attribute.String("currency", order.Currency),
 	)
 	OpsTransfersExecuted.Add(ctx, 1, toAttrs)
-	OpsTransfersAmount.Add(ctx, float64(order.Amount)/100.0, toAttrs)
+	OpsTransfersAmount.Add(ctx, float64(order.Amount)/minorUnitsPerMajor, toAttrs)
 
 	logger.Info("transfer order executed successfully")
 	return nil

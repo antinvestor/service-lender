@@ -19,8 +19,13 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
+// minorUnitsPerMajor converts minor currency units (e.g. cents) to major units (e.g. dollars).
+const minorUnitsPerMajor = 100.0
+
+//nolint:gochecknoglobals // OTel metric instruments are registered at package level per SDK convention.
 var savingsMeter = otel.Meter("service-savings")
 
+//nolint:gochecknoglobals // OTel metric instruments are registered at package level per SDK convention.
 var (
 	SavingsAccountsOpened, _ = savingsMeter.Int64Counter("savings_accounts_opened_total",
 		metric.WithDescription("New savings accounts opened"),

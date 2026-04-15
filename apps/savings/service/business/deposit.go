@@ -203,7 +203,7 @@ func (b *depositBusiness) Record(
 		attribute.String("currency", sa.CurrencyCode),
 	)
 	SavingsDeposits.Add(ctx, 1, depAttrs)
-	SavingsDepositsAmount.Add(ctx, float64(amountMinor)/100.0, depAttrs)
+	SavingsDepositsAmount.Add(ctx, float64(amountMinor)/minorUnitsPerMajor, depAttrs)
 
 	return dep.ToAPI(), nil
 }

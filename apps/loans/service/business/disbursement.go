@@ -208,7 +208,7 @@ func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursemen
 	)
 	LoansDisbursed.Add(ctx, 1, disbAttrs)
 	LoansDisbursedAmount.Add(ctx,
-		float64(la.PrincipalAmount)/100.0,
+		float64(la.PrincipalAmount)/minorUnitsPerMajor,
 		disbAttrs)
 
 	return disb.ToAPI(), nil

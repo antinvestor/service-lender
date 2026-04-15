@@ -262,7 +262,7 @@ func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1
 		attribute.String("currency", sa.CurrencyCode),
 	)
 	SavingsWithdrawals.Add(ctx, 1, wdrAttrs)
-	SavingsWithdrawalsAmount.Add(ctx, float64(wdr.Amount)/100.0, wdrAttrs)
+	SavingsWithdrawalsAmount.Add(ctx, float64(wdr.Amount)/minorUnitsPerMajor, wdrAttrs)
 
 	return wdr.ToAPI(), nil
 }

@@ -241,7 +241,7 @@ func (b *repaymentBusiness) Record( //nolint:funlen // sequential repayment pipe
 	)
 	LoansRepaid.Add(ctx, 1, repAttrs)
 	LoansRepaidAmount.Add(ctx,
-		float64(amount)/100.0,
+		float64(amount)/minorUnitsPerMajor,
 		repAttrs)
 
 	return r.ToAPI(), nil

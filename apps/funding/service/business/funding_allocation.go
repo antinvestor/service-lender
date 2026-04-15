@@ -132,7 +132,7 @@ func (b *fundingAllocationBusiness) SourceForRequest(
 	)
 	FundingAllocations.Add(ctx, 1, allocAttrs)
 	FundingAllocationsAmount.Add(ctx,
-		float64(result.TotalAllocated.ToMinorUnits(decimalPrecision))/100.0,
+		float64(result.TotalAllocated.ToMinorUnits(decimalPrecision))/minorUnitsPerMajor,
 		allocAttrs)
 
 	return map[string]interface{}{
