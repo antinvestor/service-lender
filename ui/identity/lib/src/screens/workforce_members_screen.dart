@@ -301,7 +301,7 @@ class _MemberFormDialogState extends ConsumerState<_MemberFormDialog> {
   late final TextEditingController _geoIdController;
   late String _selectedOrgId;
   late String _selectedOrgUnitId;
-  late WorkforceEngagementType _engagementType;
+  late final TextEditingController _engagementTypeCtrl;
   late common.STATE _state;
 
   bool get _isEditing => widget.member != null;
@@ -315,8 +315,8 @@ class _MemberFormDialogState extends ConsumerState<_MemberFormDialog> {
     _geoIdController = TextEditingController(text: m?.geoId ?? '');
     _selectedOrgId = m?.organizationId ?? '';
     _selectedOrgUnitId = m?.homeOrgUnitId ?? '';
-    _engagementType = m?.engagementType ??
-        WorkforceEngagementType.WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE;
+    _engagementTypeCtrl = TextEditingController(
+        text: m?.engagementType ?? 'employee');
     _state = m?.state ?? common.STATE.CREATED;
   }
 
@@ -324,6 +324,7 @@ class _MemberFormDialogState extends ConsumerState<_MemberFormDialog> {
   void dispose() {
     _profileIdController.dispose();
     _geoIdController.dispose();
+    _engagementTypeCtrl.dispose();
     super.dispose();
   }
 
@@ -412,32 +413,16 @@ class _MemberFormDialogState extends ConsumerState<_MemberFormDialog> {
                   description:
                       'How this member is engaged with the organization.',
                   isRequired: true,
-                  child:
-                      DropdownButtonFormField<WorkforceEngagementType>(
-                    value: _engagementType,
+                  child: TextFormField(
+                    controller: _engagementTypeCtrl,
                     decoration: const InputDecoration(
+                      hintText: 'e.g. employee, contractor, agent',
                       prefixIcon: Icon(Icons.work_outline),
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: WorkforceEngagementType
-                            .WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE,
-                        child: Text('Employee'),
-                      ),
-                      DropdownMenuItem(
-                        value: WorkforceEngagementType
-                            .WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR,
-                        child: Text('Contractor'),
-                      ),
-                      DropdownMenuItem(
-                        value: WorkforceEngagementType
-                            .WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT,
-                        child: Text('Service Account'),
-                      ),
-                    ],
-                    onChanged: (v) {
-                      if (v != null) setState(() => _engagementType = v);
-                    },
+                    textInputAction: TextInputAction.next,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Engagement type is required'
+                        : null,
                   ),
                 ),
                 FormFieldCard(
@@ -589,7 +574,7 @@ class _MemberFormDialogState extends ConsumerState<_MemberFormDialog> {
         profileId: _profileIdController.text.trim(),
         organizationId: _selectedOrgId,
         homeOrgUnitId: _selectedOrgUnitId,
-        engagementType: _engagementType,
+        engagementType: _engagementTypeCtrl.text.trim(),
         geoId: _geoIdController.text.trim(),
         state: _state,
       ),

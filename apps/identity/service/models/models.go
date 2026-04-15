@@ -76,32 +76,36 @@ func MoneyToMinorUnits(m *money.Money) (int64, string) {
 // Organization represents a top-level lending institution mapped to a partition.
 type Organization struct {
 	data.BaseModel
-	Name        string `gorm:"type:varchar(255)"`
-	Code        string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
-	ProfileID   string `gorm:"type:varchar(50)"`
-	ClientID    string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
-	GeoID       string `gorm:"type:varchar(50)"`
-	ParentID    string `gorm:"type:varchar(50);index"`
-	HasChildren bool   `gorm:"default:false"`
-	State       int32
-	Properties  data.JSONMap
+	Name             string `gorm:"type:varchar(255)"`
+	Code             string `gorm:"type:varchar(50);uniqueIndex:uq_organization_code"`
+	ProfileID        string `gorm:"type:varchar(50)"`
+	ClientID         string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
+	GeoID            string `gorm:"type:varchar(50)"`
+	ParentID         string `gorm:"type:varchar(50);index"`
+	Domain           string `gorm:"type:varchar(255)"` // Primary web domain (e.g. "stawi.org")
+	HasChildren      bool   `gorm:"default:false"`
+	OrganizationType int32  `gorm:"default:0"` // maps to identityv1.OrganizationType enum
+	State            int32
+	Properties       data.JSONMap
 }
 
 func (m *Organization) TableName() string { return "organizations" }
 
 func (m *Organization) ToAPI() *identityv1.OrganizationObject {
 	return &identityv1.OrganizationObject{
-		Id:          m.GetID(),
-		PartitionId: m.PartitionID,
-		Name:        m.Name,
-		Code:        m.Code,
-		ProfileId:   m.ProfileID,
-		State:       commonv1.STATE(m.State),
-		Properties:  m.Properties.ToProtoStruct(),
-		ClientId:    m.ClientID,
-		GeoId:       m.GeoID,
-		ParentId:    m.ParentID,
-		HasChildren: m.HasChildren,
+		Id:               m.GetID(),
+		PartitionId:      m.PartitionID,
+		Name:             m.Name,
+		Code:             m.Code,
+		ProfileId:        m.ProfileID,
+		State:            commonv1.STATE(m.State),
+		OrganizationType: identityv1.OrganizationType(m.OrganizationType),
+		Properties:       m.Properties.ToProtoStruct(),
+		ClientId:         m.ClientID,
+		GeoId:            m.GeoID,
+		ParentId:         m.ParentID,
+		HasChildren:      m.HasChildren,
+		Domain:           m.Domain,
 	}
 }
 
@@ -111,13 +115,15 @@ func OrganizationFromAPI(ctx context.Context, obj *identityv1.OrganizationObject
 	}
 
 	model := &Organization{
-		Name:      obj.GetName(),
-		Code:      obj.GetCode(),
-		ProfileID: obj.GetProfileId(),
-		ClientID:  obj.GetClientId(),
-		GeoID:     obj.GetGeoId(),
-		ParentID:  obj.GetParentId(),
-		State:     int32(obj.GetState()),
+		Name:             obj.GetName(),
+		Code:             obj.GetCode(),
+		ProfileID:        obj.GetProfileId(),
+		ClientID:         obj.GetClientId(),
+		GeoID:            obj.GetGeoId(),
+		ParentID:         obj.GetParentId(),
+		Domain:           obj.GetDomain(),
+		OrganizationType: int32(obj.GetOrganizationType()),
+		State:            int32(obj.GetState()),
 	}
 
 	if obj.GetProperties() != nil {
@@ -141,6 +147,7 @@ type Branch struct {
 	ParentID       string `gorm:"type:varchar(50);index:idx_org_unit_parent"`
 	Name           string `gorm:"type:varchar(255)"`
 	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_branch_code"`
+	ProfileID      string `gorm:"type:varchar(50)"` // Profile for contacts, addresses, avatar
 	GeoID          string `gorm:"type:varchar(50)"`
 	UnitType       int32  `gorm:"column:unit_type;index:idx_org_unit_type"`
 	ClientID       string `gorm:"type:varchar(50)"` // OAuth client ID for partition-scoped login
@@ -150,20 +157,6 @@ type Branch struct {
 
 func (m *Branch) TableName() string { return "org_units" }
 
-func (m *Branch) ToAPI() *identityv1.BranchObject {
-	return &identityv1.BranchObject{
-		Id:             m.GetID(),
-		OrganizationId: m.OrganizationID,
-		PartitionId:    m.PartitionID,
-		Name:           m.Name,
-		Code:           m.Code,
-		GeoId:          m.GeoID,
-		State:          commonv1.STATE(m.State),
-		Properties:     m.Properties.ToProtoStruct(),
-		ClientId:       m.ClientID,
-	}
-}
-
 func (m *Branch) ToOrgUnitAPI(hasChildren bool) *identityv1.OrgUnitObject {
 	return &identityv1.OrgUnitObject{
 		Id:             m.GetID(),
@@ -172,6 +165,7 @@ func (m *Branch) ToOrgUnitAPI(hasChildren bool) *identityv1.OrgUnitObject {
 		PartitionId:    m.PartitionID,
 		Name:           m.Name,
 		Code:           m.Code,
+		ProfileId:      m.ProfileID,
 		GeoId:          m.GeoID,
 		State:          commonv1.STATE(m.State),
 		Type:           identityv1.OrgUnitType(m.UnitType),
@@ -179,34 +173,6 @@ func (m *Branch) ToOrgUnitAPI(hasChildren bool) *identityv1.OrgUnitObject {
 		ClientId:       m.ClientID,
 		HasChildren:    hasChildren,
 	}
-}
-
-func BranchFromAPI(ctx context.Context, obj *identityv1.BranchObject) *Branch {
-	if obj == nil {
-		return nil
-	}
-
-	model := &Branch{
-		OrganizationID: obj.GetOrganizationId(),
-		Name:           obj.GetName(),
-		Code:           obj.GetCode(),
-		GeoID:          obj.GetGeoId(),
-		UnitType:       int32(identityv1.OrgUnitType_ORG_UNIT_TYPE_BRANCH),
-		ClientID:       obj.GetClientId(),
-		State:          int32(obj.GetState()),
-	}
-
-	if obj.GetProperties() != nil {
-		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
-	}
-
-	model.PartitionID = obj.GetPartitionId()
-	model.GenID(ctx)
-	if model.ValidXID(obj.GetId()) {
-		model.ID = obj.GetId()
-	}
-
-	return model
 }
 
 func OrgUnitFromAPI(ctx context.Context, obj *identityv1.OrgUnitObject) *Branch {
@@ -219,6 +185,7 @@ func OrgUnitFromAPI(ctx context.Context, obj *identityv1.OrgUnitObject) *Branch 
 		ParentID:       obj.GetParentId(),
 		Name:           obj.GetName(),
 		Code:           obj.GetCode(),
+		ProfileID:      obj.GetProfileId(),
 		GeoID:          obj.GetGeoId(),
 		UnitType:       int32(obj.GetType()),
 		ClientID:       obj.GetClientId(),
@@ -745,37 +712,12 @@ func InvestorFromAPI(ctx context.Context, obj *identityv1.InvestorObject) *Inves
 	return model
 }
 
-// SystemUser represents a user with a specific role in the lending workflow.
-type SystemUser struct {
-	data.BaseModel
-	ProfileID        string `gorm:"type:varchar(50);index:idx_su_profile"`
-	BranchID         string `gorm:"type:varchar(50);index:idx_su_branch"`
-	Role             int32
-	ServiceAccountID string `gorm:"type:varchar(50)"`
-	State            int32
-	Properties       data.JSONMap
-}
-
-func (m *SystemUser) TableName() string { return "system_users" }
-
-func (m *SystemUser) ToAPI() *identityv1.SystemUserObject {
-	return &identityv1.SystemUserObject{
-		Id:               m.GetID(),
-		ProfileId:        m.ProfileID,
-		BranchId:         m.BranchID,
-		Role:             identityv1.SystemUserRole(m.Role),
-		ServiceAccountId: m.ServiceAccountID,
-		State:            commonv1.STATE(m.State),
-		Properties:       m.Properties.ToProtoStruct(),
-	}
-}
-
 // WorkforceMember represents a worker in the organization.
 type WorkforceMember struct {
 	data.BaseModel
 	OrganizationID string `gorm:"type:varchar(50);index:idx_workforce_member_organization;not null"`
 	ProfileID      string `gorm:"type:varchar(50);index:idx_workforce_member_profile"`
-	EngagementType int32
+	EngagementType string `gorm:"type:varchar(50)"` // organization-defined (e.g. "employee", "agent", "contractor")
 	HomeOrgUnitID  string `gorm:"type:varchar(50);index:idx_workforce_member_home_org_unit"`
 	GeoID          string `gorm:"type:varchar(50)"`
 	State          int32
@@ -789,7 +731,7 @@ func (m *WorkforceMember) ToAPI() *identityv1.WorkforceMemberObject {
 		Id:             m.GetID(),
 		OrganizationId: m.OrganizationID,
 		ProfileId:      m.ProfileID,
-		EngagementType: identityv1.WorkforceEngagementType(m.EngagementType),
+		EngagementType: m.EngagementType,
 		HomeOrgUnitId:  m.HomeOrgUnitID,
 		GeoId:          m.GeoID,
 		State:          commonv1.STATE(m.State),
@@ -805,7 +747,7 @@ func WorkforceMemberFromAPI(ctx context.Context, obj *identityv1.WorkforceMember
 	model := &WorkforceMember{
 		OrganizationID: obj.GetOrganizationId(),
 		ProfileID:      obj.GetProfileId(),
-		EngagementType: int32(obj.GetEngagementType()),
+		EngagementType: obj.GetEngagementType(),
 		HomeOrgUnitID:  obj.GetHomeOrgUnitId(),
 		GeoID:          obj.GetGeoId(),
 		State:          int32(obj.GetState()),
@@ -987,7 +929,7 @@ type InternalTeam struct {
 	HomeOrgUnitID  string `gorm:"type:varchar(50);index:idx_internal_team_org_unit"`
 	Name           string `gorm:"type:varchar(255);uniqueIndex:uq_internal_team_org_name,priority:2"`
 	Code           string `gorm:"type:varchar(50);uniqueIndex:uq_internal_team_org_code,priority:2"`
-	TeamType       int32
+	TeamType       string `gorm:"type:varchar(50)"` // organization-defined (e.g. "portfolio", "collections", "agent_network")
 	Objective      string `gorm:"type:text"`
 	GeoID          string `gorm:"type:varchar(50)"`
 	State          int32
@@ -1004,7 +946,7 @@ func (m *InternalTeam) ToAPI() *identityv1.InternalTeamObject {
 		HomeOrgUnitId:  m.HomeOrgUnitID,
 		Name:           m.Name,
 		Code:           m.Code,
-		TeamType:       identityv1.TeamType(m.TeamType),
+		TeamType:       m.TeamType,
 		Objective:      m.Objective,
 		GeoId:          m.GeoID,
 		State:          commonv1.STATE(m.State),
@@ -1023,7 +965,7 @@ func InternalTeamFromAPI(ctx context.Context, obj *identityv1.InternalTeamObject
 		HomeOrgUnitID:  obj.GetHomeOrgUnitId(),
 		Name:           obj.GetName(),
 		Code:           obj.GetCode(),
-		TeamType:       int32(obj.GetTeamType()),
+		TeamType:       obj.GetTeamType(),
 		Objective:      obj.GetObjective(),
 		GeoID:          obj.GetGeoId(),
 		State:          int32(obj.GetState()),
@@ -1046,8 +988,8 @@ type TeamMembership struct {
 	data.BaseModel
 	TeamID         string `gorm:"type:varchar(50);index:idx_team_membership_team;not null"`
 	MemberID       string `gorm:"type:varchar(50);index:idx_team_membership_member;not null"`
-	MembershipRole int32
-	IsPrimaryTeam  bool `gorm:"index:idx_team_membership_primary"`
+	MembershipRole string `gorm:"type:varchar(50)"` // organization-defined (e.g. "lead", "member", "supervisor")
+	IsPrimaryTeam  bool   `gorm:"index:idx_team_membership_primary"`
 	State          int32
 	Properties     data.JSONMap
 }
@@ -1059,7 +1001,7 @@ func (m *TeamMembership) ToAPI() *identityv1.TeamMembershipObject {
 		Id:             m.GetID(),
 		TeamId:         m.TeamID,
 		MemberId:       m.MemberID,
-		MembershipRole: identityv1.TeamMembershipRole(m.MembershipRole),
+		MembershipRole: m.MembershipRole,
 		IsPrimaryTeam:  m.IsPrimaryTeam,
 		State:          commonv1.STATE(m.State),
 		Properties:     m.Properties.ToProtoStruct(),
@@ -1074,7 +1016,7 @@ func TeamMembershipFromAPI(ctx context.Context, obj *identityv1.TeamMembershipOb
 	model := &TeamMembership{
 		TeamID:         obj.GetTeamId(),
 		MemberID:       obj.GetMemberId(),
-		MembershipRole: int32(obj.GetMembershipRole()),
+		MembershipRole: obj.GetMembershipRole(),
 		IsPrimaryTeam:  obj.GetIsPrimaryTeam(),
 		State:          int32(obj.GetState()),
 	}
@@ -1268,31 +1210,6 @@ func ClientDataEntryHistoryFromAPI(
 		Action:   obj.GetAction(),
 		ActorID:  obj.GetActorId(),
 		Comment:  obj.GetComment(),
-	}
-
-	model.GenID(ctx)
-	if model.ValidXID(obj.GetId()) {
-		model.ID = obj.GetId()
-	}
-
-	return model
-}
-
-func SystemUserFromAPI(ctx context.Context, obj *identityv1.SystemUserObject) *SystemUser {
-	if obj == nil {
-		return nil
-	}
-
-	model := &SystemUser{
-		ProfileID:        obj.GetProfileId(),
-		BranchID:         obj.GetBranchId(),
-		Role:             int32(obj.GetRole()),
-		ServiceAccountID: obj.GetServiceAccountId(),
-		State:            int32(obj.GetState()),
-	}
-
-	if obj.GetProperties() != nil {
-		model.Properties = (&data.JSONMap{}).FromProtoStruct(obj.GetProperties())
 	}
 
 	model.GenID(ctx)

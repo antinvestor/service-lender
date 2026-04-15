@@ -1,4 +1,5 @@
 import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
+import 'package:flutter/material.dart' show IconData, Icons;
 
 /// Human-readable label for an OrgUnitType.
 String orgUnitTypeLabel(OrgUnitType type) {
@@ -31,23 +32,51 @@ const editableOrgUnitTypes = <OrgUnitType>[
   OrgUnitType.ORG_UNIT_TYPE_OTHER,
 ];
 
-/// Human-readable label for a WorkforceEngagementType.
-String engagementLabel(WorkforceEngagementType type) => switch (type) {
-      WorkforceEngagementType.WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE => 'Employee',
-      WorkforceEngagementType.WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR =>
-        'Contractor',
-      WorkforceEngagementType.WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT =>
-        'Service Account',
-      _ => 'Unspecified',
-    };
+/// Human-readable label for a string-based engagement type.
+/// The value is organization-defined (e.g. "employee", "contractor", "agent").
+String engagementLabel(String type) {
+  if (type.isEmpty) return 'Unspecified';
+  // Capitalize: "employee" → "Employee", "service_account" → "Service Account"
+  return type
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
+}
 
-/// Human-readable label for a TeamMembershipRole.
-String teamRoleLabel(TeamMembershipRole role) => switch (role) {
-      TeamMembershipRole.TEAM_MEMBERSHIP_ROLE_LEAD => 'Lead',
-      TeamMembershipRole.TEAM_MEMBERSHIP_ROLE_DEPUTY => 'Deputy',
-      TeamMembershipRole.TEAM_MEMBERSHIP_ROLE_MEMBER => 'Member',
-      TeamMembershipRole.TEAM_MEMBERSHIP_ROLE_SPECIALIST => 'Specialist',
-      _ => 'Unspecified',
+/// Human-readable label for a string-based team membership role.
+String membershipRoleLabel(String role) {
+  if (role.isEmpty) return 'Unspecified';
+  return role
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
+}
+
+/// Human-readable label for a string-based team type.
+String teamTypeLabel(String type) {
+  if (type.isEmpty) return 'Unspecified';
+  return type
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
+}
+
+/// Icon for a string-based team type.
+IconData teamTypeIcon(String type) => switch (type.toLowerCase()) {
+      'portfolio' => Icons.pie_chart_outline,
+      'servicing' => Icons.support_agent,
+      'collections' => Icons.account_balance_wallet,
+      'recovery' => Icons.assignment_return,
+      'sales' => Icons.trending_up,
+      'pilot' => Icons.science_outlined,
+      'shared_service' => Icons.hub_outlined,
+      'agent_network' => Icons.groups_3_outlined,
+      'external_partner' => Icons.handshake_outlined,
+      'channel' => Icons.route_outlined,
+      _ => Icons.groups_outlined,
     };
 
 /// Human-readable label for an AccessScopeType.

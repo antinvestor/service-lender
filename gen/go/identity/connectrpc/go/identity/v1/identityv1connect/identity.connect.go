@@ -130,15 +130,6 @@ const (
 	// IdentityServiceAccessRoleAssignmentSearchProcedure is the fully-qualified name of the
 	// IdentityService's AccessRoleAssignmentSearch RPC.
 	IdentityServiceAccessRoleAssignmentSearchProcedure = "/identity.v1.IdentityService/AccessRoleAssignmentSearch"
-	// IdentityServiceBranchSaveProcedure is the fully-qualified name of the IdentityService's
-	// BranchSave RPC.
-	IdentityServiceBranchSaveProcedure = "/identity.v1.IdentityService/BranchSave"
-	// IdentityServiceBranchGetProcedure is the fully-qualified name of the IdentityService's BranchGet
-	// RPC.
-	IdentityServiceBranchGetProcedure = "/identity.v1.IdentityService/BranchGet"
-	// IdentityServiceBranchSearchProcedure is the fully-qualified name of the IdentityService's
-	// BranchSearch RPC.
-	IdentityServiceBranchSearchProcedure = "/identity.v1.IdentityService/BranchSearch"
 	// IdentityServiceInvestorSaveProcedure is the fully-qualified name of the IdentityService's
 	// InvestorSave RPC.
 	IdentityServiceInvestorSaveProcedure = "/identity.v1.IdentityService/InvestorSave"
@@ -148,15 +139,6 @@ const (
 	// IdentityServiceInvestorSearchProcedure is the fully-qualified name of the IdentityService's
 	// InvestorSearch RPC.
 	IdentityServiceInvestorSearchProcedure = "/identity.v1.IdentityService/InvestorSearch"
-	// IdentityServiceSystemUserSaveProcedure is the fully-qualified name of the IdentityService's
-	// SystemUserSave RPC.
-	IdentityServiceSystemUserSaveProcedure = "/identity.v1.IdentityService/SystemUserSave"
-	// IdentityServiceSystemUserGetProcedure is the fully-qualified name of the IdentityService's
-	// SystemUserGet RPC.
-	IdentityServiceSystemUserGetProcedure = "/identity.v1.IdentityService/SystemUserGet"
-	// IdentityServiceSystemUserSearchProcedure is the fully-qualified name of the IdentityService's
-	// SystemUserSearch RPC.
-	IdentityServiceSystemUserSearchProcedure = "/identity.v1.IdentityService/SystemUserSearch"
 	// IdentityServiceClientGroupSaveProcedure is the fully-qualified name of the IdentityService's
 	// ClientGroupSave RPC.
 	IdentityServiceClientGroupSaveProcedure = "/identity.v1.IdentityService/ClientGroupSave"
@@ -350,19 +332,6 @@ type IdentityServiceClient interface {
 		context.Context,
 		*connect.Request[v1.AccessRoleAssignmentSearchRequest],
 	) (*connect.ServerStreamForClient[v1.AccessRoleAssignmentSearchResponse], error)
-	// BranchSave creates or updates a legacy leaf branch record.
-	// Prefer OrgUnitSave with type BRANCH for new integrations.
-	BranchSave(
-		context.Context,
-		*connect.Request[v1.BranchSaveRequest],
-	) (*connect.Response[v1.BranchSaveResponse], error)
-	// BranchGet retrieves a legacy leaf branch by its ID.
-	BranchGet(context.Context, *connect.Request[v1.BranchGetRequest]) (*connect.Response[v1.BranchGetResponse], error)
-	// BranchSearch finds legacy leaf branches matching search criteria.
-	BranchSearch(
-		context.Context,
-		*connect.Request[v1.BranchSearchRequest],
-	) (*connect.ServerStreamForClient[v1.BranchSearchResponse], error)
 	// InvestorSave creates or updates an investor record.
 	InvestorSave(
 		context.Context,
@@ -378,21 +347,6 @@ type IdentityServiceClient interface {
 		context.Context,
 		*connect.Request[v1.InvestorSearchRequest],
 	) (*connect.ServerStreamForClient[v1.InvestorSearchResponse], error)
-	// SystemUserSave creates or updates a system user record.
-	SystemUserSave(
-		context.Context,
-		*connect.Request[v1.SystemUserSaveRequest],
-	) (*connect.Response[v1.SystemUserSaveResponse], error)
-	// SystemUserGet retrieves a system user by their ID.
-	SystemUserGet(
-		context.Context,
-		*connect.Request[v1.SystemUserGetRequest],
-	) (*connect.Response[v1.SystemUserGetResponse], error)
-	// SystemUserSearch finds system users matching search criteria.
-	SystemUserSearch(
-		context.Context,
-		*connect.Request[v1.SystemUserSearchRequest],
-	) (*connect.ServerStreamForClient[v1.SystemUserSearchResponse], error)
 	// ClientGroupSave creates or updates a client group record.
 	ClientGroupSave(
 		context.Context,
@@ -715,26 +669,6 @@ func NewIdentityServiceClient(
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		branchSave: connect.NewClient[v1.BranchSaveRequest, v1.BranchSaveResponse](
-			httpClient,
-			baseURL+IdentityServiceBranchSaveProcedure,
-			connect.WithSchema(identityServiceMethods.ByName("BranchSave")),
-			connect.WithClientOptions(opts...),
-		),
-		branchGet: connect.NewClient[v1.BranchGetRequest, v1.BranchGetResponse](
-			httpClient,
-			baseURL+IdentityServiceBranchGetProcedure,
-			connect.WithSchema(identityServiceMethods.ByName("BranchGet")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		branchSearch: connect.NewClient[v1.BranchSearchRequest, v1.BranchSearchResponse](
-			httpClient,
-			baseURL+IdentityServiceBranchSearchProcedure,
-			connect.WithSchema(identityServiceMethods.ByName("BranchSearch")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
 		investorSave: connect.NewClient[v1.InvestorSaveRequest, v1.InvestorSaveResponse](
 			httpClient,
 			baseURL+IdentityServiceInvestorSaveProcedure,
@@ -752,26 +686,6 @@ func NewIdentityServiceClient(
 			httpClient,
 			baseURL+IdentityServiceInvestorSearchProcedure,
 			connect.WithSchema(identityServiceMethods.ByName("InvestorSearch")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		systemUserSave: connect.NewClient[v1.SystemUserSaveRequest, v1.SystemUserSaveResponse](
-			httpClient,
-			baseURL+IdentityServiceSystemUserSaveProcedure,
-			connect.WithSchema(identityServiceMethods.ByName("SystemUserSave")),
-			connect.WithClientOptions(opts...),
-		),
-		systemUserGet: connect.NewClient[v1.SystemUserGetRequest, v1.SystemUserGetResponse](
-			httpClient,
-			baseURL+IdentityServiceSystemUserGetProcedure,
-			connect.WithSchema(identityServiceMethods.ByName("SystemUserGet")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		systemUserSearch: connect.NewClient[v1.SystemUserSearchRequest, v1.SystemUserSearchResponse](
-			httpClient,
-			baseURL+IdentityServiceSystemUserSearchProcedure,
-			connect.WithSchema(identityServiceMethods.ByName("SystemUserSearch")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -970,15 +884,9 @@ type identityServiceClient struct {
 	accessRoleAssignmentSave   *connect.Client[v1.AccessRoleAssignmentSaveRequest, v1.AccessRoleAssignmentSaveResponse]
 	accessRoleAssignmentGet    *connect.Client[v1.AccessRoleAssignmentGetRequest, v1.AccessRoleAssignmentGetResponse]
 	accessRoleAssignmentSearch *connect.Client[v1.AccessRoleAssignmentSearchRequest, v1.AccessRoleAssignmentSearchResponse]
-	branchSave                 *connect.Client[v1.BranchSaveRequest, v1.BranchSaveResponse]
-	branchGet                  *connect.Client[v1.BranchGetRequest, v1.BranchGetResponse]
-	branchSearch               *connect.Client[v1.BranchSearchRequest, v1.BranchSearchResponse]
 	investorSave               *connect.Client[v1.InvestorSaveRequest, v1.InvestorSaveResponse]
 	investorGet                *connect.Client[v1.InvestorGetRequest, v1.InvestorGetResponse]
 	investorSearch             *connect.Client[v1.InvestorSearchRequest, v1.InvestorSearchResponse]
-	systemUserSave             *connect.Client[v1.SystemUserSaveRequest, v1.SystemUserSaveResponse]
-	systemUserGet              *connect.Client[v1.SystemUserGetRequest, v1.SystemUserGetResponse]
-	systemUserSearch           *connect.Client[v1.SystemUserSearchRequest, v1.SystemUserSearchResponse]
 	clientGroupSave            *connect.Client[v1.ClientGroupSaveRequest, v1.ClientGroupSaveResponse]
 	clientGroupGet             *connect.Client[v1.ClientGroupGetRequest, v1.ClientGroupGetResponse]
 	clientGroupSearch          *connect.Client[v1.ClientGroupSearchRequest, v1.ClientGroupSearchResponse]
@@ -1222,30 +1130,6 @@ func (c *identityServiceClient) AccessRoleAssignmentSearch(
 	return c.accessRoleAssignmentSearch.CallServerStream(ctx, req)
 }
 
-// BranchSave calls identity.v1.IdentityService.BranchSave.
-func (c *identityServiceClient) BranchSave(
-	ctx context.Context,
-	req *connect.Request[v1.BranchSaveRequest],
-) (*connect.Response[v1.BranchSaveResponse], error) {
-	return c.branchSave.CallUnary(ctx, req)
-}
-
-// BranchGet calls identity.v1.IdentityService.BranchGet.
-func (c *identityServiceClient) BranchGet(
-	ctx context.Context,
-	req *connect.Request[v1.BranchGetRequest],
-) (*connect.Response[v1.BranchGetResponse], error) {
-	return c.branchGet.CallUnary(ctx, req)
-}
-
-// BranchSearch calls identity.v1.IdentityService.BranchSearch.
-func (c *identityServiceClient) BranchSearch(
-	ctx context.Context,
-	req *connect.Request[v1.BranchSearchRequest],
-) (*connect.ServerStreamForClient[v1.BranchSearchResponse], error) {
-	return c.branchSearch.CallServerStream(ctx, req)
-}
-
 // InvestorSave calls identity.v1.IdentityService.InvestorSave.
 func (c *identityServiceClient) InvestorSave(
 	ctx context.Context,
@@ -1268,30 +1152,6 @@ func (c *identityServiceClient) InvestorSearch(
 	req *connect.Request[v1.InvestorSearchRequest],
 ) (*connect.ServerStreamForClient[v1.InvestorSearchResponse], error) {
 	return c.investorSearch.CallServerStream(ctx, req)
-}
-
-// SystemUserSave calls identity.v1.IdentityService.SystemUserSave.
-func (c *identityServiceClient) SystemUserSave(
-	ctx context.Context,
-	req *connect.Request[v1.SystemUserSaveRequest],
-) (*connect.Response[v1.SystemUserSaveResponse], error) {
-	return c.systemUserSave.CallUnary(ctx, req)
-}
-
-// SystemUserGet calls identity.v1.IdentityService.SystemUserGet.
-func (c *identityServiceClient) SystemUserGet(
-	ctx context.Context,
-	req *connect.Request[v1.SystemUserGetRequest],
-) (*connect.Response[v1.SystemUserGetResponse], error) {
-	return c.systemUserGet.CallUnary(ctx, req)
-}
-
-// SystemUserSearch calls identity.v1.IdentityService.SystemUserSearch.
-func (c *identityServiceClient) SystemUserSearch(
-	ctx context.Context,
-	req *connect.Request[v1.SystemUserSearchRequest],
-) (*connect.ServerStreamForClient[v1.SystemUserSearchResponse], error) {
-	return c.systemUserSearch.CallServerStream(ctx, req)
 }
 
 // ClientGroupSave calls identity.v1.IdentityService.ClientGroupSave.
@@ -1619,20 +1479,6 @@ type IdentityServiceHandler interface {
 		*connect.Request[v1.AccessRoleAssignmentSearchRequest],
 		*connect.ServerStream[v1.AccessRoleAssignmentSearchResponse],
 	) error
-	// BranchSave creates or updates a legacy leaf branch record.
-	// Prefer OrgUnitSave with type BRANCH for new integrations.
-	BranchSave(
-		context.Context,
-		*connect.Request[v1.BranchSaveRequest],
-	) (*connect.Response[v1.BranchSaveResponse], error)
-	// BranchGet retrieves a legacy leaf branch by its ID.
-	BranchGet(context.Context, *connect.Request[v1.BranchGetRequest]) (*connect.Response[v1.BranchGetResponse], error)
-	// BranchSearch finds legacy leaf branches matching search criteria.
-	BranchSearch(
-		context.Context,
-		*connect.Request[v1.BranchSearchRequest],
-		*connect.ServerStream[v1.BranchSearchResponse],
-	) error
 	// InvestorSave creates or updates an investor record.
 	InvestorSave(
 		context.Context,
@@ -1648,22 +1494,6 @@ type IdentityServiceHandler interface {
 		context.Context,
 		*connect.Request[v1.InvestorSearchRequest],
 		*connect.ServerStream[v1.InvestorSearchResponse],
-	) error
-	// SystemUserSave creates or updates a system user record.
-	SystemUserSave(
-		context.Context,
-		*connect.Request[v1.SystemUserSaveRequest],
-	) (*connect.Response[v1.SystemUserSaveResponse], error)
-	// SystemUserGet retrieves a system user by their ID.
-	SystemUserGet(
-		context.Context,
-		*connect.Request[v1.SystemUserGetRequest],
-	) (*connect.Response[v1.SystemUserGetResponse], error)
-	// SystemUserSearch finds system users matching search criteria.
-	SystemUserSearch(
-		context.Context,
-		*connect.Request[v1.SystemUserSearchRequest],
-		*connect.ServerStream[v1.SystemUserSearchResponse],
 	) error
 	// ClientGroupSave creates or updates a client group record.
 	ClientGroupSave(
@@ -1985,26 +1815,6 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	identityServiceBranchSaveHandler := connect.NewUnaryHandler(
-		IdentityServiceBranchSaveProcedure,
-		svc.BranchSave,
-		connect.WithSchema(identityServiceMethods.ByName("BranchSave")),
-		connect.WithHandlerOptions(opts...),
-	)
-	identityServiceBranchGetHandler := connect.NewUnaryHandler(
-		IdentityServiceBranchGetProcedure,
-		svc.BranchGet,
-		connect.WithSchema(identityServiceMethods.ByName("BranchGet")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
-	identityServiceBranchSearchHandler := connect.NewServerStreamHandler(
-		IdentityServiceBranchSearchProcedure,
-		svc.BranchSearch,
-		connect.WithSchema(identityServiceMethods.ByName("BranchSearch")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
 	identityServiceInvestorSaveHandler := connect.NewUnaryHandler(
 		IdentityServiceInvestorSaveProcedure,
 		svc.InvestorSave,
@@ -2022,26 +1832,6 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 		IdentityServiceInvestorSearchProcedure,
 		svc.InvestorSearch,
 		connect.WithSchema(identityServiceMethods.ByName("InvestorSearch")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
-	identityServiceSystemUserSaveHandler := connect.NewUnaryHandler(
-		IdentityServiceSystemUserSaveProcedure,
-		svc.SystemUserSave,
-		connect.WithSchema(identityServiceMethods.ByName("SystemUserSave")),
-		connect.WithHandlerOptions(opts...),
-	)
-	identityServiceSystemUserGetHandler := connect.NewUnaryHandler(
-		IdentityServiceSystemUserGetProcedure,
-		svc.SystemUserGet,
-		connect.WithSchema(identityServiceMethods.ByName("SystemUserGet")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
-	identityServiceSystemUserSearchHandler := connect.NewServerStreamHandler(
-		IdentityServiceSystemUserSearchProcedure,
-		svc.SystemUserSearch,
-		connect.WithSchema(identityServiceMethods.ByName("SystemUserSearch")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -2264,24 +2054,12 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 			identityServiceAccessRoleAssignmentGetHandler.ServeHTTP(w, r)
 		case IdentityServiceAccessRoleAssignmentSearchProcedure:
 			identityServiceAccessRoleAssignmentSearchHandler.ServeHTTP(w, r)
-		case IdentityServiceBranchSaveProcedure:
-			identityServiceBranchSaveHandler.ServeHTTP(w, r)
-		case IdentityServiceBranchGetProcedure:
-			identityServiceBranchGetHandler.ServeHTTP(w, r)
-		case IdentityServiceBranchSearchProcedure:
-			identityServiceBranchSearchHandler.ServeHTTP(w, r)
 		case IdentityServiceInvestorSaveProcedure:
 			identityServiceInvestorSaveHandler.ServeHTTP(w, r)
 		case IdentityServiceInvestorGetProcedure:
 			identityServiceInvestorGetHandler.ServeHTTP(w, r)
 		case IdentityServiceInvestorSearchProcedure:
 			identityServiceInvestorSearchHandler.ServeHTTP(w, r)
-		case IdentityServiceSystemUserSaveProcedure:
-			identityServiceSystemUserSaveHandler.ServeHTTP(w, r)
-		case IdentityServiceSystemUserGetProcedure:
-			identityServiceSystemUserGetHandler.ServeHTTP(w, r)
-		case IdentityServiceSystemUserSearchProcedure:
-			identityServiceSystemUserSearchHandler.ServeHTTP(w, r)
 		case IdentityServiceClientGroupSaveProcedure:
 			identityServiceClientGroupSaveHandler.ServeHTTP(w, r)
 		case IdentityServiceClientGroupGetProcedure:
@@ -2620,37 +2398,6 @@ func (UnimplementedIdentityServiceHandler) AccessRoleAssignmentSearch(
 	)
 }
 
-func (UnimplementedIdentityServiceHandler) BranchSave(
-	context.Context,
-	*connect.Request[v1.BranchSaveRequest],
-) (*connect.Response[v1.BranchSaveResponse], error) {
-	return nil, connect.NewError(
-		connect.CodeUnimplemented,
-		errors.New("identity.v1.IdentityService.BranchSave is not implemented"),
-	)
-}
-
-func (UnimplementedIdentityServiceHandler) BranchGet(
-	context.Context,
-	*connect.Request[v1.BranchGetRequest],
-) (*connect.Response[v1.BranchGetResponse], error) {
-	return nil, connect.NewError(
-		connect.CodeUnimplemented,
-		errors.New("identity.v1.IdentityService.BranchGet is not implemented"),
-	)
-}
-
-func (UnimplementedIdentityServiceHandler) BranchSearch(
-	context.Context,
-	*connect.Request[v1.BranchSearchRequest],
-	*connect.ServerStream[v1.BranchSearchResponse],
-) error {
-	return connect.NewError(
-		connect.CodeUnimplemented,
-		errors.New("identity.v1.IdentityService.BranchSearch is not implemented"),
-	)
-}
-
 func (UnimplementedIdentityServiceHandler) InvestorSave(
 	context.Context,
 	*connect.Request[v1.InvestorSaveRequest],
@@ -2679,37 +2426,6 @@ func (UnimplementedIdentityServiceHandler) InvestorSearch(
 	return connect.NewError(
 		connect.CodeUnimplemented,
 		errors.New("identity.v1.IdentityService.InvestorSearch is not implemented"),
-	)
-}
-
-func (UnimplementedIdentityServiceHandler) SystemUserSave(
-	context.Context,
-	*connect.Request[v1.SystemUserSaveRequest],
-) (*connect.Response[v1.SystemUserSaveResponse], error) {
-	return nil, connect.NewError(
-		connect.CodeUnimplemented,
-		errors.New("identity.v1.IdentityService.SystemUserSave is not implemented"),
-	)
-}
-
-func (UnimplementedIdentityServiceHandler) SystemUserGet(
-	context.Context,
-	*connect.Request[v1.SystemUserGetRequest],
-) (*connect.Response[v1.SystemUserGetResponse], error) {
-	return nil, connect.NewError(
-		connect.CodeUnimplemented,
-		errors.New("identity.v1.IdentityService.SystemUserGet is not implemented"),
-	)
-}
-
-func (UnimplementedIdentityServiceHandler) SystemUserSearch(
-	context.Context,
-	*connect.Request[v1.SystemUserSearchRequest],
-	*connect.ServerStream[v1.SystemUserSearchResponse],
-) error {
-	return connect.NewError(
-		connect.CodeUnimplemented,
-		errors.New("identity.v1.IdentityService.SystemUserSearch is not implemented"),
 	)
 }
 

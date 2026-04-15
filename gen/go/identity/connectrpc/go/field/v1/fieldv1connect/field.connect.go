@@ -80,9 +80,15 @@ const (
 	// FieldServiceClientOwnershipTransferProcedure is the fully-qualified name of the FieldService's
 	// ClientOwnershipTransfer RPC.
 	FieldServiceClientOwnershipTransferProcedure = "/field.v1.FieldService/ClientOwnershipTransfer"
-	// FieldServiceClientRelationshipAssignProcedure is the fully-qualified name of the FieldService's
-	// ClientRelationshipAssign RPC.
-	FieldServiceClientRelationshipAssignProcedure = "/field.v1.FieldService/ClientRelationshipAssign"
+	// FieldServiceClientRelationshipSaveProcedure is the fully-qualified name of the FieldService's
+	// ClientRelationshipSave RPC.
+	FieldServiceClientRelationshipSaveProcedure = "/field.v1.FieldService/ClientRelationshipSave"
+	// FieldServiceClientRelationshipGetProcedure is the fully-qualified name of the FieldService's
+	// ClientRelationshipGet RPC.
+	FieldServiceClientRelationshipGetProcedure = "/field.v1.FieldService/ClientRelationshipGet"
+	// FieldServiceClientRelationshipSearchProcedure is the fully-qualified name of the FieldService's
+	// ClientRelationshipSearch RPC.
+	FieldServiceClientRelationshipSearchProcedure = "/field.v1.FieldService/ClientRelationshipSearch"
 )
 
 // FieldServiceClient is a client for the field.v1.FieldService service.
@@ -137,10 +143,21 @@ type FieldServiceClient interface {
 		context.Context,
 		*connect.Request[v1.ClientOwnershipTransferRequest],
 	) (*connect.Response[v1.ClientOwnershipTransferResponse], error)
-	ClientRelationshipAssign(
+	// ClientRelationshipSave creates or updates a client-member relationship.
+	ClientRelationshipSave(
 		context.Context,
-		*connect.Request[v1.ClientRelationshipAssignRequest],
-	) (*connect.Response[v1.ClientRelationshipAssignResponse], error)
+		*connect.Request[v1.ClientRelationshipSaveRequest],
+	) (*connect.Response[v1.ClientRelationshipSaveResponse], error)
+	// ClientRelationshipGet retrieves a client relationship by ID.
+	ClientRelationshipGet(
+		context.Context,
+		*connect.Request[v1.ClientRelationshipGetRequest],
+	) (*connect.Response[v1.ClientRelationshipGetResponse], error)
+	// ClientRelationshipSearch finds client relationships matching criteria.
+	ClientRelationshipSearch(
+		context.Context,
+		*connect.Request[v1.ClientRelationshipSearchRequest],
+	) (*connect.ServerStreamForClient[v1.ClientRelationshipSearchResponse], error)
 }
 
 // NewFieldServiceClient constructs a client for the field.v1.FieldService service. By default, it
@@ -236,10 +253,24 @@ func NewFieldServiceClient(
 			connect.WithSchema(fieldServiceMethods.ByName("ClientOwnershipTransfer")),
 			connect.WithClientOptions(opts...),
 		),
-		clientRelationshipAssign: connect.NewClient[v1.ClientRelationshipAssignRequest, v1.ClientRelationshipAssignResponse](
+		clientRelationshipSave: connect.NewClient[v1.ClientRelationshipSaveRequest, v1.ClientRelationshipSaveResponse](
 			httpClient,
-			baseURL+FieldServiceClientRelationshipAssignProcedure,
-			connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipAssign")),
+			baseURL+FieldServiceClientRelationshipSaveProcedure,
+			connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipSave")),
+			connect.WithClientOptions(opts...),
+		),
+		clientRelationshipGet: connect.NewClient[v1.ClientRelationshipGetRequest, v1.ClientRelationshipGetResponse](
+			httpClient,
+			baseURL+FieldServiceClientRelationshipGetProcedure,
+			connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipGet")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		clientRelationshipSearch: connect.NewClient[v1.ClientRelationshipSearchRequest, v1.ClientRelationshipSearchResponse](
+			httpClient,
+			baseURL+FieldServiceClientRelationshipSearchProcedure,
+			connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipSearch")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -259,7 +290,9 @@ type fieldServiceClient struct {
 	clientSearch             *connect.Client[v1.ClientSearchRequest, v1.ClientSearchResponse]
 	clientReassign           *connect.Client[v1.ClientReassignRequest, v1.ClientReassignResponse]
 	clientOwnershipTransfer  *connect.Client[v1.ClientOwnershipTransferRequest, v1.ClientOwnershipTransferResponse]
-	clientRelationshipAssign *connect.Client[v1.ClientRelationshipAssignRequest, v1.ClientRelationshipAssignResponse]
+	clientRelationshipSave   *connect.Client[v1.ClientRelationshipSaveRequest, v1.ClientRelationshipSaveResponse]
+	clientRelationshipGet    *connect.Client[v1.ClientRelationshipGetRequest, v1.ClientRelationshipGetResponse]
+	clientRelationshipSearch *connect.Client[v1.ClientRelationshipSearchRequest, v1.ClientRelationshipSearchResponse]
 }
 
 // AgentSave calls field.v1.FieldService.AgentSave.
@@ -358,12 +391,28 @@ func (c *fieldServiceClient) ClientOwnershipTransfer(
 	return c.clientOwnershipTransfer.CallUnary(ctx, req)
 }
 
-// ClientRelationshipAssign calls field.v1.FieldService.ClientRelationshipAssign.
-func (c *fieldServiceClient) ClientRelationshipAssign(
+// ClientRelationshipSave calls field.v1.FieldService.ClientRelationshipSave.
+func (c *fieldServiceClient) ClientRelationshipSave(
 	ctx context.Context,
-	req *connect.Request[v1.ClientRelationshipAssignRequest],
-) (*connect.Response[v1.ClientRelationshipAssignResponse], error) {
-	return c.clientRelationshipAssign.CallUnary(ctx, req)
+	req *connect.Request[v1.ClientRelationshipSaveRequest],
+) (*connect.Response[v1.ClientRelationshipSaveResponse], error) {
+	return c.clientRelationshipSave.CallUnary(ctx, req)
+}
+
+// ClientRelationshipGet calls field.v1.FieldService.ClientRelationshipGet.
+func (c *fieldServiceClient) ClientRelationshipGet(
+	ctx context.Context,
+	req *connect.Request[v1.ClientRelationshipGetRequest],
+) (*connect.Response[v1.ClientRelationshipGetResponse], error) {
+	return c.clientRelationshipGet.CallUnary(ctx, req)
+}
+
+// ClientRelationshipSearch calls field.v1.FieldService.ClientRelationshipSearch.
+func (c *fieldServiceClient) ClientRelationshipSearch(
+	ctx context.Context,
+	req *connect.Request[v1.ClientRelationshipSearchRequest],
+) (*connect.ServerStreamForClient[v1.ClientRelationshipSearchResponse], error) {
+	return c.clientRelationshipSearch.CallServerStream(ctx, req)
 }
 
 // FieldServiceHandler is an implementation of the field.v1.FieldService service.
@@ -422,10 +471,22 @@ type FieldServiceHandler interface {
 		context.Context,
 		*connect.Request[v1.ClientOwnershipTransferRequest],
 	) (*connect.Response[v1.ClientOwnershipTransferResponse], error)
-	ClientRelationshipAssign(
+	// ClientRelationshipSave creates or updates a client-member relationship.
+	ClientRelationshipSave(
 		context.Context,
-		*connect.Request[v1.ClientRelationshipAssignRequest],
-	) (*connect.Response[v1.ClientRelationshipAssignResponse], error)
+		*connect.Request[v1.ClientRelationshipSaveRequest],
+	) (*connect.Response[v1.ClientRelationshipSaveResponse], error)
+	// ClientRelationshipGet retrieves a client relationship by ID.
+	ClientRelationshipGet(
+		context.Context,
+		*connect.Request[v1.ClientRelationshipGetRequest],
+	) (*connect.Response[v1.ClientRelationshipGetResponse], error)
+	// ClientRelationshipSearch finds client relationships matching criteria.
+	ClientRelationshipSearch(
+		context.Context,
+		*connect.Request[v1.ClientRelationshipSearchRequest],
+		*connect.ServerStream[v1.ClientRelationshipSearchResponse],
+	) error
 }
 
 // NewFieldServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -513,10 +574,24 @@ func NewFieldServiceHandler(svc FieldServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(fieldServiceMethods.ByName("ClientOwnershipTransfer")),
 		connect.WithHandlerOptions(opts...),
 	)
-	fieldServiceClientRelationshipAssignHandler := connect.NewUnaryHandler(
-		FieldServiceClientRelationshipAssignProcedure,
-		svc.ClientRelationshipAssign,
-		connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipAssign")),
+	fieldServiceClientRelationshipSaveHandler := connect.NewUnaryHandler(
+		FieldServiceClientRelationshipSaveProcedure,
+		svc.ClientRelationshipSave,
+		connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipSave")),
+		connect.WithHandlerOptions(opts...),
+	)
+	fieldServiceClientRelationshipGetHandler := connect.NewUnaryHandler(
+		FieldServiceClientRelationshipGetProcedure,
+		svc.ClientRelationshipGet,
+		connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipGet")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	fieldServiceClientRelationshipSearchHandler := connect.NewServerStreamHandler(
+		FieldServiceClientRelationshipSearchProcedure,
+		svc.ClientRelationshipSearch,
+		connect.WithSchema(fieldServiceMethods.ByName("ClientRelationshipSearch")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/field.v1.FieldService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -545,8 +620,12 @@ func NewFieldServiceHandler(svc FieldServiceHandler, opts ...connect.HandlerOpti
 			fieldServiceClientReassignHandler.ServeHTTP(w, r)
 		case FieldServiceClientOwnershipTransferProcedure:
 			fieldServiceClientOwnershipTransferHandler.ServeHTTP(w, r)
-		case FieldServiceClientRelationshipAssignProcedure:
-			fieldServiceClientRelationshipAssignHandler.ServeHTTP(w, r)
+		case FieldServiceClientRelationshipSaveProcedure:
+			fieldServiceClientRelationshipSaveHandler.ServeHTTP(w, r)
+		case FieldServiceClientRelationshipGetProcedure:
+			fieldServiceClientRelationshipGetHandler.ServeHTTP(w, r)
+		case FieldServiceClientRelationshipSearchProcedure:
+			fieldServiceClientRelationshipSearchHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -680,12 +759,33 @@ func (UnimplementedFieldServiceHandler) ClientOwnershipTransfer(
 	)
 }
 
-func (UnimplementedFieldServiceHandler) ClientRelationshipAssign(
+func (UnimplementedFieldServiceHandler) ClientRelationshipSave(
 	context.Context,
-	*connect.Request[v1.ClientRelationshipAssignRequest],
-) (*connect.Response[v1.ClientRelationshipAssignResponse], error) {
+	*connect.Request[v1.ClientRelationshipSaveRequest],
+) (*connect.Response[v1.ClientRelationshipSaveResponse], error) {
 	return nil, connect.NewError(
 		connect.CodeUnimplemented,
-		errors.New("field.v1.FieldService.ClientRelationshipAssign is not implemented"),
+		errors.New("field.v1.FieldService.ClientRelationshipSave is not implemented"),
+	)
+}
+
+func (UnimplementedFieldServiceHandler) ClientRelationshipGet(
+	context.Context,
+	*connect.Request[v1.ClientRelationshipGetRequest],
+) (*connect.Response[v1.ClientRelationshipGetResponse], error) {
+	return nil, connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("field.v1.FieldService.ClientRelationshipGet is not implemented"),
+	)
+}
+
+func (UnimplementedFieldServiceHandler) ClientRelationshipSearch(
+	context.Context,
+	*connect.Request[v1.ClientRelationshipSearchRequest],
+	*connect.ServerStream[v1.ClientRelationshipSearchResponse],
+) error {
+	return connect.NewError(
+		connect.CodeUnimplemented,
+		errors.New("field.v1.FieldService.ClientRelationshipSearch is not implemented"),
 	)
 }

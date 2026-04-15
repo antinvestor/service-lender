@@ -45,7 +45,7 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.CreditLimitChangeRequest{},
 		&models.ApprovalCase{},
 		&models.ClientGroup{}, &models.Membership{},
-		&models.Investor{}, &models.SystemUser{},
+		&models.Investor{},
 		&models.WorkforceMember{}, &models.Department{}, &models.Position{},
 		&models.PositionAssignment{}, &models.InternalTeam{}, &models.TeamMembership{},
 		&models.AccessRoleAssignment{},

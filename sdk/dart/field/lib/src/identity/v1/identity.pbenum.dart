@@ -69,49 +69,6 @@ class OrgUnitType extends $pb.ProtobufEnum {
   const OrgUnitType._($core.int v, $core.String n) : super(v, n);
 }
 
-/// SystemUserRole defines the role a system user plays in the lending workflow.
-/// Deprecated: use AccessRoleAssignmentObject for all authorization decisions.
-class SystemUserRole extends $pb.ProtobufEnum {
-  static const SystemUserRole SYSTEM_USER_ROLE_UNSPECIFIED = SystemUserRole._(0, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_UNSPECIFIED');
-  static const SystemUserRole SYSTEM_USER_ROLE_VERIFIER = SystemUserRole._(1, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_VERIFIER');
-  static const SystemUserRole SYSTEM_USER_ROLE_APPROVER = SystemUserRole._(2, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_APPROVER');
-  static const SystemUserRole SYSTEM_USER_ROLE_ADMINISTRATOR = SystemUserRole._(3, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_ADMINISTRATOR');
-  static const SystemUserRole SYSTEM_USER_ROLE_AUDITOR = SystemUserRole._(4, _omitEnumNames ? '' : 'SYSTEM_USER_ROLE_AUDITOR');
-
-  static const $core.List<SystemUserRole> values = <SystemUserRole> [
-    SYSTEM_USER_ROLE_UNSPECIFIED,
-    SYSTEM_USER_ROLE_VERIFIER,
-    SYSTEM_USER_ROLE_APPROVER,
-    SYSTEM_USER_ROLE_ADMINISTRATOR,
-    SYSTEM_USER_ROLE_AUDITOR,
-  ];
-
-  static final $core.Map<$core.int, SystemUserRole> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static SystemUserRole? valueOf($core.int value) => _byValue[value];
-
-  const SystemUserRole._($core.int v, $core.String n) : super(v, n);
-}
-
-/// WorkforceEngagementType defines how a workforce member is engaged.
-class WorkforceEngagementType extends $pb.ProtobufEnum {
-  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED = WorkforceEngagementType._(0, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED');
-  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE = WorkforceEngagementType._(1, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE');
-  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR = WorkforceEngagementType._(2, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR');
-  static const WorkforceEngagementType WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT = WorkforceEngagementType._(3, _omitEnumNames ? '' : 'WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT');
-
-  static const $core.List<WorkforceEngagementType> values = <WorkforceEngagementType> [
-    WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED,
-    WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE,
-    WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR,
-    WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT,
-  ];
-
-  static final $core.Map<$core.int, WorkforceEngagementType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WorkforceEngagementType? valueOf($core.int value) => _byValue[value];
-
-  const WorkforceEngagementType._($core.int v, $core.String n) : super(v, n);
-}
-
 /// DepartmentKind separates top-level functions from nested departments.
 class DepartmentKind extends $pb.ProtobufEnum {
   static const DepartmentKind DEPARTMENT_KIND_UNSPECIFIED = DepartmentKind._(0, _omitEnumNames ? '' : 'DEPARTMENT_KIND_UNSPECIFIED');
@@ -128,54 +85,6 @@ class DepartmentKind extends $pb.ProtobufEnum {
   static DepartmentKind? valueOf($core.int value) => _byValue[value];
 
   const DepartmentKind._($core.int v, $core.String n) : super(v, n);
-}
-
-/// TeamType defines the operational purpose of an internal team.
-class TeamType extends $pb.ProtobufEnum {
-  static const TeamType TEAM_TYPE_UNSPECIFIED = TeamType._(0, _omitEnumNames ? '' : 'TEAM_TYPE_UNSPECIFIED');
-  static const TeamType TEAM_TYPE_PORTFOLIO = TeamType._(1, _omitEnumNames ? '' : 'TEAM_TYPE_PORTFOLIO');
-  static const TeamType TEAM_TYPE_SERVICING = TeamType._(2, _omitEnumNames ? '' : 'TEAM_TYPE_SERVICING');
-  static const TeamType TEAM_TYPE_COLLECTIONS = TeamType._(3, _omitEnumNames ? '' : 'TEAM_TYPE_COLLECTIONS');
-  static const TeamType TEAM_TYPE_SALES = TeamType._(4, _omitEnumNames ? '' : 'TEAM_TYPE_SALES');
-  static const TeamType TEAM_TYPE_PILOT = TeamType._(5, _omitEnumNames ? '' : 'TEAM_TYPE_PILOT');
-  static const TeamType TEAM_TYPE_SHARED_SERVICE = TeamType._(6, _omitEnumNames ? '' : 'TEAM_TYPE_SHARED_SERVICE');
-
-  static const $core.List<TeamType> values = <TeamType> [
-    TEAM_TYPE_UNSPECIFIED,
-    TEAM_TYPE_PORTFOLIO,
-    TEAM_TYPE_SERVICING,
-    TEAM_TYPE_COLLECTIONS,
-    TEAM_TYPE_SALES,
-    TEAM_TYPE_PILOT,
-    TEAM_TYPE_SHARED_SERVICE,
-  ];
-
-  static final $core.Map<$core.int, TeamType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static TeamType? valueOf($core.int value) => _byValue[value];
-
-  const TeamType._($core.int v, $core.String n) : super(v, n);
-}
-
-/// TeamMembershipRole defines a member's role inside a team.
-class TeamMembershipRole extends $pb.ProtobufEnum {
-  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_UNSPECIFIED = TeamMembershipRole._(0, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_UNSPECIFIED');
-  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_LEAD = TeamMembershipRole._(1, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_LEAD');
-  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_DEPUTY = TeamMembershipRole._(2, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_DEPUTY');
-  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_MEMBER = TeamMembershipRole._(3, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_MEMBER');
-  static const TeamMembershipRole TEAM_MEMBERSHIP_ROLE_SPECIALIST = TeamMembershipRole._(4, _omitEnumNames ? '' : 'TEAM_MEMBERSHIP_ROLE_SPECIALIST');
-
-  static const $core.List<TeamMembershipRole> values = <TeamMembershipRole> [
-    TEAM_MEMBERSHIP_ROLE_UNSPECIFIED,
-    TEAM_MEMBERSHIP_ROLE_LEAD,
-    TEAM_MEMBERSHIP_ROLE_DEPUTY,
-    TEAM_MEMBERSHIP_ROLE_MEMBER,
-    TEAM_MEMBERSHIP_ROLE_SPECIALIST,
-  ];
-
-  static final $core.Map<$core.int, TeamMembershipRole> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static TeamMembershipRole? valueOf($core.int value) => _byValue[value];
-
-  const TeamMembershipRole._($core.int v, $core.String n) : super(v, n);
 }
 
 /// AccessScopeType defines the resource scope of an access role assignment.

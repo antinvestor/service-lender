@@ -94,7 +94,6 @@ func (s *migrateSuite) TestPostMigrateAddsSearchableColumnsAndSupportsSearchQuer
 		&models.ClientGroup{},
 		&models.Membership{},
 		&models.Investor{},
-		&models.SystemUser{},
 		&models.WorkforceMember{},
 		&models.Department{},
 		&models.Position{},

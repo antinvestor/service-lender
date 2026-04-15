@@ -56,6 +56,14 @@ abstract final class AppConfig {
   static String get auditBaseUrl =>
       _auditExplicit.isNotEmpty ? _auditExplicit : '$_apiBaseUrl/audit';
 
+  // ── Geolocation service endpoint ──────────────────────────────────
+
+  static const String _geolocationExplicit =
+      String.fromEnvironment('GEOLOCATION_URL');
+  static String get geolocationBaseUrl => _geolocationExplicit.isNotEmpty
+      ? _geolocationExplicit
+      : '$_apiBaseUrl/geolocation';
+
   // ── All endpoints (for diagnostics) ─────────────────────────────────────
 
   static Map<String, String> get allEndpoints => {
@@ -64,6 +72,7 @@ abstract final class AppConfig {
         'tenancy': tenancyBaseUrl,
         'files': filesBaseUrl,
         'audit': auditBaseUrl,
+        'geolocation': geolocationBaseUrl,
       };
 
   // ── Connection settings ─────────────────────────────────────────────────

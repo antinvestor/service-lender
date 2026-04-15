@@ -1,4 +1,4 @@
-// Copyright 2023-2026 Ant Investor Ltd
+    // Copyright 2023-2026 Ant Investor Ltd
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package identity.v1;
 // Core notes (normative):
 // - Identity Service manages the organizational backbone of the system
 // - Manages Organizations (partition mappings), Org Units (hierarchical sub-partitions with geo areas),
-//   and System Users (verifiers, approvers, administrators, auditors)
+//   Workforce Members, Teams, Positions, and Access Role Assignments
 // - Integrates with Profile and Partition ecosystem services
 // - All timestamps are RFC3339 / google.protobuf.Timestamp
 // -----------------------------------------------------
@@ -39,7 +39,7 @@ option (gnostic.openapi.v3.document) = {
   info: {
     title: "Identity Service"
     version: "v1.0.0"
-    description: "The Identity Service manages the organizational backbone of the system including organizations, hierarchical org units, and system users. Organizations map to partitions, org units represent typed sub-divisions with optional parent-child relationships, and system users are assigned roles for processing workflows."
+    description: "The Identity Service manages the organizational backbone of the system including organizations, hierarchical org units, workforce members, teams, and access role assignments. Organizations map to partitions, org units represent typed sub-divisions with optional parent-child relationships, and workforce members are managed through position assignments and team memberships."
     contact: {
       name: "Ant Investor Ltd"
       url: "https://github.com/antinvestor/service-fintech"
@@ -96,49 +96,11 @@ enum OrgUnitType {
   ORG_UNIT_TYPE_OTHER = 6;
 }
 
-// SystemUserRole defines the role a system user plays in the lending workflow.
-// Deprecated: use AccessRoleAssignmentObject for all authorization decisions.
-enum SystemUserRole {
-  SYSTEM_USER_ROLE_UNSPECIFIED = 0;
-  SYSTEM_USER_ROLE_VERIFIER = 1; // Verifies loan applications and client data
-  SYSTEM_USER_ROLE_APPROVER = 2; // Approves or rejects loan applications
-  SYSTEM_USER_ROLE_ADMINISTRATOR = 3; // Manages system configuration and users
-  SYSTEM_USER_ROLE_AUDITOR = 4; // Read-only access for compliance and audit
-}
-
-// WorkforceEngagementType defines how a workforce member is engaged.
-enum WorkforceEngagementType {
-  WORKFORCE_ENGAGEMENT_TYPE_UNSPECIFIED = 0;
-  WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE = 1;
-  WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR = 2;
-  WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT = 3;
-}
-
 // DepartmentKind separates top-level functions from nested departments.
 enum DepartmentKind {
   DEPARTMENT_KIND_UNSPECIFIED = 0;
   DEPARTMENT_KIND_FUNCTION = 1;
   DEPARTMENT_KIND_DEPARTMENT = 2;
-}
-
-// TeamType defines the operational purpose of an internal team.
-enum TeamType {
-  TEAM_TYPE_UNSPECIFIED = 0;
-  TEAM_TYPE_PORTFOLIO = 1;
-  TEAM_TYPE_SERVICING = 2;
-  TEAM_TYPE_COLLECTIONS = 3;
-  TEAM_TYPE_SALES = 4;
-  TEAM_TYPE_PILOT = 5;
-  TEAM_TYPE_SHARED_SERVICE = 6;
-}
-
-// TeamMembershipRole defines a member's role inside a team.
-enum TeamMembershipRole {
-  TEAM_MEMBERSHIP_ROLE_UNSPECIFIED = 0;
-  TEAM_MEMBERSHIP_ROLE_LEAD = 1;
-  TEAM_MEMBERSHIP_ROLE_DEPUTY = 2;
-  TEAM_MEMBERSHIP_ROLE_MEMBER = 3;
-  TEAM_MEMBERSHIP_ROLE_SPECIALIST = 4;
 }
 
 // AccessScopeType defines the resource scope of an access role assignment.
@@ -239,6 +201,11 @@ message OrganizationObject {
     (buf.validate.field).string.max_len = 40
   ]; // Parent organization ID for hierarchy
   bool has_children = 12; // Whether this org has child organizations
+  // The domain name associated with this organization (e.g. "stawi.org").
+  string domain = 13 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 255
+  ];
 }
 
 // OrgUnitObject represents a typed hierarchical unit within an organization.
@@ -278,38 +245,12 @@ message OrgUnitObject {
     (buf.validate.field).string.max_len = 40
   ]; // OAuth client ID for partition-scoped login (synced to Hydra)
   bool has_children = 12; // Derived field indicating whether child units exist
-}
-
-// BranchObject is the legacy leaf-unit compatibility view.
-// Canonical hierarchy management should use OrgUnitObject with type BRANCH.
-message BranchObject {
-  string id = 1 [
+  // Profile ID for this org unit's profile (contacts, addresses, avatar).
+  string profile_id = 13 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40,
-    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
+    (buf.validate.field).string.max_len = 40
   ];
-  string organization_id = 2 [
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40
-  ]; // Parent organization ID
-  string partition_id = 3 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40
-  ]; // Partition this branch maps to
-  string name = 4 [(buf.validate.field).string.min_len = 1]; // Display name
-  string code = 5 [(buf.validate.field).string.min_len = 1]; // Unique short code
-  string geo_id = 6 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.max_len = 40
-  ]; // Geographic area identifier
-  common.v1.STATE state = 7; // Current state
-  google.protobuf.Struct properties = 8; // Additional metadata
-  string client_id = 9 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.max_len = 40
-  ]; // OAuth client ID for partition-scoped login (synced to Hydra)
 }
 
 // InvestorObject represents an independent investor with a profile link.
@@ -330,32 +271,6 @@ message InvestorObject {
   google.protobuf.Struct properties = 5; // Additional metadata
 }
 
-// SystemUserObject represents a user with a specific role in the lending workflow.
-// Deprecated: use WorkforceMemberObject + AccessRoleAssignmentObject.
-message SystemUserObject {
-  string id = 1 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40,
-    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
-  ];
-  string profile_id = 2 [
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40
-  ]; // Profile service user ID
-  string branch_id = 3 [
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40
-  ]; // Branch this user belongs to
-  SystemUserRole role = 4; // User's role in the system
-  string service_account_id = 5 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.max_len = 40
-  ]; // Optional service account for automated actions
-  common.v1.STATE state = 6; // Current state
-  google.protobuf.Struct properties = 7; // Additional metadata
-}
-
 // WorkforceMemberObject represents a worker in the organization.
 message WorkforceMemberObject {
   string id = 1 [
@@ -372,7 +287,8 @@ message WorkforceMemberObject {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ];
-  WorkforceEngagementType engagement_type = 4;
+  // Organization-defined engagement type (e.g. "employee", "contractor", "agent", "intern").
+  string engagement_type = 4;
   string home_org_unit_id = 5 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
@@ -481,7 +397,8 @@ message InternalTeamObject {
   ];
   string name = 5 [(buf.validate.field).string.min_len = 1];
   string code = 6 [(buf.validate.field).string.min_len = 1];
-  TeamType team_type = 7;
+  // Organization-defined team type (e.g. "portfolio", "collections", "recovery", "sales", "agent_network").
+  string team_type = 7;
   string objective = 8;
   string geo_id = 9 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -507,7 +424,8 @@ message TeamMembershipObject {
     (buf.validate.field).string.min_len = 3,
     (buf.validate.field).string.max_len = 40
   ];
-  TeamMembershipRole membership_role = 4;
+  // Organization-defined role within the team (e.g. "lead", "member", "supervisor", "coordinator").
+  string membership_role = 4;
   bool is_primary_team = 5;
   common.v1.STATE state = 6;
   google.protobuf.Struct properties = 7;
@@ -562,41 +480,6 @@ message OrganizationGetResponse {
 
 message OrganizationSearchResponse {
   repeated OrganizationObject data = 1;
-}
-
-// Branch messages
-message BranchSaveRequest {
-  BranchObject data = 1 [(buf.validate.field).required = true];
-}
-
-message BranchSaveResponse {
-  BranchObject data = 1;
-}
-
-message BranchGetRequest {
-  string id = 1 [
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40,
-    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
-  ];
-}
-
-message BranchGetResponse {
-  BranchObject data = 1;
-}
-
-message BranchSearchRequest {
-  string query = 1; // Free-text search
-  string organization_id = 2 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40
-  ]; // Optional filter by organization
-  common.v1.PageCursor cursor = 3; // Pagination
-}
-
-message BranchSearchResponse {
-  repeated BranchObject data = 1;
 }
 
 // Org unit messages
@@ -669,42 +552,6 @@ message InvestorSearchRequest {
 
 message InvestorSearchResponse {
   repeated InvestorObject data = 1;
-}
-
-// SystemUser messages
-message SystemUserSaveRequest {
-  SystemUserObject data = 1 [(buf.validate.field).required = true];
-}
-
-message SystemUserSaveResponse {
-  SystemUserObject data = 1;
-}
-
-message SystemUserGetRequest {
-  string id = 1 [
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40,
-    (buf.validate.field).string.pattern = "[0-9a-z_-]{3,40}"
-  ];
-}
-
-message SystemUserGetResponse {
-  SystemUserObject data = 1;
-}
-
-message SystemUserSearchRequest {
-  string query = 1; // Free-text search
-  SystemUserRole role = 2; // Optional filter by role
-  string branch_id = 3 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.min_len = 3,
-    (buf.validate.field).string.max_len = 40
-  ]; // Optional filter by branch
-  common.v1.PageCursor cursor = 4; // Pagination
-}
-
-message SystemUserSearchResponse {
-  repeated SystemUserObject data = 1;
 }
 
 // Workforce member messages
@@ -899,7 +746,7 @@ message InternalTeamSearchRequest {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.max_len = 40
   ];
-  TeamType team_type = 4;
+  string team_type = 4; // Filter by team type
   common.v1.PageCursor cursor = 5;
 }
 
@@ -1551,7 +1398,7 @@ message FormSubmissionSearchResponse {
 // Identity Service
 // -----------------------------------------------------
 
-// IdentityService manages organizations, org units, system users, form templates,
+// IdentityService manages organizations, org units, workforce members, form templates,
 // and data collection for the platform.
 // Canonical workforce, hierarchy, team, and access-control concepts live here.
 // All RPCs require authentication via Bearer token.
@@ -1579,8 +1426,6 @@ service IdentityService {
       "access_role_assignment_manage",
       "investor_view",
       "investor_manage",
-      "system_user_view",
-      "system_user_manage",
       "client_group_view",
       "client_group_manage",
       "membership_view",
@@ -1619,8 +1464,6 @@ service IdentityService {
           "access_role_assignment_manage",
           "investor_view",
           "investor_manage",
-          "system_user_view",
-          "system_user_manage",
           "client_group_view",
           "client_group_manage",
           "membership_view",
@@ -1659,8 +1502,6 @@ service IdentityService {
           "access_role_assignment_manage",
           "investor_view",
           "investor_manage",
-          "system_user_view",
-          "system_user_manage",
           "client_group_view",
           "client_group_manage",
           "membership_view",
@@ -1699,7 +1540,6 @@ service IdentityService {
           "access_role_assignment_manage",
           "investor_view",
           "investor_account_view",
-          "system_user_view",
           "client_group_view",
           "client_group_manage",
           "membership_view",
@@ -1727,7 +1567,6 @@ service IdentityService {
           "access_role_assignment_view",
           "investor_view",
           "investor_account_view",
-          "system_user_view",
           "client_group_view",
           "membership_view",
           "client_data_view",
@@ -1749,7 +1588,6 @@ service IdentityService {
           "access_role_assignment_view",
           "investor_view",
           "investor_account_view",
-          "system_user_view",
           "client_group_view",
           "membership_view",
           "client_data_view",
@@ -1780,8 +1618,6 @@ service IdentityService {
           "access_role_assignment_manage",
           "investor_view",
           "investor_manage",
-          "system_user_view",
-          "system_user_manage",
           "client_group_view",
           "client_group_manage",
           "membership_view",
@@ -2022,48 +1858,6 @@ service IdentityService {
     };
   }
 
-  // BranchSave creates or updates a legacy leaf branch record.
-  // Prefer OrgUnitSave with type BRANCH for new integrations.
-  rpc BranchSave(BranchSaveRequest) returns (BranchSaveResponse) {
-    option (common.v1.method_permissions) = {
-      permissions: ["branch_manage"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "branchSave"
-      summary: "Create or update a branch"
-      description: "Creates a new branch or updates an existing one. Branches represent sub-divisions of organizations with geographic areas."
-      tags: "Branches"
-    };
-  }
-
-  // BranchGet retrieves a legacy leaf branch by its ID.
-  rpc BranchGet(BranchGetRequest) returns (BranchGetResponse) {
-    option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = {
-      permissions: ["branch_view"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "branchGet"
-      summary: "Get a branch by ID"
-      description: "Retrieves a branch record by its unique identifier."
-      tags: "Branches"
-    };
-  }
-
-  // BranchSearch finds legacy leaf branches matching search criteria.
-  rpc BranchSearch(BranchSearchRequest) returns (stream BranchSearchResponse) {
-    option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = {
-      permissions: ["branch_view"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "branchSearch"
-      summary: "Search branches"
-      description: "Searches for branches matching specified criteria. Supports filtering by organization ID. Returns a stream of matching branch records."
-      tags: "Branches"
-    };
-  }
-
   // InvestorSave creates or updates an investor record.
   rpc InvestorSave(InvestorSaveRequest) returns (InvestorSaveResponse) {
     option (common.v1.method_permissions) = {
@@ -2102,47 +1896,6 @@ service IdentityService {
       summary: "Search investors"
       description: "Searches for investors matching specified criteria. Returns a stream of matching investor records."
       tags: "Investors"
-    };
-  }
-
-  // SystemUserSave creates or updates a system user record.
-  rpc SystemUserSave(SystemUserSaveRequest) returns (SystemUserSaveResponse) {
-    option (common.v1.method_permissions) = {
-      permissions: ["system_user_manage"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "systemUserSave"
-      summary: "Create or update a system user"
-      description: "Creates a new system user or updates an existing one. System users are assigned roles (verifier, approver, administrator, auditor) for processing workflows."
-      tags: "SystemUsers"
-    };
-  }
-
-  // SystemUserGet retrieves a system user by their ID.
-  rpc SystemUserGet(SystemUserGetRequest) returns (SystemUserGetResponse) {
-    option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = {
-      permissions: ["system_user_view"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "systemUserGet"
-      summary: "Get a system user by ID"
-      description: "Retrieves a system user record by their unique identifier."
-      tags: "SystemUsers"
-    };
-  }
-
-  // SystemUserSearch finds system users matching search criteria.
-  rpc SystemUserSearch(SystemUserSearchRequest) returns (stream SystemUserSearchResponse) {
-    option idempotency_level = NO_SIDE_EFFECTS;
-    option (common.v1.method_permissions) = {
-      permissions: ["system_user_view"]
-    };
-    option (gnostic.openapi.v3.operation) = {
-      operation_id: "systemUserSearch"
-      summary: "Search system users"
-      description: "Searches for system users matching specified criteria. Supports filtering by role and branch. Returns a stream of matching system user records."
-      tags: "SystemUsers"
     };
   }
 

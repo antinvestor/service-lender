@@ -1,5 +1,9 @@
 import 'package:antinvestor_ui_audit/antinvestor_ui_audit.dart'
     show auditTransportProvider;
+import 'package:antinvestor_ui_profile/antinvestor_ui_profile.dart'
+    show profileTransportProvider;
+import 'package:antinvestor_ui_geolocation/antinvestor_ui_geolocation.dart'
+    show geolocationTransportProvider;
 import 'package:antinvestor_ui_core/analytics/analytics_provider.dart';
 import 'package:antinvestor_ui_core/api/api_base.dart';
 import 'package:antinvestor_ui_core/auth/role_provider.dart';
@@ -73,6 +77,16 @@ void main() {
         auditTransportProvider.overrideWith((ref) {
           final auth = ref.watch(authTokenProviderProvider);
           return createTransport(auth, baseUrl: AppConfig.auditBaseUrl);
+        }),
+
+        profileTransportProvider.overrideWith((ref) {
+          final auth = ref.watch(authTokenProviderProvider);
+          return createTransport(auth, baseUrl: AppConfig.profileBaseUrl);
+        }),
+
+        geolocationTransportProvider.overrideWith((ref) {
+          final auth = ref.watch(authTokenProviderProvider);
+          return createTransport(auth, baseUrl: AppConfig.geolocationBaseUrl);
         }),
       ],
       child: const SeedApp(),

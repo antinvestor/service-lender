@@ -7,7 +7,7 @@ import "package:connectrpc/connect.dart" as connect;
 import "identity.pb.dart" as identityv1identity;
 import "../../common/v1/common.pb.dart" as commonv1common;
 
-/// IdentityService manages organizations, org units, system users, form templates,
+/// IdentityService manages organizations, org units, workforce members, form templates,
 /// and data collection for the platform.
 /// Canonical workforce, hierarchy, team, and access-control concepts live here.
 /// All RPCs require authentication via Bearer token.
@@ -228,33 +228,6 @@ abstract final class IdentityService {
     idempotency: connect.Idempotency.noSideEffects,
   );
 
-  /// BranchSave creates or updates a legacy leaf branch record.
-  /// Prefer OrgUnitSave with type BRANCH for new integrations.
-  static const branchSave = connect.Spec(
-    '/$name/BranchSave',
-    connect.StreamType.unary,
-    identityv1identity.BranchSaveRequest.new,
-    identityv1identity.BranchSaveResponse.new,
-  );
-
-  /// BranchGet retrieves a legacy leaf branch by its ID.
-  static const branchGet = connect.Spec(
-    '/$name/BranchGet',
-    connect.StreamType.unary,
-    identityv1identity.BranchGetRequest.new,
-    identityv1identity.BranchGetResponse.new,
-    idempotency: connect.Idempotency.noSideEffects,
-  );
-
-  /// BranchSearch finds legacy leaf branches matching search criteria.
-  static const branchSearch = connect.Spec(
-    '/$name/BranchSearch',
-    connect.StreamType.server,
-    identityv1identity.BranchSearchRequest.new,
-    identityv1identity.BranchSearchResponse.new,
-    idempotency: connect.Idempotency.noSideEffects,
-  );
-
   /// InvestorSave creates or updates an investor record.
   static const investorSave = connect.Spec(
     '/$name/InvestorSave',
@@ -278,32 +251,6 @@ abstract final class IdentityService {
     connect.StreamType.server,
     identityv1identity.InvestorSearchRequest.new,
     identityv1identity.InvestorSearchResponse.new,
-    idempotency: connect.Idempotency.noSideEffects,
-  );
-
-  /// SystemUserSave creates or updates a system user record.
-  static const systemUserSave = connect.Spec(
-    '/$name/SystemUserSave',
-    connect.StreamType.unary,
-    identityv1identity.SystemUserSaveRequest.new,
-    identityv1identity.SystemUserSaveResponse.new,
-  );
-
-  /// SystemUserGet retrieves a system user by their ID.
-  static const systemUserGet = connect.Spec(
-    '/$name/SystemUserGet',
-    connect.StreamType.unary,
-    identityv1identity.SystemUserGetRequest.new,
-    identityv1identity.SystemUserGetResponse.new,
-    idempotency: connect.Idempotency.noSideEffects,
-  );
-
-  /// SystemUserSearch finds system users matching search criteria.
-  static const systemUserSearch = connect.Spec(
-    '/$name/SystemUserSearch',
-    connect.StreamType.server,
-    identityv1identity.SystemUserSearchRequest.new,
-    identityv1identity.SystemUserSearchResponse.new,
     idempotency: connect.Idempotency.noSideEffects,
   );
 

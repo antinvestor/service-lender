@@ -104,8 +104,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/organizations',
             builder: (context, state) => Consumer(
               builder: (context, ref, _) => OrganizationsScreen(
-                onPickLogo: (bytes, filename) =>
-                    uploadPublicImage(ref, bytes, filename),
+                filesBaseUrl: AppConfig.filesBaseUrl,
+                onPickLogo: (bytes, filename) async {
+                  final result = await uploadPublicImageFull(ref, bytes, filename);
+                  return result.mxcUri;
+                },
               ),
             ),
             routes: [
@@ -115,8 +118,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   builder: (context, ref, _) => OrganizationDetailScreen(
                     organizationId: state.pathParameters['organizationId']!,
                     backRoute: '/organizations',
-                    onPickLogo: (bytes, filename) =>
-                        uploadPublicImage(ref, bytes, filename),
+                    onPickLogo: (bytes, filename) async {
+                      final result = await uploadPublicImageFull(ref, bytes, filename);
+                      return result.mxcUri;
+                    },
                     filesBaseUrl: AppConfig.filesBaseUrl,
                   ),
                 ),
@@ -137,6 +142,18 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           GoRoute(
+            path: '/departments',
+            builder: (context, state) => const DepartmentsScreen(),
+            routes: [
+              GoRoute(
+                path: ':departmentId',
+                builder: (context, state) => DepartmentDetailScreen(
+                  departmentId: state.pathParameters['departmentId']!,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
             path: '/investors',
             builder: (context, state) => const InvestorsScreen(),
           ),
@@ -148,6 +165,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: ':memberId',
                 builder: (context, state) => WorkforceMemberDetailScreen(
                   memberId: state.pathParameters['memberId']!,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/teams',
+            builder: (context, state) => const TeamsScreen(),
+            routes: [
+              GoRoute(
+                path: ':teamId',
+                builder: (context, state) => TeamDetailScreen(
+                  teamId: state.pathParameters['teamId']!,
                 ),
               ),
             ],

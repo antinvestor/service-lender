@@ -94,11 +94,11 @@ List<NavItem> buildNavItems() => [
         route: '/org-units',
       ),
       NavItem(
-        id: 'investors',
-        label: 'Investors',
-        icon: Icons.trending_up_outlined,
-        activeIcon: Icons.trending_up,
-        route: '/investors',
+        id: 'departments',
+        label: 'Departments',
+        icon: Icons.folder_outlined,
+        activeIcon: Icons.folder,
+        route: '/departments',
       ),
     ],
   ),
@@ -116,6 +116,13 @@ List<NavItem> buildNavItems() => [
         route: '/workforce',
       ),
       NavItem(
+        id: 'teams',
+        label: 'Teams',
+        icon: Icons.groups_outlined,
+        activeIcon: Icons.groups,
+        route: '/teams',
+      ),
+      NavItem(
         id: 'access_roles',
         label: 'Access Roles',
         icon: Icons.admin_panel_settings_outlined,
@@ -124,5 +131,12 @@ List<NavItem> buildNavItems() => [
         requiredPermissions: {'access_role_manage'},
       ),
     ],
+  ),
+  const NavItem(
+    id: 'investors',
+    label: 'Investors',
+    icon: Icons.trending_up_outlined,
+    activeIcon: Icons.trending_up,
+    route: '/investors',
   ),
 ];

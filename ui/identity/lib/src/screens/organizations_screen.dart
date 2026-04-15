@@ -5,6 +5,8 @@ import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
 import 'package:antinvestor_ui_core/widgets/admin_entity_list_page.dart';
 import 'package:antinvestor_ui_core/widgets/error_helpers.dart';
 import 'package:antinvestor_ui_core/widgets/form_field_card.dart';
+import 'package:antinvestor_ui_geolocation/antinvestor_ui_geolocation.dart'
+    show AreaPickerField;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -129,21 +131,6 @@ class OrganizationFormData {
   final String geoDescription;
 }
 
-// ---------------------------------------------------------------------------
-// Coverage scope
-// ---------------------------------------------------------------------------
-
-/// Coverage scope levels for the cascading area selector.
-enum _CoverageScope {
-  global('Global'),
-  continent('Continent'),
-  country('Country'),
-  region('Region'),
-  city('City');
-
-  const _CoverageScope(this.label);
-  final String label;
-}
 
 // ---------------------------------------------------------------------------
 // Organizations list screen
@@ -155,6 +142,7 @@ class OrganizationsScreen extends ConsumerStatefulWidget {
     this.canManage = true,
     this.onNavigate,
     this.onPickLogo,
+    this.filesBaseUrl,
   });
 
   final bool canManage;
@@ -162,6 +150,10 @@ class OrganizationsScreen extends ConsumerStatefulWidget {
 
   /// Callback to upload logo bytes. Passed through to [OrganizationFormDialog].
   final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
+
+  /// Base URL for the files service (e.g. https://api.stawi.org/files).
+  /// Used to convert mxc:// URIs to HTTP download URLs for storage.
+  final String? filesBaseUrl;
 
   @override
   ConsumerState<OrganizationsScreen> createState() =>
@@ -296,9 +288,26 @@ class _OrganizationsScreenState extends ConsumerState<OrganizationsScreen> {
               props['parent_organization_id'] =
                   Value(stringValue: formData.parentOrganizationId!);
             }
-            if (formData.logoContentUri != null) {
+            if (formData.logoContentUri != null &&
+                formData.logoContentUri!.isNotEmpty) {
+              // Store the canonical mxc:// URI.
               props['logo_content_uri'] =
                   Value(stringValue: formData.logoContentUri!);
+              // Also store the HTTP download URL for direct browser display.
+              if (formData.logoContentUri!.startsWith('mxc://')) {
+                final parts =
+                    formData.logoContentUri!.substring(6).split('/');
+                if (parts.length >= 2 && widget.filesBaseUrl != null) {
+                  props['logo_http_url'] = Value(
+                    stringValue:
+                        '${widget.filesBaseUrl}/v1/media/download/${parts[0]}/${parts[1]}',
+                  );
+                }
+              } else {
+                // Already an HTTP URL — store as both.
+                props['logo_http_url'] =
+                    Value(stringValue: formData.logoContentUri!);
+              }
             }
             if (formData.geoDescription.isNotEmpty) {
               props['geo_description'] =
@@ -547,11 +556,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
   late final TextEditingController _cityCtrl;
   late final TextEditingController _countryCtrl;
   late final TextEditingController _postalCodeCtrl;
-  _CoverageScope _coverageScope = _CoverageScope.global;
-  String? _selectedContinent;
-  late final TextEditingController _coverageCountryCtrl;
-  late final TextEditingController _coverageRegionCtrl;
-  late final TextEditingController _coverageCityCtrl;
+  String _selectedGeoId = '';
 
   // -- Org type dropdown values -----------------------------------------------
   static const _orgTypes = [
@@ -566,13 +571,6 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     OrganizationType.ORGANIZATION_TYPE_OTHER,
   ];
 
-  static const _continents = [
-    'Africa',
-    'Asia',
-    'Europe',
-    'Americas',
-    'Oceania',
-  ];
 
   // -- Lifecycle --------------------------------------------------------------
 
@@ -599,9 +597,7 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
         TextEditingController(text: _propStr(props, 'address_country'));
     _postalCodeCtrl =
         TextEditingController(text: _propStr(props, 'address_postal_code'));
-    _coverageCountryCtrl = TextEditingController();
-    _coverageRegionCtrl = TextEditingController();
-    _coverageCityCtrl = TextEditingController();
+    _selectedGeoId = widget.organization?.geoId ?? '';
 
     // Pre-populate parent org id.
     final parentId = _propStr(props, 'parent_organization_id');
@@ -652,9 +648,6 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
     _cityCtrl.dispose();
     _countryCtrl.dispose();
     _postalCodeCtrl.dispose();
-    _coverageCountryCtrl.dispose();
-    _coverageRegionCtrl.dispose();
-    _coverageCityCtrl.dispose();
     super.dispose();
   }
 
@@ -770,50 +763,9 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
   // -- Coverage area helpers --------------------------------------------------
 
-  String _buildGeoId() {
-    switch (_coverageScope) {
-      case _CoverageScope.global:
-        return 'global';
-      case _CoverageScope.continent:
-        if (_selectedContinent == null) return '';
-        return 'continent:${_selectedContinent!.toLowerCase()}';
-      case _CoverageScope.country:
-        final c = _coverageCountryCtrl.text.trim();
-        if (c.isEmpty) return '';
-        return 'country:${c.toLowerCase().replaceAll(' ', '_')}';
-      case _CoverageScope.region:
-        final c = _coverageCountryCtrl.text.trim();
-        final r = _coverageRegionCtrl.text.trim();
-        if (c.isEmpty || r.isEmpty) return '';
-        return 'region:${c.toLowerCase().replaceAll(' ', '_')}:'
-            '${r.toLowerCase().replaceAll(' ', '_')}';
-      case _CoverageScope.city:
-        final c = _coverageCountryCtrl.text.trim();
-        final ci = _coverageCityCtrl.text.trim();
-        if (c.isEmpty || ci.isEmpty) return '';
-        return 'city:${c.toLowerCase().replaceAll(' ', '_')}:'
-            '${ci.toLowerCase().replaceAll(' ', '_')}';
-    }
-  }
+  String _buildGeoId() => _selectedGeoId;
 
-  String _buildGeoDescription() {
-    switch (_coverageScope) {
-      case _CoverageScope.global:
-        return 'Global';
-      case _CoverageScope.continent:
-        return _selectedContinent ?? '';
-      case _CoverageScope.country:
-        return _coverageCountryCtrl.text.trim();
-      case _CoverageScope.region:
-        final c = _coverageCountryCtrl.text.trim();
-        final r = _coverageRegionCtrl.text.trim();
-        return [r, c].where((s) => s.isNotEmpty).join(', ');
-      case _CoverageScope.city:
-        final c = _coverageCountryCtrl.text.trim();
-        final ci = _coverageCityCtrl.text.trim();
-        return [ci, c].where((s) => s.isNotEmpty).join(', ');
-    }
-  }
+  String _buildGeoDescription() => ''; // Area name resolved by AreaBadge from geoId
 
   // -- Submit -----------------------------------------------------------------
 
@@ -1290,136 +1242,22 @@ class _OrganizationFormDialogState extends State<OrganizationFormDialog> {
 
           const SizedBox(height: 8),
 
-          // Coverage Area - cascading dropdown selector
-          FormFieldCard(
+          // Coverage Area - area picker from geolocation service
+          AreaPickerField(
+            selectedAreaId: _selectedGeoId,
             label: 'Coverage Area',
             description:
-                'Select the geographic scope this organization operates in.',
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DropdownButtonFormField<_CoverageScope>(
-                  value: _coverageScope,
-                  decoration: const InputDecoration(
-                    labelText: 'Scope level',
-                    prefixIcon: Icon(Icons.public_outlined),
-                  ),
-                  items: _CoverageScope.values
-                      .map(
-                        (s) => DropdownMenuItem(
-                          value: s,
-                          child: Text(s.label),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v == null) return;
-                    setState(() {
-                      _coverageScope = v;
-                      _selectedContinent = null;
-                      _coverageCountryCtrl.clear();
-                      _coverageRegionCtrl.clear();
-                      _coverageCityCtrl.clear();
-                    });
-                  },
-                ),
-                const SizedBox(height: 12),
-                ..._buildCoverageFields(),
-              ],
-            ),
+                'Search and select the geographic area this organization operates in.',
+            isRequired: true,
+            onSelected: (area) => setState(() {
+              _selectedGeoId = area?.id ?? '';
+            }),
           ),
         ],
       ),
     );
   }
 
-  List<Widget> _buildCoverageFields() {
-    switch (_coverageScope) {
-      case _CoverageScope.global:
-        return [
-          Text(
-            'Organization operates globally. No additional input needed.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ];
-      case _CoverageScope.continent:
-        return [
-          DropdownButtonFormField<String>(
-            value: _selectedContinent,
-            decoration: const InputDecoration(
-              labelText: 'Continent',
-              hintText: 'Select a continent',
-              prefixIcon: Icon(Icons.map_outlined),
-            ),
-            items: _continents
-                .map(
-                  (c) => DropdownMenuItem(value: c, child: Text(c)),
-                )
-                .toList(),
-            onChanged: (v) => setState(() => _selectedContinent = v),
-          ),
-        ];
-      case _CoverageScope.country:
-        return [
-          TextFormField(
-            controller: _coverageCountryCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Country',
-              hintText: 'e.g. Kenya',
-              prefixIcon: Icon(Icons.flag_outlined),
-            ),
-            textInputAction: TextInputAction.done,
-          ),
-        ];
-      case _CoverageScope.region:
-        return [
-          TextFormField(
-            controller: _coverageCountryCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Country',
-              hintText: 'e.g. Kenya',
-              prefixIcon: Icon(Icons.flag_outlined),
-            ),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _coverageRegionCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Region',
-              hintText: 'e.g. Rift Valley',
-              prefixIcon: Icon(Icons.terrain_outlined),
-            ),
-            textInputAction: TextInputAction.done,
-          ),
-        ];
-      case _CoverageScope.city:
-        return [
-          TextFormField(
-            controller: _coverageCountryCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Country',
-              hintText: 'e.g. Kenya',
-              prefixIcon: Icon(Icons.flag_outlined),
-            ),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _coverageCityCtrl,
-            decoration: const InputDecoration(
-              labelText: 'City',
-              hintText: 'e.g. Nairobi',
-              prefixIcon: Icon(Icons.location_city_outlined),
-            ),
-            textInputAction: TextInputAction.done,
-          ),
-        ];
-    }
-  }
 
   // -- Actions ----------------------------------------------------------------
 

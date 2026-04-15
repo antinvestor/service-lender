@@ -259,7 +259,7 @@ class _MemberDetailContentState
                       ),
                       title: Text('Team: ${m.teamId}'),
                       subtitle: Text(
-                        '${teamRoleLabel(m.membershipRole)}'
+                        '${membershipRoleLabel(m.membershipRole)}'
                         '${m.isPrimaryTeam ? ' (Primary)' : ''}',
                       ),
                       trailing: StateBadge(state: toCommonState(m.state)),
@@ -352,7 +352,7 @@ class _MemberEditDialogState extends State<_MemberEditDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _geoIdController;
   late common.STATE _selectedState;
-  late WorkforceEngagementType _engagementType;
+  late final TextEditingController _engagementTypeCtrl;
 
   @override
   void initState() {
@@ -360,12 +360,14 @@ class _MemberEditDialogState extends State<_MemberEditDialog> {
     _geoIdController =
         TextEditingController(text: widget.member.geoId);
     _selectedState = widget.member.state;
-    _engagementType = widget.member.engagementType;
+    _engagementTypeCtrl = TextEditingController(
+        text: widget.member.engagementType);
   }
 
   @override
   void dispose() {
     _geoIdController.dispose();
+    _engagementTypeCtrl.dispose();
     super.dispose();
   }
 
@@ -420,34 +422,16 @@ class _MemberEditDialogState extends State<_MemberEditDialog> {
             children: [
               const Divider(),
               const SizedBox(height: 8),
-              DropdownButtonFormField<WorkforceEngagementType>(
-                value: _engagementType,
+              TextFormField(
+                controller: _engagementTypeCtrl,
                 decoration: const InputDecoration(
                   labelText: 'Engagement Type',
+                  hintText: 'e.g. employee, contractor, agent',
                   prefixIcon: Icon(Icons.work_outline),
                 ),
-                items: const [
-                  DropdownMenuItem(
-                    value: WorkforceEngagementType
-                        .WORKFORCE_ENGAGEMENT_TYPE_EMPLOYEE,
-                    child: Text('Employee'),
-                  ),
-                  DropdownMenuItem(
-                    value: WorkforceEngagementType
-                        .WORKFORCE_ENGAGEMENT_TYPE_CONTRACTOR,
-                    child: Text('Contractor'),
-                  ),
-                  DropdownMenuItem(
-                    value: WorkforceEngagementType
-                        .WORKFORCE_ENGAGEMENT_TYPE_SERVICE_ACCOUNT,
-                    child: Text('Service Account'),
-                  ),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() => _engagementType = v);
-                  }
-                },
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Engagement type is required'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -506,7 +490,7 @@ class _MemberEditDialogState extends State<_MemberEditDialog> {
       organizationId: widget.member.organizationId,
       profileId: widget.member.profileId,
       homeOrgUnitId: widget.member.homeOrgUnitId,
-      engagementType: _engagementType,
+      engagementType: _engagementTypeCtrl.text.trim(),
       geoId: _geoIdController.text.trim(),
       state: _selectedState,
     );

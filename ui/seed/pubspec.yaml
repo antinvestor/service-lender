@@ -44,6 +44,10 @@ dependency_overrides:
     path: ../../../common/ui_core
   antinvestor_api_identity:
     path: ../../sdk/dart/identity
+  antinvestor_ui_profile:
+    path: ../../../service-profile/ui/profile
+  antinvestor_ui_geolocation:
+    path: ../../../service-profile/ui/geolocation
 
 flutter:
   uses-material-design: true

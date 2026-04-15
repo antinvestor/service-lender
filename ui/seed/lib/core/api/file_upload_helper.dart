@@ -7,12 +7,38 @@ import 'package:http/http.dart' as http;
 import '../../features/auth/data/auth_repository.dart';
 import '../config/app_config.dart';
 
+/// Result of a public image upload containing both URI formats.
+class UploadResult {
+  const UploadResult({required this.mxcUri, required this.httpUrl});
+
+  /// The mxc:// content URI from the files service (canonical reference).
+  final String mxcUri;
+
+  /// The HTTP download URL (for display in web browsers / NetworkImage).
+  final String httpUrl;
+}
+
 /// Upload image bytes to the files service as a public image.
 ///
 /// Uses the HTTP multipart upload endpoint at /v1/media/upload
 /// which is the standard upload path for the files service.
-/// Returns the content_uri (mxc:// URL) for the uploaded file.
+/// Returns the HTTP download URL for backwards compatibility.
+/// Use [uploadPublicImageFull] to get both mxc:// and HTTP URLs.
 Future<String> uploadPublicImage(
+  WidgetRef ref,
+  Uint8List bytes,
+  String filename,
+) async {
+  final result = await uploadPublicImageFull(ref, bytes, filename);
+  return result.httpUrl;
+}
+
+/// Upload image bytes and return both the mxc:// content URI and HTTP URL.
+///
+/// Callers should store both:
+/// - `logo_content_uri` = mxc:// URI (canonical, stable reference)
+/// - `logo_http_url` = HTTP download URL (for direct browser display)
+Future<UploadResult> uploadPublicImageFull(
   WidgetRef ref,
   Uint8List bytes,
   String filename,
@@ -49,11 +75,9 @@ Future<String> uploadPublicImage(
     throw Exception('Upload succeeded but no content_uri in response');
   }
 
-  // Convert mxc:// URI to HTTP download URL.
-  // mxc://server_name/media_id → {filesBaseUrl}/v1/media/download/server_name/media_id
   final httpUrl = mxcToHttpUrl(contentUri);
-  debugPrint('[FileUpload] Content URI: $contentUri → $httpUrl');
-  return httpUrl;
+  debugPrint('[FileUpload] Content URI: $contentUri -> HTTP: $httpUrl');
+  return UploadResult(mxcUri: contentUri, httpUrl: httpUrl);
 }
 
 /// Convert an mxc:// content URI to an HTTP download URL.

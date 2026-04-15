@@ -4,6 +4,9 @@ import 'package:antinvestor_api_identity/antinvestor_api_identity.dart';
 import 'package:antinvestor_ui_audit/antinvestor_ui_audit.dart';
 import 'package:antinvestor_ui_core/auth/tenancy_context.dart';
 import 'package:antinvestor_ui_core/widgets/state_badge.dart';
+import 'package:antinvestor_ui_geolocation/antinvestor_ui_geolocation.dart'
+    show AreaBadge;
+import 'package:antinvestor_ui_profile/antinvestor_ui_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,12 +33,7 @@ class OrganizationDetailScreen extends ConsumerWidget {
   final String organizationId;
   final bool canManage;
   final String backRoute;
-
-  /// Callback to upload logo bytes. Passed through to [OrganizationFormDialog].
   final Future<String> Function(Uint8List bytes, String filename)? onPickLogo;
-
-  /// Base URL for the files service (e.g. https://api.stawi.org/files).
-  /// Used to convert mxc:// URIs to HTTP download URLs.
   final String? filesBaseUrl;
 
   @override
@@ -181,67 +179,57 @@ class _OrganizationDetailContentState
           ),
         ),
 
-        // -- Parent organization link -------------------------------------------
-        if (_organization.parentId.isNotEmpty)
+        // -- Profile section (avatar, name, contacts, addresses) ---------------
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: _ProfileSection(
+              profileId: _organization.profileId,
+              organizationName: _organization.name,
+              organizationType: _organization.organizationType,
+              description: _prop('description'),
+              logoContentUri: _prop('logo_content_uri'),
+              filesBaseUrl: widget.filesBaseUrl,
+              state: _organization.state,
+            ),
+          ),
+        ),
+
+        // -- Organization info card -------------------------------------------
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: _buildInfoCard(theme),
+          ),
+        ),
+
+        // -- Coverage area badge ------------------------------------------------
+        if (_organization.geoId.isNotEmpty)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: Card(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                   side: BorderSide(
-                    color: theme.colorScheme.outlineVariant.withAlpha(38),
-                  ),
+                      color: theme.colorScheme.outlineVariant.withAlpha(38)),
                 ),
-                color: theme.colorScheme.secondaryContainer.withAlpha(40),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => context.go(
-                    '/organization/organizations/${_organization.parentId}',
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.arrow_upward,
-                            size: 18, color: theme.colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Parent Organization',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Spacer(),
-                        Icon(Icons.chevron_right,
-                            size: 18,
-                            color: theme.colorScheme.onSurfaceVariant),
-                      ],
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Text('Coverage Area',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant)),
+                      const SizedBox(width: 16),
+                      Expanded(child: AreaBadge(areaId: _organization.geoId)),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-
-        // -- Profile card -----------------------------------------------------
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-            child: _buildProfileCard(theme),
-          ),
-        ),
-
-        // -- Info grid --------------------------------------------------------
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-            child: _buildInfoGrid(theme),
-          ),
-        ),
 
         // -- Client ID card ---------------------------------------------------
         if (_organization.clientId.isNotEmpty)
@@ -252,22 +240,14 @@ class _OrganizationDetailContentState
             ),
           ),
 
-        // -- Sub-Organizations DataTable -----------------------------------------
+        // -- Sub-Organizations -----------------------------------------------
         if (childOrgsAsync != null) ...[
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-              child: Row(
-                children: [
-                  Icon(Icons.corporate_fare,
-                      size: 20, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text('Sub-Organizations',
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600)),
-                  ),
-                ],
+              child: _SectionHeader(
+                icon: Icons.corporate_fare,
+                title: 'Sub-Organizations',
               ),
             ),
           ),
@@ -280,7 +260,7 @@ class _OrganizationDetailContentState
             error: (error, _) => SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Failed to load sub-organizations: $error'),
+                child: Text('Failed to load: $error'),
               ),
             ),
             data: (childOrgs) {
@@ -295,73 +275,18 @@ class _OrganizationDetailContentState
               return SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: theme.colorScheme.outlineVariant
-                            .withAlpha(38),
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: DataTable(
-                      showCheckboxColumn: false,
-                      columns: const [
-                        DataColumn(
-                            label:
-                                SizedBox(width: 100, child: Text('ID'))),
-                        DataColumn(label: Text('NAME')),
-                        DataColumn(label: Text('TYPE')),
-                        DataColumn(label: Text('CODE')),
-                        DataColumn(label: Text('STATE')),
+                  child: _DataTableCard(
+                    columns: const ['NAME', 'TYPE', 'CODE', 'STATE'],
+                    rows: childOrgs.map((child) => DataRow(
+                      onSelectChanged: (_) =>
+                          context.go('/organizations/${child.id}'),
+                      cells: [
+                        DataCell(Text(child.name)),
+                        DataCell(Text(orgTypeLabel(child.organizationType))),
+                        DataCell(Text(child.code)),
+                        DataCell(StateBadge(state: toCommonState(child.state))),
                       ],
-                      rows: childOrgs.map((child) {
-                        final shortId = child.id.length > 12
-                            ? '${child.id.substring(0, 12)}…'
-                            : child.id;
-                        return DataRow(
-                          onSelectChanged: (_) => context.go(
-                            '/organizations/${child.id}',
-                          ),
-                          cells: [
-                            DataCell(Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SelectableText(shortId,
-                                    style: theme.textTheme.bodySmall
-                                        ?.copyWith(
-                                      fontFamily: 'monospace',
-                                      fontSize: 11,
-                                    )),
-                                const SizedBox(width: 4),
-                                InkWell(
-                                  onTap: () {
-                                    Clipboard.setData(
-                                        ClipboardData(text: child.id));
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content: Text('ID copied'),
-                                      duration: Duration(seconds: 1),
-                                    ));
-                                  },
-                                  child: Icon(Icons.copy,
-                                      size: 14,
-                                      color: theme
-                                          .colorScheme.onSurfaceVariant),
-                                ),
-                              ],
-                            )),
-                            DataCell(Text(child.name)),
-                            DataCell(Text(
-                                orgTypeLabel(child.organizationType))),
-                            DataCell(Text(child.code)),
-                            DataCell(StateBadge(
-                                state: toCommonState(child.state))),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                    )).toList(),
                   ),
                 ),
               );
@@ -369,26 +294,17 @@ class _OrganizationDetailContentState
           ),
         ],
 
-        // -- Org Units header -------------------------------------------------
+        // -- Org Units -------------------------------------------------------
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Row(
               children: [
-                Icon(
-                  Icons.account_tree_outlined,
-                  size: 20,
-                  color: theme.colorScheme.primary,
+                _SectionHeader(
+                  icon: Icons.account_tree_outlined,
+                  title: 'Top-Level Org Units',
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Top-Level Org Units',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                const Spacer(),
                 if (widget.canManage)
                   FilledButton.icon(
                     onPressed: () => _showOrgUnitDialog(context),
@@ -399,8 +315,6 @@ class _OrganizationDetailContentState
             ),
           ),
         ),
-
-        // -- Org Units list ---------------------------------------------------
         orgUnitsAsync.when(
           loading: () => const SliverToBoxAdapter(
             child: Padding(
@@ -426,82 +340,44 @@ class _OrganizationDetailContentState
             return SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                child: Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(
-                      color:
-                          theme.colorScheme.outlineVariant.withAlpha(38),
-                    ),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: DataTable(
-                    showCheckboxColumn: false,
-                    columns: const [
-                      DataColumn(
-                          label: SizedBox(width: 100, child: Text('ID'))),
-                      DataColumn(label: Text('NAME')),
-                      DataColumn(label: Text('TYPE')),
-                      DataColumn(label: Text('CODE')),
-                      DataColumn(label: Text('STATE')),
-                    ],
-                    rows: orgUnits.map((orgUnit) {
-                      final shortId = orgUnit.id.length > 12
-                          ? '${orgUnit.id.substring(0, 12)}…'
-                          : orgUnit.id;
-                      return DataRow(
-                        onSelectChanged: (_) => context.go(
-                          '/org-units/${orgUnit.id}',
-                        ),
-                        cells: [
-                          DataCell(
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SelectableText(
-                                  shortId,
-                                  style: theme.textTheme.bodySmall
-                                      ?.copyWith(
-                                    fontFamily: 'monospace',
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                InkWell(
-                                  onTap: () {
-                                    Clipboard.setData(
-                                      ClipboardData(text: orgUnit.id),
-                                    );
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content: Text('ID copied'),
-                                        duration: Duration(seconds: 1),
-                                      ),
-                                    );
-                                  },
-                                  child: Icon(
-                                    Icons.copy,
-                                    size: 14,
-                                    color: theme
-                                        .colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
+                child: _DataTableCard(
+                  columns: const ['ID', 'NAME', 'TYPE', 'CODE', 'STATE'],
+                  rows: orgUnits.map((orgUnit) {
+                    final shortId = orgUnit.id.length > 12
+                        ? '${orgUnit.id.substring(0, 12)}\u2026'
+                        : orgUnit.id;
+                    return DataRow(
+                      onSelectChanged: (_) => context.go(
+                        '/org-units/${orgUnit.id}',
+                      ),
+                      cells: [
+                        DataCell(Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SelectableText(shortId,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontFamily: 'monospace', fontSize: 11)),
+                            const SizedBox(width: 4),
+                            InkWell(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(text: orgUnit.id));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('ID copied'),
+                                      duration: Duration(seconds: 1)),
+                                );
+                              },
+                              child: Icon(Icons.copy, size: 14,
+                                  color: theme.colorScheme.onSurfaceVariant),
                             ),
-                          ),
-                          DataCell(Text(orgUnit.name)),
-                          DataCell(Text(orgUnitTypeLabel(orgUnit.type))),
-                          DataCell(Text(orgUnit.code)),
-                          DataCell(
-                            StateBadge(
-                                state: toCommonState(orgUnit.state)),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                  ),
+                          ],
+                        )),
+                        DataCell(Text(orgUnit.name)),
+                        DataCell(Text(orgUnitTypeLabel(orgUnit.type))),
+                        DataCell(Text(orgUnit.code)),
+                        DataCell(StateBadge(state: toCommonState(orgUnit.state))),
+                      ],
+                    );
+                  }).toList(),
                 ),
               ),
             );
@@ -525,268 +401,82 @@ class _OrganizationDetailContentState
     );
   }
 
-  // -- Profile card -----------------------------------------------------------
+  // -- Info card (org-specific metadata, not profile data) ----------------------
 
-  Widget _buildProfileCard(ThemeData theme) {
-    final initial = _organization.name.isNotEmpty
-        ? _organization.name[0].toUpperCase()
-        : '?';
-    var logoUri = _prop('logo_content_uri');
-    // Convert mxc:// URIs to HTTP URLs for NetworkImage.
-    if (logoUri.startsWith('mxc://') && widget.filesBaseUrl != null) {
-      final parts = logoUri.substring(6).split('/');
-      if (parts.length >= 2) {
-        logoUri = '${widget.filesBaseUrl}/v1/media/download/${parts[0]}/${parts[1]}';
-      }
+  Widget _buildInfoCard(ThemeData theme) {
+    final items = <_InfoTile>[];
+    items.add(_InfoTile(
+      label: 'Organization Type',
+      value: orgTypeLabel(_organization.organizationType),
+    ));
+    if (_organization.code.isNotEmpty) {
+      items.add(_InfoTile(label: 'Code', value: _organization.code));
+    }
+    if (_prop('domain_name').isNotEmpty) {
+      items.add(_InfoTile(label: 'Domain', value: _prop('domain_name')));
+    }
+    // Coverage area is displayed via AreaBadge widget below the info grid.
+    if (_organization.profileId.isNotEmpty) {
+      items.add(_InfoTile(label: 'Profile ID', value: _organization.profileId));
     }
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withAlpha(38),
-        ),
+        side: BorderSide(color: theme.colorScheme.outlineVariant.withAlpha(38)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 48,
-              backgroundColor: theme.colorScheme.primaryContainer,
-              backgroundImage:
-                  logoUri.isNotEmpty ? NetworkImage(logoUri) : null,
-              child: logoUri.isNotEmpty
-                  ? null
-                  : Text(
-                      initial,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Column(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth >= 480 && items.length > 2) {
+              final mid = (items.length / 2).ceil();
+              return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    _organization.name,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      orgTypeLabel(_organization.organizationType),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  if (_prop('description').isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _prop('description'),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            StateBadge(state: toCommonState(_organization.state)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // -- Info grid --------------------------------------------------------------
-
-  Widget _buildInfoGrid(ThemeData theme) {
-    final leftItems = <_InfoItem>[
-      _InfoItem(
-        label: 'Organization Type',
-        value: orgTypeLabel(_organization.organizationType),
-      ),
-      if (_organization.code.isNotEmpty)
-        _InfoItem(label: 'Code', value: _organization.code),
-      if (_prop('domain_name').isNotEmpty)
-        _InfoItem(label: 'Domain', value: _prop('domain_name')),
-      if (_organization.geoId.isNotEmpty)
-        _InfoItem(label: 'Coverage Area', value: _organization.geoId),
-      if (_organization.profileId.isNotEmpty)
-        _InfoItem(label: 'Profile ID', value: _organization.profileId),
-    ];
-
-    final rightItems = <_InfoItem>[];
-    if (_organization.hasProperties()) {
-      final addressParts = [
-        _prop('address_street'),
-        _prop('address_city'),
-        _prop('address_country'),
-        _prop('address_postal_code'),
-      ].where((s) => s.isNotEmpty);
-      if (addressParts.isNotEmpty) {
-        rightItems.add(
-          _InfoItem(label: 'Address', value: addressParts.join('\n')),
-        );
-      }
-    }
-
-    // Read structured contacts from properties.
-    final contacts = _readContacts();
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withAlpha(38),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth >= 480) {
-                  return Row(
+                  Expanded(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: leftItems
-                              .map((item) => _InfoTile(
-                                  label: item.label, value: item.value))
-                              .toList(),
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: rightItems
-                              .map((item) => _InfoTile(
-                                  label: item.label, value: item.value))
-                              .toList(),
-                        ),
-                      ),
-                    ],
-                  );
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [...leftItems, ...rightItems]
-                      .map((item) =>
-                          _InfoTile(label: item.label, value: item.value))
-                      .toList(),
-                );
-              },
-            ),
-            if (contacts.isNotEmpty) ...[
-              const Divider(height: 32),
-              Text(
-                'Contacts',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: contacts.map((c) {
-                  return Chip(
-                    avatar: Icon(
-                      c.type == ContactType.email
-                          ? Icons.email
-                          : Icons.phone,
-                      size: 16,
-                      color: theme.colorScheme.primary,
-                    ),
-                    label: Text(
-                      '${contactPurposeLabel(c.purpose)}: ${c.value}',
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ],
+                    children: items.sublist(0, mid),
+                  )),
+                  const SizedBox(width: 24),
+                  Expanded(child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: items.sublist(mid),
+                  )),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: items,
+            );
+          },
         ),
       ),
     );
   }
-
-  /// Read structured contacts from the organization's properties.
-  List<OrganizationContact> _readContacts() {
-    if (!_organization.hasProperties()) return const [];
-    final field = _organization.properties.fields['contacts'];
-    if (field == null || !field.hasListValue()) return const [];
-    final result = <OrganizationContact>[];
-    for (final v in field.listValue.values) {
-      if (!v.hasStructValue()) continue;
-      final m = <String, dynamic>{};
-      for (final entry in v.structValue.fields.entries) {
-        if (entry.value.hasStringValue()) {
-          m[entry.key] = entry.value.stringValue;
-        }
-      }
-      final contact = OrganizationContact.fromMap(m);
-      if (contact != null) result.add(contact);
-    }
-    return result;
-  }
-
-  // -- Client ID card ---------------------------------------------------------
 
   Widget _buildClientIdCard(ThemeData theme) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withAlpha(38),
-        ),
+        side: BorderSide(color: theme.colorScheme.outlineVariant.withAlpha(38)),
       ),
       color: theme.colorScheme.primaryContainer.withAlpha(40),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Row(
           children: [
-            Icon(
-              Icons.link,
-              color: theme.colorScheme.primary,
-              size: 20,
-            ),
+            Icon(Icons.link, color: theme.colorScheme.primary, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Client ID',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                  Text('Client ID', style: theme.textTheme.labelMedium
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 4),
                   SelectableText(
                     _organization.clientId,
@@ -803,9 +493,7 @@ class _OrganizationDetailContentState
               icon: const Icon(Icons.copy, size: 18),
               tooltip: 'Copy client ID',
               onPressed: () {
-                Clipboard.setData(
-                  ClipboardData(text: _organization.clientId),
-                );
+                Clipboard.setData(ClipboardData(text: _organization.clientId));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Client ID copied')),
                 );
@@ -819,14 +507,12 @@ class _OrganizationDetailContentState
 
   // -- Property helpers -------------------------------------------------------
 
-  /// Read a string property from the organization's Struct.
   String _prop(String key) {
     if (!_organization.hasProperties()) return '';
     final field = _organization.properties.fields[key];
     if (field == null || !field.hasStringValue()) return '';
     return field.stringValue;
   }
-
 
   // -- Actions ----------------------------------------------------------------
 
@@ -839,9 +525,7 @@ class _OrganizationDetailContentState
     );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          '${_organization.name} set as active organization',
-        ),
+        content: Text('${_organization.name} set as active organization'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -856,11 +540,73 @@ class _OrganizationDetailContentState
         onPickLogo: widget.onPickLogo,
         onSave: (formData) async {
           final org = formData.organization;
-          await ref
-              .read(organizationNotifierProvider.notifier)
-              .save(org);
+
+          if (formData.geoId.isNotEmpty) {
+            org.geoId = formData.geoId;
+          }
+
+          // Merge wizard data into properties.
+          final existingFields = org.hasProperties()
+              ? Map<String, Value>.from(org.properties.fields)
+              : <String, Value>{};
+          final props = existingFields;
+
+          props['description'] = Value(stringValue: formData.description);
+          props['domain_name'] = Value(stringValue: formData.domainName);
+          props['address_street'] = Value(stringValue: formData.street);
+          props['address_city'] = Value(stringValue: formData.city);
+          props['address_country'] = Value(stringValue: formData.country);
+          props['address_postal_code'] = Value(stringValue: formData.postalCode);
+
+          // Contacts
+          props['contacts'] = Value(
+            listValue: ListValue(
+              values: formData.contacts
+                  .map((c) => Value(
+                        structValue: Struct(fields: {
+                          'purpose': Value(stringValue: c.purpose.name),
+                          'type': Value(stringValue: c.type.name),
+                          'value': Value(stringValue: c.value),
+                        }),
+                      ))
+                  .toList(),
+            ),
+          );
+
+          if (formData.logoContentUri != null &&
+              formData.logoContentUri!.isNotEmpty) {
+            props['logo_content_uri'] =
+                Value(stringValue: formData.logoContentUri!);
+            if (formData.logoContentUri!.startsWith('mxc://') &&
+                widget.filesBaseUrl != null) {
+              final parts = formData.logoContentUri!.substring(6).split('/');
+              if (parts.length >= 2) {
+                props['logo_http_url'] = Value(
+                  stringValue:
+                      '${widget.filesBaseUrl}/v1/media/download/${parts[0]}/${parts[1]}',
+                );
+              }
+            }
+          }
+
+          if (formData.geoDescription.isNotEmpty) {
+            props['geo_description'] =
+                Value(stringValue: formData.geoDescription);
+          }
+
+          if (props.isNotEmpty) {
+            org.properties = Struct(fields: props);
+          }
+
+          await ref.read(organizationNotifierProvider.notifier).save(org);
+
+          // Reload from server to get complete response.
           if (mounted) {
-            setState(() => _organization = org);
+            final client = ref.read(identityServiceClientProvider);
+            final response = await client.organizationGet(
+              OrganizationGetRequest(id: _organization.id),
+            );
+            setState(() => _organization = response.data);
           }
         },
       ),
@@ -904,15 +650,239 @@ class _OrganizationDetailContentState
   }
 }
 
-// -- Data class for info items ------------------------------------------------
+// ---------------------------------------------------------------------------
+// Profile section - uses profile UI widgets for contacts & addresses
+// ---------------------------------------------------------------------------
 
-class _InfoItem {
-  const _InfoItem({required this.label, required this.value});
-  final String label;
-  final String value;
+class _ProfileSection extends ConsumerWidget {
+  const _ProfileSection({
+    required this.profileId,
+    required this.organizationName,
+    required this.organizationType,
+    required this.description,
+    required this.logoContentUri,
+    required this.state,
+    this.filesBaseUrl,
+  });
+
+  final String profileId;
+  final String organizationName;
+  final OrganizationType organizationType;
+  final String description;
+  final String logoContentUri;
+  final dynamic state;
+  final String? filesBaseUrl;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final initial = organizationName.isNotEmpty
+        ? organizationName[0].toUpperCase()
+        : '?';
+
+    // Convert mxc:// to HTTP for display.
+    var displayLogoUri = logoContentUri;
+    if (displayLogoUri.startsWith('mxc://') && filesBaseUrl != null) {
+      final parts = displayLogoUri.substring(6).split('/');
+      if (parts.length >= 2) {
+        displayLogoUri =
+            '$filesBaseUrl/v1/media/download/${parts[0]}/${parts[1]}';
+      }
+    }
+
+    // If we have a profile, load it for contacts/addresses.
+    final profileAsync = profileId.isNotEmpty
+        ? ref.watch(profileByIdProvider(profileId))
+        : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Profile card with avatar, name, type, description
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+                color: theme.colorScheme.outlineVariant.withAlpha(38)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 48,
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  backgroundImage: displayLogoUri.isNotEmpty
+                      ? NetworkImage(displayLogoUri)
+                      : null,
+                  child: displayLogoUri.isNotEmpty
+                      ? null
+                      : Text(initial,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                          )),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(organizationName,
+                          style: theme.textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          orgTypeLabel(organizationType),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSecondaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(description,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            )),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                StateBadge(state: toCommonState(state)),
+              ],
+            ),
+          ),
+        ),
+
+        // Profile-based contacts & addresses (if profile exists)
+        if (profileAsync != null) ...[
+          profileAsync.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (e, _) => const SizedBox.shrink(),
+            data: (profile) {
+              final contacts = profile.contacts;
+              final addresses = profile.addresses;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Contacts from profile
+                  if (contacts.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                            color: theme.colorScheme.outlineVariant
+                                .withAlpha(38)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SectionHeader(
+                              icon: Icons.contacts_outlined,
+                              title: 'Contacts',
+                            ),
+                            const SizedBox(height: 8),
+                            ...contacts.map((contact) =>
+                                ContactListTile(contact: contact)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  // Addresses from profile
+                  if (addresses.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _SectionHeader(
+                        icon: Icons.location_on_outlined,
+                        title: 'Addresses',
+                      ),
+                    ),
+                    ...addresses.map((address) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: AddressTile(address: address),
+                    )),
+                  ],
+                ],
+              );
+            },
+          ),
+        ],
+      ],
+    );
+  }
 }
 
-// -- Info tile widget ---------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Shared widgets
+// ---------------------------------------------------------------------------
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.icon, required this.title});
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(title,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600)),
+      ],
+    );
+  }
+}
+
+class _DataTableCard extends StatelessWidget {
+  const _DataTableCard({required this.columns, required this.rows});
+  final List<String> columns;
+  final List<DataRow> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+            color: theme.colorScheme.outlineVariant.withAlpha(38)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: DataTable(
+        showCheckboxColumn: false,
+        columns:
+            columns.map((c) => DataColumn(label: Text(c))).toList(),
+        rows: rows,
+      ),
+    );
+  }
+}
 
 class _InfoTile extends StatelessWidget {
   const _InfoTile({required this.label, required this.value});
@@ -927,20 +897,14 @@ class _InfoTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
+          Text(label,
+              style: theme.textTheme.labelMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(value,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );

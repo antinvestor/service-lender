@@ -295,19 +295,19 @@ func (x *AgentBranchObject) GetProperties() *structpb.Struct {
 	return nil
 }
 
-// ClientObject represents a loan recipient owned by a team and optionally handled by a workforce member.
+// ClientObject represents a loan recipient owned by a team.
+// Client-to-member relationships are managed via ClientRelationshipObject.
 type ClientObject struct {
-	state                       protoimpl.MessageState `protogen:"open.v1"`
-	Id                          string                 `                   protobuf:"bytes,1,opt,name=id,proto3"                                                              json:"id,omitempty"`
-	AgentId                     string                 `                   protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3"                                           json:"agent_id,omitempty"`                       // Deprecated legacy field handler
-	ProfileId                   string                 `                   protobuf:"bytes,3,opt,name=profile_id,json=profileId,proto3"                                       json:"profile_id,omitempty"`                     // Profile service user ID
-	Name                        string                 `                   protobuf:"bytes,4,opt,name=name,proto3"                                                            json:"name,omitempty"`                           // Display name
-	State                       v1.STATE               `                   protobuf:"varint,5,opt,name=state,proto3,enum=common.v1.STATE"                                     json:"state,omitempty"`                          // Current state
-	Properties                  *structpb.Struct       `                   protobuf:"bytes,6,opt,name=properties,proto3"                                                      json:"properties,omitempty"`                     // Additional metadata
-	OwningTeamId                string                 `                   protobuf:"bytes,7,opt,name=owning_team_id,json=owningTeamId,proto3"                                json:"owning_team_id,omitempty"`                 // Canonical owning internal team
-	PrimaryRelationshipMemberId string                 `                   protobuf:"bytes,8,opt,name=primary_relationship_member_id,json=primaryRelationshipMemberId,proto3" json:"primary_relationship_member_id,omitempty"` // Workforce member primarily handling the relationship
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `                   protobuf:"bytes,1,opt,name=id,proto3"                               json:"id,omitempty"`
+	AgentId       string                 `                   protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3"            json:"agent_id,omitempty"`       // Deprecated legacy field handler
+	ProfileId     string                 `                   protobuf:"bytes,3,opt,name=profile_id,json=profileId,proto3"        json:"profile_id,omitempty"`     // Profile service user ID
+	Name          string                 `                   protobuf:"bytes,4,opt,name=name,proto3"                             json:"name,omitempty"`           // Display name
+	State         v1.STATE               `                   protobuf:"varint,5,opt,name=state,proto3,enum=common.v1.STATE"      json:"state,omitempty"`          // Current state
+	Properties    *structpb.Struct       `                   protobuf:"bytes,6,opt,name=properties,proto3"                       json:"properties,omitempty"`     // Additional metadata
+	OwningTeamId  string                 `                   protobuf:"bytes,7,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"` // Canonical owning internal team
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClientObject) Reset() {
@@ -389,11 +389,106 @@ func (x *ClientObject) GetOwningTeamId() string {
 	return ""
 }
 
-func (x *ClientObject) GetPrimaryRelationshipMemberId() string {
+// ClientRelationshipObject assigns a workforce member to a client.
+// Multiple members can be assigned to the same client.
+type ClientRelationshipObject struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `                   protobuf:"bytes,1,opt,name=id,proto3"                          json:"id,omitempty"`
+	ClientId      string                 `                   protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3"     json:"client_id,omitempty"`
+	MemberId      string                 `                   protobuf:"bytes,3,opt,name=member_id,json=memberId,proto3"     json:"member_id,omitempty"`   // FK to WorkforceMember
+	Name          string                 `                   protobuf:"bytes,4,opt,name=name,proto3"                        json:"name,omitempty"`        // Human-readable label (e.g. "Loan Officer", "Collections")
+	Description   string                 `                   protobuf:"bytes,5,opt,name=description,proto3"                 json:"description,omitempty"` // Details about the relationship
+	IsPrimary     bool                   `                   protobuf:"varint,6,opt,name=is_primary,json=isPrimary,proto3"  json:"is_primary,omitempty"`  // At most one primary per client
+	State         v1.STATE               `                   protobuf:"varint,7,opt,name=state,proto3,enum=common.v1.STATE" json:"state,omitempty"`
+	Properties    *structpb.Struct       `                   protobuf:"bytes,8,opt,name=properties,proto3"                  json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientRelationshipObject) Reset() {
+	*x = ClientRelationshipObject{}
+	mi := &file_field_v1_field_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientRelationshipObject) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientRelationshipObject) ProtoMessage() {}
+
+func (x *ClientRelationshipObject) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[3]
 	if x != nil {
-		return x.PrimaryRelationshipMemberId
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientRelationshipObject.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipObject) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ClientRelationshipObject) GetId() string {
+	if x != nil {
+		return x.Id
 	}
 	return ""
+}
+
+func (x *ClientRelationshipObject) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *ClientRelationshipObject) GetMemberId() string {
+	if x != nil {
+		return x.MemberId
+	}
+	return ""
+}
+
+func (x *ClientRelationshipObject) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ClientRelationshipObject) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ClientRelationshipObject) GetIsPrimary() bool {
+	if x != nil {
+		return x.IsPrimary
+	}
+	return false
+}
+
+func (x *ClientRelationshipObject) GetState() v1.STATE {
+	if x != nil {
+		return x.State
+	}
+	return v1.STATE(0)
+}
+
+func (x *ClientRelationshipObject) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
 }
 
 // Agent messages
@@ -406,7 +501,7 @@ type AgentSaveRequest struct {
 
 func (x *AgentSaveRequest) Reset() {
 	*x = AgentSaveRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[3]
+	mi := &file_field_v1_field_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -418,7 +513,7 @@ func (x *AgentSaveRequest) String() string {
 func (*AgentSaveRequest) ProtoMessage() {}
 
 func (x *AgentSaveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[3]
+	mi := &file_field_v1_field_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -431,7 +526,7 @@ func (x *AgentSaveRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentSaveRequest.ProtoReflect.Descriptor instead.
 func (*AgentSaveRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{3}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AgentSaveRequest) GetData() *AgentObject {
@@ -450,7 +545,7 @@ type AgentSaveResponse struct {
 
 func (x *AgentSaveResponse) Reset() {
 	*x = AgentSaveResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[4]
+	mi := &file_field_v1_field_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +557,7 @@ func (x *AgentSaveResponse) String() string {
 func (*AgentSaveResponse) ProtoMessage() {}
 
 func (x *AgentSaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[4]
+	mi := &file_field_v1_field_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +570,7 @@ func (x *AgentSaveResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentSaveResponse.ProtoReflect.Descriptor instead.
 func (*AgentSaveResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{4}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AgentSaveResponse) GetData() *AgentObject {
@@ -494,7 +589,7 @@ type AgentGetRequest struct {
 
 func (x *AgentGetRequest) Reset() {
 	*x = AgentGetRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[5]
+	mi := &file_field_v1_field_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -506,7 +601,7 @@ func (x *AgentGetRequest) String() string {
 func (*AgentGetRequest) ProtoMessage() {}
 
 func (x *AgentGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[5]
+	mi := &file_field_v1_field_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +614,7 @@ func (x *AgentGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentGetRequest.ProtoReflect.Descriptor instead.
 func (*AgentGetRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{5}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AgentGetRequest) GetId() string {
@@ -538,7 +633,7 @@ type AgentGetResponse struct {
 
 func (x *AgentGetResponse) Reset() {
 	*x = AgentGetResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[6]
+	mi := &file_field_v1_field_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -550,7 +645,7 @@ func (x *AgentGetResponse) String() string {
 func (*AgentGetResponse) ProtoMessage() {}
 
 func (x *AgentGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[6]
+	mi := &file_field_v1_field_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -563,7 +658,7 @@ func (x *AgentGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentGetResponse.ProtoReflect.Descriptor instead.
 func (*AgentGetResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{6}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AgentGetResponse) GetData() *AgentObject {
@@ -586,7 +681,7 @@ type AgentSearchRequest struct {
 
 func (x *AgentSearchRequest) Reset() {
 	*x = AgentSearchRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[7]
+	mi := &file_field_v1_field_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -598,7 +693,7 @@ func (x *AgentSearchRequest) String() string {
 func (*AgentSearchRequest) ProtoMessage() {}
 
 func (x *AgentSearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[7]
+	mi := &file_field_v1_field_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +706,7 @@ func (x *AgentSearchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentSearchRequest.ProtoReflect.Descriptor instead.
 func (*AgentSearchRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{7}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AgentSearchRequest) GetQuery() string {
@@ -658,7 +753,7 @@ type AgentSearchResponse struct {
 
 func (x *AgentSearchResponse) Reset() {
 	*x = AgentSearchResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[8]
+	mi := &file_field_v1_field_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -670,7 +765,7 @@ func (x *AgentSearchResponse) String() string {
 func (*AgentSearchResponse) ProtoMessage() {}
 
 func (x *AgentSearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[8]
+	mi := &file_field_v1_field_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -683,7 +778,7 @@ func (x *AgentSearchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentSearchResponse.ProtoReflect.Descriptor instead.
 func (*AgentSearchResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{8}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AgentSearchResponse) GetData() []*AgentObject {
@@ -704,7 +799,7 @@ type AgentHierarchyRequest struct {
 
 func (x *AgentHierarchyRequest) Reset() {
 	*x = AgentHierarchyRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[9]
+	mi := &file_field_v1_field_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -716,7 +811,7 @@ func (x *AgentHierarchyRequest) String() string {
 func (*AgentHierarchyRequest) ProtoMessage() {}
 
 func (x *AgentHierarchyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[9]
+	mi := &file_field_v1_field_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +824,7 @@ func (x *AgentHierarchyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentHierarchyRequest.ProtoReflect.Descriptor instead.
 func (*AgentHierarchyRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{9}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AgentHierarchyRequest) GetAgentId() string {
@@ -755,7 +850,7 @@ type AgentHierarchyResponse struct {
 
 func (x *AgentHierarchyResponse) Reset() {
 	*x = AgentHierarchyResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[10]
+	mi := &file_field_v1_field_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +862,7 @@ func (x *AgentHierarchyResponse) String() string {
 func (*AgentHierarchyResponse) ProtoMessage() {}
 
 func (x *AgentHierarchyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[10]
+	mi := &file_field_v1_field_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +875,7 @@ func (x *AgentHierarchyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentHierarchyResponse.ProtoReflect.Descriptor instead.
 func (*AgentHierarchyResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{10}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AgentHierarchyResponse) GetData() []*AgentObject {
@@ -800,7 +895,7 @@ type AgentBranchSaveRequest struct {
 
 func (x *AgentBranchSaveRequest) Reset() {
 	*x = AgentBranchSaveRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[11]
+	mi := &file_field_v1_field_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -812,7 +907,7 @@ func (x *AgentBranchSaveRequest) String() string {
 func (*AgentBranchSaveRequest) ProtoMessage() {}
 
 func (x *AgentBranchSaveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[11]
+	mi := &file_field_v1_field_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -825,7 +920,7 @@ func (x *AgentBranchSaveRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentBranchSaveRequest.ProtoReflect.Descriptor instead.
 func (*AgentBranchSaveRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{11}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AgentBranchSaveRequest) GetData() *AgentBranchObject {
@@ -844,7 +939,7 @@ type AgentBranchSaveResponse struct {
 
 func (x *AgentBranchSaveResponse) Reset() {
 	*x = AgentBranchSaveResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[12]
+	mi := &file_field_v1_field_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -856,7 +951,7 @@ func (x *AgentBranchSaveResponse) String() string {
 func (*AgentBranchSaveResponse) ProtoMessage() {}
 
 func (x *AgentBranchSaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[12]
+	mi := &file_field_v1_field_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -869,7 +964,7 @@ func (x *AgentBranchSaveResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentBranchSaveResponse.ProtoReflect.Descriptor instead.
 func (*AgentBranchSaveResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{12}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AgentBranchSaveResponse) GetData() *AgentBranchObject {
@@ -888,7 +983,7 @@ type AgentBranchDeleteRequest struct {
 
 func (x *AgentBranchDeleteRequest) Reset() {
 	*x = AgentBranchDeleteRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[13]
+	mi := &file_field_v1_field_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -900,7 +995,7 @@ func (x *AgentBranchDeleteRequest) String() string {
 func (*AgentBranchDeleteRequest) ProtoMessage() {}
 
 func (x *AgentBranchDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[13]
+	mi := &file_field_v1_field_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +1008,7 @@ func (x *AgentBranchDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentBranchDeleteRequest.ProtoReflect.Descriptor instead.
 func (*AgentBranchDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{13}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AgentBranchDeleteRequest) GetId() string {
@@ -931,7 +1026,7 @@ type AgentBranchDeleteResponse struct {
 
 func (x *AgentBranchDeleteResponse) Reset() {
 	*x = AgentBranchDeleteResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[14]
+	mi := &file_field_v1_field_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -943,7 +1038,7 @@ func (x *AgentBranchDeleteResponse) String() string {
 func (*AgentBranchDeleteResponse) ProtoMessage() {}
 
 func (x *AgentBranchDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[14]
+	mi := &file_field_v1_field_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -956,7 +1051,7 @@ func (x *AgentBranchDeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentBranchDeleteResponse.ProtoReflect.Descriptor instead.
 func (*AgentBranchDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{14}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{15}
 }
 
 type AgentBranchListRequest struct {
@@ -970,7 +1065,7 @@ type AgentBranchListRequest struct {
 
 func (x *AgentBranchListRequest) Reset() {
 	*x = AgentBranchListRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[15]
+	mi := &file_field_v1_field_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -982,7 +1077,7 @@ func (x *AgentBranchListRequest) String() string {
 func (*AgentBranchListRequest) ProtoMessage() {}
 
 func (x *AgentBranchListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[15]
+	mi := &file_field_v1_field_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -995,7 +1090,7 @@ func (x *AgentBranchListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentBranchListRequest.ProtoReflect.Descriptor instead.
 func (*AgentBranchListRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{15}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AgentBranchListRequest) GetAgentId() string {
@@ -1028,7 +1123,7 @@ type AgentBranchListResponse struct {
 
 func (x *AgentBranchListResponse) Reset() {
 	*x = AgentBranchListResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[16]
+	mi := &file_field_v1_field_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1040,7 +1135,7 @@ func (x *AgentBranchListResponse) String() string {
 func (*AgentBranchListResponse) ProtoMessage() {}
 
 func (x *AgentBranchListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[16]
+	mi := &file_field_v1_field_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1053,7 +1148,7 @@ func (x *AgentBranchListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentBranchListResponse.ProtoReflect.Descriptor instead.
 func (*AgentBranchListResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{16}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AgentBranchListResponse) GetData() []*AgentBranchObject {
@@ -1073,7 +1168,7 @@ type ClientSaveRequest struct {
 
 func (x *ClientSaveRequest) Reset() {
 	*x = ClientSaveRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[17]
+	mi := &file_field_v1_field_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1085,7 +1180,7 @@ func (x *ClientSaveRequest) String() string {
 func (*ClientSaveRequest) ProtoMessage() {}
 
 func (x *ClientSaveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[17]
+	mi := &file_field_v1_field_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1098,7 +1193,7 @@ func (x *ClientSaveRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientSaveRequest.ProtoReflect.Descriptor instead.
 func (*ClientSaveRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{17}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ClientSaveRequest) GetData() *ClientObject {
@@ -1117,7 +1212,7 @@ type ClientSaveResponse struct {
 
 func (x *ClientSaveResponse) Reset() {
 	*x = ClientSaveResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[18]
+	mi := &file_field_v1_field_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1129,7 +1224,7 @@ func (x *ClientSaveResponse) String() string {
 func (*ClientSaveResponse) ProtoMessage() {}
 
 func (x *ClientSaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[18]
+	mi := &file_field_v1_field_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1142,7 +1237,7 @@ func (x *ClientSaveResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientSaveResponse.ProtoReflect.Descriptor instead.
 func (*ClientSaveResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{18}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ClientSaveResponse) GetData() *ClientObject {
@@ -1161,7 +1256,7 @@ type ClientGetRequest struct {
 
 func (x *ClientGetRequest) Reset() {
 	*x = ClientGetRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[19]
+	mi := &file_field_v1_field_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1268,7 @@ func (x *ClientGetRequest) String() string {
 func (*ClientGetRequest) ProtoMessage() {}
 
 func (x *ClientGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[19]
+	mi := &file_field_v1_field_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1281,7 @@ func (x *ClientGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientGetRequest.ProtoReflect.Descriptor instead.
 func (*ClientGetRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{19}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ClientGetRequest) GetId() string {
@@ -1205,7 +1300,7 @@ type ClientGetResponse struct {
 
 func (x *ClientGetResponse) Reset() {
 	*x = ClientGetResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[20]
+	mi := &file_field_v1_field_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1217,7 +1312,7 @@ func (x *ClientGetResponse) String() string {
 func (*ClientGetResponse) ProtoMessage() {}
 
 func (x *ClientGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[20]
+	mi := &file_field_v1_field_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1230,7 +1325,7 @@ func (x *ClientGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientGetResponse.ProtoReflect.Descriptor instead.
 func (*ClientGetResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{20}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ClientGetResponse) GetData() *ClientObject {
@@ -1241,19 +1336,19 @@ func (x *ClientGetResponse) GetData() *ClientObject {
 }
 
 type ClientSearchRequest struct {
-	state                       protoimpl.MessageState `protogen:"open.v1"`
-	Query                       string                 `                   protobuf:"bytes,1,opt,name=query,proto3"                                                           json:"query,omitempty"`                          // Free-text search
-	AgentId                     string                 `                   protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3"                                           json:"agent_id,omitempty"`                       // Deprecated legacy filter by agent
-	Cursor                      *v1.PageCursor         `                   protobuf:"bytes,3,opt,name=cursor,proto3"                                                          json:"cursor,omitempty"`                         // Pagination
-	OwningTeamId                string                 `                   protobuf:"bytes,4,opt,name=owning_team_id,json=owningTeamId,proto3"                                json:"owning_team_id,omitempty"`                 // Optional filter by owning team
-	PrimaryRelationshipMemberId string                 `                   protobuf:"bytes,5,opt,name=primary_relationship_member_id,json=primaryRelationshipMemberId,proto3" json:"primary_relationship_member_id,omitempty"` // Optional filter by relationship handler
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Query         string                 `                   protobuf:"bytes,1,opt,name=query,proto3"                            json:"query,omitempty"`          // Free-text search
+	AgentId       string                 `                   protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3"            json:"agent_id,omitempty"`       // Deprecated legacy filter by agent
+	Cursor        *v1.PageCursor         `                   protobuf:"bytes,3,opt,name=cursor,proto3"                           json:"cursor,omitempty"`         // Pagination
+	OwningTeamId  string                 `                   protobuf:"bytes,4,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"` // Optional filter by owning team
+	MemberId      string                 `                   protobuf:"bytes,5,opt,name=member_id,json=memberId,proto3"          json:"member_id,omitempty"`      // Optional filter by relationship handler
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClientSearchRequest) Reset() {
 	*x = ClientSearchRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[21]
+	mi := &file_field_v1_field_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1265,7 +1360,7 @@ func (x *ClientSearchRequest) String() string {
 func (*ClientSearchRequest) ProtoMessage() {}
 
 func (x *ClientSearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[21]
+	mi := &file_field_v1_field_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1278,7 +1373,7 @@ func (x *ClientSearchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientSearchRequest.ProtoReflect.Descriptor instead.
 func (*ClientSearchRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{21}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ClientSearchRequest) GetQuery() string {
@@ -1309,9 +1404,9 @@ func (x *ClientSearchRequest) GetOwningTeamId() string {
 	return ""
 }
 
-func (x *ClientSearchRequest) GetPrimaryRelationshipMemberId() string {
+func (x *ClientSearchRequest) GetMemberId() string {
 	if x != nil {
-		return x.PrimaryRelationshipMemberId
+		return x.MemberId
 	}
 	return ""
 }
@@ -1325,7 +1420,7 @@ type ClientSearchResponse struct {
 
 func (x *ClientSearchResponse) Reset() {
 	*x = ClientSearchResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[22]
+	mi := &file_field_v1_field_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1337,7 +1432,7 @@ func (x *ClientSearchResponse) String() string {
 func (*ClientSearchResponse) ProtoMessage() {}
 
 func (x *ClientSearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[22]
+	mi := &file_field_v1_field_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1350,7 +1445,7 @@ func (x *ClientSearchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientSearchResponse.ProtoReflect.Descriptor instead.
 func (*ClientSearchResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{22}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ClientSearchResponse) GetData() []*ClientObject {
@@ -1372,7 +1467,7 @@ type ClientReassignRequest struct {
 
 func (x *ClientReassignRequest) Reset() {
 	*x = ClientReassignRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[23]
+	mi := &file_field_v1_field_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1384,7 +1479,7 @@ func (x *ClientReassignRequest) String() string {
 func (*ClientReassignRequest) ProtoMessage() {}
 
 func (x *ClientReassignRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[23]
+	mi := &file_field_v1_field_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1397,7 +1492,7 @@ func (x *ClientReassignRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientReassignRequest.ProtoReflect.Descriptor instead.
 func (*ClientReassignRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{23}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ClientReassignRequest) GetClientId() string {
@@ -1430,7 +1525,7 @@ type ClientReassignResponse struct {
 
 func (x *ClientReassignResponse) Reset() {
 	*x = ClientReassignResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[24]
+	mi := &file_field_v1_field_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1442,7 +1537,7 @@ func (x *ClientReassignResponse) String() string {
 func (*ClientReassignResponse) ProtoMessage() {}
 
 func (x *ClientReassignResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[24]
+	mi := &file_field_v1_field_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1455,7 +1550,7 @@ func (x *ClientReassignResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientReassignResponse.ProtoReflect.Descriptor instead.
 func (*ClientReassignResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{24}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ClientReassignResponse) GetData() *ClientObject {
@@ -1477,7 +1572,7 @@ type ClientOwnershipTransferRequest struct {
 
 func (x *ClientOwnershipTransferRequest) Reset() {
 	*x = ClientOwnershipTransferRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[25]
+	mi := &file_field_v1_field_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1489,7 +1584,7 @@ func (x *ClientOwnershipTransferRequest) String() string {
 func (*ClientOwnershipTransferRequest) ProtoMessage() {}
 
 func (x *ClientOwnershipTransferRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[25]
+	mi := &file_field_v1_field_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1502,7 +1597,7 @@ func (x *ClientOwnershipTransferRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientOwnershipTransferRequest.ProtoReflect.Descriptor instead.
 func (*ClientOwnershipTransferRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{25}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ClientOwnershipTransferRequest) GetClientId() string {
@@ -1535,7 +1630,7 @@ type ClientOwnershipTransferResponse struct {
 
 func (x *ClientOwnershipTransferResponse) Reset() {
 	*x = ClientOwnershipTransferResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[26]
+	mi := &file_field_v1_field_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1547,7 +1642,7 @@ func (x *ClientOwnershipTransferResponse) String() string {
 func (*ClientOwnershipTransferResponse) ProtoMessage() {}
 
 func (x *ClientOwnershipTransferResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[26]
+	mi := &file_field_v1_field_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1560,7 +1655,7 @@ func (x *ClientOwnershipTransferResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientOwnershipTransferResponse.ProtoReflect.Descriptor instead.
 func (*ClientOwnershipTransferResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{26}
+	return file_field_v1_field_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ClientOwnershipTransferResponse) GetData() *ClientObject {
@@ -1570,31 +1665,28 @@ func (x *ClientOwnershipTransferResponse) GetData() *ClientObject {
 	return nil
 }
 
-// ClientRelationshipAssignRequest changes the primary relationship handler inside the owning team.
-type ClientRelationshipAssignRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `                   protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	MemberId      string                 `                   protobuf:"bytes,2,opt,name=member_id,json=memberId,proto3" json:"member_id,omitempty"`
-	Reason        string                 `                   protobuf:"bytes,3,opt,name=reason,proto3"                  json:"reason,omitempty"`
+type ClientRelationshipSaveRequest struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Data          *ClientRelationshipObject `                   protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ClientRelationshipAssignRequest) Reset() {
-	*x = ClientRelationshipAssignRequest{}
-	mi := &file_field_v1_field_proto_msgTypes[27]
+func (x *ClientRelationshipSaveRequest) Reset() {
+	*x = ClientRelationshipSaveRequest{}
+	mi := &file_field_v1_field_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ClientRelationshipAssignRequest) String() string {
+func (x *ClientRelationshipSaveRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ClientRelationshipAssignRequest) ProtoMessage() {}
+func (*ClientRelationshipSaveRequest) ProtoMessage() {}
 
-func (x *ClientRelationshipAssignRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[27]
+func (x *ClientRelationshipSaveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1605,54 +1697,232 @@ func (x *ClientRelationshipAssignRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ClientRelationshipAssignRequest.ProtoReflect.Descriptor instead.
-func (*ClientRelationshipAssignRequest) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{27}
+// Deprecated: Use ClientRelationshipSaveRequest.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipSaveRequest) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *ClientRelationshipAssignRequest) GetClientId() string {
+func (x *ClientRelationshipSaveRequest) GetData() *ClientRelationshipObject {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type ClientRelationshipSaveResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Data          *ClientRelationshipObject `                   protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientRelationshipSaveResponse) Reset() {
+	*x = ClientRelationshipSaveResponse{}
+	mi := &file_field_v1_field_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientRelationshipSaveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientRelationshipSaveResponse) ProtoMessage() {}
+
+func (x *ClientRelationshipSaveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientRelationshipSaveResponse.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipSaveResponse) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *ClientRelationshipSaveResponse) GetData() *ClientRelationshipObject {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type ClientRelationshipGetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `                   protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientRelationshipGetRequest) Reset() {
+	*x = ClientRelationshipGetRequest{}
+	mi := &file_field_v1_field_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientRelationshipGetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientRelationshipGetRequest) ProtoMessage() {}
+
+func (x *ClientRelationshipGetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientRelationshipGetRequest.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipGetRequest) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *ClientRelationshipGetRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ClientRelationshipGetResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Data          *ClientRelationshipObject `                   protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientRelationshipGetResponse) Reset() {
+	*x = ClientRelationshipGetResponse{}
+	mi := &file_field_v1_field_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientRelationshipGetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientRelationshipGetResponse) ProtoMessage() {}
+
+func (x *ClientRelationshipGetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientRelationshipGetResponse.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipGetResponse) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *ClientRelationshipGetResponse) GetData() *ClientRelationshipObject {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type ClientRelationshipSearchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      string                 `                   protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	MemberId      string                 `                   protobuf:"bytes,2,opt,name=member_id,json=memberId,proto3" json:"member_id,omitempty"`
+	Cursor        *v1.PageCursor         `                   protobuf:"bytes,3,opt,name=cursor,proto3"                  json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientRelationshipSearchRequest) Reset() {
+	*x = ClientRelationshipSearchRequest{}
+	mi := &file_field_v1_field_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientRelationshipSearchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientRelationshipSearchRequest) ProtoMessage() {}
+
+func (x *ClientRelationshipSearchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientRelationshipSearchRequest.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipSearchRequest) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ClientRelationshipSearchRequest) GetClientId() string {
 	if x != nil {
 		return x.ClientId
 	}
 	return ""
 }
 
-func (x *ClientRelationshipAssignRequest) GetMemberId() string {
+func (x *ClientRelationshipSearchRequest) GetMemberId() string {
 	if x != nil {
 		return x.MemberId
 	}
 	return ""
 }
 
-func (x *ClientRelationshipAssignRequest) GetReason() string {
+func (x *ClientRelationshipSearchRequest) GetCursor() *v1.PageCursor {
 	if x != nil {
-		return x.Reason
+		return x.Cursor
 	}
-	return ""
+	return nil
 }
 
-type ClientRelationshipAssignResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          *ClientObject          `                   protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+type ClientRelationshipSearchResponse struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Data          []*ClientRelationshipObject `                   protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ClientRelationshipAssignResponse) Reset() {
-	*x = ClientRelationshipAssignResponse{}
-	mi := &file_field_v1_field_proto_msgTypes[28]
+func (x *ClientRelationshipSearchResponse) Reset() {
+	*x = ClientRelationshipSearchResponse{}
+	mi := &file_field_v1_field_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ClientRelationshipAssignResponse) String() string {
+func (x *ClientRelationshipSearchResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ClientRelationshipAssignResponse) ProtoMessage() {}
+func (*ClientRelationshipSearchResponse) ProtoMessage() {}
 
-func (x *ClientRelationshipAssignResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_field_v1_field_proto_msgTypes[28]
+func (x *ClientRelationshipSearchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_field_v1_field_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1663,12 +1933,12 @@ func (x *ClientRelationshipAssignResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ClientRelationshipAssignResponse.ProtoReflect.Descriptor instead.
-func (*ClientRelationshipAssignResponse) Descriptor() ([]byte, []int) {
-	return file_field_v1_field_proto_rawDescGZIP(), []int{28}
+// Deprecated: Use ClientRelationshipSearchResponse.ProtoReflect.Descriptor instead.
+func (*ClientRelationshipSearchResponse) Descriptor() ([]byte, []int) {
+	return file_field_v1_field_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *ClientRelationshipAssignResponse) GetData() *ClientObject {
+func (x *ClientRelationshipSearchResponse) GetData() []*ClientRelationshipObject {
 	if x != nil {
 		return x.Data
 	}
@@ -1706,7 +1976,7 @@ const file_field_v1_field_proto_rawDesc = "" +
 	"\x05state\x18\x04 \x01(\x0e2\x10.common.v1.STATER\x05state\x127\n" +
 	"\n" +
 	"properties\x18\x05 \x01(\v2\x17.google.protobuf.StructR\n" +
-	"properties\"\x8f\x03\n" +
+	"properties\"\xc4\x02\n" +
 	"\fClientObject\x12.\n" +
 	"\x02id\x18\x01 \x01(\tB\x1e\xbaH\x1b\xd8\x01\x01r\x16\x10\x03\x18(2\x10[0-9a-z_-]{3,40}R\x02id\x12$\n" +
 	"\bagent_id\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18(R\aagentId\x12(\n" +
@@ -1718,9 +1988,19 @@ const file_field_v1_field_proto_rawDesc = "" +
 	"properties\x18\x06 \x01(\v2\x17.google.protobuf.StructR\n" +
 	"properties\x120\n" +
 	"\x0eowning_team_id\x18\a \x01(\tB\n" +
-	"\xbaH\a\xd8\x01\x01r\x02\x18(R\fowningTeamId\x12O\n" +
-	"\x1eprimary_relationship_member_id\x18\b \x01(\tB\n" +
-	"\xbaH\a\xd8\x01\x01r\x02\x18(R\x1bprimaryRelationshipMemberId\"E\n" +
+	"\xbaH\a\xd8\x01\x01r\x02\x18(R\fowningTeamIdJ\x04\b\b\x10\t\"\xd9\x02\n" +
+	"\x18ClientRelationshipObject\x12.\n" +
+	"\x02id\x18\x01 \x01(\tB\x1e\xbaH\x1b\xd8\x01\x01r\x16\x10\x03\x18(2\x10[0-9a-z_-]{3,40}R\x02id\x12&\n" +
+	"\tclient_id\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18(R\bclientId\x12&\n" +
+	"\tmember_id\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18(R\bmemberId\x12\x1b\n" +
+	"\x04name\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
+	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x1d\n" +
+	"\n" +
+	"is_primary\x18\x06 \x01(\bR\tisPrimary\x12&\n" +
+	"\x05state\x18\a \x01(\x0e2\x10.common.v1.STATER\x05state\x127\n" +
+	"\n" +
+	"properties\x18\b \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties\"E\n" +
 	"\x10AgentSaveRequest\x121\n" +
 	"\x04data\x18\x01 \x01(\v2\x15.field.v1.AgentObjectB\x06\xbaH\x03\xc8\x01\x01R\x04data\">\n" +
 	"\x11AgentSaveResponse\x12)\n" +
@@ -1762,15 +2042,15 @@ const file_field_v1_field_proto_rawDesc = "" +
 	"\x10ClientGetRequest\x12+\n" +
 	"\x02id\x18\x01 \x01(\tB\x1b\xbaH\x18r\x16\x10\x03\x18(2\x10[0-9a-z_-]{3,40}R\x02id\"?\n" +
 	"\x11ClientGetResponse\x12*\n" +
-	"\x04data\x18\x01 \x01(\v2\x16.field.v1.ClientObjectR\x04data\"\x86\x02\n" +
+	"\x04data\x18\x01 \x01(\v2\x16.field.v1.ClientObjectR\x04data\"\xde\x01\n" +
 	"\x13ClientSearchRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12'\n" +
 	"\bagent_id\x18\x02 \x01(\tB\f\xbaH\t\xd8\x01\x01r\x04\x10\x03\x18(R\aagentId\x12-\n" +
 	"\x06cursor\x18\x03 \x01(\v2\x15.common.v1.PageCursorR\x06cursor\x120\n" +
 	"\x0eowning_team_id\x18\x04 \x01(\tB\n" +
-	"\xbaH\a\xd8\x01\x01r\x02\x18(R\fowningTeamId\x12O\n" +
-	"\x1eprimary_relationship_member_id\x18\x05 \x01(\tB\n" +
-	"\xbaH\a\xd8\x01\x01r\x02\x18(R\x1bprimaryRelationshipMemberId\"B\n" +
+	"\xbaH\a\xd8\x01\x01r\x02\x18(R\fowningTeamId\x12'\n" +
+	"\tmember_id\x18\x05 \x01(\tB\n" +
+	"\xbaH\a\xd8\x01\x01r\x02\x18(R\bmemberId\"B\n" +
 	"\x14ClientSearchResponse\x12*\n" +
 	"\x04data\x18\x01 \x03(\v2\x16.field.v1.ClientObjectR\x04data\"\xa8\x01\n" +
 	"\x15ClientReassignRequest\x128\n" +
@@ -1785,17 +2065,27 @@ const file_field_v1_field_proto_rawDesc = "" +
 	"\x12new_owning_team_id\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18(R\x0fnewOwningTeamId\x12\x16\n" +
 	"\x06reason\x18\x03 \x01(\tR\x06reason\"M\n" +
 	"\x1fClientOwnershipTransferResponse\x12*\n" +
-	"\x04data\x18\x01 \x01(\v2\x16.field.v1.ClientObjectR\x04data\"\x9b\x01\n" +
-	"\x1fClientRelationshipAssignRequest\x128\n" +
-	"\tclient_id\x18\x01 \x01(\tB\x1b\xbaH\x18r\x16\x10\x03\x18(2\x10[0-9a-z_-]{3,40}R\bclientId\x12&\n" +
-	"\tmember_id\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18(R\bmemberId\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"N\n" +
-	" ClientRelationshipAssignResponse\x12*\n" +
-	"\x04data\x18\x01 \x01(\v2\x16.field.v1.ClientObjectR\x04data*_\n" +
+	"\x04data\x18\x01 \x01(\v2\x16.field.v1.ClientObjectR\x04data\"_\n" +
+	"\x1dClientRelationshipSaveRequest\x12>\n" +
+	"\x04data\x18\x01 \x01(\v2\".field.v1.ClientRelationshipObjectB\x06\xbaH\x03\xc8\x01\x01R\x04data\"X\n" +
+	"\x1eClientRelationshipSaveResponse\x126\n" +
+	"\x04data\x18\x01 \x01(\v2\".field.v1.ClientRelationshipObjectR\x04data\"K\n" +
+	"\x1cClientRelationshipGetRequest\x12+\n" +
+	"\x02id\x18\x01 \x01(\tB\x1b\xbaH\x18r\x16\x10\x03\x18(2\x10[0-9a-z_-]{3,40}R\x02id\"W\n" +
+	"\x1dClientRelationshipGetResponse\x126\n" +
+	"\x04data\x18\x01 \x01(\v2\".field.v1.ClientRelationshipObjectR\x04data\"\xa2\x01\n" +
+	"\x1fClientRelationshipSearchRequest\x12'\n" +
+	"\tclient_id\x18\x01 \x01(\tB\n" +
+	"\xbaH\a\xd8\x01\x01r\x02\x18(R\bclientId\x12'\n" +
+	"\tmember_id\x18\x02 \x01(\tB\n" +
+	"\xbaH\a\xd8\x01\x01r\x02\x18(R\bmemberId\x12-\n" +
+	"\x06cursor\x18\x03 \x01(\v2\x15.common.v1.PageCursorR\x06cursor\"Z\n" +
+	" ClientRelationshipSearchResponse\x126\n" +
+	"\x04data\x18\x01 \x03(\v2\".field.v1.ClientRelationshipObjectR\x04data*_\n" +
 	"\tAgentType\x12\x1a\n" +
 	"\x16AGENT_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15AGENT_TYPE_INDIVIDUAL\x10\x01\x12\x1b\n" +
-	"\x17AGENT_TYPE_ORGANIZATION\x10\x022\xa0\x1c\n" +
+	"\x17AGENT_TYPE_ORGANIZATION\x10\x022\xd1$\n" +
 	"\fFieldService\x12\xb1\x02\n" +
 	"\tAgentSave\x12\x1a.field.v1.AgentSaveRequest\x1a\x1b.field.v1.AgentSaveResponse\"\xea\x01\xbaG\xd4\x01\n" +
 	"\x06Agents\x12\x19Create or update an agent\x1a\xa3\x01Creates a new agent or updates an existing one. When a parent_agent_id is set, the agent inherits the branch from the parent and depth is calculated automatically.*\tagentSave\x82\xb5\x18\x0e\n" +
@@ -1837,17 +2127,24 @@ const file_field_v1_field_proto_rawDesc = "" +
 	"\aClients\x12\x11Reassign a client\x1ayDeprecated. Client ownership is team-based and should be changed via ClientOwnershipTransfer or ClientRelationshipAssign.*\x0eclientReassign\x82\xb5\x18\x0f\n" +
 	"\rclient_manage\x12\x83\x01\n" +
 	"\x17ClientOwnershipTransfer\x12(.field.v1.ClientOwnershipTransferRequest\x1a).field.v1.ClientOwnershipTransferResponse\"\x13\x82\xb5\x18\x0f\n" +
-	"\rclient_manage\x12\x86\x01\n" +
-	"\x18ClientRelationshipAssign\x12).field.v1.ClientRelationshipAssignRequest\x1a*.field.v1.ClientRelationshipAssignResponse\"\x13\x82\xb5\x18\x0f\n" +
-	"\rclient_manage\x1a\xf6\x03\x82\xb5\x18\xf1\x03\n" +
+	"\rclient_manage\x12\xa8\x02\n" +
+	"\x16ClientRelationshipSave\x12'.field.v1.ClientRelationshipSaveRequest\x1a(.field.v1.ClientRelationshipSaveResponse\"\xba\x01\xbaG\x96\x01\n" +
+	"\x13ClientRelationships\x12\x1bAssign a member to a client\x1aJCreates or updates a relationship between a workforce member and a client.*\x16clientRelationshipSave\x82\xb5\x18\x1c\n" +
+	"\x1aclient_relationship_manage\x12\x99\x02\n" +
+	"\x15ClientRelationshipGet\x12&.field.v1.ClientRelationshipGetRequest\x1a'.field.v1.ClientRelationshipGetResponse\"\xae\x01\xbaG\x89\x01\n" +
+	"\x13ClientRelationships\x12\x19Get a client relationship\x1a@Retrieves a client-member relationship by its unique identifier.*\x15clientRelationshipGet\x82\xb5\x18\x1a\n" +
+	"\x18client_relationship_view\x90\x02\x01\x12\xaa\x02\n" +
+	"\x18ClientRelationshipSearch\x12).field.v1.ClientRelationshipSearchRequest\x1a*.field.v1.ClientRelationshipSearchResponse\"\xb4\x01\xbaG\x8f\x01\n" +
+	"\x13ClientRelationships\x12\x1bSearch client relationships\x1aASearches for client-member relationships by client and/or member.*\x18clientRelationshipSearch\x82\xb5\x18\x1a\n" +
+	"\x18client_relationship_view\x90\x02\x010\x01\x1a\xbc\x06\x82\xb5\x18\xb7\x06\n" +
 	"\rservice_field\x12\n" +
-	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x1aO\b\x01\x12\n" +
-	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x1aO\b\x02\x12\n" +
-	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x1aO\b\x03\x12\n" +
-	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x1a\x1b\b\x04\x12\n" +
-	"agent_view\x12\vclient_view\x1a2\b\x05\x12\n" +
-	"agent_view\x12\x15agent_subagent_manage\x12\vclient_view\x1aO\b\x06\x12\n" +
-	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manageB<\n" +
+	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x12\x18client_relationship_view\x12\x1aclient_relationship_manage\x1a\x85\x01\b\x01\x12\n" +
+	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x12\x18client_relationship_view\x12\x1aclient_relationship_manage\x1a\x85\x01\b\x02\x12\n" +
+	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x12\x18client_relationship_view\x12\x1aclient_relationship_manage\x1a\x85\x01\b\x03\x12\n" +
+	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x12\x18client_relationship_view\x12\x1aclient_relationship_manage\x1a5\b\x04\x12\n" +
+	"agent_view\x12\vclient_view\x12\x18client_relationship_view\x1aL\b\x05\x12\n" +
+	"agent_view\x12\x15agent_subagent_manage\x12\vclient_view\x12\x18client_relationship_view\x1a\x85\x01\b\x06\x12\n" +
+	"agent_view\x12\fagent_manage\x12\x15agent_subagent_manage\x12\vclient_view\x12\rclient_manage\x12\x18client_relationship_view\x12\x1aclient_relationship_manageB<\n" +
 	"\afieldv1P\x01Z/github.com/antinvestor/apis/go/field/v1;fieldv1b\x06proto3"
 
 var (
@@ -1865,99 +2162,114 @@ func file_field_v1_field_proto_rawDescGZIP() []byte {
 }
 
 var file_field_v1_field_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_field_v1_field_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_field_v1_field_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_field_v1_field_proto_goTypes = []any{
 	(AgentType)(0),                           // 0: field.v1.AgentType
 	(*AgentObject)(nil),                      // 1: field.v1.AgentObject
 	(*AgentBranchObject)(nil),                // 2: field.v1.AgentBranchObject
 	(*ClientObject)(nil),                     // 3: field.v1.ClientObject
-	(*AgentSaveRequest)(nil),                 // 4: field.v1.AgentSaveRequest
-	(*AgentSaveResponse)(nil),                // 5: field.v1.AgentSaveResponse
-	(*AgentGetRequest)(nil),                  // 6: field.v1.AgentGetRequest
-	(*AgentGetResponse)(nil),                 // 7: field.v1.AgentGetResponse
-	(*AgentSearchRequest)(nil),               // 8: field.v1.AgentSearchRequest
-	(*AgentSearchResponse)(nil),              // 9: field.v1.AgentSearchResponse
-	(*AgentHierarchyRequest)(nil),            // 10: field.v1.AgentHierarchyRequest
-	(*AgentHierarchyResponse)(nil),           // 11: field.v1.AgentHierarchyResponse
-	(*AgentBranchSaveRequest)(nil),           // 12: field.v1.AgentBranchSaveRequest
-	(*AgentBranchSaveResponse)(nil),          // 13: field.v1.AgentBranchSaveResponse
-	(*AgentBranchDeleteRequest)(nil),         // 14: field.v1.AgentBranchDeleteRequest
-	(*AgentBranchDeleteResponse)(nil),        // 15: field.v1.AgentBranchDeleteResponse
-	(*AgentBranchListRequest)(nil),           // 16: field.v1.AgentBranchListRequest
-	(*AgentBranchListResponse)(nil),          // 17: field.v1.AgentBranchListResponse
-	(*ClientSaveRequest)(nil),                // 18: field.v1.ClientSaveRequest
-	(*ClientSaveResponse)(nil),               // 19: field.v1.ClientSaveResponse
-	(*ClientGetRequest)(nil),                 // 20: field.v1.ClientGetRequest
-	(*ClientGetResponse)(nil),                // 21: field.v1.ClientGetResponse
-	(*ClientSearchRequest)(nil),              // 22: field.v1.ClientSearchRequest
-	(*ClientSearchResponse)(nil),             // 23: field.v1.ClientSearchResponse
-	(*ClientReassignRequest)(nil),            // 24: field.v1.ClientReassignRequest
-	(*ClientReassignResponse)(nil),           // 25: field.v1.ClientReassignResponse
-	(*ClientOwnershipTransferRequest)(nil),   // 26: field.v1.ClientOwnershipTransferRequest
-	(*ClientOwnershipTransferResponse)(nil),  // 27: field.v1.ClientOwnershipTransferResponse
-	(*ClientRelationshipAssignRequest)(nil),  // 28: field.v1.ClientRelationshipAssignRequest
-	(*ClientRelationshipAssignResponse)(nil), // 29: field.v1.ClientRelationshipAssignResponse
-	(v1.STATE)(0),                            // 30: common.v1.STATE
-	(*structpb.Struct)(nil),                  // 31: google.protobuf.Struct
-	(*v1.PageCursor)(nil),                    // 32: common.v1.PageCursor
+	(*ClientRelationshipObject)(nil),         // 4: field.v1.ClientRelationshipObject
+	(*AgentSaveRequest)(nil),                 // 5: field.v1.AgentSaveRequest
+	(*AgentSaveResponse)(nil),                // 6: field.v1.AgentSaveResponse
+	(*AgentGetRequest)(nil),                  // 7: field.v1.AgentGetRequest
+	(*AgentGetResponse)(nil),                 // 8: field.v1.AgentGetResponse
+	(*AgentSearchRequest)(nil),               // 9: field.v1.AgentSearchRequest
+	(*AgentSearchResponse)(nil),              // 10: field.v1.AgentSearchResponse
+	(*AgentHierarchyRequest)(nil),            // 11: field.v1.AgentHierarchyRequest
+	(*AgentHierarchyResponse)(nil),           // 12: field.v1.AgentHierarchyResponse
+	(*AgentBranchSaveRequest)(nil),           // 13: field.v1.AgentBranchSaveRequest
+	(*AgentBranchSaveResponse)(nil),          // 14: field.v1.AgentBranchSaveResponse
+	(*AgentBranchDeleteRequest)(nil),         // 15: field.v1.AgentBranchDeleteRequest
+	(*AgentBranchDeleteResponse)(nil),        // 16: field.v1.AgentBranchDeleteResponse
+	(*AgentBranchListRequest)(nil),           // 17: field.v1.AgentBranchListRequest
+	(*AgentBranchListResponse)(nil),          // 18: field.v1.AgentBranchListResponse
+	(*ClientSaveRequest)(nil),                // 19: field.v1.ClientSaveRequest
+	(*ClientSaveResponse)(nil),               // 20: field.v1.ClientSaveResponse
+	(*ClientGetRequest)(nil),                 // 21: field.v1.ClientGetRequest
+	(*ClientGetResponse)(nil),                // 22: field.v1.ClientGetResponse
+	(*ClientSearchRequest)(nil),              // 23: field.v1.ClientSearchRequest
+	(*ClientSearchResponse)(nil),             // 24: field.v1.ClientSearchResponse
+	(*ClientReassignRequest)(nil),            // 25: field.v1.ClientReassignRequest
+	(*ClientReassignResponse)(nil),           // 26: field.v1.ClientReassignResponse
+	(*ClientOwnershipTransferRequest)(nil),   // 27: field.v1.ClientOwnershipTransferRequest
+	(*ClientOwnershipTransferResponse)(nil),  // 28: field.v1.ClientOwnershipTransferResponse
+	(*ClientRelationshipSaveRequest)(nil),    // 29: field.v1.ClientRelationshipSaveRequest
+	(*ClientRelationshipSaveResponse)(nil),   // 30: field.v1.ClientRelationshipSaveResponse
+	(*ClientRelationshipGetRequest)(nil),     // 31: field.v1.ClientRelationshipGetRequest
+	(*ClientRelationshipGetResponse)(nil),    // 32: field.v1.ClientRelationshipGetResponse
+	(*ClientRelationshipSearchRequest)(nil),  // 33: field.v1.ClientRelationshipSearchRequest
+	(*ClientRelationshipSearchResponse)(nil), // 34: field.v1.ClientRelationshipSearchResponse
+	(v1.STATE)(0),                            // 35: common.v1.STATE
+	(*structpb.Struct)(nil),                  // 36: google.protobuf.Struct
+	(*v1.PageCursor)(nil),                    // 37: common.v1.PageCursor
 }
 var file_field_v1_field_proto_depIdxs = []int32{
 	0,  // 0: field.v1.AgentObject.agent_type:type_name -> field.v1.AgentType
-	30, // 1: field.v1.AgentObject.state:type_name -> common.v1.STATE
-	31, // 2: field.v1.AgentObject.properties:type_name -> google.protobuf.Struct
-	30, // 3: field.v1.AgentBranchObject.state:type_name -> common.v1.STATE
-	31, // 4: field.v1.AgentBranchObject.properties:type_name -> google.protobuf.Struct
-	30, // 5: field.v1.ClientObject.state:type_name -> common.v1.STATE
-	31, // 6: field.v1.ClientObject.properties:type_name -> google.protobuf.Struct
-	1,  // 7: field.v1.AgentSaveRequest.data:type_name -> field.v1.AgentObject
-	1,  // 8: field.v1.AgentSaveResponse.data:type_name -> field.v1.AgentObject
-	1,  // 9: field.v1.AgentGetResponse.data:type_name -> field.v1.AgentObject
-	32, // 10: field.v1.AgentSearchRequest.cursor:type_name -> common.v1.PageCursor
-	1,  // 11: field.v1.AgentSearchResponse.data:type_name -> field.v1.AgentObject
-	1,  // 12: field.v1.AgentHierarchyResponse.data:type_name -> field.v1.AgentObject
-	2,  // 13: field.v1.AgentBranchSaveRequest.data:type_name -> field.v1.AgentBranchObject
-	2,  // 14: field.v1.AgentBranchSaveResponse.data:type_name -> field.v1.AgentBranchObject
-	32, // 15: field.v1.AgentBranchListRequest.cursor:type_name -> common.v1.PageCursor
-	2,  // 16: field.v1.AgentBranchListResponse.data:type_name -> field.v1.AgentBranchObject
-	3,  // 17: field.v1.ClientSaveRequest.data:type_name -> field.v1.ClientObject
-	3,  // 18: field.v1.ClientSaveResponse.data:type_name -> field.v1.ClientObject
-	3,  // 19: field.v1.ClientGetResponse.data:type_name -> field.v1.ClientObject
-	32, // 20: field.v1.ClientSearchRequest.cursor:type_name -> common.v1.PageCursor
-	3,  // 21: field.v1.ClientSearchResponse.data:type_name -> field.v1.ClientObject
-	3,  // 22: field.v1.ClientReassignResponse.data:type_name -> field.v1.ClientObject
-	3,  // 23: field.v1.ClientOwnershipTransferResponse.data:type_name -> field.v1.ClientObject
-	3,  // 24: field.v1.ClientRelationshipAssignResponse.data:type_name -> field.v1.ClientObject
-	4,  // 25: field.v1.FieldService.AgentSave:input_type -> field.v1.AgentSaveRequest
-	6,  // 26: field.v1.FieldService.AgentGet:input_type -> field.v1.AgentGetRequest
-	8,  // 27: field.v1.FieldService.AgentSearch:input_type -> field.v1.AgentSearchRequest
-	10, // 28: field.v1.FieldService.AgentHierarchy:input_type -> field.v1.AgentHierarchyRequest
-	12, // 29: field.v1.FieldService.AgentBranchSave:input_type -> field.v1.AgentBranchSaveRequest
-	14, // 30: field.v1.FieldService.AgentBranchDelete:input_type -> field.v1.AgentBranchDeleteRequest
-	16, // 31: field.v1.FieldService.AgentBranchList:input_type -> field.v1.AgentBranchListRequest
-	18, // 32: field.v1.FieldService.ClientSave:input_type -> field.v1.ClientSaveRequest
-	20, // 33: field.v1.FieldService.ClientGet:input_type -> field.v1.ClientGetRequest
-	22, // 34: field.v1.FieldService.ClientSearch:input_type -> field.v1.ClientSearchRequest
-	24, // 35: field.v1.FieldService.ClientReassign:input_type -> field.v1.ClientReassignRequest
-	26, // 36: field.v1.FieldService.ClientOwnershipTransfer:input_type -> field.v1.ClientOwnershipTransferRequest
-	28, // 37: field.v1.FieldService.ClientRelationshipAssign:input_type -> field.v1.ClientRelationshipAssignRequest
-	5,  // 38: field.v1.FieldService.AgentSave:output_type -> field.v1.AgentSaveResponse
-	7,  // 39: field.v1.FieldService.AgentGet:output_type -> field.v1.AgentGetResponse
-	9,  // 40: field.v1.FieldService.AgentSearch:output_type -> field.v1.AgentSearchResponse
-	11, // 41: field.v1.FieldService.AgentHierarchy:output_type -> field.v1.AgentHierarchyResponse
-	13, // 42: field.v1.FieldService.AgentBranchSave:output_type -> field.v1.AgentBranchSaveResponse
-	15, // 43: field.v1.FieldService.AgentBranchDelete:output_type -> field.v1.AgentBranchDeleteResponse
-	17, // 44: field.v1.FieldService.AgentBranchList:output_type -> field.v1.AgentBranchListResponse
-	19, // 45: field.v1.FieldService.ClientSave:output_type -> field.v1.ClientSaveResponse
-	21, // 46: field.v1.FieldService.ClientGet:output_type -> field.v1.ClientGetResponse
-	23, // 47: field.v1.FieldService.ClientSearch:output_type -> field.v1.ClientSearchResponse
-	25, // 48: field.v1.FieldService.ClientReassign:output_type -> field.v1.ClientReassignResponse
-	27, // 49: field.v1.FieldService.ClientOwnershipTransfer:output_type -> field.v1.ClientOwnershipTransferResponse
-	29, // 50: field.v1.FieldService.ClientRelationshipAssign:output_type -> field.v1.ClientRelationshipAssignResponse
-	38, // [38:51] is the sub-list for method output_type
-	25, // [25:38] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	35, // 1: field.v1.AgentObject.state:type_name -> common.v1.STATE
+	36, // 2: field.v1.AgentObject.properties:type_name -> google.protobuf.Struct
+	35, // 3: field.v1.AgentBranchObject.state:type_name -> common.v1.STATE
+	36, // 4: field.v1.AgentBranchObject.properties:type_name -> google.protobuf.Struct
+	35, // 5: field.v1.ClientObject.state:type_name -> common.v1.STATE
+	36, // 6: field.v1.ClientObject.properties:type_name -> google.protobuf.Struct
+	35, // 7: field.v1.ClientRelationshipObject.state:type_name -> common.v1.STATE
+	36, // 8: field.v1.ClientRelationshipObject.properties:type_name -> google.protobuf.Struct
+	1,  // 9: field.v1.AgentSaveRequest.data:type_name -> field.v1.AgentObject
+	1,  // 10: field.v1.AgentSaveResponse.data:type_name -> field.v1.AgentObject
+	1,  // 11: field.v1.AgentGetResponse.data:type_name -> field.v1.AgentObject
+	37, // 12: field.v1.AgentSearchRequest.cursor:type_name -> common.v1.PageCursor
+	1,  // 13: field.v1.AgentSearchResponse.data:type_name -> field.v1.AgentObject
+	1,  // 14: field.v1.AgentHierarchyResponse.data:type_name -> field.v1.AgentObject
+	2,  // 15: field.v1.AgentBranchSaveRequest.data:type_name -> field.v1.AgentBranchObject
+	2,  // 16: field.v1.AgentBranchSaveResponse.data:type_name -> field.v1.AgentBranchObject
+	37, // 17: field.v1.AgentBranchListRequest.cursor:type_name -> common.v1.PageCursor
+	2,  // 18: field.v1.AgentBranchListResponse.data:type_name -> field.v1.AgentBranchObject
+	3,  // 19: field.v1.ClientSaveRequest.data:type_name -> field.v1.ClientObject
+	3,  // 20: field.v1.ClientSaveResponse.data:type_name -> field.v1.ClientObject
+	3,  // 21: field.v1.ClientGetResponse.data:type_name -> field.v1.ClientObject
+	37, // 22: field.v1.ClientSearchRequest.cursor:type_name -> common.v1.PageCursor
+	3,  // 23: field.v1.ClientSearchResponse.data:type_name -> field.v1.ClientObject
+	3,  // 24: field.v1.ClientReassignResponse.data:type_name -> field.v1.ClientObject
+	3,  // 25: field.v1.ClientOwnershipTransferResponse.data:type_name -> field.v1.ClientObject
+	4,  // 26: field.v1.ClientRelationshipSaveRequest.data:type_name -> field.v1.ClientRelationshipObject
+	4,  // 27: field.v1.ClientRelationshipSaveResponse.data:type_name -> field.v1.ClientRelationshipObject
+	4,  // 28: field.v1.ClientRelationshipGetResponse.data:type_name -> field.v1.ClientRelationshipObject
+	37, // 29: field.v1.ClientRelationshipSearchRequest.cursor:type_name -> common.v1.PageCursor
+	4,  // 30: field.v1.ClientRelationshipSearchResponse.data:type_name -> field.v1.ClientRelationshipObject
+	5,  // 31: field.v1.FieldService.AgentSave:input_type -> field.v1.AgentSaveRequest
+	7,  // 32: field.v1.FieldService.AgentGet:input_type -> field.v1.AgentGetRequest
+	9,  // 33: field.v1.FieldService.AgentSearch:input_type -> field.v1.AgentSearchRequest
+	11, // 34: field.v1.FieldService.AgentHierarchy:input_type -> field.v1.AgentHierarchyRequest
+	13, // 35: field.v1.FieldService.AgentBranchSave:input_type -> field.v1.AgentBranchSaveRequest
+	15, // 36: field.v1.FieldService.AgentBranchDelete:input_type -> field.v1.AgentBranchDeleteRequest
+	17, // 37: field.v1.FieldService.AgentBranchList:input_type -> field.v1.AgentBranchListRequest
+	19, // 38: field.v1.FieldService.ClientSave:input_type -> field.v1.ClientSaveRequest
+	21, // 39: field.v1.FieldService.ClientGet:input_type -> field.v1.ClientGetRequest
+	23, // 40: field.v1.FieldService.ClientSearch:input_type -> field.v1.ClientSearchRequest
+	25, // 41: field.v1.FieldService.ClientReassign:input_type -> field.v1.ClientReassignRequest
+	27, // 42: field.v1.FieldService.ClientOwnershipTransfer:input_type -> field.v1.ClientOwnershipTransferRequest
+	29, // 43: field.v1.FieldService.ClientRelationshipSave:input_type -> field.v1.ClientRelationshipSaveRequest
+	31, // 44: field.v1.FieldService.ClientRelationshipGet:input_type -> field.v1.ClientRelationshipGetRequest
+	33, // 45: field.v1.FieldService.ClientRelationshipSearch:input_type -> field.v1.ClientRelationshipSearchRequest
+	6,  // 46: field.v1.FieldService.AgentSave:output_type -> field.v1.AgentSaveResponse
+	8,  // 47: field.v1.FieldService.AgentGet:output_type -> field.v1.AgentGetResponse
+	10, // 48: field.v1.FieldService.AgentSearch:output_type -> field.v1.AgentSearchResponse
+	12, // 49: field.v1.FieldService.AgentHierarchy:output_type -> field.v1.AgentHierarchyResponse
+	14, // 50: field.v1.FieldService.AgentBranchSave:output_type -> field.v1.AgentBranchSaveResponse
+	16, // 51: field.v1.FieldService.AgentBranchDelete:output_type -> field.v1.AgentBranchDeleteResponse
+	18, // 52: field.v1.FieldService.AgentBranchList:output_type -> field.v1.AgentBranchListResponse
+	20, // 53: field.v1.FieldService.ClientSave:output_type -> field.v1.ClientSaveResponse
+	22, // 54: field.v1.FieldService.ClientGet:output_type -> field.v1.ClientGetResponse
+	24, // 55: field.v1.FieldService.ClientSearch:output_type -> field.v1.ClientSearchResponse
+	26, // 56: field.v1.FieldService.ClientReassign:output_type -> field.v1.ClientReassignResponse
+	28, // 57: field.v1.FieldService.ClientOwnershipTransfer:output_type -> field.v1.ClientOwnershipTransferResponse
+	30, // 58: field.v1.FieldService.ClientRelationshipSave:output_type -> field.v1.ClientRelationshipSaveResponse
+	32, // 59: field.v1.FieldService.ClientRelationshipGet:output_type -> field.v1.ClientRelationshipGetResponse
+	34, // 60: field.v1.FieldService.ClientRelationshipSearch:output_type -> field.v1.ClientRelationshipSearchResponse
+	46, // [46:61] is the sub-list for method output_type
+	31, // [31:46] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_field_v1_field_proto_init() }
@@ -1974,7 +2286,7 @@ func file_field_v1_field_proto_init() {
 				len(file_field_v1_field_proto_rawDesc),
 			),
 			NumEnums:      1,
-			NumMessages:   29,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

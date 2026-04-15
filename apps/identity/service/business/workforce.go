@@ -427,8 +427,8 @@ func (b *workforceBusiness) InternalTeamSearch(
 		"organization_id = ?":  req.GetOrganizationId(),
 		"home_org_unit_id = ?": req.GetHomeOrgUnitId(),
 	}
-	if req.GetTeamType() != identityv1.TeamType_TEAM_TYPE_UNSPECIFIED {
-		filters["team_type = ?"] = int32(req.GetTeamType())
+	if req.GetTeamType() != "" {
+		filters["team_type = ?"] = req.GetTeamType()
 	}
 	results, err := b.internalTeamRepo.Search(ctx, buildSearchQuery(req.GetQuery(), req.GetCursor(), filters))
 	if err != nil {

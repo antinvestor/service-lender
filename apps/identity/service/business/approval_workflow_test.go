@@ -61,7 +61,6 @@ type approvalWorkflowEnv struct {
 	clcrRepo         repository.CreditLimitChangeRequestRepository
 	approvalCaseRepo repository.ApprovalCaseRepository
 	orgUnitBusiness  OrgUnitBusiness
-	branchBusiness   BranchBusiness
 	clientBusiness   ClientBusiness
 }
 
@@ -87,7 +86,7 @@ func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseInParent
 	env := s.newEnv()
 	org := env.createOrganization("Org Branch Create", "org-branch-create")
 
-	result, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+	result, err := env.orgUnitBusiness.Save(env.ctx, &identityv1.OrgUnitObject{
 		OrganizationId: org.GetID(),
 		Name:           "Central Branch",
 		Code:           "central-branch",
@@ -100,15 +99,15 @@ func (s *approvalWorkflowSuite) TestBranchSaveCreatesPendingApprovalCaseInParent
 	s.Require().NotEmpty(result.GetId())
 	s.Require().Equal(org.PartitionID, result.GetPartitionId())
 
-	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	savedUnit, err := env.orgUnitRepo.GetByID(env.ctx, result.GetId())
 	s.Require().NoError(err)
-	s.Equal(approvalCaseStatusPendingVerification, savedBranch.Properties.GetString(approvalCaseStatusKey))
-	s.Equal(org.PartitionID, savedBranch.PartitionID)
+	s.Equal(approvalCaseStatusPendingVerification, savedUnit.Properties.GetString(approvalCaseStatusKey))
+	s.Equal(org.PartitionID, savedUnit.PartitionID)
 
 	approvalCase, err := env.approvalCaseRepo.GetOpenBySubject(
 		env.ctx,
 		approvalCaseSubjectBranch,
-		savedBranch.GetID(),
+		savedUnit.GetID(),
 		approvalCaseTypeBranchCreate,
 	)
 	s.Require().NoError(err)
@@ -120,7 +119,7 @@ func (s *approvalWorkflowSuite) TestBranchSaveWithoutCaseActorUsesAuthenticatedC
 	env := s.newEnv()
 	org := env.createOrganization("Org Branch Actor Fallback", "org-branch-actor-fallback")
 
-	result, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+	result, err := env.orgUnitBusiness.Save(env.ctx, &identityv1.OrgUnitObject{
 		OrganizationId: org.GetID(),
 		Name:           "Claims Branch",
 		Code:           "claims-branch",
@@ -137,26 +136,26 @@ func (s *approvalWorkflowSuite) TestBranchSaveWithoutCaseActorUsesAuthenticatedC
 	s.Require().NoError(err)
 	s.Equal("profile-requestor", approvalCase.RequestedBy)
 
-	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	savedUnit, err := env.orgUnitRepo.GetByID(env.ctx, result.GetId())
 	s.Require().NoError(err)
-	s.Equal("profile-requestor", savedBranch.CreatedBy)
-	s.Equal(approvalCaseStatusPendingVerification, savedBranch.Properties.GetString(approvalCaseStatusKey))
+	s.Equal("profile-requestor", savedUnit.CreatedBy)
+	s.Equal(approvalCaseStatusPendingVerification, savedUnit.Properties.GetString(approvalCaseStatusKey))
 }
 
 func (s *approvalWorkflowSuite) TestBranchSavePersistsWhenApprovalCaseSubmissionFails() {
 	env := s.newEnv()
 	org := env.createOrganization("Org Branch No Block", "org-branch-no-block")
 
-	branchBusiness := NewBranchBusiness(
+	orgUnitBusiness := NewOrgUnitBusiness(
 		env.ctx,
 		env.eventsMan,
 		env.organizationRepo,
-		env.branchRepo,
+		env.orgUnitRepo,
 		nil,
 		&approvalCaseBusinessStub{submitErr: ErrApprovalCaseActorRequired},
 	)
 
-	result, err := branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+	result, err := orgUnitBusiness.Save(env.ctx, &identityv1.OrgUnitObject{
 		OrganizationId: org.GetID(),
 		Name:           "Workflow Fallback Branch",
 		Code:           "workflow-fallback-branch",
@@ -165,10 +164,10 @@ func (s *approvalWorkflowSuite) TestBranchSavePersistsWhenApprovalCaseSubmission
 	s.Require().NoError(err)
 	s.Require().NotEmpty(result.GetId())
 
-	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	savedUnit, err := env.orgUnitRepo.GetByID(env.ctx, result.GetId())
 	s.Require().NoError(err)
-	s.Equal("Workflow Fallback Branch", savedBranch.Name)
-	s.Empty(savedBranch.Properties.GetString(approvalCaseStatusKey))
+	s.Equal("Workflow Fallback Branch", savedUnit.Name)
+	s.Empty(savedUnit.Properties.GetString(approvalCaseStatusKey))
 }
 
 func (s *approvalWorkflowSuite) TestOrgUnitSavePersistsWhenApprovalCaseSubmissionFails() {
@@ -204,7 +203,7 @@ func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingAp
 	env := s.newEnv()
 	org := env.createOrganization("Org Branch Verify", "org-branch-verify")
 
-	result, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+	result, err := env.orgUnitBusiness.Save(env.ctx, &identityv1.OrgUnitObject{
 		OrganizationId: org.GetID(),
 		Name:           "North Branch",
 		Code:           "north-branch",
@@ -215,7 +214,7 @@ func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingAp
 	})
 	s.Require().NoError(err)
 
-	verified, err := env.branchBusiness.Save(env.ctx, &identityv1.BranchObject{
+	verified, err := env.orgUnitBusiness.Save(env.ctx, &identityv1.OrgUnitObject{
 		Id:             result.GetId(),
 		OrganizationId: org.GetID(),
 		Name:           "North Branch",
@@ -230,13 +229,13 @@ func (s *approvalWorkflowSuite) TestBranchVerificationTransitionsCaseToPendingAp
 	s.Require().NoError(err)
 	s.Require().NotNil(verified)
 
-	savedBranch, err := env.branchRepo.GetByID(env.ctx, result.GetId())
+	savedUnit, err := env.orgUnitRepo.GetByID(env.ctx, result.GetId())
 	s.Require().NoError(err)
-	s.Equal(approvalCaseStatusPendingApproval, savedBranch.Properties.GetString(approvalCaseStatusKey))
+	s.Equal(approvalCaseStatusPendingApproval, savedUnit.Properties.GetString(approvalCaseStatusKey))
 
 	approvalCase, err := env.approvalCaseRepo.GetByID(
 		env.ctx,
-		savedBranch.Properties.GetString(approvalCaseIDKey),
+		savedUnit.Properties.GetString(approvalCaseIDKey),
 	)
 	s.Require().NoError(err)
 	s.Equal(approvalCaseStatusPendingApproval, approvalCase.Status)
@@ -398,14 +397,6 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 		nil,
 		approvalCaseBusiness,
 	)
-	branchBusiness := NewBranchBusiness(
-		ctx,
-		evtsMan,
-		organizationRepo,
-		branchRepo,
-		nil,
-		approvalCaseBusiness,
-	)
 	clientBusiness := NewClientBusiness(
 		ctx,
 		evtsMan,
@@ -432,7 +423,6 @@ func (s *approvalWorkflowSuite) newEnv() *approvalWorkflowEnv {
 		clcrRepo:         clcrRepo,
 		approvalCaseRepo: approvalCaseRepo,
 		orgUnitBusiness:  orgUnitBusiness,
-		branchBusiness:   branchBusiness,
 		clientBusiness:   clientBusiness,
 	}
 }

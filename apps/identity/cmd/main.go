@@ -151,7 +151,6 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 	groupRepo := repository.NewClientGroupRepository(ctx, dbPool, workMan)
 	membershipRepo := repository.NewMembershipRepository(ctx, dbPool, workMan)
 	investorRepo := repository.NewInvestorRepository(ctx, dbPool, workMan)
-	systemUserRepo := repository.NewSystemUserRepository(ctx, dbPool, workMan)
 	workforceMemberRepo := repository.NewWorkforceMemberRepository(ctx, dbPool, workMan)
 	departmentRepo := repository.NewDepartmentRepository(ctx, dbPool, workMan)
 	positionRepo := repository.NewPositionRepository(ctx, dbPool, workMan)
@@ -175,9 +174,6 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 	organizationBusiness := business.NewOrganizationBusiness(ctx, evtsMan, organizationRepo, partitionCli)
 	orgUnitBusiness := business.NewOrgUnitBusiness(
 		ctx, evtsMan, organizationRepo, orgUnitRepo, partitionCli, approvalCaseBusiness,
-	)
-	branchBusiness := business.NewBranchBusiness(
-		ctx, evtsMan, organizationRepo, branchRepo, partitionCli, approvalCaseBusiness,
 	)
 	agentBusiness := business.NewAgentBusiness(
 		ctx,
@@ -215,7 +211,6 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 	groupBusiness := business.NewClientGroupBusiness(ctx, evtsMan, agentRepo, groupRepo)
 	membershipBusiness := business.NewMembershipBusiness(ctx, evtsMan, groupRepo, membershipRepo)
 	investorBusiness := business.NewInvestorBusiness(ctx, evtsMan, investorRepo)
-	suBusiness := business.NewSystemUserBusiness(ctx, evtsMan, branchRepo, systemUserRepo)
 	clientDataBusiness := business.NewClientDataBusiness(ctx, evtsMan, clientDataEntryRepo, clientDataHistoryRepo)
 
 	formTemplateRepo := repository.NewFormTemplateRepository(ctx, dbPool, workMan)
@@ -234,8 +229,8 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 
 	connectHandler := setupConnectServer(
 		ctx, sm,
-		organizationBusiness, orgUnitBusiness, branchBusiness, workforceBusiness, agentBusiness, clientBusiness,
-		groupBusiness, membershipBusiness, investorBusiness, suBusiness,
+		organizationBusiness, orgUnitBusiness, workforceBusiness, agentBusiness, clientBusiness,
+		groupBusiness, membershipBusiness, investorBusiness,
 		loginClientBusiness, clientDataBusiness,
 		formTemplateBusiness, formSubmissionBusiness,
 		clientRelationshipBusiness,
@@ -256,7 +251,6 @@ func setupServiceOptions( //nolint:funlen // sequential service wiring
 			identityevents.NewClientGroupSave(ctx, groupRepo),
 			identityevents.NewMembershipSave(ctx, membershipRepo),
 			identityevents.NewInvestorSave(ctx, investorRepo),
-			identityevents.NewSystemUserSave(ctx, systemUserRepo),
 			identityevents.NewCreditLimitChangeRequestSave(ctx, clcrRepo),
 			identityevents.NewApprovalCaseSave(ctx, approvalCaseRepo),
 			identityevents.NewClientDataEntrySave(ctx, clientDataEntryRepo),
@@ -328,14 +322,12 @@ func setupConnectServer(
 	sm security.Manager,
 	organizationBusiness business.OrganizationBusiness,
 	orgUnitBusiness business.OrgUnitBusiness,
-	branchBusiness business.BranchBusiness,
 	workforceBusiness business.WorkforceBusiness,
 	agentBusiness business.AgentBusiness,
 	clientBusiness business.ClientBusiness,
 	groupBusiness business.ClientGroupBusiness,
 	membershipBusiness business.MembershipBusiness,
 	investorBusiness business.InvestorBusiness,
-	suBusiness business.SystemUserBusiness,
 	loginClientBusiness business.LoginClientBusiness,
 	clientDataBusiness business.ClientDataBusiness,
 	formTemplateBusiness business.FormTemplateBusiness,
@@ -346,12 +338,10 @@ func setupConnectServer(
 	identityHandler := handlers.NewIdentityServer(
 		organizationBusiness,
 		orgUnitBusiness,
-		branchBusiness,
 		workforceBusiness,
 		groupBusiness,
 		membershipBusiness,
 		investorBusiness,
-		suBusiness,
 		clientDataBusiness,
 		formTemplateBusiness,
 		formSubmissionBusiness,
