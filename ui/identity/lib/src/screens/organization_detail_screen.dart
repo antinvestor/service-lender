@@ -582,68 +582,12 @@ class _OrganizationDetailContentState
     showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => OrganizationFormDialog(
+      builder: (context) => OrganizationFormWizard(
         organization: _organization,
         onPickLogo: widget.onPickLogo,
-        onSave: (formData) async {
-          final org = formData.organization;
-
-          if (formData.geoId.isNotEmpty) {
-            org.geoId = formData.geoId;
-          }
-
-          // Merge wizard data into properties.
-          final existingFields = org.hasProperties()
-              ? Map<String, Value>.from(org.properties.fields)
-              : <String, Value>{};
-          final props = existingFields;
-
-          props['description'] = Value(stringValue: formData.description);
-          props['domain_name'] = Value(stringValue: formData.domainName);
-          props['address_street'] = Value(stringValue: formData.street);
-          props['address_city'] = Value(stringValue: formData.city);
-          props['address_country'] = Value(stringValue: formData.country);
-          props['address_postal_code'] = Value(stringValue: formData.postalCode);
-
-          // Contacts
-          props['contacts'] = Value(
-            listValue: ListValue(
-              values: formData.contacts
-                  .map((c) => Value(
-                        structValue: Struct(fields: {
-                          'purpose': Value(stringValue: c.purpose.name),
-                          'type': Value(stringValue: c.type.name),
-                          'value': Value(stringValue: c.value),
-                        }),
-                      ))
-                  .toList(),
-            ),
-          );
-
-          if (formData.logoContentUri != null &&
-              formData.logoContentUri!.isNotEmpty) {
-            props['logo_content_uri'] =
-                Value(stringValue: formData.logoContentUri!);
-            if (formData.logoContentUri!.startsWith('mxc://') &&
-                widget.filesBaseUrl != null) {
-              final parts = formData.logoContentUri!.substring(6).split('/');
-              if (parts.length >= 2) {
-                props['logo_http_url'] = Value(
-                  stringValue:
-                      '${widget.filesBaseUrl}/v1/media/download/${parts[0]}/${parts[1]}',
-                );
-              }
-            }
-          }
-
-          if (formData.geoDescription.isNotEmpty) {
-            props['geo_description'] =
-                Value(stringValue: formData.geoDescription);
-          }
-
-          if (props.isNotEmpty) {
-            org.properties = Struct(fields: props);
-          }
+        onSave: (result) async {
+          final org = result.organization;
+          org.profileId = result.profileId;
 
           await ref.read(organizationNotifierProvider.notifier).save(org);
 

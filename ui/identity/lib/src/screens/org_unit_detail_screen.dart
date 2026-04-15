@@ -17,7 +17,6 @@ import '../providers/workforce_member_providers.dart';
 import '../widgets/org_unit_helpers.dart';
 import '../widgets/state_helpers.dart';
 import 'org_unit_form_dialog.dart';
-import 'organizations_screen.dart';
 
 class OrgUnitDetailScreen extends ConsumerWidget {
   const OrgUnitDetailScreen({
@@ -96,24 +95,7 @@ class _OrgUnitDetailContentState
     return field.stringValue;
   }
 
-  List<OrganizationContact> _readContacts() {
-    if (!_orgUnit.hasProperties()) return const [];
-    final field = _orgUnit.properties.fields['contacts'];
-    if (field == null || !field.hasListValue()) return const [];
-    final result = <OrganizationContact>[];
-    for (final v in field.listValue.values) {
-      if (!v.hasStructValue()) continue;
-      final m = <String, dynamic>{};
-      for (final entry in v.structValue.fields.entries) {
-        if (entry.value.hasStringValue()) {
-          m[entry.key] = entry.value.stringValue;
-        }
-      }
-      final contact = OrganizationContact.fromMap(m);
-      if (contact != null) result.add(contact);
-    }
-    return result;
-  }
+  // Contacts are now managed via ProfileInlineManager using the profile service.
 
   @override
   Widget build(BuildContext context) {
@@ -504,7 +486,6 @@ class _OrgUnitDetailContentState
     final description = _prop('description');
     final phone = _prop('phone');
     final email = _prop('email');
-    final contacts = _readContacts();
     final addressParts = [
       _prop('address_street'),
       _prop('address_city'),
@@ -575,34 +556,7 @@ class _OrgUnitDetailContentState
                 );
               },
             ),
-            if (contacts.isNotEmpty) ...[
-              const Divider(height: 32),
-              Text(
-                'Contacts',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: contacts.map((c) {
-                  return Chip(
-                    avatar: Icon(
-                      c.type == ContactType.email
-                          ? Icons.email
-                          : Icons.phone,
-                      size: 16,
-                      color: theme.colorScheme.primary,
-                    ),
-                    label: Text(
-                      '${contactPurposeLabel(c.purpose)}: ${c.value}',
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
+            // Contacts managed via ProfileInlineManager above.
           ],
         ),
       ),
