@@ -64,6 +64,12 @@ abstract final class AppConfig {
       ? _geolocationExplicit
       : '$_apiBaseUrl/geolocation';
 
+  // ── Thesa analytics service endpoint ────────────────────────────────────
+
+  static const String _thesaExplicit = String.fromEnvironment('THESA_BASE_URL');
+  static String get thesaBaseUrl =>
+      _thesaExplicit.isNotEmpty ? _thesaExplicit : '$_apiBaseUrl/thesa';
+
   // ── All endpoints (for diagnostics) ─────────────────────────────────────
 
   static Map<String, String> get allEndpoints => {
@@ -73,6 +79,7 @@ abstract final class AppConfig {
         'files': filesBaseUrl,
         'audit': auditBaseUrl,
         'geolocation': geolocationBaseUrl,
+        'thesa': thesaBaseUrl,
       };
 
   // ── Connection settings ─────────────────────────────────────────────────
