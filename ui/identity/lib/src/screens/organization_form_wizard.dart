@@ -902,13 +902,38 @@ class _OrganizationFormWizardState
             FormFieldCard(
               label: 'Organization Type',
               description: 'e.g. bank, microfinance, sacco, fintech, cooperative',
-              child: TextFormField(
-                initialValue: _orgType,
-                decoration: const InputDecoration(
-                  hintText: 'e.g. microfinance',
-                  prefixIcon: Icon(Icons.category_outlined),
-                ),
-                onChanged: (v) => _orgType = v.trim(),
+              child: Autocomplete<String>(
+                initialValue: TextEditingValue(text: _orgType),
+                optionsBuilder: (textEditingValue) {
+                  final query = textEditingValue.text.toLowerCase();
+                  const options = [
+                    'Bank',
+                    'Microfinance',
+                    'SACCO',
+                    'Fintech',
+                    'Cooperative',
+                    'NGO',
+                    'Government',
+                    'Other',
+                  ];
+                  if (query.isEmpty) return options;
+                  return options.where(
+                    (o) => o.toLowerCase().contains(query),
+                  );
+                },
+                onSelected: (value) => _orgType = value,
+                fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+                  return TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. microfinance',
+                      prefixIcon: Icon(Icons.category_outlined),
+                    ),
+                    onChanged: (v) => _orgType = v.trim(),
+                    onFieldSubmitted: (_) => onSubmitted(),
+                  );
+                },
               ),
             ),
             FormFieldCard(
