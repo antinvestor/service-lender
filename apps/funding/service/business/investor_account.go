@@ -19,6 +19,9 @@ import (
 	"errors"
 	"fmt"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
@@ -162,6 +165,15 @@ func (b *investorAccountBusiness) Deposit(
 		logger.WithError(auErr).Warn("audit emission failed for investor deposit")
 	})
 
+	audit := constants.AuditTrailFromContext(ctx)
+	depAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("currency", account.Currency),
+	)
+	FundingDeposits.Add(ctx, 1, depAttrs)
+	FundingDepositsAmount.Add(ctx, float64(amount)/100.0, depAttrs)
+
 	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).
 		Info("investor deposit processed")
 	return nil
@@ -238,6 +250,15 @@ func (b *investorAccountBusiness) Withdraw(
 	}, func(auErr error) {
 		logger.WithError(auErr).Warn("audit emission failed for investor withdrawal")
 	})
+
+	wdrAudit := constants.AuditTrailFromContext(ctx)
+	wdrAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", wdrAudit.TenantID),
+		attribute.String("partition_id", wdrAudit.PartitionID),
+		attribute.String("currency", fresh.Currency),
+	)
+	FundingWithdrawals.Add(ctx, 1, wdrAttrs)
+	FundingWithdrawalsAmount.Add(ctx, float64(amount)/100.0, wdrAttrs)
 
 	logger.WithFields(map[string]any{"account_id": accountID, "amount": amount}).
 		Info("investor withdrawal processed")
