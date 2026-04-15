@@ -31,7 +31,7 @@ require (
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260406091002-ec643023d3b3.1
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.4
-	github.com/antinvestor/common/audit v0.0.0-20260415115730-2099d7d1879f
+	github.com/antinvestor/common/audit v0.0.0-20260415125618-b81a829ceeea
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/pitabwire/frame v1.94.1
 	github.com/pitabwire/util v0.8.0

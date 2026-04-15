@@ -21,6 +21,7 @@ import (
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"connectrpc.com/connect"
+	audit "github.com/antinvestor/common/audit"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/workerpool"
 
@@ -86,6 +87,9 @@ func (s *LoanManagementServer) LoanProductSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanProduct, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
 	return connect.NewResponse(&loansv1.LoanProductSaveResponse{Data: result}), nil
 }
 
@@ -120,6 +124,8 @@ func (s *LoanManagementServer) LoanRequestSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRequest, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&loansv1.LoanRequestSaveResponse{Data: result}), nil
 }
 
@@ -152,6 +158,8 @@ func (s *LoanManagementServer) LoanRequestApprove(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRequest, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionApprove)
 	return connect.NewResponse(&loansv1.LoanRequestApproveResponse{Data: result}), nil
 }
 
@@ -163,6 +171,9 @@ func (s *LoanManagementServer) LoanRequestReject(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRequest, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionReject)
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&loansv1.LoanRequestRejectResponse{Data: result}), nil
 }
 
@@ -174,6 +185,9 @@ func (s *LoanManagementServer) LoanRequestCancel(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRequest, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionCancel)
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&loansv1.LoanRequestCancelResponse{Data: result}), nil
 }
 
@@ -187,6 +201,9 @@ func (s *LoanManagementServer) LoanAccountCreate(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanAccount, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
+	audit.WithDetail(ctx, "loan_request_id", req.Msg.GetLoanRequestId())
 	return connect.NewResponse(&loansv1.LoanAccountCreateResponse{Data: result}), nil
 }
 
@@ -248,6 +265,9 @@ func (s *LoanManagementServer) RepaymentRecord(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceRepayment, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
+	audit.WithDetail(ctx, "loan_account_id", req.Msg.GetLoanAccountId())
 	return connect.NewResponse(&loansv1.RepaymentRecordResponse{Data: result}), nil
 }
 
@@ -300,6 +320,8 @@ func (s *LoanManagementServer) PenaltySave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourcePenalty, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&loansv1.PenaltySaveResponse{Data: result}), nil
 }
 
@@ -311,6 +333,9 @@ func (s *LoanManagementServer) PenaltyWaive(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourcePenalty, req.Msg.GetId())
+	audit.WithAction(ctx, "waive")
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&loansv1.PenaltyWaiveResponse{Data: result}), nil
 }
 
@@ -339,6 +364,8 @@ func (s *LoanManagementServer) LoanRestructureCreate(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRestructure, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
 	return connect.NewResponse(&loansv1.LoanRestructureCreateResponse{Data: result}), nil
 }
 
@@ -350,6 +377,8 @@ func (s *LoanManagementServer) LoanRestructureApprove(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRestructure, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionApprove)
 	return connect.NewResponse(&loansv1.LoanRestructureApproveResponse{Data: result}), nil
 }
 
@@ -361,6 +390,9 @@ func (s *LoanManagementServer) LoanRestructureReject(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceLoanRestructure, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionReject)
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&loansv1.LoanRestructureRejectResponse{Data: result}), nil
 }
 
@@ -389,6 +421,8 @@ func (s *LoanManagementServer) ReconciliationSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceReconciliation, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&loansv1.ReconciliationSaveResponse{Data: result}), nil
 }
 
@@ -459,6 +493,9 @@ func (s *LoanManagementServer) DisbursementCreate(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceDisbursement, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
+	audit.WithDetail(ctx, "loan_account_id", req.Msg.GetLoanAccountId())
 	return connect.NewResponse(&loansv1.DisbursementCreateResponse{Data: result}), nil
 }
 

@@ -21,6 +21,7 @@ import (
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingv1 "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
 	"connectrpc.com/connect"
+	audit "github.com/antinvestor/common/audit"
 	"github.com/pitabwire/frame/data"
 	moneyx "github.com/pitabwire/util/money"
 
@@ -64,6 +65,9 @@ func (s *FundingServer) InvestorAccountSave(
 		return nil, apperrors.CleanErr(err)
 	}
 
+	audit.WithResource(ctx, audit.ResourceInvestorAccount, result.GetID())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "investor_id", result.InvestorID)
 	return connect.NewResponse(&fundingv1.InvestorAccountSaveResponse{
 		Data: investorAccountToAPI(result),
 	}), nil
@@ -129,6 +133,8 @@ func (s *FundingServer) InvestorDeposit(
 		return nil, apperrors.CleanErr(err)
 	}
 
+	audit.WithResource(ctx, audit.ResourceInvestorAccount, req.Msg.GetAccountId())
+	audit.WithAction(ctx, "deposit")
 	return connect.NewResponse(&fundingv1.InvestorDepositResponse{
 		Data: investorAccountToAPI(updated),
 	}), nil
@@ -150,6 +156,8 @@ func (s *FundingServer) InvestorWithdraw(
 		return nil, apperrors.CleanErr(err)
 	}
 
+	audit.WithResource(ctx, audit.ResourceInvestorAccount, req.Msg.GetAccountId())
+	audit.WithAction(ctx, "withdraw")
 	return connect.NewResponse(&fundingv1.InvestorWithdrawResponse{
 		Data: investorAccountToAPI(updated),
 	}), nil
@@ -167,6 +175,8 @@ func (s *FundingServer) FundLoan(
 		return nil, apperrors.CleanErr(err)
 	}
 
+	audit.WithResource(ctx, audit.ResourceFundingAllocation, loanRequestID)
+	audit.WithAction(ctx, "fund")
 	return connect.NewResponse(fundLoanResultToAPI(result)), nil
 }
 
@@ -182,6 +192,8 @@ func (s *FundingServer) AbsorbLoss(
 		return nil, apperrors.CleanErr(err)
 	}
 
+	audit.WithResource(ctx, audit.ResourceFundingAllocation, loanRequestID)
+	audit.WithAction(ctx, "absorb_loss")
 	return connect.NewResponse(&fundingv1.AbsorbLossResponse{
 		Absorbed: req.Msg.GetAmount(),
 	}), nil

@@ -22,6 +22,7 @@ import (
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
+	audit "github.com/antinvestor/common/audit"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/frame/workerpool"
 	moneyx "github.com/pitabwire/util/money"
@@ -85,6 +86,9 @@ func (s *OperationsServer) TransferOrderExecute(
 		return nil, apperrors.CleanErr(err)
 	}
 
+	audit.WithResource(ctx, audit.ResourceTransferOrder, orderID)
+	audit.WithAction(ctx, "execute")
+	audit.WithDetail(ctx, "reference", result.Reference)
 	return connect.NewResponse(&operationsv1.TransferOrderExecuteResponse{
 		Data: transferOrderToAPI(result),
 	}), nil
@@ -215,6 +219,11 @@ func (s *OperationsServer) IncomingPaymentNotify(
 		resultStruct[k] = v
 	}
 
+	audit.WithResource(ctx, audit.ResourcePayment, paymentID)
+	audit.WithAction(ctx, "notify")
+	audit.WithDetail(ctx, "transaction_id", req.Msg.GetTransactionId())
+	audit.WithDetail(ctx, "status", status)
+
 	return connect.NewResponse(&operationsv1.IncomingPaymentNotifyResponse{
 		PaymentId: paymentID,
 		Status:    status,
@@ -235,6 +244,9 @@ func (s *OperationsServer) PaymentAllocate(
 	for k, v := range result {
 		resultMap[k] = v
 	}
+
+	audit.WithResource(ctx, audit.ResourcePayment, req.Msg.GetPaymentId())
+	audit.WithAction(ctx, "allocate")
 
 	return connect.NewResponse(&operationsv1.PaymentAllocateResponse{
 		Result: resultMap.ToProtoStruct(),

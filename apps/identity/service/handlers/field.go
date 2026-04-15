@@ -20,6 +20,7 @@ import (
 	"buf.build/gen/go/antinvestor/field/connectrpc/go/field/v1/fieldv1connect"
 	fieldv1 "buf.build/gen/go/antinvestor/field/protocolbuffers/go/field/v1"
 	"connectrpc.com/connect"
+	audit "github.com/antinvestor/common/audit"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/business"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
@@ -58,6 +59,8 @@ func (s *FieldServer) AgentSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceAgent, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&fieldv1.AgentSaveResponse{Data: result}), nil
 }
 
@@ -113,6 +116,15 @@ func (s *FieldServer) AgentBranchSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceAgent, result.GetID())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithRelation(ctx, audit.Relation{
+		ParentType: audit.ResourceAgent,
+		ParentID:   result.AgentID,
+		ChildType:  audit.ResourceOrgUnit,
+		ChildID:    result.BranchID,
+		Action:     audit.RelationAdded,
+	})
 	return connect.NewResponse(&fieldv1.AgentBranchSaveResponse{Data: result.ToAPI()}), nil
 }
 
@@ -123,6 +135,8 @@ func (s *FieldServer) AgentBranchDelete(
 	if err := s.agentBusiness.DeleteBranch(ctx, req.Msg.GetId()); err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceAgent, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionDelete)
 	return connect.NewResponse(&fieldv1.AgentBranchDeleteResponse{}), nil
 }
 
@@ -165,6 +179,8 @@ func (s *FieldServer) ClientSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&fieldv1.ClientSaveResponse{Data: result}), nil
 }
 
@@ -202,6 +218,8 @@ func (s *FieldServer) ClientReassign(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, result.GetId())
+	audit.WithAction(ctx, audit.ActionAssign)
 	return connect.NewResponse(&fieldv1.ClientReassignResponse{Data: result}), nil
 }
 
@@ -213,6 +231,8 @@ func (s *FieldServer) ClientOwnershipTransfer(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, result.GetId())
+	audit.WithAction(ctx, audit.ActionTransfer)
 	return connect.NewResponse(&fieldv1.ClientOwnershipTransferResponse{Data: result}), nil
 }
 
@@ -226,6 +246,8 @@ func (s *FieldServer) ClientRelationshipSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClientRelationship, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&fieldv1.ClientRelationshipSaveResponse{Data: result}), nil
 }
 

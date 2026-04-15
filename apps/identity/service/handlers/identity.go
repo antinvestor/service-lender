@@ -22,6 +22,7 @@ import (
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
+	audit "github.com/antinvestor/common/audit"
 
 	"github.com/antinvestor/service-fintech/apps/identity/service/business"
 	"github.com/antinvestor/service-fintech/apps/identity/service/models"
@@ -78,6 +79,9 @@ func (s *IdentityServer) OrganizationSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceOrganization, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
 	return connect.NewResponse(&identityv1.OrganizationSaveResponse{Data: result}), nil
 }
 
@@ -129,6 +133,9 @@ func (s *IdentityServer) OrgUnitSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceOrgUnit, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
 	return connect.NewResponse(&identityv1.OrgUnitSaveResponse{Data: result}), nil
 }
 
@@ -168,6 +175,8 @@ func (s *IdentityServer) InvestorSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceInvestor, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&identityv1.InvestorSaveResponse{Data: result}), nil
 }
 
@@ -207,6 +216,8 @@ func (s *IdentityServer) WorkforceMemberSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceWorkforceMember, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&identityv1.WorkforceMemberSaveResponse{Data: result}), nil
 }
 
@@ -244,6 +255,9 @@ func (s *IdentityServer) DepartmentSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceDepartment, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
 	return connect.NewResponse(&identityv1.DepartmentSaveResponse{Data: result}), nil
 }
 
@@ -281,6 +295,9 @@ func (s *IdentityServer) PositionSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourcePosition, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
 	return connect.NewResponse(&identityv1.PositionSaveResponse{Data: result}), nil
 }
 
@@ -318,6 +335,10 @@ func (s *IdentityServer) PositionAssignmentSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourcePositionAssignment, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "position_id", result.GetPositionId())
+	audit.WithDetail(ctx, "member_id", result.GetMemberId())
 	return connect.NewResponse(&identityv1.PositionAssignmentSaveResponse{Data: result}), nil
 }
 
@@ -355,6 +376,10 @@ func (s *IdentityServer) InternalTeamSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceTeam, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
+	audit.WithDetail(ctx, "team_type", result.GetTeamType())
 	return connect.NewResponse(&identityv1.InternalTeamSaveResponse{Data: result}), nil
 }
 
@@ -392,6 +417,15 @@ func (s *IdentityServer) TeamMembershipSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceTeamMembership, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithRelation(ctx, audit.Relation{
+		ParentType: audit.ResourceTeam,
+		ParentID:   result.GetTeamId(),
+		ChildType:  audit.ResourceWorkforceMember,
+		ChildID:    result.GetMemberId(),
+		Action:     audit.RelationAdded,
+	})
 	return connect.NewResponse(&identityv1.TeamMembershipSaveResponse{Data: result}), nil
 }
 
@@ -429,6 +463,10 @@ func (s *IdentityServer) AccessRoleAssignmentSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceAccessRole, result.GetId())
+	audit.WithAction(ctx, audit.ActionAssign)
+	audit.WithDetail(ctx, "role_key", result.GetRoleKey())
+	audit.WithDetail(ctx, "member_id", result.GetMemberId())
 	return connect.NewResponse(&identityv1.AccessRoleAssignmentSaveResponse{Data: result}), nil
 }
 
@@ -469,6 +507,8 @@ func (s *IdentityServer) ClientGroupSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClientGroup, result.GetID())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&identityv1.ClientGroupSaveResponse{Data: result.ToAPI()}), nil
 }
 
@@ -514,6 +554,15 @@ func (s *IdentityServer) MembershipSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceMembership, result.GetID())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithRelation(ctx, audit.Relation{
+		ParentType: audit.ResourceClientGroup,
+		ParentID:   result.GroupID,
+		ChildType:  audit.ResourceClient,
+		ChildID:    result.ProfileID,
+		Action:     audit.RelationAdded,
+	})
 	return connect.NewResponse(&identityv1.MembershipSaveResponse{Data: result.ToAPI()}), nil
 }
 
@@ -559,6 +608,10 @@ func (s *IdentityServer) ClientDataSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, result.GetID())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "field_key", result.FieldKey)
+	audit.WithDetail(ctx, "client_id", result.ClientID)
 	return connect.NewResponse(&identityv1.ClientDataSaveResponse{Data: result.ToAPI()}), nil
 }
 
@@ -612,6 +665,9 @@ func (s *IdentityServer) ClientDataVerify(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, req.Msg.GetEntryId())
+	audit.WithAction(ctx, audit.ActionVerify)
+	audit.WithDetail(ctx, "reviewer_id", req.Msg.GetReviewerId())
 	return connect.NewResponse(&identityv1.ClientDataVerifyResponse{Data: result.ToAPI()}), nil
 }
 
@@ -623,6 +679,10 @@ func (s *IdentityServer) ClientDataReject(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, req.Msg.GetEntryId())
+	audit.WithAction(ctx, audit.ActionReject)
+	audit.WithDetail(ctx, "reviewer_id", req.Msg.GetReviewerId())
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&identityv1.ClientDataRejectResponse{Data: result.ToAPI()}), nil
 }
 
@@ -636,6 +696,9 @@ func (s *IdentityServer) ClientDataRequestInfo(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceClient, req.Msg.GetEntryId())
+	audit.WithAction(ctx, "request_info")
+	audit.WithDetail(ctx, "reviewer_id", req.Msg.GetReviewerId())
 	return connect.NewResponse(&identityv1.ClientDataRequestInfoResponse{Data: result.ToAPI()}), nil
 }
 
@@ -671,6 +734,8 @@ func (s *IdentityServer) FormTemplateSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceFormTemplate, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
 	return connect.NewResponse(&identityv1.FormTemplateSaveResponse{Data: result}), nil
 }
 
@@ -707,6 +772,8 @@ func (s *IdentityServer) FormTemplatePublish(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceFormTemplate, req.Msg.GetId())
+	audit.WithAction(ctx, "publish")
 	return connect.NewResponse(&identityv1.FormTemplatePublishResponse{Data: result}), nil
 }
 
@@ -720,6 +787,8 @@ func (s *IdentityServer) FormSubmissionSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceFormSubmission, result.GetId())
+	audit.WithAction(ctx, audit.ActionSubmit)
 	return connect.NewResponse(&identityv1.FormSubmissionSaveResponse{Data: result}), nil
 }
 

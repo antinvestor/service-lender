@@ -21,6 +21,7 @@ import (
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
 	"connectrpc.com/connect"
+	audit "github.com/antinvestor/common/audit"
 
 	"github.com/antinvestor/service-fintech/apps/savings/service/business"
 	"github.com/antinvestor/service-fintech/apps/savings/service/models"
@@ -65,6 +66,9 @@ func (s *SavingsServer) SavingsProductSave(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceSavingsProduct, result.GetId())
+	audit.WithAction(ctx, audit.ActionSave)
+	audit.WithDetail(ctx, "name", result.GetName())
 	return connect.NewResponse(&savingsv1.SavingsProductSaveResponse{Data: result}), nil
 }
 
@@ -104,6 +108,8 @@ func (s *SavingsServer) SavingsAccountCreate(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceSavingsAccount, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
 	return connect.NewResponse(&savingsv1.SavingsAccountCreateResponse{Data: result}), nil
 }
 
@@ -141,6 +147,9 @@ func (s *SavingsServer) SavingsAccountFreeze(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceSavingsAccount, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionSuspend)
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&savingsv1.SavingsAccountFreezeResponse{Data: result}), nil
 }
 
@@ -152,6 +161,9 @@ func (s *SavingsServer) SavingsAccountClose(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceSavingsAccount, req.Msg.GetId())
+	audit.WithAction(ctx, "close")
+	audit.WithDetail(ctx, "reason", req.Msg.GetReason())
 	return connect.NewResponse(&savingsv1.SavingsAccountCloseResponse{Data: result}), nil
 }
 
@@ -174,6 +186,9 @@ func (s *SavingsServer) DepositRecord(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceDeposit, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
+	audit.WithDetail(ctx, "savings_account_id", req.Msg.GetSavingsAccountId())
 	return connect.NewResponse(&savingsv1.DepositRecordResponse{Data: result}), nil
 }
 
@@ -222,6 +237,9 @@ func (s *SavingsServer) WithdrawalRequest(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceWithdrawal, result.GetId())
+	audit.WithAction(ctx, audit.ActionCreate)
+	audit.WithDetail(ctx, "savings_account_id", req.Msg.GetSavingsAccountId())
 	return connect.NewResponse(&savingsv1.WithdrawalRequestResponse{Data: result}), nil
 }
 
@@ -233,6 +251,8 @@ func (s *SavingsServer) WithdrawalApprove(
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
+	audit.WithResource(ctx, audit.ResourceWithdrawal, req.Msg.GetId())
+	audit.WithAction(ctx, audit.ActionApprove)
 	return connect.NewResponse(&savingsv1.WithdrawalApproveResponse{Data: result}), nil
 }
 
