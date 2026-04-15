@@ -98,7 +98,10 @@ func (s *IdentityServer) OrganizationSearch(
 	stream *connect.ServerStream[identityv1.OrganizationSearchResponse],
 ) error {
 	searchReq := &commonv1.SearchRequest{
-		Query: req.Msg.GetQuery(),
+		Query:      req.Msg.GetQuery(),
+		Extras:     req.Msg.GetExtras(),
+		IdQuery:    req.Msg.GetIdQuery(),
+		Properties: req.Msg.GetProperties(),
 	}
 	if cursor := req.Msg.GetCursor(); cursor != nil {
 		searchReq.Cursor = &commonv1.PageCursor{
