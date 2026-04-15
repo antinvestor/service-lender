@@ -114,12 +114,14 @@ class _OrganizationDetailContentState
         type: OrgUnitType.ORG_UNIT_TYPE_UNSPECIFIED,
       )),
     );
-    final childOrgsAsync = ref.watch(
-      filteredOrganizationListProvider((
-        query: '',
-        parentId: _organization.id,
-      )),
-    );
+    final childOrgsAsync = _organization.hasChildren
+        ? ref.watch(
+            filteredOrganizationListProvider((
+              query: '',
+              parentId: _organization.id,
+            )),
+          )
+        : null;
 
     return Center(
       child: ConstrainedBox(
@@ -260,7 +262,15 @@ class _OrganizationDetailContentState
             ),
           ),
         ),
-        childOrgsAsync.when(
+        if (childOrgsAsync == null)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
+              child: Text('No sub-organizations yet'),
+            ),
+          )
+        else
+          childOrgsAsync.when(
             loading: () => const SliverToBoxAdapter(
               child: Padding(
                   padding: EdgeInsets.all(32),
