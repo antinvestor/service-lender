@@ -19,6 +19,9 @@ import (
 	"errors"
 	"fmt"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	"github.com/pitabwire/util/decimalx"
@@ -120,6 +123,17 @@ func (b *fundingAllocationBusiness) SourceForRequest(
 		WithField("total_allocated", result.TotalAllocated).
 		WithField("tranches", len(result.Allocations)).
 		Info("tranche-based funding allocation completed")
+
+	audit := constants.AuditTrailFromContext(ctx)
+	allocAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("currency", requestInfo.Currency),
+	)
+	FundingAllocations.Add(ctx, 1, allocAttrs)
+	FundingAllocationsAmount.Add(ctx,
+		float64(result.TotalAllocated.ToMinorUnits(decimalPrecision))/minorUnitsPerMajor,
+		allocAttrs)
 
 	return map[string]interface{}{
 		"loan_request_id": loanRequestID,

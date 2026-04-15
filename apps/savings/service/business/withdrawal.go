@@ -20,6 +20,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
@@ -251,6 +254,15 @@ func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1
 	}, func(auErr error) {
 		logger.WithError(auErr).Warn("audit emission failed for savings withdrawal approval")
 	})
+
+	wdrAudit := constants.AuditTrailFromContext(ctx)
+	wdrAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", wdrAudit.TenantID),
+		attribute.String("partition_id", wdrAudit.PartitionID),
+		attribute.String("currency", sa.CurrencyCode),
+	)
+	SavingsWithdrawals.Add(ctx, 1, wdrAttrs)
+	SavingsWithdrawalsAmount.Add(ctx, float64(wdr.Amount)/minorUnitsPerMajor, wdrAttrs)
 
 	return wdr.ToAPI(), nil
 }

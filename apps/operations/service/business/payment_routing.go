@@ -22,6 +22,9 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
@@ -172,11 +175,13 @@ func (b *paymentRoutingBusiness) IdentifyPayment(
 			}
 			logger.WithField("membership_id", result.MembershipID).
 				Info(fmt.Sprintf("payment identified via strategy %d: %s", i+1, s.name))
+			recordPaymentIdentified(ctx, payment)
 			return b.buildIdentificationResult(payment, result), nil
 		}
 	}
 
 	logger.Warn("payment could not be identified, routing to unidentified account")
+	recordPaymentUnmatched(ctx)
 	unidentified := map[string]interface{}{
 		"payment_id": payment.GetID(),
 		"strategy":   "unidentified",
@@ -186,6 +191,27 @@ func (b *paymentRoutingBusiness) IdentifyPayment(
 		unidentified["unidentified_account"] = constants.ProductUnidentifiedAccount(productID)
 	}
 	return unidentified, nil
+}
+
+// recordPaymentIdentified emits OTel counters for a successfully identified payment.
+func recordPaymentIdentified(ctx context.Context, payment *models.IncomingPayment) {
+	idAudit := constants.AuditTrailFromContext(ctx)
+	idAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", idAudit.TenantID),
+		attribute.String("partition_id", idAudit.PartitionID),
+		attribute.String("currency", payment.Currency),
+	)
+	OpsPaymentsReceived.Add(ctx, 1, idAttrs)
+	OpsPaymentsAmount.Add(ctx, float64(payment.Amount)/minorUnitsPerMajor, idAttrs)
+}
+
+// recordPaymentUnmatched emits OTel counter for a payment that could not be identified.
+func recordPaymentUnmatched(ctx context.Context) {
+	umAudit := constants.AuditTrailFromContext(ctx)
+	OpsPaymentsUnmatched.Add(ctx, 1, metric.WithAttributes(
+		attribute.String("tenant_id", umAudit.TenantID),
+		attribute.String("partition_id", umAudit.PartitionID),
+	))
 }
 
 func (b *paymentRoutingBusiness) loadOrCreateIncomingPayment(
@@ -633,6 +659,15 @@ func (b *paymentRoutingBusiness) AllocatePayment(
 	payment.State = paymentState
 	if emitErr := b.eventsMan.Emit(ctx, events.IncomingPaymentSaveEvent, payment); emitErr != nil {
 		logger.WithError(emitErr).Error("failed to update payment state after allocation")
+	}
+
+	if allocatedAmount > 0 {
+		allocAudit := constants.AuditTrailFromContext(ctx)
+		OpsPaymentsAllocated.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("tenant_id", allocAudit.TenantID),
+			attribute.String("partition_id", allocAudit.PartitionID),
+			attribute.String("currency", payment.Currency),
+		))
 	}
 
 	return map[string]interface{}{

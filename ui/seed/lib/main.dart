@@ -60,11 +60,11 @@ void main() {
           return checker.checkAll(token);
         }),
 
-        // Analytics data source for dashboard.
+        // Analytics data source for dashboard (Thesa POST query API).
         analyticsDataSourceProvider.overrideWith((ref) {
           return RestAnalyticsDataSource(
             http.Client(),
-            AppConfig.identityBaseUrl,
+            AppConfig.thesaBaseUrl,
           );
         }),
 

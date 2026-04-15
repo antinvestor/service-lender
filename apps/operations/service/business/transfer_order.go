@@ -19,6 +19,9 @@ import (
 	"errors"
 	"fmt"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/v1"
 	paymentv1 "buf.build/gen/go/antinvestor/payment/protocolbuffers/go/v1"
@@ -198,6 +201,15 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 	}, func(err error) {
 		logger.WithError(err).Warn("audit record emission failed for transfer order")
 	})
+
+	toAudit := constants.AuditTrailFromContext(ctx)
+	toAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", toAudit.TenantID),
+		attribute.String("partition_id", toAudit.PartitionID),
+		attribute.String("currency", order.Currency),
+	)
+	OpsTransfersExecuted.Add(ctx, 1, toAttrs)
+	OpsTransfersAmount.Add(ctx, float64(order.Amount)/minorUnitsPerMajor, toAttrs)
 
 	logger.Info("transfer order executed successfully")
 	return nil

@@ -20,6 +20,9 @@ import (
 	"strconv"
 	"strings"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"buf.build/gen/go/antinvestor/tenancy/connectrpc/go/tenancy/v1/tenancyv1connect"
@@ -94,6 +97,13 @@ func (b *organizationBusiness) Save(
 	if err != nil {
 		logger.WithError(err).Error("could not emit organization save event")
 		return nil, err
+	}
+
+	if isNew {
+		IdentityOrganizationsCreated.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("tenant_id", organization.TenantID),
+			attribute.String("partition_id", organization.PartitionID),
+		))
 	}
 
 	return organization.ToAPI(), nil

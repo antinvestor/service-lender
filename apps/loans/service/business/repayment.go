@@ -20,6 +20,9 @@ import (
 	"strconv"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
@@ -229,6 +232,17 @@ func (b *repaymentBusiness) Record( //nolint:funlen // sequential repayment pipe
 	}, func(auErr error) {
 		logger.WithError(auErr).Warn("audit emission failed for repayment")
 	})
+
+	audit := constants.AuditTrailFromContext(ctx)
+	repAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("currency", la.CurrencyCode),
+	)
+	LoansRepaid.Add(ctx, 1, repAttrs)
+	LoansRepaidAmount.Add(ctx,
+		float64(amount)/minorUnitsPerMajor,
+		repAttrs)
 
 	return r.ToAPI(), nil
 }

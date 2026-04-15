@@ -19,6 +19,9 @@ import (
 	"errors"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
@@ -196,6 +199,17 @@ func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursemen
 	}, func(auErr error) {
 		logger.WithError(auErr).Warn("audit emission failed for disbursement")
 	})
+
+	audit := constants.AuditTrailFromContext(ctx)
+	disbAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("currency", la.CurrencyCode),
+	)
+	LoansDisbursed.Add(ctx, 1, disbAttrs)
+	LoansDisbursedAmount.Add(ctx,
+		float64(la.PrincipalAmount)/minorUnitsPerMajor,
+		disbAttrs)
 
 	return disb.ToAPI(), nil
 }

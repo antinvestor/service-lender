@@ -22,6 +22,9 @@ import (
 	"strconv"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingv1 "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
@@ -186,6 +189,13 @@ func (b *loanAccountBusiness) Create(ctx context.Context, loanRequestID string) 
 			logger.WithError(schedErr).Error("could not generate repayment schedule")
 		}
 	}
+
+	audit := constants.AuditTrailFromContext(ctx)
+	LoansCreated.Add(ctx, 1, metric.WithAttributes(
+		attribute.String("tenant_id", audit.TenantID),
+		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("currency", la.CurrencyCode),
+	))
 
 	return la.ToAPI(), nil
 }
@@ -737,6 +747,8 @@ func (b *loanAccountBusiness) TransitionStatus(
 		logger.WithError(auErr).Warn("audit emission failed for loan status change")
 	})
 
+	recordLoanStatusTransition(ctx, newStatus)
+
 	// Write-off cascade. When a loan crosses into WRITTEN_OFF the remaining
 	// outstanding balance stops being an asset and becomes a realised loss.
 	// We record that by posting a shutdown_loan_recovery transfer order
@@ -756,6 +768,31 @@ func (b *loanAccountBusiness) TransitionStatus(
 	}
 
 	return la.ToAPI(), nil
+}
+
+// recordLoanStatusTransition emits OTel counters for a loan status transition.
+func recordLoanStatusTransition(ctx context.Context, newStatus loansv1.LoanStatus) {
+	auditCtx := constants.AuditTrailFromContext(ctx)
+	statusAttrs := metric.WithAttributes(
+		attribute.String("tenant_id", auditCtx.TenantID),
+		attribute.String("partition_id", auditCtx.PartitionID),
+	)
+	switch newStatus {
+	case loansv1.LoanStatus_LOAN_STATUS_DEFAULT:
+		LoansDefaulted.Add(ctx, 1, statusAttrs)
+	case loansv1.LoanStatus_LOAN_STATUS_CLOSED:
+		LoansClosed.Add(ctx, 1, statusAttrs)
+	case loansv1.LoanStatus_LOAN_STATUS_RESTRUCTURED:
+		LoansRestructured.Add(ctx, 1, statusAttrs)
+	case loansv1.LoanStatus_LOAN_STATUS_WRITTEN_OFF:
+		LoansWrittenOff.Add(ctx, 1, statusAttrs)
+	case loansv1.LoanStatus_LOAN_STATUS_UNSPECIFIED,
+		loansv1.LoanStatus_LOAN_STATUS_PENDING_DISBURSEMENT,
+		loansv1.LoanStatus_LOAN_STATUS_ACTIVE,
+		loansv1.LoanStatus_LOAN_STATUS_DELINQUENT,
+		loansv1.LoanStatus_LOAN_STATUS_PAID_OFF:
+		// These statuses do not have dedicated counters.
+	}
 }
 
 // postWriteOffLedgerCascade issues the transfer order that recognises the
