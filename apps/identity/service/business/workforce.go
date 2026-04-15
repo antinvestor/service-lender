@@ -228,7 +228,6 @@ func (b *workforceBusiness) DepartmentGet(ctx context.Context, id string) (*iden
 	return department.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *workforceBusiness) DepartmentSearch(
 	ctx context.Context,
 	req *identityv1.DepartmentSearchRequest,
@@ -317,7 +316,7 @@ func (b *workforceBusiness) PositionSearch(
 	})
 }
 
-//nolint:dupl // similar validation logic for different entity types
+//nolint:dupl // similar save/get/search pattern for different entity types
 func (b *workforceBusiness) PositionAssignmentSave(
 	ctx context.Context,
 	obj *identityv1.PositionAssignmentObject,
@@ -417,7 +416,6 @@ func (b *workforceBusiness) InternalTeamGet(ctx context.Context, id string) (*id
 	return team.ToAPI(), nil
 }
 
-//nolint:dupl // similar search logic for different entity types
 func (b *workforceBusiness) InternalTeamSearch(
 	ctx context.Context,
 	req *identityv1.InternalTeamSearchRequest,
@@ -443,7 +441,7 @@ func (b *workforceBusiness) InternalTeamSearch(
 	})
 }
 
-//nolint:dupl // similar validation logic for different entity types
+//nolint:dupl // similar save/get/search pattern for different entity types
 func (b *workforceBusiness) TeamMembershipSave(
 	ctx context.Context,
 	obj *identityv1.TeamMembershipObject,
@@ -640,7 +638,7 @@ func (b *workforceBusiness) validateOrgUnitInOrganization(
 	return nil
 }
 
-//nolint:dupl // similar parent-chain validation for different entity types
+//nolint:dupl // similar hierarchy validation for different entity types
 func (b *workforceBusiness) validateDepartmentParent(
 	ctx context.Context,
 	department *models.Department,
@@ -734,7 +732,7 @@ func (b *workforceBusiness) validatePrimaryPositionAssignment(
 	return nil
 }
 
-//nolint:dupl // similar parent-chain validation for different entity types
+//nolint:dupl // similar hierarchy validation for different entity types
 func (b *workforceBusiness) validateParentTeam(ctx context.Context, team *models.InternalTeam) error {
 	if team.ParentTeamID == "" {
 		return nil

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package events //nolint:dupl // similar event handlers for different entity types
+package events
 
 import (
 	"context"
@@ -68,7 +68,8 @@ func (e *OrganizationSave) Execute(ctx context.Context, payload any) error {
 		return errors.New("payload is not of type models.Organization")
 	}
 
-	logger := util.Log(ctx).WithFields(map[string]any{"type": e.Name(), "organization_id": organization.GetID()})
+	logger := util.Log(ctx).
+		WithFields(map[string]any{"type": e.Name(), "organization_id": organization.GetID()})
 	defer logger.Release()
 
 	existing, getErr := e.organizationRepo.GetByID(ctx, organization.GetID())
@@ -156,7 +157,14 @@ func (e *OrganizationSave) syncProfile(
 		}
 		organization.ProfileID = profileID
 	} else {
-		if err := e.updateProfile(ctx, logger, organization.ProfileID, description, logoContentURI, domainName); err != nil {
+		if err := e.updateProfile(
+			ctx,
+			logger,
+			organization.ProfileID,
+			description,
+			logoContentURI,
+			domainName,
+		); err != nil {
 			return err
 		}
 	}
@@ -174,7 +182,15 @@ func (e *OrganizationSave) syncProfile(
 
 	// Sync address if any address field is present.
 	if addressStreet != "" || addressCity != "" || addressCountry != "" || addressPostalCode != "" {
-		if err := e.addAddress(ctx, logger, organization.ProfileID, addressStreet, addressCity, addressCountry, addressPostalCode); err != nil {
+		if err := e.addAddress(
+			ctx,
+			logger,
+			organization.ProfileID,
+			addressStreet,
+			addressCity,
+			addressCountry,
+			addressPostalCode,
+		); err != nil {
 			logger.WithError(err).Warn("could not add address to profile")
 		}
 	}
@@ -190,7 +206,12 @@ func (e *OrganizationSave) createProfile(
 	organization *models.Organization,
 	description, logoContentURI, domainName, contactEmail string,
 ) (string, error) {
-	profileProps := buildProfileProperties(organization.Name, description, logoContentURI, domainName)
+	profileProps := buildProfileProperties(
+		organization.Name,
+		description,
+		logoContentURI,
+		domainName,
+	)
 	props, err := structpb.NewStruct(profileProps)
 	if err != nil {
 		return "", fmt.Errorf("building profile properties: %w", err)
@@ -236,7 +257,10 @@ func (e *OrganizationSave) updateProfile(
 ) error {
 	// Fetch current profile to get the name for merging.
 	currentName := ""
-	getResp, err := e.profileClient.GetById(ctx, connect.NewRequest(&profilev1.GetByIdRequest{Id: profileID}))
+	getResp, err := e.profileClient.GetById(
+		ctx,
+		connect.NewRequest(&profilev1.GetByIdRequest{Id: profileID}),
+	)
 	if err == nil && getResp.Msg.GetData() != nil {
 		if p := getResp.Msg.GetData().GetProperties(); p != nil {
 			if v, ok := p.AsMap()["name"].(string); ok {
@@ -251,13 +275,13 @@ func (e *OrganizationSave) updateProfile(
 		return fmt.Errorf("building profile properties: %w", err)
 	}
 
-	if _, err := e.profileClient.Update(ctx, connect.NewRequest(profilev1.UpdateRequest_builder{
+	if _, updateErr := e.profileClient.Update(ctx, connect.NewRequest(profilev1.UpdateRequest_builder{
 		Id:         profileID,
 		Properties: props,
-	}.Build())); err != nil {
-		logger.WithError(err).WithField("profile_id", profileID).
+	}.Build())); updateErr != nil {
+		logger.WithError(updateErr).WithField("profile_id", profileID).
 			Warn("could not update profile")
-		return fmt.Errorf("updating profile: %w", err)
+		return fmt.Errorf("updating profile: %w", updateErr)
 	}
 
 	return nil
@@ -278,12 +302,12 @@ func (e *OrganizationSave) addContact(
 		return fmt.Errorf("building contact extras: %w", err)
 	}
 
-	if _, err := e.profileClient.AddContact(ctx, connect.NewRequest(profilev1.AddContactRequest_builder{
+	if _, addErr := e.profileClient.AddContact(ctx, connect.NewRequest(profilev1.AddContactRequest_builder{
 		Id:      profileID,
 		Contact: c.value,
 		Extras:  extras,
-	}.Build())); err != nil {
-		return fmt.Errorf("adding contact %s: %w", c.value, err)
+	}.Build())); addErr != nil {
+		return fmt.Errorf("adding contact %s: %w", c.value, addErr)
 	}
 
 	logger.WithFields(map[string]any{
@@ -332,15 +356,15 @@ func extractContacts(props data.JSONMap) []orgContact {
 		return nil
 	}
 
-	contactList, ok := rawContacts.([]any)
-	if !ok {
+	contactList, isList := rawContacts.([]any)
+	if !isList {
 		return nil
 	}
 
 	contacts := make([]orgContact, 0, len(contactList))
 	for _, item := range contactList {
-		m, ok := item.(map[string]any)
-		if !ok {
+		m, isMap := item.(map[string]any)
+		if !isMap {
 			continue
 		}
 		purpose, _ := m["purpose"].(string)

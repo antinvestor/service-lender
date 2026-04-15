@@ -27,12 +27,12 @@ import (
 
 func TestAuditInterceptorLogEntryHandlesTypedNilResponseOnError(t *testing.T) {
 	interceptor := &AuditInterceptor{serviceName: "service_identity"}
-	var resp *connect.Response[identityv1.BranchSaveResponse]
+	var resp *connect.Response[identityv1.OrgUnitSaveResponse]
 
 	require.NotPanics(t, func() {
 		interceptor.logEntry(
 			context.Background(),
-			"/identity.v1.IdentityService/BranchSave",
+			"/identity.v1.IdentityService/OrgUnitSave",
 			time.Now(),
 			`{"data":{"name":"Central Branch"}}`,
 			resp,
