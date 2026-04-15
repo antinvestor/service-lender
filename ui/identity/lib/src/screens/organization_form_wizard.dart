@@ -5,12 +5,14 @@ import 'package:antinvestor_api_profile/antinvestor_api_profile.dart' as profile
 import 'package:antinvestor_ui_core/widgets/form_field_card.dart';
 import 'package:antinvestor_ui_core/widgets/profile_badge.dart';
 import 'package:antinvestor_ui_geolocation/antinvestor_ui_geolocation.dart'
-    show AreaPickerField, AreaBadge;
+    show AreaPickerField;
 import 'package:antinvestor_ui_profile/antinvestor_ui_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../providers/organization_providers.dart';
 import 'organizations_screen.dart' show orgTypeLabel;
 
 // ---------------------------------------------------------------------------
@@ -179,6 +181,33 @@ class _OrganizationFormWizardState
     try {
       final result =
           await ref.read(profileByContactProvider(contact).future);
+      if (!mounted) return;
+
+      // Profile found — check if an organization already uses this profile
+      final orgs = await ref.read(
+        filteredOrganizationListProvider((
+          query: '',
+          parentId: '', // no parent filter
+        )).future,
+      );
+      final linkedOrg = orgs
+          .where((o) => o.profileId == result.id)
+          .toList();
+
+      if (linkedOrg.isNotEmpty && mounted) {
+        // Organization exists with this profile → redirect to it
+        Navigator.pop(context);
+        context.go('/organizations/${linkedOrg.first.id}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Organization "${linkedOrg.first.name}" already exists for this profile',
+            ),
+          ),
+        );
+        return;
+      }
+
       if (mounted) {
         setState(() {
           _foundProfile = result;
@@ -322,29 +351,58 @@ class _OrganizationFormWizardState
   Future<void> _submit() async {
     setState(() => _saving = true);
 
-    final org = widget.organization ?? OrganizationObject();
-    org.name = _nameCtrl.text.trim();
-    org.code = _codeCtrl.text.trim();
-    org.domain = _domainCtrl.text.trim();
-    org.geoId = _geoId;
-
-    // Set org type from text input
-    final typeText = _orgType.toLowerCase().replaceAll(' ', '_');
-    for (final t in OrganizationType.values) {
-      if (t.name.toLowerCase().contains(typeText)) {
-        org.organizationType = t;
-        break;
-      }
-    }
-
     try {
+      // Save address to profile if any address field is filled
+      final street = _streetCtrl.text.trim();
+      final city = _cityCtrl.text.trim();
+      final country = _countryCtrl.text.trim();
+      final postalCode = _postalCodeCtrl.text.trim();
+      if (_foundProfile != null &&
+          (street.isNotEmpty ||
+              city.isNotEmpty ||
+              country.isNotEmpty)) {
+        await ref.read(addressNotifierProvider.notifier).addAddress(
+              profile.AddAddressRequest(
+                id: _foundProfile!.id,
+                address: profile.AddressObject(
+                  name: 'Main Office',
+                  street: street,
+                  city: city,
+                  country: country,
+                  postcode: postalCode,
+                ),
+              ),
+            );
+      }
+
+      // Build the organization object
+      final org = widget.organization ?? OrganizationObject();
+      org.name = _nameCtrl.text.trim();
+      org.code = _codeCtrl.text.trim();
+      org.domain = _domainCtrl.text.trim();
+      org.geoId = _geoId;
+
+      // Set org type from text input
+      final typeText = _orgType.toLowerCase().replaceAll(' ', '_');
+      for (final t in OrganizationType.values) {
+        if (t.name.toLowerCase().contains(typeText)) {
+          org.organizationType = t;
+          break;
+        }
+      }
+
       await widget.onSave(OrganizationWizardResult(
         profileId: _foundProfile!.id,
         organization: org,
       ));
       if (mounted) Navigator.pop(context);
-    } catch (_) {
-      if (mounted) setState(() => _saving = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: $e')),
+        );
+      }
     }
   }
 
@@ -555,7 +613,7 @@ class _OrganizationFormWizardState
   }
 
   // =========================================================================
-  // Step 1: Contact search → find/create profile
+  // Step 1: Contact search → find/create profile (uses ProfileResolver)
   // =========================================================================
 
   Widget _buildStep1Contact(ThemeData theme) {
@@ -578,168 +636,52 @@ class _OrganizationFormWizardState
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-
-            // Contact search field
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _contactCtrl,
-                    decoration: const InputDecoration(
-                      hintText: 'Email or phone number',
-                      prefixIcon: Icon(Icons.contact_mail_outlined),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Enter a contact'
-                        : null,
-                    onFieldSubmitted: (_) => _searchProfile(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.icon(
-                  onPressed: _profileSearching ? null : _searchProfile,
-                  icon: _profileSearching
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Icon(Icons.search, size: 18),
-                  label: const Text('Search'),
-                ),
-              ],
+            ProfileResolver(
+              profileType: profile.ProfileType.INSTITUTION,
+              resolvedProfile: _foundProfile,
+              onPickAvatar: widget.onPickLogo,
+              contactLabel: 'Organization email or phone',
+              nameLabel: 'Organization Name',
+              nameHint: 'e.g. Stawi Capital Limited',
+              onProfileResolved: (resolved) {
+                setState(() {
+                  _foundProfile = resolved;
+                  _nameCtrl.text = _extractName(resolved);
+                  _descriptionCtrl.text = _extractProp(resolved, 'description');
+                });
+                // Check if org already exists for this profile
+                _checkExistingOrg(resolved.id);
+              },
             ),
-
-            const SizedBox(height: 20),
-
-            // Results
-            if (_profileSearched && _foundProfile != null) ...[
-              // Profile found
-              Card(
-                elevation: 0,
-                color: theme.colorScheme.primaryContainer.withAlpha(40),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: theme.colorScheme.primary.withAlpha(60)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle,
-                          color: theme.colorScheme.primary, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Profile found',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.primary)),
-                            ProfileBadge(
-                              profileId: _foundProfile!.id,
-                              name: _extractName(_foundProfile!),
-                              avatarSize: 32,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ] else if (_profileSearched && _foundProfile == null) ...[
-              // Not found — show create form
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                      color: theme.colorScheme.outlineVariant.withAlpha(60)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline,
-                              color: theme.colorScheme.secondary, size: 20),
-                          const SizedBox(width: 8),
-                          Text('No profile found. Create one below.',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.secondary)),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Avatar picker
-                      Center(
-                        child: GestureDetector(
-                          onTap: _pickAvatar,
-                          child: CircleAvatar(
-                            radius: 40,
-                            backgroundColor:
-                                theme.colorScheme.primaryContainer,
-                            backgroundImage: _avatarBytes != null
-                                ? MemoryImage(_avatarBytes!)
-                                : null,
-                            child: _avatarBytes == null
-                                ? Icon(Icons.add_a_photo,
-                                    color: theme.colorScheme.primary,
-                                    size: 24)
-                                : null,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      TextFormField(
-                        controller: _nameCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Organization Name',
-                          hintText: 'e.g. Stawi Capital Limited',
-                          prefixIcon: Icon(Icons.business),
-                        ),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Name is required'
-                            : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _descriptionCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          hintText: 'Brief description',
-                          prefixIcon: Icon(Icons.description_outlined),
-                        ),
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 12),
-                      FilledButton.icon(
-                        onPressed: _creatingProfile ? null : _createProfile,
-                        icon: _creatingProfile
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Icon(Icons.person_add, size: 18),
-                        label: const Text('Create Profile'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _checkExistingOrg(String profileId) async {
+    try {
+      final orgs = await ref.read(
+        filteredOrganizationListProvider((
+          query: '',
+          parentId: '',
+        )).future,
+      );
+      final linked = orgs.where((o) => o.profileId == profileId).toList();
+      if (linked.isNotEmpty && mounted) {
+        Navigator.pop(context);
+        context.go('/organizations/${linked.first.id}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Organization "${linked.first.name}" already exists for this profile',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      // If search fails, proceed normally
+    }
   }
 
   // =========================================================================
@@ -825,12 +767,10 @@ class _OrganizationFormWizardState
   }
 
   // =========================================================================
-  // Step 3: Additional contacts (from profile)
+  // Step 3: Additional contacts (from profile, using ProfileInlineManager)
   // =========================================================================
 
   Widget _buildStep3Contacts(ThemeData theme) {
-    final contacts = _foundProfile?.contacts ?? [];
-
     return Form(
       key: _formKeys[2],
       child: SingleChildScrollView(
@@ -850,67 +790,14 @@ class _OrganizationFormWizardState
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-
-            // Existing contacts
-            if (contacts.isNotEmpty) ...[
-              ...contacts.map((c) => ContactListTile(contact: c)),
-              const Divider(height: 24),
-            ] else
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'No contacts yet. Add one below.',
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
+            if (_foundProfile != null)
+              ProfileInlineManager(profileId: _foundProfile!.id)
+            else
+              Text(
+                'Profile not yet created. Contacts will be added after profile creation.',
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
-
-            // Add new contact
-            Row(
-              children: [
-                ChoiceChip(
-                  label: const Text('Email'),
-                  selected: !_newContactIsPhone,
-                  onSelected: (_) =>
-                      setState(() => _newContactIsPhone = false),
-                ),
-                const SizedBox(width: 8),
-                ChoiceChip(
-                  label: const Text('Phone'),
-                  selected: _newContactIsPhone,
-                  onSelected: (_) =>
-                      setState(() => _newContactIsPhone = true),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _newContactCtrl,
-                    decoration: InputDecoration(
-                      hintText: _newContactIsPhone
-                          ? '+254 700 000 000'
-                          : 'info@organization.com',
-                      prefixIcon: Icon(
-                        _newContactIsPhone
-                            ? Icons.phone_outlined
-                            : Icons.email_outlined,
-                      ),
-                    ),
-                    keyboardType: _newContactIsPhone
-                        ? TextInputType.phone
-                        : TextInputType.emailAddress,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.tonal(
-                  onPressed: _addContactToProfile,
-                  child: const Text('Add'),
-                ),
-              ],
-            ),
           ],
         ),
       ),
