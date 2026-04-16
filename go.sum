@@ -52,8 +52,8 @@ buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260406091002-ec6430
 buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260406091002-ec643023d3b3.2/go.mod h1:nSjb39tn/Crpha+MFCXshHuQ4ZXI255vCjBRhzIAkMw=
 buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260406091002-ec643023d3b3.1 h1:yfSomFgx42XSx1e1C5nL2Ay6JbvISTNUVD9rzXd6Z+Q=
 buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260406091002-ec643023d3b3.1/go.mod h1:YNn/OdcBbsNQn8mH9J39OfdKx33vJrgs09Hbonhwk+s=
-buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 h1:PMmTMyvHScV9Mn8wc6ASge9uRcHy0jtqPd+fM35LmsQ=
-buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1/go.mod h1:tvtbpgaVXZX4g6Pn+AnzFycuRK3MOz5HJfEGeEllXYM=
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 h1:s6hzCXtND/ICdGPTMGk7C+/BFlr2Jg5GyH0NKf4XGXg=
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1/go.mod h1:tvtbpgaVXZX4g6Pn+AnzFycuRK3MOz5HJfEGeEllXYM=
 buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1 h1:t8f+WWZ5WNrZaP5zrpWD8f1tKU7eelJMbIAT9FRX558=
 buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1/go.mod h1:/t9AeRQQp2iNkiGHDLfHLW3SzNpYpNPGRZ+Ih8+SOUs=
 buf.build/go/protovalidate v1.1.3 h1:m2GVEgQWd7rk+vIoAZ+f0ygGjvQTuqPQapBBdcpWVPE=
@@ -90,10 +90,6 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/antinvestor/common v1.4.4 h1:PxXEpSuBIwzKguGJYY0GkI0i5BDEULSfMN6rxPJGe5U=
 github.com/antinvestor/common v1.4.4/go.mod h1:frfqoRfB9ZZQ9EAtz5WJ6BFGvqqLRS911Aw3IO0OjIA=
-github.com/antinvestor/common/audit v0.0.0-20260415113035-1d4f4c1d6b8d h1:nOzBzm6TqGaIB0d9GPBfgbPb/Z9AHv8fqwnF2pOUpIQ=
-github.com/antinvestor/common/audit v0.0.0-20260415113035-1d4f4c1d6b8d/go.mod h1:8KuPphmOXkPFJmlM6y3KOdFwZdB0LmJyZnx/yKjhQwg=
-github.com/antinvestor/common/audit v0.0.0-20260415115730-2099d7d1879f h1:5VJ6xQZRVkiAIUEJkVlAQXR6za15UpyV5TTKBc8stbA=
-github.com/antinvestor/common/audit v0.0.0-20260415115730-2099d7d1879f/go.mod h1:8KuPphmOXkPFJmlM6y3KOdFwZdB0LmJyZnx/yKjhQwg=
 github.com/antinvestor/common/audit v0.0.0-20260415125618-b81a829ceeea h1:Z4EDqY2AXIg+tyDv+uHgZwVAQGotWbe93KtRDm4nEYM=
 github.com/antinvestor/common/audit v0.0.0-20260415125618-b81a829ceeea/go.mod h1:8KuPphmOXkPFJmlM6y3KOdFwZdB0LmJyZnx/yKjhQwg=
 github.com/antithesishq/antithesis-sdk-go v0.6.0-default-no-op h1:kpBdlEPbRvff0mDD1gk7o9BhI16b9p5yYAXRlidpqJE=
