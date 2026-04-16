@@ -24,7 +24,7 @@ require (
 	buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.1-20260329102121-be3a38195953.2
 	buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260329102121-be3a38195953.1
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.1-20260330075109-319b4e3fd9dd.2
-	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260330075109-319b4e3fd9dd.1
+	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260415203305-aa11e5e50dc9.1
 	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260412161718-1ad3f8e18797.2
 	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260412161718-1ad3f8e18797.1
 	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260406091002-ec643023d3b3.2
@@ -38,6 +38,8 @@ require (
 	github.com/pitabwire/util/decimalx v0.7.1
 	github.com/pitabwire/util/money v0.7.1
 	github.com/stretchr/testify v1.11.1
+	go.opentelemetry.io/otel v1.43.0
+	go.opentelemetry.io/otel/metric v1.43.0
 	google.golang.org/genproto v0.0.0-20260406210006-6f92a3bedf2d
 	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
@@ -47,7 +49,7 @@ require (
 	buf.build/gen/go/antinvestor/audit/connectrpc/go v1.19.1-20260407152515-18e28354ce96.2 // indirect
 	buf.build/gen/go/antinvestor/audit/protocolbuffers/go v1.36.11-20260407152515-18e28354ce96.1 // indirect
 	buf.build/gen/go/antinvestor/files/protocolbuffers/go v1.36.11-20260402081919-eb61e2edf446.1 // indirect
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
 	buf.build/gen/go/gnostic/gnostic/protocolbuffers/go v1.36.11-20230414000709-087bc8072ce4.1 // indirect
 	buf.build/go/protovalidate v1.1.3 // indirect
 	cel.dev/expr v0.25.1 // indirect
@@ -139,7 +141,6 @@ require (
 	go.opentelemetry.io/contrib/propagators/b3 v1.43.0 // indirect
 	go.opentelemetry.io/contrib/propagators/jaeger v1.43.0 // indirect
 	go.opentelemetry.io/contrib/propagators/ot v1.43.0 // indirect
-	go.opentelemetry.io/otel v1.43.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp v0.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.43.0 // indirect
@@ -152,7 +153,6 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v1.43.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.43.0 // indirect
 	go.opentelemetry.io/otel/log v0.19.0 // indirect
-	go.opentelemetry.io/otel/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.43.0 // indirect
 	go.opentelemetry.io/otel/sdk/log v0.19.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.43.0 // indirect
