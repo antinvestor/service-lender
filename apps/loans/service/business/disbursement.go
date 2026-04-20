@@ -122,7 +122,6 @@ func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursemen
 		Channel:            req.GetChannel(),
 		RecipientReference: req.GetRecipientReference(),
 		IdempotencyKey:     req.GetIdempotencyKey(),
-		DisbursedAt:        &now,
 	}
 	disb.GenID(ctx)
 
@@ -151,9 +150,9 @@ func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursemen
 		logger.WithError(err).Error("could not update disbursement status")
 	}
 
-	la.DisbursedAt = disb.DisbursedAt
-	if la.FirstRepaymentDate == nil && disb.DisbursedAt != nil {
-		firstRepayment := disb.DisbursedAt.AddDate(
+	la.DisbursedAt = &now
+	if la.FirstRepaymentDate == nil {
+		firstRepayment := now.AddDate(
 			0,
 			0,
 			computeFirstRepaymentDays(loansv1.RepaymentFrequency(la.RepaymentFrequency)),

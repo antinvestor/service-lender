@@ -701,7 +701,6 @@ type Disbursement struct {
 	Status              int32
 	PaymentReference    string `gorm:"type:varchar(100)"`
 	LedgerTransactionID string `gorm:"type:varchar(50)"`
-	DisbursedAt         *time.Time
 	Channel             string `gorm:"type:varchar(50)"`
 	RecipientReference  string `gorm:"type:varchar(100)"`
 	FailureReason       string `gorm:"type:text"`
@@ -719,7 +718,7 @@ func (m *Disbursement) ToAPI() *loansv1.DisbursementObject {
 		Status:              loansv1.DisbursementStatus(m.Status),
 		PaymentReference:    m.PaymentReference,
 		LedgerTransactionId: m.LedgerTransactionID,
-		DisbursedAt:         TimeToString(m.DisbursedAt),
+		DisbursedAt:         TimeToString(&m.CreatedAt),
 		Channel:             m.Channel,
 		RecipientReference:  m.RecipientReference,
 		FailureReason:       m.FailureReason,
@@ -742,7 +741,6 @@ func DisbursementFromAPI(ctx context.Context, obj *loansv1.DisbursementObject) *
 		Status:              int32(obj.GetStatus()),
 		PaymentReference:    obj.GetPaymentReference(),
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
-		DisbursedAt:         StringToTime(obj.GetDisbursedAt()),
 		Channel:             obj.GetChannel(),
 		RecipientReference:  obj.GetRecipientReference(),
 		FailureReason:       obj.GetFailureReason(),
