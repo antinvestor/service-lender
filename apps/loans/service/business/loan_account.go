@@ -563,10 +563,7 @@ func (b *loanAccountBusiness) buildStatementEntries(
 				if p.IsWaived {
 					continue
 				}
-				t := time.Now().UTC()
-				if p.AppliedAt != nil {
-					t = *p.AppliedAt
-				}
+				t := p.CreatedAt
 				raw = append(raw, statementEntry{
 					date:        t,
 					description: "Penalty: " + p.Reason,

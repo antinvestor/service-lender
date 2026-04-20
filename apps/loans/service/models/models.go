@@ -526,7 +526,6 @@ type Penalty struct {
 	WaivedBy            string `gorm:"type:varchar(50)"`
 	WaivedReason        string `gorm:"type:text"`
 	LedgerTransactionID string `gorm:"type:varchar(50)"`
-	AppliedAt           *time.Time
 	ScheduleEntryID     string `gorm:"type:varchar(50)"`
 	Properties          data.JSONMap
 }
@@ -544,7 +543,7 @@ func (m *Penalty) ToAPI() *loansv1.PenaltyObject {
 		WaivedBy:            m.WaivedBy,
 		WaivedReason:        m.WaivedReason,
 		LedgerTransactionId: m.LedgerTransactionID,
-		AppliedAt:           TimeToString(m.AppliedAt),
+		AppliedAt:           TimeToString(&m.CreatedAt),
 		ScheduleEntryId:     m.ScheduleEntryID,
 		Properties:          m.Properties.ToProtoStruct(),
 	}
@@ -567,7 +566,6 @@ func PenaltyFromAPI(ctx context.Context, obj *loansv1.PenaltyObject) *Penalty {
 		WaivedBy:            obj.GetWaivedBy(),
 		WaivedReason:        obj.GetWaivedReason(),
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
-		AppliedAt:           StringToTime(obj.GetAppliedAt()),
 		ScheduleEntryID:     obj.GetScheduleEntryId(),
 	}
 
