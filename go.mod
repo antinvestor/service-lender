@@ -27,7 +27,7 @@ require (
 	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260415203305-aa11e5e50dc9.1
 	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.1-20260412161718-1ad3f8e18797.2
 	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260412161718-1ad3f8e18797.1
-	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260406091002-ec643023d3b3.2
+	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.1-20260416193615-c7ebb768c716.2
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260416193615-c7ebb768c716.1
 	connectrpc.com/connect v1.19.1
 	github.com/antinvestor/common v1.4.4
