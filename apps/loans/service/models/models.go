@@ -771,7 +771,6 @@ type Reconciliation struct {
 	Status             int32
 	MatchedRepaymentID string `gorm:"type:varchar(50)"`
 	Notes              string `gorm:"type:text"`
-	ReconciledAt       *time.Time
 	ReconciledBy       string `gorm:"type:varchar(50)"`
 	Properties         data.JSONMap
 }
@@ -788,7 +787,7 @@ func (m *Reconciliation) ToAPI() *loansv1.ReconciliationObject {
 		Status:             loansv1.ReconciliationStatus(m.Status),
 		MatchedRepaymentId: m.MatchedRepaymentID,
 		Notes:              m.Notes,
-		ReconciledAt:       TimeToString(m.ReconciledAt),
+		ReconciledAt:       TimeToString(&m.CreatedAt),
 		ReconciledBy:       m.ReconciledBy,
 		Properties:         m.Properties.ToProtoStruct(),
 	}
@@ -810,7 +809,6 @@ func ReconciliationFromAPI(ctx context.Context, obj *loansv1.ReconciliationObjec
 		Status:             int32(obj.GetStatus()),
 		MatchedRepaymentID: obj.GetMatchedRepaymentId(),
 		Notes:              obj.GetNotes(),
-		ReconciledAt:       StringToTime(obj.GetReconciledAt()),
 		ReconciledBy:       obj.GetReconciledBy(),
 	}
 
