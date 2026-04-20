@@ -691,14 +691,12 @@ func (b *loanAccountBusiness) TransitionStatus(
 	}
 
 	// Record status change
-	now := time.Now().UTC()
 	statusChange := &models.LoanStatusChange{
 		LoanAccountID: la.GetID(),
 		FromStatus:    la.Status,
 		ToStatus:      int32(newStatus),
 		ChangedBy:     changedBy,
 		Reason:        reason,
-		ChangedAt:     &now,
 	}
 	statusChange.GenID(ctx)
 

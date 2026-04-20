@@ -670,7 +670,6 @@ type LoanStatusChange struct {
 	ToStatus      int32
 	ChangedBy     string `gorm:"type:varchar(50)"`
 	Reason        string `gorm:"type:text"`
-	ChangedAt     *time.Time
 }
 
 func (m *LoanStatusChange) TableName() string { return "loan_status_changes" }
@@ -683,7 +682,7 @@ func (m *LoanStatusChange) ToAPI() *loansv1.LoanStatusChangeObject {
 		ToStatus:      m.ToStatus,
 		ChangedBy:     m.ChangedBy,
 		Reason:        m.Reason,
-		ChangedAt:     TimeToString(m.ChangedAt),
+		ChangedAt:     TimeToString(&m.CreatedAt),
 	}
 }
 
