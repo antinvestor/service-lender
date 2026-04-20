@@ -435,7 +435,6 @@ type Repayment struct {
 	Status              int32
 	PaymentReference    string `gorm:"type:varchar(100)"`
 	LedgerTransactionID string `gorm:"type:varchar(50)"`
-	ReceivedAt          *time.Time
 	Channel             string `gorm:"type:varchar(50)"`
 	PayerReference      string `gorm:"type:varchar(100)"`
 	PrincipalApplied    int64
@@ -458,7 +457,7 @@ func (m *Repayment) ToAPI() *loansv1.RepaymentObject {
 		Status:              loansv1.RepaymentStatus(m.Status),
 		PaymentReference:    m.PaymentReference,
 		LedgerTransactionId: m.LedgerTransactionID,
-		ReceivedAt:          TimeToString(m.ReceivedAt),
+		ReceivedAt:          TimeToString(&m.CreatedAt),
 		Channel:             m.Channel,
 		PayerReference:      m.PayerReference,
 		PrincipalApplied:    MinorUnitsToMoney(m.PrincipalApplied, cc),
@@ -490,7 +489,6 @@ func RepaymentFromAPI(ctx context.Context, obj *loansv1.RepaymentObject) *Repaym
 		Status:              int32(obj.GetStatus()),
 		PaymentReference:    obj.GetPaymentReference(),
 		LedgerTransactionID: obj.GetLedgerTransactionId(),
-		ReceivedAt:          StringToTime(obj.GetReceivedAt()),
 		Channel:             obj.GetChannel(),
 		PayerReference:      obj.GetPayerReference(),
 		PrincipalApplied:    repPrincipal,

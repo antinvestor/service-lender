@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"time"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -130,12 +129,6 @@ func (b *repaymentBusiness) Record( //nolint:funlen // sequential repayment pipe
 		return nil, fmt.Errorf("loan is not in a repayable state (status=%d)", la.Status)
 	}
 
-	receivedAt := models.StringToTime(req.GetReceivedAt())
-	if receivedAt == nil {
-		now := time.Now().UTC()
-		receivedAt = &now
-	}
-
 	amount, repCurrencyCode := models.MoneyToMinorUnits(req.GetAmount())
 
 	if amount <= 0 {
@@ -161,7 +154,6 @@ func (b *repaymentBusiness) Record( //nolint:funlen // sequential repayment pipe
 		CurrencyCode:     la.CurrencyCode,
 		Status:           int32(alloc.status),
 		PaymentReference: req.GetPaymentReference(),
-		ReceivedAt:       receivedAt,
 		Channel:          req.GetChannel(),
 		PayerReference:   req.GetPayerReference(),
 		PrincipalApplied: alloc.principalApplied,

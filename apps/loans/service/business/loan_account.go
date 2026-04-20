@@ -588,11 +588,8 @@ func (b *loanAccountBusiness) buildStatementEntries(
 	if repResults, repErr := b.repaymentRepo.Search(ctx, repQuery); repErr == nil {
 		_ = workerpoolConsumeStream(ctx, repResults, func(batch []*models.Repayment) error {
 			for _, r := range batch {
-				if r.ReceivedAt == nil {
-					continue
-				}
 				raw = append(raw, statementEntry{
-					date:        *r.ReceivedAt,
+					date:        r.CreatedAt,
 					description: "Repayment via " + r.Channel,
 					credit:      r.Amount,
 					currency:    r.CurrencyCode,
