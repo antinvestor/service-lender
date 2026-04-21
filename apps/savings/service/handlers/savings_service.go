@@ -169,6 +169,7 @@ func (s *SavingsServer) SavingsAccountClose(
 
 // --- Deposit RPCs ---
 
+//nolint:dupl // DepositRecord and WithdrawalRequest share handler shape but act on distinct types and business layers; extracting a helper would require generics for marginal gain.
 func (s *SavingsServer) DepositRecord(
 	ctx context.Context,
 	req *connect.Request[savingsv1.DepositRecordRequest],
@@ -220,6 +221,7 @@ func (s *SavingsServer) DepositSearch(
 
 // --- Withdrawal RPCs ---
 
+//nolint:dupl // See DepositRecord rationale: distinct types/business layers, not worth a generic helper.
 func (s *SavingsServer) WithdrawalRequest(
 	ctx context.Context,
 	req *connect.Request[savingsv1.WithdrawalRequestRequest],
