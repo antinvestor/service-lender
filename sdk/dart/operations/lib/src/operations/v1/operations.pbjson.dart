@@ -13,9 +13,9 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-import '../../common/v1/common.pbjson.dart' as $7;
+import '../../common/v1/common.pbjson.dart' as $8;
 import '../../google/protobuf/struct.pbjson.dart' as $6;
-import '../../google/type/money.pbjson.dart' as $9;
+import '../../google/type/money.pbjson.dart' as $7;
 
 @$core.Deprecated('Use transferOrderObjectDescriptor instead')
 const TransferOrderObject$json = {
@@ -181,14 +181,14 @@ const $core.Map<$core.String, $core.dynamic> OperationsServiceBase$json = {
 const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> OperationsServiceBase$messageJson = {
   '.operations.v1.TransferOrderExecuteRequest': TransferOrderExecuteRequest$json,
   '.operations.v1.TransferOrderObject': TransferOrderObject$json,
-  '.google.type.Money': $9.Money$json,
+  '.google.type.Money': $7.Money$json,
   '.google.protobuf.Struct': $6.Struct$json,
   '.google.protobuf.Struct.FieldsEntry': $6.Struct_FieldsEntry$json,
   '.google.protobuf.Value': $6.Value$json,
   '.google.protobuf.ListValue': $6.ListValue$json,
   '.operations.v1.TransferOrderExecuteResponse': TransferOrderExecuteResponse$json,
   '.operations.v1.TransferOrderSearchRequest': TransferOrderSearchRequest$json,
-  '.common.v1.PageCursor': $7.PageCursor$json,
+  '.common.v1.PageCursor': $8.PageCursor$json,
   '.operations.v1.TransferOrderSearchResponse': TransferOrderSearchResponse$json,
   '.operations.v1.IncomingPaymentNotifyRequest': IncomingPaymentNotifyRequest$json,
   '.operations.v1.IncomingPaymentNotifyResponse': IncomingPaymentNotifyResponse$json,

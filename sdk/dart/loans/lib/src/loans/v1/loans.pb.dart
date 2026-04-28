@@ -14,10 +14,10 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import '../../common/v1/common.pb.dart' as $7;
-import '../../common/v1/common.pbenum.dart' as $7;
+import '../../common/v1/common.pb.dart' as $8;
+import '../../common/v1/common.pbenum.dart' as $8;
 import '../../google/protobuf/struct.pb.dart' as $6;
-import '../../google/type/money.pb.dart' as $9;
+import '../../google/type/money.pb.dart' as $7;
 import 'loans.pbenum.dart';
 
 export 'loans.pbenum.dart';
@@ -141,8 +141,8 @@ class LoanProductObject extends $pb.GeneratedMessage {
     $core.String? currencyCode,
     InterestMethod? interestMethod,
     RepaymentFrequency? repaymentFrequency,
-    $9.Money? minAmount,
-    $9.Money? maxAmount,
+    $7.Money? minAmount,
+    $7.Money? maxAmount,
     $core.int? minTermDays,
     $core.int? maxTermDays,
     $core.String? annualInterestRate,
@@ -152,7 +152,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
     $core.int? gracePeriodDays,
     $6.Struct? feeStructure,
     $6.Struct? eligibilityCriteria,
-    $7.STATE? state,
+    $8.STATE? state,
     $6.Struct? properties,
     $core.Iterable<ProductFormRequirement>? requiredForms,
   }) {
@@ -242,8 +242,8 @@ class LoanProductObject extends $pb.GeneratedMessage {
     ..aOS(7, _omitFieldNames ? '' : 'currencyCode')
     ..e<InterestMethod>(8, _omitFieldNames ? '' : 'interestMethod', $pb.PbFieldType.OE, defaultOrMaker: InterestMethod.INTEREST_METHOD_UNSPECIFIED, valueOf: InterestMethod.valueOf, enumValues: InterestMethod.values)
     ..e<RepaymentFrequency>(9, _omitFieldNames ? '' : 'repaymentFrequency', $pb.PbFieldType.OE, defaultOrMaker: RepaymentFrequency.REPAYMENT_FREQUENCY_UNSPECIFIED, valueOf: RepaymentFrequency.valueOf, enumValues: RepaymentFrequency.values)
-    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'minAmount', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'maxAmount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(10, _omitFieldNames ? '' : 'minAmount', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(11, _omitFieldNames ? '' : 'maxAmount', subBuilder: $7.Money.create)
     ..a<$core.int>(12, _omitFieldNames ? '' : 'minTermDays', $pb.PbFieldType.O3)
     ..a<$core.int>(13, _omitFieldNames ? '' : 'maxTermDays', $pb.PbFieldType.O3)
     ..aOS(14, _omitFieldNames ? '' : 'annualInterestRate')
@@ -253,7 +253,7 @@ class LoanProductObject extends $pb.GeneratedMessage {
     ..a<$core.int>(18, _omitFieldNames ? '' : 'gracePeriodDays', $pb.PbFieldType.O3)
     ..aOM<$6.Struct>(19, _omitFieldNames ? '' : 'feeStructure', subBuilder: $6.Struct.create)
     ..aOM<$6.Struct>(20, _omitFieldNames ? '' : 'eligibilityCriteria', subBuilder: $6.Struct.create)
-    ..e<$7.STATE>(21, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..e<$8.STATE>(21, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $8.STATE.CREATED, valueOf: $8.STATE.valueOf, enumValues: $8.STATE.values)
     ..aOM<$6.Struct>(22, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..pc<ProductFormRequirement>(23, _omitFieldNames ? '' : 'requiredForms', $pb.PbFieldType.PM, subBuilder: ProductFormRequirement.create)
     ..hasRequiredFields = false
@@ -362,26 +362,26 @@ class LoanProductObject extends $pb.GeneratedMessage {
   void clearRepaymentFrequency() => clearField(9);
 
   @$pb.TagNumber(10)
-  $9.Money get minAmount => $_getN(9);
+  $7.Money get minAmount => $_getN(9);
   @$pb.TagNumber(10)
-  set minAmount($9.Money v) { setField(10, v); }
+  set minAmount($7.Money v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasMinAmount() => $_has(9);
   @$pb.TagNumber(10)
   void clearMinAmount() => clearField(10);
   @$pb.TagNumber(10)
-  $9.Money ensureMinAmount() => $_ensure(9);
+  $7.Money ensureMinAmount() => $_ensure(9);
 
   @$pb.TagNumber(11)
-  $9.Money get maxAmount => $_getN(10);
+  $7.Money get maxAmount => $_getN(10);
   @$pb.TagNumber(11)
-  set maxAmount($9.Money v) { setField(11, v); }
+  set maxAmount($7.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasMaxAmount() => $_has(10);
   @$pb.TagNumber(11)
   void clearMaxAmount() => clearField(11);
   @$pb.TagNumber(11)
-  $9.Money ensureMaxAmount() => $_ensure(10);
+  $7.Money ensureMaxAmount() => $_ensure(10);
 
   @$pb.TagNumber(12)
   $core.int get minTermDays => $_getIZ(11);
@@ -469,9 +469,9 @@ class LoanProductObject extends $pb.GeneratedMessage {
   $6.Struct ensureEligibilityCriteria() => $_ensure(19);
 
   @$pb.TagNumber(21)
-  $7.STATE get state => $_getN(20);
+  $8.STATE get state => $_getN(20);
   @$pb.TagNumber(21)
-  set state($7.STATE v) { setField(21, v); }
+  set state($8.STATE v) { setField(21, v); }
   @$pb.TagNumber(21)
   $core.bool hasState() => $_has(20);
   @$pb.TagNumber(21)
@@ -505,8 +505,8 @@ class LoanRequestObject extends $pb.GeneratedMessage {
     $core.String? branchId,
     $core.String? organizationId,
     LoanRequestStatus? status,
-    $9.Money? requestedAmount,
-    $9.Money? approvedAmount,
+    $7.Money? requestedAmount,
+    $7.Money? approvedAmount,
     $core.int? requestedTermDays,
     $core.int? approvedTermDays,
     $core.String? interestRate,
@@ -606,8 +606,8 @@ class LoanRequestObject extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'branchId')
     ..aOS(6, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanRequestStatus>(7, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: LoanRequestStatus.LOAN_REQUEST_STATUS_UNSPECIFIED, valueOf: LoanRequestStatus.valueOf, enumValues: LoanRequestStatus.values)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'requestedAmount', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'approvedAmount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(8, _omitFieldNames ? '' : 'requestedAmount', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(9, _omitFieldNames ? '' : 'approvedAmount', subBuilder: $7.Money.create)
     ..a<$core.int>(10, _omitFieldNames ? '' : 'requestedTermDays', $pb.PbFieldType.O3)
     ..a<$core.int>(11, _omitFieldNames ? '' : 'approvedTermDays', $pb.PbFieldType.O3)
     ..aOS(12, _omitFieldNames ? '' : 'interestRate')
@@ -710,26 +710,26 @@ class LoanRequestObject extends $pb.GeneratedMessage {
   void clearStatus() => clearField(7);
 
   @$pb.TagNumber(8)
-  $9.Money get requestedAmount => $_getN(7);
+  $7.Money get requestedAmount => $_getN(7);
   @$pb.TagNumber(8)
-  set requestedAmount($9.Money v) { setField(8, v); }
+  set requestedAmount($7.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasRequestedAmount() => $_has(7);
   @$pb.TagNumber(8)
   void clearRequestedAmount() => clearField(8);
   @$pb.TagNumber(8)
-  $9.Money ensureRequestedAmount() => $_ensure(7);
+  $7.Money ensureRequestedAmount() => $_ensure(7);
 
   @$pb.TagNumber(9)
-  $9.Money get approvedAmount => $_getN(8);
+  $7.Money get approvedAmount => $_getN(8);
   @$pb.TagNumber(9)
-  set approvedAmount($9.Money v) { setField(9, v); }
+  set approvedAmount($7.Money v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasApprovedAmount() => $_has(8);
   @$pb.TagNumber(9)
   void clearApprovedAmount() => clearField(9);
   @$pb.TagNumber(9)
-  $9.Money ensureApprovedAmount() => $_ensure(8);
+  $7.Money ensureApprovedAmount() => $_ensure(8);
 
   @$pb.TagNumber(10)
   $core.int get requestedTermDays => $_getIZ(9);
@@ -870,7 +870,7 @@ class ClientProductAccessObject extends $pb.GeneratedMessage {
     $core.String? clientId,
     $core.String? productId,
     $core.String? grantedBy,
-    $7.STATE? state,
+    $8.STATE? state,
   }) {
     final $result = create();
     if (id != null) {
@@ -899,7 +899,7 @@ class ClientProductAccessObject extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'clientId')
     ..aOS(3, _omitFieldNames ? '' : 'productId')
     ..aOS(4, _omitFieldNames ? '' : 'grantedBy')
-    ..e<$7.STATE>(5, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..e<$8.STATE>(5, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $8.STATE.CREATED, valueOf: $8.STATE.valueOf, enumValues: $8.STATE.values)
     ..hasRequiredFields = false
   ;
 
@@ -961,9 +961,9 @@ class ClientProductAccessObject extends $pb.GeneratedMessage {
   void clearGrantedBy() => clearField(4);
 
   @$pb.TagNumber(5)
-  $7.STATE get state => $_getN(4);
+  $8.STATE get state => $_getN(4);
   @$pb.TagNumber(5)
-  set state($7.STATE v) { setField(5, v); }
+  set state($8.STATE v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasState() => $_has(4);
   @$pb.TagNumber(5)
@@ -981,7 +981,7 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     $core.String? branchId,
     $core.String? organizationId,
     LoanStatus? status,
-    $9.Money? principalAmount,
+    $7.Money? principalAmount,
     $core.String? interestRate,
     $core.int? termDays,
     InterestMethod? interestMethod,
@@ -1086,7 +1086,7 @@ class LoanAccountObject extends $pb.GeneratedMessage {
     ..aOS(6, _omitFieldNames ? '' : 'branchId')
     ..aOS(7, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanStatus>(8, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: LoanStatus.LOAN_STATUS_UNSPECIFIED, valueOf: LoanStatus.valueOf, enumValues: LoanStatus.values)
-    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'principalAmount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(10, _omitFieldNames ? '' : 'principalAmount', subBuilder: $7.Money.create)
     ..aOS(11, _omitFieldNames ? '' : 'interestRate')
     ..a<$core.int>(12, _omitFieldNames ? '' : 'termDays', $pb.PbFieldType.O3)
     ..e<InterestMethod>(13, _omitFieldNames ? '' : 'interestMethod', $pb.PbFieldType.OE, defaultOrMaker: InterestMethod.INTEREST_METHOD_UNSPECIFIED, valueOf: InterestMethod.valueOf, enumValues: InterestMethod.values)
@@ -1200,15 +1200,15 @@ class LoanAccountObject extends $pb.GeneratedMessage {
 
   /// Field 9 removed (currency_code now in Money).
   @$pb.TagNumber(10)
-  $9.Money get principalAmount => $_getN(8);
+  $7.Money get principalAmount => $_getN(8);
   @$pb.TagNumber(10)
-  set principalAmount($9.Money v) { setField(10, v); }
+  set principalAmount($7.Money v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasPrincipalAmount() => $_has(8);
   @$pb.TagNumber(10)
   void clearPrincipalAmount() => clearField(10);
   @$pb.TagNumber(10)
-  $9.Money ensurePrincipalAmount() => $_ensure(8);
+  $7.Money ensurePrincipalAmount() => $_ensure(8);
 
   @$pb.TagNumber(11)
   $core.String get interestRate => $_getSZ(9);
@@ -1486,15 +1486,15 @@ class ScheduleEntryObject extends $pb.GeneratedMessage {
     $core.String? scheduleId,
     $core.int? installmentNumber,
     $core.String? dueDate,
-    $9.Money? principalDue,
-    $9.Money? interestDue,
-    $9.Money? feesDue,
-    $9.Money? totalDue,
-    $9.Money? principalPaid,
-    $9.Money? interestPaid,
-    $9.Money? feesPaid,
-    $9.Money? totalPaid,
-    $9.Money? outstanding,
+    $7.Money? principalDue,
+    $7.Money? interestDue,
+    $7.Money? feesDue,
+    $7.Money? totalDue,
+    $7.Money? principalPaid,
+    $7.Money? interestPaid,
+    $7.Money? feesPaid,
+    $7.Money? totalPaid,
+    $7.Money? outstanding,
     ScheduleEntryStatus? status,
     $core.String? paidDate,
     $6.Struct? properties,
@@ -1559,15 +1559,15 @@ class ScheduleEntryObject extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'scheduleId')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'installmentNumber', $pb.PbFieldType.O3)
     ..aOS(4, _omitFieldNames ? '' : 'dueDate')
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'principalDue', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(6, _omitFieldNames ? '' : 'interestDue', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'feesDue', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'totalDue', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'principalPaid', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'interestPaid', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'feesPaid', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(12, _omitFieldNames ? '' : 'totalPaid', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(13, _omitFieldNames ? '' : 'outstanding', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(5, _omitFieldNames ? '' : 'principalDue', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(6, _omitFieldNames ? '' : 'interestDue', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(7, _omitFieldNames ? '' : 'feesDue', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(8, _omitFieldNames ? '' : 'totalDue', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(9, _omitFieldNames ? '' : 'principalPaid', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(10, _omitFieldNames ? '' : 'interestPaid', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(11, _omitFieldNames ? '' : 'feesPaid', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(12, _omitFieldNames ? '' : 'totalPaid', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(13, _omitFieldNames ? '' : 'outstanding', subBuilder: $7.Money.create)
     ..e<ScheduleEntryStatus>(14, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ScheduleEntryStatus.SCHEDULE_ENTRY_STATUS_UNSPECIFIED, valueOf: ScheduleEntryStatus.valueOf, enumValues: ScheduleEntryStatus.values)
     ..aOS(15, _omitFieldNames ? '' : 'paidDate')
     ..aOM<$6.Struct>(16, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
@@ -1632,103 +1632,103 @@ class ScheduleEntryObject extends $pb.GeneratedMessage {
   void clearDueDate() => clearField(4);
 
   @$pb.TagNumber(5)
-  $9.Money get principalDue => $_getN(4);
+  $7.Money get principalDue => $_getN(4);
   @$pb.TagNumber(5)
-  set principalDue($9.Money v) { setField(5, v); }
+  set principalDue($7.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasPrincipalDue() => $_has(4);
   @$pb.TagNumber(5)
   void clearPrincipalDue() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensurePrincipalDue() => $_ensure(4);
+  $7.Money ensurePrincipalDue() => $_ensure(4);
 
   @$pb.TagNumber(6)
-  $9.Money get interestDue => $_getN(5);
+  $7.Money get interestDue => $_getN(5);
   @$pb.TagNumber(6)
-  set interestDue($9.Money v) { setField(6, v); }
+  set interestDue($7.Money v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasInterestDue() => $_has(5);
   @$pb.TagNumber(6)
   void clearInterestDue() => clearField(6);
   @$pb.TagNumber(6)
-  $9.Money ensureInterestDue() => $_ensure(5);
+  $7.Money ensureInterestDue() => $_ensure(5);
 
   @$pb.TagNumber(7)
-  $9.Money get feesDue => $_getN(6);
+  $7.Money get feesDue => $_getN(6);
   @$pb.TagNumber(7)
-  set feesDue($9.Money v) { setField(7, v); }
+  set feesDue($7.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasFeesDue() => $_has(6);
   @$pb.TagNumber(7)
   void clearFeesDue() => clearField(7);
   @$pb.TagNumber(7)
-  $9.Money ensureFeesDue() => $_ensure(6);
+  $7.Money ensureFeesDue() => $_ensure(6);
 
   @$pb.TagNumber(8)
-  $9.Money get totalDue => $_getN(7);
+  $7.Money get totalDue => $_getN(7);
   @$pb.TagNumber(8)
-  set totalDue($9.Money v) { setField(8, v); }
+  set totalDue($7.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasTotalDue() => $_has(7);
   @$pb.TagNumber(8)
   void clearTotalDue() => clearField(8);
   @$pb.TagNumber(8)
-  $9.Money ensureTotalDue() => $_ensure(7);
+  $7.Money ensureTotalDue() => $_ensure(7);
 
   @$pb.TagNumber(9)
-  $9.Money get principalPaid => $_getN(8);
+  $7.Money get principalPaid => $_getN(8);
   @$pb.TagNumber(9)
-  set principalPaid($9.Money v) { setField(9, v); }
+  set principalPaid($7.Money v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasPrincipalPaid() => $_has(8);
   @$pb.TagNumber(9)
   void clearPrincipalPaid() => clearField(9);
   @$pb.TagNumber(9)
-  $9.Money ensurePrincipalPaid() => $_ensure(8);
+  $7.Money ensurePrincipalPaid() => $_ensure(8);
 
   @$pb.TagNumber(10)
-  $9.Money get interestPaid => $_getN(9);
+  $7.Money get interestPaid => $_getN(9);
   @$pb.TagNumber(10)
-  set interestPaid($9.Money v) { setField(10, v); }
+  set interestPaid($7.Money v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasInterestPaid() => $_has(9);
   @$pb.TagNumber(10)
   void clearInterestPaid() => clearField(10);
   @$pb.TagNumber(10)
-  $9.Money ensureInterestPaid() => $_ensure(9);
+  $7.Money ensureInterestPaid() => $_ensure(9);
 
   @$pb.TagNumber(11)
-  $9.Money get feesPaid => $_getN(10);
+  $7.Money get feesPaid => $_getN(10);
   @$pb.TagNumber(11)
-  set feesPaid($9.Money v) { setField(11, v); }
+  set feesPaid($7.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasFeesPaid() => $_has(10);
   @$pb.TagNumber(11)
   void clearFeesPaid() => clearField(11);
   @$pb.TagNumber(11)
-  $9.Money ensureFeesPaid() => $_ensure(10);
+  $7.Money ensureFeesPaid() => $_ensure(10);
 
   @$pb.TagNumber(12)
-  $9.Money get totalPaid => $_getN(11);
+  $7.Money get totalPaid => $_getN(11);
   @$pb.TagNumber(12)
-  set totalPaid($9.Money v) { setField(12, v); }
+  set totalPaid($7.Money v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasTotalPaid() => $_has(11);
   @$pb.TagNumber(12)
   void clearTotalPaid() => clearField(12);
   @$pb.TagNumber(12)
-  $9.Money ensureTotalPaid() => $_ensure(11);
+  $7.Money ensureTotalPaid() => $_ensure(11);
 
   @$pb.TagNumber(13)
-  $9.Money get outstanding => $_getN(12);
+  $7.Money get outstanding => $_getN(12);
   @$pb.TagNumber(13)
-  set outstanding($9.Money v) { setField(13, v); }
+  set outstanding($7.Money v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasOutstanding() => $_has(12);
   @$pb.TagNumber(13)
   void clearOutstanding() => clearField(13);
   @$pb.TagNumber(13)
-  $9.Money ensureOutstanding() => $_ensure(12);
+  $7.Money ensureOutstanding() => $_ensure(12);
 
   @$pb.TagNumber(14)
   ScheduleEntryStatus get status => $_getN(13);
@@ -1764,13 +1764,13 @@ class ScheduleEntryObject extends $pb.GeneratedMessage {
 class LoanBalanceObject extends $pb.GeneratedMessage {
   factory LoanBalanceObject({
     $core.String? loanAccountId,
-    $9.Money? principalOutstanding,
-    $9.Money? interestAccrued,
-    $9.Money? feesOutstanding,
-    $9.Money? penaltiesOutstanding,
-    $9.Money? totalOutstanding,
-    $9.Money? totalPaid,
-    $9.Money? totalDisbursed,
+    $7.Money? principalOutstanding,
+    $7.Money? interestAccrued,
+    $7.Money? feesOutstanding,
+    $7.Money? penaltiesOutstanding,
+    $7.Money? totalOutstanding,
+    $7.Money? totalPaid,
+    $7.Money? totalDisbursed,
     $core.String? lastCalculatedAt,
   }) {
     final $result = create();
@@ -1809,13 +1809,13 @@ class LoanBalanceObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanBalanceObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'principalOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'interestAccrued', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(4, _omitFieldNames ? '' : 'feesOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'penaltiesOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(6, _omitFieldNames ? '' : 'totalOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'totalPaid', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'totalDisbursed', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(2, _omitFieldNames ? '' : 'principalOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'interestAccrued', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(4, _omitFieldNames ? '' : 'feesOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(5, _omitFieldNames ? '' : 'penaltiesOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(6, _omitFieldNames ? '' : 'totalOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(7, _omitFieldNames ? '' : 'totalPaid', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(8, _omitFieldNames ? '' : 'totalDisbursed', subBuilder: $7.Money.create)
     ..aOS(9, _omitFieldNames ? '' : 'lastCalculatedAt')
     ..hasRequiredFields = false
   ;
@@ -1851,81 +1851,81 @@ class LoanBalanceObject extends $pb.GeneratedMessage {
   void clearLoanAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get principalOutstanding => $_getN(1);
+  $7.Money get principalOutstanding => $_getN(1);
   @$pb.TagNumber(2)
-  set principalOutstanding($9.Money v) { setField(2, v); }
+  set principalOutstanding($7.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasPrincipalOutstanding() => $_has(1);
   @$pb.TagNumber(2)
   void clearPrincipalOutstanding() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensurePrincipalOutstanding() => $_ensure(1);
+  $7.Money ensurePrincipalOutstanding() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $9.Money get interestAccrued => $_getN(2);
+  $7.Money get interestAccrued => $_getN(2);
   @$pb.TagNumber(3)
-  set interestAccrued($9.Money v) { setField(3, v); }
+  set interestAccrued($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasInterestAccrued() => $_has(2);
   @$pb.TagNumber(3)
   void clearInterestAccrued() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureInterestAccrued() => $_ensure(2);
+  $7.Money ensureInterestAccrued() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $9.Money get feesOutstanding => $_getN(3);
+  $7.Money get feesOutstanding => $_getN(3);
   @$pb.TagNumber(4)
-  set feesOutstanding($9.Money v) { setField(4, v); }
+  set feesOutstanding($7.Money v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasFeesOutstanding() => $_has(3);
   @$pb.TagNumber(4)
   void clearFeesOutstanding() => clearField(4);
   @$pb.TagNumber(4)
-  $9.Money ensureFeesOutstanding() => $_ensure(3);
+  $7.Money ensureFeesOutstanding() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $9.Money get penaltiesOutstanding => $_getN(4);
+  $7.Money get penaltiesOutstanding => $_getN(4);
   @$pb.TagNumber(5)
-  set penaltiesOutstanding($9.Money v) { setField(5, v); }
+  set penaltiesOutstanding($7.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasPenaltiesOutstanding() => $_has(4);
   @$pb.TagNumber(5)
   void clearPenaltiesOutstanding() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensurePenaltiesOutstanding() => $_ensure(4);
+  $7.Money ensurePenaltiesOutstanding() => $_ensure(4);
 
   @$pb.TagNumber(6)
-  $9.Money get totalOutstanding => $_getN(5);
+  $7.Money get totalOutstanding => $_getN(5);
   @$pb.TagNumber(6)
-  set totalOutstanding($9.Money v) { setField(6, v); }
+  set totalOutstanding($7.Money v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasTotalOutstanding() => $_has(5);
   @$pb.TagNumber(6)
   void clearTotalOutstanding() => clearField(6);
   @$pb.TagNumber(6)
-  $9.Money ensureTotalOutstanding() => $_ensure(5);
+  $7.Money ensureTotalOutstanding() => $_ensure(5);
 
   @$pb.TagNumber(7)
-  $9.Money get totalPaid => $_getN(6);
+  $7.Money get totalPaid => $_getN(6);
   @$pb.TagNumber(7)
-  set totalPaid($9.Money v) { setField(7, v); }
+  set totalPaid($7.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasTotalPaid() => $_has(6);
   @$pb.TagNumber(7)
   void clearTotalPaid() => clearField(7);
   @$pb.TagNumber(7)
-  $9.Money ensureTotalPaid() => $_ensure(6);
+  $7.Money ensureTotalPaid() => $_ensure(6);
 
   @$pb.TagNumber(8)
-  $9.Money get totalDisbursed => $_getN(7);
+  $7.Money get totalDisbursed => $_getN(7);
   @$pb.TagNumber(8)
-  set totalDisbursed($9.Money v) { setField(8, v); }
+  set totalDisbursed($7.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasTotalDisbursed() => $_has(7);
   @$pb.TagNumber(8)
   void clearTotalDisbursed() => clearField(8);
   @$pb.TagNumber(8)
-  $9.Money ensureTotalDisbursed() => $_ensure(7);
+  $7.Money ensureTotalDisbursed() => $_ensure(7);
 
   @$pb.TagNumber(9)
   $core.String get lastCalculatedAt => $_getSZ(8);
@@ -1942,7 +1942,7 @@ class DisbursementObject extends $pb.GeneratedMessage {
   factory DisbursementObject({
     $core.String? id,
     $core.String? loanAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     DisbursementStatus? status,
     $core.String? paymentReference,
     $core.String? ledgerTransactionId,
@@ -1999,7 +1999,7 @@ class DisbursementObject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DisbursementObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..e<DisbursementStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: DisbursementStatus.DISBURSEMENT_STATUS_UNSPECIFIED, valueOf: DisbursementStatus.valueOf, enumValues: DisbursementStatus.values)
     ..aOS(6, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(7, _omitFieldNames ? '' : 'ledgerTransactionId')
@@ -2052,15 +2052,15 @@ class DisbursementObject extends $pb.GeneratedMessage {
   void clearLoanAccountId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get amount => $_getN(2);
+  $7.Money get amount => $_getN(2);
   @$pb.TagNumber(3)
-  set amount($9.Money v) { setField(3, v); }
+  set amount($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasAmount() => $_has(2);
   @$pb.TagNumber(3)
   void clearAmount() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureAmount() => $_ensure(2);
+  $7.Money ensureAmount() => $_ensure(2);
 
   /// Field 4 removed (currency_code now in Money).
   @$pb.TagNumber(5)
@@ -2152,18 +2152,18 @@ class RepaymentObject extends $pb.GeneratedMessage {
   factory RepaymentObject({
     $core.String? id,
     $core.String? loanAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     RepaymentStatus? status,
     $core.String? paymentReference,
     $core.String? ledgerTransactionId,
     $core.String? receivedAt,
     $core.String? channel,
     $core.String? payerReference,
-    $9.Money? principalApplied,
-    $9.Money? interestApplied,
-    $9.Money? feesApplied,
-    $9.Money? penaltiesApplied,
-    $9.Money? excessAmount,
+    $7.Money? principalApplied,
+    $7.Money? interestApplied,
+    $7.Money? feesApplied,
+    $7.Money? penaltiesApplied,
+    $7.Money? excessAmount,
     $core.String? idempotencyKey,
     $6.Struct? properties,
   }) {
@@ -2225,18 +2225,18 @@ class RepaymentObject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RepaymentObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..e<RepaymentStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: RepaymentStatus.REPAYMENT_STATUS_UNSPECIFIED, valueOf: RepaymentStatus.valueOf, enumValues: RepaymentStatus.values)
     ..aOS(6, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(7, _omitFieldNames ? '' : 'ledgerTransactionId')
     ..aOS(8, _omitFieldNames ? '' : 'receivedAt')
     ..aOS(9, _omitFieldNames ? '' : 'channel')
     ..aOS(10, _omitFieldNames ? '' : 'payerReference')
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'principalApplied', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(12, _omitFieldNames ? '' : 'interestApplied', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(13, _omitFieldNames ? '' : 'feesApplied', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(14, _omitFieldNames ? '' : 'penaltiesApplied', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(15, _omitFieldNames ? '' : 'excessAmount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(11, _omitFieldNames ? '' : 'principalApplied', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(12, _omitFieldNames ? '' : 'interestApplied', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(13, _omitFieldNames ? '' : 'feesApplied', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(14, _omitFieldNames ? '' : 'penaltiesApplied', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(15, _omitFieldNames ? '' : 'excessAmount', subBuilder: $7.Money.create)
     ..aOS(16, _omitFieldNames ? '' : 'idempotencyKey')
     ..aOM<$6.Struct>(17, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..hasRequiredFields = false
@@ -2282,15 +2282,15 @@ class RepaymentObject extends $pb.GeneratedMessage {
   void clearLoanAccountId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get amount => $_getN(2);
+  $7.Money get amount => $_getN(2);
   @$pb.TagNumber(3)
-  set amount($9.Money v) { setField(3, v); }
+  set amount($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasAmount() => $_has(2);
   @$pb.TagNumber(3)
   void clearAmount() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureAmount() => $_ensure(2);
+  $7.Money ensureAmount() => $_ensure(2);
 
   /// Field 4 removed (currency_code now in Money).
   @$pb.TagNumber(5)
@@ -2348,59 +2348,59 @@ class RepaymentObject extends $pb.GeneratedMessage {
   void clearPayerReference() => clearField(10);
 
   @$pb.TagNumber(11)
-  $9.Money get principalApplied => $_getN(9);
+  $7.Money get principalApplied => $_getN(9);
   @$pb.TagNumber(11)
-  set principalApplied($9.Money v) { setField(11, v); }
+  set principalApplied($7.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasPrincipalApplied() => $_has(9);
   @$pb.TagNumber(11)
   void clearPrincipalApplied() => clearField(11);
   @$pb.TagNumber(11)
-  $9.Money ensurePrincipalApplied() => $_ensure(9);
+  $7.Money ensurePrincipalApplied() => $_ensure(9);
 
   @$pb.TagNumber(12)
-  $9.Money get interestApplied => $_getN(10);
+  $7.Money get interestApplied => $_getN(10);
   @$pb.TagNumber(12)
-  set interestApplied($9.Money v) { setField(12, v); }
+  set interestApplied($7.Money v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasInterestApplied() => $_has(10);
   @$pb.TagNumber(12)
   void clearInterestApplied() => clearField(12);
   @$pb.TagNumber(12)
-  $9.Money ensureInterestApplied() => $_ensure(10);
+  $7.Money ensureInterestApplied() => $_ensure(10);
 
   @$pb.TagNumber(13)
-  $9.Money get feesApplied => $_getN(11);
+  $7.Money get feesApplied => $_getN(11);
   @$pb.TagNumber(13)
-  set feesApplied($9.Money v) { setField(13, v); }
+  set feesApplied($7.Money v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasFeesApplied() => $_has(11);
   @$pb.TagNumber(13)
   void clearFeesApplied() => clearField(13);
   @$pb.TagNumber(13)
-  $9.Money ensureFeesApplied() => $_ensure(11);
+  $7.Money ensureFeesApplied() => $_ensure(11);
 
   @$pb.TagNumber(14)
-  $9.Money get penaltiesApplied => $_getN(12);
+  $7.Money get penaltiesApplied => $_getN(12);
   @$pb.TagNumber(14)
-  set penaltiesApplied($9.Money v) { setField(14, v); }
+  set penaltiesApplied($7.Money v) { setField(14, v); }
   @$pb.TagNumber(14)
   $core.bool hasPenaltiesApplied() => $_has(12);
   @$pb.TagNumber(14)
   void clearPenaltiesApplied() => clearField(14);
   @$pb.TagNumber(14)
-  $9.Money ensurePenaltiesApplied() => $_ensure(12);
+  $7.Money ensurePenaltiesApplied() => $_ensure(12);
 
   @$pb.TagNumber(15)
-  $9.Money get excessAmount => $_getN(13);
+  $7.Money get excessAmount => $_getN(13);
   @$pb.TagNumber(15)
-  set excessAmount($9.Money v) { setField(15, v); }
+  set excessAmount($7.Money v) { setField(15, v); }
   @$pb.TagNumber(15)
   $core.bool hasExcessAmount() => $_has(13);
   @$pb.TagNumber(15)
   void clearExcessAmount() => clearField(15);
   @$pb.TagNumber(15)
-  $9.Money ensureExcessAmount() => $_ensure(13);
+  $7.Money ensureExcessAmount() => $_ensure(13);
 
   @$pb.TagNumber(16)
   $core.String get idempotencyKey => $_getSZ(14);
@@ -2429,7 +2429,7 @@ class PenaltyObject extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? loanAccountId,
     PenaltyType? penaltyType,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.String? reason,
     $core.bool? isWaived,
     $core.String? waivedBy,
@@ -2486,7 +2486,7 @@ class PenaltyObject extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'loanAccountId')
     ..e<PenaltyType>(3, _omitFieldNames ? '' : 'penaltyType', $pb.PbFieldType.OE, defaultOrMaker: PenaltyType.PENALTY_TYPE_UNSPECIFIED, valueOf: PenaltyType.valueOf, enumValues: PenaltyType.values)
-    ..aOM<$9.Money>(4, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(4, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..aOS(5, _omitFieldNames ? '' : 'reason')
     ..aOB(6, _omitFieldNames ? '' : 'isWaived')
     ..aOS(7, _omitFieldNames ? '' : 'waivedBy')
@@ -2547,15 +2547,15 @@ class PenaltyObject extends $pb.GeneratedMessage {
   void clearPenaltyType() => clearField(3);
 
   @$pb.TagNumber(4)
-  $9.Money get amount => $_getN(3);
+  $7.Money get amount => $_getN(3);
   @$pb.TagNumber(4)
-  set amount($9.Money v) { setField(4, v); }
+  set amount($7.Money v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasAmount() => $_has(3);
   @$pb.TagNumber(4)
   void clearAmount() => clearField(4);
   @$pb.TagNumber(4)
-  $9.Money ensureAmount() => $_ensure(3);
+  $7.Money ensureAmount() => $_ensure(3);
 
   @$pb.TagNumber(5)
   $core.String get reason => $_getSZ(4);
@@ -2645,10 +2645,10 @@ class LoanRestructureObject extends $pb.GeneratedMessage {
     $core.String? newInterestRate,
     $core.int? oldTermDays,
     $core.int? newTermDays,
-    $9.Money? waivedAmount,
+    $7.Money? waivedAmount,
     $core.String? oldScheduleId,
     $core.String? newScheduleId,
-    $7.STATE? state,
+    $8.STATE? state,
     $6.Struct? properties,
   }) {
     final $result = create();
@@ -2714,10 +2714,10 @@ class LoanRestructureObject extends $pb.GeneratedMessage {
     ..aOS(8, _omitFieldNames ? '' : 'newInterestRate')
     ..a<$core.int>(9, _omitFieldNames ? '' : 'oldTermDays', $pb.PbFieldType.O3)
     ..a<$core.int>(10, _omitFieldNames ? '' : 'newTermDays', $pb.PbFieldType.O3)
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'waivedAmount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(11, _omitFieldNames ? '' : 'waivedAmount', subBuilder: $7.Money.create)
     ..aOS(12, _omitFieldNames ? '' : 'oldScheduleId')
     ..aOS(13, _omitFieldNames ? '' : 'newScheduleId')
-    ..e<$7.STATE>(14, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..e<$8.STATE>(14, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $8.STATE.CREATED, valueOf: $8.STATE.valueOf, enumValues: $8.STATE.values)
     ..aOM<$6.Struct>(15, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..hasRequiredFields = false
   ;
@@ -2834,15 +2834,15 @@ class LoanRestructureObject extends $pb.GeneratedMessage {
   void clearNewTermDays() => clearField(10);
 
   @$pb.TagNumber(11)
-  $9.Money get waivedAmount => $_getN(10);
+  $7.Money get waivedAmount => $_getN(10);
   @$pb.TagNumber(11)
-  set waivedAmount($9.Money v) { setField(11, v); }
+  set waivedAmount($7.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasWaivedAmount() => $_has(10);
   @$pb.TagNumber(11)
   void clearWaivedAmount() => clearField(11);
   @$pb.TagNumber(11)
-  $9.Money ensureWaivedAmount() => $_ensure(10);
+  $7.Money ensureWaivedAmount() => $_ensure(10);
 
   @$pb.TagNumber(12)
   $core.String get oldScheduleId => $_getSZ(11);
@@ -2863,9 +2863,9 @@ class LoanRestructureObject extends $pb.GeneratedMessage {
   void clearNewScheduleId() => clearField(13);
 
   @$pb.TagNumber(14)
-  $7.STATE get state => $_getN(13);
+  $8.STATE get state => $_getN(13);
   @$pb.TagNumber(14)
-  set state($7.STATE v) { setField(14, v); }
+  set state($8.STATE v) { setField(14, v); }
   @$pb.TagNumber(14)
   $core.bool hasState() => $_has(13);
   @$pb.TagNumber(14)
@@ -3025,7 +3025,7 @@ class ReconciliationObject extends $pb.GeneratedMessage {
     $core.String? loanAccountId,
     $core.String? paymentReference,
     $core.String? externalReference,
-    $9.Money? amount,
+    $7.Money? amount,
     ReconciliationStatus? status,
     $core.String? matchedRepaymentId,
     $core.String? notes,
@@ -3078,7 +3078,7 @@ class ReconciliationObject extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'loanAccountId')
     ..aOS(3, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(4, _omitFieldNames ? '' : 'externalReference')
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(5, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..e<ReconciliationStatus>(7, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ReconciliationStatus.RECONCILIATION_STATUS_UNSPECIFIED, valueOf: ReconciliationStatus.valueOf, enumValues: ReconciliationStatus.values)
     ..aOS(8, _omitFieldNames ? '' : 'matchedRepaymentId')
     ..aOS(9, _omitFieldNames ? '' : 'notes')
@@ -3146,15 +3146,15 @@ class ReconciliationObject extends $pb.GeneratedMessage {
   void clearExternalReference() => clearField(4);
 
   @$pb.TagNumber(5)
-  $9.Money get amount => $_getN(4);
+  $7.Money get amount => $_getN(4);
   @$pb.TagNumber(5)
-  set amount($9.Money v) { setField(5, v); }
+  set amount($7.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasAmount() => $_has(4);
   @$pb.TagNumber(5)
   void clearAmount() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensureAmount() => $_ensure(4);
+  $7.Money ensureAmount() => $_ensure(4);
 
   /// Field 6 removed (currency_code now in Money).
   @$pb.TagNumber(7)
@@ -3219,9 +3219,9 @@ class LoanStatementEntry extends $pb.GeneratedMessage {
   factory LoanStatementEntry({
     $core.String? date,
     $core.String? description,
-    $9.Money? debit,
-    $9.Money? credit,
-    $9.Money? balance,
+    $7.Money? debit,
+    $7.Money? credit,
+    $7.Money? balance,
     $core.String? reference,
   }) {
     final $result = create();
@@ -3252,9 +3252,9 @@ class LoanStatementEntry extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanStatementEntry', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'date')
     ..aOS(2, _omitFieldNames ? '' : 'description')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'debit', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(4, _omitFieldNames ? '' : 'credit', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'balance', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'debit', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(4, _omitFieldNames ? '' : 'credit', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(5, _omitFieldNames ? '' : 'balance', subBuilder: $7.Money.create)
     ..aOS(6, _omitFieldNames ? '' : 'reference')
     ..hasRequiredFields = false
   ;
@@ -3299,37 +3299,37 @@ class LoanStatementEntry extends $pb.GeneratedMessage {
   void clearDescription() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get debit => $_getN(2);
+  $7.Money get debit => $_getN(2);
   @$pb.TagNumber(3)
-  set debit($9.Money v) { setField(3, v); }
+  set debit($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasDebit() => $_has(2);
   @$pb.TagNumber(3)
   void clearDebit() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureDebit() => $_ensure(2);
+  $7.Money ensureDebit() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $9.Money get credit => $_getN(3);
+  $7.Money get credit => $_getN(3);
   @$pb.TagNumber(4)
-  set credit($9.Money v) { setField(4, v); }
+  set credit($7.Money v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasCredit() => $_has(3);
   @$pb.TagNumber(4)
   void clearCredit() => clearField(4);
   @$pb.TagNumber(4)
-  $9.Money ensureCredit() => $_ensure(3);
+  $7.Money ensureCredit() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $9.Money get balance => $_getN(4);
+  $7.Money get balance => $_getN(4);
   @$pb.TagNumber(5)
-  set balance($9.Money v) { setField(5, v); }
+  set balance($7.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasBalance() => $_has(4);
   @$pb.TagNumber(5)
   void clearBalance() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensureBalance() => $_ensure(4);
+  $7.Money ensureBalance() => $_ensure(4);
 
   @$pb.TagNumber(6)
   $core.String get reference => $_getSZ(5);
@@ -3553,7 +3553,7 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
     $core.String? branchId,
     $core.String? organizationId,
     LoanStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
@@ -3590,7 +3590,7 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
     ..aOS(4, _omitFieldNames ? '' : 'branchId')
     ..aOS(5, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanStatus>(6, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: LoanStatus.LOAN_STATUS_UNSPECIFIED, valueOf: LoanStatus.valueOf, enumValues: LoanStatus.values)
-    ..aOM<$7.PageCursor>(7, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(7, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -3670,15 +3670,15 @@ class LoanAccountSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(6);
 
   @$pb.TagNumber(7)
-  $7.PageCursor get cursor => $_getN(6);
+  $8.PageCursor get cursor => $_getN(6);
   @$pb.TagNumber(7)
-  set cursor($7.PageCursor v) { setField(7, v); }
+  set cursor($8.PageCursor v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasCursor() => $_has(6);
   @$pb.TagNumber(7)
   void clearCursor() => clearField(7);
   @$pb.TagNumber(7)
-  $7.PageCursor ensureCursor() => $_ensure(6);
+  $8.PageCursor ensureCursor() => $_ensure(6);
 }
 
 class LoanAccountSearchResponse extends $pb.GeneratedMessage {
@@ -4077,7 +4077,7 @@ class DisbursementSearchRequest extends $pb.GeneratedMessage {
   factory DisbursementSearchRequest({
     $core.String? loanAccountId,
     DisbursementStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (loanAccountId != null) {
@@ -4098,7 +4098,7 @@ class DisbursementSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DisbursementSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
     ..e<DisbursementStatus>(2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: DisbursementStatus.DISBURSEMENT_STATUS_UNSPECIFIED, valueOf: DisbursementStatus.valueOf, enumValues: DisbursementStatus.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -4142,15 +4142,15 @@ class DisbursementSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class DisbursementSearchResponse extends $pb.GeneratedMessage {
@@ -4200,7 +4200,7 @@ class DisbursementSearchResponse extends $pb.GeneratedMessage {
 class RepaymentRecordRequest extends $pb.GeneratedMessage {
   factory RepaymentRecordRequest({
     $core.String? loanAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.String? paymentReference,
     $core.String? channel,
     $core.String? payerReference,
@@ -4237,7 +4237,7 @@ class RepaymentRecordRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RepaymentRecordRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..aOS(3, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(4, _omitFieldNames ? '' : 'channel')
     ..aOS(5, _omitFieldNames ? '' : 'payerReference')
@@ -4277,15 +4277,15 @@ class RepaymentRecordRequest extends $pb.GeneratedMessage {
   void clearLoanAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $7.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($7.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $7.Money ensureAmount() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get paymentReference => $_getSZ(2);
@@ -4491,7 +4491,7 @@ class RepaymentSearchRequest extends $pb.GeneratedMessage {
   factory RepaymentSearchRequest({
     $core.String? loanAccountId,
     RepaymentStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (loanAccountId != null) {
@@ -4512,7 +4512,7 @@ class RepaymentSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RepaymentSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
     ..e<RepaymentStatus>(2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: RepaymentStatus.REPAYMENT_STATUS_UNSPECIFIED, valueOf: RepaymentStatus.valueOf, enumValues: RepaymentStatus.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -4556,15 +4556,15 @@ class RepaymentSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class RepaymentSearchResponse extends $pb.GeneratedMessage {
@@ -4937,7 +4937,7 @@ class PenaltySearchRequest extends $pb.GeneratedMessage {
   factory PenaltySearchRequest({
     $core.String? loanAccountId,
     PenaltyType? penaltyType,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (loanAccountId != null) {
@@ -4958,7 +4958,7 @@ class PenaltySearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PenaltySearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
     ..e<PenaltyType>(2, _omitFieldNames ? '' : 'penaltyType', $pb.PbFieldType.OE, defaultOrMaker: PenaltyType.PENALTY_TYPE_UNSPECIFIED, valueOf: PenaltyType.valueOf, enumValues: PenaltyType.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -5002,15 +5002,15 @@ class PenaltySearchRequest extends $pb.GeneratedMessage {
   void clearPenaltyType() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class PenaltySearchResponse extends $pb.GeneratedMessage {
@@ -5382,7 +5382,7 @@ class LoanRestructureRejectResponse extends $pb.GeneratedMessage {
 class LoanRestructureSearchRequest extends $pb.GeneratedMessage {
   factory LoanRestructureSearchRequest({
     $core.String? loanAccountId,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (loanAccountId != null) {
@@ -5399,7 +5399,7 @@ class LoanRestructureSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanRestructureSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$7.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -5434,15 +5434,15 @@ class LoanRestructureSearchRequest extends $pb.GeneratedMessage {
   void clearLoanAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $7.PageCursor get cursor => $_getN(1);
+  $8.PageCursor get cursor => $_getN(1);
   @$pb.TagNumber(2)
-  set cursor($7.PageCursor v) { setField(2, v); }
+  set cursor($8.PageCursor v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasCursor() => $_has(1);
   @$pb.TagNumber(2)
   void clearCursor() => clearField(2);
   @$pb.TagNumber(2)
-  $7.PageCursor ensureCursor() => $_ensure(1);
+  $8.PageCursor ensureCursor() => $_ensure(1);
 }
 
 class LoanRestructureSearchResponse extends $pb.GeneratedMessage {
@@ -5751,7 +5751,7 @@ class ReconciliationSearchRequest extends $pb.GeneratedMessage {
   factory ReconciliationSearchRequest({
     $core.String? loanAccountId,
     ReconciliationStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (loanAccountId != null) {
@@ -5772,7 +5772,7 @@ class ReconciliationSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ReconciliationSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
     ..e<ReconciliationStatus>(2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: ReconciliationStatus.RECONCILIATION_STATUS_UNSPECIFIED, valueOf: ReconciliationStatus.valueOf, enumValues: ReconciliationStatus.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -5816,15 +5816,15 @@ class ReconciliationSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class ReconciliationSearchResponse extends $pb.GeneratedMessage {
@@ -6030,7 +6030,7 @@ class InitiateCollectionResponse extends $pb.GeneratedMessage {
 class LoanStatusChangeSearchRequest extends $pb.GeneratedMessage {
   factory LoanStatusChangeSearchRequest({
     $core.String? loanAccountId,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (loanAccountId != null) {
@@ -6047,7 +6047,7 @@ class LoanStatusChangeSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoanStatusChangeSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'loanAccountId')
-    ..aOM<$7.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -6082,15 +6082,15 @@ class LoanStatusChangeSearchRequest extends $pb.GeneratedMessage {
   void clearLoanAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $7.PageCursor get cursor => $_getN(1);
+  $8.PageCursor get cursor => $_getN(1);
   @$pb.TagNumber(2)
-  set cursor($7.PageCursor v) { setField(2, v); }
+  set cursor($8.PageCursor v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasCursor() => $_has(1);
   @$pb.TagNumber(2)
   void clearCursor() => clearField(2);
   @$pb.TagNumber(2)
-  $7.PageCursor ensureCursor() => $_ensure(1);
+  $8.PageCursor ensureCursor() => $_ensure(1);
 }
 
 class LoanStatusChangeSearchResponse extends $pb.GeneratedMessage {
@@ -6348,7 +6348,7 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
     $core.String? query,
     $core.String? organizationId,
     LoanProductType? productType,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
@@ -6373,7 +6373,7 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanProductType>(3, _omitFieldNames ? '' : 'productType', $pb.PbFieldType.OE, defaultOrMaker: LoanProductType.LOAN_PRODUCT_TYPE_UNSPECIFIED, valueOf: LoanProductType.valueOf, enumValues: LoanProductType.values)
-    ..aOM<$7.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(4, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -6426,15 +6426,15 @@ class LoanProductSearchRequest extends $pb.GeneratedMessage {
   void clearProductType() => clearField(3);
 
   @$pb.TagNumber(4)
-  $7.PageCursor get cursor => $_getN(3);
+  $8.PageCursor get cursor => $_getN(3);
   @$pb.TagNumber(4)
-  set cursor($7.PageCursor v) { setField(4, v); }
+  set cursor($8.PageCursor v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasCursor() => $_has(3);
   @$pb.TagNumber(4)
   void clearCursor() => clearField(4);
   @$pb.TagNumber(4)
-  $7.PageCursor ensureCursor() => $_ensure(3);
+  $8.PageCursor ensureCursor() => $_ensure(3);
 }
 
 class LoanProductSearchResponse extends $pb.GeneratedMessage {
@@ -6696,7 +6696,7 @@ class LoanRequestSearchRequest extends $pb.GeneratedMessage {
     $core.String? organizationId,
     LoanRequestStatus? status,
     $core.String? sourceService,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
@@ -6737,7 +6737,7 @@ class LoanRequestSearchRequest extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'organizationId')
     ..e<LoanRequestStatus>(6, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: LoanRequestStatus.LOAN_REQUEST_STATUS_UNSPECIFIED, valueOf: LoanRequestStatus.valueOf, enumValues: LoanRequestStatus.values)
     ..aOS(7, _omitFieldNames ? '' : 'sourceService')
-    ..aOM<$7.PageCursor>(8, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(8, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -6826,15 +6826,15 @@ class LoanRequestSearchRequest extends $pb.GeneratedMessage {
   void clearSourceService() => clearField(7);
 
   @$pb.TagNumber(8)
-  $7.PageCursor get cursor => $_getN(7);
+  $8.PageCursor get cursor => $_getN(7);
   @$pb.TagNumber(8)
-  set cursor($7.PageCursor v) { setField(8, v); }
+  set cursor($8.PageCursor v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasCursor() => $_has(7);
   @$pb.TagNumber(8)
   void clearCursor() => clearField(8);
   @$pb.TagNumber(8)
-  $7.PageCursor ensureCursor() => $_ensure(7);
+  $8.PageCursor ensureCursor() => $_ensure(7);
 }
 
 class LoanRequestSearchResponse extends $pb.GeneratedMessage {
@@ -7425,7 +7425,7 @@ class ClientProductAccessSearchRequest extends $pb.GeneratedMessage {
   factory ClientProductAccessSearchRequest({
     $core.String? clientId,
     $core.String? productId,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (clientId != null) {
@@ -7446,7 +7446,7 @@ class ClientProductAccessSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ClientProductAccessSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'loans.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'clientId')
     ..aOS(2, _omitFieldNames ? '' : 'productId')
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -7490,15 +7490,15 @@ class ClientProductAccessSearchRequest extends $pb.GeneratedMessage {
   void clearProductId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class ClientProductAccessSearchResponse extends $pb.GeneratedMessage {
@@ -7554,13 +7554,13 @@ class PortfolioSummary extends $pb.GeneratedMessage {
     $core.int? defaultLoans,
     $core.int? paidOffLoans,
     $core.int? writtenOffLoans,
-    $9.Money? totalDisbursed,
-    $9.Money? totalOutstanding,
-    $9.Money? totalCollected,
-    $9.Money? principalOutstanding,
-    $9.Money? interestOutstanding,
-    $9.Money? feesOutstanding,
-    $9.Money? penaltiesOutstanding,
+    $7.Money? totalDisbursed,
+    $7.Money? totalOutstanding,
+    $7.Money? totalCollected,
+    $7.Money? principalOutstanding,
+    $7.Money? interestOutstanding,
+    $7.Money? feesOutstanding,
+    $7.Money? penaltiesOutstanding,
     $core.String? currencyCode,
     $core.String? collectionRate,
     $core.String? par30,
@@ -7627,13 +7627,13 @@ class PortfolioSummary extends $pb.GeneratedMessage {
     ..a<$core.int>(4, _omitFieldNames ? '' : 'defaultLoans', $pb.PbFieldType.O3)
     ..a<$core.int>(5, _omitFieldNames ? '' : 'paidOffLoans', $pb.PbFieldType.O3)
     ..a<$core.int>(6, _omitFieldNames ? '' : 'writtenOffLoans', $pb.PbFieldType.O3)
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'totalDisbursed', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'totalOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'totalCollected', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'principalOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'interestOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(12, _omitFieldNames ? '' : 'feesOutstanding', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(13, _omitFieldNames ? '' : 'penaltiesOutstanding', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(7, _omitFieldNames ? '' : 'totalDisbursed', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(8, _omitFieldNames ? '' : 'totalOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(9, _omitFieldNames ? '' : 'totalCollected', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(10, _omitFieldNames ? '' : 'principalOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(11, _omitFieldNames ? '' : 'interestOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(12, _omitFieldNames ? '' : 'feesOutstanding', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(13, _omitFieldNames ? '' : 'penaltiesOutstanding', subBuilder: $7.Money.create)
     ..aOS(14, _omitFieldNames ? '' : 'currencyCode')
     ..aOS(15, _omitFieldNames ? '' : 'collectionRate')
     ..aOS(16, _omitFieldNames ? '' : 'par30', protoName: 'par_30')
@@ -7716,81 +7716,81 @@ class PortfolioSummary extends $pb.GeneratedMessage {
   void clearWrittenOffLoans() => clearField(6);
 
   @$pb.TagNumber(7)
-  $9.Money get totalDisbursed => $_getN(6);
+  $7.Money get totalDisbursed => $_getN(6);
   @$pb.TagNumber(7)
-  set totalDisbursed($9.Money v) { setField(7, v); }
+  set totalDisbursed($7.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasTotalDisbursed() => $_has(6);
   @$pb.TagNumber(7)
   void clearTotalDisbursed() => clearField(7);
   @$pb.TagNumber(7)
-  $9.Money ensureTotalDisbursed() => $_ensure(6);
+  $7.Money ensureTotalDisbursed() => $_ensure(6);
 
   @$pb.TagNumber(8)
-  $9.Money get totalOutstanding => $_getN(7);
+  $7.Money get totalOutstanding => $_getN(7);
   @$pb.TagNumber(8)
-  set totalOutstanding($9.Money v) { setField(8, v); }
+  set totalOutstanding($7.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasTotalOutstanding() => $_has(7);
   @$pb.TagNumber(8)
   void clearTotalOutstanding() => clearField(8);
   @$pb.TagNumber(8)
-  $9.Money ensureTotalOutstanding() => $_ensure(7);
+  $7.Money ensureTotalOutstanding() => $_ensure(7);
 
   @$pb.TagNumber(9)
-  $9.Money get totalCollected => $_getN(8);
+  $7.Money get totalCollected => $_getN(8);
   @$pb.TagNumber(9)
-  set totalCollected($9.Money v) { setField(9, v); }
+  set totalCollected($7.Money v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasTotalCollected() => $_has(8);
   @$pb.TagNumber(9)
   void clearTotalCollected() => clearField(9);
   @$pb.TagNumber(9)
-  $9.Money ensureTotalCollected() => $_ensure(8);
+  $7.Money ensureTotalCollected() => $_ensure(8);
 
   @$pb.TagNumber(10)
-  $9.Money get principalOutstanding => $_getN(9);
+  $7.Money get principalOutstanding => $_getN(9);
   @$pb.TagNumber(10)
-  set principalOutstanding($9.Money v) { setField(10, v); }
+  set principalOutstanding($7.Money v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasPrincipalOutstanding() => $_has(9);
   @$pb.TagNumber(10)
   void clearPrincipalOutstanding() => clearField(10);
   @$pb.TagNumber(10)
-  $9.Money ensurePrincipalOutstanding() => $_ensure(9);
+  $7.Money ensurePrincipalOutstanding() => $_ensure(9);
 
   @$pb.TagNumber(11)
-  $9.Money get interestOutstanding => $_getN(10);
+  $7.Money get interestOutstanding => $_getN(10);
   @$pb.TagNumber(11)
-  set interestOutstanding($9.Money v) { setField(11, v); }
+  set interestOutstanding($7.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasInterestOutstanding() => $_has(10);
   @$pb.TagNumber(11)
   void clearInterestOutstanding() => clearField(11);
   @$pb.TagNumber(11)
-  $9.Money ensureInterestOutstanding() => $_ensure(10);
+  $7.Money ensureInterestOutstanding() => $_ensure(10);
 
   @$pb.TagNumber(12)
-  $9.Money get feesOutstanding => $_getN(11);
+  $7.Money get feesOutstanding => $_getN(11);
   @$pb.TagNumber(12)
-  set feesOutstanding($9.Money v) { setField(12, v); }
+  set feesOutstanding($7.Money v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasFeesOutstanding() => $_has(11);
   @$pb.TagNumber(12)
   void clearFeesOutstanding() => clearField(12);
   @$pb.TagNumber(12)
-  $9.Money ensureFeesOutstanding() => $_ensure(11);
+  $7.Money ensureFeesOutstanding() => $_ensure(11);
 
   @$pb.TagNumber(13)
-  $9.Money get penaltiesOutstanding => $_getN(12);
+  $7.Money get penaltiesOutstanding => $_getN(12);
   @$pb.TagNumber(13)
-  set penaltiesOutstanding($9.Money v) { setField(13, v); }
+  set penaltiesOutstanding($7.Money v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasPenaltiesOutstanding() => $_has(12);
   @$pb.TagNumber(13)
   void clearPenaltiesOutstanding() => clearField(13);
   @$pb.TagNumber(13)
-  $9.Money ensurePenaltiesOutstanding() => $_ensure(12);
+  $7.Money ensurePenaltiesOutstanding() => $_ensure(12);
 
   @$pb.TagNumber(14)
   $core.String get currencyCode => $_getSZ(13);

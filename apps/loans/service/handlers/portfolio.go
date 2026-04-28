@@ -123,8 +123,15 @@ func handlePortfolioExport(pb business.PortfolioBusiness) http.HandlerFunc {
 		filename := "loan_book_" + time.Now().Format("20060102_150405") + ".csv"
 		w.Header().Set("Content-Type", "text/csv")
 		w.Header().Set("Content-Disposition", "attachment; filename=\""+filename+"\"")
+		// Block content sniffing so the browser never tries to render the
+		// CSV body as HTML/JS. Together with Content-Type: text/csv and
+		// Content-Disposition: attachment this prevents any reflected-XSS
+		// path (G705) through CSV cell contents.
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 
-		_, writeErr := w.Write(csvData)
+		// G705 false positive: response is text/csv with nosniff +
+		// attachment, browser cannot interpret it as HTML/JS.
+		_, writeErr := w.Write(csvData) //nolint:gosec
 		if writeErr != nil {
 			logger.WithError(writeErr).Error("could not write CSV response")
 		}

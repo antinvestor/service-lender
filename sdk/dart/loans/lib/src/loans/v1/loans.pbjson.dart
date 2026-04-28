@@ -13,9 +13,9 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-import '../../common/v1/common.pbjson.dart' as $7;
+import '../../common/v1/common.pbjson.dart' as $8;
 import '../../google/protobuf/struct.pbjson.dart' as $6;
-import '../../google/type/money.pbjson.dart' as $9;
+import '../../google/type/money.pbjson.dart' as $7;
 
 @$core.Deprecated('Use loanStatusDescriptor instead')
 const LoanStatus$json = {
@@ -2019,7 +2019,7 @@ const $core.Map<$core.String, $core.dynamic> LoanManagementServiceBase$json = {
 const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> LoanManagementServiceBase$messageJson = {
   '.loans.v1.LoanProductSaveRequest': LoanProductSaveRequest$json,
   '.loans.v1.LoanProductObject': LoanProductObject$json,
-  '.google.type.Money': $9.Money$json,
+  '.google.type.Money': $7.Money$json,
   '.google.protobuf.Struct': $6.Struct$json,
   '.google.protobuf.Struct.FieldsEntry': $6.Struct_FieldsEntry$json,
   '.google.protobuf.Value': $6.Value$json,
@@ -2029,7 +2029,7 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> LoanManage
   '.loans.v1.LoanProductGetRequest': LoanProductGetRequest$json,
   '.loans.v1.LoanProductGetResponse': LoanProductGetResponse$json,
   '.loans.v1.LoanProductSearchRequest': LoanProductSearchRequest$json,
-  '.common.v1.PageCursor': $7.PageCursor$json,
+  '.common.v1.PageCursor': $8.PageCursor$json,
   '.loans.v1.LoanProductSearchResponse': LoanProductSearchResponse$json,
   '.loans.v1.LoanRequestSaveRequest': LoanRequestSaveRequest$json,
   '.loans.v1.LoanRequestObject': LoanRequestObject$json,

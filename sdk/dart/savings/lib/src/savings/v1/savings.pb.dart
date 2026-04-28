@@ -14,10 +14,10 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import '../../common/v1/common.pb.dart' as $7;
-import '../../common/v1/common.pbenum.dart' as $7;
+import '../../common/v1/common.pb.dart' as $8;
+import '../../common/v1/common.pbenum.dart' as $8;
 import '../../google/protobuf/struct.pb.dart' as $6;
-import '../../google/type/money.pb.dart' as $9;
+import '../../google/type/money.pb.dart' as $7;
 import 'savings.pbenum.dart';
 
 export 'savings.pbenum.dart';
@@ -34,10 +34,10 @@ class SavingsProductObject extends $pb.GeneratedMessage {
     $core.String? interestRate,
     CompoundingFrequency? compoundingFrequency,
     SavingsPeriodType? periodType,
-    $9.Money? minDeposit,
-    $9.Money? maxDeposit,
+    $7.Money? minDeposit,
+    $7.Money? maxDeposit,
     $6.Struct? withdrawalRules,
-    $7.STATE? state,
+    $8.STATE? state,
     $6.Struct? properties,
   }) {
     final $result = create();
@@ -99,10 +99,10 @@ class SavingsProductObject extends $pb.GeneratedMessage {
     ..aOS(7, _omitFieldNames ? '' : 'interestRate')
     ..e<CompoundingFrequency>(8, _omitFieldNames ? '' : 'compoundingFrequency', $pb.PbFieldType.OE, defaultOrMaker: CompoundingFrequency.COMPOUNDING_FREQUENCY_UNSPECIFIED, valueOf: CompoundingFrequency.valueOf, enumValues: CompoundingFrequency.values)
     ..e<SavingsPeriodType>(9, _omitFieldNames ? '' : 'periodType', $pb.PbFieldType.OE, defaultOrMaker: SavingsPeriodType.SAVINGS_PERIOD_TYPE_UNSPECIFIED, valueOf: SavingsPeriodType.valueOf, enumValues: SavingsPeriodType.values)
-    ..aOM<$9.Money>(10, _omitFieldNames ? '' : 'minDeposit', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(11, _omitFieldNames ? '' : 'maxDeposit', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(10, _omitFieldNames ? '' : 'minDeposit', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(11, _omitFieldNames ? '' : 'maxDeposit', subBuilder: $7.Money.create)
     ..aOM<$6.Struct>(12, _omitFieldNames ? '' : 'withdrawalRules', subBuilder: $6.Struct.create)
-    ..e<$7.STATE>(13, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..e<$8.STATE>(13, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $8.STATE.CREATED, valueOf: $8.STATE.valueOf, enumValues: $8.STATE.values)
     ..aOM<$6.Struct>(14, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..hasRequiredFields = false
   ;
@@ -210,26 +210,26 @@ class SavingsProductObject extends $pb.GeneratedMessage {
   void clearPeriodType() => clearField(9);
 
   @$pb.TagNumber(10)
-  $9.Money get minDeposit => $_getN(9);
+  $7.Money get minDeposit => $_getN(9);
   @$pb.TagNumber(10)
-  set minDeposit($9.Money v) { setField(10, v); }
+  set minDeposit($7.Money v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasMinDeposit() => $_has(9);
   @$pb.TagNumber(10)
   void clearMinDeposit() => clearField(10);
   @$pb.TagNumber(10)
-  $9.Money ensureMinDeposit() => $_ensure(9);
+  $7.Money ensureMinDeposit() => $_ensure(9);
 
   @$pb.TagNumber(11)
-  $9.Money get maxDeposit => $_getN(10);
+  $7.Money get maxDeposit => $_getN(10);
   @$pb.TagNumber(11)
-  set maxDeposit($9.Money v) { setField(11, v); }
+  set maxDeposit($7.Money v) { setField(11, v); }
   @$pb.TagNumber(11)
   $core.bool hasMaxDeposit() => $_has(10);
   @$pb.TagNumber(11)
   void clearMaxDeposit() => clearField(11);
   @$pb.TagNumber(11)
-  $9.Money ensureMaxDeposit() => $_ensure(10);
+  $7.Money ensureMaxDeposit() => $_ensure(10);
 
   @$pb.TagNumber(12)
   $6.Struct get withdrawalRules => $_getN(11);
@@ -243,9 +243,9 @@ class SavingsProductObject extends $pb.GeneratedMessage {
   $6.Struct ensureWithdrawalRules() => $_ensure(11);
 
   @$pb.TagNumber(13)
-  $7.STATE get state => $_getN(12);
+  $8.STATE get state => $_getN(12);
   @$pb.TagNumber(13)
-  set state($7.STATE v) { setField(13, v); }
+  set state($8.STATE v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasState() => $_has(12);
   @$pb.TagNumber(13)
@@ -475,7 +475,7 @@ class DepositObject extends $pb.GeneratedMessage {
   factory DepositObject({
     $core.String? id,
     $core.String? savingsAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     DepositStatus? status,
     $core.String? paymentReference,
     $core.String? ledgerTransactionId,
@@ -524,7 +524,7 @@ class DepositObject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DepositObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..e<DepositStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: DepositStatus.DEPOSIT_STATUS_UNSPECIFIED, valueOf: DepositStatus.valueOf, enumValues: DepositStatus.values)
     ..aOS(6, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(7, _omitFieldNames ? '' : 'ledgerTransactionId')
@@ -575,15 +575,15 @@ class DepositObject extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get amount => $_getN(2);
+  $7.Money get amount => $_getN(2);
   @$pb.TagNumber(3)
-  set amount($9.Money v) { setField(3, v); }
+  set amount($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasAmount() => $_has(2);
   @$pb.TagNumber(3)
   void clearAmount() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureAmount() => $_ensure(2);
+  $7.Money ensureAmount() => $_ensure(2);
 
   @$pb.TagNumber(5)
   DepositStatus get status => $_getN(3);
@@ -656,7 +656,7 @@ class WithdrawalObject extends $pb.GeneratedMessage {
   factory WithdrawalObject({
     $core.String? id,
     $core.String? savingsAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     WithdrawalStatus? status,
     $core.String? paymentReference,
     $core.String? ledgerTransactionId,
@@ -709,7 +709,7 @@ class WithdrawalObject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WithdrawalObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..e<WithdrawalStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: WithdrawalStatus.WITHDRAWAL_STATUS_UNSPECIFIED, valueOf: WithdrawalStatus.valueOf, enumValues: WithdrawalStatus.values)
     ..aOS(6, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(7, _omitFieldNames ? '' : 'ledgerTransactionId')
@@ -761,15 +761,15 @@ class WithdrawalObject extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get amount => $_getN(2);
+  $7.Money get amount => $_getN(2);
   @$pb.TagNumber(3)
-  set amount($9.Money v) { setField(3, v); }
+  set amount($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasAmount() => $_has(2);
   @$pb.TagNumber(3)
   void clearAmount() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureAmount() => $_ensure(2);
+  $7.Money ensureAmount() => $_ensure(2);
 
   @$pb.TagNumber(5)
   WithdrawalStatus get status => $_getN(3);
@@ -851,11 +851,11 @@ class InterestAccrualObject extends $pb.GeneratedMessage {
   factory InterestAccrualObject({
     $core.String? id,
     $core.String? savingsAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.String? periodStart,
     $core.String? periodEnd,
     $core.String? rateApplied,
-    $9.Money? balanceUsed,
+    $7.Money? balanceUsed,
     $core.String? ledgerTransactionId,
     $6.Struct? properties,
   }) {
@@ -896,11 +896,11 @@ class InterestAccrualObject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'InterestAccrualObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..aOS(4, _omitFieldNames ? '' : 'periodStart')
     ..aOS(5, _omitFieldNames ? '' : 'periodEnd')
     ..aOS(6, _omitFieldNames ? '' : 'rateApplied')
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'balanceUsed', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(7, _omitFieldNames ? '' : 'balanceUsed', subBuilder: $7.Money.create)
     ..aOS(8, _omitFieldNames ? '' : 'ledgerTransactionId')
     ..aOM<$6.Struct>(9, _omitFieldNames ? '' : 'properties', subBuilder: $6.Struct.create)
     ..hasRequiredFields = false
@@ -946,15 +946,15 @@ class InterestAccrualObject extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get amount => $_getN(2);
+  $7.Money get amount => $_getN(2);
   @$pb.TagNumber(3)
-  set amount($9.Money v) { setField(3, v); }
+  set amount($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasAmount() => $_has(2);
   @$pb.TagNumber(3)
   void clearAmount() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureAmount() => $_ensure(2);
+  $7.Money ensureAmount() => $_ensure(2);
 
   @$pb.TagNumber(4)
   $core.String get periodStart => $_getSZ(3);
@@ -984,15 +984,15 @@ class InterestAccrualObject extends $pb.GeneratedMessage {
   void clearRateApplied() => clearField(6);
 
   @$pb.TagNumber(7)
-  $9.Money get balanceUsed => $_getN(6);
+  $7.Money get balanceUsed => $_getN(6);
   @$pb.TagNumber(7)
-  set balanceUsed($9.Money v) { setField(7, v); }
+  set balanceUsed($7.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasBalanceUsed() => $_has(6);
   @$pb.TagNumber(7)
   void clearBalanceUsed() => clearField(7);
   @$pb.TagNumber(7)
-  $9.Money ensureBalanceUsed() => $_ensure(6);
+  $7.Money ensureBalanceUsed() => $_ensure(6);
 
   @$pb.TagNumber(8)
   $core.String get ledgerTransactionId => $_getSZ(7);
@@ -1019,10 +1019,10 @@ class InterestAccrualObject extends $pb.GeneratedMessage {
 class SavingsBalanceObject extends $pb.GeneratedMessage {
   factory SavingsBalanceObject({
     $core.String? savingsAccountId,
-    $9.Money? availableBalance,
-    $9.Money? totalDeposits,
-    $9.Money? totalWithdrawals,
-    $9.Money? totalInterest,
+    $7.Money? availableBalance,
+    $7.Money? totalDeposits,
+    $7.Money? totalWithdrawals,
+    $7.Money? totalInterest,
     $core.String? lastCalculatedAt,
   }) {
     final $result = create();
@@ -1052,10 +1052,10 @@ class SavingsBalanceObject extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SavingsBalanceObject', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'availableBalance', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'totalDeposits', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(4, _omitFieldNames ? '' : 'totalWithdrawals', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'totalInterest', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(2, _omitFieldNames ? '' : 'availableBalance', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'totalDeposits', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(4, _omitFieldNames ? '' : 'totalWithdrawals', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(5, _omitFieldNames ? '' : 'totalInterest', subBuilder: $7.Money.create)
     ..aOS(6, _omitFieldNames ? '' : 'lastCalculatedAt')
     ..hasRequiredFields = false
   ;
@@ -1091,48 +1091,48 @@ class SavingsBalanceObject extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get availableBalance => $_getN(1);
+  $7.Money get availableBalance => $_getN(1);
   @$pb.TagNumber(2)
-  set availableBalance($9.Money v) { setField(2, v); }
+  set availableBalance($7.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAvailableBalance() => $_has(1);
   @$pb.TagNumber(2)
   void clearAvailableBalance() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAvailableBalance() => $_ensure(1);
+  $7.Money ensureAvailableBalance() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $9.Money get totalDeposits => $_getN(2);
+  $7.Money get totalDeposits => $_getN(2);
   @$pb.TagNumber(3)
-  set totalDeposits($9.Money v) { setField(3, v); }
+  set totalDeposits($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasTotalDeposits() => $_has(2);
   @$pb.TagNumber(3)
   void clearTotalDeposits() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureTotalDeposits() => $_ensure(2);
+  $7.Money ensureTotalDeposits() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $9.Money get totalWithdrawals => $_getN(3);
+  $7.Money get totalWithdrawals => $_getN(3);
   @$pb.TagNumber(4)
-  set totalWithdrawals($9.Money v) { setField(4, v); }
+  set totalWithdrawals($7.Money v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasTotalWithdrawals() => $_has(3);
   @$pb.TagNumber(4)
   void clearTotalWithdrawals() => clearField(4);
   @$pb.TagNumber(4)
-  $9.Money ensureTotalWithdrawals() => $_ensure(3);
+  $7.Money ensureTotalWithdrawals() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $9.Money get totalInterest => $_getN(4);
+  $7.Money get totalInterest => $_getN(4);
   @$pb.TagNumber(5)
-  set totalInterest($9.Money v) { setField(5, v); }
+  set totalInterest($7.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasTotalInterest() => $_has(4);
   @$pb.TagNumber(5)
   void clearTotalInterest() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensureTotalInterest() => $_ensure(4);
+  $7.Money ensureTotalInterest() => $_ensure(4);
 
   @$pb.TagNumber(6)
   $core.String get lastCalculatedAt => $_getSZ(5);
@@ -1149,9 +1149,9 @@ class SavingsStatementEntry extends $pb.GeneratedMessage {
   factory SavingsStatementEntry({
     $core.String? date,
     $core.String? description,
-    $9.Money? debit,
-    $9.Money? credit,
-    $9.Money? balance,
+    $7.Money? debit,
+    $7.Money? credit,
+    $7.Money? balance,
     $core.String? reference,
   }) {
     final $result = create();
@@ -1182,9 +1182,9 @@ class SavingsStatementEntry extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SavingsStatementEntry', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'date')
     ..aOS(2, _omitFieldNames ? '' : 'description')
-    ..aOM<$9.Money>(3, _omitFieldNames ? '' : 'debit', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(4, _omitFieldNames ? '' : 'credit', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'balance', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(3, _omitFieldNames ? '' : 'debit', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(4, _omitFieldNames ? '' : 'credit', subBuilder: $7.Money.create)
+    ..aOM<$7.Money>(5, _omitFieldNames ? '' : 'balance', subBuilder: $7.Money.create)
     ..aOS(6, _omitFieldNames ? '' : 'reference')
     ..hasRequiredFields = false
   ;
@@ -1229,37 +1229,37 @@ class SavingsStatementEntry extends $pb.GeneratedMessage {
   void clearDescription() => clearField(2);
 
   @$pb.TagNumber(3)
-  $9.Money get debit => $_getN(2);
+  $7.Money get debit => $_getN(2);
   @$pb.TagNumber(3)
-  set debit($9.Money v) { setField(3, v); }
+  set debit($7.Money v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasDebit() => $_has(2);
   @$pb.TagNumber(3)
   void clearDebit() => clearField(3);
   @$pb.TagNumber(3)
-  $9.Money ensureDebit() => $_ensure(2);
+  $7.Money ensureDebit() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $9.Money get credit => $_getN(3);
+  $7.Money get credit => $_getN(3);
   @$pb.TagNumber(4)
-  set credit($9.Money v) { setField(4, v); }
+  set credit($7.Money v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasCredit() => $_has(3);
   @$pb.TagNumber(4)
   void clearCredit() => clearField(4);
   @$pb.TagNumber(4)
-  $9.Money ensureCredit() => $_ensure(3);
+  $7.Money ensureCredit() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $9.Money get balance => $_getN(4);
+  $7.Money get balance => $_getN(4);
   @$pb.TagNumber(5)
-  set balance($9.Money v) { setField(5, v); }
+  set balance($7.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasBalance() => $_has(4);
   @$pb.TagNumber(5)
   void clearBalance() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensureBalance() => $_ensure(4);
+  $7.Money ensureBalance() => $_ensure(4);
 
   @$pb.TagNumber(6)
   $core.String get reference => $_getSZ(5);
@@ -1481,7 +1481,7 @@ class SavingsProductSearchRequest extends $pb.GeneratedMessage {
   factory SavingsProductSearchRequest({
     $core.String? query,
     $core.String? organizationId,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
@@ -1502,7 +1502,7 @@ class SavingsProductSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SavingsProductSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..aOS(2, _omitFieldNames ? '' : 'organizationId')
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -1546,15 +1546,15 @@ class SavingsProductSearchRequest extends $pb.GeneratedMessage {
   void clearOrganizationId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class SavingsProductSearchResponse extends $pb.GeneratedMessage {
@@ -1814,7 +1814,7 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
     $core.String? productId,
     $core.String? organizationId,
     SavingsAccountStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
@@ -1847,7 +1847,7 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
     ..aOS(3, _omitFieldNames ? '' : 'productId')
     ..aOS(4, _omitFieldNames ? '' : 'organizationId')
     ..e<SavingsAccountStatus>(5, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: SavingsAccountStatus.SAVINGS_ACCOUNT_STATUS_UNSPECIFIED, valueOf: SavingsAccountStatus.valueOf, enumValues: SavingsAccountStatus.values)
-    ..aOM<$7.PageCursor>(6, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(6, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -1918,15 +1918,15 @@ class SavingsAccountSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(5);
 
   @$pb.TagNumber(6)
-  $7.PageCursor get cursor => $_getN(5);
+  $8.PageCursor get cursor => $_getN(5);
   @$pb.TagNumber(6)
-  set cursor($7.PageCursor v) { setField(6, v); }
+  set cursor($8.PageCursor v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasCursor() => $_has(5);
   @$pb.TagNumber(6)
   void clearCursor() => clearField(6);
   @$pb.TagNumber(6)
-  $7.PageCursor ensureCursor() => $_ensure(5);
+  $8.PageCursor ensureCursor() => $_ensure(5);
 }
 
 class SavingsAccountSearchResponse extends $pb.GeneratedMessage {
@@ -2208,7 +2208,7 @@ class SavingsAccountCloseResponse extends $pb.GeneratedMessage {
 class DepositRecordRequest extends $pb.GeneratedMessage {
   factory DepositRecordRequest({
     $core.String? savingsAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.String? paymentReference,
     $core.String? channel,
     $core.String? payerReference,
@@ -2241,7 +2241,7 @@ class DepositRecordRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DepositRecordRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..aOS(3, _omitFieldNames ? '' : 'paymentReference')
     ..aOS(4, _omitFieldNames ? '' : 'channel')
     ..aOS(5, _omitFieldNames ? '' : 'payerReference')
@@ -2280,15 +2280,15 @@ class DepositRecordRequest extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $7.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($7.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $7.Money ensureAmount() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get paymentReference => $_getSZ(2);
@@ -2485,7 +2485,7 @@ class DepositSearchRequest extends $pb.GeneratedMessage {
   factory DepositSearchRequest({
     $core.String? savingsAccountId,
     DepositStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (savingsAccountId != null) {
@@ -2506,7 +2506,7 @@ class DepositSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DepositSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'savingsAccountId')
     ..e<DepositStatus>(2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: DepositStatus.DEPOSIT_STATUS_UNSPECIFIED, valueOf: DepositStatus.valueOf, enumValues: DepositStatus.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -2550,15 +2550,15 @@ class DepositSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class DepositSearchResponse extends $pb.GeneratedMessage {
@@ -2608,7 +2608,7 @@ class DepositSearchResponse extends $pb.GeneratedMessage {
 class WithdrawalRequestRequest extends $pb.GeneratedMessage {
   factory WithdrawalRequestRequest({
     $core.String? savingsAccountId,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.String? channel,
     $core.String? recipientReference,
     $core.String? reason,
@@ -2641,7 +2641,7 @@ class WithdrawalRequestRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WithdrawalRequestRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..aOS(3, _omitFieldNames ? '' : 'channel')
     ..aOS(4, _omitFieldNames ? '' : 'recipientReference')
     ..aOS(5, _omitFieldNames ? '' : 'reason')
@@ -2680,15 +2680,15 @@ class WithdrawalRequestRequest extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $7.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($7.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $7.Money ensureAmount() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get channel => $_getSZ(2);
@@ -3103,7 +3103,7 @@ class WithdrawalSearchRequest extends $pb.GeneratedMessage {
   factory WithdrawalSearchRequest({
     $core.String? savingsAccountId,
     WithdrawalStatus? status,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (savingsAccountId != null) {
@@ -3124,7 +3124,7 @@ class WithdrawalSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WithdrawalSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'savingsAccountId')
     ..e<WithdrawalStatus>(2, _omitFieldNames ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: WithdrawalStatus.WITHDRAWAL_STATUS_UNSPECIFIED, valueOf: WithdrawalStatus.valueOf, enumValues: WithdrawalStatus.values)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -3168,15 +3168,15 @@ class WithdrawalSearchRequest extends $pb.GeneratedMessage {
   void clearStatus() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class WithdrawalSearchResponse extends $pb.GeneratedMessage {
@@ -3328,7 +3328,7 @@ class InterestAccrualGetResponse extends $pb.GeneratedMessage {
 class InterestAccrualSearchRequest extends $pb.GeneratedMessage {
   factory InterestAccrualSearchRequest({
     $core.String? savingsAccountId,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (savingsAccountId != null) {
@@ -3345,7 +3345,7 @@ class InterestAccrualSearchRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'InterestAccrualSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'savings.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'savingsAccountId')
-    ..aOM<$7.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(2, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -3380,15 +3380,15 @@ class InterestAccrualSearchRequest extends $pb.GeneratedMessage {
   void clearSavingsAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $7.PageCursor get cursor => $_getN(1);
+  $8.PageCursor get cursor => $_getN(1);
   @$pb.TagNumber(2)
-  set cursor($7.PageCursor v) { setField(2, v); }
+  set cursor($8.PageCursor v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasCursor() => $_has(1);
   @$pb.TagNumber(2)
   void clearCursor() => clearField(2);
   @$pb.TagNumber(2)
-  $7.PageCursor ensureCursor() => $_ensure(1);
+  $8.PageCursor ensureCursor() => $_ensure(1);
 }
 
 class InterestAccrualSearchResponse extends $pb.GeneratedMessage {

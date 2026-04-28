@@ -18,7 +18,7 @@ import 'package:protobuf/protobuf.dart' as $pb;
 import '../../common/v1/common.pb.dart' as $7;
 import '../../common/v1/common.pbenum.dart' as $7;
 import '../../google/protobuf/struct.pb.dart' as $6;
-import '../../google/type/money.pb.dart' as $9;
+import '../../google/type/money.pb.dart' as $8;
 import 'identity.pbenum.dart';
 
 export 'identity.pbenum.dart';
@@ -6202,11 +6202,11 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? investorId,
     $core.String? accountName,
-    $9.Money? availableBalance,
-    $9.Money? reservedBalance,
-    $9.Money? totalDeployed,
-    $9.Money? totalReturned,
-    $9.Money? maxExposure,
+    $8.Money? availableBalance,
+    $8.Money? reservedBalance,
+    $8.Money? totalDeployed,
+    $8.Money? totalReturned,
+    $8.Money? maxExposure,
     $core.String? minInterestRate,
     $6.Struct? allowedProducts,
     $6.Struct? allowedRegions,
@@ -6267,11 +6267,11 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'investorId')
     ..aOS(3, _omitFieldNames ? '' : 'accountName')
-    ..aOM<$9.Money>(5, _omitFieldNames ? '' : 'availableBalance', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(6, _omitFieldNames ? '' : 'reservedBalance', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(7, _omitFieldNames ? '' : 'totalDeployed', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(8, _omitFieldNames ? '' : 'totalReturned', subBuilder: $9.Money.create)
-    ..aOM<$9.Money>(9, _omitFieldNames ? '' : 'maxExposure', subBuilder: $9.Money.create)
+    ..aOM<$8.Money>(5, _omitFieldNames ? '' : 'availableBalance', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(6, _omitFieldNames ? '' : 'reservedBalance', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(7, _omitFieldNames ? '' : 'totalDeployed', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(8, _omitFieldNames ? '' : 'totalReturned', subBuilder: $8.Money.create)
+    ..aOM<$8.Money>(9, _omitFieldNames ? '' : 'maxExposure', subBuilder: $8.Money.create)
     ..aOS(10, _omitFieldNames ? '' : 'minInterestRate')
     ..aOM<$6.Struct>(11, _omitFieldNames ? '' : 'allowedProducts', subBuilder: $6.Struct.create)
     ..aOM<$6.Struct>(12, _omitFieldNames ? '' : 'allowedRegions', subBuilder: $6.Struct.create)
@@ -6330,59 +6330,59 @@ class InvestorAccountObject extends $pb.GeneratedMessage {
   void clearAccountName() => clearField(3);
 
   @$pb.TagNumber(5)
-  $9.Money get availableBalance => $_getN(3);
+  $8.Money get availableBalance => $_getN(3);
   @$pb.TagNumber(5)
-  set availableBalance($9.Money v) { setField(5, v); }
+  set availableBalance($8.Money v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasAvailableBalance() => $_has(3);
   @$pb.TagNumber(5)
   void clearAvailableBalance() => clearField(5);
   @$pb.TagNumber(5)
-  $9.Money ensureAvailableBalance() => $_ensure(3);
+  $8.Money ensureAvailableBalance() => $_ensure(3);
 
   @$pb.TagNumber(6)
-  $9.Money get reservedBalance => $_getN(4);
+  $8.Money get reservedBalance => $_getN(4);
   @$pb.TagNumber(6)
-  set reservedBalance($9.Money v) { setField(6, v); }
+  set reservedBalance($8.Money v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasReservedBalance() => $_has(4);
   @$pb.TagNumber(6)
   void clearReservedBalance() => clearField(6);
   @$pb.TagNumber(6)
-  $9.Money ensureReservedBalance() => $_ensure(4);
+  $8.Money ensureReservedBalance() => $_ensure(4);
 
   @$pb.TagNumber(7)
-  $9.Money get totalDeployed => $_getN(5);
+  $8.Money get totalDeployed => $_getN(5);
   @$pb.TagNumber(7)
-  set totalDeployed($9.Money v) { setField(7, v); }
+  set totalDeployed($8.Money v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasTotalDeployed() => $_has(5);
   @$pb.TagNumber(7)
   void clearTotalDeployed() => clearField(7);
   @$pb.TagNumber(7)
-  $9.Money ensureTotalDeployed() => $_ensure(5);
+  $8.Money ensureTotalDeployed() => $_ensure(5);
 
   @$pb.TagNumber(8)
-  $9.Money get totalReturned => $_getN(6);
+  $8.Money get totalReturned => $_getN(6);
   @$pb.TagNumber(8)
-  set totalReturned($9.Money v) { setField(8, v); }
+  set totalReturned($8.Money v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasTotalReturned() => $_has(6);
   @$pb.TagNumber(8)
   void clearTotalReturned() => clearField(8);
   @$pb.TagNumber(8)
-  $9.Money ensureTotalReturned() => $_ensure(6);
+  $8.Money ensureTotalReturned() => $_ensure(6);
 
   @$pb.TagNumber(9)
-  $9.Money get maxExposure => $_getN(7);
+  $8.Money get maxExposure => $_getN(7);
   @$pb.TagNumber(9)
-  set maxExposure($9.Money v) { setField(9, v); }
+  set maxExposure($8.Money v) { setField(9, v); }
   @$pb.TagNumber(9)
   $core.bool hasMaxExposure() => $_has(7);
   @$pb.TagNumber(9)
   void clearMaxExposure() => clearField(9);
   @$pb.TagNumber(9)
-  $9.Money ensureMaxExposure() => $_ensure(7);
+  $8.Money ensureMaxExposure() => $_ensure(7);
 
   @$pb.TagNumber(10)
   $core.String get minInterestRate => $_getSZ(8);
@@ -6780,7 +6780,7 @@ class InvestorAccountSearchResponse extends $pb.GeneratedMessage {
 class InvestorDepositRequest extends $pb.GeneratedMessage {
   factory InvestorDepositRequest({
     $core.String? accountId,
-    $9.Money? amount,
+    $8.Money? amount,
   }) {
     final $result = create();
     if (accountId != null) {
@@ -6797,7 +6797,7 @@ class InvestorDepositRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'InvestorDepositRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'accountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$8.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $8.Money.create)
     ..hasRequiredFields = false
   ;
 
@@ -6832,15 +6832,15 @@ class InvestorDepositRequest extends $pb.GeneratedMessage {
   void clearAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $8.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($8.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $8.Money ensureAmount() => $_ensure(1);
 }
 
 class InvestorDepositResponse extends $pb.GeneratedMessage {
@@ -6898,7 +6898,7 @@ class InvestorDepositResponse extends $pb.GeneratedMessage {
 class InvestorWithdrawRequest extends $pb.GeneratedMessage {
   factory InvestorWithdrawRequest({
     $core.String? accountId,
-    $9.Money? amount,
+    $8.Money? amount,
   }) {
     final $result = create();
     if (accountId != null) {
@@ -6915,7 +6915,7 @@ class InvestorWithdrawRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'InvestorWithdrawRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'identity.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'accountId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$8.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $8.Money.create)
     ..hasRequiredFields = false
   ;
 
@@ -6950,15 +6950,15 @@ class InvestorWithdrawRequest extends $pb.GeneratedMessage {
   void clearAccountId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $8.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($8.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $8.Money ensureAmount() => $_ensure(1);
 }
 
 class InvestorWithdrawResponse extends $pb.GeneratedMessage {

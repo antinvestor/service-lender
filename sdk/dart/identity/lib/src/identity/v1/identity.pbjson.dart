@@ -15,7 +15,7 @@ import 'dart:typed_data' as $typed_data;
 
 import '../../common/v1/common.pbjson.dart' as $7;
 import '../../google/protobuf/struct.pbjson.dart' as $6;
-import '../../google/type/money.pbjson.dart' as $9;
+import '../../google/type/money.pbjson.dart' as $8;
 
 @$core.Deprecated('Use organizationTypeDescriptor instead')
 const OrganizationType$json = {
@@ -2576,7 +2576,7 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> IdentitySe
   '.identity.v1.MembershipSearchResponse': MembershipSearchResponse$json,
   '.identity.v1.InvestorAccountSaveRequest': InvestorAccountSaveRequest$json,
   '.identity.v1.InvestorAccountObject': InvestorAccountObject$json,
-  '.google.type.Money': $9.Money$json,
+  '.google.type.Money': $8.Money$json,
   '.identity.v1.InvestorAccountSaveResponse': InvestorAccountSaveResponse$json,
   '.identity.v1.InvestorAccountGetRequest': InvestorAccountGetRequest$json,
   '.identity.v1.InvestorAccountGetResponse': InvestorAccountGetResponse$json,

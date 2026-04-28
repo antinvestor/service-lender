@@ -14,22 +14,22 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import '../../common/v1/common.pb.dart' as $7;
-import '../../common/v1/common.pbenum.dart' as $7;
+import '../../common/v1/common.pb.dart' as $8;
+import '../../common/v1/common.pbenum.dart' as $8;
 import '../../google/protobuf/struct.pb.dart' as $6;
-import '../../google/type/money.pb.dart' as $9;
+import '../../google/type/money.pb.dart' as $7;
 
 class TransferOrderObject extends $pb.GeneratedMessage {
   factory TransferOrderObject({
     $core.String? id,
     $core.String? debitAccountRef,
     $core.String? creditAccountRef,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.int? orderType,
     $core.String? reference,
     $core.String? description,
     $6.Struct? extraData,
-    $7.STATE? state,
+    $8.STATE? state,
   }) {
     final $result = create();
     if (id != null) {
@@ -69,12 +69,12 @@ class TransferOrderObject extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'debitAccountRef')
     ..aOS(3, _omitFieldNames ? '' : 'creditAccountRef')
-    ..aOM<$9.Money>(4, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(4, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..a<$core.int>(6, _omitFieldNames ? '' : 'orderType', $pb.PbFieldType.O3)
     ..aOS(7, _omitFieldNames ? '' : 'reference')
     ..aOS(8, _omitFieldNames ? '' : 'description')
     ..aOM<$6.Struct>(9, _omitFieldNames ? '' : 'extraData', subBuilder: $6.Struct.create)
-    ..e<$7.STATE>(10, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $7.STATE.CREATED, valueOf: $7.STATE.valueOf, enumValues: $7.STATE.values)
+    ..e<$8.STATE>(10, _omitFieldNames ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: $8.STATE.CREATED, valueOf: $8.STATE.valueOf, enumValues: $8.STATE.values)
     ..hasRequiredFields = false
   ;
 
@@ -127,15 +127,15 @@ class TransferOrderObject extends $pb.GeneratedMessage {
   void clearCreditAccountRef() => clearField(3);
 
   @$pb.TagNumber(4)
-  $9.Money get amount => $_getN(3);
+  $7.Money get amount => $_getN(3);
   @$pb.TagNumber(4)
-  set amount($9.Money v) { setField(4, v); }
+  set amount($7.Money v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasAmount() => $_has(3);
   @$pb.TagNumber(4)
   void clearAmount() => clearField(4);
   @$pb.TagNumber(4)
-  $9.Money ensureAmount() => $_ensure(3);
+  $7.Money ensureAmount() => $_ensure(3);
 
   @$pb.TagNumber(6)
   $core.int get orderType => $_getIZ(4);
@@ -176,9 +176,9 @@ class TransferOrderObject extends $pb.GeneratedMessage {
   $6.Struct ensureExtraData() => $_ensure(7);
 
   @$pb.TagNumber(10)
-  $7.STATE get state => $_getN(8);
+  $8.STATE get state => $_getN(8);
   @$pb.TagNumber(10)
-  set state($7.STATE v) { setField(10, v); }
+  set state($8.STATE v) { setField(10, v); }
   @$pb.TagNumber(10)
   $core.bool hasState() => $_has(8);
   @$pb.TagNumber(10)
@@ -293,7 +293,7 @@ class TransferOrderSearchRequest extends $pb.GeneratedMessage {
   factory TransferOrderSearchRequest({
     $core.String? query,
     $core.int? orderType,
-    $7.PageCursor? cursor,
+    $8.PageCursor? cursor,
   }) {
     final $result = create();
     if (query != null) {
@@ -314,7 +314,7 @@ class TransferOrderSearchRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TransferOrderSearchRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'operations.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'query')
     ..a<$core.int>(2, _omitFieldNames ? '' : 'orderType', $pb.PbFieldType.O3)
-    ..aOM<$7.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $7.PageCursor.create)
+    ..aOM<$8.PageCursor>(3, _omitFieldNames ? '' : 'cursor', subBuilder: $8.PageCursor.create)
     ..hasRequiredFields = false
   ;
 
@@ -358,15 +358,15 @@ class TransferOrderSearchRequest extends $pb.GeneratedMessage {
   void clearOrderType() => clearField(2);
 
   @$pb.TagNumber(3)
-  $7.PageCursor get cursor => $_getN(2);
+  $8.PageCursor get cursor => $_getN(2);
   @$pb.TagNumber(3)
-  set cursor($7.PageCursor v) { setField(3, v); }
+  set cursor($8.PageCursor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasCursor() => $_has(2);
   @$pb.TagNumber(3)
   void clearCursor() => clearField(3);
   @$pb.TagNumber(3)
-  $7.PageCursor ensureCursor() => $_ensure(2);
+  $8.PageCursor ensureCursor() => $_ensure(2);
 }
 
 class TransferOrderSearchResponse extends $pb.GeneratedMessage {
@@ -417,7 +417,7 @@ class TransferOrderSearchResponse extends $pb.GeneratedMessage {
 class IncomingPaymentNotifyRequest extends $pb.GeneratedMessage {
   factory IncomingPaymentNotifyRequest({
     $core.String? transactionId,
-    $9.Money? amount,
+    $7.Money? amount,
     $core.String? payerReference,
     $core.String? payerName,
     $core.String? productId,
@@ -454,7 +454,7 @@ class IncomingPaymentNotifyRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'IncomingPaymentNotifyRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'operations.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'transactionId')
-    ..aOM<$9.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $9.Money.create)
+    ..aOM<$7.Money>(2, _omitFieldNames ? '' : 'amount', subBuilder: $7.Money.create)
     ..aOS(3, _omitFieldNames ? '' : 'payerReference')
     ..aOS(4, _omitFieldNames ? '' : 'payerName')
     ..aOS(5, _omitFieldNames ? '' : 'productId')
@@ -494,15 +494,15 @@ class IncomingPaymentNotifyRequest extends $pb.GeneratedMessage {
   void clearTransactionId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $9.Money get amount => $_getN(1);
+  $7.Money get amount => $_getN(1);
   @$pb.TagNumber(2)
-  set amount($9.Money v) { setField(2, v); }
+  set amount($7.Money v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasAmount() => $_has(1);
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
   @$pb.TagNumber(2)
-  $9.Money ensureAmount() => $_ensure(1);
+  $7.Money ensureAmount() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get payerReference => $_getSZ(2);

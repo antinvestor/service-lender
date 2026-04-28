@@ -13,9 +13,9 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-import '../../common/v1/common.pbjson.dart' as $7;
+import '../../common/v1/common.pbjson.dart' as $8;
 import '../../google/protobuf/struct.pbjson.dart' as $6;
-import '../../google/type/money.pbjson.dart' as $9;
+import '../../google/type/money.pbjson.dart' as $7;
 
 @$core.Deprecated('Use savingsPeriodTypeDescriptor instead')
 const SavingsPeriodType$json = {
@@ -1000,7 +1000,7 @@ const $core.Map<$core.String, $core.dynamic> SavingsServiceBase$json = {
 const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SavingsServiceBase$messageJson = {
   '.savings.v1.SavingsProductSaveRequest': SavingsProductSaveRequest$json,
   '.savings.v1.SavingsProductObject': SavingsProductObject$json,
-  '.google.type.Money': $9.Money$json,
+  '.google.type.Money': $7.Money$json,
   '.google.protobuf.Struct': $6.Struct$json,
   '.google.protobuf.Struct.FieldsEntry': $6.Struct_FieldsEntry$json,
   '.google.protobuf.Value': $6.Value$json,
@@ -1009,7 +1009,7 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SavingsSer
   '.savings.v1.SavingsProductGetRequest': SavingsProductGetRequest$json,
   '.savings.v1.SavingsProductGetResponse': SavingsProductGetResponse$json,
   '.savings.v1.SavingsProductSearchRequest': SavingsProductSearchRequest$json,
-  '.common.v1.PageCursor': $7.PageCursor$json,
+  '.common.v1.PageCursor': $8.PageCursor$json,
   '.savings.v1.SavingsProductSearchResponse': SavingsProductSearchResponse$json,
   '.savings.v1.SavingsAccountCreateRequest': SavingsAccountCreateRequest$json,
   '.savings.v1.SavingsAccountObject': SavingsAccountObject$json,

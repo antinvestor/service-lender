@@ -13,9 +13,9 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-import '../../common/v1/common.pbjson.dart' as $7;
+import '../../common/v1/common.pbjson.dart' as $8;
 import '../../google/protobuf/struct.pbjson.dart' as $6;
-import '../../google/type/money.pbjson.dart' as $9;
+import '../../google/type/money.pbjson.dart' as $7;
 
 @$core.Deprecated('Use investorAccountObjectDescriptor instead')
 const InvestorAccountObject$json = {
@@ -301,7 +301,7 @@ const $core.Map<$core.String, $core.dynamic> FundingServiceBase$json = {
 const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FundingServiceBase$messageJson = {
   '.funding.v1.InvestorAccountSaveRequest': InvestorAccountSaveRequest$json,
   '.funding.v1.InvestorAccountObject': InvestorAccountObject$json,
-  '.google.type.Money': $9.Money$json,
+  '.google.type.Money': $7.Money$json,
   '.google.protobuf.Struct': $6.Struct$json,
   '.google.protobuf.Struct.FieldsEntry': $6.Struct_FieldsEntry$json,
   '.google.protobuf.Value': $6.Value$json,
@@ -310,7 +310,7 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> FundingSer
   '.funding.v1.InvestorAccountGetRequest': InvestorAccountGetRequest$json,
   '.funding.v1.InvestorAccountGetResponse': InvestorAccountGetResponse$json,
   '.funding.v1.InvestorAccountSearchRequest': InvestorAccountSearchRequest$json,
-  '.common.v1.PageCursor': $7.PageCursor$json,
+  '.common.v1.PageCursor': $8.PageCursor$json,
   '.funding.v1.InvestorAccountSearchResponse': InvestorAccountSearchResponse$json,
   '.funding.v1.InvestorDepositRequest': InvestorDepositRequest$json,
   '.funding.v1.InvestorDepositResponse': InvestorDepositResponse$json,

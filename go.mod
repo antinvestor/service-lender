@@ -31,7 +31,7 @@ require (
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260416193615-c7ebb768c716.1
 	connectrpc.com/connect v1.19.2
 	github.com/antinvestor/common v1.4.4
-	github.com/antinvestor/common/audit v0.0.0-20260415125618-b81a829ceeea
+	github.com/antinvestor/common/audit v0.0.0-20260427200632-833b5de926c7
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/pitabwire/frame v1.94.6
 	github.com/pitabwire/util v0.8.0
@@ -40,7 +40,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/metric v1.43.0
-	google.golang.org/genproto v0.0.0-20260406210006-6f92a3bedf2d
+	google.golang.org/genproto v0.0.0-20260427160629-7cedc36a6bc4
 	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
 )
@@ -170,8 +170,8 @@ require (
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.276.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260427160629-7cedc36a6bc4 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260427160629-7cedc36a6bc4 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect

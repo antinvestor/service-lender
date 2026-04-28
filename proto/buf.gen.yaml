@@ -1,65 +1,13 @@
+# This file intentionally holds no plugins. Each dart SDK package gets its
+# own buf.gen.dart.<module>.yaml so that generation is scoped to a single
+# module and dart packages don't leak each other's types.
+#
+# Local Go generation (used during proto development) lives in
+# buf.gen.local-go.yaml.
+#
+# Production Go consumers use the BSR-published modules under
+# buf.build/gen/go/antinvestor/<module>/... — see go.mod.
 version: v2
 managed:
   enabled: true
-
-plugins:
-  # Dart protobuf generation - one output per module
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/identity/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/identity/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/field/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/field/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/loans/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/loans/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/savings/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/savings/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/funding/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/funding/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
-    out: ../sdk/dart/operations/lib/src
-    include_imports: true
-    include_wkt: true
-
-  - remote: buf.build/connectrpc/dart
-    out: ../sdk/dart/operations/lib/src
-    include_imports: true
-    include_wkt: true
+plugins: []
