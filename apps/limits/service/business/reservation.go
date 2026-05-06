@@ -30,10 +30,12 @@ import (
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/datastore/pool"
+	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
 	"gorm.io/datatypes"
 
+	"github.com/antinvestor/service-fintech/apps/limits/service/events"
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
 )
@@ -70,9 +72,11 @@ type reservationBusiness struct {
 	resolver      AttributeResolver
 	auditing      *Auditing
 	dbPool        pool.Pool
+	eventsMan     fevents.Manager
 }
 
-// NewReservationBusiness wires up dependencies.
+// NewReservationBusiness wires up dependencies. eventsMan may be nil,
+// in which case event emission is a no-op.
 func NewReservationBusiness(
 	resvRepo repository.ReservationRepository,
 	ledgerRepo repository.LedgerRepository,
@@ -83,11 +87,13 @@ func NewReservationBusiness(
 	resolver AttributeResolver,
 	auditing *Auditing,
 	dbPool pool.Pool,
+	eventsMan fevents.Manager,
 ) ReservationBusiness {
 	return &reservationBusiness{
 		resvRepo: resvRepo, ledgerRepo: ledgerRepo, candidateRepo: candidateRepo,
 		approvalRepo: approvalRepo, policyRepo: policyRepo,
 		evaluator: evaluator, resolver: resolver, auditing: auditing, dbPool: dbPool,
+		eventsMan: eventsMan,
 	}
 }
 
@@ -431,6 +437,13 @@ func (b *reservationBusiness) Reserve(
 	}
 	for _, ar := range approvalRows {
 		b.auditing.RecordApprovalRequired(ctx, ar)
+		emitEvent(ctx, b.eventsMan, events.EventApprovalRequested, events.ApprovalEventPayload{
+			ReservationID:     ar.ReservationID,
+			ApprovalRequestID: ar.ID,
+			TenantID:          resv.TenantID,
+			Action:            string(ar.Action),
+			MakerID:           ar.MakerID,
+		})
 	}
 
 	// 15. Build response.

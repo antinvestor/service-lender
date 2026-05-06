@@ -121,7 +121,7 @@ func (s *ReservationBusinessSuite) resvEnv(tenantID, partitionID string) (
 
 	biz := business.NewReservationBusiness(
 		resvRepo, ledgerRepo, candidateRepo, approvalRepo, policyRepo,
-		evaluator, resolver, auditing, dbPool,
+		evaluator, resolver, auditing, dbPool, nil,
 	)
 
 	_ = policyVerRepo // used indirectly via Save

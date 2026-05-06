@@ -107,12 +107,20 @@ func (s *AdminHandlerSuite) SetupTest() {
 	resolver := business.NewAttributeResolver(attrRepo, nil, 60*time.Second)
 	auditing := business.NewAuditing(nil)
 
-	policyBiz := business.NewPolicyBusiness(policyRepo, versionRepo)
-	approvalBiz := business.NewApprovalBusiness(approvalRepo, decisionRepo, resvRepo, policyRepo, evaluator, auditing)
+	policyBiz := business.NewPolicyBusiness(policyRepo, versionRepo, nil)
+	approvalBiz := business.NewApprovalBusiness(
+		approvalRepo,
+		decisionRepo,
+		resvRepo,
+		policyRepo,
+		evaluator,
+		auditing,
+		nil,
+	)
 	ledgerBiz := business.NewLedgerSearchBusiness(ledgerRepo)
 	resvBiz := business.NewReservationBusiness(
 		resvRepo, ledgerRepo, candidateRepo, approvalRepo, policyRepo,
-		evaluator, resolver, auditing, dbPool,
+		evaluator, resolver, auditing, dbPool, nil,
 	)
 
 	s.dbPool = dbPool

@@ -23,10 +23,12 @@ import (
 	"time"
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
+	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/antinvestor/service-fintech/apps/limits/service/events"
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
 )
@@ -45,14 +47,20 @@ type PolicyBusiness interface {
 }
 
 type policyBusiness struct {
-	repo    repository.PolicyRepository
-	verRepo repository.PolicyVersionRepository
+	repo      repository.PolicyRepository
+	verRepo   repository.PolicyVersionRepository
+	eventsMan fevents.Manager
 }
 
 // NewPolicyBusiness wires up dependencies. Caller is responsible for
-// passing the audit-middleware-wrapped context.
-func NewPolicyBusiness(repo repository.PolicyRepository, verRepo repository.PolicyVersionRepository) PolicyBusiness {
-	return &policyBusiness{repo: repo, verRepo: verRepo}
+// passing the audit-middleware-wrapped context. eventsMan may be nil,
+// in which case event emission is a no-op.
+func NewPolicyBusiness(
+	repo repository.PolicyRepository,
+	verRepo repository.PolicyVersionRepository,
+	eventsMan fevents.Manager,
+) PolicyBusiness {
+	return &policyBusiness{repo: repo, verRepo: verRepo, eventsMan: eventsMan}
 }
 
 func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*limitsv1.PolicyObject, error) {
@@ -120,6 +128,13 @@ func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*
 		log.WithError(err).Error("failed to append policy version snapshot")
 	}
 
+	emitEvent(ctx, b.eventsMan, events.EventPolicyInvalidate, events.PolicyInvalidatePayload{
+		PolicyID:    pol.ID,
+		TenantID:    pol.TenantID,
+		Action:      string(pol.Action),
+		SubjectType: string(pol.SubjectType),
+	})
+
 	return apiOut, nil
 }
 
@@ -171,10 +186,20 @@ func (b *policyBusiness) Search(ctx context.Context, req *limitsv1.PolicySearchR
 }
 
 func (b *policyBusiness) Delete(ctx context.Context, id string) error {
-	if _, err := b.repo.Get(ctx, id); err != nil {
+	pol, err := b.repo.Get(ctx, id)
+	if err != nil {
 		return fmt.Errorf("%w: %s", ErrPolicyNotFound, err.Error())
 	}
-	return b.repo.Delete(ctx, id)
+	if err := b.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+	emitEvent(ctx, b.eventsMan, events.EventPolicyInvalidate, events.PolicyInvalidatePayload{
+		PolicyID:    pol.ID,
+		TenantID:    pol.TenantID,
+		Action:      string(pol.Action),
+		SubjectType: string(pol.SubjectType),
+	})
+	return nil
 }
 
 func (b *policyBusiness) ListVersions(ctx context.Context, policyID string) ([]*limitsv1.PolicyObject, error) {

@@ -18,8 +18,10 @@ import (
 	"context"
 	"time"
 
+	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 
+	"github.com/antinvestor/service-fintech/apps/limits/service/events"
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
 )
@@ -31,22 +33,25 @@ type ApprovalReaper struct {
 	approvalRepo repository.ApprovalRequestRepository
 	resvRepo     repository.ReservationRepository
 	auditing     *Auditing
+	eventsMan    fevents.Manager
 	batchSize    int
 }
 
 // NewApprovalReaper constructs a reaper. Default batchSize=1000.
+// eventsMan may be nil, in which case event emission is a no-op.
 func NewApprovalReaper(
 	approvalRepo repository.ApprovalRequestRepository,
 	resvRepo repository.ReservationRepository,
 	auditing *Auditing,
 	batchSize int,
+	eventsMan fevents.Manager,
 ) *ApprovalReaper {
 	if batchSize <= 0 {
 		batchSize = 1000
 	}
 	return &ApprovalReaper{
 		approvalRepo: approvalRepo, resvRepo: resvRepo,
-		auditing: auditing, batchSize: batchSize,
+		auditing: auditing, eventsMan: eventsMan, batchSize: batchSize,
 	}
 }
 
@@ -75,6 +80,13 @@ func (r *ApprovalReaper) Run(ctx context.Context) error {
 		}
 		ar.Status = models.ApprovalStatusExpired
 		r.auditing.RecordApprovalExpired(ctx, ar)
+		emitEvent(ctx, r.eventsMan, events.EventApprovalExpired, events.ApprovalEventPayload{
+			ReservationID:     ar.ReservationID,
+			ApprovalRequestID: ar.ID,
+			TenantID:          ar.TenantID,
+			Action:            string(ar.Action),
+			MakerID:           ar.MakerID,
+		})
 	}
 	if len(rows) > 0 {
 		log.With("count", len(rows)).Info("reaped expired approval requests")

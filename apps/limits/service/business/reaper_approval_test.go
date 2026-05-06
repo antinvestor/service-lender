@@ -94,7 +94,7 @@ func (s *ApprovalReaperSuite) reaperApprEnv(tenantID, partitionID string) (
 	resvRepo := repository.NewReservationRepository(ctx, dbPool, workMan)
 	approvalRepo := repository.NewApprovalRequestRepository(ctx, dbPool, workMan)
 	auditing := business.NewAuditing(nil)
-	reaper := business.NewApprovalReaper(approvalRepo, resvRepo, auditing, 1000)
+	reaper := business.NewApprovalReaper(approvalRepo, resvRepo, auditing, 1000, nil)
 
 	return ctx, resvRepo, approvalRepo, reaper
 }

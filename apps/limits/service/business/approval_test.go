@@ -119,10 +119,10 @@ func (s *ApprovalBusinessSuite) approvalEnv(tenantID, partitionID string) (
 
 	resvBiz := business.NewReservationBusiness(
 		resvRepo, ledgerRepo, candidateRepo, approvalRepo, policyRepo,
-		evaluator, resolver, auditing, dbPool,
+		evaluator, resolver, auditing, dbPool, nil,
 	)
 	approvalBiz := business.NewApprovalBusiness(
-		approvalRepo, decisionRepo, resvRepo, policyRepo, evaluator, auditing,
+		approvalRepo, decisionRepo, resvRepo, policyRepo, evaluator, auditing, nil,
 	)
 
 	_ = policyVerRepo

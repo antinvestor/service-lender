@@ -116,7 +116,7 @@ func (s *RuntimeHandlerSuite) runtimeEnv(tenantID, partitionID string) (
 
 	biz := business.NewReservationBusiness(
 		resvRepo, ledgerRepo, candidateRepo, approvalRepo, policyRepo,
-		evaluator, resolver, auditing, dbPool,
+		evaluator, resolver, auditing, dbPool, nil,
 	)
 
 	handler := handlers.NewRuntimeService(biz)

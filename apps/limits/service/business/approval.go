@@ -29,10 +29,12 @@ import (
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"connectrpc.com/connect"
+	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
 
+	"github.com/antinvestor/service-fintech/apps/limits/service/events"
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
 )
@@ -55,9 +57,11 @@ type approvalBusiness struct {
 	policyRepo   repository.PolicyRepository
 	evaluator    *Evaluator
 	auditing     *Auditing
+	eventsMan    fevents.Manager
 }
 
-// NewApprovalBusiness wires up dependencies.
+// NewApprovalBusiness wires up dependencies. eventsMan may be nil,
+// in which case event emission is a no-op.
 func NewApprovalBusiness(
 	approvalRepo repository.ApprovalRequestRepository,
 	decisionRepo repository.ApprovalDecisionRepository,
@@ -65,6 +69,7 @@ func NewApprovalBusiness(
 	policyRepo repository.PolicyRepository,
 	evaluator *Evaluator,
 	auditing *Auditing,
+	eventsMan fevents.Manager,
 ) ApprovalBusiness {
 	return &approvalBusiness{
 		approvalRepo: approvalRepo,
@@ -73,6 +78,7 @@ func NewApprovalBusiness(
 		policyRepo:   policyRepo,
 		evaluator:    evaluator,
 		auditing:     auditing,
+		eventsMan:    eventsMan,
 	}
 }
 
@@ -188,6 +194,14 @@ func (b *approvalBusiness) Decide(
 		ar.Status = models.ApprovalStatusRejected
 		ar.DecidedAt = &now
 		b.auditing.RecordApprovalRejected(ctx, ar, caller, req.GetNote())
+		emitEvent(ctx, b.eventsMan, events.EventApprovalRejected, events.ApprovalEventPayload{
+			ReservationID:     ar.ReservationID,
+			ApprovalRequestID: ar.ID,
+			TenantID:          ar.TenantID,
+			Action:            string(ar.Action),
+			MakerID:           ar.MakerID,
+			Reason:            req.GetNote(),
+		})
 		return b.fetchWithDecisions(ctx, ar.ID)
 	}
 
@@ -267,6 +281,14 @@ func (b *approvalBusiness) Decide(
 		ar.Status = models.ApprovalStatusAutoRejectedRecheck
 		ar.DecidedAt = &now
 		b.auditing.RecordApprovalAutoRejected(ctx, ar, failingReason)
+		emitEvent(ctx, b.eventsMan, events.EventApprovalAutoRejected, events.ApprovalEventPayload{
+			ReservationID:     ar.ReservationID,
+			ApprovalRequestID: ar.ID,
+			TenantID:          ar.TenantID,
+			Action:            string(ar.Action),
+			MakerID:           ar.MakerID,
+			Reason:            failingReason,
+		})
 		return b.fetchWithDecisions(ctx, ar.ID)
 	}
 
@@ -294,6 +316,13 @@ func (b *approvalBusiness) Decide(
 	}
 
 	b.auditing.RecordApprovalApproved(ctx, ar, caller)
+	emitEvent(ctx, b.eventsMan, events.EventApprovalApproved, events.ApprovalEventPayload{
+		ReservationID:     ar.ReservationID,
+		ApprovalRequestID: ar.ID,
+		TenantID:          ar.TenantID,
+		Action:            string(ar.Action),
+		MakerID:           ar.MakerID,
+	})
 	return b.fetchWithDecisions(ctx, ar.ID)
 }
 

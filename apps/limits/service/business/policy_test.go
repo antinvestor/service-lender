@@ -76,7 +76,7 @@ func (s *PolicyBusinessSuite) SetupTest() {
 	workMan := svc.WorkManager()
 	policyRepo := repository.NewPolicyRepository(ctx, dbPool, workMan)
 	versionRepo := repository.NewPolicyVersionRepository(ctx, dbPool, workMan)
-	s.biz = business.NewPolicyBusiness(policyRepo, versionRepo)
+	s.biz = business.NewPolicyBusiness(policyRepo, versionRepo, nil)
 }
 
 func (s *PolicyBusinessSuite) databaseResource(ctx context.Context) definition.DependancyConn {

@@ -97,7 +97,7 @@ func main() {
 	eventSave := audit.NewEventSave(ctx, auditRepo)
 
 	// ─── Business layer ───────────────────────────────────────────────
-	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo)
+	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo, evtsMan)
 	evaluator := business.NewEvaluator(reservationRepo, ledgerRepo)
 	resolver := business.NewAttributeResolver(
 		subjAttrRepo,
@@ -106,11 +106,11 @@ func main() {
 	)
 	reservationBiz := business.NewReservationBusiness(
 		reservationRepo, ledgerRepo, candidateRepo, approvalRepo, policyRepo,
-		evaluator, resolver, auditing, dbPool,
+		evaluator, resolver, auditing, dbPool, evtsMan,
 	)
 	approvalBiz := business.NewApprovalBusiness(
 		approvalRepo, decisionRepo, reservationRepo, policyRepo,
-		evaluator, auditing,
+		evaluator, auditing, evtsMan,
 	)
 	ledgerSearchBiz := business.NewLedgerSearchBusiness(ledgerRepo)
 	auditSearchBiz := business.NewAuditSearchBusiness(dbPool)
@@ -124,7 +124,7 @@ func main() {
 
 	// ─── Reapers ──────────────────────────────────────────────────────
 	resvReaper := business.NewReservationReaper(reservationRepo, auditing, 1000)
-	approvalReaper := business.NewApprovalReaper(approvalRepo, reservationRepo, auditing, 1000)
+	approvalReaper := business.NewApprovalReaper(approvalRepo, reservationRepo, auditing, 1000, evtsMan)
 	go runPeriodically(ctx, 30*time.Second, resvReaper.Run)
 	go runPeriodically(ctx, 30*time.Second, approvalReaper.Run)
 
