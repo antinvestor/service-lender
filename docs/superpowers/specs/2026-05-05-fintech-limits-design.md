@@ -40,7 +40,7 @@ The following choices are settled. References point to the dialogue that produce
 | D10 | Tenancy: `data.BaseModel` provides `TenantID`/`PartitionID`/`AccessID`; queries rely on Frame's `scopes.TenancyPartition`; explicit `OrgUnitID` column for branch-level scoping | user feedback during Section 2 |
 | D11 | Money: stored as `int64` minor units in DB, transported as `google.type.Money` on the wire, math in `decimalx.Decimal`; new `pkg/money` provides currency-precision-aware helpers | user feedback during Section 2 |
 | D12 | Migrations: Go-driven via `dbManager.Migrate(ctx, dbPool, migrationPath, &models...)`; SQL files only for column-rename / data-transform edges (per repo policy) | user feedback during Section 2 |
-| D13 | Audit-on-limiting: every gating decision (hard breach, shadow breach, approval-required, approval-decided, TTL-expired, commit, release, reverse) emits a structured `LimitsAuditEvent` row in the limits service's own DB. Append-only, queryable via `LimitsAuditEventSearch` admin RPC, retained indefinitely (separate from RPC-level audit middleware). | user feedback post-foundations plan |
+| D13 | Audit-on-limiting: every gating decision (hard breach, shadow breach, approval-required, approval-decided, TTL-expired, commit, release, reverse) is recorded via the existing `pkg/audit` infrastructure — `audit.Writer.Record` dispatches via Frame events to the per-service `EventSave` handler that persists into the limits DB's `audit_events` table (already migrated in Plan 1). No new model, no new table; namespaced action verbs (`limits.breach.hard`, `limits.approval.approved`, ...) plus the existing `Metadata` JSON bag carry the structured detail. | user feedback post-foundations plan |
 | D14 | UI: a dedicated `ui/limits/` Flutter package mirroring the per-domain pattern of `ui/savings/`, `ui/loans/`, etc. Consumes `antinvestor_api_limits` (a new Dart proto package generated via `proto/buf.gen.dart.limits.yaml` and added to `DART_MODULES` in the Makefile). Riverpod 3 state, go_router routing, embeds in `ui/seed/`. | user feedback post-foundations plan |
 | D15 | Money: pitabwire/util/money is the canonical platform-wide helper. Local `pkg/money` is gone; loans/savings/operations/funding/identity/limits all delegate via thin wrappers. ISO 4217 precision is honoured (JPY/KRW/KWD/BHD correct). | user feedback during platform cleanup |
 
@@ -467,91 +467,118 @@ Admin permissions (`limits_policy_manage`, `limits_policy_view`, `limits_approva
 
 ## 6A. Audit-on-limiting
 
-The existing `pkg/audit` middleware logs *RPC-level* events (who called `PolicySave` at when). That's the right granularity for control-plane mutations. The runtime gate produces a different category of event — every cap evaluation, every shadow miss, every approval transition, every TTL expiry — and these need a separate, structured, queryable audit trail dedicated to gating decisions.
+The existing `pkg/audit` infrastructure already provides the right shape for gating-decision audit. Plan 1 migrated `audit.Event` into the limits DB; this section specifies *how* the runtime gate writes to it, with namespaced action verbs and the existing `Metadata` JSON bag carrying the structured detail. **No new model, no new table.**
 
 ### 6A.1 What gets audited
 
-Every gating decision produces exactly one `LimitsAuditEvent` row. The set of event kinds:
+Every gating decision is recorded via `audit.Writer.Record`. Action verbs (the namespaced domain string `audit.Event.Action`):
 
-| Kind | When emitted |
-|---|---|
-| `breach_hard` | A `Reserve` is denied because at least one enforce-mode policy was breached and not approval-eligible |
-| `breach_shadow` | A shadow-mode policy would have blocked but did not |
-| `approval_required` | A `Reserve` produced `PENDING_APPROVAL` (one row per triggering policy) |
-| `approval_approved` | An `ApprovalRequest` reached its required-count and re-evaluation passed |
-| `approval_rejected` | An approver rejected, or all-but-one approved and the last rejected |
-| `approval_auto_rejected` | Re-evaluation at decision time newly breached a previously-passing policy |
-| `approval_expired` | A pending `ApprovalRequest` passed its `expires_at` |
-| `reservation_committed` | A `Commit` finalised a reservation |
-| `reservation_released` | A `Release` freed a reservation |
-| `reservation_reversed` | A `Reverse` marked ledger entries reversed |
-| `reservation_expired_ttl` | The TTL reaper auto-expired an `active` reservation |
+| Verb | When emitted | Entity |
+|---|---|---|
+| `limits.breach.hard` | A `Reserve` is denied — at least one enforce-mode policy breached and not approval-eligible | `reservation` (or `policy` for the breached one — caller chooses primary) |
+| `limits.breach.shadow` | A shadow-mode policy would have blocked | `policy` |
+| `limits.approval.required` | A `Reserve` produced `PENDING_APPROVAL` | `approval_request` (one row per triggering policy) |
+| `limits.approval.approved` | An `ApprovalRequest` reached its required-count and re-evaluation passed | `approval_request` |
+| `limits.approval.rejected` | An approver rejected | `approval_request` |
+| `limits.approval.auto_rejected` | Re-evaluation at decision time newly breached a previously-passing policy | `approval_request` |
+| `limits.approval.expired` | A pending `ApprovalRequest` passed its `expires_at` | `approval_request` |
+| `limits.reservation.committed` | A `Commit` finalised a reservation | `reservation` |
+| `limits.reservation.released` | A `Release` freed a reservation | `reservation` |
+| `limits.reservation.reversed` | A `Reverse` marked ledger entries reversed | `reservation` |
+| `limits.reservation.expired_ttl` | The TTL reaper auto-expired an `active` reservation | `reservation` |
 
-### 6A.2 Model
+`audit.Event.EntityID` is the reservation_id, approval_request_id, or policy_id depending on the verb's primary subject.
 
-```go
-type LimitsAuditEvent struct {
-    data.BaseModel `gorm:"embedded"`
+### 6A.2 Metadata schema
 
-    Kind            AuditKind      `gorm:"column:kind;type:varchar(40);not null;index:idx_audit_kind,priority:1"`
-    OccurredAt      time.Time      `gorm:"column:occurred_at;type:timestamptz;not null;index:idx_audit_kind,priority:2"`
-    OrgUnitID       string         `gorm:"column:org_unit_id;type:varchar(50)"`
-    Action          LimitAction    `gorm:"column:action;type:varchar(64);not null"`
-    ReservationID   string         `gorm:"column:reservation_id;type:varchar(50);index"`
-    PolicyID        string         `gorm:"column:policy_id;type:varchar(50);index"`
-    PolicyVersion   int32          `gorm:"column:policy_version"`
-    SubjectRefs     datatypes.JSON `gorm:"column:subject_refs;type:jsonb;not null"`
-    MakerID         string         `gorm:"column:maker_id;type:varchar(50)"`
-    ApproverID      string         `gorm:"column:approver_id;type:varchar(50)"`
-    Amount          int64          `gorm:"column:amount;not null"`
-    CurrencyCode    string         `gorm:"column:currency_code;type:varchar(3)"`
-    Verdicts        datatypes.JSON `gorm:"column:verdicts;type:jsonb"`
-    Reason          string         `gorm:"column:reason;type:text"`
+The `Metadata` JSON bag carries the structured fields specific to gating events. By convention every limits-audit row populates the same keys (when applicable) so consumers can index uniformly:
+
+```json
+{
+  "action_kind": "loan_disbursement",          // LimitAction enum value
+  "policy_id": "pol-abc",
+  "policy_version": 3,
+  "amount_minor": 2500000,
+  "currency": "KES",
+  "subjects": [{"type":"client","id":"c1"},{"type":"organization","id":"org-1"}],
+  "verdicts": [
+    {"policy_id": "pol-abc", "matched": true, "breached": true, "reason": "rolling_24h sum 950000+100000>cap 1000000",
+     "current_usage_minor": 950000, "cap_minor": 1000000}
+  ],
+  "org_unit_id": "branch-a",
+  "approver_id": "wf-42"                        // for approval verbs
 }
-func (LimitsAuditEvent) TableName() string { return "limits_audit_events" }
 ```
 
-Append-only; no `Update` path. Tenancy via `BaseModel` (`TenantID`/`PartitionID`). The hot index is `(tenant_id, kind, occurred_at DESC)`; secondary indexes on `policy_id` and `reservation_id` for "show me everything for this reservation" queries. `BRIN(occurred_at)` indexed for retention scans on very large tables.
+The `Reason` field on `audit.Event` carries a one-line human-readable summary; `Metadata` carries the structured detail.
 
 ### 6A.3 Emission
 
-Emission is best-effort but in-band — the audit insert is in the same DB transaction as the state change that produced it. Reasons:
+The platform convention from `pkg/audit/writer.go` is to dispatch asynchronously via Frame events: `audit.Writer.Record` publishes to the `audit_event.save` topic, the per-service `EventSave` handler subscribes and persists. Audit writes are *advisory* — they should not block the user-visible action on a transient persistence failure.
 
-- **In-band:** so we never have a state change without its audit row. A queue-based async write would race with crashes and produce gaps.
-- **Same transaction:** so an audit insert failure rolls back the state change. This is the strongest guarantee. We accept the small latency cost (~1-2ms per gating decision) for the correctness floor.
-- **Best-effort outside the transaction:** TTL reaper and approval reaper run in their own transactions per row; if the audit insert fails the whole batch retries. No silent gaps.
-
-The business layer wires emission via a small `audit.Writer` injected into the relevant business methods (`reservationBusiness`, `approvalBusiness`, the reapers). Each emission is one helper call:
+Limits follows that convention. Each business method that produces a gating decision takes a `*audit.Writer` and calls `RecordOrLog` after the state change has committed. A small `auditing.go` helper in `apps/limits/service/business/` builds the typed `audit.Record` from a `(verb, reservation, intent, verdicts)` tuple so call-sites stay short:
 
 ```go
-audit.Emit(ctx, &models.LimitsAuditEvent{
-    Kind:          AuditKindBreachHard,
-    OccurredAt:    time.Now().UTC(),
-    Action:        intent.Action,
-    SubjectRefs:   subjectRefsJSON(intent),
-    MakerID:       intent.MakerID,
-    Amount:        intent.AmountMinorUnits,
-    CurrencyCode:  intent.CurrencyCode,
-    Verdicts:      verdictsJSON(verdicts),
-    Reason:        "policy=" + breachedPolicy.ID + " sum+amount=" + ...,
-})
+auditing.RecordBreachHard(ctx, b.audit, reservation, intent, breachedVerdicts)
+auditing.RecordReservationCommitted(ctx, b.audit, reservation)
+auditing.RecordApprovalApproved(ctx, b.audit, approvalRequest, decisions)
+// ...one helper per verb
 ```
+
+The reapers and the approval-decide path also emit via the same helpers.
 
 ### 6A.4 Admin RPC
 
-`LimitsAdminService.LimitsAuditEventSearch(LimitsAuditEventSearchRequest) returns (stream LimitsAuditEventSearchResponse)` — paginated streaming search filterable by `kind`, `action`, `policy_id`, `reservation_id`, `subject_type+subject_id`, time range. Permission: `limits_audit_view` (granted to risk/compliance/audit roles).
+A new admin RPC queries the existing `audit_events` table filtered to limits-namespaced verbs:
 
-Response items are `LimitsAuditEventObject` (proto mirror of the model). Cursor pagination on `(occurred_at, id)` ordered DESC.
+```proto
+service LimitsAdminService {
+  // ...existing RPCs...
+  rpc LimitsAuditSearch(LimitsAuditSearchRequest) returns (stream LimitsAuditSearchResponse) {
+    option (common.v1.method_permissions) = { permissions: ["limits_audit_view"] };
+  }
+}
+
+message LimitsAuditSearchRequest {
+  // Filter on action verb prefix or exact match.
+  // If empty, all "limits.*" verbs are returned.
+  repeated string actions = 1;
+  string entity_type = 2;     // reservation / approval_request / policy
+  string entity_id = 3;
+  string actor_id = 4;
+  google.protobuf.Timestamp from = 5;
+  google.protobuf.Timestamp to = 6;
+  common.v1.PageCursor cursor = 7;
+}
+
+message LimitsAuditEventObject {
+  string id = 1;
+  string entity_type = 2;
+  string entity_id = 3;
+  string action = 4;
+  string actor_id = 5;
+  string actor_type = 6;
+  string reason = 7;
+  google.protobuf.Struct metadata = 8;
+  google.protobuf.Timestamp occurred_at = 9;
+}
+
+message LimitsAuditSearchResponse { repeated LimitsAuditEventObject data = 1; }
+```
+
+The handler reads from the limits service's own `audit_events` table, filters `WHERE action LIKE 'limits.%'` (plus user-supplied predicates), and streams batches. Tenancy is applied via `scopes.TenancyPartition`. Cursor pagination on `(occurred_at, id)` DESC.
+
+A new permission `limits_audit_view` joins the existing admin permissions, granted to risk / compliance / audit roles via OPL.
 
 ### 6A.5 Retention
 
-Limits audit events are retained indefinitely by default. A separate operational concern (likely a partition-prune job after N years) handles compliance-driven retention; not v1. The audit table is the system's authoritative record of every gating decision and its reasoning.
+The platform's `audit_events` tables are retained indefinitely by default. Compliance-driven retention pruning (e.g. partition-prune after N years) is operational follow-up, not v1.
 
 ### 6A.6 What's *not* in audit-on-limiting
 
-- Per-RPC who/when (still the existing `pkg/audit` middleware on policy CRUD).
-- Identity-service KYC-tier changes (those land in identity's audit trail).
-- The runtime metrics (`limits_breach_total` etc.) — those are observability, not audit. Different consumer, different retention.
+- Per-RPC who/when on policy CRUD: still recorded by the existing `pkg/audit` middleware on `LimitsAdminService.PolicySave` etc., using non-`limits.*` action verbs (the middleware names them after the RPC). Both stream into the same `audit_events` table; the search RPC filters on the `limits.*` prefix.
+- Identity-service KYC-tier changes: land in identity's audit trail, not limits'.
+- Runtime metrics (`limits_breach_total` etc.): observability, not audit. Different consumer, different retention.
 
 ## 7. Policy resolution & evaluation algorithm
 
