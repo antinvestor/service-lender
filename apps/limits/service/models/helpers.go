@@ -280,3 +280,77 @@ func unmarshalApproverTiers(b []byte) ([]*limitsv1.ApproverTier, error) {
 	}
 	return out, nil
 }
+
+// ─── Subject-ref JSON marshallers (used by Reservation) ──────────────
+
+func marshalSubjectRefs(refs []*limitsv1.SubjectRef) ([]byte, error) {
+	if len(refs) == 0 {
+		return []byte("[]"), nil
+	}
+	type sr struct {
+		Type string `json:"type"`
+		ID   string `json:"id"`
+	}
+	out := make([]sr, len(refs))
+	for i, r := range refs {
+		out[i] = sr{Type: subjectTypeJSON(r.GetType()), ID: r.GetId()}
+	}
+	return json.Marshal(out)
+}
+
+func unmarshalSubjectRefs(b []byte) ([]*limitsv1.SubjectRef, error) {
+	if len(b) == 0 {
+		return nil, nil
+	}
+	type sr struct {
+		Type string `json:"type"`
+		ID   string `json:"id"`
+	}
+	var raw []sr
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return nil, err
+	}
+	out := make([]*limitsv1.SubjectRef, len(raw))
+	for i, r := range raw {
+		out[i] = &limitsv1.SubjectRef{Type: subjectTypeFromJSON(r.Type), Id: r.ID}
+	}
+	return out, nil
+}
+
+func subjectTypeJSON(t limitsv1.SubjectType) string {
+	switch t {
+	case limitsv1.SubjectType_SUBJECT_TYPE_CLIENT:
+		return "client"
+	case limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT:
+		return "account"
+	case limitsv1.SubjectType_SUBJECT_TYPE_PRODUCT:
+		return "product"
+	case limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION:
+		return "organization"
+	case limitsv1.SubjectType_SUBJECT_TYPE_ORG_UNIT:
+		return "org_unit"
+	case limitsv1.SubjectType_SUBJECT_TYPE_WORKFORCE_MEMBER:
+		return "workforce_member"
+	default:
+		return ""
+	}
+}
+
+func subjectTypeFromJSON(s string) limitsv1.SubjectType {
+	switch s {
+	case "client":
+		return limitsv1.SubjectType_SUBJECT_TYPE_CLIENT
+	case "account":
+		return limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT
+	case "product":
+		return limitsv1.SubjectType_SUBJECT_TYPE_PRODUCT
+	case "organization":
+		return limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION
+	case "org_unit":
+		return limitsv1.SubjectType_SUBJECT_TYPE_ORG_UNIT
+	case "workforce_member":
+		return limitsv1.SubjectType_SUBJECT_TYPE_WORKFORCE_MEMBER
+	default:
+		return limitsv1.SubjectType_SUBJECT_TYPE_UNSPECIFIED
+	}
+}
