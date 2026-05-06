@@ -20,6 +20,7 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationspb "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
@@ -51,6 +52,7 @@ import (
 
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/clients"
+	"github.com/antinvestor/service-fintech/pkg/limits/consumer"
 )
 
 var errCurrentPeriodNotFound = errors.New("current period not found")
@@ -113,7 +115,25 @@ func main() {
 		return
 	}
 
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, identityCli, platformClients)
+	// Limits client. Optional — when LimitsServiceURI is empty, SetupClient
+	// returns nil and the gate is disabled at runtime regardless of the config flag.
+	limitsCli, limitsErr := setupLimitsClient(ctx, cfg)
+	if limitsErr != nil {
+		log.WithError(limitsErr).
+			Warn("main -- Could not setup limits client, limits gate will be disabled")
+	}
+
+	serviceOptions := setupServiceOptions(
+		ctx,
+		sm,
+		evtsMan,
+		dbPool,
+		workMan,
+		identityCli,
+		platformClients,
+		limitsCli,
+		cfg,
+	)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -131,6 +151,8 @@ func setupServiceOptions(
 	workMan workerpool.Manager,
 	identityCli identityv1connect.IdentityServiceClient,
 	platformClients *clients.PlatformClients,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	cfg aconfig.OperationsConfig,
 ) []frame.Option {
 	// Operations repositories
 	toRepo := repository.NewTransferOrderRepository(ctx, dbPool, workMan)
@@ -177,11 +199,15 @@ func setupServiceOptions(
 		iaAdapter,
 		platformClients,
 		auditWriter,
+		limitsCli,
+		cfg.LimitsGateEnabledOperationsTransfer,
 	)
 	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
 
+	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
+
 	// ConnectRPC handler
-	connectHandler := setupConnectServer(ctx, sm, toBiz, prBiz, toRepo)
+	connectHandler := setupConnectServer(ctx, sm, toBiz, prBiz, toRepo, limitsDrainHandler)
 
 	sd := operationspb.File_operations_v1_operations_proto.Services().ByName("OperationsService")
 
@@ -230,6 +256,7 @@ func setupConnectServer(
 	toBiz business.TransferOrderBusiness,
 	prBiz business.PaymentRoutingBusiness,
 	toRepo repository.TransferOrderRepository,
+	limitsDrainHandler http.Handler,
 ) http.Handler {
 	opsHandler := handlers.NewOperationsServer(toBiz, prBiz, toRepo)
 
@@ -257,8 +284,20 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(opsPath, opsServerHandler)
+	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
+}
+
+func setupLimitsClient(
+	ctx context.Context,
+	cfg aconfig.OperationsConfig,
+) (limitsv1connect.LimitsServiceClient, error) {
+	return consumer.SetupClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.LimitsServiceURI,
+		WorkloadAPITargetPath: cfg.LimitsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_limits"},
+	})
 }
 
 // ---------------------------------------------------------------------------

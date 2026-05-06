@@ -46,6 +46,13 @@ type OperationsConfig struct {
 	// Tenancy service
 	TenancyServiceURI                   string `envDefault:"127.0.0.1:7003"              env:"TENANCY_SERVICE_URI"`
 	TenancyServiceWorkloadAPITargetPath string `envDefault:"/ns/auth/sa/service-tenancy" env:"TENANCY_SERVICE_WORKLOAD_API_TARGET_PATH"`
+
+	// Limits service: gates transfer order execution through the centralised
+	// caps engine. Both URI fields are optional; when LimitsServiceURI is empty
+	// consumer.SetupClient returns nil and the gate is skipped at runtime.
+	LimitsServiceURI                    string `envDefault:"http://service_limits:80" env:"LIMITS_SERVICE_URI"`
+	LimitsServiceWorkloadAPITargetPath  string `envDefault:""                         env:"LIMITS_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	LimitsGateEnabledOperationsTransfer bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_OPERATIONS_TRANSFER"`
 }
 
 // ServiceEndpoints returns a clients.ServiceEndpoints populated from the config.
