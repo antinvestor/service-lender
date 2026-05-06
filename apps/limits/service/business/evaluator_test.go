@@ -102,6 +102,9 @@ func (s *stubResvRepo) SetExpired(_ context.Context, _ string, _ time.Time) erro
 func (s *stubResvRepo) BulkSetExpired(_ context.Context, _ []string, _ time.Time) (int, error) {
 	return 0, nil
 }
+func (s *stubResvRepo) HardDeleteTerminalBefore(_ context.Context, _ time.Time) (int, error) {
+	return 0, nil
+}
 func (s *stubResvRepo) SetReversed(_ context.Context, _ string, _ time.Time) error { return nil }
 func (s *stubResvRepo) SetReversedTx(_ context.Context, _ *gorm.DB, _ string, _ time.Time) error {
 	return nil
@@ -170,6 +173,10 @@ func (s *stubLedgerRepo) Search(
 	cursor string,
 ) (*repository.LedgerSearchResult, error) {
 	return nil, nil
+}
+
+func (s *stubLedgerRepo) HardDeleteBefore(_ context.Context, _ time.Time) (int, error) {
+	return 0, nil
 }
 
 func newPolicy(kind models.Kind, value int64, mode models.Mode, withApproverTiers bool) *models.Policy {

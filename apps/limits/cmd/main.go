@@ -120,8 +120,12 @@ func main() {
 	runtimeH := handlers.NewRuntimeService(reservationBiz)
 	adminH := handlers.NewAdminService(policyBiz, approvalBiz, ledgerSearchBiz, auditSearchBiz)
 
+	// ─── Archival job ─────────────────────────────────────────────────
+	archivalBiz := business.NewArchival(reservationRepo, ledgerRepo)
+	archivalH := handlers.NewArchivalHandler(archivalBiz)
+
 	// ─── Connect RPC server ────────────────────────────────────────────
-	connectHandler := setupConnectServer(ctx, sm, runtimeH, adminH)
+	connectHandler := setupConnectServer(ctx, sm, runtimeH, adminH, archivalH)
 
 	// ─── Reapers ──────────────────────────────────────────────────────
 	resvReaper := business.NewReservationReaper(reservationRepo, auditing, 1000)
@@ -165,12 +169,14 @@ func handleDatabaseMigration(
 
 // setupConnectServer mounts both LimitsService (runtime) and LimitsAdminService
 // (control plane) on the provided HTTP mux, each wrapped in the standard
-// authenticate + RBAC + audit interceptor stack.
+// authenticate + RBAC + audit interceptor stack. archivalH is mounted at
+// POST /admin/archive for Trustage-driven archival runs.
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
 	runtimeH *handlers.RuntimeService,
 	adminH *handlers.AdminService,
+	archivalH *handlers.ArchivalHandler,
 ) http.Handler {
 	auth := sm.GetAuthorizer(ctx)
 	authenticator := sm.GetAuthenticator(ctx)
@@ -232,6 +238,9 @@ func setupConnectServer(
 	mux := http.NewServeMux()
 	mux.Handle(runtimePath, runtimeHandler)
 	mux.Handle(adminPath, adminHandler)
+	if archivalH != nil {
+		mux.Handle("/admin/archive", archivalH)
+	}
 
 	return mux
 }

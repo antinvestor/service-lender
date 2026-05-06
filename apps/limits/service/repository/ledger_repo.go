@@ -57,6 +57,10 @@ type LedgerRepository interface {
 	) (int64, error)
 	MarkReversed(ctx context.Context, reservationID string, at time.Time) error
 	Search(ctx context.Context, f LedgerSearchFilter, limit int, cursor string) (*LedgerSearchResult, error)
+	// HardDeleteBefore permanently deletes ledger entries whose committed_at
+	// is older than cutoff. Processes in batches of 1000. Cross-tenant.
+	// Returns total rows deleted.
+	HardDeleteBefore(ctx context.Context, cutoff time.Time) (int, error)
 }
 
 type LedgerSearchFilter struct {
@@ -156,6 +160,24 @@ func (r *ledgerRepository) MarkReversed(ctx context.Context, reservationID strin
 	return db.Table(models.LedgerEntry{}.TableName()).
 		Where("reservation_id = ? AND reversed_at IS NULL", reservationID).
 		Update("reversed_at", at).Error
+}
+
+func (r *ledgerRepository) HardDeleteBefore(ctx context.Context, cutoff time.Time) (int, error) {
+	total := 0
+	for {
+		res := r.dbPool.DB(ctx, false).Unscoped().
+			Where("committed_at < ?", cutoff).
+			Limit(1000).
+			Delete(&models.LedgerEntry{})
+		if res.Error != nil {
+			return total, res.Error
+		}
+		total += int(res.RowsAffected)
+		if res.RowsAffected < 1000 {
+			break
+		}
+	}
+	return total, nil
 }
 
 func (r *ledgerRepository) Search(

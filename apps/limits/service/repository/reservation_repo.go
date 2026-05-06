@@ -89,6 +89,11 @@ type ReservationRepository interface {
 	// SetActiveTx runs SetActive inside caller-supplied tx.
 	SetActiveTx(ctx context.Context, tx *gorm.DB, id string) error
 	ListExpiredActive(ctx context.Context, before time.Time, limit int) ([]*models.Reservation, error)
+	// HardDeleteTerminalBefore permanently deletes terminal reservations
+	// (committed, released, reversed, expired) whose modified_at is older than
+	// cutoff. Processes in batches of 1000 to avoid lock storms. Cross-tenant.
+	// Returns total rows deleted.
+	HardDeleteTerminalBefore(ctx context.Context, cutoff time.Time) (int, error)
 }
 
 type reservationRepository struct {
@@ -344,6 +349,32 @@ func (r *reservationRepository) SetActiveTx(ctx context.Context, tx *gorm.DB, id
 		Table(models.Reservation{}.TableName()).
 		Where("id = ? AND status = ?", id, string(models.ReservationStatusPendingApproval)).
 		Updates(map[string]any{"status": string(models.ReservationStatusActive), "modified_at": time.Now().UTC()}).Error
+}
+
+func (r *reservationRepository) HardDeleteTerminalBefore(ctx context.Context, cutoff time.Time) (int, error) {
+	terminalStatuses := []string{
+		string(models.ReservationStatusCommitted),
+		string(models.ReservationStatusReleased),
+		string(models.ReservationStatusReversed),
+		string(models.ReservationStatusExpired),
+	}
+	total := 0
+	for {
+		// Unscoped so GORM's soft-delete WHERE clause is bypassed; we physically
+		// delete the rows. Cross-tenant: TenancyPartition intentionally omitted.
+		res := r.dbPool.DB(ctx, false).Unscoped().
+			Where("status IN ? AND modified_at < ?", terminalStatuses, cutoff).
+			Limit(1000).
+			Delete(&models.Reservation{})
+		if res.Error != nil {
+			return total, res.Error
+		}
+		total += int(res.RowsAffected)
+		if res.RowsAffected < 1000 {
+			break
+		}
+	}
+	return total, nil
 }
 
 func (r *reservationRepository) ListExpiredActive(
