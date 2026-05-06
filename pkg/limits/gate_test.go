@@ -119,7 +119,7 @@ func TestGate_HappyPath_CallsCommitOnSuccess(t *testing.T) {
 		},
 	}
 	called := false
-	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1",
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1", limits.ModeEnforce,
 		func(ctx context.Context, reservationID string) error {
 			called = true
 			assert.Equal(t, "res-1", reservationID)
@@ -145,7 +145,7 @@ func TestGate_HandlerError_CallsRelease(t *testing.T) {
 		},
 	}
 	handlerErr := errors.New("local DB write failed")
-	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1",
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1", limits.ModeEnforce,
 		func(ctx context.Context, reservationID string) error {
 			return handlerErr
 		})
@@ -167,9 +167,12 @@ func TestGate_PendingApproval_ReturnsTypedError(t *testing.T) {
 			},
 			Check: &limitsv1.CheckResponse{Verdicts: []*limitsv1.PolicyVerdict{verdict}},
 		},
+		releaseResp: &limitsv1.ReleaseResponse{
+			Reservation: &limitsv1.ReservationObject{Status: limitsv1.ReservationStatus_RESERVATION_STATUS_RELEASED},
+		},
 	}
 	called := false
-	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1",
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1", limits.ModeEnforce,
 		func(ctx context.Context, reservationID string) error {
 			called = true
 			return nil
@@ -187,7 +190,7 @@ func TestGate_PendingApproval_ReturnsTypedError(t *testing.T) {
 func TestGate_ReserveError_PropagatesAndDoesNotCallHandler(t *testing.T) {
 	stub := &stubLimitsClient{reserveErr: errors.New("limits unavailable")}
 	called := false
-	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1",
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-1", limits.ModeEnforce,
 		func(ctx context.Context, reservationID string) error {
 			called = true
 			return nil
@@ -200,7 +203,73 @@ func TestGate_ReserveError_PropagatesAndDoesNotCallHandler(t *testing.T) {
 }
 
 func TestGate_NilClient_Errors(t *testing.T) {
-	err := limits.Gate(context.Background(), nil, &limitsv1.LimitIntent{}, "idem-1",
+	err := limits.Gate(context.Background(), nil, &limitsv1.LimitIntent{}, "idem-1", limits.ModeEnforce,
 		func(ctx context.Context, reservationID string) error { return nil })
 	require.Error(t, err)
+}
+
+func TestGate_Shadow_DeniedReservation_RunsHandler(t *testing.T) {
+	// Simulate an unexpected/denied reservation status (not ACTIVE, not PENDING_APPROVAL).
+	stub := &stubLimitsClient{
+		reserveResp: &limitsv1.ReserveResponse{
+			Reservation: &limitsv1.ReservationObject{
+				Id:     "res-shadow-denied",
+				Status: limitsv1.ReservationStatus_RESERVATION_STATUS_UNSPECIFIED,
+			},
+		},
+		releaseResp: &limitsv1.ReleaseResponse{
+			Reservation: &limitsv1.ReservationObject{Status: limitsv1.ReservationStatus_RESERVATION_STATUS_RELEASED},
+		},
+	}
+	called := false
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-shadow-deny", limits.ModeShadow,
+		func(ctx context.Context, reservationID string) error {
+			called = true
+			return nil
+		})
+	require.NoError(t, err)
+	assert.True(t, called, "handler must run in shadow mode despite deny")
+	assert.Equal(t, 1, stub.reserveCalls)
+}
+
+func TestGate_Shadow_PendingReservation_RunsHandler(t *testing.T) {
+	stub := &stubLimitsClient{
+		reserveResp: &limitsv1.ReserveResponse{
+			Reservation: &limitsv1.ReservationObject{
+				Id:     "res-shadow-pending",
+				Status: limitsv1.ReservationStatus_RESERVATION_STATUS_PENDING_APPROVAL,
+			},
+			Check: &limitsv1.CheckResponse{Verdicts: []*limitsv1.PolicyVerdict{
+				{PolicyId: "pol-shadow", WouldRequireApproval: true, Reason: "shadow test"},
+			}},
+		},
+		releaseResp: &limitsv1.ReleaseResponse{
+			Reservation: &limitsv1.ReservationObject{Status: limitsv1.ReservationStatus_RESERVATION_STATUS_RELEASED},
+		},
+	}
+	called := false
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-shadow-pend", limits.ModeShadow,
+		func(ctx context.Context, reservationID string) error {
+			called = true
+			return nil
+		})
+	require.NoError(t, err)
+	assert.True(t, called, "handler must run in shadow mode despite pending approval")
+	assert.Equal(t, 1, stub.reserveCalls)
+}
+
+func TestGate_Shadow_RPCError_RunsHandler(t *testing.T) {
+	stub := &stubLimitsClient{reserveErr: errors.New("limits service down")}
+	called := false
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "idem-shadow-err", limits.ModeShadow,
+		func(ctx context.Context, reservationID string) error {
+			called = true
+			assert.Equal(t, "", reservationID, "shadow RPC-error path passes empty reservationID")
+			return nil
+		})
+	require.NoError(t, err)
+	assert.True(t, called, "handler must run in shadow mode despite RPC error")
+	assert.Equal(t, 1, stub.reserveCalls)
+	assert.Equal(t, 0, stub.commitCalls)
+	assert.Equal(t, 0, stub.releaseCalls)
 }

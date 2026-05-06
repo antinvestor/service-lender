@@ -225,7 +225,7 @@ func (s *GateIntegrationSuite) TestGate_Allowed_LedgerPopulated() {
 	var capturedReservationID string
 	handlerCalled := false
 
-	err := limits.Gate(s.ctx, s.gateClient, intent, idempKey,
+	err := limits.Gate(s.ctx, s.gateClient, intent, idempKey, limits.ModeEnforce,
 		func(_ context.Context, reservationID string) error {
 			capturedReservationID = reservationID
 			handlerCalled = true
@@ -259,7 +259,7 @@ func (s *GateIntegrationSuite) TestGate_Denied_NoLedgerEntry() {
 
 	handlerCalled := false
 
-	err := limits.Gate(s.ctx, s.gateClient, intent, idempKey,
+	err := limits.Gate(s.ctx, s.gateClient, intent, idempKey, limits.ModeEnforce,
 		func(_ context.Context, _ string) error {
 			handlerCalled = true
 			return nil
@@ -296,7 +296,7 @@ func (s *GateIntegrationSuite) TestGate_Pending_TypedError() {
 
 	handlerCalled := false
 
-	err := limits.Gate(s.ctx, s.gateClient, intent, idempKey,
+	err := limits.Gate(s.ctx, s.gateClient, intent, idempKey, limits.ModeEnforce,
 		func(_ context.Context, _ string) error {
 			handlerCalled = true
 			return nil

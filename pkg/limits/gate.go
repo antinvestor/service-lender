@@ -25,12 +25,34 @@ import (
 	"github.com/pitabwire/util"
 )
 
+// Mode controls how Gate reacts to deny/pending verdicts from the limits service.
+type Mode int
+
+const (
+	// ModeEnforce is the default mode (zero value). A denied or pending
+	// reservation blocks the operation and returns an error to the caller.
+	ModeEnforce Mode = iota
+	// ModeShadow logs and audits the verdict but proceeds with the operation
+	// anyway. The dummy reservation is released fire-and-forget so it does
+	// not accumulate in the limits service.
+	ModeShadow
+)
+
+// ParseMode converts a string config value to a Mode constant.
+// "shadow" → ModeShadow; everything else (including "enforce" or "") → ModeEnforce.
+func ParseMode(s string) Mode {
+	if s == "shadow" {
+		return ModeShadow
+	}
+	return ModeEnforce
+}
+
 // Gate runs the standard Reserve → handler → Commit/Release lifecycle
 // against the supplied limits Connect client. The handler is invoked
 // only when the reservation is ACTIVE; PENDING_APPROVAL and Reserve
-// errors short-circuit before the handler runs.
+// errors short-circuit before the handler runs (in ModeEnforce).
 //
-// Behaviour:
+// Behaviour (ModeEnforce, the default):
 //   - Reserve error  → Gate returns the error verbatim. Handler is NOT called.
 //   - PENDING_APPROVAL → Gate returns *PendingApprovalError. Handler is NOT called.
 //     Caller is expected to persist a local pending row and
@@ -42,6 +64,12 @@ import (
 //   - Handler error → Gate calls Release synchronously and returns the
 //     handler's error. Release errors are logged.
 //
+// Behaviour (ModeShadow):
+//   - Reserve RPC error → logs shadow_outcome=rpc_error, runs handler with empty reservationID.
+//   - DENY (unexpected status) → logs shadow_outcome=would_block, fire-and-forget Release, runs handler.
+//   - PENDING_APPROVAL → logs shadow_outcome=would_pend, fire-and-forget Release, runs handler.
+//   - ACTIVE → unchanged from ModeEnforce.
+//
 // Outbox-driven Commit (see pkg/limits/outbox) is a separate path; callers
 // that need durable Commit-after-local-tx should write an outbox row in
 // their own transaction and let the outbox.Worker drive Commit. Gate's
@@ -51,6 +79,7 @@ func Gate(
 	rpc limitsv1connect.LimitsServiceClient,
 	intent *limitsv1.LimitIntent,
 	idempotencyKey string,
+	mode Mode,
 	handler func(ctx context.Context, reservationID string) error,
 ) error {
 	if rpc == nil {
@@ -65,6 +94,13 @@ func Gate(
 		IdempotencyKey: idempotencyKey,
 	}))
 	if err != nil {
+		if mode == ModeShadow {
+			util.Log(ctx).WithError(err).
+				With("shadow_outcome", "rpc_error").
+				With("idempotency_key", idempotencyKey).
+				Warn("limits.Gate: shadow mode — Reserve RPC error, proceeding with operation")
+			return handler(ctx, "")
+		}
 		return err
 	}
 
@@ -75,14 +111,33 @@ func Gate(
 
 	switch reservation.GetStatus() {
 	case limitsv1.ReservationStatus_RESERVATION_STATUS_PENDING_APPROVAL:
+		if mode == ModeShadow {
+			util.Log(ctx).
+				With("shadow_outcome", "would_pend").
+				With("reservation_id", reservation.GetId()).
+				With("idempotency_key", idempotencyKey).
+				Warn("limits.Gate: shadow mode — reservation PENDING_APPROVAL, proceeding with operation")
+			go shadowRelease(ctx, rpc, reservation.GetId(), "shadow_mode_would_pend")
+			return handler(ctx, "")
+		}
 		var verdicts []*limitsv1.PolicyVerdict
 		if check := res.Msg.GetCheck(); check != nil {
 			verdicts = check.GetVerdicts()
 		}
 		return &PendingApprovalError{ReservationID: reservation.GetId(), Verdicts: verdicts}
 	case limitsv1.ReservationStatus_RESERVATION_STATUS_ACTIVE:
-		// Continue.
+		// Continue below.
 	default:
+		if mode == ModeShadow {
+			util.Log(ctx).
+				With("shadow_outcome", "would_block").
+				With("reservation_id", reservation.GetId()).
+				With("reservation_status", reservation.GetStatus().String()).
+				With("idempotency_key", idempotencyKey).
+				Warn("limits.Gate: shadow mode — reservation denied, proceeding with operation")
+			go shadowRelease(ctx, rpc, reservation.GetId(), "shadow_mode_would_block")
+			return handler(ctx, "")
+		}
 		return fmt.Errorf("limits.Gate: unexpected reservation status %s", reservation.GetStatus())
 	}
 
@@ -107,4 +162,19 @@ func Gate(
 		return commitErr
 	}
 	return nil
+}
+
+// shadowRelease issues a fire-and-forget Release for reservations created in
+// shadow mode that would have blocked in enforce mode. Uses a detached context
+// so the originating request's cancellation does not abort the release.
+func shadowRelease(ctx context.Context, rpc limitsv1connect.LimitsServiceClient, reservationID, reason string) {
+	releaseCtx := context.WithoutCancel(ctx)
+	if _, releaseErr := rpc.Release(releaseCtx, connect.NewRequest(&limitsv1.ReleaseRequest{
+		ReservationId: reservationID,
+		Reason:        reason,
+	})); releaseErr != nil {
+		util.Log(ctx).WithError(releaseErr).
+			With("reservation_id", reservationID).
+			Warn("limits.Gate: shadow Release failed; reservation will expire via TTL")
+	}
 }
