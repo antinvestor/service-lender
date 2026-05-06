@@ -163,11 +163,11 @@ func (b *approvalBusiness) Decide(
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}
 
-	// 2C.4: Tenant check — approval row must belong to caller's partition.
+	// 2C.4: Tenant check — approval row must belong to caller's tenant.
 	claims := security.ClaimsFromContext(ctx)
 	if claims != nil {
-		ctxPartition := claims.GetPartitionID()
-		if ctxPartition != "" && ar.PartitionID != ctxPartition {
+		ctxTenant := claims.GetTenantID()
+		if ctxTenant != "" && ar.TenantID != ctxTenant {
 			return nil, connect.NewError(connect.CodePermissionDenied,
 				fmt.Errorf("approval belongs to a different tenant"))
 		}

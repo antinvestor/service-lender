@@ -36,15 +36,17 @@ func TenantAssertionInterceptor() connect.UnaryInterceptorFunc {
 			if claims == nil {
 				return next(ctx, req)
 			}
-			ctxPartition := claims.GetPartitionID()
+			// intent.tenant_id carries the tenant identifier (GetTenantID), not
+			// the partition identifier. Use GetTenantID() as the authoritative value.
+			ctxTenant := claims.GetTenantID()
 			if r, ok := req.Any().(*limitsv1.ReserveRequest); ok {
 				got := r.GetIntent().GetTenantId()
-				if got != "" && got != ctxPartition {
+				if got != "" && got != ctxTenant {
 					return nil, connect.NewError(connect.CodePermissionDenied,
-						fmt.Errorf("tenant mismatch: intent=%q ctx=%q", got, ctxPartition))
+						fmt.Errorf("tenant mismatch: intent=%q ctx=%q", got, ctxTenant))
 				}
 				if r.GetIntent() != nil {
-					r.Intent.TenantId = ctxPartition
+					r.Intent.TenantId = ctxTenant
 				}
 			}
 			return next(ctx, req)

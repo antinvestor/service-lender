@@ -244,10 +244,10 @@ func (s *CrossTenantSuite) seedApprovalTriggerPolicy(ctx context.Context, policy
 func (s *CrossTenantSuite) TestReserve_CrossTenantPayload_Rejected() {
 	s.seedCrossTenantPolicy(s.tenantACtx, s.policyRepoA)
 
-	// Tenant-A client sends an intent with tenant_id="partition-b" (cross-tenant).
+	// Tenant-A client sends an intent with tenant_id="tenant-b" (cross-tenant).
 	_, err := s.tenantAClient.Reserve(s.tenantACtx, connect.NewRequest(&limitsv1.ReserveRequest{
 		Intent: &limitsv1.LimitIntent{
-			TenantId: "partition-b", // mismatch: auth context has partition-a
+			TenantId: "tenant-b", // mismatch: auth context has tenant-a
 			Action:   limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
 			Amount:   &moneypb.Money{CurrencyCode: "KES", Units: 1000},
 			Subjects: []*limitsv1.SubjectRef{
@@ -273,7 +273,7 @@ func (s *CrossTenantSuite) TestApprove_CrossTenantApproval_Rejected() {
 	// Tenant-B maker creates a reservation that triggers approval.
 	reserveResp, err := s.tenantBClient.Reserve(s.tenantBCtx, connect.NewRequest(&limitsv1.ReserveRequest{
 		Intent: &limitsv1.LimitIntent{
-			TenantId: "partition-b",
+			TenantId: "tenant-b",
 			Action:   limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
 			Amount:   &moneypb.Money{CurrencyCode: "KES", Units: 500},
 			Subjects: []*limitsv1.SubjectRef{
@@ -331,7 +331,7 @@ func (s *CrossTenantSuite) TestCommit_ReservationFromOtherTenant_NotFound() {
 	// Tenant-B creates a reservation.
 	reserveResp, err := s.tenantBClient.Reserve(s.tenantBCtx, connect.NewRequest(&limitsv1.ReserveRequest{
 		Intent: &limitsv1.LimitIntent{
-			TenantId: "partition-b",
+			TenantId: "tenant-b",
 			Action:   limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
 			Amount:   &moneypb.Money{CurrencyCode: "KES", Units: 100},
 			Subjects: []*limitsv1.SubjectRef{
