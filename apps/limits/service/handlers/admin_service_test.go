@@ -116,6 +116,7 @@ func (s *AdminHandlerSuite) SetupTest() {
 		evaluator,
 		auditing,
 		nil,
+		dbPool,
 	)
 	ledgerBiz := business.NewLedgerSearchBusiness(ledgerRepo)
 	resvBiz := business.NewReservationBusiness(

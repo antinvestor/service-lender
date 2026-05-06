@@ -502,18 +502,8 @@ func (b *reservationBusiness) Commit(
 		}
 	}()
 
-	// 6. Update reservation status via raw table update inside tx.
-	res := tx.Table(models.Reservation{}.TableName()).
-		Where("id = ? AND status = ?", r.ID, string(models.ReservationStatusActive)).
-		Updates(map[string]any{
-			"status":       string(models.ReservationStatusCommitted),
-			"committed_at": now,
-			"modified_at":  now,
-		})
-	if res.Error != nil {
-		return nil, connect.NewError(connect.CodeInternal, res.Error)
-	}
-	if res.RowsAffected == 0 {
+	// 6. Update reservation status via scoped Tx method (enforces tenant + status guard).
+	if err := b.resvRepo.SetCommittedTx(ctx, tx, r.ID, now); err != nil {
 		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("not active"))
 	}
 
@@ -660,6 +650,26 @@ func (b *reservationBusiness) Reverse(
 		}
 	}()
 
+	// 4a. Acquire advisory locks (same keys as Reserve) so concurrent Reverses
+	// on the same original are serialised and only the first succeeds.
+	reverseSubjects, subjectErr := unmarshalReservationSubjects(original.SubjectRefs)
+	if subjectErr != nil {
+		return nil, connect.NewError(connect.CodeInternal, subjectErr)
+	}
+	var reverseSubjectFilters []repository.SubjectFilter
+	for _, s := range reverseSubjects {
+		reverseSubjectFilters = append(reverseSubjectFilters, repository.SubjectFilter{
+			Type: subjectFromAPILocal(s.GetType()),
+			ID:   s.GetId(),
+		})
+	}
+	lockKeys := LockKeys(original.Action, original.CurrencyCode, reverseSubjectFilters)
+	for _, k := range lockKeys {
+		if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", k).Error; err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+	}
+
 	// 5. Mark ledger entries reversed (within the transaction for atomicity).
 	if err := tx.Table(models.LedgerEntry{}.TableName()).
 		Where("reservation_id = ? AND reversed_at IS NULL", original.ID).
@@ -694,14 +704,10 @@ func (b *reservationBusiness) Reverse(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	// 8. Mark original status reversed.
-	if err := tx.Table(models.Reservation{}.TableName()).
-		Where("id = ?", original.ID).
-		Updates(map[string]any{
-			"status":      string(models.ReservationStatusReversed),
-			"modified_at": now,
-		}).Error; err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+	// 8. Mark original status reversed (status='committed' guard prevents double-reverse).
+	if err := b.resvRepo.SetReversedTx(ctx, tx, original.ID, now); err != nil {
+		return nil, connect.NewError(connect.CodeFailedPrecondition,
+			fmt.Errorf("reservation %s cannot be reversed: %w", original.ID, err))
 	}
 
 	// 9. Commit transaction.

@@ -70,11 +70,19 @@ type ReservationRepository interface {
 		since time.Time,
 	) (int64, error)
 	SetCommitted(ctx context.Context, id string, at time.Time) error
+	// SetCommittedTx runs SetCommitted inside caller-supplied tx (with tenant scope + rows-affected guard).
+	SetCommittedTx(ctx context.Context, tx *gorm.DB, id string, at time.Time) error
 	SetReleased(ctx context.Context, id, reason string, at time.Time) error
+	// SetReleasedTx runs SetReleased inside caller-supplied tx (with tenant scope + rows-affected guard).
+	SetReleasedTx(ctx context.Context, tx *gorm.DB, id, reason string, at time.Time) error
 	SetExpired(ctx context.Context, id string, at time.Time) error
 	SetReversed(ctx context.Context, id string, at time.Time) error
+	// SetReversedTx runs SetReversed inside caller-supplied tx with status='committed' guard.
+	SetReversedTx(ctx context.Context, tx *gorm.DB, id string, at time.Time) error
 	SetPendingApproval(ctx context.Context, id string) error
 	SetActive(ctx context.Context, id string) error
+	// SetActiveTx runs SetActive inside caller-supplied tx.
+	SetActiveTx(ctx context.Context, tx *gorm.DB, id string) error
 	ListExpiredActive(ctx context.Context, before time.Time, limit int) ([]*models.Reservation, error)
 }
 
@@ -212,6 +220,24 @@ func (r *reservationRepository) SetCommitted(ctx context.Context, id string, at 
 	return nil
 }
 
+func (r *reservationRepository) SetCommittedTx(ctx context.Context, tx *gorm.DB, id string, at time.Time) error {
+	res := tx.Scopes(scopes.TenancyPartition(ctx)).
+		Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", id, string(models.ReservationStatusActive)).
+		Updates(map[string]any{
+			"status":       string(models.ReservationStatusCommitted),
+			"committed_at": at,
+			"modified_at":  at,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("reservation: cannot commit (not active or wrong tenant)")
+	}
+	return nil
+}
+
 func (r *reservationRepository) SetReleased(ctx context.Context, id, reason string, at time.Time) error {
 	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
 	res := db.Table(models.Reservation{}.TableName()).
@@ -231,6 +257,25 @@ func (r *reservationRepository) SetReleased(ctx context.Context, id, reason stri
 	return nil
 }
 
+func (r *reservationRepository) SetReleasedTx(ctx context.Context, tx *gorm.DB, id, reason string, at time.Time) error {
+	res := tx.Scopes(scopes.TenancyPartition(ctx)).
+		Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status IN ?", id, []string{string(models.ReservationStatusActive), string(models.ReservationStatusPendingApproval)}).
+		Updates(map[string]any{
+			"status":      string(models.ReservationStatusReleased),
+			"released_at": at,
+			"notes":       reason,
+			"modified_at": at,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("reservation: cannot release (terminal, wrong tenant, or missing)")
+	}
+	return nil
+}
+
 func (r *reservationRepository) SetExpired(ctx context.Context, id string, at time.Time) error {
 	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
 	return db.Table(models.Reservation{}.TableName()).
@@ -245,6 +290,20 @@ func (r *reservationRepository) SetReversed(ctx context.Context, id string, at t
 		Updates(map[string]any{"status": string(models.ReservationStatusReversed), "modified_at": at}).Error
 }
 
+func (r *reservationRepository) SetReversedTx(ctx context.Context, tx *gorm.DB, id string, at time.Time) error {
+	res := tx.Scopes(scopes.TenancyPartition(ctx)).
+		Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", id, string(models.ReservationStatusCommitted)).
+		Updates(map[string]any{"status": string(models.ReservationStatusReversed), "modified_at": at})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("reservation: cannot reverse (not committed, wrong tenant, or missing)")
+	}
+	return nil
+}
+
 func (r *reservationRepository) SetPendingApproval(ctx context.Context, id string) error {
 	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
 	return db.Table(models.Reservation{}.TableName()).
@@ -256,6 +315,13 @@ func (r *reservationRepository) SetPendingApproval(ctx context.Context, id strin
 func (r *reservationRepository) SetActive(ctx context.Context, id string) error {
 	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
 	return db.Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", id, string(models.ReservationStatusPendingApproval)).
+		Updates(map[string]any{"status": string(models.ReservationStatusActive), "modified_at": time.Now().UTC()}).Error
+}
+
+func (r *reservationRepository) SetActiveTx(ctx context.Context, tx *gorm.DB, id string) error {
+	return tx.Scopes(scopes.TenancyPartition(ctx)).
+		Table(models.Reservation{}.TableName()).
 		Where("id = ? AND status = ?", id, string(models.ReservationStatusPendingApproval)).
 		Updates(map[string]any{"status": string(models.ReservationStatusActive), "modified_at": time.Now().UTC()}).Error
 }

@@ -90,14 +90,22 @@ func (s *stubResvRepo) GetByID(ctx context.Context, id string) (*models.Reservat
 func (s *stubResvRepo) GetByIdempotencyKey(ctx context.Context, key string) (*models.Reservation, error) {
 	return nil, nil
 }
-func (s *stubResvRepo) SetCommitted(ctx context.Context, id string, at time.Time) error { return nil }
-func (s *stubResvRepo) SetReleased(ctx context.Context, id, reason string, at time.Time) error {
+func (s *stubResvRepo) SetCommitted(_ context.Context, _ string, _ time.Time) error { return nil }
+func (s *stubResvRepo) SetCommittedTx(_ context.Context, _ *gorm.DB, _ string, _ time.Time) error {
 	return nil
 }
-func (s *stubResvRepo) SetExpired(ctx context.Context, id string, at time.Time) error  { return nil }
-func (s *stubResvRepo) SetReversed(ctx context.Context, id string, at time.Time) error { return nil }
-func (s *stubResvRepo) SetPendingApproval(ctx context.Context, id string) error        { return nil }
-func (s *stubResvRepo) SetActive(ctx context.Context, id string) error                 { return nil }
+func (s *stubResvRepo) SetReleased(_ context.Context, _, _ string, _ time.Time) error { return nil }
+func (s *stubResvRepo) SetReleasedTx(_ context.Context, _ *gorm.DB, _, _ string, _ time.Time) error {
+	return nil
+}
+func (s *stubResvRepo) SetExpired(_ context.Context, _ string, _ time.Time) error  { return nil }
+func (s *stubResvRepo) SetReversed(_ context.Context, _ string, _ time.Time) error { return nil }
+func (s *stubResvRepo) SetReversedTx(_ context.Context, _ *gorm.DB, _ string, _ time.Time) error {
+	return nil
+}
+func (s *stubResvRepo) SetPendingApproval(_ context.Context, _ string) error      { return nil }
+func (s *stubResvRepo) SetActive(_ context.Context, _ string) error               { return nil }
+func (s *stubResvRepo) SetActiveTx(_ context.Context, _ *gorm.DB, _ string) error { return nil }
 
 func (s *stubResvRepo) ListExpiredActive(
 	ctx context.Context,

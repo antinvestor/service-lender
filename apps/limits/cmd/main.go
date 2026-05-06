@@ -110,7 +110,7 @@ func main() {
 	)
 	approvalBiz := business.NewApprovalBusiness(
 		approvalRepo, decisionRepo, reservationRepo, policyRepo,
-		evaluator, auditing, evtsMan,
+		evaluator, auditing, evtsMan, dbPool,
 	)
 	ledgerSearchBiz := business.NewLedgerSearchBusiness(ledgerRepo)
 	auditSearchBiz := business.NewAuditSearchBusiness(dbPool)
@@ -191,6 +191,7 @@ func setupConnectServer(
 	runtimeInterceptors, err := connectInterceptors.DefaultList(
 		ctx, authenticator,
 		runtimeTenancyInterceptor, runtimeFunctionAccessInterceptor, limitsAuditInterceptor,
+		connect.UnaryInterceptorFunc(handlers.TenantAssertionInterceptor()),
 	)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create runtime interceptors")

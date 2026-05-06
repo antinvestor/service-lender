@@ -164,7 +164,7 @@ func (s *ApprovalIntegrationSuite) SetupTest() {
 	)
 	approvalBiz := business.NewApprovalBusiness(
 		approvalReqRepo, approvalDecRepo, resvRepo, s.policyRepo,
-		evaluator, auditing, nil,
+		evaluator, auditing, nil, s.dbPool,
 	)
 
 	_ = policyVerRepo // used indirectly via Save

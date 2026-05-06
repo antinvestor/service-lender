@@ -23,6 +23,7 @@ import (
 	"github.com/pitabwire/frame/datastore/scopes"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 )
@@ -33,6 +34,8 @@ type ApprovalRequestRepository interface {
 	GetByID(ctx context.Context, id string) (*models.ApprovalRequest, error)
 	ListByReservation(ctx context.Context, reservationID string) ([]*models.ApprovalRequest, error)
 	SetStatus(ctx context.Context, id string, status models.ApprovalStatus, decidedAt *time.Time) error
+	// SetStatusTx runs SetStatus inside caller-supplied tx.
+	SetStatusTx(ctx context.Context, tx *gorm.DB, id string, status models.ApprovalStatus, decidedAt *time.Time) error
 	ListExpired(ctx context.Context, before time.Time, limit int) ([]*models.ApprovalRequest, error)
 	Search(ctx context.Context, f ApprovalSearchFilter, limit int, cursor string) (*ApprovalSearchResult, error)
 }
@@ -53,7 +56,11 @@ type ApprovalSearchResult struct {
 // ApprovalDecisionRepository persists ApprovalDecision rows.
 type ApprovalDecisionRepository interface {
 	RecordDecision(ctx context.Context, d *models.ApprovalDecision) error
+	// RecordDecisionTx runs RecordDecision inside caller-supplied tx.
+	RecordDecisionTx(ctx context.Context, tx *gorm.DB, d *models.ApprovalDecision) error
 	ListDecisions(ctx context.Context, approvalRequestID string) ([]*models.ApprovalDecision, error)
+	// ListDecisionsTx runs ListDecisions inside caller-supplied tx.
+	ListDecisionsTx(ctx context.Context, tx *gorm.DB, approvalRequestID string) ([]*models.ApprovalDecision, error)
 }
 
 type approvalRequestRepository struct {
@@ -109,6 +116,26 @@ func (r *approvalRequestRepository) SetStatus(
 		updates["decided_at"] = decidedAt
 	}
 	return db.Table(models.ApprovalRequest{}.TableName()).
+		Where("id = ?", id).
+		Updates(updates).Error
+}
+
+func (r *approvalRequestRepository) SetStatusTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	id string,
+	status models.ApprovalStatus,
+	decidedAt *time.Time,
+) error {
+	updates := map[string]any{
+		"status":      string(status),
+		"modified_at": time.Now().UTC(),
+	}
+	if decidedAt != nil {
+		updates["decided_at"] = decidedAt
+	}
+	return tx.Scopes(scopes.TenancyPartition(ctx)).
+		Table(models.ApprovalRequest{}.TableName()).
 		Where("id = ?", id).
 		Updates(updates).Error
 }
@@ -196,11 +223,35 @@ func (r *approvalDecisionRepository) RecordDecision(ctx context.Context, d *mode
 	return r.BaseRepository.Create(ctx, d)
 }
 
+func (r *approvalDecisionRepository) RecordDecisionTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	d *models.ApprovalDecision,
+) error {
+	if d.ID == "" {
+		d.ID = util.IDString()
+	}
+	return tx.Create(d).Error
+}
+
 func (r *approvalDecisionRepository) ListDecisions(
 	ctx context.Context,
 	approvalRequestID string,
 ) ([]*models.ApprovalDecision, error) {
 	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var rows []*models.ApprovalDecision
+	err := db.Where("approval_request_id = ?", approvalRequestID).
+		Order("decided_at ASC").
+		Find(&rows).Error
+	return rows, err
+}
+
+func (r *approvalDecisionRepository) ListDecisionsTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	approvalRequestID string,
+) ([]*models.ApprovalDecision, error) {
+	db := tx.Scopes(scopes.TenancyPartition(ctx))
 	var rows []*models.ApprovalDecision
 	err := db.Where("approval_request_id = ?", approvalRequestID).
 		Order("decided_at ASC").

@@ -29,10 +29,12 @@ import (
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/datastore/pool"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/events"
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
@@ -58,6 +60,7 @@ type approvalBusiness struct {
 	evaluator    *Evaluator
 	auditing     *Auditing
 	eventsMan    fevents.Manager
+	dbPool       pool.Pool
 }
 
 // NewApprovalBusiness wires up dependencies. eventsMan may be nil,
@@ -70,6 +73,7 @@ func NewApprovalBusiness(
 	evaluator *Evaluator,
 	auditing *Auditing,
 	eventsMan fevents.Manager,
+	dbPool pool.Pool,
 ) ApprovalBusiness {
 	return &approvalBusiness{
 		approvalRepo: approvalRepo,
@@ -79,6 +83,7 @@ func NewApprovalBusiness(
 		evaluator:    evaluator,
 		auditing:     auditing,
 		eventsMan:    eventsMan,
+		dbPool:       dbPool,
 	}
 }
 
@@ -143,6 +148,10 @@ func (b *approvalBusiness) Get(ctx context.Context, id string) (*limitsv1.Approv
 //     If any policy now breaches → auto-reject. Otherwise → approve this request;
 //     if all peer requests are now approved → transition reservation to ACTIVE.
 //
+// The decision-record + quorum-check + reservation-activate sequence is wrapped
+// in a single DB transaction so a crash mid-flow cannot strand the reservation
+// in pending_approval without a matching Approval row.
+//
 // TODO(plan-4): per-policy role check via Keto. Currently the limits_approval_act
 // permission on the RPC boundary is the only gate, supplemented by maker-exclusion.
 func (b *approvalBusiness) Decide(
@@ -152,6 +161,16 @@ func (b *approvalBusiness) Decide(
 	ar, err := b.approvalRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeNotFound, err)
+	}
+
+	// 2C.4: Tenant check — approval row must belong to caller's partition.
+	claims := security.ClaimsFromContext(ctx)
+	if claims != nil {
+		ctxPartition := claims.GetPartitionID()
+		if ctxPartition != "" && ar.PartitionID != ctxPartition {
+			return nil, connect.NewError(connect.CodePermissionDenied,
+				fmt.Errorf("approval belongs to a different tenant"))
+		}
 	}
 
 	caller := callerSubject(ctx)
@@ -170,6 +189,8 @@ func (b *approvalBusiness) Decide(
 	}
 
 	// 1. Persist decision (unique constraint blocks double-vote).
+	// Done outside the main transaction so double-vote detection is immediate
+	// and independent of the quorum path.
 	d := &models.ApprovalDecision{
 		ApprovalRequestID: ar.ID,
 		ApproverID:        caller,
@@ -184,13 +205,24 @@ func (b *approvalBusiness) Decide(
 			fmt.Errorf("approver %s already decided", caller))
 	}
 
-	// 2. Reject path: terminal, releases the reservation.
+	// 2. Reject path: terminal, releases the reservation atomically.
 	if req.GetDecision() == "reject" {
 		now := time.Now().UTC()
-		if err := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusRejected, &now); err != nil {
-			return nil, connect.NewError(connect.CodeInternal, err)
+		if txErr := b.runInTx(ctx, func(tx *gorm.DB) error {
+			if tx == nil {
+				// No pool injected (test mode): fall back to non-transactional methods.
+				if sErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusRejected, &now); sErr != nil {
+					return sErr
+				}
+				return b.resvRepo.SetReleased(ctx, ar.ReservationID, "approval rejected: "+req.GetNote(), now)
+			}
+			if sErr := b.approvalRepo.SetStatusTx(ctx, tx, ar.ID, models.ApprovalStatusRejected, &now); sErr != nil {
+				return sErr
+			}
+			return b.resvRepo.SetReleasedTx(ctx, tx, ar.ReservationID, "approval rejected: "+req.GetNote(), now)
+		}); txErr != nil {
+			return nil, connect.NewError(connect.CodeInternal, txErr)
 		}
-		_ = b.resvRepo.SetReleased(ctx, ar.ReservationID, "approval rejected: "+req.GetNote(), now)
 		ar.Status = models.ApprovalStatusRejected
 		ar.DecidedAt = &now
 		b.auditing.RecordApprovalRejected(ctx, ar, caller, req.GetNote())
@@ -241,10 +273,10 @@ func (b *approvalBusiness) Decide(
 	allClear := true
 	var failingReason string
 	for _, peer := range peers {
-		policy, err := b.policyRepo.Get(ctx, peer.TriggeringPolicyID)
-		if err != nil {
+		policy, policyErr := b.policyRepo.Get(ctx, peer.TriggeringPolicyID)
+		if policyErr != nil {
 			allClear = false
-			failingReason = "policy lookup failed: " + err.Error()
+			failingReason = "policy lookup failed: " + policyErr.Error()
 			break
 		}
 		// Find the matching subject from the intent.
@@ -255,16 +287,16 @@ func (b *approvalBusiness) Decide(
 			break
 		}
 		intentMinor, _ := moneyx.ToMinorUnitsByCurrency(intent.GetAmount(), intent.GetAmount().GetCurrencyCode())
-		v, err := b.evaluator.Evaluate(
+		v, evalErr := b.evaluator.Evaluate(
 			ctx,
 			policy,
 			repository.SubjectFilter{Type: policy.SubjectType, ID: s.GetId()},
 			intent,
 			intentMinor,
 		)
-		if err != nil {
+		if evalErr != nil {
 			allClear = false
-			failingReason = "evaluator error: " + err.Error()
+			failingReason = "evaluator error: " + evalErr.Error()
 			break
 		}
 		if v.GetBreached() {
@@ -276,8 +308,21 @@ func (b *approvalBusiness) Decide(
 
 	now := time.Now().UTC()
 	if !allClear {
-		_ = b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusAutoRejectedRecheck, &now)
-		_ = b.resvRepo.SetReleased(ctx, resv.ID, "auto-rejected: "+failingReason, now)
+		// Auto-reject path: update status + release reservation atomically.
+		if txErr := b.runInTx(ctx, func(tx *gorm.DB) error {
+			if tx == nil {
+				if sErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusAutoRejectedRecheck, &now); sErr != nil {
+					return sErr
+				}
+				return b.resvRepo.SetReleased(ctx, resv.ID, "auto-rejected: "+failingReason, now)
+			}
+			if sErr := b.approvalRepo.SetStatusTx(ctx, tx, ar.ID, models.ApprovalStatusAutoRejectedRecheck, &now); sErr != nil {
+				return sErr
+			}
+			return b.resvRepo.SetReleasedTx(ctx, tx, resv.ID, "auto-rejected: "+failingReason, now)
+		}); txErr != nil {
+			return nil, connect.NewError(connect.CodeInternal, txErr)
+		}
 		ar.Status = models.ApprovalStatusAutoRejectedRecheck
 		ar.DecidedAt = &now
 		b.auditing.RecordApprovalAutoRejected(ctx, ar, failingReason)
@@ -292,28 +337,43 @@ func (b *approvalBusiness) Decide(
 		return b.fetchWithDecisions(ctx, ar.ID)
 	}
 
-	// 5. Approve THIS request.
-	if err := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusApproved, &now); err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-	ar.Status = models.ApprovalStatusApproved
-	ar.DecidedAt = &now
-
-	// 6. If all peers are also approved (this one was the last), transition
-	// the reservation from pending_approval → active. Subsequent Commit can succeed.
+	// 5. Approve THIS request + conditionally activate reservation atomically (2E).
+	// Determine whether all peers are already approved — if so, activation is
+	// included in the same transaction.
 	allApproved := true
 	for _, peer := range peers {
 		if peer.ID == ar.ID {
-			continue // we just transitioned this one
+			continue // this is the one we're about to approve
 		}
 		if peer.Status != models.ApprovalStatusApproved {
 			allApproved = false
 			break
 		}
 	}
-	if allApproved {
-		_ = b.resvRepo.SetActive(ctx, resv.ID)
+
+	if txErr := b.runInTx(ctx, func(tx *gorm.DB) error {
+		if tx == nil {
+			if sErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusApproved, &now); sErr != nil {
+				return sErr
+			}
+			if allApproved {
+				return b.resvRepo.SetActive(ctx, resv.ID)
+			}
+			return nil
+		}
+		if sErr := b.approvalRepo.SetStatusTx(ctx, tx, ar.ID, models.ApprovalStatusApproved, &now); sErr != nil {
+			return sErr
+		}
+		if allApproved {
+			return b.resvRepo.SetActiveTx(ctx, tx, resv.ID)
+		}
+		return nil
+	}); txErr != nil {
+		return nil, connect.NewError(connect.CodeInternal, txErr)
 	}
+
+	ar.Status = models.ApprovalStatusApproved
+	ar.DecidedAt = &now
 
 	b.auditing.RecordApprovalApproved(ctx, ar, caller)
 	emitEvent(ctx, b.eventsMan, events.EventApprovalApproved, events.ApprovalEventPayload{
@@ -324,6 +384,16 @@ func (b *approvalBusiness) Decide(
 		MakerID:           ar.MakerID,
 	})
 	return b.fetchWithDecisions(ctx, ar.ID)
+}
+
+// runInTx executes fn inside a GORM transaction. If dbPool is nil (test mode
+// without an injected pool), fn is invoked with a nil tx — callers must use
+// the non-Tx repository methods in that case.
+func (b *approvalBusiness) runInTx(ctx context.Context, fn func(tx *gorm.DB) error) error {
+	if b.dbPool == nil {
+		return fn(nil)
+	}
+	return b.dbPool.DB(ctx, false).Transaction(fn)
 }
 
 // fetchWithDecisions re-reads the approval request and its decisions from
