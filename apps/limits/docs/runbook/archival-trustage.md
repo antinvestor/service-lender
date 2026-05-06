@@ -4,6 +4,28 @@ The limits service exposes `POST /admin/archive` for periodic cleanup of
 terminal reservations (>7 days old) and ledger entries (>90 days old).
 Trustage calls this endpoint on a schedule.
 
+## Authentication
+
+`POST /admin/archive` is protected by the same JWT bearer-token authenticator
+used by all Connect RPC endpoints in the limits service (via
+`httptor.AuthenticationMiddleware`). Trustage must present a valid OIDC access
+token issued by the configured identity provider.
+
+Add the `Authorization` header to the Trustage step:
+
+```yaml
+headers:
+  Authorization: "Bearer <oidc-access-token>"
+```
+
+Requests without a bearer token receive **HTTP 401**.  
+Requests with an invalid or expired token receive **HTTP 403**.
+
+The identity used must be a machine/service-account principal that the OIDC
+provider recognises. Rotate the token according to your OIDC provider's
+service-account credential lifecycle (typically via Workload Identity or a
+client-credentials grant).
+
 ## Workflow
 
 ```yaml

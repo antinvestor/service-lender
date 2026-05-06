@@ -15,22 +15,28 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
 	"github.com/pitabwire/util"
-
-	"github.com/antinvestor/service-fintech/apps/limits/service/business"
 )
+
+// ArchivalRunner is the subset of business.Archival used by ArchivalHandler.
+// The interface makes the handler testable without a database.
+type ArchivalRunner interface {
+	Run(ctx context.Context) (resvDeleted, ledgerDeleted int, err error)
+}
 
 // ArchivalHandler serves POST /admin/archive. It hard-deletes terminal
 // reservations and old ledger entries via the Archival business job.
 type ArchivalHandler struct {
-	archival *business.Archival
+	archival ArchivalRunner
 }
 
-// NewArchivalHandler constructs the handler.
-func NewArchivalHandler(archival *business.Archival) *ArchivalHandler {
+// NewArchivalHandler constructs the handler. archival is usually *business.Archival;
+// any ArchivalRunner implementation is accepted to keep the handler testable.
+func NewArchivalHandler(archival ArchivalRunner) *ArchivalHandler {
 	return &ArchivalHandler{archival: archival}
 }
 

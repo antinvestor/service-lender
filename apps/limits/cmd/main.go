@@ -29,6 +29,7 @@ import (
 	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/frame/security/authorizer"
 	connectInterceptors "github.com/pitabwire/frame/security/interceptors/connect"
+	"github.com/pitabwire/frame/security/interceptors/httptor"
 	"github.com/pitabwire/util"
 
 	auditmw "github.com/antinvestor/common/audit"
@@ -239,7 +240,9 @@ func setupConnectServer(
 	mux.Handle(runtimePath, runtimeHandler)
 	mux.Handle(adminPath, adminHandler)
 	if archivalH != nil {
-		mux.Handle("/admin/archive", archivalH)
+		// Wrap with the same authenticator the Connect interceptor stack uses so
+		// that /admin/archive is not a bare, unauthenticated mount point.
+		mux.Handle("/admin/archive", httptor.AuthenticationMiddleware(archivalH, authenticator))
 	}
 
 	return mux
