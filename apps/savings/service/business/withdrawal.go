@@ -23,6 +23,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
@@ -37,6 +39,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 type WithdrawalBusiness interface {
@@ -55,13 +58,15 @@ type WithdrawalBusiness interface {
 }
 
 type withdrawalBusiness struct {
-	eventsMan     fevents.Manager
-	wdrRepo       repository.WithdrawalRepository
-	saRepo        repository.SavingsAccountRepository
-	sbRepo        repository.SavingsBalanceRepository
-	saBusiness    SavingsAccountBusiness
-	operationsCli operationsv1connect.OperationsServiceClient
-	auditWriter   *audit.Writer
+	eventsMan         fevents.Manager
+	wdrRepo           repository.WithdrawalRepository
+	saRepo            repository.SavingsAccountRepository
+	sbRepo            repository.SavingsBalanceRepository
+	saBusiness        SavingsAccountBusiness
+	operationsCli     operationsv1connect.OperationsServiceClient
+	auditWriter       *audit.Writer
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewWithdrawalBusiness(
@@ -73,15 +78,19 @@ func NewWithdrawalBusiness(
 	saBusiness SavingsAccountBusiness,
 	operationsCli operationsv1connect.OperationsServiceClient,
 	auditWriter *audit.Writer,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) WithdrawalBusiness {
 	return &withdrawalBusiness{
-		eventsMan:     eventsMan,
-		wdrRepo:       wdrRepo,
-		saRepo:        saRepo,
-		sbRepo:        sbRepo,
-		saBusiness:    saBusiness,
-		operationsCli: operationsCli,
-		auditWriter:   auditWriter,
+		eventsMan:         eventsMan,
+		wdrRepo:           wdrRepo,
+		saRepo:            saRepo,
+		sbRepo:            sbRepo,
+		saBusiness:        saBusiness,
+		operationsCli:     operationsCli,
+		auditWriter:       auditWriter,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
@@ -190,12 +199,14 @@ func (b *withdrawalBusiness) Request(
 // turn posts to the external ledger and triggers the payment), and marks
 // the withdrawal as completed.
 //
+// When the limits gate is enabled, a reservation is obtained from the limits
+// service before the settlement executes. DENY returns LimitBreachedError;
+// PENDING_APPROVAL returns PendingApprovalError.
+//
 // The transfer order reference is keyed on the withdrawal id so retries of
 // Approve (for example after a transient operations outage) converge on a
 // single ledger posting rather than double-paying the recipient.
 func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1.WithdrawalObject, error) {
-	logger := util.Log(ctx).WithField("method", "WithdrawalBusiness.Approve")
-
 	wdr, err := b.wdrRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, ErrWithdrawalNotFound
@@ -204,6 +215,48 @@ func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1
 	if wdr.Status != int32(savingsv1.WithdrawalStatus_WITHDRAWAL_STATUS_PENDING) {
 		return nil, ErrInvalidStatusTransition
 	}
+
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.approveInner(ctx, id, wdr)
+	}
+
+	sa, saErr := b.saRepo.GetByID(ctx, wdr.SavingsAccountID)
+	if saErr != nil {
+		return nil, ErrSavingsAccountNotFound
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_SAVINGS_WITHDRAWAL,
+		TenantId: sa.BankID,
+		Amount:   moneyx.FromMinorUnitsByCurrency(sa.CurrencyCode, wdr.Amount),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: wdr.SavingsAccountID},
+		},
+	}
+	idemKey := "savings_withdrawal:" + id
+
+	var result *savingsv1.WithdrawalObject
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).Info("withdrawal approve gated by limits")
+			inner, innerErr := b.approveInner(innerCtx, id, wdr)
+			if innerErr != nil {
+				return innerErr
+			}
+			result = inner
+			return nil
+		})
+	return result, gateErr
+}
+
+// approveInner executes the withdrawal settlement after any gate check.
+// wdr must already be validated as PENDING before calling this.
+func (b *withdrawalBusiness) approveInner(
+	ctx context.Context,
+	id string,
+	wdr *models.Withdrawal,
+) (*savingsv1.WithdrawalObject, error) {
+	logger := util.Log(ctx).WithField("method", "WithdrawalBusiness.Approve")
 
 	sa, saErr := b.saRepo.GetByID(ctx, wdr.SavingsAccountID)
 	if saErr != nil {
@@ -249,6 +302,7 @@ func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1
 			"currency":            sa.CurrencyCode,
 			"channel":             wdr.Channel,
 			"recipient_reference": wdr.RecipientReference,
+			"withdrawal_id":       id,
 		},
 		Parent: &wdr.BaseModel,
 	}, func(auErr error) {

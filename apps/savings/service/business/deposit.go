@@ -23,6 +23,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	savingsv1 "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
@@ -37,6 +39,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 const moneyDecimalPlaces = 2
@@ -62,12 +65,14 @@ type DepositBusiness interface {
 }
 
 type depositBusiness struct {
-	eventsMan     fevents.Manager
-	depRepo       repository.DepositRepository
-	saRepo        repository.SavingsAccountRepository
-	sbRepo        repository.SavingsBalanceRepository
-	operationsCli operationsv1connect.OperationsServiceClient
-	auditWriter   *audit.Writer
+	eventsMan         fevents.Manager
+	depRepo           repository.DepositRepository
+	saRepo            repository.SavingsAccountRepository
+	sbRepo            repository.SavingsBalanceRepository
+	operationsCli     operationsv1connect.OperationsServiceClient
+	auditWriter       *audit.Writer
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewDepositBusiness(
@@ -78,14 +83,18 @@ func NewDepositBusiness(
 	sbRepo repository.SavingsBalanceRepository,
 	operationsCli operationsv1connect.OperationsServiceClient,
 	auditWriter *audit.Writer,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) DepositBusiness {
 	return &depositBusiness{
-		eventsMan:     eventsMan,
-		depRepo:       depRepo,
-		saRepo:        saRepo,
-		sbRepo:        sbRepo,
-		operationsCli: operationsCli,
-		auditWriter:   auditWriter,
+		eventsMan:         eventsMan,
+		depRepo:           depRepo,
+		saRepo:            saRepo,
+		sbRepo:            sbRepo,
+		operationsCli:     operationsCli,
+		auditWriter:       auditWriter,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
@@ -93,20 +102,76 @@ func NewDepositBusiness(
 //
 //  1. Validate account is active and ledger-capable.
 //  2. Short-circuit on caller idempotency key (previously applied deposit).
-//  3. Persist the Deposit record in PROCESSING state so downstream systems
+//  3. When the limits gate is enabled, reserve capacity via the limits
+//     service before executing the deposit. DENY returns LimitBreachedError;
+//     PENDING_APPROVAL returns PendingApprovalError.
+//  4. Persist the Deposit record in PROCESSING state so downstream systems
 //     can observe an in-flight posting.
-//  4. Emit a transfer order (external payment account → savings ledger
+//  5. Emit a transfer order (external payment account → savings ledger
 //     account) via the operations service using a stable reference derived
 //     from the deposit id. Operations will dedupe on that reference so a
 //     retry from any failure below lands on exactly the same ledger posting.
-//  5. Credit the running savings balance atomically.
-//  6. Mark the deposit COMPLETED, carrying the ledger transaction id.
+//  6. Credit the running savings balance atomically.
+//  7. Mark the deposit COMPLETED, carrying the ledger transaction id.
 //
-// Any step after (3) that fails leaves the deposit record visible in an
+// Any step after (4) that fails leaves the deposit record visible in an
 // intermediate state and returns an error. Callers retry via their own
 // idempotency key; the Deposit row, the transfer order, and the balance
 // credit are all keyed on stable ids so retries converge.
 func (b *depositBusiness) Record(
+	ctx context.Context,
+	accountID, amount, paymentRef, channel, payerRef, idempotencyKey string,
+) (*savingsv1.DepositObject, error) {
+	// Idempotency short-circuit (local).
+	if idempotencyKey != "" {
+		existing, idempErr := b.depRepo.GetByIdempotencyKey(ctx, idempotencyKey)
+		if idempErr == nil && existing != nil {
+			return existing.ToAPI(), nil
+		}
+	}
+
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.recordInner(ctx, accountID, amount, paymentRef, channel, payerRef, idempotencyKey)
+	}
+
+	// Load account to build the intent (same validation happens in recordInner).
+	sa, err := b.saRepo.GetByID(ctx, accountID)
+	if err != nil {
+		return nil, ErrSavingsAccountNotFound
+	}
+
+	amountMinor := models.StringToMinorUnits(amount)
+	intent := &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_SAVINGS_DEPOSIT,
+		TenantId: sa.BankID,
+		Amount:   moneyx.FromMinorUnitsByCurrency(sa.CurrencyCode, amountMinor),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: accountID},
+		},
+	}
+	idemKey := idempotencyKey
+	if idemKey == "" {
+		idemKey = util.IDString()
+	}
+
+	var result *savingsv1.DepositObject
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).Info("deposit gated by limits")
+			inner, innerErr := b.recordInner(innerCtx, accountID, amount, paymentRef, channel, payerRef, idempotencyKey)
+			if innerErr != nil {
+				return innerErr
+			}
+			result = inner
+			return nil
+		})
+	return result, gateErr
+}
+
+// recordInner is the pre-Gate body of Record. It performs all validation,
+// persistence, and ledger posting. The idempotency check lives in the outer
+// Record so it is not duplicated when Gate wraps this.
+func (b *depositBusiness) recordInner(
 	ctx context.Context,
 	accountID, amount, paymentRef, channel, payerRef, idempotencyKey string,
 ) (*savingsv1.DepositObject, error) {
@@ -126,13 +191,6 @@ func (b *depositBusiness) Record(
 	}
 	if sa.LedgerAccountID == "" || sa.PaymentAccountRef == "" {
 		return nil, ErrSavingsAccountLedgerRefsMissing
-	}
-
-	if idempotencyKey != "" {
-		existing, idempErr := b.depRepo.GetByIdempotencyKey(ctx, idempotencyKey)
-		if idempErr == nil && existing != nil {
-			return existing.ToAPI(), nil
-		}
 	}
 
 	amountMinor := models.StringToMinorUnits(amount)
@@ -196,10 +254,10 @@ func (b *depositBusiness) Record(
 		logger.WithError(auErr).Warn("audit emission failed for savings deposit")
 	})
 
-	audit := constants.AuditTrailFromContext(ctx)
+	auditTrail := constants.AuditTrailFromContext(ctx)
 	depAttrs := metric.WithAttributes(
-		attribute.String("tenant_id", audit.TenantID),
-		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("tenant_id", auditTrail.TenantID),
+		attribute.String("partition_id", auditTrail.PartitionID),
 		attribute.String("currency", sa.CurrencyCode),
 	)
 	SavingsDeposits.Add(ctx, 1, depAttrs)
