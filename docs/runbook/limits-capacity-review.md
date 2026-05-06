@@ -21,10 +21,7 @@
    subjects (e.g. concentrated traffic on a single account), Reserve
    degrades to sequential per-subject. Mitigation: observability metric
    `limits_reserve_subject_contention` to detect.
-3. **Outbox table growth**: at 1k rps, ~86M rows/day at full retention.
-   Recommend: nightly job that deletes done rows >7 days old. Migration
-   pre-stages a partial index only on pending+retry rows so done-row
-   bulk doesn't slow ClaimDue.
+3. No outbox; cap reconciliation via TTL + audit pipeline.
 
 ## Headroom plan
 
@@ -33,16 +30,12 @@
 - Approval-queue depth >500: page on-call. Either pending volume is
   spiking (legitimate — investigate cause) or approvers are not
   acting fast enough (process issue).
-- Outbox depth >10k pending across all consumer services: page on-call.
-  Trustage may be unhealthy or one of the consumer DBs is down.
-
 ## Reaper SLAs
 
 - Reserved-but-not-committed reservations: TTL 5 minutes. Reaper
   releases on the next pass after TTL expiry.
 - Pending-approval reservations: TTL 24 hours. Operator action required
   before that.
-- Outbox dead-letter rows: notify ops on creation; manual triage.
 
 ## Open issues
 

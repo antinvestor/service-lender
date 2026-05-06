@@ -49,7 +49,6 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/audit"
-	"github.com/antinvestor/service-fintech/pkg/limits/consumer"
 )
 
 func main() {
@@ -116,8 +115,6 @@ func main() {
 		return
 	}
 
-	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
-
 	serviceOptions := setupServiceOptions(
 		ctx,
 		sm,
@@ -134,7 +131,6 @@ func main() {
 		cfg.LimitsGateModeLoanRequestApproval,
 		cfg.LimitsGateEnabledLoanRepayment,
 		cfg.LimitsGateModeLoanRepayment,
-		limitsDrainHandler,
 	)
 
 	svc.Init(ctx, serviceOptions...)
@@ -161,7 +157,6 @@ func setupServiceOptions(
 	limitsGateModeLoanRequestApproval string,
 	limitsGateEnabledLoanRepayment bool,
 	limitsGateModeLoanRepayment string,
-	limitsDrainHandler http.Handler,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 	loanRequestRepo := repository.NewLoanRequestRepository(ctx, dbPool, workMan)
@@ -235,8 +230,7 @@ func setupServiceOptions(
 
 	connectHandler := setupConnectServer(ctx, sm,
 		lpBusiness, lrBusiness, laBusiness, repBusiness, scheduleBusiness,
-		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, disbBusiness, lscRepo,
-		limitsDrainHandler)
+		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, disbBusiness, lscRepo)
 
 	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
 
@@ -335,7 +329,6 @@ func setupConnectServer(
 	portfolioBusiness business.PortfolioBusiness,
 	disbBusiness business.DisbursementBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
-	limitsDrainHandler http.Handler,
 ) http.Handler {
 	// Create handler with injected dependencies
 	lmHandler := handlers.NewLoanManagementServer(
@@ -379,7 +372,6 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(lmPath, lmServerHandler)
-	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }

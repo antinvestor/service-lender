@@ -10,7 +10,6 @@
       least loans + savings consumers).
 - [ ] `docs/runbook/limits-rollout.md` is the version under test.
 - [ ] `limits-admin` CLI installed and configured for staging.
-- [ ] Trustage workflow registered for the consumer service's drain endpoint.
 
 ## Stage 1 — off → shadow (target: <5 min)
 

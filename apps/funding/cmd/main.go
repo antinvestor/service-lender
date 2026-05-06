@@ -189,10 +189,8 @@ func setupServiceOptions(
 		cfg.LimitsGateModeFundingWithdraw,
 	)
 
-	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
-
 	// ConnectRPC handler
-	connectHandler := setupConnectServer(ctx, sm, iaBiz, faBiz, limitsDrainHandler)
+	connectHandler := setupConnectServer(ctx, sm, iaBiz, faBiz)
 
 	sd := fundingpb.File_funding_v1_funding_proto.Services().ByName("FundingService")
 
@@ -312,7 +310,6 @@ func setupConnectServer(
 	sm security.Manager,
 	iaBiz business.InvestorAccountBusiness,
 	faBiz business.FundingAllocationBusiness,
-	limitsDrainHandler http.Handler,
 ) http.Handler {
 	fundingHandler := fundinghandlers.NewFundingServer(iaBiz, faBiz)
 
@@ -340,7 +337,6 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(fundingPath, fundingServerHandler)
-	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }

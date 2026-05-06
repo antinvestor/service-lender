@@ -113,8 +113,6 @@ func main() {
 			Warn("main -- Could not setup limits client, limits gate will be disabled")
 	}
 
-	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
-
 	// Create business logic with all dependencies
 	spBusiness := business.NewSavingsProductBusiness(ctx, evtsMan, spRepo)
 	saBusiness := business.NewSavingsAccountBusiness(ctx, evtsMan, saRepo, depRepo, wdRepo, iaRepo, sbRepo)
@@ -148,7 +146,7 @@ func main() {
 
 	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(ctx, sm,
-		spBusiness, saBusiness, depBusiness, wdBusiness, iaBusiness, limitsDrainHandler)
+		spBusiness, saBusiness, depBusiness, wdBusiness, iaBusiness)
 
 	// Initialise the service with all options
 	sd := savingspb.File_savings_v1_savings_proto.Services().ByName("SavingsService")
@@ -224,7 +222,6 @@ func setupConnectServer(
 	depBusiness business.DepositBusiness,
 	wdBusiness business.WithdrawalBusiness,
 	iaBusiness business.InterestAccrualBusiness,
-	limitsDrainHandler http.Handler,
 ) http.Handler {
 	// Create handler with injected dependencies
 	savingsHandler := handlers.NewSavingsServer(
@@ -262,7 +259,6 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(savingsPath, savingsServerHandler)
-	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }

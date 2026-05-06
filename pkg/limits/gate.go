@@ -47,6 +47,18 @@ func ParseMode(s string) Mode {
 	return ModeEnforce
 }
 
+// Architecture note: Gate calls Commit and Release synchronously via
+// Connect RPC. An earlier design proposed a transactional outbox to
+// bridge handler-success → Commit so the consumer would not have to
+// retry on Commit RPC failure. That design was deliberately rejected
+// (see docs/superpowers/plans/2026-05-06-limits-prod-readiness.md
+// Phase 1). The synchronous path with idempotent Commit + the limits
+// service's TTL-based reservation expiry is sufficient: a failed Commit
+// after handler-success leaves a reservation that TTL-expires (default
+// 5 min); cap math reverts on the next Reserve as if the operation
+// never happened. Drift is in the audit/ledger sense (handled by the
+// audit pipeline), not in cap enforcement.
+
 // Gate runs the standard Reserve → handler → Commit/Release lifecycle
 // against the supplied limits Connect client. The handler is invoked
 // only when the reservation is ACTIVE; PENDING_APPROVAL and Reserve
@@ -69,11 +81,6 @@ func ParseMode(s string) Mode {
 //   - DENY (unexpected status) → logs shadow_outcome=would_block, fire-and-forget Release, runs handler.
 //   - PENDING_APPROVAL → logs shadow_outcome=would_pend, fire-and-forget Release, runs handler.
 //   - ACTIVE → unchanged from ModeEnforce.
-//
-// Outbox-driven Commit (see pkg/limits/outbox) is a separate path; callers
-// that need durable Commit-after-local-tx should write an outbox row in
-// their own transaction and let the outbox.Worker drive Commit. Gate's
-// synchronous Commit is the simpler default.
 func Gate(
 	ctx context.Context,
 	rpc limitsv1connect.LimitsServiceClient,

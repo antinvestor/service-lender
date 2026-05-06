@@ -22,11 +22,10 @@
 //
 // Docker pause/unpause wiring: the pause/unpause helpers below are stubs
 // that call t.Skip. To wire them into a real CI environment, inject the
-// testcontainers ContainerID for each container (stored in LimitsContainerID
-// and OutboxContainerID) and call the Docker daemon's pause/unpause API
-// (e.g. via github.com/docker/docker/client). The fields are set to empty
-// strings here so the suite is always structurally correct and can be wired
-// later without changing the drill files.
+// testcontainers ContainerID (stored in LimitsContainerID) and call the
+// Docker daemon's pause/unpause API (e.g. via github.com/docker/docker/client).
+// The field is set to an empty string here so the suite is always structurally
+// correct and can be wired later without changing the drill files.
 package chaostests
 
 import (
@@ -41,11 +40,10 @@ import (
 )
 
 // ChaosSuite holds the shared testcontainers infrastructure for all chaos
-// drills. Two Postgres instances are started: one emulates the limits
-// service's own database, the other emulates the consumer (loans) database.
-// The LimitsContainerID and OutboxContainerID fields are hooks for the CI
-// environment to inject the running container IDs so that pause/unpause
-// helpers can forward calls to the Docker daemon.
+// drills. A Postgres instance is started to emulate the limits service's
+// own database. The LimitsContainerID field is a hook for the CI environment
+// to inject the running container ID so that pause/unpause helpers can
+// forward calls to the Docker daemon.
 type ChaosSuite struct {
 	frametests.FrameBaseTestSuite
 
@@ -53,18 +51,12 @@ type ChaosSuite struct {
 	// postgres container. Set this in a CI environment to enable
 	// PauseLimitsService / UnpauseLimitsService.
 	LimitsContainerID string
-
-	// OutboxContainerID is the Docker container ID of the consumer (loans)
-	// postgres container. Set this in a CI environment to enable
-	// PauseConsumerDB / UnpauseConsumerDB.
-	OutboxContainerID string
 }
 
 func (s *ChaosSuite) SetupSuite() {
 	s.InitResourceFunc = func(_ context.Context) []definition.TestResource {
 		return []definition.TestResource{
 			testpostgres.NewWithOpts("limits_test", definition.WithUserName("test")),
-			testpostgres.NewWithOpts("loans_test", definition.WithUserName("test")),
 		}
 	}
 	s.FrameBaseTestSuite.SetupSuite()
@@ -102,22 +94,6 @@ func (s *ChaosSuite) UnpauseLimitsService(t *testing.T) {
 	t.Helper()
 	// No-op until wired; the t.Cleanup in PauseLimitsService handles the
 	// corresponding unpause once wired.
-}
-
-// PauseConsumerDB suspends the consumer (loans) postgres container for d.
-//
-// TODO(ci): Wire OutboxContainerID and call the Docker daemon pause API here.
-func (s *ChaosSuite) PauseConsumerDB(t *testing.T, _ time.Duration) {
-	t.Helper()
-	// TODO: docker pause/unpause not yet wired into frametests control client.
-	// Operators: set s.OutboxContainerID and call cli.ContainerPause here.
-	t.Skip("PauseConsumerDB: docker pause/unpause not yet wired into frametests control client")
-}
-
-// UnpauseConsumerDB resumes the consumer postgres container. No-op when
-// PauseConsumerDB was skipped.
-func (s *ChaosSuite) UnpauseConsumerDB(t *testing.T) {
-	t.Helper()
 }
 
 // BlockLimitsToDB induces a network partition between the limits-service

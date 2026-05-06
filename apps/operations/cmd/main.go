@@ -205,10 +205,8 @@ func setupServiceOptions(
 	)
 	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
 
-	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
-
 	// ConnectRPC handler
-	connectHandler := setupConnectServer(ctx, sm, toBiz, prBiz, toRepo, limitsDrainHandler)
+	connectHandler := setupConnectServer(ctx, sm, toBiz, prBiz, toRepo)
 
 	sd := operationspb.File_operations_v1_operations_proto.Services().ByName("OperationsService")
 
@@ -257,7 +255,6 @@ func setupConnectServer(
 	toBiz business.TransferOrderBusiness,
 	prBiz business.PaymentRoutingBusiness,
 	toRepo repository.TransferOrderRepository,
-	limitsDrainHandler http.Handler,
 ) http.Handler {
 	opsHandler := handlers.NewOperationsServer(toBiz, prBiz, toRepo)
 
@@ -285,7 +282,6 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(opsPath, opsServerHandler)
-	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }

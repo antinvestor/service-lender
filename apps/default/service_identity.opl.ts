@@ -52,8 +52,6 @@ class service_identity implements Namespace {
     granted_access_role_assignment_manage: (profile_user | service_identity)[]
     granted_investor_view: (profile_user | service_identity)[]
     granted_investor_manage: (profile_user | service_identity)[]
-    granted_system_user_view: (profile_user | service_identity)[]
-    granted_system_user_manage: (profile_user | service_identity)[]
     granted_client_group_view: (profile_user | service_identity)[]
     granted_client_group_manage: (profile_user | service_identity)[]
     granted_membership_view: (profile_user | service_identity)[]
@@ -228,21 +226,6 @@ class service_identity implements Namespace {
       this.related.owner.includes(ctx.subject) ||
       this.related.service.includes(ctx.subject) ||
       this.related.granted_investor_manage.includes(ctx.subject),
-
-    system_user_view: (ctx: Context): boolean =>
-      this.related.admin.includes(ctx.subject) ||
-      this.related.member.includes(ctx.subject) ||
-      this.related.operator.includes(ctx.subject) ||
-      this.related.owner.includes(ctx.subject) ||
-      this.related.service.includes(ctx.subject) ||
-      this.related.viewer.includes(ctx.subject) ||
-      this.related.granted_system_user_view.includes(ctx.subject),
-
-    system_user_manage: (ctx: Context): boolean =>
-      this.related.admin.includes(ctx.subject) ||
-      this.related.owner.includes(ctx.subject) ||
-      this.related.service.includes(ctx.subject) ||
-      this.related.granted_system_user_manage.includes(ctx.subject),
 
     client_group_view: (ctx: Context): boolean =>
       this.related.admin.includes(ctx.subject) ||

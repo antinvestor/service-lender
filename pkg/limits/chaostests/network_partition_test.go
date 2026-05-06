@@ -111,21 +111,20 @@ func (s *ChaosSuite) TestNetworkPartition_ShadowModeProceeds() {
 
 // TestNetworkPartition_NoHalfAppliedState is a documentation drill asserting
 // that a partial partition leaves no persistent half-applied state in either
-// the limits service or the consumer DB. A Reserve that fails at the limits
+// the limits service or the consumer. A Reserve that fails at the limits
 // service DB layer is rolled back by the limits service itself; the consumer
-// never receives a reservation ID and therefore writes no outbox row.
+// never receives a reservation ID and therefore the handler is never invoked.
 //
 // This is a static invariant test: it documents the expected behaviour using
 // the stub, not a running service. The invariant holds if Gate's error path
-// skips the handler (verified in TestNetworkPartition_LimitsCannotReachDB)
-// and no outbox row is created.
+// skips the handler (verified in TestNetworkPartition_LimitsCannotReachDB).
 func (s *ChaosSuite) TestNetworkPartition_NoHalfAppliedState() {
 	t := s.T()
 
 	partitioned := &partitionedLimitsStub{}
 
 	ctx := t.Context()
-	outboxRowCreated := false
+	handlerInvoked := false
 
 	_ = limits.Gate(
 		ctx,
@@ -133,16 +132,15 @@ func (s *ChaosSuite) TestNetworkPartition_NoHalfAppliedState() {
 		sampleIntent(),
 		"chaos-partition-invariant-1",
 		limits.ModeEnforce,
-		func(_ context.Context, reservationID string) error {
-			// If the handler is ever called, it would write an outbox row.
-			// This must NOT happen when Reserve fails.
-			outboxRowCreated = true
+		func(_ context.Context, _ string) error {
+			// The handler must NOT be called when Reserve fails.
+			handlerInvoked = true
 			return nil
 		},
 	)
 
-	assert.False(t, outboxRowCreated,
-		"no outbox row must be created when Reserve fails due to partition")
+	assert.False(t, handlerInvoked,
+		"handler must not be invoked when Reserve fails due to partition")
 }
 
 func TestChaosSuite_NetworkPartition(t *testing.T) {

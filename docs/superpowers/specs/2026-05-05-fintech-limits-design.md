@@ -397,24 +397,13 @@ type Client interface {
 }
 ```
 
-`Gate` is the 80% path — Reserve, run handler, Commit on success (via outbox), Release on failure. Returns a typed `PendingApprovalError{ReservationID, Verdicts}` when Reserve returns `PENDING_APPROVAL`. Built-in circuit breaker around `Reserve`/`Commit`/`Release`/`Reverse`.
+`Gate` is the 80% path — Reserve, run handler, Commit on success, Release on failure. Returns a typed `PendingApprovalError{ReservationID, Verdicts}` when Reserve returns `PENDING_APPROVAL`. Built-in circuit breaker around `Reserve`/`Commit`/`Release`/`Reverse`.
 
-### 6.2 Outbox-driven Commit pattern
+### §6.2 Synchronous Commit + TTL self-correction
 
-The naïve "Reserve → tx → Commit" has a real failure mode: local tx commits, then `limits.Commit` fails — action is locally durable but never counted. The `outbox` pattern closes this:
+Gate calls Commit and Release synchronously via Connect RPC. Both endpoints are idempotent on `(tenant_id, idempotency_key)`. On Commit RPC failure after the consumer's handler tx committed, the caller surfaces the error; the reservation TTL-expires (default 5 minutes) and cap math reverts on the next Reserve as if the operation never happened. The audit pipeline (which writes audit rows in the same DB tx as state changes — see §6A) records the drift event for offline reconciliation.
 
-```
-1. limits.Reserve(intent, idem)           # outside any local tx
-2. BEGIN local DB transaction
-3.   Insert business row (e.g. Disbursement) referencing reservation_id
-4.   Insert limits_outbox row {action:COMMIT, reservation_id, attempt:0}
-5. COMMIT local transaction
-6. ── on failure: limits.Release(reservation_id) outside the tx
-7. Frame Queue worker drains limits_outbox → calls limits.Commit → marks done
-8. ── retries with exponential backoff; idempotent on reservation_id
-```
-
-The outbox row is durable in the same transaction as the business row, so `business action exists ⇔ Commit will eventually be called` is invariant. Worker scaffold lives in `pkg/limits/outbox/` and is wired into each consumer service.
+An earlier design proposed a transactional outbox to bridge handler-success → Commit. It was rejected as unnecessary multi-phase complexity: the cap-correctness story is unaffected by Commit failure (TTL handles it), and audit durability is solved by in-tx writes rather than by an outbox.
 
 ### 6.3 Per-action integration map
 

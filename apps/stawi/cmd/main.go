@@ -150,8 +150,7 @@ func main() {
 
 	repos := initRepositories(ctx, dbPool, workMan)
 	biz := initBusinesses(ctx, evtsMan, identityCli, platformClients, repos, limitsCli, cfg)
-	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
-	mux := buildWorkflowMux(platformClients, biz, limitsDrainHandler)
+	mux := buildWorkflowMux(platformClients, biz)
 	serviceOptions := buildServiceOptions(ctx, mux, repos)
 
 	svc.Init(ctx, serviceOptions...)
@@ -262,7 +261,6 @@ func initBusinesses(
 func buildWorkflowMux(
 	platformClients *clients.PlatformClients,
 	biz appBusinesses,
-	limitsDrainHandler http.Handler,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 	handlers.RegisterWorkflowCallbacks(
@@ -279,7 +277,6 @@ func buildWorkflowMux(
 		biz.obligation,
 		platformClients,
 	)
-	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }

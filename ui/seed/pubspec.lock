@@ -63,7 +63,14 @@ packages:
       path: "../../sdk/dart/identity"
       relative: true
     source: path
-    version: "0.3.0"
+    version: "0.4.0"
+  antinvestor_api_limits:
+    dependency: transitive
+    description:
+      path: "../../sdk/dart/limits"
+      relative: true
+    source: path
+    version: "0.1.0"
   antinvestor_api_profile:
     dependency: transitive
     description:
@@ -101,11 +108,18 @@ packages:
       path: "../../../service-profile/ui/geolocation"
       relative: true
     source: path
-    version: "0.1.1"
+    version: "0.2.1"
   antinvestor_ui_identity:
     dependency: "direct main"
     description:
       path: "../identity"
+      relative: true
+    source: path
+    version: "0.1.0"
+  antinvestor_ui_limits:
+    dependency: "direct main"
+    description:
+      path: "../limits"
       relative: true
     source: path
     version: "0.1.0"
@@ -115,7 +129,7 @@ packages:
       path: "../../../service-profile/ui/profile"
       relative: true
     source: path
-    version: "0.1.1"
+    version: "0.2.1"
   app_links:
     dependency: "direct main"
     description:

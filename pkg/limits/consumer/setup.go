@@ -17,15 +17,10 @@ package consumer
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
-	"github.com/pitabwire/frame/datastore/pool"
-	"github.com/pitabwire/frame/workerpool"
-
-	"github.com/antinvestor/service-fintech/pkg/limits/outbox"
 )
 
 // SetupClient constructs a LimitsServiceClient from the provided config and target.
@@ -44,20 +39,4 @@ func SetupClient(
 		return nil, fmt.Errorf("limits client: %w", err)
 	}
 	return cli, nil
-}
-
-// SetupOutboxStack wires a limits-outbox Repository, Worker, and drain http.Handler
-// from the provided datastore pool, RPC client, and worker manager.
-// The returned Worker is ready to drain; the Handler should be mounted at
-// /admin/limits-outbox/drain.
-func SetupOutboxStack(
-	ctx context.Context,
-	dbPool pool.Pool,
-	workMan workerpool.Manager,
-	rpc limitsv1connect.LimitsServiceClient,
-) (*outbox.Worker, http.Handler) {
-	repo := outbox.NewRepository(ctx, dbPool, workMan)
-	w := outbox.NewWorker(repo, rpc, workMan)
-	h := newDrainHandler(w)
-	return w, h
 }
