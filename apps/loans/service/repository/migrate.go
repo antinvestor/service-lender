@@ -25,6 +25,7 @@ import (
 
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/pkg/audit"
+	"github.com/antinvestor/service-fintech/pkg/limits/outbox"
 )
 
 func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath string) error {
@@ -53,6 +54,7 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 		&models.Reconciliation{},
 		&models.Disbursement{},
 		&audit.Event{},
+		&outbox.Row{},
 	)
 }
 
