@@ -273,3 +273,35 @@ func TestGate_Shadow_RPCError_RunsHandler(t *testing.T) {
 	assert.Equal(t, 0, stub.commitCalls)
 	assert.Equal(t, 0, stub.releaseCalls)
 }
+
+func TestGate_HandlerError_ClientCancel_StillReleases(t *testing.T) {
+	stub := &stubLimitsClient{
+		reserveResp: &limitsv1.ReserveResponse{
+			Reservation: &limitsv1.ReservationObject{
+				Id:     "res-cancel-1",
+				Status: limitsv1.ReservationStatus_RESERVATION_STATUS_ACTIVE,
+			},
+		},
+		releaseResp: &limitsv1.ReleaseResponse{
+			Reservation: &limitsv1.ReservationObject{Status: limitsv1.ReservationStatus_RESERVATION_STATUS_RELEASED},
+		},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	handlerErr := errors.New("simulated handler failure")
+
+	err := limits.Gate(ctx, stub, &limitsv1.LimitIntent{}, "test-key-1", limits.ModeEnforce,
+		func(ctx context.Context, _ string) error {
+			cancel() // simulate client cancel mid-handler
+			return handlerErr
+		})
+
+	require.Error(t, err)
+	require.True(t, errors.Is(err, handlerErr))
+
+	// Despite ctx being cancelled, Release was still called because Gate uses
+	// context.WithoutCancel to detach the Release RPC from the original context.
+	assert.Equal(t, 1, stub.reserveCalls)
+	assert.Equal(t, 0, stub.commitCalls)
+	assert.Equal(t, 1, stub.releaseCalls, "Release must be called even when the request context is cancelled")
+}

@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
@@ -149,13 +150,19 @@ func Gate(
 	}
 
 	if handlerErr := handler(ctx, reservation.GetId()); handlerErr != nil {
-		if _, releaseErr := rpc.Release(ctx, connect.NewRequest(&limitsv1.ReleaseRequest{
+		// Use a detached context so a client-side cancellation (timeout/disconnect)
+		// does not prevent Release from reaching the limits service. Without this,
+		// ctx.Err() != nil causes the RPC to fail immediately and the reservation
+		// would hold cap-space for the full TTL (default 5 min).
+		relCtx, relCancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+		defer relCancel()
+		if _, relErr := rpc.Release(relCtx, connect.NewRequest(&limitsv1.ReleaseRequest{
 			ReservationId: reservation.GetId(),
-			Reason:        handlerErr.Error(),
-		})); releaseErr != nil {
-			util.Log(ctx).WithError(releaseErr).
+			Reason:        "handler_error",
+		})); relErr != nil {
+			util.Log(ctx).WithError(relErr).
 				With("reservation_id", reservation.GetId()).
-				Error("limits.Gate: Release failed after handler error; relying on TTL reaper")
+				Error("limits release after handler error failed")
 		}
 		return handlerErr
 	}
