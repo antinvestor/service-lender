@@ -17,12 +17,12 @@ package business
 import (
 	"context"
 	"encoding/json"
-	"sync"
 	"time"
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"connectrpc.com/connect"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/pitabwire/util"
 	"gorm.io/datatypes"
 
@@ -53,14 +53,15 @@ type AttributeResolver interface {
 type attributeResolver struct {
 	repo           repository.SubjectAttributeRepository
 	identityClient identityv1connect.IdentityServiceClient
-	cache          map[string]cachedAttrs
-	cacheMu        sync.RWMutex
-	ttl            time.Duration
+	// cache is a bounded expirable LRU. Capacity of 10 000 entries bounds
+	// memory growth; the TTL (default 60 s) bounds staleness. The expirable
+	// LRU handles eviction internally — no separate janitor goroutine needed.
+	cache *expirable.LRU[string, cachedAttrs]
+	ttl   time.Duration
 }
 
 type cachedAttrs struct {
-	attrs     map[string]any
-	expiresAt time.Time
+	attrs map[string]any
 }
 
 // NewAttributeResolver constructs a resolver. A nil identity client makes
@@ -77,7 +78,7 @@ func NewAttributeResolver(
 	return &attributeResolver{
 		repo:           repo,
 		identityClient: identityClient,
-		cache:          make(map[string]cachedAttrs),
+		cache:          expirable.NewLRU[string, cachedAttrs](10000, nil, ttl),
 		ttl:            ttl,
 	}
 }
@@ -95,13 +96,10 @@ func (r *attributeResolver) Get(
 
 	key := string(subjectType) + ":" + subjectID
 
-	// 1. LRU check.
-	r.cacheMu.RLock()
-	if c, ok := r.cache[key]; ok && time.Now().Before(c.expiresAt) {
-		r.cacheMu.RUnlock()
+	// 1. LRU check. The expirable.LRU handles TTL internally.
+	if c, ok := r.cache.Get(key); ok {
 		return c.attrs, nil
 	}
-	r.cacheMu.RUnlock()
 
 	// 2. DB snapshot check.
 	snap, err := r.repo.Get(ctx, subjectType, subjectID)
@@ -140,15 +138,11 @@ func (r *attributeResolver) Get(
 // Get will re-check the DB and identity service.
 func (r *attributeResolver) Invalidate(subjectType models.Subject, subjectID string) {
 	key := string(subjectType) + ":" + subjectID
-	r.cacheMu.Lock()
-	delete(r.cache, key)
-	r.cacheMu.Unlock()
+	r.cache.Remove(key)
 }
 
 func (r *attributeResolver) populate(key string, attrs map[string]any) {
-	r.cacheMu.Lock()
-	r.cache[key] = cachedAttrs{attrs: attrs, expiresAt: time.Now().Add(r.ttl)}
-	r.cacheMu.Unlock()
+	r.cache.Add(key, cachedAttrs{attrs: attrs})
 }
 
 func decodeAttrs(j datatypes.JSON) map[string]any {
