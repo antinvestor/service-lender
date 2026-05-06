@@ -72,6 +72,7 @@ type loanOfferBusiness struct {
 	clients           *clients.PlatformClients
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewLoanOfferBusiness(
@@ -83,6 +84,7 @@ func NewLoanOfferBusiness(
 	pc *clients.PlatformClients,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) LoanOfferBusiness {
 	return &loanOfferBusiness{
 		eventsMan:         eventsMan,
@@ -92,6 +94,7 @@ func NewLoanOfferBusiness(
 		clients:           pc,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -217,7 +220,7 @@ func (b *loanOfferBusiness) Respond(ctx context.Context, offerID string, respons
 // service before execution proceeds. DENY returns an error; PENDING_APPROVAL
 // returns PendingApprovalError.
 func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID string) (map[string]interface{}, error) {
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.createLoanAccountInner(ctx, offerID)
 	}
 
@@ -237,7 +240,7 @@ func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID strin
 	idemKey := "stawi_loan_disbursement:" + offerID
 
 	var result map[string]interface{}
-	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).
 				Info("stawi loan disbursement gated by limits")

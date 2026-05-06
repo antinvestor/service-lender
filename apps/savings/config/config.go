@@ -37,5 +37,7 @@ type SavingsConfig struct {
 	LimitsServiceURI                   string `envDefault:"http://service_limits:80" env:"LIMITS_SERVICE_URI"`
 	LimitsServiceWorkloadAPITargetPath string `envDefault:""                         env:"LIMITS_SERVICE_WORKLOAD_API_TARGET_PATH"`
 	LimitsGateEnabledSavingsDeposit    bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_SAVINGS_DEPOSIT"`
+	LimitsGateModeSavingsDeposit       string `envDefault:"enforce"                  env:"LIMITS_GATE_MODE_SAVINGS_DEPOSIT"`
 	LimitsGateEnabledSavingsWithdrawal bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_SAVINGS_WITHDRAWAL"`
+	LimitsGateModeSavingsWithdrawal    string `envDefault:"enforce"                  env:"LIMITS_GATE_MODE_SAVINGS_WITHDRAWAL"`
 }

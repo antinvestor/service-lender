@@ -201,6 +201,7 @@ func setupServiceOptions(
 		auditWriter,
 		limitsCli,
 		cfg.LimitsGateEnabledOperationsTransfer,
+		cfg.LimitsGateModeOperationsTransfer,
 	)
 	_ = business.NewObligationBusiness(ctx, evtsMan, obRepo, identityCli, perAdapter)
 

@@ -67,6 +67,7 @@ type withdrawalBusiness struct {
 	auditWriter       *audit.Writer
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewWithdrawalBusiness(
@@ -80,6 +81,7 @@ func NewWithdrawalBusiness(
 	auditWriter *audit.Writer,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) WithdrawalBusiness {
 	return &withdrawalBusiness{
 		eventsMan:         eventsMan,
@@ -91,6 +93,7 @@ func NewWithdrawalBusiness(
 		auditWriter:       auditWriter,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -216,7 +219,7 @@ func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1
 		return nil, ErrInvalidStatusTransition
 	}
 
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.approveInner(ctx, id, wdr)
 	}
 
@@ -236,7 +239,7 @@ func (b *withdrawalBusiness) Approve(ctx context.Context, id string) (*savingsv1
 	idemKey := "savings_withdrawal:" + id
 
 	var result *savingsv1.WithdrawalObject
-	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).Info("withdrawal approve gated by limits")
 			inner, innerErr := b.approveInner(innerCtx, id, wdr)

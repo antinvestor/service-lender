@@ -55,6 +55,7 @@ type loanRequestBusiness struct {
 	loanProductRepo   repository.LoanProductRepository
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewLoanRequestBusiness(
@@ -64,6 +65,7 @@ func NewLoanRequestBusiness(
 	loanProductRepo repository.LoanProductRepository,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) LoanRequestBusiness {
 	return &loanRequestBusiness{
 		eventsMan:         eventsMan,
@@ -71,6 +73,7 @@ func NewLoanRequestBusiness(
 		loanProductRepo:   loanProductRepo,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -178,7 +181,7 @@ func (b *loanRequestBusiness) Search(
 }
 
 func (b *loanRequestBusiness) Approve(ctx context.Context, id string) (*loansv1.LoanRequestObject, error) {
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.approveInner(ctx, id)
 	}
 
@@ -201,7 +204,7 @@ func (b *loanRequestBusiness) Approve(ctx context.Context, id string) (*loansv1.
 	idemKey := "loan_request_approval:" + id
 
 	var result *loansv1.LoanRequestObject
-	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).
 				With("limits_reservation_id", reservationID).

@@ -120,7 +120,7 @@ func main() {
 	saBusiness := business.NewSavingsAccountBusiness(ctx, evtsMan, saRepo, depRepo, wdRepo, iaRepo, sbRepo)
 	depBusiness := business.NewDepositBusiness(
 		ctx, evtsMan, depRepo, saRepo, sbRepo, operationsCli, auditWriter,
-		limitsCli, cfg.LimitsGateEnabledSavingsDeposit,
+		limitsCli, cfg.LimitsGateEnabledSavingsDeposit, cfg.LimitsGateModeSavingsDeposit,
 	)
 	wdBusiness := business.NewWithdrawalBusiness(
 		ctx,
@@ -133,6 +133,7 @@ func main() {
 		auditWriter,
 		limitsCli,
 		cfg.LimitsGateEnabledSavingsWithdrawal,
+		cfg.LimitsGateModeSavingsWithdrawal,
 	)
 	iaBusiness := business.NewInterestAccrualBusiness(
 		ctx,

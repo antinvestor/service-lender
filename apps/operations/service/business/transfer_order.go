@@ -64,6 +64,7 @@ type transferOrderBusiness struct {
 	auditWriter       *audit.Writer
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewTransferOrderBusiness(
@@ -79,6 +80,7 @@ func NewTransferOrderBusiness(
 	auditWriter *audit.Writer,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) TransferOrderBusiness {
 	return &transferOrderBusiness{
 		eventsMan:         eventsMan,
@@ -92,6 +94,7 @@ func NewTransferOrderBusiness(
 		auditWriter:       auditWriter,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -136,7 +139,7 @@ func (b *transferOrderBusiness) Save(ctx context.Context, order *models.Transfer
 // service before execution proceeds. DENY returns an error; PENDING_APPROVAL
 // returns PendingApprovalError.
 func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) error {
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.executeInner(ctx, orderID)
 	}
 
@@ -155,7 +158,7 @@ func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) err
 	}
 	idemKey := "operations_transfer:" + orderID
 
-	return limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	return limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).
 				Info("transfer order execute gated by limits")

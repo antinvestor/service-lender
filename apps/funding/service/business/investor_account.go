@@ -55,7 +55,9 @@ type investorAccountBusiness struct {
 	auditWriter           *audit.Writer
 	limitsCli             limitsv1connect.LimitsServiceClient
 	limitsDepositEnabled  bool
+	limitsDepositMode     string
 	limitsWithdrawEnabled bool
+	limitsWithdrawMode    string
 }
 
 func NewInvestorAccountBusiness(
@@ -66,7 +68,9 @@ func NewInvestorAccountBusiness(
 	auditWriter *audit.Writer,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsDepositEnabled bool,
+	limitsDepositMode string,
 	limitsWithdrawEnabled bool,
+	limitsWithdrawMode string,
 ) InvestorAccountBusiness {
 	return &investorAccountBusiness{
 		eventsMan:             eventsMan,
@@ -75,7 +79,9 @@ func NewInvestorAccountBusiness(
 		auditWriter:           auditWriter,
 		limitsCli:             limitsCli,
 		limitsDepositEnabled:  limitsDepositEnabled,
+		limitsDepositMode:     limitsDepositMode,
 		limitsWithdrawEnabled: limitsWithdrawEnabled,
+		limitsWithdrawMode:    limitsWithdrawMode,
 	}
 }
 
@@ -129,7 +135,7 @@ func (b *investorAccountBusiness) Deposit(
 	accountID string,
 	amount int64,
 ) error {
-	if !b.limitsDepositEnabled || b.limitsCli == nil {
+	if !b.limitsDepositEnabled || b.limitsCli == nil || b.limitsDepositMode == "off" {
 		return b.depositInner(ctx, accountID, amount)
 	}
 
@@ -148,7 +154,7 @@ func (b *investorAccountBusiness) Deposit(
 	}
 	idemKey := "funding_deposit:" + accountID
 
-	return limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	return limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsDepositMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).
 				Info("investor deposit gated by limits")
@@ -246,7 +252,7 @@ func (b *investorAccountBusiness) Withdraw(
 	accountID string,
 	amount int64,
 ) error {
-	if !b.limitsWithdrawEnabled || b.limitsCli == nil {
+	if !b.limitsWithdrawEnabled || b.limitsCli == nil || b.limitsWithdrawMode == "off" {
 		return b.withdrawInner(ctx, accountID, amount)
 	}
 
@@ -265,7 +271,7 @@ func (b *investorAccountBusiness) Withdraw(
 	}
 	idemKey := "funding_withdraw:" + accountID
 
-	return limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	return limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsWithdrawMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).
 				Info("investor withdrawal gated by limits")

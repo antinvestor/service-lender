@@ -63,6 +63,7 @@ type disbursementBusiness struct {
 	auditWriter       *audit.Writer
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewDisbursementBusiness(
@@ -75,6 +76,7 @@ func NewDisbursementBusiness(
 	auditWriter *audit.Writer,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) DisbursementBusiness {
 	return &disbursementBusiness{
 		eventsMan:         eventsMan,
@@ -85,6 +87,7 @@ func NewDisbursementBusiness(
 		auditWriter:       auditWriter,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -102,7 +105,7 @@ func (b *disbursementBusiness) Create(
 		}
 	}
 
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.createInner(ctx, req)
 	}
 
@@ -114,7 +117,7 @@ func (b *disbursementBusiness) Create(
 	intent := buildDisbursementIntent(la, ctx)
 
 	var result *loansv1.DisbursementObject
-	gateErr := limits.Gate(ctx, b.limitsCli, intent, req.GetIdempotencyKey(),
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, req.GetIdempotencyKey(), limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			logger.With("limits_reservation_id", reservationID).Info("disbursement gated by limits")
 			inner, innerErr := b.createInner(innerCtx, req)

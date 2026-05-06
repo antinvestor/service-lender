@@ -200,7 +200,7 @@ func initBusinesses(
 	loanWindowBiz := stawibusiness.NewLoanWindowBusiness(ctx, evtsMan, repos.loanWindow)
 	loanOfferBiz := stawibusiness.NewLoanOfferBusiness(
 		ctx, evtsMan, repos.loanOffer, repos.loanWindow, identityCli, platformClients,
-		limitsCli, cfg.LimitsGateEnabledStawiLoanDisbursement,
+		limitsCli, cfg.LimitsGateEnabledStawiLoanDisbursement, cfg.LimitsGateModeStawiLoanDisbursement,
 	)
 	fundingBiz := fundingbusiness.NewFundingAllocationBusiness(
 		ctx,
@@ -240,7 +240,8 @@ func initBusinesses(
 		platformClients,
 		audit.NewWriter(evtsMan),
 		limitsCli,
-		false, // transfer-order gate not yet enabled for stawi; governed separately
+		false,     // transfer-order gate not yet enabled for stawi; governed separately
+		"enforce", // default mode; irrelevant when gate is disabled
 	)
 	obligationBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, repos.obligation, identityCli, periodAdapter)
 

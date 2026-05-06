@@ -73,6 +73,7 @@ type depositBusiness struct {
 	auditWriter       *audit.Writer
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewDepositBusiness(
@@ -85,6 +86,7 @@ func NewDepositBusiness(
 	auditWriter *audit.Writer,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) DepositBusiness {
 	return &depositBusiness{
 		eventsMan:         eventsMan,
@@ -95,6 +97,7 @@ func NewDepositBusiness(
 		auditWriter:       auditWriter,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -130,7 +133,7 @@ func (b *depositBusiness) Record(
 		}
 	}
 
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.recordInner(ctx, accountID, amount, paymentRef, channel, payerRef, idempotencyKey)
 	}
 
@@ -155,7 +158,7 @@ func (b *depositBusiness) Record(
 	}
 
 	var result *savingsv1.DepositObject
-	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).Info("deposit gated by limits")
 			inner, innerErr := b.recordInner(innerCtx, accountID, amount, paymentRef, channel, payerRef, idempotencyKey)

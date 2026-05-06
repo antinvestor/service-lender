@@ -79,6 +79,7 @@ type repaymentBusiness struct {
 	paidOffHook       PaidOffHook
 	limitsCli         limitsv1connect.LimitsServiceClient
 	limitsGateEnabled bool
+	limitsGateMode    string
 }
 
 func NewRepaymentBusiness(
@@ -95,6 +96,7 @@ func NewRepaymentBusiness(
 	paidOffHook PaidOffHook,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsGateMode string,
 ) RepaymentBusiness {
 	return &repaymentBusiness{
 		eventsMan:         eventsMan,
@@ -109,6 +111,7 @@ func NewRepaymentBusiness(
 		paidOffHook:       paidOffHook,
 		limitsCli:         limitsCli,
 		limitsGateEnabled: limitsGateEnabled,
+		limitsGateMode:    limitsGateMode,
 	}
 }
 
@@ -124,7 +127,7 @@ func (b *repaymentBusiness) Record(
 		}
 	}
 
-	if !b.limitsGateEnabled || b.limitsCli == nil {
+	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.recordInner(ctx, req)
 	}
 
@@ -150,7 +153,7 @@ func (b *repaymentBusiness) Record(
 	}
 
 	var result *loansv1.RepaymentObject
-	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
 		func(innerCtx context.Context, reservationID string) error {
 			util.Log(innerCtx).With("limits_reservation_id", reservationID).Info("repayment gated by limits")
 			inner, innerErr := b.recordInner(innerCtx, req)

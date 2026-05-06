@@ -64,7 +64,9 @@ type FundingConfig struct {
 	LimitsServiceURI                   string `envDefault:"http://service_limits:80" env:"LIMITS_SERVICE_URI"`
 	LimitsServiceWorkloadAPITargetPath string `envDefault:""                         env:"LIMITS_SERVICE_WORKLOAD_API_TARGET_PATH"`
 	LimitsGateEnabledFundingDeposit    bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_FUNDING_DEPOSIT"`
+	LimitsGateModeFundingDeposit       string `envDefault:"enforce"                  env:"LIMITS_GATE_MODE_FUNDING_DEPOSIT"`
 	LimitsGateEnabledFundingWithdraw   bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_FUNDING_WITHDRAW"`
+	LimitsGateModeFundingWithdraw      string `envDefault:"enforce"                  env:"LIMITS_GATE_MODE_FUNDING_WITHDRAW"`
 }
 
 // ServiceEndpoints returns a clients.ServiceEndpoints populated from the config.

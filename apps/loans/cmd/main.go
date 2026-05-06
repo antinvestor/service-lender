@@ -129,8 +129,11 @@ func main() {
 		operationsCli,
 		limitsCli,
 		cfg.LimitsGateEnabledLoanDisbursement,
+		cfg.LimitsGateModeLoanDisbursement,
 		cfg.LimitsGateEnabledLoanRequestApproval,
+		cfg.LimitsGateModeLoanRequestApproval,
 		cfg.LimitsGateEnabledLoanRepayment,
+		cfg.LimitsGateModeLoanRepayment,
 		limitsDrainHandler,
 	)
 
@@ -153,8 +156,11 @@ func setupServiceOptions(
 	operationsCli operationsv1connect.OperationsServiceClient,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabledDisbursement bool,
+	limitsGateModeDisbursement string,
 	limitsGateEnabledLoanRequestApproval bool,
+	limitsGateModeLoanRequestApproval string,
 	limitsGateEnabledLoanRepayment bool,
+	limitsGateModeLoanRepayment string,
 	limitsDrainHandler http.Handler,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
@@ -181,6 +187,7 @@ func setupServiceOptions(
 		lpRepo,
 		limitsCli,
 		limitsGateEnabledLoanRequestApproval,
+		limitsGateModeLoanRequestApproval,
 	)
 	scheduleBusiness := business.NewRepaymentScheduleBusiness(ctx, evtsMan, laRepo, lpRepo, rsRepo, seRepo)
 	laBusiness := business.NewLoanAccountBusiness(
@@ -206,6 +213,7 @@ func setupServiceOptions(
 		paidOffHook,
 		limitsCli,
 		limitsGateEnabledLoanRepayment,
+		limitsGateModeLoanRepayment,
 	)
 	penaltyBusiness := business.NewPenaltyBusiness(ctx, evtsMan, penRepo, laRepo, operationsCli, auditWriter)
 	restructBusiness := business.NewLoanRestructureBusiness(ctx, evtsMan, lrRepo, laRepo, scheduleBusiness)
@@ -220,6 +228,7 @@ func setupServiceOptions(
 		auditWriter,
 		limitsCli,
 		limitsGateEnabledDisbursement,
+		limitsGateModeDisbursement,
 	)
 
 	portfolioBusiness := business.NewPortfolioBusiness(ctx, dbPool)

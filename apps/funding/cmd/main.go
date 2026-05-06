@@ -184,7 +184,9 @@ func setupServiceOptions(
 		auditWriter,
 		limitsCli,
 		cfg.LimitsGateEnabledFundingDeposit,
+		cfg.LimitsGateModeFundingDeposit,
 		cfg.LimitsGateEnabledFundingWithdraw,
+		cfg.LimitsGateModeFundingWithdraw,
 	)
 
 	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
