@@ -51,6 +51,10 @@ export 'src/widgets/ledger_entry_tile.dart';
 export 'src/widgets/ledger_search_filters.dart';
 export 'src/widgets/ledger_timeline.dart';
 
+export 'src/widgets/audit_event_tile.dart';
+export 'src/widgets/audit_event_filters.dart';
+export 'src/widgets/shadow_breach_alert.dart';
+
 // Screens
 export 'src/screens/policy_editor_screen.dart';
 export 'src/screens/policy_detail_screen.dart';
@@ -59,3 +63,4 @@ export 'src/screens/policy_verdict_playground_screen.dart';
 export 'src/screens/approval_queue_screen.dart';
 export 'src/screens/approval_request_detail_screen.dart';
 export 'src/screens/ledger_search_screen.dart';
+export 'src/screens/audit_feed_screen.dart';
