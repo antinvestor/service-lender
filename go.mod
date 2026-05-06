@@ -6,40 +6,43 @@ toolchain go1.26.1
 
 require (
 	buf.build/gen/go/antinvestor/common/protocolbuffers/go v1.36.11-20260325040325-9771112f2289.1
-	buf.build/gen/go/antinvestor/field/connectrpc/go v1.19.2-20260428032116-379cb933ff29.1
-	buf.build/gen/go/antinvestor/field/protocolbuffers/go v1.36.11-20260428032116-379cb933ff29.1
+	buf.build/gen/go/antinvestor/field/connectrpc/go v1.19.2-20260506062910-76b85e70e440.1
+	buf.build/gen/go/antinvestor/field/protocolbuffers/go v1.36.11-20260506062910-76b85e70e440.1
 	buf.build/gen/go/antinvestor/files/connectrpc/go v1.19.2-20260418163144-8859a39db5b5.1
-	buf.build/gen/go/antinvestor/funding/connectrpc/go v1.19.2-20260428032116-aa1b135d79a2.1
-	buf.build/gen/go/antinvestor/funding/protocolbuffers/go v1.36.11-20260428032116-aa1b135d79a2.1
-	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.2-20260428032116-d775ec0156b7.1
-	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260428032116-d775ec0156b7.1
+	buf.build/gen/go/antinvestor/funding/connectrpc/go v1.19.2-20260506062910-7b5fae49a0f0.1
+	buf.build/gen/go/antinvestor/funding/protocolbuffers/go v1.36.11-20260506062910-7b5fae49a0f0.1
+	buf.build/gen/go/antinvestor/identity/connectrpc/go v1.19.2-20260506062910-2839762d9146.1
+	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260506062910-2839762d9146.1
 	buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.2-20260420185150-1fa125a08e79.1
 	buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260420185150-1fa125a08e79.1
 	buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506095123-86d7a997eb00.1
 	buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506095123-86d7a997eb00.1
-	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.2-20260428032116-501b077ffe89.1
-	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260428032116-501b077ffe89.1
+	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.2-20260506062910-6cf3b89b7063.1
+	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260506062910-6cf3b89b7063.1
 	buf.build/gen/go/antinvestor/notification/connectrpc/go v1.19.2-20260420185629-7892d788a2b9.1
 	buf.build/gen/go/antinvestor/notification/protocolbuffers/go v1.36.11-20260420185629-7892d788a2b9.1
-	buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.2-20260428032116-3cce971b8e03.1
-	buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260428032116-3cce971b8e03.1
+	buf.build/gen/go/antinvestor/operations/connectrpc/go v1.19.2-20260506062910-11a3d240258e.1
+	buf.build/gen/go/antinvestor/operations/protocolbuffers/go v1.36.11-20260506062910-11a3d240258e.1
 	buf.build/gen/go/antinvestor/payment/connectrpc/go v1.19.2-20260420185150-8c84a85babd3.1
 	buf.build/gen/go/antinvestor/payment/protocolbuffers/go v1.36.11-20260420185150-8c84a85babd3.1
 	buf.build/gen/go/antinvestor/profile/connectrpc/go v1.19.2-20260415203305-aa11e5e50dc9.1
 	buf.build/gen/go/antinvestor/profile/protocolbuffers/go v1.36.11-20260415203305-aa11e5e50dc9.1
-	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.2-20260428032116-f83b299c7e04.1
-	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260428032116-f83b299c7e04.1
+	buf.build/gen/go/antinvestor/savings/connectrpc/go v1.19.2-20260506062910-428702e4063d.1
+	buf.build/gen/go/antinvestor/savings/protocolbuffers/go v1.36.11-20260506062910-428702e4063d.1
 	buf.build/gen/go/antinvestor/tenancy/connectrpc/go v1.19.2-20260416193615-c7ebb768c716.1
 	buf.build/gen/go/antinvestor/tenancy/protocolbuffers/go v1.36.11-20260416193615-c7ebb768c716.1
 	connectrpc.com/connect v1.19.2
 	github.com/antinvestor/common v1.4.5
 	github.com/antinvestor/common/audit v0.0.0-20260427200632-833b5de926c7
 	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/pitabwire/frame v1.94.6
 	github.com/pitabwire/util v0.8.0
 	github.com/pitabwire/util/decimalx v0.7.1
 	github.com/pitabwire/util/money v0.8.0
+	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
+	github.com/tsenart/vegeta/v12 v12.13.0
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/metric v1.43.0
 	google.golang.org/genproto v0.0.0-20260427160629-7cedc36a6bc4
@@ -64,8 +67,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
-	github.com/caarlos0/env/v11 v11.4.0 // indirect
+	github.com/caarlos0/env/v11 v11.4.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -91,7 +93,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.22.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/influxdata/tdigest v0.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -101,7 +102,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.18.5 // indirect
+	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/lmittmann/tint v1.1.3 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260330125221-c963978e514e // indirect
 	github.com/magiconair/properties v1.8.10 // indirect
@@ -134,17 +135,14 @@ require (
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/rs/dnscache v0.0.0-20230804202142-fc85eb664529 // indirect
 	github.com/rs/xid v1.6.0 // indirect
-	github.com/shirou/gopsutil/v4 v4.26.3 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.4 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
-	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/testcontainers/testcontainers-go v0.42.0 // indirect
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
-	github.com/tsenart/go-tsz v0.0.0-20180814235614-0bd30b3df1c3 // indirect
-	github.com/tsenart/vegeta/v12 v12.13.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/bridges/otelslog v0.18.0 // indirect
@@ -185,10 +183,10 @@ require (
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/api v0.277.0 // indirect
+	google.golang.org/api v0.278.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260427160629-7cedc36a6bc4 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260427160629-7cedc36a6bc4 // indirect
-	google.golang.org/grpc v1.80.0 // indirect
+	google.golang.org/grpc v1.81.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
