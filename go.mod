@@ -15,8 +15,8 @@ require (
 	buf.build/gen/go/antinvestor/identity/protocolbuffers/go v1.36.11-20260428032116-d775ec0156b7.1
 	buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.2-20260420185150-1fa125a08e79.1
 	buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260420185150-1fa125a08e79.1
-	buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506062910-9ce1947324f5.1
-	buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506062910-9ce1947324f5.1
+	buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506095123-86d7a997eb00.1
+	buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506095123-86d7a997eb00.1
 	buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.2-20260428032116-501b077ffe89.1
 	buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260428032116-501b077ffe89.1
 	buf.build/gen/go/antinvestor/notification/connectrpc/go v1.19.2-20260420185629-7892d788a2b9.1
@@ -90,6 +90,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.22.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.9.2 // indirect
@@ -129,6 +130,8 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/shirou/gopsutil/v4 v4.26.3 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/spf13/cobra v1.10.2 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/testcontainers/testcontainers-go v0.42.0 // indirect
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0 // indirect

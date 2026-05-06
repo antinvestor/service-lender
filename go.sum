@@ -24,10 +24,10 @@ buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.2-20260420185150-1fa125a
 buf.build/gen/go/antinvestor/ledger/connectrpc/go v1.19.2-20260420185150-1fa125a08e79.1/go.mod h1:y1N9oV4DrZPTcgd8mC46XcxejlvDC/T0m2He5DcvCMA=
 buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260420185150-1fa125a08e79.1 h1:5KwXq4QXuU1+mweDvR9HmzHe3fJniIlLTZyfw8nlDZc=
 buf.build/gen/go/antinvestor/ledger/protocolbuffers/go v1.36.11-20260420185150-1fa125a08e79.1/go.mod h1:uYhQ20mZIERN/V/7vqVABsJ1d2yRz2G+ar4QTFA0z3E=
-buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506062910-9ce1947324f5.1 h1:PAPtMs9Yru0x6bq4F2SCZ5HKiFzgkqaOESU77QzHu18=
-buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506062910-9ce1947324f5.1/go.mod h1:daj8aSeYgypT5EYyFnhB2QzNKInlq8CR/D5LWAcGenM=
-buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506062910-9ce1947324f5.1 h1:SX37Jrt+ZrBmSqqwVeKjvmqFGgprz/0I9eAXp5V/DG8=
-buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506062910-9ce1947324f5.1/go.mod h1:3JXY8545vacQOW9MgwY98E83RqQ8oocu/Nd1DkW90kY=
+buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506095123-86d7a997eb00.1 h1:/VaAKXDNdXVRF5AoKMyXQ6xakolwR9/qSucKEO/RLEI=
+buf.build/gen/go/antinvestor/limits/connectrpc/go v1.19.2-20260506095123-86d7a997eb00.1/go.mod h1:6mgezkNUaIi+v94ReHdUcI+Pi9aHWHFF7GK96WbK7dg=
+buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506095123-86d7a997eb00.1 h1:QFso3LDYJkODMmrauupEAMV5pDAD7xAwqAwLVNDC5hI=
+buf.build/gen/go/antinvestor/limits/protocolbuffers/go v1.36.11-20260506095123-86d7a997eb00.1/go.mod h1:3JXY8545vacQOW9MgwY98E83RqQ8oocu/Nd1DkW90kY=
 buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.2-20260428032116-501b077ffe89.1 h1:CQhiLW84oWhL3A7upvhtul+9tQwiC+rsKBI5h89OqSw=
 buf.build/gen/go/antinvestor/loans/connectrpc/go v1.19.2-20260428032116-501b077ffe89.1/go.mod h1:njLTN1syxU1q8T9VLNKsAkVvqJ/v/48rWedT2idmb64=
 buf.build/gen/go/antinvestor/loans/protocolbuffers/go v1.36.11-20260428032116-501b077ffe89.1 h1:prbHns9SWtec08Xa9kpwZdO1Eo38NlLUHvKKT4TFjp0=
@@ -126,6 +126,7 @@ github.com/containerd/platforms v0.2.1 h1:zvwtM3rz2YHPQsF2CHYM8+KtB5dvhISiXh5ZpS
 github.com/containerd/platforms v0.2.1/go.mod h1:XHCb+2/hzowdiut9rkudds9bE5yJ7npe7dG/wG+uFPw=
 github.com/cpuguy83/dockercfg v0.3.2 h1:DlJTyZGBDlXqUZ2Dk2Q3xHs/FtnooJJVaad2S9GKorA=
 github.com/cpuguy83/dockercfg v0.3.2/go.mod h1:sugsbF4//dDlL/i+S+rtpIWp+5h0BHJHfjj5/jFyUJc=
+github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/creack/pty v1.1.24 h1:bJrF4RRfyJnbTJqzRLHzcGaZK1NeM5kTC9jGgovnR1s=
 github.com/creack/pty v1.1.24/go.mod h1:08sCNb52WyoAwi2QDyzUCTgcvVFhUzewun7wtTfvcwE=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -182,6 +183,8 @@ github.com/googleapis/gax-go/v2 v2.22.0 h1:PjIWBpgGIVKGoCXuiCoP64altEJCj3/Ei+kSU
 github.com/googleapis/gax-go/v2 v2.22.0/go.mod h1:irWBbALSr0Sk3qlqb9SyJ1h68WjgeFuiOzI4Rqw5+aY=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 h1:5VipnvEpbqr2gA2VbM+nYVbkIF28c5ZQfqCBQ5g2xfk=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0/go.mod h1:Hyl3n6Twe1hvtd9XUXDec4pTvgMSEixRuQKPTMH2bNs=
+github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
+github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
 github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
 github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 h1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=
@@ -290,10 +293,15 @@ github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0t
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/rs/xid v1.6.0 h1:fV591PaemRlL6JfRxGDEPl69wICngIQ3shQtzfy2gxU=
 github.com/rs/xid v1.6.0/go.mod h1:7XoLgs4eV+QndskICGsho+ADou8ySMSjJKDIan90Nz0=
+github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shirou/gopsutil/v4 v4.26.3 h1:2ESdQt90yU3oXF/CdOlRCJxrP+Am1aBYubTMTfxJ1qc=
 github.com/shirou/gopsutil/v4 v4.26.3/go.mod h1:LZ6ewCSkBqUpvSOf+LsTGnRinC6iaNUNMGBtDkJBaLQ=
 github.com/sirupsen/logrus v1.9.4 h1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=
 github.com/sirupsen/logrus v1.9.4/go.mod h1:ftWc9WdOfJ0a92nsE2jF5u5ZwH8Bv2zdeOC42RjbV2g=
+github.com/spf13/cobra v1.10.2 h1:DMTTonx5m65Ic0GOoRY2c16WCbHxOOw6xxezuLaBpcU=
+github.com/spf13/cobra v1.10.2/go.mod h1:7C1pvHqHw5A4vrJfjNwvOdzYu0Gml16OCs2GRiTUUS4=
+github.com/spf13/pflag v1.0.9 h1:9exaQaMOCwffKiiiYk6/BndUBv+iRViNW+4lEMi0PvY=
+github.com/spf13/pflag v1.0.9/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/spiffe/go-spiffe/v2 v2.6.0 h1:l+DolpxNWYgruGQVV0xsfeya3CsC7m8iBzDnMpsbLuo=
 github.com/spiffe/go-spiffe/v2 v2.6.0/go.mod h1:gm2SeUoMZEtpnzPNs2Csc0D/gX33k1xIx7lEzqblHEs=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
