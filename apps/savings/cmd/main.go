@@ -18,6 +18,7 @@ import (
 	"context"
 	"net/http"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	"buf.build/gen/go/antinvestor/savings/connectrpc/go/savings/v1/savingsv1connect"
 	savingspb "buf.build/gen/go/antinvestor/savings/protocolbuffers/go/savings/v1"
@@ -43,6 +44,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/savings/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/audit"
+	"github.com/antinvestor/service-fintech/pkg/limits/consumer"
 )
 
 func main() {
@@ -102,10 +104,24 @@ func main() {
 		log.WithError(opsErr).Fatal("main -- could not initialise operations client")
 	}
 
+	// Limits client. Optional — when LimitsServiceURI is empty, SetupClient
+	// returns nil and both gates are disabled at runtime regardless of the
+	// config flags.
+	limitsCli, limitsErr := setupLimitsClient(ctx, cfg)
+	if limitsErr != nil {
+		log.WithError(limitsErr).
+			Warn("main -- Could not setup limits client, limits gate will be disabled")
+	}
+
+	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
+
 	// Create business logic with all dependencies
 	spBusiness := business.NewSavingsProductBusiness(ctx, evtsMan, spRepo)
 	saBusiness := business.NewSavingsAccountBusiness(ctx, evtsMan, saRepo, depRepo, wdRepo, iaRepo, sbRepo)
-	depBusiness := business.NewDepositBusiness(ctx, evtsMan, depRepo, saRepo, sbRepo, operationsCli, auditWriter)
+	depBusiness := business.NewDepositBusiness(
+		ctx, evtsMan, depRepo, saRepo, sbRepo, operationsCli, auditWriter,
+		limitsCli, cfg.LimitsGateEnabledSavingsDeposit,
+	)
 	wdBusiness := business.NewWithdrawalBusiness(
 		ctx,
 		evtsMan,
@@ -115,6 +131,8 @@ func main() {
 		saBusiness,
 		operationsCli,
 		auditWriter,
+		limitsCli,
+		cfg.LimitsGateEnabledSavingsWithdrawal,
 	)
 	iaBusiness := business.NewInterestAccrualBusiness(
 		ctx,
@@ -129,7 +147,7 @@ func main() {
 
 	// Setup Connect RPC servers
 	connectHandler := setupConnectServer(ctx, sm,
-		spBusiness, saBusiness, depBusiness, wdBusiness, iaBusiness)
+		spBusiness, saBusiness, depBusiness, wdBusiness, iaBusiness, limitsDrainHandler)
 
 	// Initialise the service with all options
 	sd := savingspb.File_savings_v1_savings_proto.Services().ByName("SavingsService")
@@ -186,6 +204,17 @@ func handleDatabaseMigration(
 	return false
 }
 
+func setupLimitsClient(
+	ctx context.Context,
+	cfg aconfig.SavingsConfig,
+) (limitsv1connect.LimitsServiceClient, error) {
+	return consumer.SetupClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.LimitsServiceURI,
+		WorkloadAPITargetPath: cfg.LimitsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_limits"},
+	})
+}
+
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
@@ -194,6 +223,7 @@ func setupConnectServer(
 	depBusiness business.DepositBusiness,
 	wdBusiness business.WithdrawalBusiness,
 	iaBusiness business.InterestAccrualBusiness,
+	limitsDrainHandler http.Handler,
 ) http.Handler {
 	// Create handler with injected dependencies
 	savingsHandler := handlers.NewSavingsServer(
@@ -231,6 +261,7 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(savingsPath, savingsServerHandler)
+	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }

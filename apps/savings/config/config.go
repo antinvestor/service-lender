@@ -30,4 +30,12 @@ type SavingsConfig struct {
 	// service so the double-entry ledger mirrors the savings state.
 	OperationsServiceURI                   string `envDefault:"127.0.0.1:7060"                    env:"OPERATIONS_SERVICE_URI"`
 	OperationsServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-operations" env:"OPERATIONS_SERVICE_WORKLOAD_API_TARGET_PATH"`
+
+	// Limits service: gates deposit and withdrawal actions through the
+	// centralised caps engine. Both fields are optional; when LimitsServiceURI
+	// is empty the consumer.SetupClient returns nil and the gate is skipped.
+	LimitsServiceURI                   string `envDefault:"http://service_limits:80" env:"LIMITS_SERVICE_URI"`
+	LimitsServiceWorkloadAPITargetPath string `envDefault:""                         env:"LIMITS_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	LimitsGateEnabledSavingsDeposit    bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_SAVINGS_DEPOSIT"`
+	LimitsGateEnabledSavingsWithdrawal bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_SAVINGS_WITHDRAWAL"`
 }
