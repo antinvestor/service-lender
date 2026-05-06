@@ -12,6 +12,8 @@ modules:
     name: buf.build/antinvestor/funding
   - path: operations
     name: buf.build/antinvestor/operations
+  - path: limits
+    name: buf.build/antinvestor/limits
 deps:
   - buf.build/antinvestor/common
   - buf.build/bufbuild/protovalidate
