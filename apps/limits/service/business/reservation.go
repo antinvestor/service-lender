@@ -535,18 +535,19 @@ func (b *reservationBusiness) Commit(
 		}
 	}
 
-	// 8. Commit transaction.
+	// 8. Audit inside the tx so the record lands atomically with the state change.
+	// Apply in-memory first so reservationMetadata reflects the new status.
+	r.Status = models.ReservationStatusCommitted
+	r.CommittedAt = &now
+	if err := b.auditing.RecordReservationCommittedTx(ctx, tx, r); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 9. Commit transaction.
 	if err := tx.Commit().Error; err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	txCommitted = true
-
-	// Apply in-memory so ToAPI reflects committed state.
-	r.Status = models.ReservationStatusCommitted
-	r.CommittedAt = &now
-
-	// 9. Audit.
-	b.auditing.RecordReservationCommitted(ctx, r)
 
 	return &limitsv1.CommitResponse{Reservation: r.ToAPI()}, nil
 }
@@ -576,8 +577,22 @@ func (b *reservationBusiness) Release(
 
 	now := time.Now().UTC()
 
+	// 4-6. Open transaction so the reservation update, approval cancellations,
+	// and audit rows all land atomically.
+	db := b.dbPool.DB(ctx, false)
+	tx := db.Begin()
+	if tx.Error != nil {
+		return nil, connect.NewError(connect.CodeInternal, tx.Error)
+	}
+	txCommitted := false
+	defer func() {
+		if !txCommitted {
+			_ = tx.Rollback()
+		}
+	}()
+
 	// 4. Update reservation row.
-	if err := b.resvRepo.SetReleased(ctx, reservationID, reason, now); err != nil {
+	if err := b.resvRepo.SetReleasedTx(ctx, tx, reservationID, reason, now); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -588,18 +603,30 @@ func (b *reservationBusiness) Release(
 	}
 	for _, ar := range approvals {
 		if ar.Status == models.ApprovalStatusPending {
-			if setErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusRejected, &now); setErr != nil {
+			if setErr := b.approvalRepo.SetStatusTx(ctx, tx, ar.ID, models.ApprovalStatusRejected, &now); setErr != nil {
 				return nil, connect.NewError(connect.CodeInternal, setErr)
+			}
+			// Audit the cascade-rejected approval inside the same tx.
+			if auditErr := b.auditing.RecordApprovalRejectedCascadeTx(ctx, tx, ar, reason); auditErr != nil {
+				return nil, connect.NewError(connect.CodeInternal, auditErr)
 			}
 		}
 	}
 
-	// Apply in-memory so ToAPI reflects released state.
+	// Apply in-memory so reservationMetadata and ToAPI reflect released state.
 	r.Status = models.ReservationStatusReleased
 	r.ReleasedAt = &now
 
-	// 6. Audit.
-	b.auditing.RecordReservationReleased(ctx, r, reason)
+	// 6. Audit the reservation release inside the tx.
+	if err := b.auditing.RecordReservationReleasedTx(ctx, tx, r, reason); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 7. Commit.
+	if err := tx.Commit().Error; err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	txCommitted = true
 
 	return &limitsv1.ReleaseResponse{Reservation: r.ToAPI()}, nil
 }
@@ -710,17 +737,19 @@ func (b *reservationBusiness) Reverse(
 			fmt.Errorf("reservation %s cannot be reversed: %w", original.ID, err))
 	}
 
-	// 9. Commit transaction.
+	// Apply in-memory so reservationMetadata reflects the new status.
+	original.Status = models.ReservationStatusReversed
+
+	// 9. Audit inside the tx so the record lands atomically with the state change.
+	if err := b.auditing.RecordReservationReversedTx(ctx, tx, original, reason); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 10. Commit transaction.
 	if err := tx.Commit().Error; err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	txCommitted = true
-
-	// Apply in-memory.
-	original.Status = models.ReservationStatusReversed
-
-	// 10. Audit.
-	b.auditing.RecordReservationReversed(ctx, original, reason)
 
 	return &limitsv1.ReverseResponse{
 		OriginalReservation: original.ToAPI(),

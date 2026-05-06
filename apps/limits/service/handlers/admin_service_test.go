@@ -107,7 +107,7 @@ func (s *AdminHandlerSuite) SetupTest() {
 	resolver := business.NewAttributeResolver(attrRepo, nil, 60*time.Second)
 	auditing := business.NewAuditing(nil)
 
-	policyBiz := business.NewPolicyBusiness(policyRepo, versionRepo, nil)
+	policyBiz := business.NewPolicyBusiness(policyRepo, versionRepo, nil, nil, nil)
 	approvalBiz := business.NewApprovalBusiness(
 		approvalRepo,
 		decisionRepo,

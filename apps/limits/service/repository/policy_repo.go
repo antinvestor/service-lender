@@ -23,6 +23,7 @@ import (
 	"github.com/pitabwire/frame/datastore/scopes"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 )
@@ -45,9 +46,14 @@ type PolicySearchResult struct {
 // PolicyRepository is the data-access surface for Policy.
 type PolicyRepository interface {
 	Save(ctx context.Context, p *models.Policy) error
+	// SaveTx creates or updates the policy within the caller's DB transaction.
+	// Use this when the policy mutation must be atomic with an audit write.
+	SaveTx(ctx context.Context, tx *gorm.DB, p *models.Policy) error
 	Get(ctx context.Context, id string) (*models.Policy, error)
 	Search(ctx context.Context, f PolicySearchFilter, limit int, cursor string) (*PolicySearchResult, error)
 	Delete(ctx context.Context, id string) error
+	// DeleteTx soft-deletes the policy within the caller's DB transaction.
+	DeleteTx(ctx context.Context, tx *gorm.DB, id string) error
 }
 
 type policyRepository struct {
@@ -74,6 +80,22 @@ func (r *policyRepository) Save(ctx context.Context, p *models.Policy) error {
 	}
 	_, err := r.BaseRepository.Update(ctx, p)
 	return err
+}
+
+// SaveTx creates or updates a Policy within the caller's DB transaction.
+// GORM's BeforeCreate/BeforeUpdate hooks fire normally on the tx session.
+func (r *policyRepository) SaveTx(ctx context.Context, tx *gorm.DB, p *models.Policy) error {
+	if p.ID == "" {
+		p.GenID(ctx)
+		return tx.Create(p).Error
+	}
+	return tx.Save(p).Error
+}
+
+// DeleteTx soft-deletes a Policy within the caller's DB transaction.
+func (r *policyRepository) DeleteTx(ctx context.Context, tx *gorm.DB, id string) error {
+	entity := &models.Policy{}
+	return tx.Where("id = ?", id).Delete(entity).Error
 }
 
 // Get retrieves a single Policy by its ID.

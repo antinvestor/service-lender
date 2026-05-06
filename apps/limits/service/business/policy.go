@@ -23,6 +23,7 @@ import (
 	"time"
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
+	"github.com/pitabwire/frame/datastore/pool"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -50,17 +51,22 @@ type policyBusiness struct {
 	repo      repository.PolicyRepository
 	verRepo   repository.PolicyVersionRepository
 	eventsMan fevents.Manager
+	auditing  *Auditing
+	dbPool    pool.Pool
 }
 
 // NewPolicyBusiness wires up dependencies. Caller is responsible for
 // passing the audit-middleware-wrapped context. eventsMan may be nil,
-// in which case event emission is a no-op.
+// in which case event emission is a no-op. auditing and dbPool may be nil,
+// in which case audit emission is skipped.
 func NewPolicyBusiness(
 	repo repository.PolicyRepository,
 	verRepo repository.PolicyVersionRepository,
 	eventsMan fevents.Manager,
+	auditing *Auditing,
+	dbPool pool.Pool,
 ) PolicyBusiness {
-	return &policyBusiness{repo: repo, verRepo: verRepo, eventsMan: eventsMan}
+	return &policyBusiness{repo: repo, verRepo: verRepo, eventsMan: eventsMan, auditing: auditing, dbPool: dbPool}
 }
 
 func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*limitsv1.PolicyObject, error) {
@@ -104,28 +110,60 @@ func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*
 		snapshotVersion = 1
 	}
 
-	if err := b.repo.Save(ctx, pol); err != nil {
-		return nil, err
+	// Wrap save + audit in a single transaction so the audit row lands
+	// atomically with the policy mutation. When dbPool is nil (test mode
+	// without an audit writer injected) fall back to the non-tx save path.
+	var apiOut *limitsv1.PolicyObject
+	var snapshot []byte
+
+	if b.dbPool != nil && b.auditing != nil {
+		tx := b.dbPool.DB(ctx, false).Begin()
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+		txCommitted := false
+		defer func() {
+			if !txCommitted {
+				_ = tx.Rollback()
+			}
+		}()
+
+		if err := b.repo.SaveTx(ctx, tx, pol); err != nil {
+			return nil, err
+		}
+		if auditErr := b.auditing.RecordPolicySavedTx(ctx, tx, pol); auditErr != nil {
+			return nil, auditErr
+		}
+		if err := tx.Commit().Error; err != nil {
+			return nil, err
+		}
+		txCommitted = true
+	} else {
+		if err := b.repo.Save(ctx, pol); err != nil {
+			return nil, err
+		}
 	}
 
 	// Append the version snapshot using protojson for canonical proto JSON.
 	// Expose snapshotVersion via the proto Version field for the response only.
-	apiOut := pol.ToAPI()
+	apiOut = pol.ToAPI()
 	apiOut.Version = snapshotVersion
 
-	snapshot, err := protojson.Marshal(apiOut)
-	if err != nil {
-		log.WithError(err).Error("failed to marshal policy snapshot")
-		return apiOut, nil
+	var marshalErr error
+	snapshot, marshalErr = protojson.Marshal(apiOut)
+	if marshalErr != nil {
+		log.WithError(marshalErr).Error("failed to marshal policy snapshot")
 	}
-	if err := b.verRepo.Append(ctx, &models.PolicyVersion{
-		PolicyID: pol.ID,
-		Version:  snapshotVersion,
-		Snapshot: snapshot,
-	}); err != nil {
-		// Audit-only: log and continue. The policy is saved; missing version
-		// rows are recoverable via reconciliation.
-		log.WithError(err).Error("failed to append policy version snapshot")
+	if snapshot != nil {
+		if err := b.verRepo.Append(ctx, &models.PolicyVersion{
+			PolicyID: pol.ID,
+			Version:  snapshotVersion,
+			Snapshot: snapshot,
+		}); err != nil {
+			// Audit-only: log and continue. The policy is saved; missing version
+			// rows are recoverable via reconciliation.
+			log.WithError(err).Error("failed to append policy version snapshot")
+		}
 	}
 
 	emitEvent(ctx, b.eventsMan, events.EventPolicyInvalidate, events.PolicyInvalidatePayload{
@@ -190,9 +228,34 @@ func (b *policyBusiness) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrPolicyNotFound, err.Error())
 	}
-	if err := b.repo.Delete(ctx, id); err != nil {
-		return err
+
+	if b.dbPool != nil && b.auditing != nil {
+		tx := b.dbPool.DB(ctx, false).Begin()
+		if tx.Error != nil {
+			return tx.Error
+		}
+		txCommitted := false
+		defer func() {
+			if !txCommitted {
+				_ = tx.Rollback()
+			}
+		}()
+		if dErr := b.repo.DeleteTx(ctx, tx, id); dErr != nil {
+			return dErr
+		}
+		if auditErr := b.auditing.RecordPolicyDeletedTx(ctx, tx, pol); auditErr != nil {
+			return auditErr
+		}
+		if err := tx.Commit().Error; err != nil {
+			return err
+		}
+		txCommitted = true
+	} else {
+		if err := b.repo.Delete(ctx, id); err != nil {
+			return err
+		}
 	}
+
 	emitEvent(ctx, b.eventsMan, events.EventPolicyInvalidate, events.PolicyInvalidatePayload{
 		PolicyID:    pol.ID,
 		TenantID:    pol.TenantID,

@@ -29,6 +29,7 @@ import (
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/pkg/audit"
@@ -36,17 +37,20 @@ import (
 
 // Audit verbs for the limits gate. Stable strings; never renamed.
 const (
-	VerbBreachHard            = "limits.breach.hard"
-	VerbBreachShadow          = "limits.breach.shadow"
-	VerbApprovalRequired      = "limits.approval.required"
-	VerbApprovalApproved      = "limits.approval.approved"
-	VerbApprovalRejected      = "limits.approval.rejected"
-	VerbApprovalAutoRejected  = "limits.approval.auto_rejected"
-	VerbApprovalExpired       = "limits.approval.expired"
-	VerbReservationCommitted  = "limits.reservation.committed"
-	VerbReservationReleased   = "limits.reservation.released"
-	VerbReservationReversed   = "limits.reservation.reversed"
-	VerbReservationExpiredTTL = "limits.reservation.expired_ttl"
+	VerbBreachHard              = "limits.breach.hard"
+	VerbBreachShadow            = "limits.breach.shadow"
+	VerbApprovalRequired        = "limits.approval.required"
+	VerbApprovalApproved        = "limits.approval.approved"
+	VerbApprovalRejected        = "limits.approval.rejected"
+	VerbApprovalAutoRejected    = "limits.approval.auto_rejected"
+	VerbApprovalExpired         = "limits.approval.expired"
+	VerbApprovalRejectedCascade = "limits.approval.rejected_cascade"
+	VerbReservationCommitted    = "limits.reservation.committed"
+	VerbReservationReleased     = "limits.reservation.released"
+	VerbReservationReversed     = "limits.reservation.reversed"
+	VerbReservationExpiredTTL   = "limits.reservation.expired_ttl"
+	VerbPolicySaved             = "limits.policy.saved"
+	VerbPolicyDeleted           = "limits.policy.deleted"
 )
 
 // Auditing wraps audit.Writer with the limits-specific verbs and metadata
@@ -186,6 +190,165 @@ func (a *Auditing) recordApproval(ctx context.Context, ar *models.ApprovalReques
 		Reason:     reason,
 		Metadata:   md,
 	}, logFailure(ctx))
+}
+
+// ─── In-tx variants (durable, same DB tx as state change) ────────────
+
+// RecordReservationCommittedTx writes the committed audit row inside tx.
+func (a *Auditing) RecordReservationCommittedTx(ctx context.Context, tx *gorm.DB, r *models.Reservation) error {
+	return a.recordReservationTx(ctx, tx, r, VerbReservationCommitted, "committed", "")
+}
+
+// RecordReservationReleasedTx writes the released audit row inside tx.
+func (a *Auditing) RecordReservationReleasedTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	r *models.Reservation,
+	reason string,
+) error {
+	return a.recordReservationTx(ctx, tx, r, VerbReservationReleased, "released", reason)
+}
+
+// RecordReservationReversedTx writes the reversed audit row inside tx.
+func (a *Auditing) RecordReservationReversedTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	r *models.Reservation,
+	reason string,
+) error {
+	return a.recordReservationTx(ctx, tx, r, VerbReservationReversed, "reversed", reason)
+}
+
+// RecordReservationExpiredTTLTx writes the expired-TTL audit row inside tx.
+func (a *Auditing) RecordReservationExpiredTTLTx(ctx context.Context, tx *gorm.DB, r *models.Reservation) error {
+	return a.recordReservationTx(ctx, tx, r, VerbReservationExpiredTTL, "expired by TTL reaper", "")
+}
+
+func (a *Auditing) recordReservationTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	r *models.Reservation,
+	verb, defaultReason, callerReason string,
+) error {
+	if a == nil || a.writer == nil || r == nil {
+		return nil
+	}
+	reason := callerReason
+	if reason == "" {
+		reason = defaultReason
+	}
+	return a.writer.RecordTx(ctx, tx, audit.Record{
+		EntityType: "reservation",
+		EntityID:   r.ID,
+		Action:     verb,
+		ActorID:    r.MakerID,
+		ActorType:  "user",
+		Reason:     reason,
+		Metadata:   reservationMetadata(r),
+	})
+}
+
+// RecordApprovalApprovedTx writes the approved audit row inside tx.
+func (a *Auditing) RecordApprovalApprovedTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	ar *models.ApprovalRequest,
+	approverID string,
+) error {
+	return a.recordApprovalTx(ctx, tx, ar, VerbApprovalApproved, "approved", approverID)
+}
+
+// RecordApprovalRejectedTx writes the rejected audit row inside tx.
+func (a *Auditing) RecordApprovalRejectedTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	ar *models.ApprovalRequest,
+	approverID, note string,
+) error {
+	return a.recordApprovalTx(ctx, tx, ar, VerbApprovalRejected, "rejected: "+note, approverID)
+}
+
+// RecordApprovalAutoRejectedTx writes the auto-rejected audit row inside tx.
+func (a *Auditing) RecordApprovalAutoRejectedTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	ar *models.ApprovalRequest,
+	reason string,
+) error {
+	return a.recordApprovalTx(ctx, tx, ar, VerbApprovalAutoRejected, "auto-rejected on recheck: "+reason, "")
+}
+
+// RecordApprovalRejectedCascadeTx writes a cascade-rejected approval audit row
+// inside tx. Used when Release cancels pending approval requests as a side effect.
+func (a *Auditing) RecordApprovalRejectedCascadeTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	ar *models.ApprovalRequest,
+	reason string,
+) error {
+	return a.recordApprovalTx(ctx, tx, ar, VerbApprovalRejectedCascade, "cascade-rejected: "+reason, "")
+}
+
+func (a *Auditing) recordApprovalTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	ar *models.ApprovalRequest,
+	verb, reason, approverID string,
+) error {
+	if a == nil || a.writer == nil || ar == nil {
+		return nil
+	}
+	md := approvalMetadata(ar)
+	if approverID != "" {
+		md["approver_id"] = approverID
+	}
+	return a.writer.RecordTx(ctx, tx, audit.Record{
+		EntityType: "approval_request",
+		EntityID:   ar.ID,
+		Action:     verb,
+		ActorID:    approverID,
+		ActorType:  "user",
+		Reason:     reason,
+		Metadata:   md,
+	})
+}
+
+// RecordPolicySavedTx writes the policy-saved audit row inside tx.
+func (a *Auditing) RecordPolicySavedTx(ctx context.Context, tx *gorm.DB, pol *models.Policy) error {
+	if a == nil || a.writer == nil || pol == nil {
+		return nil
+	}
+	return a.writer.RecordTx(ctx, tx, audit.Record{
+		EntityType: "policy",
+		EntityID:   pol.ID,
+		Action:     VerbPolicySaved,
+		Reason:     "policy saved",
+		Metadata: data.JSONMap{
+			"action_kind":  string(pol.Action),
+			"subject_type": string(pol.SubjectType),
+			"mode":         string(pol.Mode),
+			"limit_kind":   string(pol.LimitKind),
+		},
+	})
+}
+
+// RecordPolicyDeletedTx writes the policy-deleted audit row inside tx.
+func (a *Auditing) RecordPolicyDeletedTx(ctx context.Context, tx *gorm.DB, pol *models.Policy) error {
+	if a == nil || a.writer == nil || pol == nil {
+		return nil
+	}
+	return a.writer.RecordTx(ctx, tx, audit.Record{
+		EntityType: "policy",
+		EntityID:   pol.ID,
+		Action:     VerbPolicyDeleted,
+		Reason:     "policy deleted",
+		Metadata: data.JSONMap{
+			"action_kind":  string(pol.Action),
+			"subject_type": string(pol.SubjectType),
+			"mode":         string(pol.Mode),
+			"limit_kind":   string(pol.LimitKind),
+		},
+	})
 }
 
 // ─── Metadata builders ──────────────────────────────────────────────

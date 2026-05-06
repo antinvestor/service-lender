@@ -97,7 +97,7 @@ func main() {
 	eventSave := audit.NewEventSave(ctx, auditRepo)
 
 	// ─── Business layer ───────────────────────────────────────────────
-	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo, evtsMan)
+	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo, evtsMan, auditing, dbPool)
 	evaluator := business.NewEvaluator(reservationRepo, ledgerRepo)
 	resolver := business.NewAttributeResolver(
 		subjAttrRepo,

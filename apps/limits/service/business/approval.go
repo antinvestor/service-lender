@@ -208,6 +208,8 @@ func (b *approvalBusiness) Decide(
 	// 2. Reject path: terminal, releases the reservation atomically.
 	if req.GetDecision() == "reject" {
 		now := time.Now().UTC()
+		ar.Status = models.ApprovalStatusRejected
+		ar.DecidedAt = &now
 		if txErr := b.runInTx(ctx, func(tx *gorm.DB) error {
 			if tx == nil {
 				// No pool injected (test mode): fall back to non-transactional methods.
@@ -219,13 +221,14 @@ func (b *approvalBusiness) Decide(
 			if sErr := b.approvalRepo.SetStatusTx(ctx, tx, ar.ID, models.ApprovalStatusRejected, &now); sErr != nil {
 				return sErr
 			}
-			return b.resvRepo.SetReleasedTx(ctx, tx, ar.ReservationID, "approval rejected: "+req.GetNote(), now)
+			if rErr := b.resvRepo.SetReleasedTx(ctx, tx, ar.ReservationID, "approval rejected: "+req.GetNote(), now); rErr != nil {
+				return rErr
+			}
+			// Audit inside the tx so the record is durable with the state change.
+			return b.auditing.RecordApprovalRejectedTx(ctx, tx, ar, caller, req.GetNote())
 		}); txErr != nil {
 			return nil, connect.NewError(connect.CodeInternal, txErr)
 		}
-		ar.Status = models.ApprovalStatusRejected
-		ar.DecidedAt = &now
-		b.auditing.RecordApprovalRejected(ctx, ar, caller, req.GetNote())
 		emitEvent(ctx, b.eventsMan, events.EventApprovalRejected, events.ApprovalEventPayload{
 			ReservationID:     ar.ReservationID,
 			ApprovalRequestID: ar.ID,
@@ -309,6 +312,8 @@ func (b *approvalBusiness) Decide(
 	now := time.Now().UTC()
 	if !allClear {
 		// Auto-reject path: update status + release reservation atomically.
+		ar.Status = models.ApprovalStatusAutoRejectedRecheck
+		ar.DecidedAt = &now
 		if txErr := b.runInTx(ctx, func(tx *gorm.DB) error {
 			if tx == nil {
 				if sErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusAutoRejectedRecheck, &now); sErr != nil {
@@ -319,13 +324,14 @@ func (b *approvalBusiness) Decide(
 			if sErr := b.approvalRepo.SetStatusTx(ctx, tx, ar.ID, models.ApprovalStatusAutoRejectedRecheck, &now); sErr != nil {
 				return sErr
 			}
-			return b.resvRepo.SetReleasedTx(ctx, tx, resv.ID, "auto-rejected: "+failingReason, now)
+			if rErr := b.resvRepo.SetReleasedTx(ctx, tx, resv.ID, "auto-rejected: "+failingReason, now); rErr != nil {
+				return rErr
+			}
+			// Audit inside the tx so the record is durable with the state change.
+			return b.auditing.RecordApprovalAutoRejectedTx(ctx, tx, ar, failingReason)
 		}); txErr != nil {
 			return nil, connect.NewError(connect.CodeInternal, txErr)
 		}
-		ar.Status = models.ApprovalStatusAutoRejectedRecheck
-		ar.DecidedAt = &now
-		b.auditing.RecordApprovalAutoRejected(ctx, ar, failingReason)
 		emitEvent(ctx, b.eventsMan, events.EventApprovalAutoRejected, events.ApprovalEventPayload{
 			ReservationID:     ar.ReservationID,
 			ApprovalRequestID: ar.ID,
@@ -351,6 +357,9 @@ func (b *approvalBusiness) Decide(
 		}
 	}
 
+	ar.Status = models.ApprovalStatusApproved
+	ar.DecidedAt = &now
+
 	if txErr := b.runInTx(ctx, func(tx *gorm.DB) error {
 		if tx == nil {
 			if sErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusApproved, &now); sErr != nil {
@@ -365,17 +374,16 @@ func (b *approvalBusiness) Decide(
 			return sErr
 		}
 		if allApproved {
-			return b.resvRepo.SetActiveTx(ctx, tx, resv.ID)
+			if aErr := b.resvRepo.SetActiveTx(ctx, tx, resv.ID); aErr != nil {
+				return aErr
+			}
 		}
-		return nil
+		// Audit inside the tx so the record is durable with the state change.
+		return b.auditing.RecordApprovalApprovedTx(ctx, tx, ar, caller)
 	}); txErr != nil {
 		return nil, connect.NewError(connect.CodeInternal, txErr)
 	}
 
-	ar.Status = models.ApprovalStatusApproved
-	ar.DecidedAt = &now
-
-	b.auditing.RecordApprovalApproved(ctx, ar, caller)
 	emitEvent(ctx, b.eventsMan, events.EventApprovalApproved, events.ApprovalEventPayload{
 		ReservationID:     ar.ReservationID,
 		ApprovalRequestID: ar.ID,
