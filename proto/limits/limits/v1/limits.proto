@@ -258,6 +258,34 @@ message LedgerSearchRequest {
 }
 message LedgerSearchResponse { repeated LedgerEntryObject data = 1; }
 
+// ─── Audit-on-limiting search ────────────────────────────────────────
+
+message LimitsAuditEventObject {
+  string id = 1;
+  string entity_type = 2;
+  string entity_id = 3;
+  string action = 4;
+  string actor_id = 5;
+  string actor_type = 6;
+  string reason = 7;
+  google.protobuf.Struct metadata = 8;
+  google.protobuf.Timestamp occurred_at = 9;
+}
+
+message LimitsAuditSearchRequest {
+  // Filter on action verb. If empty, all "limits.*" verbs are returned.
+  // Each entry is matched exactly (e.g. "limits.breach.hard").
+  repeated string actions = 1;
+  string entity_type = 2;
+  string entity_id = 3;
+  string actor_id = 4;
+  google.protobuf.Timestamp from = 5;
+  google.protobuf.Timestamp to = 6;
+  common.v1.PageCursor cursor = 7;
+}
+
+message LimitsAuditSearchResponse { repeated LimitsAuditEventObject data = 1; }
+
 // ─── Runtime service messages (defined now, implemented in a future plan) ──
 
 message CheckRequest { LimitIntent intent = 1 [(buf.validate.field).required = true]; }
@@ -337,7 +365,8 @@ service LimitsAdminService {
       "limits_approval_view",
       "limits_approval_act",
       "limits_approval_override",
-      "limits_ledger_view"
+      "limits_ledger_view",
+      "limits_audit_view"
     ]
     role_bindings: [
       {
@@ -349,7 +378,8 @@ service LimitsAdminService {
           "limits_approval_view",
           "limits_approval_act",
           "limits_approval_override",
-          "limits_ledger_view"
+          "limits_ledger_view",
+          "limits_audit_view"
         ]
       },
       {
@@ -361,7 +391,8 @@ service LimitsAdminService {
           "limits_approval_view",
           "limits_approval_act",
           "limits_approval_override",
-          "limits_ledger_view"
+          "limits_ledger_view",
+          "limits_audit_view"
         ]
       },
       {
@@ -370,7 +401,8 @@ service LimitsAdminService {
           "limits_policy_view",
           "limits_approval_view",
           "limits_approval_act",
-          "limits_ledger_view"
+          "limits_ledger_view",
+          "limits_audit_view"
         ]
       },
       {
@@ -378,7 +410,8 @@ service LimitsAdminService {
         permissions: [
           "limits_policy_view",
           "limits_approval_view",
-          "limits_ledger_view"
+          "limits_ledger_view",
+          "limits_audit_view"
         ]
       },
       {
@@ -386,7 +419,8 @@ service LimitsAdminService {
         permissions: [
           "limits_policy_view",
           "limits_approval_view",
-          "limits_ledger_view"
+          "limits_ledger_view",
+          "limits_audit_view"
         ]
       },
       {
@@ -423,5 +457,9 @@ service LimitsAdminService {
 
   rpc LedgerSearch(LedgerSearchRequest) returns (stream LedgerSearchResponse) {
     option (common.v1.method_permissions) = { permissions: ["limits_ledger_view"] };
+  }
+
+  rpc LimitsAuditSearch(LimitsAuditSearchRequest) returns (stream LimitsAuditSearchResponse) {
+    option (common.v1.method_permissions) = { permissions: ["limits_audit_view"] };
   }
 }

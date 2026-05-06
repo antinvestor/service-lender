@@ -39,6 +39,7 @@ class service_limits implements Namespace {
     granted_limits_approval_act: (profile_user | service_limits)[]
     granted_limits_approval_override: (profile_user | service_limits)[]
     granted_limits_ledger_view: (profile_user | service_limits)[]
+    granted_limits_audit_view: (profile_user | service_limits)[]
   }
 
   permits = {
@@ -87,5 +88,13 @@ class service_limits implements Namespace {
       this.related.owner.includes(ctx.subject) ||
       this.related.viewer.includes(ctx.subject) ||
       this.related.granted_limits_ledger_view.includes(ctx.subject),
+
+    limits_audit_view: (ctx: Context): boolean =>
+      this.related.admin.includes(ctx.subject) ||
+      this.related.member.includes(ctx.subject) ||
+      this.related.operator.includes(ctx.subject) ||
+      this.related.owner.includes(ctx.subject) ||
+      this.related.viewer.includes(ctx.subject) ||
+      this.related.granted_limits_audit_view.includes(ctx.subject),
   }
 }
