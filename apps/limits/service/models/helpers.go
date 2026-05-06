@@ -245,6 +245,10 @@ func ActionFromAPISafe(a limitsv1.LimitAction) (Action, error) {
 	return actionFromAPI(a)
 }
 
+// ActionToAPISafe converts a stored Action back to the wire enum.
+// Returns LIMIT_ACTION_UNSPECIFIED for unknown or empty values.
+func ActionToAPISafe(a Action) limitsv1.LimitAction { return actionToAPI(a) }
+
 // SubjectFromAPISafe is the search-friendly variant of subjectFromAPI.
 func SubjectFromAPISafe(s limitsv1.SubjectType) (Subject, error) {
 	if s == limitsv1.SubjectType_SUBJECT_TYPE_UNSPECIFIED {
