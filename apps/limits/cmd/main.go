@@ -86,7 +86,7 @@ func main() {
 
 	// Initialise handler (approval and ledger wired in Task 19; nil is safe here
 	// as the Unimplemented embed handles missing deps until the full stack lands).
-	adminH := handlers.NewAdminService(policyBiz, nil, nil)
+	adminH := handlers.NewAdminService(policyBiz, nil, nil, nil)
 
 	// Build Connect RPC server.
 	connectHandler := setupConnectServer(ctx, sm, adminH)

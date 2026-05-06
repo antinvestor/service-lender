@@ -41,6 +41,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/limits/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 )
 
 type AdminHandlerSuite struct {
@@ -121,7 +122,7 @@ func (s *AdminHandlerSuite) SetupTest() {
 	s.resvBiz = resvBiz
 	s.approvalRepo = approvalRepo
 	s.ledgerRepo = ledgerRepo
-	s.handler = handlers.NewAdminService(policyBiz, approvalBiz, ledgerBiz)
+	s.handler = handlers.NewAdminService(policyBiz, approvalBiz, ledgerBiz, nil)
 }
 
 func (s *AdminHandlerSuite) databaseResource(ctx context.Context) definition.DependancyConn {
@@ -426,6 +427,44 @@ func (s *AdminHandlerSuite) TestLedgerSearch() {
 		}
 	}
 	s.True(found, "expected at least one ledger entry for reservation %s", resvID)
+}
+
+// TestLimitsAuditSearch_FiltersToLimitsVerbsOnly seeds three audit_events rows
+// (two with "limits.*" action, one non-limits), then verifies that the default
+// filter returns only the two limits rows.
+func (s *AdminHandlerSuite) TestLimitsAuditSearch_FiltersToLimitsVerbsOnly() {
+	ctx := s.WithAuthClaims(s.T().Context(), "tenant-a", "partition-a", "wf-1")
+	now := time.Now().UTC()
+	rows := []*audit.Event{
+		{Action: "limits.breach.hard", EntityType: "policy", EntityID: "pol-1", Reason: "test", OccurredAt: &now},
+		{
+			Action:     "limits.reservation.committed",
+			EntityType: "reservation",
+			EntityID:   "res-1",
+			Reason:     "test",
+			OccurredAt: &now,
+		},
+		{Action: "non.limits.event", EntityType: "other", EntityID: "x-1", Reason: "test", OccurredAt: &now},
+	}
+	for _, r := range rows {
+		r.GenID(ctx)
+		r.TenantID = "tenant-a"
+		r.PartitionID = "partition-a"
+		s.Require().NoError(s.dbPool.DB(ctx, false).Create(r).Error)
+	}
+
+	auditBiz := business.NewAuditSearchBusiness(s.dbPool)
+	var got []*limitsv1.LimitsAuditEventObject
+	err := auditBiz.Search(
+		ctx,
+		&limitsv1.LimitsAuditSearchRequest{},
+		func(_ context.Context, items []*limitsv1.LimitsAuditEventObject) error {
+			got = append(got, items...)
+			return nil
+		},
+	)
+	s.Require().NoError(err)
+	s.Len(got, 2, "should return only limits.* rows")
 }
 
 func TestAdminHandlerSuite(t *testing.T) {

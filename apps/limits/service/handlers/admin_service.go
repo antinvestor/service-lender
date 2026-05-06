@@ -29,23 +29,25 @@ import (
 )
 
 // AdminService implements limitsv1connect.LimitsAdminServiceHandler.
-// It covers policy CRUD, approval workflow management, and ledger search.
+// It covers policy CRUD, approval workflow management, ledger search, and audit search.
 type AdminService struct {
 	limitsv1connect.UnimplementedLimitsAdminServiceHandler
 	policy   business.PolicyBusiness
 	approval business.ApprovalBusiness
 	ledger   business.LedgerSearchBusiness
+	audit    business.AuditSearchBusiness
 }
 
 // NewAdminService constructs a Connect handler.
-// approval and ledger may be nil if those RPCs are not yet wired (existing
+// approval, ledger, and audit may be nil if those RPCs are not yet wired (existing
 // tests pass nil for them; the Unimplemented embed handles the fallback).
 func NewAdminService(
 	policy business.PolicyBusiness,
 	approval business.ApprovalBusiness,
 	ledger business.LedgerSearchBusiness,
+	audit business.AuditSearchBusiness,
 ) *AdminService {
-	return &AdminService{policy: policy, approval: approval, ledger: ledger}
+	return &AdminService{policy: policy, approval: approval, ledger: ledger, audit: audit}
 }
 
 // PolicySave creates or updates a policy.
@@ -137,6 +139,21 @@ func (s *AdminService) LedgerSearch(
 ) error {
 	return s.ledger.Search(ctx, req.Msg, func(ctx context.Context, items []*limitsv1.LedgerEntryObject) error {
 		return stream.Send(&limitsv1.LedgerSearchResponse{Data: items})
+	})
+}
+
+// LimitsAuditSearch streams audit events matching the filter.
+// Returns Unimplemented if the audit dep has not been wired yet.
+func (s *AdminService) LimitsAuditSearch(
+	ctx context.Context,
+	req *connect.Request[limitsv1.LimitsAuditSearchRequest],
+	stream *connect.ServerStream[limitsv1.LimitsAuditSearchResponse],
+) error {
+	if s.audit == nil {
+		return connect.NewError(connect.CodeUnimplemented, errors.New("audit search not wired"))
+	}
+	return s.audit.Search(ctx, req.Msg, func(ctx context.Context, items []*limitsv1.LimitsAuditEventObject) error {
+		return stream.Send(&limitsv1.LimitsAuditSearchResponse{Data: items})
 	})
 }
 
