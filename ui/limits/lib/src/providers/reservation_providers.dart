@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Providers
-export 'src/providers/limits_transport_provider.dart';
-export 'src/providers/policy_providers.dart';
-export 'src/providers/reservation_providers.dart';
-export 'src/providers/approval_providers.dart';
-export 'src/providers/ledger_providers.dart';
-export 'src/providers/audit_providers.dart';
+import 'package:antinvestor_api_limits/antinvestor_api_limits.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'limits_transport_provider.dart';
+
+/// Read-only verdict preview. Used by PolicyVerdictPlayground.
+final checkProvider =
+    FutureProvider.family<CheckResponse, LimitIntent>(
+  (ref, intent) async {
+    final client = ref.watch(limitsServiceClientProvider);
+    final response = await client.check(CheckRequest(intent: intent));
+    return response;
+  },
+);
