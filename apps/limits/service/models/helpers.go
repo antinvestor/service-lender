@@ -265,6 +265,27 @@ func ModeFromAPISafe(m limitsv1.PolicyMode) (Mode, error) {
 	return modeFromAPI(m)
 }
 
+// ApprovalStatusFromAPISafe converts a proto ApprovalStatus to the stored string alias.
+// Returns ("", nil) for UNSPECIFIED so the filter means "any status".
+func ApprovalStatusFromAPISafe(s limitsv1.ApprovalStatus) (ApprovalStatus, error) {
+	switch s {
+	case limitsv1.ApprovalStatus_APPROVAL_STATUS_UNSPECIFIED:
+		return "", nil
+	case limitsv1.ApprovalStatus_APPROVAL_STATUS_PENDING:
+		return ApprovalStatusPending, nil
+	case limitsv1.ApprovalStatus_APPROVAL_STATUS_APPROVED:
+		return ApprovalStatusApproved, nil
+	case limitsv1.ApprovalStatus_APPROVAL_STATUS_REJECTED:
+		return ApprovalStatusRejected, nil
+	case limitsv1.ApprovalStatus_APPROVAL_STATUS_EXPIRED:
+		return ApprovalStatusExpired, nil
+	case limitsv1.ApprovalStatus_APPROVAL_STATUS_AUTO_REJECTED_ON_RECHECK:
+		return ApprovalStatusAutoRejectedRecheck, nil
+	default:
+		return "", errors.New("approval: invalid status")
+	}
+}
+
 func unmarshalApproverTiers(b []byte) ([]*limitsv1.ApproverTier, error) {
 	if len(b) == 0 {
 		return nil, nil
