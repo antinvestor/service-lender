@@ -23,6 +23,7 @@ import (
 	"github.com/pitabwire/frame/datastore/scopes"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 )
@@ -31,6 +32,17 @@ type LedgerRepository interface {
 	CreateBatch(ctx context.Context, entries []*models.LedgerEntry) error
 	WindowSum(
 		ctx context.Context,
+		action models.Action,
+		currency string,
+		subject SubjectFilter,
+		since time.Time,
+	) (int64, error)
+	// WindowSumTx is identical to WindowSum but executes within the supplied
+	// gorm transaction, ensuring the read participates in the caller's tx
+	// and therefore observes the advisory lock acquired by Reserve.
+	WindowSumTx(
+		ctx context.Context,
+		tx *gorm.DB,
 		action models.Action,
 		currency string,
 		subject SubjectFilter,
@@ -93,6 +105,25 @@ func (r *ledgerRepository) WindowSum(
 	since time.Time,
 ) (int64, error) {
 	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var sum int64
+	err := db.Table(models.LedgerEntry{}.TableName()).
+		Where("action = ? AND currency_code = ? AND subject_type = ? AND subject_id = ?",
+			string(action), currency, string(subject.Type), subject.ID).
+		Where("committed_at >= ? AND reversed_at IS NULL", since).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&sum).Error
+	return sum, err
+}
+
+func (r *ledgerRepository) WindowSumTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	action models.Action,
+	currency string,
+	subject SubjectFilter,
+	since time.Time,
+) (int64, error) {
+	db := tx.Scopes(scopes.TenancyPartition(ctx))
 	var sum int64
 	err := db.Table(models.LedgerEntry{}.TableName()).
 		Where("action = ? AND currency_code = ? AND subject_type = ? AND subject_id = ?",

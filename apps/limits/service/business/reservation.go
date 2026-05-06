@@ -331,12 +331,14 @@ func (b *reservationBusiness) Reserve(
 		}
 	}
 
-	// 8. Per-policy evaluation.
+	// 8. Per-policy evaluation — use EvaluateInTx so that rolling-window reads
+	// execute within the same transaction that holds the advisory lock, closing
+	// the TOCTOU race between concurrent Reserves on the same subject.
 	var verdicts []*limitsv1.PolicyVerdict
 	var hardBreaches, shadowBreaches []*limitsv1.PolicyVerdict
 	var approvalNeeded []approvalSpec
 	for _, ap := range applicable {
-		v, evErr := b.evaluator.Evaluate(ctx, ap.policy, ap.subject, intent, intentMinor)
+		v, evErr := b.evaluator.EvaluateInTx(ctx, tx, ap.policy, ap.subject, intent, intentMinor)
 		if evErr != nil {
 			return nil, connect.NewError(connect.CodeInternal, evErr)
 		}

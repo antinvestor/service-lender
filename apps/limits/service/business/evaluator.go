@@ -21,6 +21,7 @@ import (
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	moneyx "github.com/pitabwire/util/money"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
@@ -37,11 +38,40 @@ func NewEvaluator(resvRepo repository.ReservationRepository, ledgerRepo reposito
 }
 
 // Evaluate returns the verdict for the given policy applied to the intent.
+// It reads from the read pool and is suitable for Check and other read-only callers.
 func (e *Evaluator) Evaluate(
 	ctx context.Context,
 	p *models.Policy,
 	subject repository.SubjectFilter,
 	intent *limitsv1.LimitIntent,
+	intentMinor int64,
+) (*limitsv1.PolicyVerdict, error) {
+	return e.evaluate(ctx, nil, p, subject, intent, intentMinor)
+}
+
+// EvaluateInTx is identical to Evaluate but routes rolling-window reads through
+// the supplied gorm transaction. This ensures the reads participate in the
+// advisory lock acquired inside the Reserve transaction, closing the TOCTOU race
+// where two concurrent Reserves on the same subject could both see "below cap".
+func (e *Evaluator) EvaluateInTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	p *models.Policy,
+	subject repository.SubjectFilter,
+	intent *limitsv1.LimitIntent,
+	intentMinor int64,
+) (*limitsv1.PolicyVerdict, error) {
+	return e.evaluate(ctx, tx, p, subject, intent, intentMinor)
+}
+
+// evaluate is the shared core of Evaluate and EvaluateInTx. When tx is non-nil,
+// rolling-window reads are routed through the transaction connection.
+func (e *Evaluator) evaluate(
+	ctx context.Context,
+	tx *gorm.DB,
+	p *models.Policy,
+	subject repository.SubjectFilter,
+	_ *limitsv1.LimitIntent,
 	intentMinor int64,
 ) (*limitsv1.PolicyVerdict, error) {
 	v := &limitsv1.PolicyVerdict{
@@ -68,11 +98,22 @@ func (e *Evaluator) Evaluate(
 		}
 	case models.KindRollingWindowAmount:
 		since := time.Now().Add(-time.Duration(p.WindowSeconds) * time.Second)
-		committed, err := e.ledgerRepo.WindowSum(ctx, p.Action, p.CurrencyCode, subject, since)
+		var committed int64
+		var err error
+		if tx != nil {
+			committed, err = e.ledgerRepo.WindowSumTx(ctx, tx, p.Action, p.CurrencyCode, subject, since)
+		} else {
+			committed, err = e.ledgerRepo.WindowSum(ctx, p.Action, p.CurrencyCode, subject, since)
+		}
 		if err != nil {
 			return nil, err
 		}
-		pending, err := e.resvRepo.PendingSum(ctx, p.Action, p.CurrencyCode, subject)
+		var pending int64
+		if tx != nil {
+			pending, err = e.resvRepo.PendingSumTx(ctx, tx, p.Action, p.CurrencyCode, subject)
+		} else {
+			pending, err = e.resvRepo.PendingSum(ctx, p.Action, p.CurrencyCode, subject)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +134,12 @@ func (e *Evaluator) Evaluate(
 		if err != nil {
 			return nil, err
 		}
-		pending, err := e.resvRepo.PendingCount(ctx, p.Action, p.CurrencyCode, subject, since)
+		var pending int64
+		if tx != nil {
+			pending, err = e.resvRepo.PendingCountTx(ctx, tx, p.Action, p.CurrencyCode, subject, since)
+		} else {
+			pending, err = e.resvRepo.PendingCount(ctx, p.Action, p.CurrencyCode, subject, since)
+		}
 		if err != nil {
 			return nil, err
 		}

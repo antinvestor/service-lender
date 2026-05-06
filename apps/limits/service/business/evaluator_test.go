@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 	moneypb "google.golang.org/genproto/googleapis/type/money"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 
@@ -53,6 +54,29 @@ func (s *stubResvRepo) PendingCount(
 	currency string,
 	subject repository.SubjectFilter,
 	since time.Time,
+) (int64, error) {
+	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
+	return s.countByKey[k], nil
+}
+
+func (s *stubResvRepo) PendingSumTx(
+	_ context.Context,
+	_ *gorm.DB,
+	action models.Action,
+	currency string,
+	subject repository.SubjectFilter,
+) (int64, error) {
+	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
+	return s.sumByKey[k], nil
+}
+
+func (s *stubResvRepo) PendingCountTx(
+	_ context.Context,
+	_ *gorm.DB,
+	action models.Action,
+	currency string,
+	subject repository.SubjectFilter,
+	_ time.Time,
 ) (int64, error) {
 	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
 	return s.countByKey[k], nil
@@ -94,6 +118,18 @@ func (s *stubLedgerRepo) WindowSum(
 	currency string,
 	subject repository.SubjectFilter,
 	since time.Time,
+) (int64, error) {
+	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
+	return s.sumByKey[k], nil
+}
+
+func (s *stubLedgerRepo) WindowSumTx(
+	_ context.Context,
+	_ *gorm.DB,
+	action models.Action,
+	currency string,
+	subject repository.SubjectFilter,
+	_ time.Time,
 ) (int64, error) {
 	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
 	return s.sumByKey[k], nil

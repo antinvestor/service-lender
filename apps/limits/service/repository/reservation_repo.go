@@ -24,6 +24,7 @@ import (
 	"github.com/pitabwire/frame/datastore/scopes"
 	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
+	"gorm.io/gorm"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 )
@@ -42,8 +43,27 @@ type ReservationRepository interface {
 	GetByID(ctx context.Context, id string) (*models.Reservation, error)
 	GetByIdempotencyKey(ctx context.Context, key string) (*models.Reservation, error)
 	PendingSum(ctx context.Context, action models.Action, currency string, subject SubjectFilter) (int64, error)
+	// PendingSumTx is identical to PendingSum but executes within the supplied
+	// gorm transaction so the read participates in the caller's advisory lock.
+	PendingSumTx(
+		ctx context.Context,
+		tx *gorm.DB,
+		action models.Action,
+		currency string,
+		subject SubjectFilter,
+	) (int64, error)
 	PendingCount(
 		ctx context.Context,
+		action models.Action,
+		currency string,
+		subject SubjectFilter,
+		since time.Time,
+	) (int64, error)
+	// PendingCountTx is identical to PendingCount but executes within the supplied
+	// gorm transaction so the read participates in the caller's advisory lock.
+	PendingCountTx(
+		ctx context.Context,
+		tx *gorm.DB,
 		action models.Action,
 		currency string,
 		subject SubjectFilter,
@@ -118,6 +138,47 @@ func (r *reservationRepository) PendingCount(
 	since time.Time,
 ) (int64, error) {
 	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var count int64
+	err := db.Table(models.Reservation{}.TableName()).
+		Where("action = ? AND currency_code = ?", string(action), currency).
+		Where("status IN ?", []string{string(models.ReservationStatusActive), string(models.ReservationStatusPendingApproval)}).
+		Where("reserved_at >= ?", since).
+		Where("subject_refs @> ?::jsonb", subjectMatch(subject)).
+		Count(&count).Error
+	return count, err
+}
+
+func (r *reservationRepository) PendingSumTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	action models.Action,
+	currency string,
+	subject SubjectFilter,
+) (int64, error) {
+	db := tx.Scopes(scopes.TenancyPartition(ctx))
+	var sum int64
+	err := db.Table(models.Reservation{}.TableName()).
+		Where("action = ? AND currency_code = ?", string(action), currency).
+		Where("status IN ?", []string{string(models.ReservationStatusActive), string(models.ReservationStatusPendingApproval)}).
+		Where("ttl_at > ?", time.Now().UTC()).
+		Where("subject_refs @> ?::jsonb", subjectMatch(subject)).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&sum).Error
+	if err != nil {
+		return 0, err
+	}
+	return sum, nil
+}
+
+func (r *reservationRepository) PendingCountTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	action models.Action,
+	currency string,
+	subject SubjectFilter,
+	since time.Time,
+) (int64, error) {
+	db := tx.Scopes(scopes.TenancyPartition(ctx))
 	var count int64
 	err := db.Table(models.Reservation{}.TableName()).
 		Where("action = ? AND currency_code = ?", string(action), currency).
