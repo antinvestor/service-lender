@@ -51,7 +51,10 @@ func policiesListCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List limit policies",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client := newAdminClient()
+			client, err := newAdminClient(cmd.Context())
+			if err != nil {
+				return fmt.Errorf("build client: %w", err)
+			}
 			req := &limitsv1.PolicySearchRequest{}
 
 			if flagQuery != "" {
@@ -79,7 +82,7 @@ func policiesListCmd() *cobra.Command {
 				req.Mode = limitsv1.PolicyMode(v)
 			}
 
-			stream, err := client.PolicySearch(context.Background(), connect.NewRequest(req))
+			stream, err := client.PolicySearch(cmd.Context(), connect.NewRequest(req))
 			if err != nil {
 				return fmt.Errorf("PolicySearch: %w", err)
 			}
@@ -133,8 +136,11 @@ func policiesShowCmd() *cobra.Command {
 		Short: "Show a single policy",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client := newAdminClient()
-			resp, err := client.PolicyGet(context.Background(), connect.NewRequest(&limitsv1.PolicyGetRequest{
+			client, err := newAdminClient(cmd.Context())
+			if err != nil {
+				return fmt.Errorf("build client: %w", err)
+			}
+			resp, err := client.PolicyGet(cmd.Context(), connect.NewRequest(&limitsv1.PolicyGetRequest{
 				Id: args[0],
 			}))
 			if err != nil {
@@ -178,7 +184,7 @@ func policiesEnableCmd() *cobra.Command {
 		Short: "Enable a policy (set mode to POLICY_MODE_ENFORCE)",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return togglePolicyMode(args[0], limitsv1.PolicyMode_POLICY_MODE_ENFORCE)
+			return togglePolicyMode(cmd.Context(), args[0], limitsv1.PolicyMode_POLICY_MODE_ENFORCE)
 		},
 	}
 }
@@ -189,15 +195,17 @@ func policiesDisableCmd() *cobra.Command {
 		Short: "Disable a policy (set mode to POLICY_MODE_OFF)",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return togglePolicyMode(args[0], limitsv1.PolicyMode_POLICY_MODE_OFF)
+			return togglePolicyMode(cmd.Context(), args[0], limitsv1.PolicyMode_POLICY_MODE_OFF)
 		},
 	}
 }
 
 // togglePolicyMode fetches the policy, sets its mode, and saves it back.
-func togglePolicyMode(id string, mode limitsv1.PolicyMode) error {
-	client := newAdminClient()
-	ctx := context.Background()
+func togglePolicyMode(ctx context.Context, id string, mode limitsv1.PolicyMode) error {
+	client, err := newAdminClient(ctx)
+	if err != nil {
+		return fmt.Errorf("build client: %w", err)
+	}
 
 	getResp, err := client.PolicyGet(ctx, connect.NewRequest(&limitsv1.PolicyGetRequest{Id: id}))
 	if err != nil {

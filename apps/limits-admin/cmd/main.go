@@ -15,19 +15,20 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 
 	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
-	"connectrpc.com/connect"
+	"github.com/antinvestor/common"
+	"github.com/antinvestor/common/connection"
 	"github.com/spf13/cobra"
 )
 
 var (
-	flagURI      string
-	flagInsecure bool
-	flagJSON     bool
+	flagURI  string
+	flagJSON bool
 )
 
 func main() {
@@ -35,13 +36,18 @@ func main() {
 		Use:   "limits-admin",
 		Short: "Operator CLI for the limits service",
 		Long: `limits-admin wraps the LimitsAdminService Connect endpoints with
-tabwriter or JSON output. Use --uri to point at the limits service and
---insecure for local/staging environments that skip SPIFFE auth.`,
+tabwriter or JSON output. Use --uri to point at the limits service.
+
+Authentication:
+  - In-cluster (production): the CLI uses workload identity via the
+    platform's standard auth mechanism. No flags required.
+  - Local development: set LIMITS_ADMIN_TOKEN=<bearer-token> in your
+    environment. The CLI will attach it as "Authorization: Bearer <token>"
+    to every request.`,
 		SilenceUsage: true,
 	}
 
 	root.PersistentFlags().StringVar(&flagURI, "uri", "https://limits.internal", "Base URL of the limits service")
-	root.PersistentFlags().BoolVar(&flagInsecure, "insecure", false, "Skip TLS verification (local/staging only)")
 	root.PersistentFlags().BoolVar(&flagJSON, "json", false, "Emit JSON instead of tabwriter plaintext")
 
 	root.AddCommand(policiesCmd())
@@ -53,15 +59,41 @@ tabwriter or JSON output. Use --uri to point at the limits service and
 	}
 }
 
-// newAdminClient constructs a LimitsAdminServiceClient from the top-level flags.
-// When --insecure is set it uses a plain http.Client without TLS verification.
-func newAdminClient() limitsv1connect.LimitsAdminServiceClient {
-	httpClient := http.DefaultClient
-	opts := []connect.ClientOption{}
-	if flagInsecure {
-		opts = append(opts, connect.WithGRPC())
+// newAdminClient constructs a LimitsAdminServiceClient.
+//
+// Auth strategy (in priority order):
+//  1. LIMITS_ADMIN_TOKEN env var: attaches the value as a Bearer token on
+//     every request. Intended for local operator development.
+//  2. Platform workload identity: uses the platform's connection helper
+//     (SPIFFE / OAuth2 as configured in the cluster). No flags required.
+func newAdminClient(ctx context.Context) (limitsv1connect.LimitsAdminServiceClient, error) {
+	if token := os.Getenv("LIMITS_ADMIN_TOKEN"); token != "" {
+		httpClient := &http.Client{
+			Transport: &bearerTokenTransport{
+				token: token,
+				base:  http.DefaultTransport,
+			},
+		}
+		return limitsv1connect.NewLimitsAdminServiceClient(httpClient, flagURI), nil
 	}
-	return limitsv1connect.NewLimitsAdminServiceClient(httpClient, flagURI, opts...)
+
+	// Production path: workload identity via platform auth helper.
+	return connection.NewServiceClient(ctx, nil, common.ServiceTarget{
+		Endpoint:  flagURI,
+		Audiences: []string{"service_limits"},
+	}, limitsv1connect.NewLimitsAdminServiceClient)
+}
+
+// bearerTokenTransport attaches a static Bearer token to every outbound request.
+type bearerTokenTransport struct {
+	token string
+	base  http.RoundTripper
+}
+
+func (t *bearerTokenTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	r2 := r.Clone(r.Context())
+	r2.Header.Set("Authorization", "Bearer "+t.token)
+	return t.base.RoundTrip(r2)
 }
 
 // die prints msg to stderr and exits 1.

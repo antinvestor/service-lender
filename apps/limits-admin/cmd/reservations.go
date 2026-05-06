@@ -64,9 +64,9 @@ func reservationsListCmd() *cobra.Command {
 			}
 
 			if flagWatch {
-				return watchReservations(status)
+				return watchReservations(cmd.Context(), status)
 			}
-			return listReservationsOnce(status)
+			return listReservationsOnce(cmd.Context(), status)
 		},
 	}
 
@@ -76,13 +76,16 @@ func reservationsListCmd() *cobra.Command {
 	return cmd
 }
 
-func listReservationsOnce(status limitsv1.ApprovalStatus) error {
-	client := newAdminClient()
+func listReservationsOnce(ctx context.Context, status limitsv1.ApprovalStatus) error {
+	client, err := newAdminClient(ctx)
+	if err != nil {
+		return fmt.Errorf("build client: %w", err)
+	}
 	req := &limitsv1.ApprovalRequestListRequest{
 		Status: status,
 	}
 
-	stream, err := client.ApprovalRequestList(context.Background(), connect.NewRequest(req))
+	stream, err := client.ApprovalRequestList(ctx, connect.NewRequest(req))
 	if err != nil {
 		return fmt.Errorf("ApprovalRequestList: %w", err)
 	}
@@ -134,15 +137,15 @@ func renderReservations(items []*limitsv1.ApprovalRequestObject) error {
 	return w.Flush()
 }
 
-func watchReservations(status limitsv1.ApprovalStatus) error {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+func watchReservations(parentCtx context.Context, status limitsv1.ApprovalStatus) error {
+	ctx, stop := signal.NotifyContext(parentCtx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	// Run immediately, then on each tick.
-	if err := listReservationsOnce(status); err != nil {
+	if err := listReservationsOnce(ctx, status); err != nil {
 		return err
 	}
 
@@ -153,7 +156,7 @@ func watchReservations(status limitsv1.ApprovalStatus) error {
 		case <-ticker.C:
 			// Clear screen by printing ANSI escape.
 			fmt.Print("\033[2J\033[H")
-			if err := listReservationsOnce(status); err != nil {
+			if err := listReservationsOnce(ctx, status); err != nil {
 				fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			}
 		}
@@ -166,9 +169,12 @@ func reservationsShowCmd() *cobra.Command {
 		Short: "Show a single approval request",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client := newAdminClient()
+			client, err := newAdminClient(cmd.Context())
+			if err != nil {
+				return fmt.Errorf("build client: %w", err)
+			}
 			resp, err := client.ApprovalRequestGet(
-				context.Background(),
+				cmd.Context(),
 				connect.NewRequest(&limitsv1.ApprovalRequestGetRequest{
 					Id: args[0],
 				}),

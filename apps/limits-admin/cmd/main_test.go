@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -135,7 +136,8 @@ func TestPoliciesList_FormatsTable(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, bin, "--uri", serverURL, "--insecure", "policies", "list")
+	cmd := exec.CommandContext(ctx, bin, "--uri", serverURL, "policies", "list")
+	cmd.Env = append(os.Environ(), "LIMITS_ADMIN_TOKEN=test-token")
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -182,11 +184,11 @@ func TestApprove_RequiresReason(t *testing.T) {
 		bin,
 		"--uri",
 		serverURL,
-		"--insecure",
 		"approvals",
 		"approve",
 		"some-reservation-id",
 	)
+	cmd.Env = append(os.Environ(), "LIMITS_ADMIN_TOKEN=test-token")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 
@@ -225,7 +227,8 @@ func TestPoliciesList_JSONFlag(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, bin, "--uri", serverURL, "--insecure", "--json", "policies", "list")
+	cmd := exec.CommandContext(ctx, bin, "--uri", serverURL, "--json", "policies", "list")
+	cmd.Env = append(os.Environ(), "LIMITS_ADMIN_TOKEN=test-token")
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

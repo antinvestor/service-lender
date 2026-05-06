@@ -47,7 +47,7 @@ func approvalsApproveCmd() *cobra.Command {
 			if flagReason == "" {
 				return fmt.Errorf("--reason is required")
 			}
-			return decide(args[0], "approve", flagReason)
+			return decide(cmd.Context(), args[0], "approve", flagReason)
 		},
 	}
 
@@ -67,7 +67,7 @@ func approvalsRejectCmd() *cobra.Command {
 			if flagReason == "" {
 				return fmt.Errorf("--reason is required")
 			}
-			return decide(args[0], "reject", flagReason)
+			return decide(cmd.Context(), args[0], "reject", flagReason)
 		},
 	}
 
@@ -77,10 +77,13 @@ func approvalsRejectCmd() *cobra.Command {
 }
 
 // decide calls ApprovalRequestDecide with the given decision string ("approve" | "reject").
-func decide(id, decision, note string) error {
-	client := newAdminClient()
+func decide(ctx context.Context, id, decision, note string) error {
+	client, err := newAdminClient(ctx)
+	if err != nil {
+		return fmt.Errorf("build client: %w", err)
+	}
 	resp, err := client.ApprovalRequestDecide(
-		context.Background(),
+		ctx,
 		connect.NewRequest(&limitsv1.ApprovalRequestDecideRequest{
 			Id:       id,
 			Decision: decision,
