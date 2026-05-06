@@ -40,6 +40,9 @@ The following choices are settled. References point to the dialogue that produce
 | D10 | Tenancy: `data.BaseModel` provides `TenantID`/`PartitionID`/`AccessID`; queries rely on Frame's `scopes.TenancyPartition`; explicit `OrgUnitID` column for branch-level scoping | user feedback during Section 2 |
 | D11 | Money: stored as `int64` minor units in DB, transported as `google.type.Money` on the wire, math in `decimalx.Decimal`; new `pkg/money` provides currency-precision-aware helpers | user feedback during Section 2 |
 | D12 | Migrations: Go-driven via `dbManager.Migrate(ctx, dbPool, migrationPath, &models...)`; SQL files only for column-rename / data-transform edges (per repo policy) | user feedback during Section 2 |
+| D13 | Audit-on-limiting: every gating decision (hard breach, shadow breach, approval-required, approval-decided, TTL-expired, commit, release, reverse) emits a structured `LimitsAuditEvent` row in the limits service's own DB. Append-only, queryable via `LimitsAuditEventSearch` admin RPC, retained indefinitely (separate from RPC-level audit middleware). | user feedback post-foundations plan |
+| D14 | UI: a dedicated `ui/limits/` Flutter package mirroring the per-domain pattern of `ui/savings/`, `ui/loans/`, etc. Consumes `antinvestor_api_limits` (a new Dart proto package generated via `proto/buf.gen.dart.limits.yaml` and added to `DART_MODULES` in the Makefile). Riverpod 3 state, go_router routing, embeds in `ui/seed/`. | user feedback post-foundations plan |
+| D15 | Money: pitabwire/util/money is the canonical platform-wide helper. Local `pkg/money` is gone; loans/savings/operations/funding/identity/limits all delegate via thin wrappers. ISO 4217 precision is honoured (JPY/KRW/KWD/BHD correct). | user feedback during platform cleanup |
 
 ## 3. Service shape & deployment
 
@@ -460,7 +463,95 @@ Every monetary RPC declares `option (common.v1.method_money) = true;`. `tools/li
 
 `limits_use` is granted to consumer service bots via the limits OPL, by adding a `service_uses_limits` permit and the relevant role assignments — never via direct Keto-write API calls (per `feedback_no_manual_keto.md`). Generated through `make generate_opl`.
 
-Admin permissions (`limits_policy_manage`, `limits_policy_view`, `limits_approval_view`, `limits_approval_act`, `limits_approval_override`, `limits_ledger_view`) are granted via ordinary org-scoped role assignments — outside the runtime path.
+Admin permissions (`limits_policy_manage`, `limits_policy_view`, `limits_approval_view`, `limits_approval_act`, `limits_approval_override`, `limits_ledger_view`, `limits_audit_view`) are granted via ordinary org-scoped role assignments — outside the runtime path.
+
+## 6A. Audit-on-limiting
+
+The existing `pkg/audit` middleware logs *RPC-level* events (who called `PolicySave` at when). That's the right granularity for control-plane mutations. The runtime gate produces a different category of event — every cap evaluation, every shadow miss, every approval transition, every TTL expiry — and these need a separate, structured, queryable audit trail dedicated to gating decisions.
+
+### 6A.1 What gets audited
+
+Every gating decision produces exactly one `LimitsAuditEvent` row. The set of event kinds:
+
+| Kind | When emitted |
+|---|---|
+| `breach_hard` | A `Reserve` is denied because at least one enforce-mode policy was breached and not approval-eligible |
+| `breach_shadow` | A shadow-mode policy would have blocked but did not |
+| `approval_required` | A `Reserve` produced `PENDING_APPROVAL` (one row per triggering policy) |
+| `approval_approved` | An `ApprovalRequest` reached its required-count and re-evaluation passed |
+| `approval_rejected` | An approver rejected, or all-but-one approved and the last rejected |
+| `approval_auto_rejected` | Re-evaluation at decision time newly breached a previously-passing policy |
+| `approval_expired` | A pending `ApprovalRequest` passed its `expires_at` |
+| `reservation_committed` | A `Commit` finalised a reservation |
+| `reservation_released` | A `Release` freed a reservation |
+| `reservation_reversed` | A `Reverse` marked ledger entries reversed |
+| `reservation_expired_ttl` | The TTL reaper auto-expired an `active` reservation |
+
+### 6A.2 Model
+
+```go
+type LimitsAuditEvent struct {
+    data.BaseModel `gorm:"embedded"`
+
+    Kind            AuditKind      `gorm:"column:kind;type:varchar(40);not null;index:idx_audit_kind,priority:1"`
+    OccurredAt      time.Time      `gorm:"column:occurred_at;type:timestamptz;not null;index:idx_audit_kind,priority:2"`
+    OrgUnitID       string         `gorm:"column:org_unit_id;type:varchar(50)"`
+    Action          LimitAction    `gorm:"column:action;type:varchar(64);not null"`
+    ReservationID   string         `gorm:"column:reservation_id;type:varchar(50);index"`
+    PolicyID        string         `gorm:"column:policy_id;type:varchar(50);index"`
+    PolicyVersion   int32          `gorm:"column:policy_version"`
+    SubjectRefs     datatypes.JSON `gorm:"column:subject_refs;type:jsonb;not null"`
+    MakerID         string         `gorm:"column:maker_id;type:varchar(50)"`
+    ApproverID      string         `gorm:"column:approver_id;type:varchar(50)"`
+    Amount          int64          `gorm:"column:amount;not null"`
+    CurrencyCode    string         `gorm:"column:currency_code;type:varchar(3)"`
+    Verdicts        datatypes.JSON `gorm:"column:verdicts;type:jsonb"`
+    Reason          string         `gorm:"column:reason;type:text"`
+}
+func (LimitsAuditEvent) TableName() string { return "limits_audit_events" }
+```
+
+Append-only; no `Update` path. Tenancy via `BaseModel` (`TenantID`/`PartitionID`). The hot index is `(tenant_id, kind, occurred_at DESC)`; secondary indexes on `policy_id` and `reservation_id` for "show me everything for this reservation" queries. `BRIN(occurred_at)` indexed for retention scans on very large tables.
+
+### 6A.3 Emission
+
+Emission is best-effort but in-band — the audit insert is in the same DB transaction as the state change that produced it. Reasons:
+
+- **In-band:** so we never have a state change without its audit row. A queue-based async write would race with crashes and produce gaps.
+- **Same transaction:** so an audit insert failure rolls back the state change. This is the strongest guarantee. We accept the small latency cost (~1-2ms per gating decision) for the correctness floor.
+- **Best-effort outside the transaction:** TTL reaper and approval reaper run in their own transactions per row; if the audit insert fails the whole batch retries. No silent gaps.
+
+The business layer wires emission via a small `audit.Writer` injected into the relevant business methods (`reservationBusiness`, `approvalBusiness`, the reapers). Each emission is one helper call:
+
+```go
+audit.Emit(ctx, &models.LimitsAuditEvent{
+    Kind:          AuditKindBreachHard,
+    OccurredAt:    time.Now().UTC(),
+    Action:        intent.Action,
+    SubjectRefs:   subjectRefsJSON(intent),
+    MakerID:       intent.MakerID,
+    Amount:        intent.AmountMinorUnits,
+    CurrencyCode:  intent.CurrencyCode,
+    Verdicts:      verdictsJSON(verdicts),
+    Reason:        "policy=" + breachedPolicy.ID + " sum+amount=" + ...,
+})
+```
+
+### 6A.4 Admin RPC
+
+`LimitsAdminService.LimitsAuditEventSearch(LimitsAuditEventSearchRequest) returns (stream LimitsAuditEventSearchResponse)` — paginated streaming search filterable by `kind`, `action`, `policy_id`, `reservation_id`, `subject_type+subject_id`, time range. Permission: `limits_audit_view` (granted to risk/compliance/audit roles).
+
+Response items are `LimitsAuditEventObject` (proto mirror of the model). Cursor pagination on `(occurred_at, id)` ordered DESC.
+
+### 6A.5 Retention
+
+Limits audit events are retained indefinitely by default. A separate operational concern (likely a partition-prune job after N years) handles compliance-driven retention; not v1. The audit table is the system's authoritative record of every gating decision and its reasoning.
+
+### 6A.6 What's *not* in audit-on-limiting
+
+- Per-RPC who/when (still the existing `pkg/audit` middleware on policy CRUD).
+- Identity-service KYC-tier changes (those land in identity's audit trail).
+- The runtime metrics (`limits_breach_total` etc.) — those are observability, not audit. Different consumer, different retention.
 
 ## 7. Policy resolution & evaluation algorithm
 
@@ -797,10 +888,113 @@ Soft (low-risk) first, hard last:
 
 (`loans.DisbursementCreate` is the canary in phase 2.)
 
-## 11. Open items / out of scope
+## 11. UI architecture (limits operator surface)
 
-- **Approval UI in operator console:** referenced by the design but specced separately.
+A new Flutter package `ui/limits/` mirrors the per-domain pattern of `ui/savings/`, `ui/loans/`, `ui/funding/`, `ui/operations/`. It is consumed by the main app at `ui/seed/lib/features/limits/` and by any embedding host through the package's exported screens and widgets.
+
+### 11.1 Package shape
+
+```
+ui/limits/
+├── pubspec.yaml                         — antinvestor_ui_limits package
+├── lib/
+│   ├── antinvestor_ui_limits.dart       — entry: exports public API
+│   └── src/
+│       ├── providers/                    — Riverpod 3 providers (one per RPC)
+│       ├── routing/                      — go_router routes (/limits, /limits/policies/..., /limits/approvals, etc.)
+│       ├── screens/                      — full-page composites
+│       ├── widgets/                      — reusable widgets
+│       └── utils/                        — formatters, intent builders, currency rendering
+└── test/                                 — widget tests + provider tests
+```
+
+Dependencies (mirroring `ui/savings/`):
+- `antinvestor_ui_core` — shared theme, layout primitives, page chrome.
+- `antinvestor_api_limits` — Dart proto stubs (new — generated from `proto/limits` via `proto/buf.gen.dart.limits.yaml` and added to `DART_MODULES`).
+- `antinvestor_api_common` — shared types (`PageCursor`, `STATE`, `Money`).
+- `connectrpc` — Connect RPC client.
+- `flutter_riverpod 3.x` — state.
+- `go_router 17.x` — routing.
+
+### 11.2 Widget catalogue
+
+The full operator surface, grouped by data domain. Every widget is a real Flutter widget backed by real RPC data — no mocks.
+
+**Policies (admin path)**
+- `PolicyListScreen` + `PolicyListTile` — paginated list with `action` / `mode` / `scope` filters; pull-to-refresh.
+- `PolicyEditorScreen` + `PolicyEditorForm` — create or update; client-side validation mirroring server-side rules.
+- `PolicyDetailScreen` + `PolicyDetailCard` — read-only view with edit / delete actions and version history button.
+- `PolicyVersionHistoryWidget` — chronological list of policy versions, expandable diffs.
+- `PolicyModeBadge`, `PolicyScopeBadge`, `LimitKindBadge` — small color-coded pills used across screens.
+- `ApproverTiersEditor` + `ApproverTiersDisplay` — N-of-M tier table editor and read-only render.
+- `AttributeFilterEditor` + `AttributeFilterDisplay` — KYC-tier predicate builder using identity attributes.
+- `CapAmountField` — money input with currency dropdown; uses `moneyx`-compatible string conversion.
+- `WindowDurationField` — duration input for rolling windows (24h / 7d / 30d preset shortcuts).
+
+**Runtime visibility**
+- `VerdictBadge` + `VerdictDetailCard` — small pill (allowed / blocked / pending) + expandable card showing every per-policy verdict.
+- `UsageBarWidget` — current usage / cap progress bar with tier markers (color shift at approval thresholds).
+- `PolicyVerdictPlayground` — admin tool that calls `Check` with an editable `LimitIntent` and renders the full verdict tree.
+
+**Approvals**
+- `ApprovalQueueScreen` + `ApprovalRequestTile` — pending approvals routable to the operator; live count.
+- `ApprovalRequestDetailScreen` — full intent context, the triggering policy, the verdict, the approval tier, and an `ApprovalDecisionForm` (approve / reject + note).
+- `ApprovalDecisionTimelineWidget` — who decided what when; resolves approver IDs to names via identity.
+
+**Ledger**
+- `LedgerSearchScreen` + `LedgerSearchFilters` — searchable history filterable by tenant / action / subject / currency / time range.
+- `LedgerEntryTile` + `LedgerTimelineWidget` — single-row and chronological views.
+
+**Audit-on-limiting feed**
+- `LimitsAuditFeedScreen` + `AuditEventTile` — every gating event (breach / approval / TTL / commit / release / reverse) live, filterable.
+- `AuditEventFilters` — composite of kind / time-range / policy / subject filters.
+- `ShadowBreachAlertBanner` — surfaces shadow-mode would-have-blocked events for risk teams; threshold-based.
+
+**Currency rendering**
+- `CurrencyAmountText` — single-source-of-truth display widget. Receives a `Money` proto + caller's preferred locale, renders with the correct ISO 4217 precision (matches the moneyx-driven backend conversions).
+
+### 11.3 Routing
+
+`go_router` routes mounted under `/limits`:
+
+| Route | Screen |
+|---|---|
+| `/limits/policies` | `PolicyListScreen` |
+| `/limits/policies/new` | `PolicyEditorScreen` (create) |
+| `/limits/policies/:id` | `PolicyDetailScreen` |
+| `/limits/policies/:id/edit` | `PolicyEditorScreen` (edit) |
+| `/limits/policies/:id/history` | screen wrapping `PolicyVersionHistoryWidget` |
+| `/limits/playground` | `PolicyVerdictPlayground` |
+| `/limits/approvals` | `ApprovalQueueScreen` |
+| `/limits/approvals/:id` | `ApprovalRequestDetailScreen` |
+| `/limits/ledger` | `LedgerSearchScreen` |
+| `/limits/audit` | `LimitsAuditFeedScreen` |
+
+`ui/seed/lib/features/limits/limits_feature.dart` mounts these routes and adds a sidebar entry. Permission-gated: each route uses the appropriate `limits_*_view` permission via existing `antinvestor_ui_core` route-guard primitives.
+
+### 11.4 State management
+
+One Riverpod provider per RPC. The `policiesProvider` family is parameterised by search filter; `approvalQueueProvider` polls (or subscribes) for pending requests; `auditFeedProvider` is paginated streaming. Following the team's `feedback_riverpod_caching.md` — interactive flows use direct client calls plus `ref.refresh` for retry, never `ref.read(provider.future)` for write actions.
+
+### 11.5 Testing
+
+- Widget tests for every screen and complex widget — using real Connect clients pointed at a stubbed in-process server, OR using the standard `antinvestor_ui_core` test harness.
+- Provider tests for state transitions (loading / success / error / refresh).
+- Visual-regression tests for the badge/pill widgets via golden files.
+- Per the `testing-flutter` skill: thorough form validation tests, responsive-layout tests for the Policy Editor and Audit Feed.
+
+### 11.6 Build pipeline
+
+- `proto/buf.gen.dart.limits.yaml` — new generation config for the limits Dart package.
+- `Makefile` — add `limits` to `DART_MODULES`.
+- `make proto-generate-dart` regenerates the Dart proto package.
+- `antinvestor_api_limits` is published the same way as `antinvestor_api_savings` (or used via path dependency in the monorepo).
+
+## 12. Open items / out of scope
+
 - **AML/fraud detection pipeline:** consumer of `limits.shadow_breach.v1` events; out of scope.
 - **Multi-currency aggregate caps** (sum across currencies via FX): out of scope for v1.
 - **Sharding `fintech_limits` Postgres:** out of scope; vertical + partitioning sufficient for foreseeable volume.
-- **Currency-precision-aware migration of existing `MinorUnitsToMoney` helpers in `apps/loans`, `apps/savings`, `apps/operations`:** flagged as a follow-up; the limits service itself uses the new `pkg/money` from day one.
+- **Compliance-driven audit retention pruning:** the audit table grows without bound by default; a partition-prune job after N years is operational follow-up.
+- **Localisation of UI strings:** not addressed in v1; use English only initially.
+- **Mobile-first responsive design:** the operator surface targets desktop first; mobile is "works but not optimised" for v1.
