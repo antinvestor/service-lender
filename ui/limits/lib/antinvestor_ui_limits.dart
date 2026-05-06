@@ -43,8 +43,14 @@ export 'src/widgets/policy_list_tile.dart';
 export 'src/widgets/usage_bar.dart';
 export 'src/widgets/verdict_detail_card.dart';
 
+export 'src/widgets/approval_request_tile.dart';
+export 'src/widgets/approval_decision_form.dart';
+export 'src/widgets/approval_decision_timeline.dart';
+
 // Screens
 export 'src/screens/policy_editor_screen.dart';
 export 'src/screens/policy_detail_screen.dart';
 export 'src/screens/policy_list_screen.dart';
 export 'src/screens/policy_verdict_playground_screen.dart';
+export 'src/screens/approval_queue_screen.dart';
+export 'src/screens/approval_request_detail_screen.dart';
