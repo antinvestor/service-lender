@@ -117,12 +117,11 @@ func main() {
 	}
 
 	outboxRepo := outbox.NewRepository(ctx, dbPool, workMan)
-	outboxWorker := outbox.NewWorker(outboxRepo, limitsCli)
-	go func() {
-		if err := outboxWorker.Run(ctx); err != nil {
-			log.WithError(err).Error("loans: limits outbox worker exited with error")
-		}
-	}()
+	outboxWorker := outbox.NewWorker(outboxRepo, limitsCli, workMan)
+	// outboxWorker.Drain is invoked by an external scheduler (Trustage) via
+	// a Connect handler that delegates to it. The worker is constructed
+	// here so the wiring is in place; the handler lands in a follow-up plan.
+	_ = outboxWorker
 
 	serviceOptions := setupServiceOptions(
 		ctx,

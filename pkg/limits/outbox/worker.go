@@ -16,67 +16,79 @@ package outbox
 
 import (
 	"context"
-	"errors"
+	"sync"
 	"time"
 
 	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"connectrpc.com/connect"
+	"github.com/pitabwire/frame/workerpool"
 	"github.com/pitabwire/util"
 )
 
 const (
-	defaultPollInterval = 5 * time.Second
-	defaultBatchSize    = 100
-	maxAttempts         = 10
+	defaultBatchSize = 100
+	maxAttempts      = 10
 )
 
-// Worker drains pending outbox rows and invokes the corresponding limits
-// RPC. Wired up in each consumer service's main.go via Frame's WorkerPool
-// or via a long-lived goroutine — Run blocks until ctx is cancelled.
+// Worker drains pending outbox rows. Each invocation of Drain handles
+// exactly one batch and returns; periodic invocation is the responsibility
+// of an external scheduler (Trustage) calling a Connect handler that
+// delegates to Drain. Per-row work is dispatched through Frame's
+// WorkerPool so each task acquires and releases a pool slot, keeping
+// memory and goroutine usage bounded.
 type Worker struct {
-	repo     Repository
-	rpc      limitsv1connect.LimitsServiceClient
-	interval time.Duration
-	batch    int
+	repo    Repository
+	rpc     limitsv1connect.LimitsServiceClient
+	workMan workerpool.Manager
+	batch   int
 }
 
-// NewWorker constructs an outbox Worker backed by the given repo and
-// limits RPC client.
-func NewWorker(repo Repository, rpc limitsv1connect.LimitsServiceClient) *Worker {
-	return &Worker{repo: repo, rpc: rpc, interval: defaultPollInterval, batch: defaultBatchSize}
+// NewWorker constructs an outbox Worker.
+func NewWorker(repo Repository, rpc limitsv1connect.LimitsServiceClient, workMan workerpool.Manager) *Worker {
+	return &Worker{repo: repo, rpc: rpc, workMan: workMan, batch: defaultBatchSize}
 }
 
-// Run loops every pollInterval until ctx is cancelled, draining one
-// batch of due outbox rows per tick.
-func (w *Worker) Run(ctx context.Context) error {
-	t := time.NewTicker(w.interval)
-	defer t.Stop()
-	for {
-		select {
-		case <-ctx.Done():
-			if err := ctx.Err(); err != nil && !errors.Is(err, context.Canceled) {
-				return err
-			}
-			return nil
-		case <-t.C:
-			if err := w.RunOnce(ctx); err != nil {
-				util.Log(ctx).WithError(err).Error("limits outbox: drain pass failed")
-			}
-		}
-	}
-}
-
-// RunOnce drains a single batch. Exposed for tests and external schedulers.
-func (w *Worker) RunOnce(ctx context.Context) error {
+// Drain handles one batch of due outbox rows. Each row is submitted to
+// the workerpool for processing; Drain waits for all submitted tasks
+// to finish before returning so the caller (e.g. a Connect handler
+// invoked by Trustage) sees a deterministic completion. Returns the
+// number of rows handled in this pass.
+func (w *Worker) Drain(ctx context.Context) (int, error) {
 	rows, err := w.repo.ClaimDue(ctx, w.batch)
 	if err != nil {
-		return err
+		return 0, err
 	}
+	if len(rows) == 0 {
+		return 0, nil
+	}
+
+	var pool workerpool.WorkerPool
+	if w.workMan != nil {
+		pool, _ = w.workMan.GetPool()
+	}
+
+	var wg sync.WaitGroup
 	for _, row := range rows {
-		w.processRow(ctx, row)
+		row := row
+		wg.Add(1)
+		task := func() {
+			defer wg.Done()
+			w.processRow(ctx, row)
+		}
+		if pool != nil {
+			if submitErr := pool.Submit(ctx, task); submitErr != nil {
+				// Pool full or shutting down — process inline so the row
+				// is not lost. Failure here still respects the per-row
+				// retry/dead-letter semantics inside processRow.
+				task()
+			}
+		} else {
+			task()
+		}
 	}
-	return nil
+	wg.Wait()
+	return len(rows), nil
 }
 
 func (w *Worker) processRow(ctx context.Context, row *Row) {

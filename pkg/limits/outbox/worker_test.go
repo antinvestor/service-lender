@@ -103,8 +103,9 @@ func (s *WorkerSuite) TestWorker_DrainsCommitRow() {
 	s.Require().NoError(repo.Insert(ctx, row))
 
 	rpc := &stubRPC{}
-	w := outbox.NewWorker(repo, rpc)
-	require.NoError(s.T(), w.RunOnce(ctx))
+	w := outbox.NewWorker(repo, rpc, nil)
+	_, err := w.Drain(ctx)
+	require.NoError(s.T(), err)
 	assert.Equal(s.T(), []string{"res-1"}, rpc.commits)
 }
 
@@ -118,8 +119,9 @@ func (s *WorkerSuite) TestWorker_DrainsReleaseRow() {
 	s.Require().NoError(repo.Insert(ctx, row))
 
 	rpc := &stubRPC{}
-	w := outbox.NewWorker(repo, rpc)
-	require.NoError(s.T(), w.RunOnce(ctx))
+	w := outbox.NewWorker(repo, rpc, nil)
+	_, err := w.Drain(ctx)
+	require.NoError(s.T(), err)
 	require.Len(s.T(), rpc.releases, 1)
 	assert.Equal(s.T(), "res-2", rpc.releases[0].id)
 	assert.Equal(s.T(), "user cancelled", rpc.releases[0].reason)
@@ -135,8 +137,9 @@ func (s *WorkerSuite) TestWorker_RetriesOnTransientError() {
 	s.Require().NoError(repo.Insert(ctx, row))
 
 	rpc := &stubRPC{commitErr: errors.New("network blip")}
-	w := outbox.NewWorker(repo, rpc)
-	require.NoError(s.T(), w.RunOnce(ctx))
+	w := outbox.NewWorker(repo, rpc, nil)
+	_, err := w.Drain(ctx)
+	require.NoError(s.T(), err)
 
 	rows, err := repo.ClaimDue(ctx, 100)
 	s.Require().NoError(err)
@@ -154,8 +157,9 @@ func (s *WorkerSuite) TestWorker_DeadAfterMaxAttempts() {
 	s.Require().NoError(repo.Insert(ctx, row))
 
 	rpc := &stubRPC{commitErr: errors.New("persistently broken")}
-	w := outbox.NewWorker(repo, rpc)
-	require.NoError(s.T(), w.RunOnce(ctx))
+	w := outbox.NewWorker(repo, rpc, nil)
+	_, err := w.Drain(ctx)
+	require.NoError(s.T(), err)
 
 	rows, err := repo.ClaimDue(ctx, 100)
 	s.Require().NoError(err)
