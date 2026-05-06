@@ -19,7 +19,7 @@ include .tmp/Makefile.common
 # Dart proto modules — each gets its own buf.gen.dart.<module>.yaml so that
 # generation is scoped to a single module and dart packages don't leak each
 # other's types. See proto/buf.gen.dart.*.yaml.
-DART_MODULES := identity field loans savings funding operations
+DART_MODULES := identity field loans savings funding operations limits
 
 .PHONY: proto-generate-dart
 proto-generate-dart: $(BIN)/buf ## Regenerate the per-module dart SDKs
