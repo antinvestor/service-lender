@@ -37,6 +37,9 @@ export 'src/widgets/approver_tiers_display.dart';
 export 'src/widgets/approver_tiers_editor.dart';
 export 'src/widgets/attribute_filter_display.dart';
 export 'src/widgets/attribute_filter_editor.dart';
+export 'src/widgets/policy_detail_card.dart';
+export 'src/widgets/policy_version_history.dart';
 
 // Screens
 export 'src/screens/policy_editor_screen.dart';
+export 'src/screens/policy_detail_screen.dart';
