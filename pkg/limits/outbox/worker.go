@@ -17,30 +17,114 @@ package outbox
 import (
 	"context"
 	"errors"
+	"time"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
+	"connectrpc.com/connect"
 	"github.com/pitabwire/util"
+)
+
+const (
+	defaultPollInterval = 5 * time.Second
+	defaultBatchSize    = 100
+	maxAttempts         = 10
 )
 
 // Worker drains pending outbox rows and invokes the corresponding limits
 // RPC. Wired up in each consumer service's main.go via Frame's WorkerPool
-// or Frame Queue. Stub for now; the runtime-path plan implements the loop.
+// or via a long-lived goroutine — Run blocks until ctx is cancelled.
 type Worker struct {
-	repo Repository
+	repo     Repository
+	rpc      limitsv1connect.LimitsServiceClient
+	interval time.Duration
+	batch    int
 }
 
-// NewWorker constructs an outbox worker with the given repo.
-// The limits RPC client is wired in Task 3 when the drain loop is implemented.
-func NewWorker(repo Repository) *Worker {
-	return &Worker{repo: repo}
+// NewWorker constructs an outbox Worker backed by the given repo and
+// limits RPC client.
+func NewWorker(repo Repository, rpc limitsv1connect.LimitsServiceClient) *Worker {
+	return &Worker{repo: repo, rpc: rpc, interval: defaultPollInterval, batch: defaultBatchSize}
 }
 
-// Run is the worker loop entry point. Stub implementation logs that the
-// runtime path is unimplemented; replaced in the next plan.
+// Run loops every pollInterval until ctx is cancelled, draining one
+// batch of due outbox rows per tick.
 func (w *Worker) Run(ctx context.Context) error {
-	util.Log(ctx).Info("outbox worker started (stub)")
-	<-ctx.Done()
-	if err := ctx.Err(); err != nil && !errors.Is(err, context.Canceled) {
+	t := time.NewTicker(w.interval)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			if err := ctx.Err(); err != nil && !errors.Is(err, context.Canceled) {
+				return err
+			}
+			return nil
+		case <-t.C:
+			if err := w.RunOnce(ctx); err != nil {
+				util.Log(ctx).WithError(err).Error("limits outbox: drain pass failed")
+			}
+		}
+	}
+}
+
+// RunOnce drains a single batch. Exposed for tests and external schedulers.
+func (w *Worker) RunOnce(ctx context.Context) error {
+	rows, err := w.repo.ClaimDue(ctx, w.batch)
+	if err != nil {
 		return err
 	}
+	for _, row := range rows {
+		w.processRow(ctx, row)
+	}
 	return nil
+}
+
+func (w *Worker) processRow(ctx context.Context, row *Row) {
+	log := util.Log(ctx).
+		With("outbox_id", row.ID).
+		With("reservation_id", row.ReservationID).
+		With("action", string(row.Action))
+
+	var rpcErr error
+	switch row.Action {
+	case ActionCommit:
+		_, rpcErr = w.rpc.Commit(ctx, connect.NewRequest(&limitsv1.CommitRequest{
+			ReservationId: row.ReservationID,
+		}))
+	case ActionRelease:
+		_, rpcErr = w.rpc.Release(ctx, connect.NewRequest(&limitsv1.ReleaseRequest{
+			ReservationId: row.ReservationID,
+			Reason:        row.Reason,
+		}))
+	default:
+		log.Error("limits outbox: unknown action; marking dead")
+		_ = w.repo.MarkDead(ctx, row.ID, "unknown action: "+string(row.Action))
+		return
+	}
+
+	if rpcErr == nil {
+		if err := w.repo.MarkDone(ctx, row.ID); err != nil {
+			log.WithError(err).Error("limits outbox: MarkDone failed")
+		}
+		return
+	}
+
+	if row.Attempt+1 >= maxAttempts {
+		log.WithError(rpcErr).With("attempt", row.Attempt+1).Error("limits outbox: max attempts reached; dead-letter")
+		_ = w.repo.MarkDead(ctx, row.ID, rpcErr.Error())
+		return
+	}
+
+	// Exponential backoff: 30s × 2^attempt, capped at 1h.
+	backoff := 30 * time.Second
+	for i := 0; i < int(row.Attempt) && backoff < time.Hour; i++ {
+		backoff *= 2
+	}
+	if backoff > time.Hour {
+		backoff = time.Hour
+	}
+	nextAt := time.Now().Add(backoff).UTC()
+	if err := w.repo.MarkRetry(ctx, row.ID, rpcErr.Error(), nextAt); err != nil {
+		log.WithError(err).Error("limits outbox: MarkRetry failed")
+	}
 }
