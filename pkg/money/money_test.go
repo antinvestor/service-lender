@@ -25,18 +25,19 @@ import (
 
 func TestMinorUnitsPerMajor(t *testing.T) {
 	tests := []struct {
+		name string
 		code string
 		want int64
 	}{
-		{"USD", 100}, {"KES", 100}, {"EUR", 100}, {"GBP", 100},
-		{"JPY", 1}, {"KRW", 1},
-		{"KWD", 1000}, {"BHD", 1000}, {"OMR", 1000},
-		{"usd", 100},
-		{"", 100},
-		{"XXX", 100},
+		{"USD", "USD", 100}, {"KES", "KES", 100}, {"EUR", "EUR", 100}, {"GBP", "GBP", 100},
+		{"JPY", "JPY", 1}, {"KRW", "KRW", 1},
+		{"KWD", "KWD", 1000}, {"BHD", "BHD", 1000}, {"OMR", "OMR", 1000},
+		{"lowercase usd", "usd", 100},
+		{"empty", "", 100},
+		{"unknown XXX", "XXX", 100},
 	}
 	for _, tc := range tests {
-		t.Run(tc.code, func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			assert.Equal(t, tc.want, MinorUnitsPerMajor(tc.code))
 		})
 	}
@@ -96,7 +97,7 @@ func TestMoneyToMinorUnits(t *testing.T) {
 
 func TestRoundTrip(t *testing.T) {
 	for _, code := range []string{"USD", "KES", "JPY", "KWD"} {
-		for _, minor := range []int64{0, 1, 99, 100, 12345, 1_000_000_000} {
+		for _, minor := range []int64{-12345, 0, 1, 99, 100, 12345, 1_000_000_000} {
 			t.Run(code+"/"+strconv.FormatInt(minor, 10), func(t *testing.T) {
 				m := MinorUnitsToMoney(minor, code)
 				back, err := MoneyToMinorUnits(m, code)

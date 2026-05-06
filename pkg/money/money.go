@@ -66,6 +66,9 @@ func MinorUnitsToMoney(minor int64, code string) *moneypb.Money {
 	return &moneypb.Money{CurrencyCode: code, Units: units, Nanos: nanos}
 }
 
+// ErrMoneyNilInput indicates a nil *money.Money was passed where a value is required.
+var ErrMoneyNilInput = errors.New("money: nil input")
+
 // ErrMoneyCurrencyMismatch indicates the wire money's currency does not
 // match the expected currency. Callers should never silently coerce.
 var ErrMoneyCurrencyMismatch = errors.New("money: currency mismatch")
@@ -79,7 +82,7 @@ var ErrMoneySignMismatch = errors.New("money: units and nanos have opposite sign
 // expectedCurrency must be the non-empty ISO 4217 code the caller expects.
 func MoneyToMinorUnits(m *moneypb.Money, expectedCurrency string) (int64, error) {
 	if m == nil {
-		return 0, fmt.Errorf("money: %w", errors.New("nil input"))
+		return 0, ErrMoneyNilInput
 	}
 	if !strings.EqualFold(m.GetCurrencyCode(), expectedCurrency) {
 		return 0, fmt.Errorf("%w: got %q want %q", ErrMoneyCurrencyMismatch,
