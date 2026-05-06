@@ -118,10 +118,7 @@ func main() {
 
 	outboxRepo := outbox.NewRepository(ctx, dbPool, workMan)
 	outboxWorker := outbox.NewWorker(outboxRepo, limitsCli, workMan)
-	// outboxWorker.Drain is invoked by an external scheduler (Trustage) via
-	// a Connect handler that delegates to it. The worker is constructed
-	// here so the wiring is in place; the handler lands in a follow-up plan.
-	_ = outboxWorker
+	limitsDrainHandler := handlers.NewLimitsOutboxDrainHandler(outboxWorker)
 
 	serviceOptions := setupServiceOptions(
 		ctx,
@@ -134,6 +131,7 @@ func main() {
 		operationsCli,
 		limitsCli,
 		cfg.LimitsGateEnabledLoanDisbursement,
+		limitsDrainHandler,
 	)
 
 	svc.Init(ctx, serviceOptions...)
@@ -155,6 +153,7 @@ func setupServiceOptions(
 	operationsCli operationsv1connect.OperationsServiceClient,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
+	limitsDrainHandler *handlers.LimitsOutboxDrainHandler,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 	loanRequestRepo := repository.NewLoanRequestRepository(ctx, dbPool, workMan)
@@ -216,7 +215,8 @@ func setupServiceOptions(
 
 	connectHandler := setupConnectServer(ctx, sm,
 		lpBusiness, lrBusiness, laBusiness, repBusiness, scheduleBusiness,
-		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, disbBusiness, lscRepo)
+		penaltyBusiness, restructBusiness, reconBusiness, portfolioBusiness, disbBusiness, lscRepo,
+		limitsDrainHandler)
 
 	sd := loanspb.File_loans_v1_loans_proto.Services().ByName("LoanManagementService")
 
@@ -315,6 +315,7 @@ func setupConnectServer(
 	portfolioBusiness business.PortfolioBusiness,
 	disbBusiness business.DisbursementBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
+	limitsDrainHandler *handlers.LimitsOutboxDrainHandler,
 ) http.Handler {
 	// Create handler with injected dependencies
 	lmHandler := handlers.NewLoanManagementServer(
@@ -358,6 +359,7 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(lmPath, lmServerHandler)
+	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
 }
