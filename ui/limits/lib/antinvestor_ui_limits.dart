@@ -40,6 +40,8 @@ export 'src/widgets/attribute_filter_editor.dart';
 export 'src/widgets/policy_detail_card.dart';
 export 'src/widgets/policy_version_history.dart';
 export 'src/widgets/policy_list_tile.dart';
+export 'src/widgets/usage_bar.dart';
+export 'src/widgets/verdict_detail_card.dart';
 
 // Screens
 export 'src/screens/policy_editor_screen.dart';
