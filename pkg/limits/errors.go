@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package limits provides a typed wrapper around the limits.v1 LimitsService
-// Connect client. Consumer services use this package's Client for the
-// Reserve/Commit/Release lifecycle around monetary actions. This file
-// declares the typed errors callers may type-assert on.
+// Package limits provides a thin helper around the limits.v1 LimitsService
+// for consumer services. The Gate helper composes Reserve → handler →
+// Commit/Release; the typed errors below let callers distinguish gating
+// outcomes from infrastructure errors.
 package limits
 
 import (
-	"errors"
 	"fmt"
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 )
 
-// PendingApprovalError is returned by Client.Gate when Reserve produces
-// a PENDING_APPROVAL reservation. The caller is expected to persist its
+// PendingApprovalError is returned by Gate when Reserve produces a
+// PENDING_APPROVAL reservation. The caller is expected to persist its
 // own local row in a pending state and await the limits.approval.* event.
 type PendingApprovalError struct {
 	ReservationID string
@@ -37,8 +36,8 @@ func (e *PendingApprovalError) Error() string {
 	return fmt.Sprintf("limits: reservation %s pending approval", e.ReservationID)
 }
 
-// LimitBreachedError indicates the gate denied the action because at least
-// one enforce-mode policy is breached and not eligible for approval.
+// LimitBreachedError indicates the gate denied the action because at
+// least one enforce-mode policy is breached and not eligible for approval.
 type LimitBreachedError struct {
 	Verdicts []*limitsv1.PolicyVerdict
 }
@@ -49,7 +48,3 @@ func (e *LimitBreachedError) Error() string {
 	}
 	return fmt.Sprintf("limits: cap breached (%d policies)", len(e.Verdicts))
 }
-
-// ErrUnimplemented is returned by stub Client methods until the runtime
-// path is implemented in a follow-on plan.
-var ErrUnimplemented = errors.New("limits: runtime path not yet implemented")

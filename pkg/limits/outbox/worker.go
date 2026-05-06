@@ -19,21 +19,19 @@ import (
 	"errors"
 
 	"github.com/pitabwire/util"
-
-	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 // Worker drains pending outbox rows and invokes the corresponding limits
 // RPC. Wired up in each consumer service's main.go via Frame's WorkerPool
 // or Frame Queue. Stub for now; the runtime-path plan implements the loop.
 type Worker struct {
-	repo   Repository
-	client limits.Client
+	repo Repository
 }
 
-// NewWorker constructs an outbox worker with the given repo and limits client.
-func NewWorker(repo Repository, client limits.Client) *Worker {
-	return &Worker{repo: repo, client: client}
+// NewWorker constructs an outbox worker with the given repo.
+// The limits RPC client is wired in Task 3 when the drain loop is implemented.
+func NewWorker(repo Repository) *Worker {
+	return &Worker{repo: repo}
 }
 
 // Run is the worker loop entry point. Stub implementation logs that the
