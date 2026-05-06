@@ -20,6 +20,7 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	"github.com/antinvestor/common"
 	"github.com/antinvestor/common/connection"
 	"github.com/pitabwire/frame"
@@ -52,6 +53,7 @@ import (
 	// Platform clients.
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/clients"
+	"github.com/antinvestor/service-fintech/pkg/limits/consumer"
 
 	fevents "github.com/pitabwire/frame/events"
 )
@@ -138,9 +140,18 @@ func main() {
 		log.WithError(pcErr).Warn("main -- Some platform clients could not be initialised")
 	}
 
+	// Limits client. Optional — when LimitsServiceURI is empty, SetupClient
+	// returns nil and the gate is disabled at runtime regardless of the config flag.
+	limitsCli, limitsErr := setupLimitsClient(ctx, cfg)
+	if limitsErr != nil {
+		log.WithError(limitsErr).
+			Warn("main -- Could not setup limits client, limits gate will be disabled")
+	}
+
 	repos := initRepositories(ctx, dbPool, workMan)
-	biz := initBusinesses(ctx, evtsMan, identityCli, platformClients, repos)
-	mux := buildWorkflowMux(platformClients, biz)
+	biz := initBusinesses(ctx, evtsMan, identityCli, platformClients, repos, limitsCli, cfg)
+	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
+	mux := buildWorkflowMux(platformClients, biz, limitsDrainHandler)
 	serviceOptions := buildServiceOptions(ctx, mux, repos)
 
 	svc.Init(ctx, serviceOptions...)
@@ -177,6 +188,8 @@ func initBusinesses(
 	identityCli identityv1connect.IdentityServiceClient,
 	platformClients *clients.PlatformClients,
 	repos appRepositories,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	cfg aconfig.StawiConfig,
 ) appBusinesses {
 	groupBiz := stawibusiness.NewClientGroupBusiness(ctx, identityCli, platformClients)
 	membershipBiz := stawibusiness.NewMembershipBusiness(ctx, identityCli)
@@ -187,6 +200,7 @@ func initBusinesses(
 	loanWindowBiz := stawibusiness.NewLoanWindowBusiness(ctx, evtsMan, repos.loanWindow)
 	loanOfferBiz := stawibusiness.NewLoanOfferBusiness(
 		ctx, evtsMan, repos.loanOffer, repos.loanWindow, identityCli, platformClients,
+		limitsCli, cfg.LimitsGateEnabledStawiLoanDisbursement,
 	)
 	fundingBiz := fundingbusiness.NewFundingAllocationBusiness(
 		ctx,
@@ -225,6 +239,8 @@ func initBusinesses(
 		investorAccountAdapter,
 		platformClients,
 		audit.NewWriter(evtsMan),
+		limitsCli,
+		false, // transfer-order gate not yet enabled for stawi; governed separately
 	)
 	obligationBiz := opsbusiness.NewObligationBusiness(ctx, evtsMan, repos.obligation, identityCli, periodAdapter)
 
@@ -242,7 +258,11 @@ func initBusinesses(
 	}
 }
 
-func buildWorkflowMux(platformClients *clients.PlatformClients, biz appBusinesses) *http.ServeMux {
+func buildWorkflowMux(
+	platformClients *clients.PlatformClients,
+	biz appBusinesses,
+	limitsDrainHandler http.Handler,
+) *http.ServeMux {
 	mux := http.NewServeMux()
 	handlers.RegisterWorkflowCallbacks(
 		mux,
@@ -258,8 +278,22 @@ func buildWorkflowMux(platformClients *clients.PlatformClients, biz appBusinesse
 		biz.obligation,
 		platformClients,
 	)
+	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
+}
+
+// setupLimitsClient wires the limits service client used for stawi loan
+// disbursement gate checks. Returns nil, nil when LimitsServiceURI is empty.
+func setupLimitsClient(
+	ctx context.Context,
+	cfg aconfig.StawiConfig,
+) (limitsv1connect.LimitsServiceClient, error) {
+	return consumer.SetupClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.LimitsServiceURI,
+		WorkloadAPITargetPath: cfg.LimitsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_limits"},
+	})
 }
 
 func buildServiceOptions(ctx context.Context, mux *http.ServeMux, repos appRepositories) []frame.Option {
