@@ -21,6 +21,7 @@ import (
 
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
 	fundingpb "buf.build/gen/go/antinvestor/funding/protocolbuffers/go/funding/v1"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
@@ -54,6 +55,7 @@ import (
 
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/clients"
+	"github.com/antinvestor/service-fintech/pkg/limits/consumer"
 )
 
 func main() {
@@ -108,7 +110,25 @@ func main() {
 		log.WithError(opsErr).Fatal("main -- could not initialise operations client")
 	}
 
-	serviceOptions := setupServiceOptions(ctx, sm, evtsMan, dbPool, workMan, platformClients, operationsCli)
+	// Limits client. Optional — when LimitsServiceURI is empty, SetupClient
+	// returns nil and the gate is disabled at runtime regardless of the config flag.
+	limitsCli, limitsErr := setupLimitsClient(ctx, cfg)
+	if limitsErr != nil {
+		log.WithError(limitsErr).
+			Warn("main -- Could not setup limits client, limits gate will be disabled")
+	}
+
+	serviceOptions := setupServiceOptions(
+		ctx,
+		sm,
+		evtsMan,
+		dbPool,
+		workMan,
+		platformClients,
+		operationsCli,
+		limitsCli,
+		cfg,
+	)
 
 	svc.Init(ctx, serviceOptions...)
 
@@ -126,6 +146,8 @@ func setupServiceOptions(
 	workMan workerpool.Manager,
 	platformClients *clients.PlatformClients,
 	operationsCli operationsv1connect.OperationsServiceClient,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	cfg aconfig.FundingConfig,
 ) []frame.Option {
 	// Funding repositories
 	lfRepo := repository.NewLoanFundingRepository(ctx, dbPool, workMan)
@@ -154,10 +176,21 @@ func setupServiceOptions(
 		ftRepo,
 		platformClients,
 	)
-	iaBiz := business.NewInvestorAccountBusiness(ctx, evtsMan, iaRepo, operationsCli, auditWriter)
+	iaBiz := business.NewInvestorAccountBusiness(
+		ctx,
+		evtsMan,
+		iaRepo,
+		operationsCli,
+		auditWriter,
+		limitsCli,
+		cfg.LimitsGateEnabledFundingDeposit,
+		cfg.LimitsGateEnabledFundingWithdraw,
+	)
+
+	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
 
 	// ConnectRPC handler
-	connectHandler := setupConnectServer(ctx, sm, iaBiz, faBiz)
+	connectHandler := setupConnectServer(ctx, sm, iaBiz, faBiz, limitsDrainHandler)
 
 	sd := fundingpb.File_funding_v1_funding_proto.Services().ByName("FundingService")
 
@@ -277,6 +310,7 @@ func setupConnectServer(
 	sm security.Manager,
 	iaBiz business.InvestorAccountBusiness,
 	faBiz business.FundingAllocationBusiness,
+	limitsDrainHandler http.Handler,
 ) http.Handler {
 	fundingHandler := fundinghandlers.NewFundingServer(iaBiz, faBiz)
 
@@ -304,6 +338,20 @@ func setupConnectServer(
 
 	mux := http.NewServeMux()
 	mux.Handle(fundingPath, fundingServerHandler)
+	mux.Handle("/admin/limits-outbox/drain", limitsDrainHandler)
 
 	return mux
+}
+
+// setupLimitsClient wires the limits service client used for investor deposit
+// and withdrawal gate checks. Returns nil, nil when LimitsServiceURI is empty.
+func setupLimitsClient(
+	ctx context.Context,
+	cfg aconfig.FundingConfig,
+) (limitsv1connect.LimitsServiceClient, error) {
+	return consumer.SetupClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.LimitsServiceURI,
+		WorkloadAPITargetPath: cfg.LimitsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_limits"},
+	})
 }

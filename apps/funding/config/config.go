@@ -56,6 +56,15 @@ type FundingConfig struct {
 	// record of money movement, not the InvestorAccount row.
 	OperationsServiceURI                   string `envDefault:"127.0.0.1:7060"                    env:"OPERATIONS_SERVICE_URI"`
 	OperationsServiceWorkloadAPITargetPath string `envDefault:"/ns/fintech/sa/service-operations" env:"OPERATIONS_SERVICE_WORKLOAD_API_TARGET_PATH"`
+
+	// Limits service: gates investor deposit and withdrawal through the
+	// centralised caps engine. Both URI fields are optional; when
+	// LimitsServiceURI is empty consumer.SetupClient returns nil and the
+	// gate is skipped at runtime.
+	LimitsServiceURI                   string `envDefault:"http://service_limits:80" env:"LIMITS_SERVICE_URI"`
+	LimitsServiceWorkloadAPITargetPath string `envDefault:""                         env:"LIMITS_SERVICE_WORKLOAD_API_TARGET_PATH"`
+	LimitsGateEnabledFundingDeposit    bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_FUNDING_DEPOSIT"`
+	LimitsGateEnabledFundingWithdraw   bool   `envDefault:"false"                    env:"LIMITS_GATE_ENABLED_FUNDING_WITHDRAW"`
 }
 
 // ServiceEndpoints returns a clients.ServiceEndpoints populated from the config.
