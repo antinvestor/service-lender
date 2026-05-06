@@ -43,6 +43,11 @@ func Migrate(ctx context.Context, dbManager datastore.Manager, migrationPath str
 	return dbManager.Migrate(ctx, dbPool, migrationPath,
 		&models.Policy{},
 		&models.PolicyVersion{},
+		&models.Reservation{},
+		&models.LedgerEntry{},
+		&models.ApprovalRequest{},
+		&models.ApprovalDecision{},
+		&models.SubjectAttributeSnapshot{},
 		&audit.Event{},
 	)
 }
