@@ -141,7 +141,7 @@ func (s *AdminIntegrationSuite) SetupTest() {
 	policyRepo := repository.NewPolicyRepository(ctx, dbPool, workMan)
 	versionRepo := repository.NewPolicyVersionRepository(ctx, dbPool, workMan)
 	biz := business.NewPolicyBusiness(policyRepo, versionRepo)
-	adminH := handlers.NewAdminService(biz)
+	adminH := handlers.NewAdminService(biz, nil, nil)
 
 	// Mount the handler with the fixedClaimsInterceptor so the business layer
 	// sees proper tenant+partition scoping on every HTTP request.

@@ -28,17 +28,24 @@ import (
 	"github.com/antinvestor/service-fintech/apps/limits/service/business"
 )
 
-// AdminService implements limitsv1connect.LimitsAdminServiceHandler. The
-// approval-and-ledger half of the admin surface is deliberately stubbed —
-// it lands in the runtime-path plan.
+// AdminService implements limitsv1connect.LimitsAdminServiceHandler.
+// It covers policy CRUD, approval workflow management, and ledger search.
 type AdminService struct {
 	limitsv1connect.UnimplementedLimitsAdminServiceHandler
-	policy business.PolicyBusiness
+	policy   business.PolicyBusiness
+	approval business.ApprovalBusiness
+	ledger   business.LedgerSearchBusiness
 }
 
 // NewAdminService constructs a Connect handler.
-func NewAdminService(policy business.PolicyBusiness) *AdminService {
-	return &AdminService{policy: policy}
+// approval and ledger may be nil if those RPCs are not yet wired (existing
+// tests pass nil for them; the Unimplemented embed handles the fallback).
+func NewAdminService(
+	policy business.PolicyBusiness,
+	approval business.ApprovalBusiness,
+	ledger business.LedgerSearchBusiness,
+) *AdminService {
+	return &AdminService{policy: policy, approval: approval, ledger: ledger}
 }
 
 // PolicySave creates or updates a policy.
@@ -85,6 +92,52 @@ func (s *AdminService) PolicyDelete(
 		return nil, mapBusinessErr(err)
 	}
 	return connect.NewResponse(&limitsv1.PolicyDeleteResponse{}), nil
+}
+
+// ApprovalRequestList streams approval requests filtered by tenant/status/role.
+func (s *AdminService) ApprovalRequestList(
+	ctx context.Context,
+	req *connect.Request[limitsv1.ApprovalRequestListRequest],
+	stream *connect.ServerStream[limitsv1.ApprovalRequestListResponse],
+) error {
+	return s.approval.List(ctx, req.Msg, func(ctx context.Context, items []*limitsv1.ApprovalRequestObject) error {
+		return stream.Send(&limitsv1.ApprovalRequestListResponse{Data: items})
+	})
+}
+
+// ApprovalRequestGet returns a single approval request with its decisions.
+func (s *AdminService) ApprovalRequestGet(
+	ctx context.Context,
+	req *connect.Request[limitsv1.ApprovalRequestGetRequest],
+) (*connect.Response[limitsv1.ApprovalRequestGetResponse], error) {
+	out, err := s.approval.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(&limitsv1.ApprovalRequestGetResponse{Data: out}), nil
+}
+
+// ApprovalRequestDecide records an approver decision and transitions the workflow.
+func (s *AdminService) ApprovalRequestDecide(
+	ctx context.Context,
+	req *connect.Request[limitsv1.ApprovalRequestDecideRequest],
+) (*connect.Response[limitsv1.ApprovalRequestDecideResponse], error) {
+	out, err := s.approval.Decide(ctx, req.Msg)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(&limitsv1.ApprovalRequestDecideResponse{Data: out}), nil
+}
+
+// LedgerSearch streams committed ledger entries matching the filter.
+func (s *AdminService) LedgerSearch(
+	ctx context.Context,
+	req *connect.Request[limitsv1.LedgerSearchRequest],
+	stream *connect.ServerStream[limitsv1.LedgerSearchResponse],
+) error {
+	return s.ledger.Search(ctx, req.Msg, func(ctx context.Context, items []*limitsv1.LedgerEntryObject) error {
+		return stream.Send(&limitsv1.LedgerSearchResponse{Data: items})
+	})
 }
 
 // mapBusinessErr translates business-layer errors into Connect codes.
