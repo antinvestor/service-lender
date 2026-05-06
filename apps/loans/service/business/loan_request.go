@@ -16,17 +16,23 @@ package business
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
 	"github.com/pitabwire/util"
+	moneyx "github.com/pitabwire/util/money"
 
 	"github.com/antinvestor/service-fintech/apps/loans/service/events"
 	"github.com/antinvestor/service-fintech/apps/loans/service/models"
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 type LoanRequestBusiness interface {
@@ -44,9 +50,11 @@ type LoanRequestBusiness interface {
 }
 
 type loanRequestBusiness struct {
-	eventsMan       fevents.Manager
-	loanRequestRepo repository.LoanRequestRepository
-	loanProductRepo repository.LoanProductRepository
+	eventsMan         fevents.Manager
+	loanRequestRepo   repository.LoanRequestRepository
+	loanProductRepo   repository.LoanProductRepository
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewLoanRequestBusiness(
@@ -54,11 +62,15 @@ func NewLoanRequestBusiness(
 	eventsMan fevents.Manager,
 	loanRequestRepo repository.LoanRequestRepository,
 	loanProductRepo repository.LoanProductRepository,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) LoanRequestBusiness {
 	return &loanRequestBusiness{
-		eventsMan:       eventsMan,
-		loanRequestRepo: loanRequestRepo,
-		loanProductRepo: loanProductRepo,
+		eventsMan:         eventsMan,
+		loanRequestRepo:   loanRequestRepo,
+		loanProductRepo:   loanProductRepo,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
@@ -166,6 +178,55 @@ func (b *loanRequestBusiness) Search(
 }
 
 func (b *loanRequestBusiness) Approve(ctx context.Context, id string) (*loansv1.LoanRequestObject, error) {
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.approveInner(ctx, id)
+	}
+
+	// Load the request to build the intent before the gate.
+	lr, err := b.loanRequestRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, ErrLoanRequestNotFound
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action: limitsv1.LimitAction_LIMIT_ACTION_LOAN_REQUEST,
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_CLIENT, Id: lr.ClientID},
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION, Id: lr.OrganizationID},
+		},
+		TenantId: lr.OrganizationID,
+		Amount:   moneyx.FromMinorUnitsByCurrency(lr.CurrencyCode, lr.RequestedAmount),
+		MakerId:  callerSubject(ctx),
+	}
+	idemKey := "loan_request_approval:" + id
+
+	var result *loansv1.LoanRequestObject
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).
+				With("limits_reservation_id", reservationID).
+				Info("loan request approval gated by limits")
+			inner, innerErr := b.approveInner(innerCtx, id)
+			if innerErr != nil {
+				return innerErr
+			}
+			result = inner
+			return nil
+		})
+
+	var pendingErr *limits.PendingApprovalError
+	if errors.As(gateErr, &pendingErr) {
+		return nil, fmt.Errorf("loan request approval requires approval (reservation %s): %w",
+			pendingErr.ReservationID, gateErr)
+	}
+	if gateErr != nil {
+		return nil, gateErr
+	}
+	return result, nil
+}
+
+// approveInner is the pre-Gate body factored out so Gate's handler can wrap it.
+func (b *loanRequestBusiness) approveInner(ctx context.Context, id string) (*loansv1.LoanRequestObject, error) {
 	logger := util.Log(ctx).WithField("method", "LoanRequestBusiness.Approve")
 
 	lr, err := b.loanRequestRepo.GetByID(ctx, id)

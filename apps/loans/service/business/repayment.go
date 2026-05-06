@@ -16,12 +16,15 @@ package business
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
@@ -36,6 +39,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 const moneyDecimalPlaces = 2
@@ -73,6 +77,8 @@ type repaymentBusiness struct {
 	operationsCli     operationsv1connect.OperationsServiceClient
 	auditWriter       *audit.Writer
 	paidOffHook       PaidOffHook
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewRepaymentBusiness(
@@ -87,6 +93,8 @@ func NewRepaymentBusiness(
 	operationsCli operationsv1connect.OperationsServiceClient,
 	auditWriter *audit.Writer,
 	paidOffHook PaidOffHook,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) RepaymentBusiness {
 	return &repaymentBusiness{
 		eventsMan:         eventsMan,
@@ -99,22 +107,78 @@ func NewRepaymentBusiness(
 		operationsCli:     operationsCli,
 		auditWriter:       auditWriter,
 		paidOffHook:       paidOffHook,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
-func (b *repaymentBusiness) Record( //nolint:funlen // sequential repayment pipeline
+func (b *repaymentBusiness) Record(
 	ctx context.Context,
 	req *loansv1.RepaymentRecordRequest,
 ) (*loansv1.RepaymentObject, error) {
-	logger := util.Log(ctx).WithField("method", "RepaymentBusiness.Record")
-
-	// Idempotency check
+	// Idempotency check (outer — before Gate so retries short-circuit cleanly).
 	if req.GetIdempotencyKey() != "" {
 		existing, err := b.repaymentRepo.GetByIdempotencyKey(ctx, req.GetIdempotencyKey())
 		if err == nil && existing != nil {
 			return existing.ToAPI(), nil
 		}
 	}
+
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.recordInner(ctx, req)
+	}
+
+	// Load loan account to build the intent before the gate.
+	la, err := b.loanAccountRepo.GetByID(ctx, req.GetLoanAccountId())
+	if err != nil {
+		return nil, ErrLoanAccountNotFound
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action: limitsv1.LimitAction_LIMIT_ACTION_LOAN_REPAYMENT,
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_CLIENT, Id: la.ClientID},
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION, Id: la.OrganizationID},
+		},
+		TenantId: la.OrganizationID,
+		Amount:   req.GetAmount(),
+		MakerId:  callerSubject(ctx),
+	}
+	idemKey := "loan_repayment:" + req.GetIdempotencyKey()
+	if idemKey == "loan_repayment:" {
+		idemKey = "loan_repayment:" + req.GetLoanAccountId()
+	}
+
+	var result *loansv1.RepaymentObject
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).Info("repayment gated by limits")
+			inner, innerErr := b.recordInner(innerCtx, req)
+			if innerErr != nil {
+				return innerErr
+			}
+			result = inner
+			return nil
+		})
+
+	var pendingErr *limits.PendingApprovalError
+	if errors.As(gateErr, &pendingErr) {
+		return nil, fmt.Errorf("repayment requires approval (reservation %s): %w",
+			pendingErr.ReservationID, gateErr)
+	}
+	if gateErr != nil {
+		return nil, gateErr
+	}
+	return result, nil
+}
+
+// recordInner is the pre-Gate body factored out so Gate's handler can wrap it.
+// The idempotency check lives in the outer Record.
+func (b *repaymentBusiness) recordInner( //nolint:funlen // sequential repayment pipeline
+	ctx context.Context,
+	req *loansv1.RepaymentRecordRequest,
+) (*loansv1.RepaymentObject, error) {
+	logger := util.Log(ctx).WithField("method", "RepaymentBusiness.Record")
 
 	// Validate loan account exists
 	la, err := b.loanAccountRepo.GetByID(ctx, req.GetLoanAccountId())

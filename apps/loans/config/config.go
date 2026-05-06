@@ -41,6 +41,8 @@ type LoanManagementConfig struct {
 	LimitsServiceURI                         string `envDefault:"http://service_limits:80"                 env:"LIMITS_SERVICE_URI"`
 	LimitsServiceWorkloadAPITargetPath       string `envDefault:""                                         env:"LIMITS_SERVICE_WORKLOAD_API_TARGET_PATH"`
 	LimitsGateEnabledLoanDisbursement        bool   `envDefault:"false"                                    env:"LIMITS_GATE_ENABLED_LOAN_DISBURSEMENT"`
+	LimitsGateEnabledLoanRequestApproval     bool   `envDefault:"false"                                    env:"LIMITS_GATE_ENABLED_LOAN_REQUEST_APPROVAL"`
+	LimitsGateEnabledLoanRepayment           bool   `envDefault:"false"                                    env:"LIMITS_GATE_ENABLED_LOAN_REPAYMENT"`
 
 	DefaultGracePeriodDays   int `envDefault:"3"  env:"DEFAULT_GRACE_PERIOD_DAYS"`
 	DelinquencyThresholdDays int `envDefault:"7"  env:"DELINQUENCY_THRESHOLD_DAYS"`
