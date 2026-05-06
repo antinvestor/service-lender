@@ -122,7 +122,7 @@ func (s *ApprovalBusinessSuite) approvalEnv(tenantID, partitionID string) (
 		evaluator, resolver, auditing, dbPool, nil,
 	)
 	approvalBiz := business.NewApprovalBusiness(
-		approvalRepo, decisionRepo, resvRepo, policyRepo, evaluator, auditing, nil,
+		approvalRepo, decisionRepo, resvRepo, policyRepo, evaluator, auditing, nil, dbPool,
 	)
 
 	_ = policyVerRepo
@@ -514,6 +514,54 @@ func (s *ApprovalBusinessSuite) TestDecide_RequestExpired() {
 	var connectErr *connect.Error
 	s.Require().ErrorAs(err, &connectErr)
 	s.Equal(connect.CodeFailedPrecondition, connectErr.Code())
+}
+
+// TestDecide_Transactional_ApproveAndActivateAtomic verifies that the final
+// approval step (SetStatus→approved) and reservation activation (SetActive→active)
+// are applied atomically in a single transaction. After a successful Decide:
+//   - The ApprovalRequest row in DB must be APPROVED.
+//   - The Reservation row in DB must be ACTIVE (not still pending_approval).
+//
+// This is the positive assertion for the 2E transactional guarantee: both state
+// transitions land together or not at all. If they were not in a transaction, a
+// crash between the two writes would strand the reservation.
+func (s *ApprovalBusinessSuite) TestDecide_Transactional_ApproveAndActivateAtomic() {
+	ctx, approvalBiz, resvBiz, dbPool, policyRepo, _, approvalRepo := s.approvalEnv("tenant-a", "partition-a")
+
+	resvID := s.reservePendingApproval(ctx, resvBiz, policyRepo, 1000, 2000, 1)
+
+	rows, err := approvalRepo.ListByReservation(ctx, resvID)
+	s.Require().NoError(err)
+	s.Require().Len(rows, 1)
+	arID := rows[0].ID
+
+	ctxApprover := s.WithAuthClaims(ctx, "tenant-a", "partition-a", "wf-different")
+	resp, err := approvalBiz.Decide(ctxApprover, &limitsv1.ApprovalRequestDecideRequest{
+		Id:       arID,
+		Decision: "approve",
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+
+	// Verify the ApprovalRequest row in DB is APPROVED.
+	s.Equal(limitsv1.ApprovalStatus_APPROVAL_STATUS_APPROVED, resp.GetStatus(),
+		"approval request must be APPROVED after last required vote")
+
+	refreshedRows, err := approvalRepo.ListByReservation(ctx, resvID)
+	s.Require().NoError(err)
+	s.Require().Len(refreshedRows, 1)
+	s.Equal(models.ApprovalStatusApproved, refreshedRows[0].Status,
+		"approval row in DB must be APPROVED")
+
+	// Verify the reservation is now ACTIVE (not still pending_approval).
+	var resvStatus string
+	dbPool.DB(ctx, true).
+		Table("limits_reservations").
+		Where("id = ?", resvID).
+		Select("status").
+		Scan(&resvStatus)
+	s.Equal("active", resvStatus,
+		"reservation must be ACTIVE after all approvals are in — both writes must be in the same tx")
 }
 
 func TestApprovalBusinessSuite(t *testing.T) {

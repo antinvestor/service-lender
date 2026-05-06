@@ -16,6 +16,7 @@ package business_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -858,6 +859,74 @@ func (s *ReservationBusinessSuite) TestCheck_ApprovalRequired() {
 	s.True(checkResp.GetAllowed())
 	s.True(checkResp.GetRequiresApproval())
 	s.Equal(int32(2), checkResp.GetRequiredApprovers())
+}
+
+// TestReverse_Concurrent_OnlyOneSucceeds verifies that two concurrent Reverse
+// calls targeting the same committed reservation only produce one traceability row.
+// The advisory lock + status='committed' guard in SetReversedTx ensures exactly-once
+// semantics: the second goroutine must receive an error (FailedPrecondition) because
+// the reservation status is no longer 'committed' after the first reversal.
+func (s *ReservationBusinessSuite) TestReverse_Concurrent_OnlyOneSucceeds() {
+	ctx, biz, dbPool, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 100_000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	// 1. Reserve + Commit to produce a committed reservation.
+	intent := kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 1000)
+	reserveResp, err := biz.Reserve(ctx, intent, "concurrent-reverse-k1", 5*time.Minute)
+	s.Require().NoError(err)
+	resvID := reserveResp.GetReservation().GetId()
+	s.Require().NotEmpty(resvID)
+
+	_, err = biz.Commit(ctx, resvID)
+	s.Require().NoError(err)
+
+	// 2. Launch two concurrent Reverses with different idempotency keys.
+	type result struct {
+		resp *limitsv1.ReverseResponse
+		err  error
+	}
+	ch := make(chan result, 2)
+	for i := 0; i < 2; i++ {
+		idemKey := fmt.Sprintf("concurrent-reverse-rev-k%d", i)
+		go func(key string) {
+			resp, rerr := biz.Reverse(ctx, resvID, key, "concurrent test")
+			ch <- result{resp, rerr}
+		}(idemKey)
+	}
+
+	r1 := <-ch
+	r2 := <-ch
+
+	// 3. Exactly one must succeed and one must fail.
+	successCount := 0
+	failCount := 0
+	for _, r := range []result{r1, r2} {
+		if r.err == nil {
+			successCount++
+		} else {
+			failCount++
+			// The failing one must be FailedPrecondition (status guard blocked it).
+			var connectErr *connect.Error
+			s.Require().ErrorAs(r.err, &connectErr)
+			s.Equal(connect.CodeFailedPrecondition, connectErr.Code(),
+				"concurrent reverse loser must return FailedPrecondition")
+		}
+	}
+	s.Equal(1, successCount, "exactly one Reverse must succeed")
+	s.Equal(1, failCount, "exactly one Reverse must fail")
+
+	// 4. Verify only one traceability row exists.
+	var count int64
+	dbPool.DB(ctx, true).
+		Table("limits_reservations").
+		Where("reverses_reservation_id = ?", resvID).
+		Count(&count)
+	s.Equal(int64(1), count, "only one traceability row should be created")
 }
 
 func TestReservationBusinessSuite(t *testing.T) {
