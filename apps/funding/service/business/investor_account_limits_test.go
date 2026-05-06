@@ -292,6 +292,24 @@ func buildFundingBusiness(
 // Deposit tests
 // ---------------------------------------------------------------------------
 
+// TestInvestorDeposit_EmptyIdempotencyKey_Rejected verifies that Deposit
+// returns CodeInvalidArgument when the idempotency key is empty.
+func TestInvestorDeposit_EmptyIdempotencyKey_Rejected(t *testing.T) {
+	acct := validInvestorAccount()
+	iaRepo := &stubInvestorAccountRepo{account: acct}
+	limitsCli := &stubFundingLimitsClient{}
+
+	b := buildFundingBusiness(iaRepo, limitsCli, true, false)
+
+	err := b.Deposit(context.Background(), acct.GetID(), 10_000, "")
+	require.Error(t, err)
+
+	var connectErr *connect.Error
+	require.ErrorAs(t, err, &connectErr)
+	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
+	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be called when key is empty")
+}
+
 // TestInvestorDeposit_GateDisabled verifies that when limitsDepositEnabled=false
 // the Deposit method runs without touching the limits client.
 func TestInvestorDeposit_GateDisabled(t *testing.T) {
@@ -303,7 +321,7 @@ func TestInvestorDeposit_GateDisabled(t *testing.T) {
 
 	// depositInner will fail because operationsCli is nil — that's fine; we only
 	// care that the limits client was not consulted.
-	_ = b.Deposit(context.Background(), acct.GetID(), 10_000)
+	_ = b.Deposit(context.Background(), acct.GetID(), 10_000, "idem-deposit-disabled")
 	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be called when disabled")
 }
 
@@ -324,7 +342,7 @@ func TestInvestorDeposit_GateAllowed(t *testing.T) {
 	b := buildFundingBusiness(iaRepo, limitsCli, true, false)
 
 	// Inner will fail (no operationsCli), but the gate path is exercised.
-	_ = b.Deposit(context.Background(), acct.GetID(), 10_000)
+	_ = b.Deposit(context.Background(), acct.GetID(), 10_000, "idem-deposit-allowed")
 	assert.Equal(t, 1, limitsCli.reserveCalls)
 	// Commit is called only when inner succeeds; inner fails here so no commit.
 	// Gate releases on inner error.
@@ -343,7 +361,7 @@ func TestInvestorDeposit_GateDenied(t *testing.T) {
 
 	b := buildFundingBusiness(iaRepo, limitsCli, true, false)
 
-	err := b.Deposit(context.Background(), acct.GetID(), 10_000)
+	err := b.Deposit(context.Background(), acct.GetID(), 10_000, "idem-deposit-denied")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "deposit limit breached")
 	assert.Equal(t, 1, limitsCli.reserveCalls)
@@ -368,7 +386,7 @@ func TestInvestorDeposit_GatePending(t *testing.T) {
 
 	b := buildFundingBusiness(iaRepo, limitsCli, true, false)
 
-	err := b.Deposit(context.Background(), acct.GetID(), 10_000)
+	err := b.Deposit(context.Background(), acct.GetID(), 10_000, "idem-deposit-pending")
 	require.Error(t, err)
 
 	var pendingErr *limits.PendingApprovalError
@@ -384,6 +402,24 @@ func TestInvestorDeposit_GatePending(t *testing.T) {
 // Withdraw tests
 // ---------------------------------------------------------------------------
 
+// TestInvestorWithdraw_EmptyIdempotencyKey_Rejected verifies that Withdraw
+// returns CodeInvalidArgument when the idempotency key is empty.
+func TestInvestorWithdraw_EmptyIdempotencyKey_Rejected(t *testing.T) {
+	acct := validInvestorAccount()
+	iaRepo := &stubInvestorAccountRepo{account: acct}
+	limitsCli := &stubFundingLimitsClient{}
+
+	b := buildFundingBusiness(iaRepo, limitsCli, false, true)
+
+	err := b.Withdraw(context.Background(), acct.GetID(), 5_000, "")
+	require.Error(t, err)
+
+	var connectErr *connect.Error
+	require.ErrorAs(t, err, &connectErr)
+	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
+	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be called when key is empty")
+}
+
 // TestInvestorWithdraw_GateDisabled verifies that when limitsWithdrawEnabled=false
 // the Withdraw method runs without touching the limits client.
 func TestInvestorWithdraw_GateDisabled(t *testing.T) {
@@ -394,7 +430,7 @@ func TestInvestorWithdraw_GateDisabled(t *testing.T) {
 	b := buildFundingBusiness(iaRepo, limitsCli, false, false)
 
 	// withdrawInner will fail because operationsCli is nil — that's fine.
-	_ = b.Withdraw(context.Background(), acct.GetID(), 5_000)
+	_ = b.Withdraw(context.Background(), acct.GetID(), 5_000, "idem-withdraw-disabled")
 	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be called when disabled")
 }
 
@@ -415,7 +451,7 @@ func TestInvestorWithdraw_GateAllowed(t *testing.T) {
 	b := buildFundingBusiness(iaRepo, limitsCli, false, true)
 
 	// Inner will fail (no operationsCli); gate releases on inner error.
-	_ = b.Withdraw(context.Background(), acct.GetID(), 5_000)
+	_ = b.Withdraw(context.Background(), acct.GetID(), 5_000, "idem-withdraw-allowed")
 	assert.Equal(t, 1, limitsCli.reserveCalls)
 	assert.Equal(t, 0, limitsCli.commitCalls)
 	assert.Equal(t, 1, limitsCli.releaseCalls)
@@ -432,7 +468,7 @@ func TestInvestorWithdraw_GateDenied(t *testing.T) {
 
 	b := buildFundingBusiness(iaRepo, limitsCli, false, true)
 
-	err := b.Withdraw(context.Background(), acct.GetID(), 5_000)
+	err := b.Withdraw(context.Background(), acct.GetID(), 5_000, "idem-withdraw-denied")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "withdrawal limit breached")
 	assert.Equal(t, 1, limitsCli.reserveCalls)
@@ -457,7 +493,7 @@ func TestInvestorWithdraw_GatePending(t *testing.T) {
 
 	b := buildFundingBusiness(iaRepo, limitsCli, false, true)
 
-	err := b.Withdraw(context.Background(), acct.GetID(), 5_000)
+	err := b.Withdraw(context.Background(), acct.GetID(), 5_000, "idem-withdraw-pending")
 	require.Error(t, err)
 
 	var pendingErr *limits.PendingApprovalError

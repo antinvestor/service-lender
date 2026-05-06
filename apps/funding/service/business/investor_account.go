@@ -134,7 +134,13 @@ func (b *investorAccountBusiness) Deposit(
 	ctx context.Context,
 	accountID string,
 	amount int64,
+	idempotencyKey string,
 ) error {
+	if idempotencyKey == "" {
+		return connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("idempotency_key required"))
+	}
+
 	if !b.limitsDepositEnabled || b.limitsCli == nil || b.limitsDepositMode == "off" {
 		return b.depositInner(ctx, accountID, amount)
 	}
@@ -152,7 +158,7 @@ func (b *investorAccountBusiness) Deposit(
 			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: accountID},
 		},
 	}
-	idemKey := "funding_deposit:" + accountID
+	idemKey := "funding_deposit:" + accountID + ":" + idempotencyKey
 
 	return limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsDepositMode),
 		func(innerCtx context.Context, reservationID string) error {
@@ -251,7 +257,13 @@ func (b *investorAccountBusiness) Withdraw(
 	ctx context.Context,
 	accountID string,
 	amount int64,
+	idempotencyKey string,
 ) error {
+	if idempotencyKey == "" {
+		return connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("idempotency_key required"))
+	}
+
 	if !b.limitsWithdrawEnabled || b.limitsCli == nil || b.limitsWithdrawMode == "off" {
 		return b.withdrawInner(ctx, accountID, amount)
 	}
@@ -269,7 +281,7 @@ func (b *investorAccountBusiness) Withdraw(
 			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: accountID},
 		},
 	}
-	idemKey := "funding_withdraw:" + accountID
+	idemKey := "funding_withdraw:" + accountID + ":" + idempotencyKey
 
 	return limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsWithdrawMode),
 		func(innerCtx context.Context, reservationID string) error {

@@ -147,10 +147,11 @@ func (b *repaymentBusiness) Record(
 		Amount:   req.GetAmount(),
 		MakerId:  callerSubject(ctx),
 	}
-	idemKey := "loan_repayment:" + req.GetIdempotencyKey()
-	if idemKey == "loan_repayment:" {
-		idemKey = "loan_repayment:" + req.GetLoanAccountId()
+	if req.GetIdempotencyKey() == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("idempotency_key required"))
 	}
+	idemKey := "loan_repayment:" + req.GetLoanAccountId() + ":" + req.GetIdempotencyKey()
 
 	var result *loansv1.RepaymentObject
 	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),

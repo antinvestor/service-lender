@@ -341,6 +341,30 @@ func buildRepBusiness(
 // Tests
 // ---------------------------------------------------------------------------
 
+// TestRecord_EmptyIdempotencyKey_Rejected verifies that Record returns
+// CodeInvalidArgument when the idempotency key is absent and the gate is enabled.
+func TestRecord_EmptyIdempotencyKey_Rejected(t *testing.T) {
+	la := activeLoanAccountForRepayment()
+	laRepo := &stubLoanAccountRepo{account: la}
+	repRepo := &stubRepaymentRepo{findErr: errors.New("not found")}
+	limitsCli := &stubLimitsClient{}
+
+	b := buildRepBusiness(laRepo, repRepo, nil, limitsCli, true)
+
+	result, err := b.Record(context.Background(), &loansv1.RepaymentRecordRequest{
+		LoanAccountId: la.GetID(),
+		Amount:        moneyx.FromMinorUnitsByCurrency("KES", 5000),
+		// IdempotencyKey intentionally omitted
+	})
+	require.Error(t, err)
+	assert.Nil(t, result)
+
+	var connectErr *connect.Error
+	require.ErrorAs(t, err, &connectErr)
+	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
+	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be reached when key is empty")
+}
+
 // TestRecord_GateDisabled_BehavesAsBefore verifies that when
 // limitsGateEnabled=false the Record method calls recordInner directly
 // (bypasses Gate entirely) and returns a repayment object.

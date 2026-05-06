@@ -47,8 +47,8 @@ type InvestorAccountBusiness interface {
 	Create(ctx context.Context, account *models.InvestorAccount) (*models.InvestorAccount, error)
 	Get(ctx context.Context, accountID string) (*models.InvestorAccount, error)
 	GetByInvestorID(ctx context.Context, investorID string) ([]*models.InvestorAccount, error)
-	Deposit(ctx context.Context, accountID string, amount int64) error
-	Withdraw(ctx context.Context, accountID string, amount int64) error
+	Deposit(ctx context.Context, accountID string, amount int64, idempotencyKey string) error
+	Withdraw(ctx context.Context, accountID string, amount int64, idempotencyKey string) error
 	GetAvailable(ctx context.Context, accountID string) (int64, error)
 	ReserveBalance(ctx context.Context, accountID string, amount int64) error
 	ReleaseBalance(ctx context.Context, accountID string, principalReturned int64, interestEarned int64) error

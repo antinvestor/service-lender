@@ -105,6 +105,11 @@ func (b *disbursementBusiness) Create(
 		}
 	}
 
+	if req.GetIdempotencyKey() == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("idempotency_key required for loan disbursement"))
+	}
+
 	if !b.limitsGateEnabled || b.limitsCli == nil || b.limitsGateMode == "off" {
 		return b.createInner(ctx, req)
 	}

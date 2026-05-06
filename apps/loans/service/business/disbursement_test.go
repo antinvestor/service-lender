@@ -372,6 +372,30 @@ func buildDisbBusiness(
 // Tests
 // ---------------------------------------------------------------------------
 
+// TestCreate_EmptyIdempotencyKey_Rejected verifies that Create returns
+// CodeInvalidArgument when the idempotency key is absent.
+func TestCreate_EmptyIdempotencyKey_Rejected(t *testing.T) {
+	la := pendingDisbursementLA()
+	disbRepo := &stubDisbursementRepo{findErr: errors.New("not found")}
+	laRepo := &stubLoanAccountRepo{account: la}
+	limitsCli := &stubLimitsClient{}
+
+	b := buildDisbBusiness(disbRepo, laRepo, nil, limitsCli, true)
+
+	result, err := b.Create(context.Background(), &loansv1.DisbursementCreateRequest{
+		LoanAccountId: la.GetID(),
+		Channel:       "BANK",
+		// IdempotencyKey intentionally omitted
+	})
+	require.Error(t, err)
+	assert.Nil(t, result)
+
+	var connectErr *connect.Error
+	require.ErrorAs(t, err, &connectErr)
+	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
+	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be reached when key is empty")
+}
+
 // TestCreate_GateDisabled_BehavesAsBefore verifies that when
 // limitsGateEnabled=false the Create method calls createInner directly
 // (bypasses Gate entirely) and returns a disbursement object.

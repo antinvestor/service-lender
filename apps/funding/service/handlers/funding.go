@@ -16,6 +16,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
@@ -121,9 +122,15 @@ func (s *FundingServer) InvestorDeposit(
 	ctx context.Context,
 	req *connect.Request[fundingv1.InvestorDepositRequest],
 ) (*connect.Response[fundingv1.InvestorDepositResponse], error) {
+	idemKey := req.Header().Get("Idempotency-Key")
+	if idemKey == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("Idempotency-Key header required"))
+	}
+
 	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
-	err := s.iaBusiness.Deposit(ctx, req.Msg.GetAccountId(), amount)
+	err := s.iaBusiness.Deposit(ctx, req.Msg.GetAccountId(), amount, idemKey)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}
@@ -144,9 +151,15 @@ func (s *FundingServer) InvestorWithdraw(
 	ctx context.Context,
 	req *connect.Request[fundingv1.InvestorWithdrawRequest],
 ) (*connect.Response[fundingv1.InvestorWithdrawResponse], error) {
+	idemKey := req.Header().Get("Idempotency-Key")
+	if idemKey == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("Idempotency-Key header required"))
+	}
+
 	amount := moneyx.ToSmallestUnit(req.Msg.GetAmount(), moneyDecimalPlaces)
 
-	err := s.iaBusiness.Withdraw(ctx, req.Msg.GetAccountId(), amount)
+	err := s.iaBusiness.Withdraw(ctx, req.Msg.GetAccountId(), amount, idemKey)
 	if err != nil {
 		return nil, apperrors.CleanErr(err)
 	}

@@ -427,6 +427,28 @@ func defaultTransferOpsClient() *stubDepositOperationsClient {
 // Tests
 // ---------------------------------------------------------------------------
 
+// TestDepositRecord_EmptyIdempotencyKey_Rejected verifies that Record returns
+// CodeInvalidArgument when the idempotency key is empty and the gate is enabled.
+func TestDepositRecord_EmptyIdempotencyKey_Rejected(t *testing.T) {
+	sa := activeSavingsAccount()
+	depRepo := &stubDepositRepo{findErr: errors.New("not found")}
+	saRepo := &stubSavingsAccountRepo{account: sa}
+	sbRepo := &stubSavingsBalanceRepo{}
+	limitsCli := &stubDepositLimitsClient{}
+
+	b := buildDepositBusiness(depRepo, saRepo, sbRepo, nil, limitsCli, true)
+
+	result, err := b.Record(context.Background(),
+		sa.GetID(), "100", "pay-ref", "MOBILE", "payer-ref", "")
+	require.Error(t, err)
+	assert.Nil(t, result)
+
+	var connectErr *connect.Error
+	require.ErrorAs(t, err, &connectErr)
+	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
+	assert.Equal(t, 0, limitsCli.reserveCalls, "gate must not be reached when key is empty")
+}
+
 // TestDepositRecord_GateDisabled verifies that when limitsGateEnabled=false
 // the Record method runs without touching the limits client.
 func TestDepositRecord_GateDisabled(t *testing.T) {

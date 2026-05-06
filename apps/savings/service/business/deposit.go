@@ -152,10 +152,11 @@ func (b *depositBusiness) Record(
 			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: accountID},
 		},
 	}
-	idemKey := idempotencyKey
-	if idemKey == "" {
-		idemKey = util.IDString()
+	if idempotencyKey == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			fmt.Errorf("idempotency_key required for savings deposit"))
 	}
+	idemKey := idempotencyKey
 
 	var result *savingsv1.DepositObject
 	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey, limits.ParseMode(b.limitsGateMode),
