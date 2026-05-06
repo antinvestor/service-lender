@@ -24,6 +24,8 @@ import (
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
 	ledgerv1 "buf.build/gen/go/antinvestor/ledger/protocolbuffers/go/v1"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	paymentv1 "buf.build/gen/go/antinvestor/payment/protocolbuffers/go/v1"
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
@@ -40,6 +42,7 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 const (
@@ -50,15 +53,17 @@ const (
 )
 
 type transferOrderBusiness struct {
-	eventsMan   fevents.Manager
-	toRepo      repository.TransferOrderRepository
-	csRepo      repository.CBSSyncRecordRepository
-	arRepo      repository.AccountRefRepository
-	lfRepo      LoanFundingReader
-	ftRepo      FundingTrancheManager
-	iaRepo      InvestorAccountManager
-	clients     *clients.PlatformClients
-	auditWriter *audit.Writer
+	eventsMan         fevents.Manager
+	toRepo            repository.TransferOrderRepository
+	csRepo            repository.CBSSyncRecordRepository
+	arRepo            repository.AccountRefRepository
+	lfRepo            LoanFundingReader
+	ftRepo            FundingTrancheManager
+	iaRepo            InvestorAccountManager
+	clients           *clients.PlatformClients
+	auditWriter       *audit.Writer
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewTransferOrderBusiness(
@@ -72,17 +77,21 @@ func NewTransferOrderBusiness(
 	iaRepo InvestorAccountManager,
 	pc *clients.PlatformClients,
 	auditWriter *audit.Writer,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) TransferOrderBusiness {
 	return &transferOrderBusiness{
-		eventsMan:   eventsMan,
-		toRepo:      toRepo,
-		csRepo:      csRepo,
-		arRepo:      arRepo,
-		lfRepo:      lfRepo,
-		ftRepo:      ftRepo,
-		iaRepo:      iaRepo,
-		clients:     pc,
-		auditWriter: auditWriter,
+		eventsMan:         eventsMan,
+		toRepo:            toRepo,
+		csRepo:            csRepo,
+		arRepo:            arRepo,
+		lfRepo:            lfRepo,
+		ftRepo:            ftRepo,
+		iaRepo:            iaRepo,
+		clients:           pc,
+		auditWriter:       auditWriter,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
@@ -122,7 +131,40 @@ func (b *transferOrderBusiness) Save(ctx context.Context, order *models.Transfer
 //  4. Run type-specific side effects (e.g. loan repayment notifies Lender)
 //  5. Log a CBS sync record for external reconciliation
 //  6. Mark the transfer order as completed
+//
+// When the limits gate is enabled, a reservation is obtained from the limits
+// service before execution proceeds. DENY returns an error; PENDING_APPROVAL
+// returns PendingApprovalError.
 func (b *transferOrderBusiness) Execute(ctx context.Context, orderID string) error {
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.executeInner(ctx, orderID)
+	}
+
+	order, err := b.toRepo.GetByID(ctx, orderID)
+	if err != nil {
+		return fmt.Errorf("transfer order not found: %w", err)
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_TRANSFER_ORDER_EXECUTE,
+		TenantId: order.TenantID,
+		Amount:   minorToMoney(order.Currency, order.Amount),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: order.DebitAccountRef},
+		},
+	}
+	idemKey := "operations_transfer:" + orderID
+
+	return limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).
+				Info("transfer order execute gated by limits")
+			return b.executeInner(innerCtx, orderID)
+		})
+}
+
+// executeInner runs the core transfer order execution logic after any gate check.
+func (b *transferOrderBusiness) executeInner(ctx context.Context, orderID string) error {
 	logger := util.Log(ctx).WithField("method", "TransferOrderBusiness.Execute").
 		WithField("order_id", orderID)
 
