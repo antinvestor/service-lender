@@ -17,6 +17,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	limitspb "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
@@ -36,6 +37,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/limits/service/business"
 	"github.com/antinvestor/service-fintech/apps/limits/service/handlers"
 	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
+	"github.com/antinvestor/service-fintech/pkg/audit"
 )
 
 const namespaceTenancyAccess = "tenancy_access"
@@ -64,6 +66,7 @@ func main() {
 	sm := svc.SecurityManager()
 	dbManager := svc.DatastoreManager()
 	workMan := svc.WorkManager()
+	evtsMan := svc.EventsManager()
 
 	// Handle database migration if requested.
 	if handleDatabaseMigration(ctx, dbManager, cfg) {
@@ -77,26 +80,63 @@ func main() {
 		return
 	}
 
-	// Initialise repositories.
+	// ─── Repositories ──────────────────────────────────────────────────
 	policyRepo := repository.NewPolicyRepository(ctx, dbPool, workMan)
 	policyVerRepo := repository.NewPolicyVersionRepository(ctx, dbPool, workMan)
+	reservationRepo := repository.NewReservationRepository(ctx, dbPool, workMan)
+	ledgerRepo := repository.NewLedgerRepository(ctx, dbPool, workMan)
+	approvalRepo := repository.NewApprovalRequestRepository(ctx, dbPool, workMan)
+	decisionRepo := repository.NewApprovalDecisionRepository(ctx, dbPool, workMan)
+	subjAttrRepo := repository.NewSubjectAttributeRepository(ctx, dbPool, workMan)
+	candidateRepo := repository.NewCandidatePolicyRepository(dbPool)
+	auditRepo := audit.NewRepository(ctx, dbPool, workMan)
 
-	// Initialise business logic.
+	// ─── Audit infrastructure ─────────────────────────────────────────
+	auditWriter := audit.NewWriter(evtsMan)
+	auditing := business.NewAuditing(auditWriter)
+	eventSave := audit.NewEventSave(ctx, auditRepo)
+
+	// ─── Business layer ───────────────────────────────────────────────
 	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo)
+	evaluator := business.NewEvaluator(reservationRepo, ledgerRepo)
+	resolver := business.NewAttributeResolver(
+		subjAttrRepo,
+		nil, // identity client wired in a later task
+		time.Duration(cfg.SubjectAttributeCacheTTLSeconds)*time.Second,
+	)
+	reservationBiz := business.NewReservationBusiness(
+		reservationRepo, ledgerRepo, candidateRepo, approvalRepo, policyRepo,
+		evaluator, resolver, auditing, dbPool,
+	)
+	approvalBiz := business.NewApprovalBusiness(
+		approvalRepo, decisionRepo, reservationRepo, policyRepo,
+		evaluator, auditing,
+	)
+	ledgerSearchBiz := business.NewLedgerSearchBusiness(ledgerRepo)
+	auditSearchBiz := business.NewAuditSearchBusiness(dbPool)
 
-	// Initialise handler (approval and ledger wired in Task 19; nil is safe here
-	// as the Unimplemented embed handles missing deps until the full stack lands).
-	adminH := handlers.NewAdminService(policyBiz, nil, nil, nil)
+	// ─── Handlers ─────────────────────────────────────────────────────
+	runtimeH := handlers.NewRuntimeService(reservationBiz)
+	adminH := handlers.NewAdminService(policyBiz, approvalBiz, ledgerSearchBiz, auditSearchBiz)
 
-	// Build Connect RPC server.
-	connectHandler := setupConnectServer(ctx, sm, adminH)
+	// ─── Connect RPC server ────────────────────────────────────────────
+	connectHandler := setupConnectServer(ctx, sm, runtimeH, adminH)
 
-	// Register service descriptor for permission registration.
-	sd := limitspb.File_limits_v1_limits_proto.Services().ByName("LimitsAdminService")
+	// ─── Reapers ──────────────────────────────────────────────────────
+	resvReaper := business.NewReservationReaper(reservationRepo, auditing, 1000)
+	approvalReaper := business.NewApprovalReaper(approvalRepo, reservationRepo, auditing, 1000)
+	go runPeriodically(ctx, 30*time.Second, resvReaper.Run)
+	go runPeriodically(ctx, 30*time.Second, approvalReaper.Run)
+
+	// ─── Permission registration + EventSave + Run ────────────────────
+	limitsAdminSD := limitspb.File_limits_v1_limits_proto.Services().ByName("LimitsAdminService")
+	limitsRuntimeSD := limitspb.File_limits_v1_limits_proto.Services().ByName("LimitsService")
 
 	serviceOptions := []frame.Option{
 		frame.WithHTTPHandler(connectHandler),
-		frame.WithPermissionRegistration(sd),
+		frame.WithPermissionRegistration(limitsAdminSD),
+		frame.WithPermissionRegistration(limitsRuntimeSD),
+		frame.WithRegisterEvents(eventSave),
 	}
 
 	svc.Init(ctx, serviceOptions...)
@@ -122,38 +162,90 @@ func handleDatabaseMigration(
 	return false
 }
 
+// setupConnectServer mounts both LimitsService (runtime) and LimitsAdminService
+// (control plane) on the provided HTTP mux, each wrapped in the standard
+// authenticate + RBAC + audit interceptor stack.
 func setupConnectServer(
 	ctx context.Context,
 	sm security.Manager,
+	runtimeH *handlers.RuntimeService,
 	adminH *handlers.AdminService,
 ) http.Handler {
 	auth := sm.GetAuthorizer(ctx)
-
-	// Layer 1: TenancyAccessChecker verifies caller can access the partition.
-	tenancyAccessChecker := authorizer.NewTenancyAccessChecker(auth, namespaceTenancyAccess)
-	tenancyAccessInterceptor := connectInterceptors.NewTenancyAccessInterceptor(tenancyAccessChecker)
-
-	// Layer 2: FunctionAccessInterceptor enforces per-RPC permissions from proto annotations.
-	sd := limitspb.File_limits_v1_limits_proto.Services().ByName("LimitsAdminService")
-	procMap := permissions.BuildProcedureMap(sd)
-	svcPerms := permissions.ForService(sd)
-	functionChecker := authorizer.NewFunctionChecker(auth, svcPerms.Namespace)
-	functionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(functionChecker, procMap)
-
+	authenticator := sm.GetAuthenticator(ctx)
 	limitsAuditInterceptor := auditmw.NewInterceptor("service_limits", nil)
-	defaultInterceptorList, err := connectInterceptors.DefaultList(
-		ctx, sm.GetAuthenticator(ctx), tenancyAccessInterceptor, functionAccessInterceptor, limitsAuditInterceptor)
+
+	// ─── Runtime service (LimitsService) ─────────────────────────────
+	runtimeSD := limitspb.File_limits_v1_limits_proto.Services().ByName("LimitsService")
+	runtimeProcMap := permissions.BuildProcedureMap(runtimeSD)
+	runtimeSvcPerms := permissions.ForService(runtimeSD)
+	runtimeFunctionChecker := authorizer.NewFunctionChecker(auth, runtimeSvcPerms.Namespace)
+	runtimeFunctionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(
+		runtimeFunctionChecker,
+		runtimeProcMap,
+	)
+
+	runtimeTenancyChecker := authorizer.NewTenancyAccessChecker(auth, namespaceTenancyAccess)
+	runtimeTenancyInterceptor := connectInterceptors.NewTenancyAccessInterceptor(runtimeTenancyChecker)
+
+	runtimeInterceptors, err := connectInterceptors.DefaultList(
+		ctx, authenticator,
+		runtimeTenancyInterceptor, runtimeFunctionAccessInterceptor, limitsAuditInterceptor,
+	)
 	if err != nil {
-		util.Log(ctx).WithError(err).Fatal("main -- Could not create default interceptors")
+		util.Log(ctx).WithError(err).Fatal("main -- Could not create runtime interceptors")
 	}
 
-	interceptorOption := connect.WithInterceptors(defaultInterceptorList...)
+	runtimePath, runtimeHandler := limitsv1connect.NewLimitsServiceHandler(
+		runtimeH,
+		connect.WithInterceptors(runtimeInterceptors...),
+	)
 
-	// Register the limits admin service on the mux.
-	limitsPath, limitsServerHandler := limitsv1connect.NewLimitsAdminServiceHandler(adminH, interceptorOption)
+	// ─── Admin service (LimitsAdminService) ───────────────────────────
+	adminSD := limitspb.File_limits_v1_limits_proto.Services().ByName("LimitsAdminService")
+	adminProcMap := permissions.BuildProcedureMap(adminSD)
+	adminSvcPerms := permissions.ForService(adminSD)
+	adminFunctionChecker := authorizer.NewFunctionChecker(auth, adminSvcPerms.Namespace)
+	adminFunctionAccessInterceptor := connectInterceptors.NewFunctionAccessInterceptor(
+		adminFunctionChecker,
+		adminProcMap,
+	)
+
+	adminTenancyChecker := authorizer.NewTenancyAccessChecker(auth, namespaceTenancyAccess)
+	adminTenancyInterceptor := connectInterceptors.NewTenancyAccessInterceptor(adminTenancyChecker)
+
+	adminInterceptors, err := connectInterceptors.DefaultList(
+		ctx, authenticator,
+		adminTenancyInterceptor, adminFunctionAccessInterceptor, limitsAuditInterceptor,
+	)
+	if err != nil {
+		util.Log(ctx).WithError(err).Fatal("main -- Could not create admin interceptors")
+	}
+
+	adminPath, adminHandler := limitsv1connect.NewLimitsAdminServiceHandler(
+		adminH,
+		connect.WithInterceptors(adminInterceptors...),
+	)
 
 	mux := http.NewServeMux()
-	mux.Handle(limitsPath, limitsServerHandler)
+	mux.Handle(runtimePath, runtimeHandler)
+	mux.Handle(adminPath, adminHandler)
 
 	return mux
+}
+
+// runPeriodically calls fn on the given interval until ctx is cancelled.
+func runPeriodically(ctx context.Context, interval time.Duration, fn func(context.Context) error) {
+	t := time.NewTicker(interval)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			if err := fn(ctx); err != nil {
+				util.Log(ctx).WithError(err).Error("reaper run failed")
+			}
+		}
+	}
 }
