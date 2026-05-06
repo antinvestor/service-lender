@@ -22,6 +22,7 @@ import (
 	"github.com/pitabwire/frame/datastore/pool"
 	"github.com/pitabwire/frame/datastore/scopes"
 	"github.com/pitabwire/frame/workerpool"
+	"github.com/pitabwire/util"
 
 	"github.com/antinvestor/service-fintech/apps/limits/service/models"
 )
@@ -132,4 +133,42 @@ func (r *policyRepository) Search(
 // Delete soft-deletes a Policy by its ID.
 func (r *policyRepository) Delete(ctx context.Context, id string) error {
 	return r.BaseRepository.Delete(ctx, id)
+}
+
+// PolicyVersionRepository persists immutable policy snapshots.
+type PolicyVersionRepository interface {
+	Append(ctx context.Context, v *models.PolicyVersion) error
+	List(ctx context.Context, policyID string) ([]*models.PolicyVersion, error)
+}
+
+type policyVersionRepository struct {
+	datastore.BaseRepository[*models.PolicyVersion]
+	dbPool pool.Pool
+}
+
+// NewPolicyVersionRepository constructs a PolicyVersionRepository.
+func NewPolicyVersionRepository(ctx context.Context, p pool.Pool, workMan workerpool.Manager) PolicyVersionRepository {
+	r := &policyVersionRepository{dbPool: p}
+	r.BaseRepository = datastore.NewBaseRepository[*models.PolicyVersion](
+		ctx, p, workMan,
+		func() *models.PolicyVersion { return &models.PolicyVersion{} },
+	)
+	return r
+}
+
+func (r *policyVersionRepository) Append(ctx context.Context, v *models.PolicyVersion) error {
+	if v.ID == "" {
+		v.ID = util.IDString()
+	}
+	return r.BaseRepository.Create(ctx, v)
+}
+
+func (r *policyVersionRepository) List(ctx context.Context, policyID string) ([]*models.PolicyVersion, error) {
+	var rows []*models.PolicyVersion
+	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	err := db.Model(&models.PolicyVersion{}).
+		Where("policy_id = ?", policyID).
+		Order("version ASC").
+		Find(&rows).Error
+	return rows, err
 }

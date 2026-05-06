@@ -1,0 +1,213 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package business holds the limits service domain logic. PolicyBusiness
+// coordinates the policy repository, the version-snapshot repository, and
+// the audit middleware for every Save/Delete.
+package business
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
+	"github.com/pitabwire/util"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/antinvestor/service-fintech/apps/limits/service/models"
+	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
+)
+
+// PolicyBusiness is the service-layer entry point for policy management.
+type PolicyBusiness interface {
+	Save(ctx context.Context, in *limitsv1.PolicyObject) (*limitsv1.PolicyObject, error)
+	Get(ctx context.Context, id string) (*limitsv1.PolicyObject, error)
+	Search(
+		ctx context.Context,
+		req *limitsv1.PolicySearchRequest,
+		batch func(ctx context.Context, items []*limitsv1.PolicyObject) error,
+	) error
+	Delete(ctx context.Context, id string) error
+	ListVersions(ctx context.Context, policyID string) ([]*limitsv1.PolicyObject, error)
+}
+
+type policyBusiness struct {
+	repo    repository.PolicyRepository
+	verRepo repository.PolicyVersionRepository
+}
+
+// NewPolicyBusiness wires up dependencies. Caller is responsible for
+// passing the audit-middleware-wrapped context.
+func NewPolicyBusiness(repo repository.PolicyRepository, verRepo repository.PolicyVersionRepository) PolicyBusiness {
+	return &policyBusiness{repo: repo, verRepo: verRepo}
+}
+
+func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*limitsv1.PolicyObject, error) {
+	log := util.Log(ctx).WithField("method", "PolicyBusiness.Save")
+
+	pol, err := models.PolicyFromAPI(in)
+	if err != nil {
+		log.WithError(err).Warn("invalid policy input")
+		return nil, fmt.Errorf("%w: %s", ErrInvalidPolicy, err.Error())
+	}
+
+	if err := validatePolicy(pol); err != nil {
+		return nil, err
+	}
+
+	// Snapshot version counter is managed separately from data.BaseModel.Version
+	// (which is Frame's optimistic-lock counter). We derive the next snapshot
+	// version by inspecting existing version rows.
+	var snapshotVersion int32
+
+	isUpdate := pol.ID != ""
+	if isUpdate {
+		prior, err := b.repo.Get(ctx, pol.ID)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %s", ErrPolicyNotFound, err.Error())
+		}
+		// Preserve immutable fields so Frame's BeforeUpdate does not lose them.
+		pol.CreatedAt = prior.CreatedAt
+		pol.CreatedBy = prior.CreatedBy
+		// Carry the Frame optimistic-lock version so BeforeUpdate increments it correctly.
+		pol.Version = prior.Version
+
+		existing, err := b.verRepo.List(ctx, pol.ID)
+		if err != nil {
+			log.WithError(err).Warn("could not count existing versions; defaulting to 1")
+			snapshotVersion = 1
+		} else {
+			snapshotVersion = int32(len(existing)) + 1 //nolint:gosec
+		}
+	} else {
+		snapshotVersion = 1
+	}
+
+	if err := b.repo.Save(ctx, pol); err != nil {
+		return nil, err
+	}
+
+	// Append the version snapshot using protojson for canonical proto JSON.
+	// Expose snapshotVersion via the proto Version field for the response only.
+	apiOut := pol.ToAPI()
+	apiOut.Version = snapshotVersion
+
+	snapshot, err := protojson.Marshal(apiOut)
+	if err != nil {
+		log.WithError(err).Error("failed to marshal policy snapshot")
+		return apiOut, nil
+	}
+	if err := b.verRepo.Append(ctx, &models.PolicyVersion{
+		PolicyID: pol.ID,
+		Version:  snapshotVersion,
+		Snapshot: snapshot,
+	}); err != nil {
+		// Audit-only: log and continue. The policy is saved; missing version
+		// rows are recoverable via reconciliation.
+		log.WithError(err).Error("failed to append policy version snapshot")
+	}
+
+	return apiOut, nil
+}
+
+func (b *policyBusiness) Get(ctx context.Context, id string) (*limitsv1.PolicyObject, error) {
+	pol, err := b.repo.Get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrPolicyNotFound, err.Error())
+	}
+	return pol.ToAPI(), nil
+}
+
+func (b *policyBusiness) Search(ctx context.Context, req *limitsv1.PolicySearchRequest,
+	batch func(ctx context.Context, items []*limitsv1.PolicyObject) error) error {
+	const pageSize = 50
+	cursor := ""
+	if req.GetCursor() != nil {
+		cursor = req.GetCursor().GetPage()
+	}
+	for {
+		filter := repository.PolicySearchFilter{
+			Query:     req.GetQuery(),
+			OrgUnitID: req.GetOrgUnitId(),
+		}
+		if a, err := models.ActionFromAPISafe(req.GetAction()); err == nil {
+			filter.Action = a
+		}
+		if s, err := models.SubjectFromAPISafe(req.GetSubjectType()); err == nil {
+			filter.SubjectType = s
+		}
+		if m, err := models.ModeFromAPISafe(req.GetMode()); err == nil {
+			filter.Mode = m
+		}
+		out, err := b.repo.Search(ctx, filter, pageSize, cursor)
+		if err != nil {
+			return err
+		}
+		api := make([]*limitsv1.PolicyObject, len(out.Items))
+		for i, p := range out.Items {
+			api[i] = p.ToAPI()
+		}
+		if err := batch(ctx, api); err != nil {
+			return err
+		}
+		if out.NextCursor == "" {
+			return nil
+		}
+		cursor = out.NextCursor
+	}
+}
+
+func (b *policyBusiness) Delete(ctx context.Context, id string) error {
+	if _, err := b.repo.Get(ctx, id); err != nil {
+		return fmt.Errorf("%w: %s", ErrPolicyNotFound, err.Error())
+	}
+	return b.repo.Delete(ctx, id)
+}
+
+func (b *policyBusiness) ListVersions(ctx context.Context, policyID string) ([]*limitsv1.PolicyObject, error) {
+	rows, err := b.verRepo.List(ctx, policyID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*limitsv1.PolicyObject, 0, len(rows))
+	for _, r := range rows {
+		var snap limitsv1.PolicyObject
+		if err := protojson.Unmarshal(r.Snapshot, &snap); err != nil {
+			continue
+		}
+		snap.ModifiedAt = timestamppb.New(r.CreatedAt)
+		out = append(out, &snap)
+	}
+	return out, nil
+}
+
+func validatePolicy(p *models.Policy) error {
+	if p.LimitKind == models.KindRollingWindowAmount || p.LimitKind == models.KindRollingWindowCount {
+		if p.WindowSeconds <= 0 {
+			return fmt.Errorf("%w: rolling kind requires window > 0", ErrInvalidPolicy)
+		}
+	}
+	if p.LimitKind != models.KindRollingWindowCount && p.CurrencyCode == "" {
+		return fmt.Errorf("%w: currency_code required for amount kinds", ErrInvalidPolicy)
+	}
+	if p.EffectiveFrom.IsZero() {
+		p.EffectiveFrom = time.Now().UTC()
+	}
+	if p.EffectiveTo != nil && !p.EffectiveTo.After(p.EffectiveFrom) {
+		return fmt.Errorf("%w: effective_to must be after effective_from", ErrInvalidPolicy)
+	}
+	return nil
+}

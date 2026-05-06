@@ -236,6 +236,31 @@ func marshalApproverTiers(tiers []*limitsv1.ApproverTier) ([]byte, error) {
 	return json.Marshal(out)
 }
 
+// ActionFromAPISafe returns ("", nil) for UNSPECIFIED so callers can use a
+// zero-valued enum in search filters meaning "any action".
+func ActionFromAPISafe(a limitsv1.LimitAction) (Action, error) {
+	if a == limitsv1.LimitAction_LIMIT_ACTION_UNSPECIFIED {
+		return "", nil
+	}
+	return actionFromAPI(a)
+}
+
+// SubjectFromAPISafe is the search-friendly variant of subjectFromAPI.
+func SubjectFromAPISafe(s limitsv1.SubjectType) (Subject, error) {
+	if s == limitsv1.SubjectType_SUBJECT_TYPE_UNSPECIFIED {
+		return "", nil
+	}
+	return subjectFromAPI(s)
+}
+
+// ModeFromAPISafe is the search-friendly variant of modeFromAPI.
+func ModeFromAPISafe(m limitsv1.PolicyMode) (Mode, error) {
+	if m == limitsv1.PolicyMode_POLICY_MODE_UNSPECIFIED {
+		return "", nil
+	}
+	return modeFromAPI(m)
+}
+
 func unmarshalApproverTiers(b []byte) ([]*limitsv1.ApproverTier, error) {
 	if len(b) == 0 {
 		return nil, nil
