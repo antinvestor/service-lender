@@ -94,7 +94,7 @@ func (s *PolicyBusinessSuite) buildPolicyBizWithStub(
 	workMan := svc.WorkManager()
 	policyRepo := repository.NewPolicyRepository(ctx, dbPool, workMan)
 	versionRepo := repository.NewPolicyVersionRepository(ctx, dbPool, workMan)
-	return business.NewPolicyBusiness(policyRepo, versionRepo, stub, nil, nil)
+	return business.NewPolicyBusiness(policyRepo, versionRepo, stub, nil, nil, nil)
 }
 
 // TestSaveEmitsPolicyInvalidate verifies that Save emits

@@ -140,7 +140,7 @@ func (s *AdminIntegrationSuite) SetupTest() {
 	workMan := svc.WorkManager()
 	policyRepo := repository.NewPolicyRepository(ctx, dbPool, workMan)
 	versionRepo := repository.NewPolicyVersionRepository(ctx, dbPool, workMan)
-	biz := business.NewPolicyBusiness(policyRepo, versionRepo, nil, nil, nil)
+	biz := business.NewPolicyBusiness(policyRepo, versionRepo, nil, nil, nil, nil)
 	adminH := handlers.NewAdminService(biz, nil, nil, nil)
 
 	// Mount the handler with the fixedClaimsInterceptor so the business layer

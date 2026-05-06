@@ -88,7 +88,8 @@ func main() {
 	approvalRepo := repository.NewApprovalRequestRepository(ctx, dbPool, workMan)
 	decisionRepo := repository.NewApprovalDecisionRepository(ctx, dbPool, workMan)
 	subjAttrRepo := repository.NewSubjectAttributeRepository(ctx, dbPool, workMan)
-	candidateRepo := repository.NewCandidatePolicyRepository(dbPool)
+	candidatePolicyRepo := repository.NewCandidatePolicyRepository(dbPool)
+	candidateRepo := business.NewPolicyCache(candidatePolicyRepo)
 	auditRepo := audit.NewRepository(ctx, dbPool, workMan)
 
 	// ─── Audit infrastructure ─────────────────────────────────────────
@@ -97,7 +98,7 @@ func main() {
 	eventSave := audit.NewEventSave(ctx, auditRepo)
 
 	// ─── Business layer ───────────────────────────────────────────────
-	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo, evtsMan, auditing, dbPool)
+	policyBiz := business.NewPolicyBusiness(policyRepo, policyVerRepo, evtsMan, auditing, dbPool, candidateRepo)
 	evaluator := business.NewEvaluator(reservationRepo, ledgerRepo)
 	resolver := business.NewAttributeResolver(
 		subjAttrRepo,

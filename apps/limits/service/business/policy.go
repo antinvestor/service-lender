@@ -48,25 +48,31 @@ type PolicyBusiness interface {
 }
 
 type policyBusiness struct {
-	repo      repository.PolicyRepository
-	verRepo   repository.PolicyVersionRepository
-	eventsMan fevents.Manager
-	auditing  *Auditing
-	dbPool    pool.Pool
+	repo        repository.PolicyRepository
+	verRepo     repository.PolicyVersionRepository
+	eventsMan   fevents.Manager
+	auditing    *Auditing
+	dbPool      pool.Pool
+	policyCache *PolicyCache
 }
 
 // NewPolicyBusiness wires up dependencies. Caller is responsible for
 // passing the audit-middleware-wrapped context. eventsMan may be nil,
 // in which case event emission is a no-op. auditing and dbPool may be nil,
-// in which case audit emission is skipped.
+// in which case audit emission is skipped. policyCache may be nil, in which
+// case cache invalidation on Save/Delete is a no-op.
 func NewPolicyBusiness(
 	repo repository.PolicyRepository,
 	verRepo repository.PolicyVersionRepository,
 	eventsMan fevents.Manager,
 	auditing *Auditing,
 	dbPool pool.Pool,
+	policyCache *PolicyCache,
 ) PolicyBusiness {
-	return &policyBusiness{repo: repo, verRepo: verRepo, eventsMan: eventsMan, auditing: auditing, dbPool: dbPool}
+	return &policyBusiness{
+		repo: repo, verRepo: verRepo, eventsMan: eventsMan,
+		auditing: auditing, dbPool: dbPool, policyCache: policyCache,
+	}
 }
 
 func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*limitsv1.PolicyObject, error) {
@@ -166,6 +172,10 @@ func (b *policyBusiness) Save(ctx context.Context, in *limitsv1.PolicyObject) (*
 		}
 	}
 
+	if b.policyCache != nil {
+		b.policyCache.InvalidateTenant(pol.TenantID)
+	}
+
 	emitEvent(ctx, b.eventsMan, events.EventPolicyInvalidate, events.PolicyInvalidatePayload{
 		PolicyID:    pol.ID,
 		TenantID:    pol.TenantID,
@@ -254,6 +264,10 @@ func (b *policyBusiness) Delete(ctx context.Context, id string) error {
 		if err := b.repo.Delete(ctx, id); err != nil {
 			return err
 		}
+	}
+
+	if b.policyCache != nil {
+		b.policyCache.InvalidateTenant(pol.TenantID)
 	}
 
 	emitEvent(ctx, b.eventsMan, events.EventPolicyInvalidate, events.PolicyInvalidatePayload{

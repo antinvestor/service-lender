@@ -198,7 +198,7 @@ func (s *AuditInTxSuite) TestPolicySaveAuditRow() {
 
 	auditWriter := audit.NewWriter(nil)
 	auditing := business.NewAuditing(auditWriter)
-	biz := business.NewPolicyBusiness(policyRepo, verRepo, nil, auditing, dbPool)
+	biz := business.NewPolicyBusiness(policyRepo, verRepo, nil, auditing, dbPool, nil)
 
 	in := goodPolicyForAudit()
 	saved, err := biz.Save(ctx, in)
@@ -217,7 +217,7 @@ func (s *AuditInTxSuite) TestPolicyDeleteAuditRow() {
 
 	auditWriter := audit.NewWriter(nil)
 	auditing := business.NewAuditing(auditWriter)
-	biz := business.NewPolicyBusiness(policyRepo, verRepo, nil, auditing, dbPool)
+	biz := business.NewPolicyBusiness(policyRepo, verRepo, nil, auditing, dbPool, nil)
 
 	in := goodPolicyForAudit()
 	saved, err := biz.Save(ctx, in)
