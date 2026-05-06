@@ -248,6 +248,12 @@ func (a *Auditing) recordReservationTx(
 	})
 }
 
+// RecordApprovalRequiredTx writes the approval-required audit row inside tx,
+// atomically with the approval request row creation.
+func (a *Auditing) RecordApprovalRequiredTx(ctx context.Context, tx *gorm.DB, ar *models.ApprovalRequest) error {
+	return a.recordApprovalTx(ctx, tx, ar, VerbApprovalRequired, "approval required", "")
+}
+
 // RecordApprovalApprovedTx writes the approved audit row inside tx.
 func (a *Auditing) RecordApprovalApprovedTx(
 	ctx context.Context,

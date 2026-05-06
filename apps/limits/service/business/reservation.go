@@ -31,6 +31,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/datastore/pool"
 	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
 	"gorm.io/datatypes"
@@ -424,6 +425,10 @@ func (b *reservationBusiness) Reserve(
 		if err := tx.Create(ar).Error; err != nil {
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
+		// Audit inside the tx so the record lands atomically with the approval row.
+		if err := b.auditing.RecordApprovalRequiredTx(ctx, tx, ar); err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
 		approvalRows = append(approvalRows, ar)
 	}
 
@@ -433,12 +438,11 @@ func (b *reservationBusiness) Reserve(
 	}
 	committed = true
 
-	// 14. Post-commit audit emission.
+	// 14. Post-commit: shadow-breach observability and event emission.
 	for _, v := range shadowBreaches {
 		b.auditing.RecordBreachShadow(ctx, intent, v)
 	}
 	for _, ar := range approvalRows {
-		b.auditing.RecordApprovalRequired(ctx, ar)
 		emitEvent(ctx, b.eventsMan, events.EventApprovalRequested, events.ApprovalEventPayload{
 			ReservationID:     ar.ReservationID,
 			ApprovalRequestID: ar.ID,
@@ -654,6 +658,17 @@ func (b *reservationBusiness) Reverse(
 	original, err := b.resvRepo.GetByID(ctx, reservationID)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("reservation %s not found", reservationID))
+	}
+
+	// 2a. Defense-in-depth: reject cross-tenant access before any further work.
+	// GetByID does not apply TenancyPartition scope, so a caller holding a
+	// foreign reservation ID would get the row back. Fail fast with NotFound
+	// (not PermissionDenied) to avoid leaking existence to a probing actor.
+	if claims := security.ClaimsFromContext(ctx); claims != nil {
+		if ctxTenant := claims.GetTenantID(); ctxTenant != "" && original.TenantID != ctxTenant {
+			return nil, connect.NewError(connect.CodeNotFound,
+				fmt.Errorf("reservation not found"))
+		}
 	}
 
 	// 3. Must be committed.
