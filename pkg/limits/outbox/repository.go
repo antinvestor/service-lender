@@ -57,11 +57,21 @@ func (r *repository) Insert(ctx context.Context, row *Row) error {
 	return r.Create(ctx, row)
 }
 
-func (r *repository) ClaimDue(_ context.Context, _ int) ([]*Row, error) {
-	// SELECT ... FOR UPDATE SKIP LOCKED is the idiomatic claim pattern.
-	// Implementation lands in the runtime-path plan when consumer services
-	// actually start populating the table; for now, return empty.
-	return nil, nil
+func (r *repository) ClaimDue(ctx context.Context, batchSize int) ([]*Row, error) {
+	if batchSize <= 0 {
+		batchSize = 100
+	}
+	db := r.Pool().DB(ctx, false)
+	var rows []*Row
+	err := db.Raw(
+		`SELECT * FROM limits_outbox
+		 WHERE status = ? AND next_attempt_at <= ? AND deleted_at IS NULL
+		 ORDER BY next_attempt_at ASC
+		 LIMIT ?
+		 FOR UPDATE SKIP LOCKED`,
+		string(StatusPending), time.Now().UTC(), batchSize,
+	).Scan(&rows).Error
+	return rows, err
 }
 
 func (r *repository) MarkDone(ctx context.Context, id string) error {
