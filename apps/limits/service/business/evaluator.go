@@ -1,0 +1,178 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package business
+
+import (
+	"context"
+	"encoding/json"
+	"time"
+
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
+	moneyx "github.com/pitabwire/util/money"
+
+	"github.com/antinvestor/service-fintech/apps/limits/service/models"
+	"github.com/antinvestor/service-fintech/apps/limits/service/repository"
+)
+
+// Evaluator computes per-policy verdicts. Pure logic on top of repo reads.
+type Evaluator struct {
+	resvRepo   repository.ReservationRepository
+	ledgerRepo repository.LedgerRepository
+}
+
+func NewEvaluator(resvRepo repository.ReservationRepository, ledgerRepo repository.LedgerRepository) *Evaluator {
+	return &Evaluator{resvRepo: resvRepo, ledgerRepo: ledgerRepo}
+}
+
+// Evaluate returns the verdict for the given policy applied to the intent.
+func (e *Evaluator) Evaluate(
+	ctx context.Context,
+	p *models.Policy,
+	subject repository.SubjectFilter,
+	intent *limitsv1.LimitIntent,
+	intentMinor int64,
+) (*limitsv1.PolicyVerdict, error) {
+	v := &limitsv1.PolicyVerdict{
+		PolicyId:      p.ID,
+		PolicyVersion: int32(p.Version),
+		Matched:       true,
+		Mode:          policyModeToAPI(p.Mode),
+	}
+
+	switch p.LimitKind {
+	case models.KindPerTxnMin:
+		if intentMinor < p.Value {
+			v.Breached = true
+			v.Reason = "amount below per_txn_min"
+		}
+	case models.KindPerTxnMax:
+		if intentMinor > p.Value {
+			if approverTiersCover(p, intentMinor) {
+				v.WouldRequireApproval = true
+			} else {
+				v.Breached = true
+			}
+			v.Reason = "amount above per_txn_max"
+		}
+	case models.KindRollingWindowAmount:
+		since := time.Now().Add(-time.Duration(p.WindowSeconds) * time.Second)
+		committed, err := e.ledgerRepo.WindowSum(ctx, p.Action, p.CurrencyCode, subject, since)
+		if err != nil {
+			return nil, err
+		}
+		pending, err := e.resvRepo.PendingSum(ctx, p.Action, p.CurrencyCode, subject)
+		if err != nil {
+			return nil, err
+		}
+		usage := committed + pending
+		v.CurrentUsage = moneyx.FromMinorUnitsByCurrency(p.CurrencyCode, usage)
+		v.CapAmount = moneyx.FromMinorUnitsByCurrency(p.CurrencyCode, p.Value)
+		if usage+intentMinor > p.Value {
+			if approverTiersCover(p, intentMinor) {
+				v.WouldRequireApproval = true
+			} else {
+				v.Breached = true
+			}
+			v.Reason = "rolling window amount exceeded"
+		}
+	case models.KindRollingWindowCount:
+		since := time.Now().Add(-time.Duration(p.WindowSeconds) * time.Second)
+		committed, err := e.ledgerRepo.WindowCount(ctx, p.Action, p.CurrencyCode, subject, since)
+		if err != nil {
+			return nil, err
+		}
+		pending, err := e.resvRepo.PendingCount(ctx, p.Action, p.CurrencyCode, subject, since)
+		if err != nil {
+			return nil, err
+		}
+		count := committed + pending
+		v.CurrentCount = count
+		v.CapCount = p.Value
+		if count+1 > p.Value {
+			if approverTiersCover(p, intentMinor) {
+				v.WouldRequireApproval = true
+			} else {
+				v.Breached = true
+			}
+			v.Reason = "rolling window count exceeded"
+		}
+	}
+
+	return v, nil
+}
+
+// approverTier mirrors the JSON shape persisted in Policy.ApproverTiers.
+type approverTier struct {
+	UpTo      int64
+	Role      string
+	Approvers int32
+}
+
+func approverTiersCover(p *models.Policy, intentMinor int64) bool {
+	tiers, err := unmarshalPolicyApproverTiers(p)
+	if err != nil || len(tiers) == 0 {
+		return false
+	}
+	for _, t := range tiers {
+		if t.UpTo == 0 || intentMinor <= t.UpTo {
+			return true
+		}
+	}
+	return false
+}
+
+func unmarshalPolicyApproverTiers(p *models.Policy) ([]approverTier, error) {
+	if len(p.ApproverTiers) == 0 {
+		return nil, nil
+	}
+	type raw struct {
+		UpTo      int64  `json:"up_to"`
+		Role      string `json:"role"`
+		Approvers int32  `json:"approvers"`
+	}
+	var rs []raw
+	if err := json.Unmarshal(p.ApproverTiers, &rs); err != nil {
+		return nil, err
+	}
+	out := make([]approverTier, len(rs))
+	for i, r := range rs {
+		out[i] = approverTier{UpTo: r.UpTo, Role: r.Role, Approvers: r.Approvers}
+	}
+	return out, nil
+}
+
+// PickTier finds the first approver tier whose up_to covers intentMinor.
+func PickTier(p *models.Policy, intentMinor int64) (approverTier, bool) {
+	tiers, _ := unmarshalPolicyApproverTiers(p)
+	for _, t := range tiers {
+		if t.UpTo == 0 || intentMinor <= t.UpTo {
+			return t, true
+		}
+	}
+	return approverTier{}, false
+}
+
+func policyModeToAPI(m models.Mode) limitsv1.PolicyMode {
+	switch m {
+	case models.ModeOff:
+		return limitsv1.PolicyMode_POLICY_MODE_OFF
+	case models.ModeShadow:
+		return limitsv1.PolicyMode_POLICY_MODE_SHADOW
+	case models.ModeEnforce:
+		return limitsv1.PolicyMode_POLICY_MODE_ENFORCE
+	default:
+		return limitsv1.PolicyMode_POLICY_MODE_UNSPECIFIED
+	}
+}
