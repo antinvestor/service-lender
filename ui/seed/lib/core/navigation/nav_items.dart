@@ -139,4 +139,47 @@ List<NavItem> buildNavItems() => [
     activeIcon: Icons.trending_up,
     route: '/investors',
   ),
+  const NavItem(
+    id: 'limits',
+    label: 'Limits',
+    icon: Icons.tune_outlined,
+    activeIcon: Icons.tune,
+    children: [
+      NavItem(
+        id: 'limits_policies',
+        label: 'Policies',
+        icon: Icons.policy_outlined,
+        activeIcon: Icons.policy,
+        route: '/limits/policies',
+      ),
+      NavItem(
+        id: 'limits_playground',
+        label: 'Playground',
+        icon: Icons.science_outlined,
+        activeIcon: Icons.science,
+        route: '/limits/playground',
+      ),
+      NavItem(
+        id: 'limits_approvals',
+        label: 'Approvals',
+        icon: Icons.approval_outlined,
+        activeIcon: Icons.approval,
+        route: '/limits/approvals',
+      ),
+      NavItem(
+        id: 'limits_ledger',
+        label: 'Ledger',
+        icon: Icons.receipt_long_outlined,
+        activeIcon: Icons.receipt_long,
+        route: '/limits/ledger',
+      ),
+      NavItem(
+        id: 'limits_audit',
+        label: 'Audit',
+        icon: Icons.history_outlined,
+        activeIcon: Icons.history,
+        route: '/limits/audit',
+      ),
+    ],
+  ),
 ];

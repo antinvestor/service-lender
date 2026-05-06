@@ -16,6 +16,8 @@ dependencies:
   antinvestor_ui_audit: ^0.2.0
   antinvestor_ui_identity:
     path: ../identity
+  antinvestor_ui_limits:
+    path: ../limits
   antinvestor_api_common: ^1.52.0
   antinvestor_api_files: ^1.54.0
   connectrpc: ^1.0.0

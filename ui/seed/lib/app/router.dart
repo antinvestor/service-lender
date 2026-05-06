@@ -12,6 +12,7 @@ import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_state_provider.dart';
 import '../features/auth/ui/login_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
+import '../features/limits/limits_feature.dart';
 
 /// Notifier that triggers router refresh when auth state changes.
 class AuthChangeNotifier extends ChangeNotifier {
@@ -185,6 +186,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/access-roles',
             builder: (context, state) => const AccessRolesScreen(),
           ),
+          ...LimitsFeature.routes(),
         ],
       ),
     ],
