@@ -17,18 +17,22 @@ package business
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
 	commonv1 "buf.build/gen/go/antinvestor/common/protocolbuffers/go/common/v1"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
+	"github.com/pitabwire/frame/security"
 	"github.com/pitabwire/util"
 	moneyx "github.com/pitabwire/util/money"
 
@@ -37,6 +41,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 type DisbursementBusiness interface {
@@ -50,12 +55,14 @@ type DisbursementBusiness interface {
 }
 
 type disbursementBusiness struct {
-	eventsMan       fevents.Manager
-	disbRepo        repository.DisbursementRepository
-	loanAccountRepo repository.LoanAccountRepository
-	laBusiness      LoanAccountBusiness
-	operationsCli   operationsv1connect.OperationsServiceClient
-	auditWriter     *audit.Writer
+	eventsMan         fevents.Manager
+	disbRepo          repository.DisbursementRepository
+	loanAccountRepo   repository.LoanAccountRepository
+	laBusiness        LoanAccountBusiness
+	operationsCli     operationsv1connect.OperationsServiceClient
+	auditWriter       *audit.Writer
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewDisbursementBusiness(
@@ -66,32 +73,78 @@ func NewDisbursementBusiness(
 	laBusiness LoanAccountBusiness,
 	operationsCli operationsv1connect.OperationsServiceClient,
 	auditWriter *audit.Writer,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) DisbursementBusiness {
 	return &disbursementBusiness{
-		eventsMan:       eventsMan,
-		disbRepo:        disbRepo,
-		loanAccountRepo: loanAccountRepo,
-		laBusiness:      laBusiness,
-		operationsCli:   operationsCli,
-		auditWriter:     auditWriter,
+		eventsMan:         eventsMan,
+		disbRepo:          disbRepo,
+		loanAccountRepo:   loanAccountRepo,
+		laBusiness:        laBusiness,
+		operationsCli:     operationsCli,
+		auditWriter:       auditWriter,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
-func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursement pipeline
+func (b *disbursementBusiness) Create(
 	ctx context.Context,
 	req *loansv1.DisbursementCreateRequest,
 ) (*loansv1.DisbursementObject, error) {
 	logger := util.Log(ctx).WithField("method", "DisbursementBusiness.Create")
 
-	loanAccountID := req.GetLoanAccountId()
-
-	// Idempotency check
+	// Idempotency short-circuit (local).
 	if req.GetIdempotencyKey() != "" {
 		existing, idErr := b.disbRepo.GetByIdempotencyKey(ctx, req.GetIdempotencyKey())
 		if idErr == nil && existing != nil {
 			return existing.ToAPI(), nil
 		}
 	}
+
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.createInner(ctx, req)
+	}
+
+	// Build a LimitIntent from the loan account state.
+	la, err := b.loanAccountRepo.GetByID(ctx, req.GetLoanAccountId())
+	if err != nil {
+		return nil, ErrLoanAccountNotFound
+	}
+	intent := buildDisbursementIntent(la, ctx)
+
+	var result *loansv1.DisbursementObject
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, req.GetIdempotencyKey(),
+		func(innerCtx context.Context, reservationID string) error {
+			logger.With("limits_reservation_id", reservationID).Info("disbursement gated by limits")
+			inner, innerErr := b.createInner(innerCtx, req)
+			if innerErr != nil {
+				return innerErr
+			}
+			result = inner
+			return nil
+		})
+
+	var pendingErr *limits.PendingApprovalError
+	if errors.As(gateErr, &pendingErr) {
+		return nil, fmt.Errorf("disbursement requires approval (reservation %s): %w",
+			pendingErr.ReservationID, gateErr)
+	}
+	if gateErr != nil {
+		return nil, gateErr
+	}
+	return result, nil
+}
+
+// createInner is the pre-Gate body factored out so Gate's handler
+// can wrap it. The idempotency check lives in the outer Create.
+func (b *disbursementBusiness) createInner( //nolint:funlen // sequential disbursement pipeline
+	ctx context.Context,
+	req *loansv1.DisbursementCreateRequest,
+) (*loansv1.DisbursementObject, error) {
+	logger := util.Log(ctx).WithField("method", "DisbursementBusiness.Create")
+
+	loanAccountID := req.GetLoanAccountId()
 
 	// Verify loan is in PENDING_DISBURSEMENT state
 	la, err := b.loanAccountRepo.GetByID(ctx, loanAccountID)
@@ -211,6 +264,29 @@ func (b *disbursementBusiness) Create( //nolint:funlen // sequential disbursemen
 		disbAttrs)
 
 	return disb.ToAPI(), nil
+}
+
+// buildDisbursementIntent constructs a LimitIntent from the loan account.
+func buildDisbursementIntent(la *models.LoanAccount, ctx context.Context) *limitsv1.LimitIntent {
+	return &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		TenantId: la.OrganizationID,
+		Amount:   moneyx.FromMinorUnitsByCurrency(la.CurrencyCode, la.PrincipalAmount),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_CLIENT, Id: la.ClientID},
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION, Id: la.OrganizationID},
+		},
+		MakerId: callerSubject(ctx),
+	}
+}
+
+// callerSubject reads the profile ID from frame security claims;
+// returns "" if no claims (system-initiated jobs).
+func callerSubject(ctx context.Context) string {
+	if claims := security.ClaimsFromContext(ctx); claims != nil {
+		return claims.GetProfileID()
+	}
+	return ""
 }
 
 func (b *disbursementBusiness) executeDisbursementTransfer(

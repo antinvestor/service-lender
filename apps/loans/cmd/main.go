@@ -19,6 +19,7 @@ import (
 	"net/http"
 
 	"buf.build/gen/go/antinvestor/funding/connectrpc/go/funding/v1/fundingv1connect"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
 	"buf.build/gen/go/antinvestor/loans/connectrpc/go/loans/v1/loansv1connect"
 	loanspb "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"buf.build/gen/go/antinvestor/notification/connectrpc/go/notification/v1/notificationv1connect"
@@ -48,6 +49,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/audit"
+	"github.com/antinvestor/service-fintech/pkg/limits/outbox"
 )
 
 func main() {
@@ -101,12 +103,26 @@ func main() {
 			Warn("main -- Could not setup funding client, loan creation will fail closed")
 	}
 
+	limitsCli, limitsErr := setupLimitsClient(ctx, cfg)
+	if limitsErr != nil {
+		log.WithError(limitsErr).
+			Warn("main -- Could not setup limits client, limits gate will be disabled")
+	}
+
 	// Get database pool
 	dbPool := dbManager.GetPool(ctx, datastore.DefaultPoolName)
 	if dbPool == nil {
 		log.Error("Database pool is nil - check DATABASE_PRIMARY_URL environment variable")
 		return
 	}
+
+	outboxRepo := outbox.NewRepository(ctx, dbPool, workMan)
+	outboxWorker := outbox.NewWorker(outboxRepo, limitsCli)
+	go func() {
+		if err := outboxWorker.Run(ctx); err != nil {
+			log.WithError(err).Error("loans: limits outbox worker exited with error")
+		}
+	}()
 
 	serviceOptions := setupServiceOptions(
 		ctx,
@@ -117,6 +133,8 @@ func main() {
 		fundingCli,
 		loanNotifier,
 		operationsCli,
+		limitsCli,
+		cfg.LimitsGateEnabledLoanDisbursement,
 	)
 
 	svc.Init(ctx, serviceOptions...)
@@ -136,6 +154,8 @@ func setupServiceOptions(
 	fundingCli fundingv1connect.FundingServiceClient,
 	loanNotifier *business.LoanNotifier,
 	operationsCli operationsv1connect.OperationsServiceClient,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 	loanRequestRepo := repository.NewLoanRequestRepository(ctx, dbPool, workMan)
@@ -189,6 +209,8 @@ func setupServiceOptions(
 		laBusiness,
 		operationsCli,
 		auditWriter,
+		limitsCli,
+		limitsGateEnabled,
 	)
 
 	portfolioBusiness := business.NewPortfolioBusiness(ctx, dbPool)
@@ -267,6 +289,17 @@ func setupFundingClient(
 		WorkloadAPITargetPath: cfg.FundingServiceWorkloadAPITargetPath,
 		Audiences:             []string{"service_funding"},
 	}, fundingv1connect.NewFundingServiceClient)
+}
+
+func setupLimitsClient(
+	ctx context.Context,
+	cfg aconfig.LoanManagementConfig,
+) (limitsv1connect.LimitsServiceClient, error) {
+	return connection.NewServiceClient(ctx, &cfg, common.ServiceTarget{
+		Endpoint:              cfg.LimitsServiceURI,
+		WorkloadAPITargetPath: cfg.LimitsServiceWorkloadAPITargetPath,
+		Audiences:             []string{"service_limits"},
+	}, limitsv1connect.NewLimitsServiceClient)
 }
 
 func setupConnectServer(
