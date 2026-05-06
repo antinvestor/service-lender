@@ -38,7 +38,7 @@ require (
 	github.com/pitabwire/frame v1.94.6
 	github.com/pitabwire/util v0.8.0
 	github.com/pitabwire/util/decimalx v0.7.1
-	github.com/pitabwire/util/money v0.7.1
+	github.com/pitabwire/util/money v0.8.0
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/metric v1.43.0

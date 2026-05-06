@@ -19,8 +19,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
-	"strings"
 	"time"
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
@@ -30,12 +28,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/datatypes"
 )
-
-// decimalPrecision is the number of fractional digits used by the wire
-// google.type.Money conversions. Hard-coded to 2 to match the existing
-// loans/savings/operations services. ISO 4217 currency-aware precision
-// (JPY=0, KWD/BHD/OMR=3) is a platform-wide cleanup tracked separately.
-const decimalPrecision int32 = 2
 
 // Scope, Mode, Kind, Subject, Action are typed string aliases so the GORM
 // columns are constrained at the type level. Keep the string values stable
@@ -232,7 +224,7 @@ func (p *Policy) ToAPI() *limitsv1.PolicyObject {
 	case KindRollingWindowCount:
 		out.CapCount = p.Value
 	default:
-		out.CapAmount = moneyx.FromSmallestUnit(p.CurrencyCode, p.Value, decimalPrecision)
+		out.CapAmount = moneyx.FromMinorUnitsByCurrency(p.CurrencyCode, p.Value)
 	}
 	if p.EffectiveTo != nil {
 		out.EffectiveTo = timestamppb.New(*p.EffectiveTo)
@@ -260,11 +252,7 @@ func valueFromAPI(in *limitsv1.PolicyObject, kind Kind) (int64, error) {
 	if capAmt == nil {
 		return 0, nil
 	}
-	if !strings.EqualFold(capAmt.GetCurrencyCode(), in.GetCurrencyCode()) {
-		return 0, fmt.Errorf("policy: cap currency %q does not match policy currency %q",
-			capAmt.GetCurrencyCode(), in.GetCurrencyCode())
-	}
-	return moneyx.ToSmallestUnit(capAmt, decimalPrecision), nil
+	return moneyx.ToMinorUnitsByCurrency(capAmt, in.GetCurrencyCode())
 }
 
 func timestampOrNow(t *timestamppb.Timestamp) time.Time {

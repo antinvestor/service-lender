@@ -18,19 +18,15 @@ import (
 	"time"
 
 	"github.com/pitabwire/util/decimalx"
+	moneyx "github.com/pitabwire/util/money"
 	money "google.golang.org/genproto/googleapis/type/money"
 )
 
 const timeLayout = time.RFC3339
 
-const (
-	// decimalPrecision is the number of decimal places for minor unit conversions (cents).
-	decimalPrecision = 2
-	// minorUnitsPerUnit is the number of minor units (cents) per major unit.
-	minorUnitsPerUnit = 100
-	// nanosPerMinorUnit converts minor units to nanos for google.type.Money.
-	nanosPerMinorUnit = 10_000_000
-)
+// decimalPrecision is the precision used by the String<->MinorUnits helpers
+// below. Money conversions go via moneyx and honour ISO 4217 per currency.
+const decimalPrecision = 2
 
 // MinorUnitsToString converts an int64 minor-unit amount (e.g. cents) to a
 // decimal string with two fractional digits. 123456 -> "1234.56".
@@ -88,21 +84,18 @@ func StringToTime(s string) *time.Time {
 }
 
 // MinorUnitsToMoney converts minor units (e.g. cents) and a currency code to a
-// *money.Money proto message.
+// *money.Money proto message. Precision follows ISO 4217 via moneyx.Decimals
+// (JPY=0, KWD/BHD/OMR=3, else=2).
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
-	units := v / minorUnitsPerUnit
-	nanos := (v % minorUnitsPerUnit) * nanosPerMinorUnit
-	return &money.Money{
-		CurrencyCode: currencyCode,
-		Units:        units,
-		Nanos:        int32(nanos),
-	}
+	return moneyx.FromMinorUnitsByCurrency(currencyCode, v)
 }
 
-// MoneyToMinorUnits converts a *money.Money to minor units (int64) and currency code.
+// MoneyToMinorUnits converts a *money.Money to minor units (int64) and
+// currency code. Precision follows ISO 4217 via moneyx.Decimals.
 func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	if m == nil {
 		return 0, ""
 	}
-	return m.GetUnits()*minorUnitsPerUnit + int64(m.GetNanos())/nanosPerMinorUnit, m.GetCurrencyCode()
+	cc := m.GetCurrencyCode()
+	return moneyx.ToSmallestUnit(m, moneyx.Decimals(cc)), cc
 }

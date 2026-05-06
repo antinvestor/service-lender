@@ -23,16 +23,14 @@ import (
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
 	"github.com/pitabwire/frame/data"
 	"github.com/pitabwire/util/decimalx"
+	moneyx "github.com/pitabwire/util/money"
 	money "google.golang.org/genproto/googleapis/type/money"
 )
 
 const (
-	// decimalPrecision is the number of decimal places for minor unit conversions (cents).
+	// decimalPrecision is the precision used by the String<->MinorUnits helpers
+	// below. Money conversions go via moneyx and honour ISO 4217 per currency.
 	decimalPrecision = 2
-	// percentageDivisor is the number of minor units per major currency unit (e.g. 100 cents per dollar).
-	percentageDivisor = 100
-	// moneyNanosFactor converts minor-unit remainders to protobuf nanos (1e9 / 100).
-	moneyNanosFactor = 10_000_000
 	// extraPropertiesCount is the number of extra properties added when converting to API.
 	extraPropertiesCount = 3
 )
@@ -55,22 +53,19 @@ func StringToMinorUnits(s string) int64 {
 }
 
 // MinorUnitsToMoney converts minor units and a currency code to a *money.Money.
+// Precision follows ISO 4217 via moneyx.Decimals (JPY=0, KWD/BHD/OMR=3, else=2).
 func MinorUnitsToMoney(v int64, currencyCode string) *money.Money {
-	units := v / percentageDivisor
-	nanos := (v % percentageDivisor) * moneyNanosFactor
-	return &money.Money{
-		CurrencyCode: currencyCode,
-		Units:        units,
-		Nanos:        int32(nanos),
-	}
+	return moneyx.FromMinorUnitsByCurrency(currencyCode, v)
 }
 
 // MoneyToMinorUnits converts a *money.Money to minor units and currency code.
+// Precision follows ISO 4217 via moneyx.Decimals.
 func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	if m == nil {
 		return 0, ""
 	}
-	return m.GetUnits()*percentageDivisor + int64(m.GetNanos())/moneyNanosFactor, m.GetCurrencyCode()
+	cc := m.GetCurrencyCode()
+	return moneyx.ToSmallestUnit(m, moneyx.Decimals(cc)), cc
 }
 
 // Organization represents a top-level lending institution mapped to a partition.

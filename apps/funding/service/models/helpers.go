@@ -17,15 +17,18 @@ package models
 import (
 	"strconv"
 
+	moneyx "github.com/pitabwire/util/money"
 	money "google.golang.org/genproto/googleapis/type/money"
 )
 
-// MoneyToMinorUnits converts a *money.Money to minor units (int64) and currency code.
+// MoneyToMinorUnits converts a *money.Money to minor units (int64) and
+// currency code. Precision follows ISO 4217 via moneyx.Decimals.
 func MoneyToMinorUnits(m *money.Money) (int64, string) {
 	if m == nil {
 		return 0, ""
 	}
-	return m.GetUnits()*percentageDivisor + int64(m.GetNanos())/moneyNanosFactor, m.GetCurrencyCode()
+	cc := m.GetCurrencyCode()
+	return moneyx.ToSmallestUnit(m, moneyx.Decimals(cc)), cc
 }
 
 // BasisPointsToString converts basis points stored as int64 to a string.
