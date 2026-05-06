@@ -22,6 +22,8 @@ import (
 
 	"buf.build/gen/go/antinvestor/identity/connectrpc/go/identity/v1/identityv1connect"
 	identityv1 "buf.build/gen/go/antinvestor/identity/protocolbuffers/go/identity/v1"
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	loansv1 "buf.build/gen/go/antinvestor/loans/protocolbuffers/go/loans/v1"
 	"connectrpc.com/connect"
 	fevents "github.com/pitabwire/frame/events"
@@ -35,6 +37,7 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/calculation"
 	"github.com/antinvestor/service-fintech/pkg/clients"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 const (
@@ -62,11 +65,13 @@ func minorUnitsToMoney(v int64, currencyCode string) *money.Money {
 }
 
 type loanOfferBusiness struct {
-	eventsMan   fevents.Manager
-	loRepo      repository.LoanOfferRepository
-	lwRepo      repository.LoanWindowRepository
-	identityCli identityv1connect.IdentityServiceClient
-	clients     *clients.PlatformClients
+	eventsMan         fevents.Manager
+	loRepo            repository.LoanOfferRepository
+	lwRepo            repository.LoanWindowRepository
+	identityCli       identityv1connect.IdentityServiceClient
+	clients           *clients.PlatformClients
+	limitsCli         limitsv1connect.LimitsServiceClient
+	limitsGateEnabled bool
 }
 
 func NewLoanOfferBusiness(
@@ -76,13 +81,17 @@ func NewLoanOfferBusiness(
 	lwRepo repository.LoanWindowRepository,
 	identityCli identityv1connect.IdentityServiceClient,
 	pc *clients.PlatformClients,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsGateEnabled bool,
 ) LoanOfferBusiness {
 	return &loanOfferBusiness{
-		eventsMan:   eventsMan,
-		loRepo:      loRepo,
-		lwRepo:      lwRepo,
-		identityCli: identityCli,
-		clients:     pc,
+		eventsMan:         eventsMan,
+		loRepo:            loRepo,
+		lwRepo:            lwRepo,
+		identityCli:       identityCli,
+		clients:           pc,
+		limitsCli:         limitsCli,
+		limitsGateEnabled: limitsGateEnabled,
 	}
 }
 
@@ -201,7 +210,56 @@ func (b *loanOfferBusiness) Respond(ctx context.Context, offerID string, respons
 	return b.eventsMan.Emit(ctx, events.LoanOfferSaveEvent, offer)
 }
 
+// CreateLoanAccount gates the loan account creation through the limits service
+// when the gate is enabled, then delegates to createLoanAccountInner.
+//
+// When the limits gate is enabled, a reservation is obtained from the limits
+// service before execution proceeds. DENY returns an error; PENDING_APPROVAL
+// returns PendingApprovalError.
 func (b *loanOfferBusiness) CreateLoanAccount(ctx context.Context, offerID string) (map[string]interface{}, error) {
+	if !b.limitsGateEnabled || b.limitsCli == nil {
+		return b.createLoanAccountInner(ctx, offerID)
+	}
+
+	offer, err := b.loRepo.GetByID(ctx, offerID)
+	if err != nil {
+		return nil, fmt.Errorf("offer not found: %w", err)
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		TenantId: offer.TenantID,
+		Amount:   minorUnitsToMoney(offer.Amount, offer.Currency),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_CLIENT, Id: offer.MembershipID},
+		},
+	}
+	idemKey := "stawi_loan_disbursement:" + offerID
+
+	var result map[string]interface{}
+	gateErr := limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).
+				Info("stawi loan disbursement gated by limits")
+			inner, innerErr := b.createLoanAccountInner(innerCtx, offerID)
+			if innerErr != nil {
+				return innerErr
+			}
+			result = inner
+			return nil
+		})
+	if gateErr != nil {
+		return nil, gateErr
+	}
+	return result, nil
+}
+
+// createLoanAccountInner runs the core loan account creation logic after any
+// gate check.
+func (b *loanOfferBusiness) createLoanAccountInner(
+	ctx context.Context,
+	offerID string,
+) (map[string]interface{}, error) {
 	logger := util.Log(ctx).WithField("method", "LoanOfferBusiness.CreateLoanAccount")
 
 	offer, err := b.loRepo.GetByID(ctx, offerID)
