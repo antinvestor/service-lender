@@ -22,6 +22,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"buf.build/gen/go/antinvestor/operations/connectrpc/go/operations/v1/operationsv1connect"
 	operationsv1 "buf.build/gen/go/antinvestor/operations/protocolbuffers/go/operations/v1"
 	"connectrpc.com/connect"
@@ -35,6 +37,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/funding/service/repository"
 	"github.com/antinvestor/service-fintech/pkg/audit"
 	"github.com/antinvestor/service-fintech/pkg/constants"
+	"github.com/antinvestor/service-fintech/pkg/limits"
 )
 
 // moneyDecimalPlaces is the assumed decimal precision for all investor
@@ -46,10 +49,13 @@ const moneyDecimalPlaces = 2
 var ErrMissingInvestorContext = errors.New("investor account is missing required context")
 
 type investorAccountBusiness struct {
-	eventsMan     fevents.Manager
-	iaRepo        repository.InvestorAccountRepository
-	operationsCli operationsv1connect.OperationsServiceClient
-	auditWriter   *audit.Writer
+	eventsMan             fevents.Manager
+	iaRepo                repository.InvestorAccountRepository
+	operationsCli         operationsv1connect.OperationsServiceClient
+	auditWriter           *audit.Writer
+	limitsCli             limitsv1connect.LimitsServiceClient
+	limitsDepositEnabled  bool
+	limitsWithdrawEnabled bool
 }
 
 func NewInvestorAccountBusiness(
@@ -58,12 +64,18 @@ func NewInvestorAccountBusiness(
 	iaRepo repository.InvestorAccountRepository,
 	operationsCli operationsv1connect.OperationsServiceClient,
 	auditWriter *audit.Writer,
+	limitsCli limitsv1connect.LimitsServiceClient,
+	limitsDepositEnabled bool,
+	limitsWithdrawEnabled bool,
 ) InvestorAccountBusiness {
 	return &investorAccountBusiness{
-		eventsMan:     eventsMan,
-		iaRepo:        iaRepo,
-		operationsCli: operationsCli,
-		auditWriter:   auditWriter,
+		eventsMan:             eventsMan,
+		iaRepo:                iaRepo,
+		operationsCli:         operationsCli,
+		auditWriter:           auditWriter,
+		limitsCli:             limitsCli,
+		limitsDepositEnabled:  limitsDepositEnabled,
+		limitsWithdrawEnabled: limitsWithdrawEnabled,
 	}
 }
 
@@ -108,7 +120,44 @@ func (b *investorAccountBusiness) GetByInvestorID(
 //
 // Balance mutations run through AtomicDeposit on the repository so no
 // read-modify-write race is possible even with concurrent deposits.
+//
+// When the limits gate is enabled, a reservation is obtained from the limits
+// service before execution proceeds. DENY returns an error; PENDING_APPROVAL
+// returns PendingApprovalError.
 func (b *investorAccountBusiness) Deposit(
+	ctx context.Context,
+	accountID string,
+	amount int64,
+) error {
+	if !b.limitsDepositEnabled || b.limitsCli == nil {
+		return b.depositInner(ctx, accountID, amount)
+	}
+
+	account, err := b.iaRepo.GetByID(ctx, accountID)
+	if err != nil {
+		return fmt.Errorf("investor account not found: %w", err)
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_FUNDING_INFLOW,
+		TenantId: account.TenantID,
+		Amount:   moneyx.FromSmallestUnit(account.Currency, amount, moneyDecimalPlaces),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: accountID},
+		},
+	}
+	idemKey := "funding_deposit:" + accountID
+
+	return limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).
+				Info("investor deposit gated by limits")
+			return b.depositInner(innerCtx, accountID, amount)
+		})
+}
+
+// depositInner runs the core investor deposit logic after any gate check.
+func (b *investorAccountBusiness) depositInner(
 	ctx context.Context,
 	accountID string,
 	amount int64,
@@ -165,10 +214,10 @@ func (b *investorAccountBusiness) Deposit(
 		logger.WithError(auErr).Warn("audit emission failed for investor deposit")
 	})
 
-	audit := constants.AuditTrailFromContext(ctx)
+	auditInfo := constants.AuditTrailFromContext(ctx)
 	depAttrs := metric.WithAttributes(
-		attribute.String("tenant_id", audit.TenantID),
-		attribute.String("partition_id", audit.PartitionID),
+		attribute.String("tenant_id", auditInfo.TenantID),
+		attribute.String("partition_id", auditInfo.PartitionID),
 		attribute.String("currency", account.Currency),
 	)
 	FundingDeposits.Add(ctx, 1, depAttrs)
@@ -188,7 +237,44 @@ func (b *investorAccountBusiness) Deposit(
 // atomically decremented. If the transfer order fails we roll back via a
 // best-effort compensating AtomicDeposit; retries via caller are safe
 // because the transfer order reference is stable.
+//
+// When the limits gate is enabled, a reservation is obtained from the limits
+// service before execution proceeds. DENY returns an error; PENDING_APPROVAL
+// returns PendingApprovalError.
 func (b *investorAccountBusiness) Withdraw(
+	ctx context.Context,
+	accountID string,
+	amount int64,
+) error {
+	if !b.limitsWithdrawEnabled || b.limitsCli == nil {
+		return b.withdrawInner(ctx, accountID, amount)
+	}
+
+	account, err := b.iaRepo.GetByID(ctx, accountID)
+	if err != nil {
+		return fmt.Errorf("investor account not found: %w", err)
+	}
+
+	intent := &limitsv1.LimitIntent{
+		Action:   limitsv1.LimitAction_LIMIT_ACTION_FUNDING_OUTFLOW,
+		TenantId: account.TenantID,
+		Amount:   moneyx.FromSmallestUnit(account.Currency, amount, moneyDecimalPlaces),
+		Subjects: []*limitsv1.SubjectRef{
+			{Type: limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT, Id: accountID},
+		},
+	}
+	idemKey := "funding_withdraw:" + accountID
+
+	return limits.Gate(ctx, b.limitsCli, intent, idemKey,
+		func(innerCtx context.Context, reservationID string) error {
+			util.Log(innerCtx).With("limits_reservation_id", reservationID).
+				Info("investor withdrawal gated by limits")
+			return b.withdrawInner(innerCtx, accountID, amount)
+		})
+}
+
+// withdrawInner runs the core investor withdrawal logic after any gate check.
+func (b *investorAccountBusiness) withdrawInner(
 	ctx context.Context,
 	accountID string,
 	amount int64,
