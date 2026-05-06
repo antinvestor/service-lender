@@ -21,6 +21,7 @@ import (
 
 	"github.com/pitabwire/frame/data"
 	fevents "github.com/pitabwire/frame/events"
+	"gorm.io/gorm"
 )
 
 // EventSaveEvent is the name of the frame event used to dispatch audit
@@ -114,6 +115,45 @@ func (w *Writer) Record(ctx context.Context, r Record) error {
 	}
 
 	return w.eventsMan.Emit(ctx, EventSaveEvent, ev)
+}
+
+// RecordTx writes the audit row directly inside the caller's DB transaction.
+// Unlike Record (which emits via the events bus post-commit), RecordTx
+// persists the audit row in the same tx as the state change, so a process
+// crash between tx.Commit and async emission can no longer drop the
+// regulatory record. Use this for any audit verb that must not be lost.
+func (w *Writer) RecordTx(ctx context.Context, tx *gorm.DB, r Record) error {
+	if tx == nil {
+		return errors.New("RecordTx requires non-nil tx")
+	}
+	if r.EntityType == "" || r.Action == "" {
+		return errors.New("audit record requires entity_type and action")
+	}
+
+	now := time.Now().UTC()
+	occurred := r.OccurredAt
+	if occurred == nil {
+		occurred = &now
+	}
+
+	ev := &Event{
+		EntityType: r.EntityType,
+		EntityID:   r.EntityID,
+		Action:     r.Action,
+		ActorID:    r.ActorID,
+		ActorType:  r.ActorType,
+		Reason:     r.Reason,
+		Before:     r.Before,
+		After:      r.After,
+		Metadata:   r.Metadata,
+		OccurredAt: occurred,
+	}
+	ev.GenID(ctx)
+	if r.Parent != nil {
+		ev.CopyPartitionInfo(r.Parent)
+	}
+
+	return tx.Create(ev).Error
 }
 
 // RecordOrLog is the ergonomic helper for call sites that cannot fail
