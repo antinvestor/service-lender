@@ -1,0 +1,102 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package handlers wires Connect-RPC handlers to business-layer interfaces.
+// Handlers are responsible for serialisation, error mapping, validation,
+// and tracing — never domain logic.
+package handlers
+
+import (
+	"context"
+	"errors"
+
+	"buf.build/gen/go/antinvestor/limits/connectrpc/go/limits/v1/limitsv1connect"
+	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
+	"connectrpc.com/connect"
+
+	"github.com/antinvestor/service-fintech/apps/limits/service/business"
+)
+
+// AdminService implements limitsv1connect.LimitsAdminServiceHandler. The
+// approval-and-ledger half of the admin surface is deliberately stubbed —
+// it lands in the runtime-path plan.
+type AdminService struct {
+	limitsv1connect.UnimplementedLimitsAdminServiceHandler
+	policy business.PolicyBusiness
+}
+
+// NewAdminService constructs a Connect handler.
+func NewAdminService(policy business.PolicyBusiness) *AdminService {
+	return &AdminService{policy: policy}
+}
+
+// PolicySave creates or updates a policy.
+func (s *AdminService) PolicySave(
+	ctx context.Context,
+	req *connect.Request[limitsv1.PolicySaveRequest],
+) (*connect.Response[limitsv1.PolicySaveResponse], error) {
+	out, err := s.policy.Save(ctx, req.Msg.GetData())
+	if err != nil {
+		return nil, mapBusinessErr(err)
+	}
+	return connect.NewResponse(&limitsv1.PolicySaveResponse{Data: out}), nil
+}
+
+// PolicyGet returns a single policy.
+func (s *AdminService) PolicyGet(
+	ctx context.Context,
+	req *connect.Request[limitsv1.PolicyGetRequest],
+) (*connect.Response[limitsv1.PolicyGetResponse], error) {
+	out, err := s.policy.Get(ctx, req.Msg.GetId())
+	if err != nil {
+		return nil, mapBusinessErr(err)
+	}
+	return connect.NewResponse(&limitsv1.PolicyGetResponse{Data: out}), nil
+}
+
+// PolicySearch streams matching policies in batches.
+func (s *AdminService) PolicySearch(
+	ctx context.Context,
+	req *connect.Request[limitsv1.PolicySearchRequest],
+	stream *connect.ServerStream[limitsv1.PolicySearchResponse],
+) error {
+	return s.policy.Search(ctx, req.Msg, func(ctx context.Context, items []*limitsv1.PolicyObject) error {
+		return stream.Send(&limitsv1.PolicySearchResponse{Data: items})
+	})
+}
+
+// PolicyDelete soft-deletes a policy.
+func (s *AdminService) PolicyDelete(
+	ctx context.Context,
+	req *connect.Request[limitsv1.PolicyDeleteRequest],
+) (*connect.Response[limitsv1.PolicyDeleteResponse], error) {
+	if err := s.policy.Delete(ctx, req.Msg.GetId()); err != nil {
+		return nil, mapBusinessErr(err)
+	}
+	return connect.NewResponse(&limitsv1.PolicyDeleteResponse{}), nil
+}
+
+// mapBusinessErr translates business-layer errors into Connect codes.
+func mapBusinessErr(err error) error {
+	switch {
+	case errors.Is(err, business.ErrPolicyNotFound):
+		return connect.NewError(connect.CodeNotFound, err)
+	case errors.Is(err, business.ErrInvalidPolicy),
+		errors.Is(err, business.ErrCurrencyMismatch),
+		errors.Is(err, business.ErrApproverTiersInvalid):
+		return connect.NewError(connect.CodeInvalidArgument, err)
+	default:
+		return connect.NewError(connect.CodeInternal, err)
+	}
+}
