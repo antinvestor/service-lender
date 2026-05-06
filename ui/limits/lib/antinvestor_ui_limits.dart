@@ -39,7 +39,9 @@ export 'src/widgets/attribute_filter_display.dart';
 export 'src/widgets/attribute_filter_editor.dart';
 export 'src/widgets/policy_detail_card.dart';
 export 'src/widgets/policy_version_history.dart';
+export 'src/widgets/policy_list_tile.dart';
 
 // Screens
 export 'src/screens/policy_editor_screen.dart';
 export 'src/screens/policy_detail_screen.dart';
+export 'src/screens/policy_list_screen.dart';
