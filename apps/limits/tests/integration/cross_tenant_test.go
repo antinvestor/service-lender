@@ -360,6 +360,49 @@ func (s *CrossTenantSuite) TestCommit_ReservationFromOtherTenant_NotFound() {
 		"expected NotFound or FailedPrecondition, got %v", code)
 }
 
+// TestReverse_ReservationFromOtherTenant_NotFound verifies that a Reverse call
+// for a reservation owned by tenant-B, called from tenant-A context, returns
+// NotFound — not silent success or a leaked PermissionDenied.
+func (s *CrossTenantSuite) TestReverse_ReservationFromOtherTenant_NotFound() {
+	// Seed an allow-all policy for tenant-B so reserve+commit succeed.
+	s.seedCrossTenantPolicy(s.tenantBCtx, s.policyRepoB)
+
+	// Tenant-B creates and commits a reservation.
+	reserveResp, err := s.tenantBClient.Reserve(s.tenantBCtx, connect.NewRequest(&limitsv1.ReserveRequest{
+		Intent: &limitsv1.LimitIntent{
+			TenantId: "tenant-b",
+			Action:   limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+			Amount:   &moneypb.Money{CurrencyCode: "KES", Units: 200},
+			Subjects: []*limitsv1.SubjectRef{
+				{Type: limitsv1.SubjectType_SUBJECT_TYPE_CLIENT, Id: "client-xt-b-rev"},
+				{Type: limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION, Id: "org-xt-b-rev"},
+			},
+			MakerId: "wf-maker-b",
+		},
+		IdempotencyKey: "xt-reverse-b-k1",
+		Ttl:            durationpb.New(5 * time.Minute),
+	}))
+	s.Require().NoError(err)
+	reservationID := reserveResp.Msg.GetReservation().GetId()
+	s.Require().NotEmpty(reservationID)
+
+	// Commit it so it is eligible for reversal.
+	_, err = s.tenantBClient.Commit(s.tenantBCtx, connect.NewRequest(&limitsv1.CommitRequest{
+		ReservationId: reservationID,
+	}))
+	s.Require().NoError(err)
+
+	// Tenant-A tries to Reverse tenant-B's reservation — must get NotFound.
+	_, err = s.tenantAClient.Reverse(s.tenantACtx, connect.NewRequest(&limitsv1.ReverseRequest{
+		ReservationId:  reservationID,
+		IdempotencyKey: "xt-reverse-attack-k1",
+		Reason:         "cross-tenant reverse attempt",
+	}))
+	s.Require().Error(err, "reversing another tenant's reservation must return an error")
+	s.Equal(connect.CodeNotFound, connect.CodeOf(err),
+		"expected NotFound to avoid leaking existence to a probing actor")
+}
+
 func TestCrossTenantSuite(t *testing.T) {
 	suite.Run(t, new(CrossTenantSuite))
 }
