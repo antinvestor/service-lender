@@ -46,16 +46,18 @@ type approvalSpec struct {
 }
 
 // ReservationBusiness implements the runtime path: Check, Reserve, Commit,
-// Release, Reverse. This file holds Reserve plus shared helpers; Commit,
-// Release, Reverse, Check land in Task 15 (added to this same file).
+// Release, Reverse.
 type ReservationBusiness interface {
+	Check(ctx context.Context, intent *limitsv1.LimitIntent) (*limitsv1.CheckResponse, error)
 	Reserve(
 		ctx context.Context,
 		intent *limitsv1.LimitIntent,
 		idempotencyKey string,
 		ttl time.Duration,
 	) (*limitsv1.ReserveResponse, error)
-	// Commit/Release/Reverse/Check land in Task 15.
+	Commit(ctx context.Context, reservationID string) (*limitsv1.CommitResponse, error)
+	Release(ctx context.Context, reservationID, reason string) (*limitsv1.ReleaseResponse, error)
+	Reverse(ctx context.Context, reservationID, idempotencyKey, reason string) (*limitsv1.ReverseResponse, error)
 }
 
 type reservationBusiness struct {
@@ -87,6 +89,136 @@ func NewReservationBusiness(
 		approvalRepo: approvalRepo, policyRepo: policyRepo,
 		evaluator: evaluator, resolver: resolver, auditing: auditing, dbPool: dbPool,
 	}
+}
+
+// evaluation holds the read-only result of evaluating a LimitIntent against
+// applicable policies. Both Reserve and Check share this computation.
+type evaluation struct {
+	verdicts       []*limitsv1.PolicyVerdict
+	hardBreaches   []*limitsv1.PolicyVerdict
+	shadowBreaches []*limitsv1.PolicyVerdict
+	approvalNeeded []approvalSpec
+	intentMinor    int64
+	action         models.Action
+}
+
+// evaluateIntent validates the intent, looks up candidate policies, filters by
+// subject type and attribute predicates, runs the evaluator per policy, and
+// returns the aggregated result. It does NOT open a transaction or acquire
+// advisory locks (those are Reserve-only concerns).
+func (b *reservationBusiness) evaluateIntent(
+	ctx context.Context,
+	intent *limitsv1.LimitIntent,
+) (*evaluation, error) {
+	if err := validateIntent(intent); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+	if err := validateRequiredSubjects(intent); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	currency := intent.GetAmount().GetCurrencyCode()
+	intentMinor, err := moneyx.ToMinorUnitsByCurrency(intent.GetAmount(), currency)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	action, err := models.ActionFromAPISafe(intent.GetAction())
+	if err != nil || action == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid action"))
+	}
+
+	cands, err := b.candidateRepo.FindCandidates(ctx, repository.CandidateQuery{
+		Action:       action,
+		CurrencyCode: currency,
+		TenantID:     intent.GetTenantId(),
+		OrgUnitID:    intent.GetOrgUnitId(),
+	})
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	type candidatePair struct {
+		policy  *models.Policy
+		subject repository.SubjectFilter
+	}
+	var applicable []candidatePair
+	for _, p := range cands {
+		s, ok := findSubjectByType(intent.GetSubjects(), p.SubjectType)
+		if !ok {
+			continue
+		}
+		if len(p.AttributeFilter) > 0 {
+			attrs, attrErr := b.resolver.Get(ctx, p.SubjectType, s.GetId())
+			if attrErr != nil {
+				util.Log(ctx).WithError(attrErr).Warn("attribute resolver failed; skipping policy")
+				continue
+			}
+			if !evaluatePredicate(p.AttributeFilter, attrs) {
+				continue
+			}
+		}
+		applicable = append(applicable, candidatePair{
+			policy:  p,
+			subject: repository.SubjectFilter{Type: p.SubjectType, ID: s.GetId()},
+		})
+	}
+
+	ev := &evaluation{intentMinor: intentMinor, action: action}
+	for _, ap := range applicable {
+		v, evErr := b.evaluator.Evaluate(ctx, ap.policy, ap.subject, intent, intentMinor)
+		if evErr != nil {
+			return nil, connect.NewError(connect.CodeInternal, evErr)
+		}
+		ev.verdicts = append(ev.verdicts, v)
+		switch ap.policy.Mode {
+		case models.ModeEnforce:
+			if v.GetBreached() && !v.GetWouldRequireApproval() {
+				ev.hardBreaches = append(ev.hardBreaches, v)
+			}
+			if v.GetWouldRequireApproval() {
+				ev.approvalNeeded = append(ev.approvalNeeded, approvalSpec{policy: ap.policy, verdict: v})
+			}
+		case models.ModeShadow:
+			if v.GetBreached() || v.GetWouldRequireApproval() {
+				ev.shadowBreaches = append(ev.shadowBreaches, v)
+			}
+		}
+	}
+	return ev, nil
+}
+
+func (b *reservationBusiness) Check(
+	ctx context.Context,
+	intent *limitsv1.LimitIntent,
+) (*limitsv1.CheckResponse, error) {
+	ev, err := b.evaluateIntent(ctx, intent)
+	if err != nil {
+		return nil, err
+	}
+
+	var breachedIDs []string
+	for _, v := range ev.hardBreaches {
+		breachedIDs = append(breachedIDs, v.GetPolicyId())
+	}
+
+	// Compute max required approvers across approval-needed specs.
+	var maxApprovers int32
+	for _, ap := range ev.approvalNeeded {
+		if tier, ok := PickTier(ap.policy, ev.intentMinor); ok {
+			if tier.Approvers > maxApprovers {
+				maxApprovers = tier.Approvers
+			}
+		}
+	}
+
+	return &limitsv1.CheckResponse{
+		Allowed:           len(ev.hardBreaches) == 0,
+		RequiresApproval:  len(ev.approvalNeeded) > 0,
+		RequiredApprovers: maxApprovers,
+		Verdicts:          ev.verdicts,
+		BreachedPolicyIds: breachedIDs,
+	}, nil
 }
 
 func (b *reservationBusiness) Reserve(
@@ -313,6 +445,268 @@ func (b *reservationBusiness) Reserve(
 	}, nil
 }
 
+// ─── Commit ────────────────────────────────────────────────────────────────
+
+func (b *reservationBusiness) Commit(
+	ctx context.Context,
+	reservationID string,
+) (*limitsv1.CommitResponse, error) {
+	// 1. Fetch reservation.
+	r, err := b.resvRepo.GetByID(ctx, reservationID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("reservation %s not found", reservationID))
+	}
+
+	// 2. Idempotent: already committed.
+	if r.Status == models.ReservationStatusCommitted {
+		return &limitsv1.CommitResponse{Reservation: r.ToAPI()}, nil
+	}
+
+	// 3. Pending approval: caller must get approval first.
+	if r.Status == models.ReservationStatusPendingApproval {
+		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("pending approval"))
+	}
+
+	// 4. Must be active.
+	if r.Status != models.ReservationStatusActive {
+		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("not active"))
+	}
+
+	now := time.Now().UTC()
+
+	// 5-8. Open transaction, update status, materialise ledger.
+	db := b.dbPool.DB(ctx, false)
+	tx := db.Begin()
+	if tx.Error != nil {
+		return nil, connect.NewError(connect.CodeInternal, tx.Error)
+	}
+	txCommitted := false
+	defer func() {
+		if !txCommitted {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// 6. Update reservation status via raw table update inside tx.
+	res := tx.Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", r.ID, string(models.ReservationStatusActive)).
+		Updates(map[string]any{
+			"status":       string(models.ReservationStatusCommitted),
+			"committed_at": now,
+			"modified_at":  now,
+		})
+	if res.Error != nil {
+		return nil, connect.NewError(connect.CodeInternal, res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("not active"))
+	}
+
+	// 7. Materialise ledger entries (skip for shadow reservations).
+	if !r.IsShadow {
+		subjects, unmarshalErr := unmarshalReservationSubjects(r.SubjectRefs)
+		if unmarshalErr != nil {
+			return nil, connect.NewError(connect.CodeInternal, unmarshalErr)
+		}
+		entries := make([]*models.LedgerEntry, 0, len(subjects))
+		for _, s := range subjects {
+			e := &models.LedgerEntry{
+				ReservationID: r.ID,
+				OrgUnitID:     r.OrgUnitID,
+				Action:        r.Action,
+				SubjectType:   models.Subject(subjectFromAPILocal(s.GetType())),
+				SubjectID:     s.GetId(),
+				CurrencyCode:  r.CurrencyCode,
+				Amount:        r.Amount,
+				CommittedAt:   now,
+			}
+			e.ID = util.IDString()
+			entries = append(entries, e)
+		}
+		if len(entries) > 0 {
+			if err := tx.Create(&entries).Error; err != nil {
+				return nil, connect.NewError(connect.CodeInternal, err)
+			}
+		}
+	}
+
+	// 8. Commit transaction.
+	if err := tx.Commit().Error; err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	txCommitted = true
+
+	// Apply in-memory so ToAPI reflects committed state.
+	r.Status = models.ReservationStatusCommitted
+	r.CommittedAt = &now
+
+	// 9. Audit.
+	b.auditing.RecordReservationCommitted(ctx, r)
+
+	return &limitsv1.CommitResponse{Reservation: r.ToAPI()}, nil
+}
+
+// ─── Release ───────────────────────────────────────────────────────────────
+
+func (b *reservationBusiness) Release(
+	ctx context.Context,
+	reservationID, reason string,
+) (*limitsv1.ReleaseResponse, error) {
+	// 1. Fetch.
+	r, err := b.resvRepo.GetByID(ctx, reservationID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("reservation %s not found", reservationID))
+	}
+
+	// 2. Idempotent: already released.
+	if r.Status == models.ReservationStatusReleased {
+		return &limitsv1.ReleaseResponse{Reservation: r.ToAPI()}, nil
+	}
+
+	// 3. Must be active or pending_approval.
+	if r.Status != models.ReservationStatusActive && r.Status != models.ReservationStatusPendingApproval {
+		return nil, connect.NewError(connect.CodeFailedPrecondition,
+			fmt.Errorf("cannot release reservation with status %s", r.Status))
+	}
+
+	now := time.Now().UTC()
+
+	// 4. Update reservation row.
+	if err := b.resvRepo.SetReleased(ctx, reservationID, reason, now); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 5. Cancel any pending approval requests.
+	approvals, listErr := b.approvalRepo.ListByReservation(ctx, reservationID)
+	if listErr != nil {
+		return nil, connect.NewError(connect.CodeInternal, listErr)
+	}
+	for _, ar := range approvals {
+		if ar.Status == models.ApprovalStatusPending {
+			if setErr := b.approvalRepo.SetStatus(ctx, ar.ID, models.ApprovalStatusRejected, &now); setErr != nil {
+				return nil, connect.NewError(connect.CodeInternal, setErr)
+			}
+		}
+	}
+
+	// Apply in-memory so ToAPI reflects released state.
+	r.Status = models.ReservationStatusReleased
+	r.ReleasedAt = &now
+
+	// 6. Audit.
+	b.auditing.RecordReservationReleased(ctx, r, reason)
+
+	return &limitsv1.ReleaseResponse{Reservation: r.ToAPI()}, nil
+}
+
+// ─── Reverse ───────────────────────────────────────────────────────────────
+
+func (b *reservationBusiness) Reverse(
+	ctx context.Context,
+	reservationID, idempotencyKey, reason string,
+) (*limitsv1.ReverseResponse, error) {
+	// 1. Idempotency: check if a reversal-reservation already exists for this key.
+	if existing, _ := b.resvRepo.GetByIdempotencyKey(ctx, idempotencyKey); existing != nil &&
+		existing.ReversesReservationID != nil && *existing.ReversesReservationID == reservationID {
+		original, origErr := b.resvRepo.GetByID(ctx, reservationID)
+		if origErr != nil {
+			return nil, connect.NewError(connect.CodeInternal, origErr)
+		}
+		return &limitsv1.ReverseResponse{
+			OriginalReservation: original.ToAPI(),
+			ReversalReservation: existing.ToAPI(),
+		}, nil
+	}
+
+	// 2. Fetch original.
+	original, err := b.resvRepo.GetByID(ctx, reservationID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("reservation %s not found", reservationID))
+	}
+
+	// 3. Must be committed.
+	if original.Status != models.ReservationStatusCommitted {
+		return nil, connect.NewError(connect.CodeFailedPrecondition,
+			fmt.Errorf("reservation must be committed to reverse; current status: %s", original.Status))
+	}
+
+	now := time.Now().UTC()
+
+	// 4-9. Open transaction.
+	db := b.dbPool.DB(ctx, false)
+	tx := db.Begin()
+	if tx.Error != nil {
+		return nil, connect.NewError(connect.CodeInternal, tx.Error)
+	}
+	txCommitted := false
+	defer func() {
+		if !txCommitted {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// 5. Mark ledger entries reversed (within the transaction for atomicity).
+	if err := tx.Table(models.LedgerEntry{}.TableName()).
+		Where("reservation_id = ? AND reversed_at IS NULL", original.ID).
+		Update("reversed_at", now).Error; err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 6. Create traceability reservation.
+	traceability := &models.Reservation{
+		IdempotencyKey:        idempotencyKey,
+		OrgUnitID:             original.OrgUnitID,
+		Action:                original.Action,
+		CurrencyCode:          original.CurrencyCode,
+		Amount:                original.Amount,
+		SubjectRefs:           original.SubjectRefs,
+		MakerID:               original.MakerID,
+		Status:                models.ReservationStatusReversed,
+		IsShadow:              original.IsShadow,
+		PoliciesEvaluated:     original.PoliciesEvaluated,
+		ReversesReservationID: &original.ID,
+		Notes:                 reason,
+		ReservedAt:            now,
+		TTLAt:                 now,
+		CommittedAt:           &now,
+	}
+	traceability.ID = util.IDString()
+	// Inherit tenancy fields from original.
+	traceability.TenantID = original.TenantID
+	traceability.PartitionID = original.PartitionID
+
+	if err := tx.Create(traceability).Error; err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 8. Mark original status reversed.
+	if err := tx.Table(models.Reservation{}.TableName()).
+		Where("id = ?", original.ID).
+		Updates(map[string]any{
+			"status":      string(models.ReservationStatusReversed),
+			"modified_at": now,
+		}).Error; err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// 9. Commit transaction.
+	if err := tx.Commit().Error; err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	txCommitted = true
+
+	// Apply in-memory.
+	original.Status = models.ReservationStatusReversed
+
+	// 10. Audit.
+	b.auditing.RecordReservationReversed(ctx, original, reason)
+
+	return &limitsv1.ReverseResponse{
+		OriginalReservation: original.ToAPI(),
+		ReversalReservation: traceability.ToAPI(),
+	}, nil
+}
+
 // ─── Helpers ───────────────────────────────────────────────────────────
 
 func validateIntent(intent *limitsv1.LimitIntent) error {
@@ -413,6 +807,27 @@ func subjectToAPILocal(t models.Subject) limitsv1.SubjectType {
 		return limitsv1.SubjectType_SUBJECT_TYPE_WORKFORCE_MEMBER
 	default:
 		return limitsv1.SubjectType_SUBJECT_TYPE_UNSPECIFIED
+	}
+}
+
+// subjectFromAPILocal is the inverse of subjectToAPILocal: converts a proto
+// SubjectType back to the models.Subject string used in ledger entries.
+func subjectFromAPILocal(t limitsv1.SubjectType) models.Subject {
+	switch t {
+	case limitsv1.SubjectType_SUBJECT_TYPE_CLIENT:
+		return models.SubjectClient
+	case limitsv1.SubjectType_SUBJECT_TYPE_ACCOUNT:
+		return models.SubjectAccount
+	case limitsv1.SubjectType_SUBJECT_TYPE_PRODUCT:
+		return models.SubjectProduct
+	case limitsv1.SubjectType_SUBJECT_TYPE_ORGANIZATION:
+		return models.SubjectOrganization
+	case limitsv1.SubjectType_SUBJECT_TYPE_ORG_UNIT:
+		return models.SubjectOrgUnit
+	case limitsv1.SubjectType_SUBJECT_TYPE_WORKFORCE_MEMBER:
+		return models.SubjectWorkforceMember
+	default:
+		return ""
 	}
 }
 

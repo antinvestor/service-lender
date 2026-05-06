@@ -473,6 +473,393 @@ func seedLedger(
 	require.NoError(t, ledgerRepo.CreateBatch(ctx, []*models.LedgerEntry{entry}))
 }
 
+// ─── Commit tests ─────────────────────────────────────────────────────────────
+
+// TestCommit_HappyPath: Reserve → Commit → ledger entries present (WindowSum > 0).
+func (s *ReservationBusinessSuite) TestCommit_HappyPath() {
+	ctx, biz, _, policyRepo, ledgerRepo := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	intent := kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500)
+	resp, err := biz.Reserve(ctx, intent, "commit-happy-1", 5*time.Minute)
+	s.Require().NoError(err)
+	resvID := resp.GetReservation().GetId()
+
+	commitResp, err := biz.Commit(ctx, resvID)
+	s.Require().NoError(err)
+	s.Require().NotNil(commitResp.GetReservation())
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_COMMITTED, commitResp.GetReservation().GetStatus())
+
+	// WindowSum should reflect the committed amount.
+	sum, err := ledgerRepo.WindowSum(ctx, models.ActionLoanDisbursement, "KES",
+		repository.SubjectFilter{Type: models.SubjectClient, ID: "client-1"},
+		time.Now().Add(-1*time.Hour),
+	)
+	s.Require().NoError(err)
+	s.Equal(int64(500*100), sum)
+}
+
+// TestCommit_Idempotent: second Commit returns the committed reservation without error.
+func (s *ReservationBusinessSuite) TestCommit_Idempotent() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 300),
+		"commit-idem-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	resvID := resp.GetReservation().GetId()
+
+	_, err = biz.Commit(ctx, resvID)
+	s.Require().NoError(err)
+
+	// Second commit must succeed idempotently.
+	resp2, err := biz.Commit(ctx, resvID)
+	s.Require().NoError(err)
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_COMMITTED, resp2.GetReservation().GetStatus())
+}
+
+// TestCommit_PendingApprovalFails: a reservation waiting for approval returns FailedPrecondition.
+func (s *ReservationBusinessSuite) TestCommit_PendingApprovalFails() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	polIn := perTxnMaxPolicy(
+		"KES", 1000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	)
+	polIn.ApproverTiers = []*limitsv1.ApproverTier{
+		{UpTo: 500000, Role: "manager", Approvers: 1},
+	}
+	seedPolicy(s.T(), ctx, policyRepo, polIn)
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 2000),
+		"commit-pending-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_PENDING_APPROVAL, resp.GetReservation().GetStatus())
+
+	_, err = biz.Commit(ctx, resp.GetReservation().GetId())
+	s.Require().Error(err)
+	var connectErr *connect.Error
+	s.Require().ErrorAs(err, &connectErr)
+	s.Equal(connect.CodeFailedPrecondition, connectErr.Code())
+}
+
+// TestCommit_NotFound: Commit on unknown id returns NotFound.
+func (s *ReservationBusinessSuite) TestCommit_NotFound() {
+	ctx, biz, _, _, _ := s.resvEnv("tenant-a", "partition-a")
+
+	_, err := biz.Commit(ctx, "nonexistent-id")
+	s.Require().Error(err)
+	var connectErr *connect.Error
+	s.Require().ErrorAs(err, &connectErr)
+	s.Equal(connect.CodeNotFound, connectErr.Code())
+}
+
+// TestCommit_ShadowSkipsLedger: shadow reservation commits but no ledger row is created.
+func (s *ReservationBusinessSuite) TestCommit_ShadowSkipsLedger() {
+	ctx, biz, _, policyRepo, ledgerRepo := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 1000, limitsv1.PolicyMode_POLICY_MODE_SHADOW,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	// Shadow breach → reservation created with is_shadow=true.
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 2000),
+		"commit-shadow-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	s.True(resp.GetReservation().GetIsShadow())
+
+	commitResp, err := biz.Commit(ctx, resp.GetReservation().GetId())
+	s.Require().NoError(err)
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_COMMITTED, commitResp.GetReservation().GetStatus())
+
+	// No ledger entries should exist for this reservation.
+	sum, err := ledgerRepo.WindowSum(ctx, models.ActionLoanDisbursement, "KES",
+		repository.SubjectFilter{Type: models.SubjectClient, ID: "client-1"},
+		time.Now().Add(-1*time.Hour),
+	)
+	s.Require().NoError(err)
+	s.Equal(int64(0), sum)
+}
+
+// ─── Release tests ─────────────────────────────────────────────────────────────
+
+// TestRelease_HappyPath: Reserve → Release → status=released.
+func (s *ReservationBusinessSuite) TestRelease_HappyPath() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500),
+		"release-happy-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+
+	releaseResp, err := biz.Release(ctx, resp.GetReservation().GetId(), "caller released")
+	s.Require().NoError(err)
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_RELEASED, releaseResp.GetReservation().GetStatus())
+}
+
+// TestRelease_PendingApprovalCascadesApprovalRejection: pending approval reservation
+// gets released, and the open approval request transitions to rejected.
+func (s *ReservationBusinessSuite) TestRelease_PendingApprovalCascadesApprovalRejection() {
+	ctx, biz, dbPool, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	polIn := perTxnMaxPolicy(
+		"KES", 1000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	)
+	polIn.ApproverTiers = []*limitsv1.ApproverTier{
+		{UpTo: 500000, Role: "manager", Approvers: 1},
+	}
+	seedPolicy(s.T(), ctx, policyRepo, polIn)
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 2000),
+		"release-approval-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_PENDING_APPROVAL, resp.GetReservation().GetStatus())
+	resvID := resp.GetReservation().GetId()
+
+	_, err = biz.Release(ctx, resvID, "released by caller")
+	s.Require().NoError(err)
+
+	// Approval request should now be rejected.
+	var status string
+	dbPool.DB(ctx, true).
+		Table("limits_approval_requests").
+		Where("reservation_id = ?", resvID).
+		Select("status").
+		Scan(&status)
+	s.Equal("rejected", status)
+}
+
+// TestRelease_Idempotent: double-Release is a no-op.
+func (s *ReservationBusinessSuite) TestRelease_Idempotent() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500),
+		"release-idem-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	resvID := resp.GetReservation().GetId()
+
+	_, err = biz.Release(ctx, resvID, "first release")
+	s.Require().NoError(err)
+
+	// Second release must succeed idempotently.
+	resp2, err := biz.Release(ctx, resvID, "second release")
+	s.Require().NoError(err)
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_RELEASED, resp2.GetReservation().GetStatus())
+}
+
+// ─── Reverse tests ─────────────────────────────────────────────────────────────
+
+// TestReverse_HappyPath: Reserve → Commit → Reverse; subsequent WindowSum excludes entries.
+func (s *ReservationBusinessSuite) TestReverse_HappyPath() {
+	ctx, biz, _, policyRepo, ledgerRepo := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500),
+		"reverse-happy-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	resvID := resp.GetReservation().GetId()
+
+	_, err = biz.Commit(ctx, resvID)
+	s.Require().NoError(err)
+
+	// WindowSum before reversal.
+	sum, err := ledgerRepo.WindowSum(ctx, models.ActionLoanDisbursement, "KES",
+		repository.SubjectFilter{Type: models.SubjectClient, ID: "client-1"},
+		time.Now().Add(-1*time.Hour),
+	)
+	s.Require().NoError(err)
+	s.Equal(int64(500*100), sum)
+
+	revResp, err := biz.Reverse(ctx, resvID, "rev-idem-happy-1", "test reversal")
+	s.Require().NoError(err)
+	s.Require().NotNil(revResp.GetOriginalReservation())
+	s.Require().NotNil(revResp.GetReversalReservation())
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_REVERSED, revResp.GetOriginalReservation().GetStatus())
+	s.Equal(limitsv1.ReservationStatus_RESERVATION_STATUS_REVERSED, revResp.GetReversalReservation().GetStatus())
+
+	// WindowSum after reversal should be 0 (reversed entries are excluded).
+	sum, err = ledgerRepo.WindowSum(ctx, models.ActionLoanDisbursement, "KES",
+		repository.SubjectFilter{Type: models.SubjectClient, ID: "client-1"},
+		time.Now().Add(-1*time.Hour),
+	)
+	s.Require().NoError(err)
+	s.Equal(int64(0), sum)
+}
+
+// TestReverse_NotCommittedFails: Reverse on an active (not committed) reservation
+// returns FailedPrecondition.
+func (s *ReservationBusinessSuite) TestReverse_NotCommittedFails() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500),
+		"reverse-notcommit-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+
+	_, err = biz.Reverse(ctx, resp.GetReservation().GetId(), "rev-nc-1", "should fail")
+	s.Require().Error(err)
+	var connectErr *connect.Error
+	s.Require().ErrorAs(err, &connectErr)
+	s.Equal(connect.CodeFailedPrecondition, connectErr.Code())
+}
+
+// TestReverse_Idempotent: double-Reverse with the same idempotency_key returns
+// the same traceability reservation id.
+func (s *ReservationBusinessSuite) TestReverse_Idempotent() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	resp, err := biz.Reserve(
+		ctx,
+		kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500),
+		"reverse-idem-base-1",
+		5*time.Minute,
+	)
+	s.Require().NoError(err)
+	resvID := resp.GetReservation().GetId()
+
+	_, err = biz.Commit(ctx, resvID)
+	s.Require().NoError(err)
+
+	rev1, err := biz.Reverse(ctx, resvID, "rev-idem-key-1", "first reversal")
+	s.Require().NoError(err)
+
+	rev2, err := biz.Reverse(ctx, resvID, "rev-idem-key-1", "second reversal (same key)")
+	s.Require().NoError(err)
+
+	// Both calls return the same traceability reservation.
+	s.Equal(rev1.GetReversalReservation().GetId(), rev2.GetReversalReservation().GetId())
+}
+
+// ─── Check tests ─────────────────────────────────────────────────────────────
+
+// TestCheck_HappyPath: under cap → allowed=true, requires_approval=false.
+func (s *ReservationBusinessSuite) TestCheck_HappyPath() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 10000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	checkResp, err := biz.Check(ctx, kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 500))
+	s.Require().NoError(err)
+	s.True(checkResp.GetAllowed())
+	s.False(checkResp.GetRequiresApproval())
+	s.Empty(checkResp.GetBreachedPolicyIds())
+}
+
+// TestCheck_HardBreach: over cap → allowed=false, breached_policy_ids populated.
+func (s *ReservationBusinessSuite) TestCheck_HardBreach() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	seedPolicy(s.T(), ctx, policyRepo, perTxnMaxPolicy(
+		"KES", 1000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	))
+
+	checkResp, err := biz.Check(ctx, kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 2000))
+	s.Require().NoError(err)
+	s.False(checkResp.GetAllowed())
+	s.NotEmpty(checkResp.GetBreachedPolicyIds())
+}
+
+// TestCheck_ApprovalRequired: approver-tier-covered amount → requires_approval=true.
+func (s *ReservationBusinessSuite) TestCheck_ApprovalRequired() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	polIn := perTxnMaxPolicy(
+		"KES", 1000, limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+	)
+	polIn.ApproverTiers = []*limitsv1.ApproverTier{
+		{UpTo: 500000, Role: "branch_manager", Approvers: 2},
+	}
+	seedPolicy(s.T(), ctx, policyRepo, polIn)
+
+	checkResp, err := biz.Check(ctx, kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 2000))
+	s.Require().NoError(err)
+	s.True(checkResp.GetAllowed())
+	s.True(checkResp.GetRequiresApproval())
+	s.Equal(int32(2), checkResp.GetRequiredApprovers())
+}
+
 func TestReservationBusinessSuite(t *testing.T) {
 	suite.Run(t, new(ReservationBusinessSuite))
 }
