@@ -328,6 +328,76 @@ service LimitsService {
 }
 
 service LimitsAdminService {
+  option (common.v1.service_permissions) = {
+    namespace: "service_limits"
+    permissions: [
+      "limits_use",
+      "limits_policy_manage",
+      "limits_policy_view",
+      "limits_approval_view",
+      "limits_approval_act",
+      "limits_approval_override",
+      "limits_ledger_view"
+    ]
+    role_bindings: [
+      {
+        role: ROLE_OWNER
+        permissions: [
+          "limits_use",
+          "limits_policy_manage",
+          "limits_policy_view",
+          "limits_approval_view",
+          "limits_approval_act",
+          "limits_approval_override",
+          "limits_ledger_view"
+        ]
+      },
+      {
+        role: ROLE_ADMIN
+        permissions: [
+          "limits_use",
+          "limits_policy_manage",
+          "limits_policy_view",
+          "limits_approval_view",
+          "limits_approval_act",
+          "limits_approval_override",
+          "limits_ledger_view"
+        ]
+      },
+      {
+        role: ROLE_OPERATOR
+        permissions: [
+          "limits_policy_view",
+          "limits_approval_view",
+          "limits_approval_act",
+          "limits_ledger_view"
+        ]
+      },
+      {
+        role: ROLE_VIEWER
+        permissions: [
+          "limits_policy_view",
+          "limits_approval_view",
+          "limits_ledger_view"
+        ]
+      },
+      {
+        role: ROLE_MEMBER
+        permissions: [
+          "limits_policy_view",
+          "limits_approval_view",
+          "limits_ledger_view"
+        ]
+      },
+      {
+        role: ROLE_SERVICE
+        permissions: [
+          "limits_use"
+        ]
+      }
+    ]
+  };
+
   rpc PolicySave(PolicySaveRequest) returns (PolicySaveResponse) {
     option (common.v1.method_permissions) = { permissions: ["limits_policy_manage"] };
   }

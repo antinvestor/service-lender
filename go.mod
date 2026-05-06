@@ -44,6 +44,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.43.0
 	google.golang.org/genproto v0.0.0-20260427160629-7cedc36a6bc4
 	google.golang.org/protobuf v1.36.11
+	gorm.io/datatypes v1.2.7
 	gorm.io/gorm v1.31.1
 )
 
@@ -178,7 +179,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260427160629-7cedc36a6bc4 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
