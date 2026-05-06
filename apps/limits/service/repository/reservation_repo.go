@@ -1,0 +1,218 @@
+// Copyright 2023-2026 Ant Investor Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package repository
+
+import (
+	"context"
+	"errors"
+	"time"
+
+	"github.com/pitabwire/frame/datastore"
+	"github.com/pitabwire/frame/datastore/pool"
+	"github.com/pitabwire/frame/datastore/scopes"
+	"github.com/pitabwire/frame/workerpool"
+	"github.com/pitabwire/util"
+
+	"github.com/antinvestor/service-fintech/apps/limits/service/models"
+)
+
+// SubjectFilter narrows pending-sum queries to a specific subject ref.
+type SubjectFilter struct {
+	Type models.Subject
+	ID   string
+}
+
+// ReservationRepository persists Reservation rows. Read paths route through
+// the BaseRepository; aggregate queries (PendingSum, ListExpiredActive) drop
+// to a raw pool because the BaseRepository surface does not cover them.
+type ReservationRepository interface {
+	Create(ctx context.Context, r *models.Reservation) error
+	GetByID(ctx context.Context, id string) (*models.Reservation, error)
+	GetByIdempotencyKey(ctx context.Context, key string) (*models.Reservation, error)
+	PendingSum(ctx context.Context, action models.Action, currency string, subject SubjectFilter) (int64, error)
+	PendingCount(
+		ctx context.Context,
+		action models.Action,
+		currency string,
+		subject SubjectFilter,
+		since time.Time,
+	) (int64, error)
+	SetCommitted(ctx context.Context, id string, at time.Time) error
+	SetReleased(ctx context.Context, id, reason string, at time.Time) error
+	SetExpired(ctx context.Context, id string, at time.Time) error
+	SetReversed(ctx context.Context, id string, at time.Time) error
+	SetPendingApproval(ctx context.Context, id string) error
+	SetActive(ctx context.Context, id string) error
+	ListExpiredActive(ctx context.Context, before time.Time, limit int) ([]*models.Reservation, error)
+}
+
+type reservationRepository struct {
+	datastore.BaseRepository[*models.Reservation]
+	dbPool pool.Pool
+}
+
+// NewReservationRepository constructs the repository.
+func NewReservationRepository(ctx context.Context, p pool.Pool, workMan workerpool.Manager) ReservationRepository {
+	r := &reservationRepository{dbPool: p}
+	r.BaseRepository = datastore.NewBaseRepository[*models.Reservation](
+		ctx, p, workMan,
+		func() *models.Reservation { return &models.Reservation{} },
+	)
+	return r
+}
+
+func (r *reservationRepository) Create(ctx context.Context, m *models.Reservation) error {
+	if m.ID == "" {
+		m.ID = util.IDString()
+	}
+	return r.BaseRepository.Create(ctx, m)
+}
+
+func (r *reservationRepository) GetByIdempotencyKey(ctx context.Context, key string) (*models.Reservation, error) {
+	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var out models.Reservation
+	if err := db.Where("idempotency_key = ?", key).First(&out).Error; err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (r *reservationRepository) PendingSum(
+	ctx context.Context,
+	action models.Action,
+	currency string,
+	subject SubjectFilter,
+) (int64, error) {
+	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var sum int64
+	err := db.Table(models.Reservation{}.TableName()).
+		Where("action = ? AND currency_code = ?", string(action), currency).
+		Where("status IN ?", []string{string(models.ReservationStatusActive), string(models.ReservationStatusPendingApproval)}).
+		Where("ttl_at > ?", time.Now().UTC()).
+		Where("subject_refs @> ?::jsonb", subjectMatch(subject)).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&sum).Error
+	if err != nil {
+		return 0, err
+	}
+	return sum, nil
+}
+
+func (r *reservationRepository) PendingCount(
+	ctx context.Context,
+	action models.Action,
+	currency string,
+	subject SubjectFilter,
+	since time.Time,
+) (int64, error) {
+	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var count int64
+	err := db.Table(models.Reservation{}.TableName()).
+		Where("action = ? AND currency_code = ?", string(action), currency).
+		Where("status IN ?", []string{string(models.ReservationStatusActive), string(models.ReservationStatusPendingApproval)}).
+		Where("reserved_at >= ?", since).
+		Where("subject_refs @> ?::jsonb", subjectMatch(subject)).
+		Count(&count).Error
+	return count, err
+}
+
+// subjectMatch returns a JSON fragment suitable for the PostgreSQL jsonb @> operator.
+func subjectMatch(s SubjectFilter) string {
+	return `[{"type":"` + string(s.Type) + `","id":"` + s.ID + `"}]`
+}
+
+func (r *reservationRepository) SetCommitted(ctx context.Context, id string, at time.Time) error {
+	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
+	res := db.Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", id, string(models.ReservationStatusActive)).
+		Updates(map[string]any{
+			"status":       string(models.ReservationStatusCommitted),
+			"committed_at": at,
+			"modified_at":  at,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("reservation: cannot commit (not active or missing)")
+	}
+	return nil
+}
+
+func (r *reservationRepository) SetReleased(ctx context.Context, id, reason string, at time.Time) error {
+	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
+	res := db.Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status IN ?", id, []string{string(models.ReservationStatusActive), string(models.ReservationStatusPendingApproval)}).
+		Updates(map[string]any{
+			"status":      string(models.ReservationStatusReleased),
+			"released_at": at,
+			"notes":       reason,
+			"modified_at": at,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("reservation: cannot release (terminal or missing)")
+	}
+	return nil
+}
+
+func (r *reservationRepository) SetExpired(ctx context.Context, id string, at time.Time) error {
+	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
+	return db.Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", id, string(models.ReservationStatusActive)).
+		Updates(map[string]any{"status": string(models.ReservationStatusExpired), "modified_at": at}).Error
+}
+
+func (r *reservationRepository) SetReversed(ctx context.Context, id string, at time.Time) error {
+	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
+	return db.Table(models.Reservation{}.TableName()).
+		Where("id = ?", id).
+		Updates(map[string]any{"status": string(models.ReservationStatusReversed), "modified_at": at}).Error
+}
+
+func (r *reservationRepository) SetPendingApproval(ctx context.Context, id string) error {
+	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
+	return db.Table(models.Reservation{}.TableName()).
+		Where("id = ?", id).
+		Updates(map[string]any{"status": string(models.ReservationStatusPendingApproval), "modified_at": time.Now().UTC()}).
+		Error
+}
+
+func (r *reservationRepository) SetActive(ctx context.Context, id string) error {
+	db := r.dbPool.DB(ctx, false).Scopes(scopes.TenancyPartition(ctx))
+	return db.Table(models.Reservation{}.TableName()).
+		Where("id = ? AND status = ?", id, string(models.ReservationStatusPendingApproval)).
+		Updates(map[string]any{"status": string(models.ReservationStatusActive), "modified_at": time.Now().UTC()}).Error
+}
+
+func (r *reservationRepository) ListExpiredActive(
+	ctx context.Context,
+	before time.Time,
+	limit int,
+) ([]*models.Reservation, error) {
+	if limit <= 0 {
+		limit = 1000
+	}
+	// Reaper queries cross-tenant: skip TenancyPartition.
+	db := r.dbPool.DB(ctx, true)
+	var rows []*models.Reservation
+	err := db.Where("status = ? AND ttl_at < ?", string(models.ReservationStatusActive), before).
+		Order("ttl_at ASC").
+		Limit(limit).
+		Find(&rows).Error
+	return rows, err
+}
