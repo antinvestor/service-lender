@@ -49,7 +49,7 @@ import (
 	"github.com/antinvestor/service-fintech/apps/loans/service/repository"
 
 	"github.com/antinvestor/service-fintech/pkg/audit"
-	"github.com/antinvestor/service-fintech/pkg/limits/outbox"
+	"github.com/antinvestor/service-fintech/pkg/limits/consumer"
 )
 
 func main() {
@@ -116,9 +116,7 @@ func main() {
 		return
 	}
 
-	outboxRepo := outbox.NewRepository(ctx, dbPool, workMan)
-	outboxWorker := outbox.NewWorker(outboxRepo, limitsCli, workMan)
-	limitsDrainHandler := handlers.NewLimitsOutboxDrainHandler(outboxWorker)
+	_, limitsDrainHandler := consumer.SetupOutboxStack(ctx, dbPool, workMan, limitsCli)
 
 	serviceOptions := setupServiceOptions(
 		ctx,
@@ -153,7 +151,7 @@ func setupServiceOptions(
 	operationsCli operationsv1connect.OperationsServiceClient,
 	limitsCli limitsv1connect.LimitsServiceClient,
 	limitsGateEnabled bool,
-	limitsDrainHandler *handlers.LimitsOutboxDrainHandler,
+	limitsDrainHandler http.Handler,
 ) []frame.Option {
 	lpRepo := repository.NewLoanProductRepository(ctx, dbPool, workMan)
 	loanRequestRepo := repository.NewLoanRequestRepository(ctx, dbPool, workMan)
@@ -315,7 +313,7 @@ func setupConnectServer(
 	portfolioBusiness business.PortfolioBusiness,
 	disbBusiness business.DisbursementBusiness,
 	statusChangeRepo repository.LoanStatusChangeRepository,
-	limitsDrainHandler *handlers.LimitsOutboxDrainHandler,
+	limitsDrainHandler http.Handler,
 ) http.Handler {
 	// Create handler with injected dependencies
 	lmHandler := handlers.NewLoanManagementServer(

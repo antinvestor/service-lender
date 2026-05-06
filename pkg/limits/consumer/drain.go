@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers
+package consumer
 
 import (
 	"encoding/json"
@@ -23,24 +23,22 @@ import (
 	"github.com/antinvestor/service-fintech/pkg/limits/outbox"
 )
 
-// LimitsOutboxDrainHandler exposes the limits-outbox drain as a non-Connect
-// HTTP endpoint. It is intentionally not part of the LoanManagementService
-// proto — it's an internal admin trigger called by the platform's Trustage
-// workflow scheduler, not by user-facing clients.
-type LimitsOutboxDrainHandler struct {
+// drainHandler exposes the limits-outbox drain as a non-Connect HTTP endpoint.
+// It is intentionally not part of any proto service — it's an internal admin
+// trigger called by the platform's Trustage workflow scheduler.
+type drainHandler struct {
 	worker *outbox.Worker
 }
 
-// NewLimitsOutboxDrainHandler constructs the handler around an existing
-// outbox.Worker. The worker is configured in main.go.
-func NewLimitsOutboxDrainHandler(w *outbox.Worker) *LimitsOutboxDrainHandler {
-	return &LimitsOutboxDrainHandler{worker: w}
+// newDrainHandler constructs the handler around an existing outbox.Worker.
+func newDrainHandler(w *outbox.Worker) http.Handler {
+	return &drainHandler{worker: w}
 }
 
-// ServeHTTP responds to POST requests by draining one batch of outbox
-// rows. Returns 200 with {drained: N} on success, 405 for non-POST,
+// ServeHTTP responds to POST requests by draining one batch of outbox rows.
+// Returns 200 with {drained: N} on success, 405 for non-POST,
 // 503 if the worker isn't configured, 500 on drain error.
-func (h *LimitsOutboxDrainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *drainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return

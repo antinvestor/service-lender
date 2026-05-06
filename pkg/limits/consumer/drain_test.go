@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handlers_test
+package consumer
 
 import (
 	"net/http"
@@ -20,20 +20,18 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/antinvestor/service-fintech/apps/loans/service/handlers"
 )
 
-func TestLimitsOutboxDrainHandler_RejectsGET(t *testing.T) {
-	h := handlers.NewLimitsOutboxDrainHandler(nil)
+func TestDrain_RejectsGET(t *testing.T) {
+	h := newDrainHandler(nil)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/admin/limits-outbox/drain", nil)
 	h.ServeHTTP(w, r)
 	assert.Equal(t, http.StatusMethodNotAllowed, w.Result().StatusCode)
 }
 
-func TestLimitsOutboxDrainHandler_NilWorker_503(t *testing.T) {
-	h := handlers.NewLimitsOutboxDrainHandler(nil)
+func TestDrain_NilWorker_503(t *testing.T) {
+	h := newDrainHandler(nil)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/admin/limits-outbox/drain", nil)
 	h.ServeHTTP(w, r)
