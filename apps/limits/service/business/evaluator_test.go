@@ -98,7 +98,10 @@ func (s *stubResvRepo) SetReleased(_ context.Context, _, _ string, _ time.Time) 
 func (s *stubResvRepo) SetReleasedTx(_ context.Context, _ *gorm.DB, _, _ string, _ time.Time) error {
 	return nil
 }
-func (s *stubResvRepo) SetExpired(_ context.Context, _ string, _ time.Time) error  { return nil }
+func (s *stubResvRepo) SetExpired(_ context.Context, _ string, _ time.Time) error { return nil }
+func (s *stubResvRepo) BulkSetExpired(_ context.Context, _ []string, _ time.Time) (int, error) {
+	return 0, nil
+}
 func (s *stubResvRepo) SetReversed(_ context.Context, _ string, _ time.Time) error { return nil }
 func (s *stubResvRepo) SetReversedTx(_ context.Context, _ *gorm.DB, _ string, _ time.Time) error {
 	return nil

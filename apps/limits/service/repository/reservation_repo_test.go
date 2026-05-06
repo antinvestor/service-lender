@@ -148,6 +148,42 @@ func (s *ReservationRepoSuite) TestTransitionToCommitted() {
 	s.NotNil(got.CommittedAt)
 }
 
+func (s *ReservationRepoSuite) TestBulkSetExpired_OnlyTouchesActive() {
+	ctx, repo := s.newEnv("t-1", "p-1")
+
+	// Three reservations: two active, one committed.
+	active1 := sampleResv("bulk-active-1", models.ActionLoanDisbursement, 100)
+	active2 := sampleResv("bulk-active-2", models.ActionLoanDisbursement, 200)
+	committed := sampleResv("bulk-committed-1", models.ActionLoanDisbursement, 300)
+
+	s.Require().NoError(repo.Create(ctx, active1))
+	s.Require().NoError(repo.Create(ctx, active2))
+	s.Require().NoError(repo.Create(ctx, committed))
+
+	// Transition the third row to committed state.
+	s.Require().NoError(repo.SetCommitted(ctx, committed.ID, time.Now().UTC()))
+
+	// Call BulkSetExpired with all three IDs.
+	now := time.Now().UTC()
+	n, err := repo.BulkSetExpired(ctx, []string{active1.ID, active2.ID, committed.ID}, now)
+	s.Require().NoError(err)
+	s.Equal(2, n, "only the two active rows should be updated")
+
+	// Verify the active rows flipped.
+	got1, err := repo.GetByID(ctx, active1.ID)
+	s.Require().NoError(err)
+	s.Equal(models.ReservationStatusExpired, got1.Status)
+
+	got2, err := repo.GetByID(ctx, active2.ID)
+	s.Require().NoError(err)
+	s.Equal(models.ReservationStatusExpired, got2.Status)
+
+	// Verify the committed row is unchanged.
+	gotC, err := repo.GetByID(ctx, committed.ID)
+	s.Require().NoError(err)
+	s.Equal(models.ReservationStatusCommitted, gotC.Status)
+}
+
 func TestReservationRepoSuite(t *testing.T) {
 	suite.Run(t, new(ReservationRepoSuite))
 }

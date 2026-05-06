@@ -50,12 +50,21 @@ func (r *ReservationReaper) Run(ctx context.Context) error {
 		return err
 	}
 	log := util.Log(ctx).With("reaper", "reservation_ttl")
+
+	ids := make([]string, len(rows))
+	for i, row := range rows {
+		ids[i] = row.ID
+	}
+	n, err := r.repo.BulkSetExpired(ctx, ids, now)
+	if err != nil {
+		return err
+	}
+	if n > 0 {
+		log.With("expired_count", n).Info("reaper bulk update")
+	}
+	// Record audit events for each successfully reaped row. The bulk UPDATE
+	// transitions rows atomically; we audit after the fact.
 	for _, row := range rows {
-		if err := r.repo.SetExpired(ctx, row.ID, now); err != nil {
-			log.WithError(err).With("reservation_id", row.ID).
-				Error("failed to expire reservation")
-			continue
-		}
 		r.auditing.RecordReservationExpiredTTL(ctx, row)
 	}
 	if len(rows) > 0 {

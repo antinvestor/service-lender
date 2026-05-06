@@ -76,6 +76,11 @@ type ReservationRepository interface {
 	// SetReleasedTx runs SetReleased inside caller-supplied tx (with tenant scope + rows-affected guard).
 	SetReleasedTx(ctx context.Context, tx *gorm.DB, id, reason string, at time.Time) error
 	SetExpired(ctx context.Context, id string, at time.Time) error
+	// BulkSetExpired transitions all rows in ids from 'active' to 'expired'
+	// in a single UPDATE ... WHERE id IN (...) round-trip. Cross-tenant:
+	// TenancyPartition is intentionally not applied (matches ListExpiredActive).
+	// Returns the number of rows actually updated.
+	BulkSetExpired(ctx context.Context, ids []string, at time.Time) (int, error)
 	SetReversed(ctx context.Context, id string, at time.Time) error
 	// SetReversedTx runs SetReversed inside caller-supplied tx with status='committed' guard.
 	SetReversedTx(ctx context.Context, tx *gorm.DB, id string, at time.Time) error
@@ -281,6 +286,21 @@ func (r *reservationRepository) SetExpired(ctx context.Context, id string, at ti
 	return db.Table(models.Reservation{}.TableName()).
 		Where("id = ? AND status = ?", id, string(models.ReservationStatusActive)).
 		Updates(map[string]any{"status": string(models.ReservationStatusExpired), "modified_at": at}).Error
+}
+
+func (r *reservationRepository) BulkSetExpired(ctx context.Context, ids []string, at time.Time) (int, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	// Cross-tenant: TenancyPartition intentionally omitted to match ListExpiredActive.
+	res := r.dbPool.DB(ctx, false).
+		Table(models.Reservation{}.TableName()).
+		Where("id IN ? AND status = ?", ids, string(models.ReservationStatusActive)).
+		Updates(map[string]any{
+			"status":      string(models.ReservationStatusExpired),
+			"modified_at": at,
+		})
+	return int(res.RowsAffected), res.Error
 }
 
 func (r *reservationRepository) SetReversed(ctx context.Context, id string, at time.Time) error {
