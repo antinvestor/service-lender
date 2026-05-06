@@ -21,6 +21,9 @@ import (
 
 	limitsv1 "buf.build/gen/go/antinvestor/limits/protocolbuffers/go/limits/v1"
 	"github.com/pitabwire/util"
+	moneypb "google.golang.org/genproto/googleapis/type/money"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // TestReserve_ConcurrentSameSubject_RespectsCap spins 20 goroutines each
@@ -78,6 +81,66 @@ func (s *ReservationBusinessSuite) TestReserve_ConcurrentSameSubject_RespectsCap
 		"rolling-window cap must be respected under 20-way concurrency; successes=%d denials=%d",
 		successes.Load(), denials.Load())
 	// Sanity: total must equal goroutines.
+	s.Equal(int64(goroutines), successes.Load()+denials.Load(),
+		"every goroutine must have either succeeded or been denied")
+}
+
+// TestReserve_ConcurrentSameSubject_RollingCountCap spins 20 goroutines each
+// calling Reserve(amount=1 KES) against a rolling-window-count cap of 5.
+// At most 5 reservations may succeed; the rest must be denied.
+//
+// Before the WindowCountTx fix, all 20 goroutines could read "count below cap"
+// because WindowCount bypassed the advisory lock via the read pool. After the
+// fix, WindowCountTx participates in the same transaction that holds the lock.
+func (s *ReservationBusinessSuite) TestReserve_ConcurrentSameSubject_RollingCountCap() {
+	ctx, biz, _, policyRepo, _ := s.resvEnv("tenant-a", "partition-a")
+
+	countPolicy := &limitsv1.PolicyObject{
+		Scope:         limitsv1.PolicyScope_POLICY_SCOPE_ORG,
+		Action:        limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT,
+		SubjectType:   limitsv1.SubjectType_SUBJECT_TYPE_CLIENT,
+		CurrencyCode:  "KES",
+		LimitKind:     limitsv1.LimitKind_LIMIT_KIND_ROLLING_WINDOW_COUNT,
+		CapCount:      5,
+		Window:        durationpb.New(24 * time.Hour),
+		Mode:          limitsv1.PolicyMode_POLICY_MODE_ENFORCE,
+		EffectiveFrom: timestamppb.New(time.Now().Add(-1 * time.Hour).UTC()),
+		ApprovalTtl:   durationpb.New(72 * time.Hour),
+		// A minimum cap amount is required to satisfy validation; use 1 KES.
+		CapAmount: &moneypb.Money{CurrencyCode: "KES", Units: 1},
+	}
+	seedPolicy(s.T(), ctx, policyRepo, countPolicy)
+
+	const goroutines = 20
+	var wg sync.WaitGroup
+	var successes atomic.Int64
+	var denials atomic.Int64
+
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			idemKey := util.IDString()
+			resp, err := biz.Reserve(
+				ctx,
+				kesIntent(limitsv1.LimitAction_LIMIT_ACTION_LOAN_DISBURSEMENT, 1), // 1 KES
+				idemKey,
+				5*time.Minute,
+			)
+			if err == nil &&
+				resp.GetReservation().GetStatus() == limitsv1.ReservationStatus_RESERVATION_STATUS_ACTIVE {
+				successes.Add(1)
+			} else {
+				denials.Add(1)
+			}
+		}()
+	}
+	wg.Wait()
+
+	// cap=5 count → at most 5 can succeed.
+	s.LessOrEqual(successes.Load(), int64(5),
+		"rolling-count cap must be respected under 20-way concurrency; successes=%d denials=%d",
+		successes.Load(), denials.Load())
 	s.Equal(int64(goroutines), successes.Load()+denials.Load(),
 		"every goroutine must have either succeeded or been denied")
 }

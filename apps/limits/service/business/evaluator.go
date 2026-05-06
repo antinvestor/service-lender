@@ -130,7 +130,13 @@ func (e *Evaluator) evaluate(
 		}
 	case models.KindRollingWindowCount:
 		since := time.Now().Add(-time.Duration(p.WindowSeconds) * time.Second)
-		committed, err := e.ledgerRepo.WindowCount(ctx, p.Action, p.CurrencyCode, subject, since)
+		var committed int64
+		var err error
+		if tx != nil {
+			committed, err = e.ledgerRepo.WindowCountTx(ctx, tx, p.Action, p.CurrencyCode, subject, since)
+		} else {
+			committed, err = e.ledgerRepo.WindowCount(ctx, p.Action, p.CurrencyCode, subject, since)
+		}
 		if err != nil {
 			return nil, err
 		}

@@ -55,6 +55,17 @@ type LedgerRepository interface {
 		subject SubjectFilter,
 		since time.Time,
 	) (int64, error)
+	// WindowCountTx is identical to WindowCount but executes within the supplied
+	// gorm transaction, ensuring the read participates in the caller's tx
+	// and therefore observes the advisory lock acquired by Reserve.
+	WindowCountTx(
+		ctx context.Context,
+		tx *gorm.DB,
+		action models.Action,
+		currency string,
+		subject SubjectFilter,
+		since time.Time,
+	) (int64, error)
 	MarkReversed(ctx context.Context, reservationID string, at time.Time) error
 	Search(ctx context.Context, f LedgerSearchFilter, limit int, cursor string) (*LedgerSearchResult, error)
 	// HardDeleteBefore permanently deletes ledger entries whose committed_at
@@ -146,6 +157,24 @@ func (r *ledgerRepository) WindowCount(
 	since time.Time,
 ) (int64, error) {
 	db := r.dbPool.DB(ctx, true).Scopes(scopes.TenancyPartition(ctx))
+	var count int64
+	err := db.Table(models.LedgerEntry{}.TableName()).
+		Where("action = ? AND currency_code = ? AND subject_type = ? AND subject_id = ?",
+			string(action), currency, string(subject.Type), subject.ID).
+		Where("committed_at >= ? AND reversed_at IS NULL", since).
+		Count(&count).Error
+	return count, err
+}
+
+func (r *ledgerRepository) WindowCountTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	action models.Action,
+	currency string,
+	subject SubjectFilter,
+	since time.Time,
+) (int64, error) {
+	db := tx.Scopes(scopes.TenancyPartition(ctx))
 	var count int64
 	err := db.Table(models.LedgerEntry{}.TableName()).
 		Where("action = ? AND currency_code = ? AND subject_type = ? AND subject_id = ?",

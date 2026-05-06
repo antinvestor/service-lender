@@ -159,6 +159,19 @@ func (s *stubLedgerRepo) WindowCount(
 	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
 	return s.countByKey[k], nil
 }
+
+func (s *stubLedgerRepo) WindowCountTx(
+	_ context.Context,
+	_ *gorm.DB,
+	action models.Action,
+	currency string,
+	subject repository.SubjectFilter,
+	_ time.Time,
+) (int64, error) {
+	k := string(action) + "|" + currency + "|" + string(subject.Type) + "|" + subject.ID
+	return s.countByKey[k], nil
+}
+
 func (s *stubLedgerRepo) CreateBatch(ctx context.Context, entries []*models.LedgerEntry) error {
 	return nil
 }
