@@ -226,6 +226,7 @@ func setupConnectServer(
 	adminInterceptors, err := connectInterceptors.DefaultList(
 		ctx, authenticator,
 		adminTenancyInterceptor, adminFunctionAccessInterceptor, limitsAuditInterceptor,
+		connect.UnaryInterceptorFunc(handlers.TenantAssertionInterceptor()),
 	)
 	if err != nil {
 		util.Log(ctx).WithError(err).Fatal("main -- Could not create admin interceptors")
