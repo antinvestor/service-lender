@@ -103,6 +103,16 @@ func (s *stubLimitsClient) Reverse(
 	return connect.NewResponse(s.reverseResp), nil
 }
 
+// SetReleaseError configures the stub to return err on the next Release call.
+func (s *stubLimitsClient) SetReleaseError(err error) {
+	s.releaseErr = err
+}
+
+// ReleaseCallCount returns the number of times Release was called.
+func (s *stubLimitsClient) ReleaseCallCount() int {
+	return s.releaseCalls
+}
+
 // Compile-time interface check.
 var _ limitsv1connect.LimitsServiceClient = (*stubLimitsClient)(nil)
 
@@ -272,6 +282,35 @@ func TestGate_Shadow_RPCError_RunsHandler(t *testing.T) {
 	assert.Equal(t, 1, stub.reserveCalls)
 	assert.Equal(t, 0, stub.commitCalls)
 	assert.Equal(t, 0, stub.releaseCalls)
+}
+
+// TestGate_HandlerError_ReleaseAlsoFails_ReturnsHandlerError exercises the
+// double-failure path: handler errors AND the subsequent Release RPC also errors.
+// Gate must log the Release error (swallow it) and return the original handler error.
+func TestGate_HandlerError_ReleaseAlsoFails_ReturnsHandlerError(t *testing.T) {
+	stub := &stubLimitsClient{
+		reserveResp: &limitsv1.ReserveResponse{
+			Reservation: &limitsv1.ReservationObject{
+				Id:     "res-double-fail",
+				Status: limitsv1.ReservationStatus_RESERVATION_STATUS_ACTIVE,
+			},
+		},
+	}
+	stub.SetReleaseError(errors.New("release rpc failed"))
+
+	handlerErr := errors.New("handler-side failure")
+	err := limits.Gate(context.Background(), stub, &limitsv1.LimitIntent{}, "key-double-fail", limits.ModeEnforce,
+		func(ctx context.Context, _ string) error {
+			return handlerErr
+		})
+
+	require.Error(t, err)
+	require.True(t, errors.Is(err, handlerErr),
+		"outer error must be the original handler error, not the Release error")
+	assert.Equal(t, 1, stub.ReleaseCallCount(),
+		"Release must still have been attempted despite expected failure")
+	assert.Equal(t, 0, stub.commitCalls,
+		"Commit must not be called when handler fails")
 }
 
 func TestGate_HandlerError_ClientCancel_StillReleases(t *testing.T) {
